@@ -60,14 +60,15 @@ AUDIO_EDITOR_EXECUTABLE: str | None = None
 
 # Artwork previews consume the terminal while retaining these rows for status,
 # the approval prompt, and a possible IrfanView-open message.
-ART_PREVIEW_RESERVED_TEXT_ROWS = 7
+ART_PREVIEW_RESERVED_TEXT_ROWS = 14
 ART_PREVIEW_INDENT_COLUMNS = 12
 ART_PREVIEW_RIGHT_MARGIN_COLUMNS = 2
 # Scale artwork previews relative to the live geometry calculated by the shared
 # claire_terminal_geometry helper.  1.00 uses its full fitted size; 0.90 leaves
 # a little breathing room around artwork without changing waveform previews.
-ART_PREVIEW_SCALE = 0.90
-ART_PREVIEW_SCALE = 0.33
+# The viewer is intentionally compact: 0.23 is 30% smaller than the previous
+# 0.33 setting while retaining enough detail for artwork approval.
+ART_PREVIEW_SCALE = 0.23
 
 # Built-in behavior defaults apply when no adjacent configuration file exists.
 # Use --configure-defaults to create/update that file interactively.
@@ -89,6 +90,7 @@ WAVEFORM_PLOT_WIDTH = WAVEFORM_JPEG_WIDTH - WAVEFORM_METRICS_GUTTER_WIDTH
 WAVEFORM_SILENCE_MIN_SECONDS = 0.1
 WAVEFORM_APPROVAL_DATABASE_MAX_BYTES = 50 * 1024 * 1024
 WAVEFORM_APPROVAL_DATABASE_FILENAME = "waveform_reviews.sqlite3"
+AUDIT_CACHE_FILENAME = "audit_music_batch.sqlite3"
 WAVEFORM_CHANNEL_COLORS = (
     "0x55dcff",  # cyan: left/first channel
     "0xb68cff",  # violet: right/second channel
@@ -98,6 +100,40 @@ WAVEFORM_CHANNEL_COLORS = (
     "0x79b9ff",  # blue: additional channels
 )
 LRC2SRT_GENERATED_MARKER = "claire-sawyer-lrc2srt-converter-marker"
+
+
+def audit_cache_path() -> Path:
+    """Return the per-user persistent cache location for successful audits."""
+    base = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
+    if base:
+        return Path(base) / "ClaireCJS" / AUDIT_CACHE_FILENAME
+    return Path.home() / ".clairecjs" / AUDIT_CACHE_FILENAME
+
+
+def cached_silence_intervals(
+    path: Path, threshold: float, ffmpeg_executable: str
+) -> list[dict[str, Any]] | None:
+    """Return a prior successful silence result when the file is unchanged."""
+    try:
+        stat = path.stat()
+        key = (str(path.resolve()), stat.st_size, stat.st_mtime_ns, float(threshold), SILENCE_DETECT_NOISE_DB)
+        db_path = audit_cache_path()
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(db_path) as db:
+            db.execute("CREATE TABLE IF NOT EXISTS silence_cache (path TEXT, size INTEGER, mtime_ns INTEGER, threshold REAL, noise REAL, intervals TEXT, PRIMARY KEY(path,size,mtime_ns,threshold,noise))")
+            row = db.execute("SELECT intervals FROM silence_cache WHERE path=? AND size=? AND mtime_ns=? AND threshold=? AND noise=?", key).fetchone()
+            if row:
+                return json.loads(row[0])
+    except Exception:
+        row = None
+    intervals = detect_silence_intervals(path, threshold, ffmpeg_executable=ffmpeg_executable)
+    try:
+        with sqlite3.connect(audit_cache_path()) as db:
+            db.execute("INSERT OR REPLACE INTO silence_cache(path,size,mtime_ns,threshold,noise,intervals) VALUES(?,?,?,?,?,?)", (*key, json.dumps(intervals)))
+            db.execute("DELETE FROM silence_cache WHERE path NOT IN (SELECT DISTINCT path FROM silence_cache)")
+    except Exception:
+        pass
+    return intervals
 
 # Load the leaf module directly.  The legacy clairecjs_utils package initializer
 # imports optional console dependencies that an otherwise read-only audit should
@@ -466,14 +502,18 @@ ANSI_DOUBLE_HEIGHT_TOP = "\033#3"
 ANSI_DOUBLE_HEIGHT_BOTTOM = "\033#4"
 
 ENUMERATION_PROGRESS_FORMAT = (
-    "{desc}: {n:,.0f} files found"
+    "{desc:<24.24}: {n:>7,.0f} files found"
     " • {elapsed} elapsed • {rate_fmt}"
 )
+ENUMERATION_PROGRESS_FORMAT = "{desc:<24.24}: {n:>7,.0f} files found • {elapsed:>8} elapsed • ETA --:--:-- • {rate_fmt:>12}"
 AUDIT_PROGRESS_FORMAT = (
     "{desc}: {percentage:3.0f}%|{bar}| "
-    "{n:,.0f}/{total:,.0f}"
+    "{n:>7,.0f}/{total:>7,.0f}"
     " • {elapsed}{postfix}"
 )
+AUDIT_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| {n:>7,.0f}/{total:>7,.0f} • {elapsed:>8} • ETA {remaining:>8} • {rate_fmt:>12}{postfix}"
+FILE_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| {n:>7,.0f}/{total:>7,.0f} files • {elapsed:>8} • ETA {remaining:>8} • {rate_fmt:>12}"
+ITEM_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| {n:>7,.0f}/{total:>7,.0f} • {elapsed:>8} • ETA {remaining:>8} • {rate_fmt:>12}"
 def collision_safe_path(
     desired: Path, reserved: set[Path] | None = None
 ) -> Path:
@@ -623,12 +663,13 @@ def run_live_command(
     stream_output: bool,
 ) -> None:
     """Run a command visibly in the current console and enforce its exit code."""
-    print(
-        console_safe_text(
+    if stream_output:
+        print(
+            console_safe_text(
             f"        ▶ {subprocess.list2cmdline(command)}"
-        ),
-        flush=True,
-    )
+            ),
+            flush=True,
+        )
     options: dict[str, Any] = {
         "cwd": str(cwd),
         "check": False,
@@ -1664,7 +1705,9 @@ class BatchAudit:
         current = float(details.get("n") or 0.0)
         initial = float(getattr(self.progress, "initial", 0.0) or 0.0)
         rate = (current - initial) / elapsed if elapsed > 0 else 0.0
-        postfix = f"{rate:.2f}/sec" if rate > 0 else "?/sec"
+        unit = str(getattr(self.progress, "unit", "") or "").strip()
+        postfix = (f"{rate:6.2f} {unit}/s" if rate > 0 else f"{'--':>6} {unit}/s")
+        postfix = f"{postfix:<16}"
         if self._progress_audio_preview:
             postfix += f" • {self._progress_audio_preview}"
         self.progress.set_postfix_str(postfix, refresh=refresh)
@@ -2612,7 +2655,7 @@ class BatchAudit:
             )
             futures = {
                 path: owned_executor.submit(
-                    detect_silence_intervals,
+                    cached_silence_intervals,
                     path,
                     threshold,
                     ffmpeg_executable=ffmpeg,
@@ -2626,7 +2669,7 @@ class BatchAudit:
                 intervals = (
                     future.result()
                     if future is not None
-                    else detect_silence_intervals(
+                    else cached_silence_intervals(
                         path,
                         threshold,
                         ffmpeg_executable=ffmpeg,
@@ -2712,7 +2755,7 @@ class BatchAudit:
                 if silence_executor is None:
                     return
                 silence_futures[path] = silence_executor.submit(
-                    detect_silence_intervals,
+                    cached_silence_intervals,
                     path,
                     self.silence_threshold_seconds,
                     ffmpeg_executable=silence_ffmpeg,
@@ -4627,6 +4670,29 @@ def irfanview_executable() -> Path | None:
     return next((path for path in candidates if path and path.is_file()), None)
 
 
+def launch_default_image_viewer(path: Path) -> Path:
+    """Open an image with the operating system's default image association."""
+    if os.name == "nt":
+        os.startfile(str(path))  # type: ignore[attr-defined]
+        return path
+    opener = shutil.which("xdg-open") or shutil.which("open")
+    if not opener:
+        raise RuntimeError("No default image viewer launcher was found")
+    subprocess.Popen([opener, str(path)])
+    return path
+
+
+def image_resolution(path: Path) -> str:
+    """Return an image's pixel dimensions for preview narration."""
+    if Image is None:
+        return "unknown resolution"
+    try:
+        with Image.open(path) as image:
+            return f"{int(image.width)}x{int(image.height)}"
+    except Exception:
+        return "unknown resolution"
+
+
 def terminal_supports_sixel() -> bool:
     """Honor explicit preview selection or a terminal's Sixel advertisement."""
     preference = os.environ.get(
@@ -5079,8 +5145,8 @@ def chafa_sixel_geometry_options(geometry: ArtworkPreviewGeometry) -> list[str]:
         "--view-size="
         # This is the deliberately *smaller* no-helper fallback.  It is only
         # used by copied installations that genuinely lack the shared helper.
-        f"{geometry.columns * 0.33:.1f}x"
-        f"{geometry.rows * 0.33:.1f}",
+        f"{geometry.columns:.1f}x"
+        f"{geometry.rows:.1f}",
         "--scale=max",
     ], ART_PREVIEW_SCALE)
 
@@ -5379,11 +5445,13 @@ def prepare_artwork_preview(
     if sixel and not stretch_to_width:
         # Keep this in lockstep with echo-image.bat: its geometry helper uses
         # live cell pixels plus --font-ratio, rather than guessing from cells.
+        scaled_geometry = scaled_artwork_geometry(geometry)
         command = [
             str(chafa),
             "--format=sixels",
             "--fit-width",
             "--colors=full",
+            f"--size={scaled_geometry.columns}x{scaled_geometry.rows}",
             *chafa_sixel_geometry_options(geometry),
             "--optimize=9",
             "--work=9",
@@ -5715,7 +5783,7 @@ def read_artwork_review_key(
 
 def artwork_review_choices(use_color: bool) -> str:
     """Spell out every artwork-review key instead of using cryptic letters."""
-    plain = "Y=Yes/Enter | N=No | R=Refresh | V=View original"
+    plain = "Y=Yes | N=No | A=Yes for folder | S=No for folder | O=Open default | Shift+O=IrfanView | R=Refresh | V=View original"
     if not use_color:
         return f"[{plain}]"
     return (
@@ -5752,11 +5820,19 @@ def artwork_review_choice(
         rendered_size = visible_console_size()
         reset_console_pager_after_user_input()
         mode = renderer(path, use_color=use_color)
+        resolution = image_resolution(path)
         cover_narration(
             "👁️",
             f"Preview rendered with {mode}.",
             use_color=use_color,
             color=(105, 95, 145),
+            dim=True,
+        )
+        cover_narration(
+            "🖼️",
+            f"Image resolution: {resolution}.",
+            use_color=use_color,
+            color=(125, 150, 175),
             dim=True,
         )
         prompt_visible = False
@@ -5820,6 +5896,28 @@ def artwork_review_choice(
                         use_color=use_color,
                         color=(255, 90, 100),
                     )
+                continue
+            if key == "o":
+                if interactive_terminal:
+                    erase_wrapped_console_text(steady)
+                else:
+                    print()
+                try:
+                    opened_with = launch_default_image_viewer(path)
+                    cover_narration("🖼️", f"Opened {path.name} in the default image viewer.", use_color=use_color, color=(150, 120, 205), dim=True)
+                except Exception as exc:
+                    cover_narration("❌", f"Could not open the image: {exc}.", use_color=use_color, color=(255, 90, 100))
+                continue
+            if key == "O":
+                if interactive_terminal:
+                    erase_wrapped_console_text(steady)
+                else:
+                    print()
+                try:
+                    opened_with = launch_irfanview(path)
+                    cover_narration("🖼️", f"Opened {path.name} in IrfanView.", use_color=use_color, color=(150, 120, 205), dim=True)
+                except Exception as exc:
+                    cover_narration("❌", f"Could not open IrfanView: {exc}.", use_color=use_color, color=(255, 90, 100))
                 continue
             if key in {"\r", "\n"} or lowered == "y":
                 accepted = True
@@ -6576,6 +6674,38 @@ def replaygain_bake_candidates(audio_files: Iterable[Path]) -> list[Path]:
     ]
 
 
+def status_bar_filename(path: Path, *, columns: int | None = None) -> str:
+    """Return a one-line status filename using two dots, never an ellipsis."""
+    name = path.name
+    width = columns or visible_console_size().columns
+    available = max(20, width - visible_cell_width("Processing file: ") - 2)
+    if visible_cell_width(name) <= available:
+        return name
+    if available <= 2:
+        return "." * available
+    left_count = max(1, (available - 2) * 3 // 5)
+    right_count = max(1, available - 2 - left_count)
+    left = name[:left_count]
+    right = name[-right_count:]
+    while visible_cell_width(left + ".." + right) > available and right:
+        right = right[1:]
+    while visible_cell_width(left + ".." + right) > available and left:
+        left = left[:-1]
+    return left + ".." + right
+
+
+def update_stable_bake_status(progress: Any | None, audio_path: Path) -> None:
+    """Keep the current filename on the line directly above a tqdm bar."""
+    if progress is None or not getattr(sys.stderr, "isatty", lambda: False)():
+        return
+    progress.clear()
+    sys.stderr.write(
+        f"\033[1A\rProcessing file: {status_bar_filename(audio_path)}\033[K\n"
+    )
+    sys.stderr.flush()
+    progress.refresh()
+
+
 def bake_replaygain_for_batch(
     audio_files: Iterable[Path],
     *,
@@ -6610,14 +6740,18 @@ def bake_replaygain_for_batch(
         color=(85, 190, 245),
         dim=True,
     )
+    if getattr(sys.stderr, "isatty", lambda: False)():
+        print("Processing file: preparing..", file=sys.stderr, flush=True)
     bake_progress_context = progress_bar(
         total=len(candidates),
         description="🎚 Baking ReplayGain",
-        unit="file",
+        unit="files",
+        bar_format=FILE_PROGRESS_FORMAT,
         enabled=bool(getattr(sys.stderr, "isatty", lambda: False)()),
     )
     bake_progress = bake_progress_context.__enter__()
     for audio_path in candidates:
+        update_stable_bake_status(bake_progress, audio_path)
         before_path, after_path = replaygain_bake_waveform_cache_paths(audio_path)
         before_path.parent.mkdir(parents=True, exist_ok=True)
         try:
@@ -8198,14 +8332,18 @@ def review_waveforms(
                     color=(85, 190, 245),
                     dim=True,
                 )
+                if getattr(sys.stderr, "isatty", lambda: False)():
+                    print("Processing file: preparing..", file=sys.stderr, flush=True)
                 bake_progress_context = progress_bar(
                     total=len(tagged_bake_candidates),
                     description="🎚️ Baking ReplayGain",
-                    unit="file",
+                    unit="files",
+                    bar_format=FILE_PROGRESS_FORMAT,
                     enabled=bool(getattr(sys.stderr, "isatty", lambda: False)()),
                 )
                 bake_progress = bake_progress_context.__enter__()
                 for candidate in tagged_bake_candidates:
+                    update_stable_bake_status(bake_progress, candidate)
                     try:
                         old_result = futures[candidate].result()
                         rendered_results[candidate] = old_result
@@ -8592,6 +8730,7 @@ def find_cover_and_embed(
         total=1,
         description="🎨 Finding cover art",
         unit="release",
+        bar_format=ITEM_PROGRESS_FORMAT,
         enabled=bool(getattr(sys.stderr, "isatty", lambda: False)()),
     ) as lookup_progress:
         match = resolve_cover_match(
@@ -8658,7 +8797,8 @@ def find_cover_and_embed(
     with progress_bar(
         total=len(plan),
         description="⬇️ Downloading cover artwork",
-        unit="image",
+        unit="images",
+        bar_format=ITEM_PROGRESS_FORMAT,
         enabled=bool(getattr(sys.stderr, "isatty", lambda: False)()),
     ) as download_progress:
         for artwork, filename in plan:
@@ -11114,7 +11254,11 @@ def read_single_key() -> str:
 
         key = msvcrt.getwch()
         if key in {"\x00", "\xe0"}:
-            msvcrt.getwch()
+            scan_code = msvcrt.getwch()
+            # Delete is deliberately available as a hidden equivalent of D
+            # for the artwork-delete prompt. Other extended keys remain inert.
+            if scan_code == "S":
+                return "\x7f"
             return ""
         return key
 
@@ -11457,6 +11601,8 @@ ACTION_SCOPE_KEYS = {
     "f": "folder",
     "j": "folder",
     "s": "stop_folder",
+    "d": "delete_art",
+    "\x7f": "delete_art",
 }
 
 
@@ -11467,6 +11613,7 @@ def action_scope_options(
     allow_folder: bool = True,
     allow_always: bool = True,
     allow_stop_folder: bool = False,
+    allow_delete_art: bool = False,
 ) -> str:
     """Render all single-key choices for a repeatable batch action."""
     yes_key = "Y" if default_yes else "y"
@@ -11475,7 +11622,9 @@ def action_scope_options(
     if allow_always:
         choices.append("A=Always")
     if allow_stop_folder:
-        choices.append("S=Stop Asking For This Folder")
+        choices.append("S=Not for This Folder")
+    if allow_delete_art:
+        choices.append("D=Delete Cover Art")
     choices.append("V=Never")
     if allow_folder:
         choices.append("F=Do All in Folder")
@@ -11496,7 +11645,12 @@ def action_scope_options(
     if allow_stop_folder:
         chunks.extend([
             rgb_text(" / ", 255, 165, 45, True),
-            rgb_text("S=Stop Asking For This Folder", 255, 205, 95, True),
+            rgb_text("S=Not for This Folder", 255, 205, 95, True),
+        ])
+    if allow_delete_art:
+        chunks.extend([
+            rgb_text(" / ", 255, 165, 45, True),
+            rgb_text("D=Delete Cover Art", 255, 105, 105, True),
         ])
     chunks.extend([
         rgb_text(" / ", 255, 165, 45, True),
@@ -11522,6 +11676,7 @@ def action_scope_prompt(
     allow_folder: bool = True,
     allow_always: bool = True,
     allow_stop_folder: bool = False,
+    allow_delete_art: bool = False,
 ) -> str:
     """Build the urgent repeatable-action prompt."""
     return prompt_with_option_legend(
@@ -11532,6 +11687,7 @@ def action_scope_prompt(
             allow_folder=allow_folder,
             allow_always=allow_always,
             allow_stop_folder=allow_stop_folder,
+            allow_delete_art=allow_delete_art,
         ),
         indent=indent,
     )
@@ -11545,7 +11701,8 @@ def action_scope_answer(choice: str, use_color: bool) -> str:
         "always": ("Always!", (255, 225, 80)),
         "never": ("Never!", (255, 125, 80)),
         "folder": ("All in This Folder!", (145, 215, 255)),
-        "stop_folder": ("Stopped Asking for This Folder!", (255, 205, 95)),
+        "stop_folder": ("Not for This Folder!", (255, 205, 95)),
+        "delete_art": ("Cover Art Recycled!", (255, 105, 105)),
     }
     label, color = labels[choice]
     if not use_color:
@@ -11579,6 +11736,7 @@ def prompt_for_action_scope(
     allow_folder: bool = True,
     allow_always: bool = True,
     allow_stop_folder: bool = False,
+    allow_delete_art: bool = False,
 ) -> str:
     """Read Y/N/Always/Never/Folder with one key and no required Enter."""
     reader = key_reader or read_single_key
@@ -11590,6 +11748,7 @@ def prompt_for_action_scope(
         allow_folder=allow_folder,
         allow_always=allow_always,
         allow_stop_folder=allow_stop_folder,
+        allow_delete_art=allow_delete_art,
     )
     interactive_terminal = bool(
         getattr(sys.stdout, "isatty", lambda: False)()
@@ -11617,6 +11776,7 @@ def prompt_for_action_scope(
                 or (choice == "folder" and not allow_folder)
                 or (choice == "always" and not allow_always)
                 or (choice == "stop_folder" and not allow_stop_folder)
+                or (choice == "delete_art" and not allow_delete_art)
             ):
                 invalid_key_beep()
                 continue
@@ -12376,6 +12536,10 @@ def interactive_apply(
                 finding["category"] not in ROOT_WIDE_ACTION_CATEGORIES
             )
             replaygain_scope = finding["category"] == "missing_replaygain"
+            local_cover_prompt = (
+                finding["category"] == "missing_embedded_art"
+                and front_art_candidate(target) is not None
+            )
             choice = remembered_category_choices.get(
                 str(finding["category"])
             )
@@ -12402,7 +12566,8 @@ def interactive_apply(
                     indent="            ",
                     allow_folder=allow_folder_scope,
                     allow_always=not replaygain_scope,
-                    allow_stop_folder=replaygain_scope,
+                    allow_stop_folder=(replaygain_scope or local_cover_prompt),
+                    allow_delete_art=local_cover_prompt,
                 )
                 if choice in {"always", "never"}:
                     remembered_category_choices[
@@ -12430,15 +12595,22 @@ def interactive_apply(
                     )
                 )
             should_apply = choice in {"yes", "always", "folder"}
-            if should_apply:
+            should_delete_art = choice == "delete_art"
+            if should_apply or should_delete_art:
                 try:
-                    actions = apply_finding(
-                        root,
-                        finding,
-                        use_color=use_color,
-                        key_reader=key_reader,
-                        input_reader=input_reader,
-                    )
+                    if should_delete_art:
+                        artwork = front_art_candidate(target)
+                        if artwork is None:
+                            raise RuntimeError("The displayed local cover art no longer exists")
+                        actions = [f"recycled_art:{recycle_path(artwork)}"]
+                    else:
+                        actions = apply_finding(
+                            root,
+                            finding,
+                            use_color=use_color,
+                            key_reader=key_reader,
+                            input_reader=input_reader,
+                        )
                     extracted_art_approved = True
                     if finding["category"] in {
                         "embedded_art_without_sidecar",
@@ -12492,15 +12664,46 @@ def interactive_apply(
                                         new_stem + pending_path.name[len(old_stem):]
                                     )
                                 )
-                    if reaudit_action and extracted_art_approved:
-                        reaudited_categories = audit_categories_by_path(root)
-                        current = reaudited_categories.get(
-                            finding["path"], set()
-                        )
-                        if finding["category"] in current:
-                            raise RuntimeError(
-                                "Approved action did not pass the post-write re-audit"
+                    if reaudit_action and extracted_art_approved and not should_delete_art:
+                        if finding["category"] == "missing_embedded_art":
+                            # Do not rescan the whole batch after every cover
+                            # embed. The write is local and its success can be
+                            # verified precisely by rereading this one file.
+                            if not any(
+                                picture_type == 3
+                                for _data, _mime, picture_type, _description
+                                in embedded_pictures(target)
+                            ):
+                                raise RuntimeError(
+                                    "Embedded front-cover verification failed"
+                                )
+                        elif finding["category"] in {
+                            "embedded_lyrics_outdated",
+                            "plain_lyrics_not_embedded",
+                            "karaoke_not_embedded",
+                        }:
+                            # Lyric embedding is also a local write. Re-read
+                            # only this file and its sidecars; a full folder
+                            # scan here made F/Always painfully repetitive.
+                            pending_lyric_actions = embed_lyrics(
+                                target,
+                                write=False,
+                                force_refresh=False,
                             )
+                            if pending_lyric_actions:
+                                raise RuntimeError(
+                                    "Embedded lyric verification failed; still needs: "
+                                    + ", ".join(pending_lyric_actions)
+                                )
+                        else:
+                            reaudited_categories = audit_categories_by_path(root)
+                            current = reaudited_categories.get(
+                                finding["path"], set()
+                            )
+                            if finding["category"] in current:
+                                raise RuntimeError(
+                                    "Approved action did not pass the post-write re-audit"
+                                )
                         actions.append("re-audit:passed")
                     applied.append(finding["code"])
                     for line in action_result_lines(actions, use_color):
@@ -12514,8 +12717,8 @@ def interactive_apply(
         decisions.append(
             {
                 "code": finding["code"],
-                "applied": should_apply and error is None,
-                "skipped": not should_apply,
+                "applied": (should_apply or should_delete_art) and error is None,
+                "skipped": not (should_apply or should_delete_art),
                 "error": error,
                 "actions": actions,
                 "default": default_yes,
@@ -14741,7 +14944,8 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertIn("{rate_fmt}", ENUMERATION_PROGRESS_FORMAT)
             self.assertIn("{n:,.0f}/{total:,.0f}", AUDIT_PROGRESS_FORMAT)
             self.assertNotIn("checks", AUDIT_PROGRESS_FORMAT)
-            self.assertNotIn("rate_fmt", AUDIT_PROGRESS_FORMAT)
+            self.assertIn("rate_fmt", AUDIT_PROGRESS_FORMAT)
+            self.assertIn("remaining", AUDIT_PROGRESS_FORMAT)
             compact = compact_progress_filename(
                 Path("09_Bad Cop - The Very Long Song Title.mp3")
             )
