@@ -65,6 +65,7 @@ import traceback
 import unittest
 import unicodedata
 import wave
+import webbrowser
 import zlib
 from unittest import mock
 
@@ -296,9 +297,9 @@ except ImportError:  # pragma: no cover
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID                 = "2026-08-14-sandbox-sync-and-history-regex-v199"
+PLAYER_BUILD_ID                 = "2026-08-14-cached-edge-aware-cover-sharpening-v222"
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION                 = "V199"
+PROGRAM_VERSION                 = "V222"
 WRITE_NOWPLAYING_THIS_OFTEN     = 5.0
 PREVENT_WINAMP_PAUSE_WHEN_WE_ARE_PAUSED = 0
 LYRIC_FADE_SECONDS              = 6.0
@@ -337,8 +338,9 @@ WEB_SERVER_HOST                 = "127.0.0.1"  # Loopback-only unless explicitly
 WEB_SERVER_PORT                 = 666    # Historical/requested PAFPlayer local control port.
 WEB_STATUS_POLL_MILLISECONDS    = 350    # Browser metadata/control refresh cadence. Spectrum has its own reduced 20-fps payload.
 WEB_SPECTRUM_POLL_MILLISECONDS  = 50     # Dedicated /api/spectrum cadence: 20 fps, small payload, independent of full status JSON.
+WEB_SPECTRUM_BINS               = 48     # Browser analyzer stays intentionally coarser than the console renderer so it cannot compete for console throughput.
 THEORY_MAX                      = 49    # Highest accepted --theory diagnostic mode.
-TERMINAL_BOTTOM_RESERVE_TRIM_ROWS = 2  # Do not reserve the two trailing terminal rows that are not painted by the live UI.
+TERMINAL_BOTTOM_RESERVE_TRIM_ROWS = 0  # Use the two formerly-unused trailing rows for additional visualizer height.
 PROGRESS_EMPTY_BACKGROUND_BRIGHTNESS_BOOST = 1.08
 PLAYING_PATH_RGB                = (105, 235, 145)
 NOW_PLAYING_SONG_INFO           = Path(r"C:\mp3\lists\winamp_now_playing.txt")
@@ -363,7 +365,8 @@ MUSICBRAINZ_USER_AGENT         = f"PAFPlayer/{PROGRAM_VERSION} (https://github.c
 PAFPLAYER_ERROR_LOG             = Path(r"C:\logs\PAFPlayer\errors.log")
 PAFPLAYER_TRACE_LOG             = Path(r"C:\logs\PAFPlayer\trace.log")
 PAFPLAYER_LOG_MAX_BYTES         = 100 * 1024 * 1024  # Rotate each diagnostic log to one .bak generation before the next write would exceed 100 MiB.
-DEFAULT_KARAOKE_VISUALIZER_EXPANSION = True
+DEFAULT_KARAOKE_VISUALIZER_EXPANSION = False
+KARAOKE_DISPLAY_OFFSET_SECONDS = 0.0  # Live VJ/display offset; does not alter audio or lyric files.
 LYRIC_MAX_UNTIMED_SECONDS       = 15.0
 SIXEL_VISUALIZER_ROWS           = 8
 STOP                            = "stop"
@@ -453,6 +456,7 @@ ALL_AUDIO_TAGS_OVERLAY          = "all-audio-tags-overlay"
 ALL_AUDIO_TAGS_FIRST_PAGE       = "all-audio-tags-first-page"
 ALL_AUDIO_TAGS_LAST_PAGE        = "all-audio-tags-last-page"
 HUD_DETAILS_TOGGLE              = "hud-details-toggle"
+ALTERNATE_HUD_TOGGLE            = "alternate-hud-toggle"
 HUD_SMART_ALIGNMENT_TOGGLE        = "hud-smart-alignment-toggle"
 INLINE_LAST_PLAY_ALIGNMENT_TOGGLE = HUD_SMART_ALIGNMENT_TOGGLE  # Backward-compatible internal alias retained for V168 callers/tests.
 OPEN_NEW_PLAYLIST               = "open-new-playlist"
@@ -514,7 +518,7 @@ SPECTRUM_BACKGROUND_CHUNK_SECONDS = 3.0 # Short rolling chunks keep FFmpeg inter
 SPECTRUM_ANALYSIS_AHEAD_SECONDS   = 2.5 # Stay only a little ahead of live playback instead of racing through the file.
 SPECTRUM_BACKGROUND_START_DELAY_SECONDS = 0.35 # Enough time for FFplay to own audio first, but short enough that the visualizer wakes quickly.
 DEFAULT_VISUALIZER_FADE_SECONDS = 0.08
-DEFAULT_PERSISTENCE_MODE        = 8  # Phosphor Glow is closest to the pre-V25 smooth persistence behavior.
+DEFAULT_PERSISTENCE_MODE        = 12  # Waterfall Smear.
 DEFAULT_VISUALIZER_GRANULARITY  = 3  # 1=one bin/cell, 2=two Unicode half-cell bins/cell, 3=two-bin custom DRCS twin-bar glyphs (default).
 DEFAULT_FREQUENCY_WARP_ENABLED   = 0  # Ctrl+Alt+F9 experimental frequency-axis curve: left 55% unchanged, upper ~30% compressed into the final ~15%.
 VISUALIZER_DISABLE_AUTOWRAP_DURING_PAINT = 1  # Full-width block rows can leave VT terminals in a wrap-pending state; disable DECAWM while painting and force every row back to absolute column 1.
@@ -676,6 +680,20 @@ VISUALIZER_TREATMENT_NAMES = (
     "Punch", "Balanced", "Soft", "Tight", "Smooth", "Pulse", "Skyline", "Peaks",
     "Compressed", "Expanded", "Transient", "Valleys", "Wide", "Hot", "Quiet",
 )
+ALBUM_ART_VISUALIZER_STYLE_NAMES = (
+    "cover-on-black",
+    "cover-on-both",
+    "cover-on-bars",
+)
+# Experimental DRCS palette source.  The cover is quantized to the actual
+# visualizer grid once per artwork/geometry, so live frames only blend RGBs.
+ART_COLOR_VISUALIZER_REPRESENTATIONS = ("none", "bars", "blackness", "both")
+ART_COLOR_VISUALIZER_REPRESENTATION = "none"
+ART_COLOR_VISUALIZER_BAR_STRENGTH = 0.70
+ART_COLOR_VISUALIZER_BLACK_STRENGTH = 0.25
+ART_COLOR_VISUALIZER_KARAOKE_SIDES = False
+ART_COLOR_VISUALIZER_KARAOKE = False
+ART_COLOR_VISUALIZER_DEMO_SAVED: tuple[str, float, float] | None = None
 VISUALIZER_MODE_NAMES = tuple(
     f"{type_name} + {treatment_name}"
     for treatment_name in VISUALIZER_TREATMENT_NAMES
@@ -1934,7 +1952,7 @@ def save_registry_favorites(name: str, values: list[int]) -> None:
 
 
 PLAYER_SETTING_DEFAULTS: dict[str, int] = {
-    "VisualizerMode": 1,
+    "VisualizerMode": 3,  # Eighth Blocks + Punch.
     "PersistenceMode": DEFAULT_PERSISTENCE_MODE,
     "VisualizerGranularity": DEFAULT_VISUALIZER_GRANULARITY,
     "ProcessingStyle": PROCESSING_STYLE_NAMES.index("Signal Aurora") + 1,
@@ -1942,7 +1960,7 @@ PLAYER_SETTING_DEFAULTS: dict[str, int] = {
     "ColorReverse": 0,
     "FrequencyWarp": int(bool(DEFAULT_FREQUENCY_WARP_ENABLED)),
     "KaraokeStyle": 1,
-    "KaraokeTreatment": 2,
+    "KaraokeTreatment": 2,  # Line Rainbow.
     "KaraokeEmojimax": 1,
     "ProgressStyle": 1,
     "OutputChannels": 2,
@@ -1956,6 +1974,14 @@ PLAYER_SETTING_DEFAULTS: dict[str, int] = {
     "SixelEnabled": int(bool(ENABLE_SIXEL_VISUALIZER)),
     "HudDetails": 0,
     "PlaybackPaused": 0,  # V174: restore the actual play/pause state from the previous clean exit.
+    "KaraokeVisualizerExpansion": 0,
+    "VisualizerRows": DRCS_VISUALIZER_ROWS,
+    "TruncateTopVisualizerLines": 2,
+    "ArtColorRepresentation": 0,
+    "ArtColorBarStrength": 70,
+    "ArtColorBlackStrength": 25,
+    "ArtColorKaraokeSides": 0,
+    "ArtColorKaraoke": 0,
 }
 
 
@@ -1990,6 +2016,9 @@ def load_player_settings() -> dict[str, int]:
     settings["SpeedIndex"] = min(len(PLAYBACK_SPEEDS) - 1, max(0, settings["SpeedIndex"]))
     settings["HudDetails"] = int(bool(settings.get("HudDetails", 0)))
     settings["PlaybackPaused"] = int(bool(settings.get("PlaybackPaused", 0)))
+    settings["KaraokeVisualizerExpansion"] = int(bool(settings.get("KaraokeVisualizerExpansion", 0)))
+    settings["VisualizerRows"] = min(48, max(4, settings.get("VisualizerRows", DRCS_VISUALIZER_ROWS)))
+    settings["TruncateTopVisualizerLines"] = min(8, max(0, settings.get("TruncateTopVisualizerLines", 2)))
     return settings
 
 
@@ -4074,6 +4103,43 @@ def query_playlist_history_regex(pattern: str) -> int:
     return 0
 
 
+def display_last_played_regex(pattern: str) -> int:
+    """Page every history identity matching a regex in rainbow audit-table style."""
+    try:
+        matcher = re.compile(str(pattern), re.IGNORECASE)
+    except re.error as exc:
+        print(f"ERROR: invalid history regex: {exc}", file=sys.stderr)
+        return 2
+    try:
+        with playlist_history_connection() as database:
+            rows = database.execute(
+                "SELECT filename, tag, played_at FROM played_tracks_recent"
+            ).fetchall()
+    except (OSError, sqlite3.Error) as exc:
+        print(f"ERROR: could not query playlist history database: {exc}", file=sys.stderr)
+        return 1
+    ordered: list[tuple[float, Path]] = []
+    for filename, tag, played_at in rows:
+        filename_text = str(filename or "")
+        tag_text = str(tag or "").replace("\x1f", " ")
+        if matcher.search(filename_text) or matcher.search(tag_text):
+            try:
+                timestamp = float(played_at)
+            except (TypeError, ValueError):
+                continue
+            label = f"{filename_text} [{tag_text}]" if tag_text.strip() else filename_text
+            ordered.append((timestamp, Path(label)))
+    ordered.sort(key=lambda item: (-item[0], natural_path_key(item[1])))
+    columns = shutil.get_terminal_size((120, 30)).columns
+    header, body, summary = build_playlist_analysis_table(
+        ordered,
+        terminal_columns=columns,
+    )
+    summary = f"{summary}  Regex: /{pattern}/"
+    page_playlist_analysis_table(header, body, summary)
+    return 0
+
+
 def playlist_history_runtime_key(track: Path) -> str:
     """Return the in-process path key used for background history results."""
     return lexical_path_key(track)
@@ -6138,6 +6204,7 @@ def lyric_at(
     fade_seconds: float = LYRIC_FADE_SECONDS,
 ) -> tuple[int, str, float] | None:
     """Return the lyric and its fade opacity at a playback position."""
+    position = max(0.0, float(position) + KARAOKE_DISPLAY_OFFSET_SECONDS)
     if not entries:
         return None
     fade_seconds = max(0.0, fade_seconds)
@@ -6187,7 +6254,7 @@ def lyric_emphasis_progress_at(
     """Return 0..1 progress through the current cue for MiniLyrics-style emphasis."""
     if not entries:
         return 0.0
-    position = max(0.0, float(position))
+    position = max(0.0, float(position) + KARAOKE_DISPLAY_OFFSET_SECONDS)
     timed = any(start > 0 or end is not None for start, end, _text in entries)
     if not timed:
         return max(0.0, min(1.0, (position % 4.0) / 4.0))
@@ -6220,12 +6287,13 @@ def lyric_title_text_at(
     less than ``short_gap_seconds`` away, keep the just-sung line in the title
     through that brief gap instead of flashing back to track metadata.
     """
+    position = max(0.0, float(position) + KARAOKE_DISPLAY_OFFSET_SECONDS)
     if not entries:
         return None
     short_gap_seconds = max(0.0, short_gap_seconds)
     timed = any(start > 0 or end is not None for start, end, _text in entries)
     if not timed:
-        active = lyric_at(entries, position)
+        active = lyric_at(entries, position - KARAOKE_DISPLAY_OFFSET_SECONDS)
         return active[1].strip() if active is not None and active[1].strip() else None
 
     # Most recent nonblank lyric whose cue has begun.
@@ -10470,6 +10538,16 @@ def read_windows_key_action() -> str | None:
     if not _windows_key_down(0xBF):
         _ASYNC_KEY_LATCH.discard(hud_details_latch)
 
+    alternate_hud_latch = 0x948
+    alternate_hud_down = bool(ctrl_down and alt_down and _windows_key_down(0x48))
+    if focused_buffered_input and alternate_hud_down and alternate_hud_latch not in _ASYNC_KEY_LATCH:
+        _ASYNC_KEY_LATCH.add(alternate_hud_latch)
+        _ASYNC_CHAR_SUPPRESS_ONCE["h"] = time.monotonic() + 1.0
+        _ASYNC_CHAR_SUPPRESS_ONCE["H"] = time.monotonic() + 1.0
+        return ALTERNATE_HUD_TOGGLE
+    if not _windows_key_down(0x48):
+        _ASYNC_KEY_LATCH.discard(alternate_hud_latch)
+
     # Focus-gated external-art toggle.  Alt+A and Ctrl+Alt+Numpad8 retain their
     # bindings, but pressing them in another application can no longer toggle PAF.
     alt_a_latch = 0x941
@@ -12069,6 +12147,20 @@ def _visualizer_ansi_rgb_cached(red: int, green: int, blue: int) -> str:
     return f"\033[38;2;{red};{green};{blue}m"
 
 
+@lru_cache(maxsize=16384)
+def _visualizer_ansi_fg_bg_cached(
+    red: int, green: int, blue: int,
+    background_red: int, background_green: int, background_blue: int,
+) -> str:
+    """Emit foreground + optional background in one SGR for tall Twin DRCS frames."""
+    if background_red < 0:
+        return f"\033[38;2;{red};{green};{blue};49m"
+    return (
+        f"\033[38;2;{red};{green};{blue};"
+        f"48;2;{background_red};{background_green};{background_blue}m"
+    )
+
+
 # These signal processors do not depend on the terminal *row*.  Their phase/color
 # can therefore be calculated once per logical frequency bin per frame rather than
 # once for every bin × every visualizer row.  Signal Aurora (62), in particular,
@@ -12299,6 +12391,9 @@ def render_drcs_visualizer(
     omit_erase_eol: bool = False,
     top_blank_by_logical_column: list[int] | None = None,
     rgb_rows_out: list[list[tuple[int, int, int] | None]] | None = None,
+    artwork_color_grid: tuple[tuple[tuple[int, int, int], ...], ...] | None = None,
+    artwork_bar_strength: float = 0.0,
+    artwork_background_strength: float = 0.0,
 ) -> str:
     """Render a spectrum with optional 2× horizontal sub-cell granularity.
 
@@ -12398,20 +12493,39 @@ def render_drcs_visualizer(
         # separates terminal byte/SGR volume from frame cadence.
         if force_monochrome:
             return (180, 225, 255), level
-        if row_independent_colors is not None:
-            return row_independent_colors[logical_column], level
-
         energy_step = round(max(0.0, min(1.0, energies[logical_column])) * 15)
-        if spatial_rgb_grid:
-            base_color = spatial_rgb_grid[row][logical_column]
+        if row_independent_colors is not None:
+            rendered = row_independent_colors[logical_column]
         else:
-            phase = visualizer_processing_phase(
-                processing_style, row, logical_column, logical_width, source_rows, signal_context
+            if spatial_rgb_grid:
+                base_color = spatial_rgb_grid[row][logical_column]
+            else:
+                phase = visualizer_processing_phase(
+                    processing_style, row, logical_column, logical_width, source_rows, signal_context
+                )
+                base_color = visualizer_palette_color(color_style, phase, color_reverse)
+            rendered = _visualizer_scale_rgb_cached(
+                *base_color, energy_step, fade_style, treatment_is_energy_rainbow
             )
-            base_color = visualizer_palette_color(color_style, phase, color_reverse)
-        return _visualizer_scale_rgb_cached(
-            *base_color, energy_step, fade_style, treatment_is_energy_rainbow
-        ), level
+        if artwork_color_grid and level:
+            art_row = artwork_color_grid[min(len(artwork_color_grid) - 1, max(0, row))]
+            art = art_row[min(len(art_row) - 1, max(0, logical_column))]
+            strength = max(0.0, min(1.0, float(artwork_bar_strength)))
+            rendered = tuple(round(channel * (1.0 - strength) + art[index] * strength) for index, channel in enumerate(rendered))
+        if source_rows >= 24:
+            rendered = tuple(min(255, round(channel / 32) * 32) for channel in rendered)
+        return rendered, level
+
+    def artwork_background(logical_column: int, row: int) -> tuple[int, int, int] | None:
+        if not artwork_color_grid or artwork_background_strength <= 0:
+            return None
+        art_row = artwork_color_grid[min(len(artwork_color_grid) - 1, max(0, row))]
+        art = art_row[min(len(art_row) - 1, max(0, logical_column))]
+        strength = max(0.0, min(1.0, float(artwork_background_strength)))
+        rendered = tuple(round(channel * strength) for channel in art)
+        if source_rows >= 24:
+            rendered = tuple(min(255, round(channel / 16) * 16) for channel in rendered)
+        return rendered
 
     row_suffix = "\033[0m" + ("" if omit_erase_eol else "\033[K")
     line_rendition_reset = "" if omit_big_off else BIG_OFF
@@ -12422,6 +12536,7 @@ def render_drcs_visualizer(
         row_rgb: list[tuple[int, int, int] | None] = []
         if granularity == 3:
             last_color: tuple[int, int, int] | None = None
+            last_background: tuple[int, int, int] | None = None
             for terminal_column in range(terminal_width):
                 left_index = terminal_column * 2
                 right_index = left_index + 1
@@ -12430,10 +12545,18 @@ def render_drcs_visualizer(
                 color = _visualizer_twin_blend_cached(
                     *left_color, *right_color, left_level, right_level
                 )
+                left_background = artwork_background(left_index, row)
+                right_background = artwork_background(right_index, row)
+                background = (
+                    tuple(round((left_background[i] + right_background[i]) / 2) for i in range(3))
+                    if left_background and right_background else left_background or right_background
+                )
                 row_rgb.append(color if (left_level or right_level) else None)
-                if color != last_color:
-                    glyphs.append(_visualizer_ansi_rgb_cached(*color))
+                if color != last_color or background != last_background:
+                    bg = background if background is not None else (-1, -1, -1)
+                    glyphs.append(_visualizer_ansi_fg_bg_cached(*color, *bg))
                     last_color = color
+                    last_background = background
                 glyphs.append(twin_drcs_char(left_level, right_level))
             lines.append("\033( @" + "".join(glyphs) + "\033(B" + row_suffix)
             rgb_rows.append(row_rgb)
@@ -14991,17 +15114,19 @@ def paf_web_control_schema() -> dict[str, object]:
     return {
         "selects": [
             {
-                "key": "visualizer_mode",
-                "label": "Visualizer mode",
+                "key": "visualizer_type",
+                "label": "Visualizer pattern",
                 "options": [
                     {"value": index, "label": f"{index} — {name}"}
-                    for index, name in enumerate(VISUALIZER_MODE_NAMES, 1)
+                    for index, name in enumerate(VISUALIZER_TYPE_NAMES, 1)
                 ],
             },
+            {"key": "visualizer_treatment", "label": "Visualizer treatment", "options": options(VISUALIZER_TREATMENT_NAMES)},
             {"key": "color_style", "label": "Palette", "options": options(PALETTE_NAMES)},
             {"key": "processing_style", "label": "Processing", "options": options(PROCESSING_STYLE_NAMES)},
             {"key": "persistence_mode", "label": "Persistence", "options": options(PERSISTENCE_MODE_NAMES)},
             {"key": "visualizer_granularity", "label": "Granularity", "options": options(VISUALIZER_GRANULARITY_NAMES)},
+            {"key": "truncate_visualizer_rows", "label": "Rows truncated from top", "options": [{"value": value, "label": str(value)} for value in range(0, 9)]},
             {"key": "karaoke_style", "label": "Karaoke style", "options": options(KARAOKE_STYLE_NAMES)},
             {"key": "karaoke_treatment", "label": "Karaoke treatment", "options": options(KARAOKE_TREATMENT_NAMES)},
             {"key": "progress_style", "label": "Progress bar style", "options": options(PROGRESS_STYLE_NAMES)},
@@ -15037,18 +15162,25 @@ def paf_web_control_schema() -> dict[str, object]:
         "sliders": [
             {"key": "volume", "label": "Volume", "min": 0, "max": 400, "step": 5, "suffix": "%"},
             {"key": "balance", "label": "Balance", "min": -100, "max": 100, "step": 10, "suffix": ""},
+            {"key": "visualizer_rows", "label": "Visualizer rows", "min": 4, "max": 48, "step": 1, "suffix": " rows"},
+            {"key": "art_color_bar_strength", "label": "Cover art saturation in bars", "min": 0, "max": 100, "step": 5, "suffix": "%", "experimental": True},
+            {"key": "art_color_black_strength", "label": "Cover art saturation in blackness", "min": 0, "max": 100, "step": 5, "suffix": "%"},
         ],
         "toggles": [
+            {"key": "art_color_blackness", "label": "Album art onto blackness", "web_key": "art_color_blackness", "experimental": True},
+            {"key": "art_color_bars", "label": "Album art onto bars", "web_key": "art_color_bars", "experimental": True},
+            {"key": "art_color_karaoke_sides", "label": "Album art onto karaoke sides", "web_key": "art_color_karaoke_sides", "experimental": True},
+            {"key": "art_color_karaoke", "label": "Album art onto karaoke", "web_key": "art_color_karaoke", "experimental": True},
             {"key": "shuffle", "label": "Shuffle", "action": RANDOM_TOGGLE},
             {"key": "loop", "label": "Loop", "action": LOOP_TOGGLE},
             {"key": "autoplay", "label": "Autoplay", "action": AUTOPLAY_TOGGLE},
             {"key": "color_reverse", "label": "Reverse palette", "action": COLOR_REVERSE_TOGGLE},
             {"key": "karaoke_emojimax", "label": "Emojimaxx", "action": KARAOKE_EMOJI_TOGGLE},
-            {"key": "drcs_enabled", "label": "DRCS visualizer", "action": DRCS_VISUALIZER_TOGGLE},
-            {"key": "sixel_enabled", "label": "SIXEL visualizer", "action": SIXEL_VISUALIZER_TOGGLE},
-            {"key": "album_art_visualizer_enabled", "label": "Album art in visualizer", "action": ALBUM_ART_VISUALIZER_TOGGLE},
+            {"key": "drcs_enabled", "label": "Enable console visualizer", "action": DRCS_VISUALIZER_TOGGLE},
+            {"key": "sixel_enabled", "label": "SIXEL visualizer", "action": SIXEL_VISUALIZER_TOGGLE, "experimental": True},
+            {"key": "album_art_visualizer_enabled", "label": "Album art in visualizer", "action": ALBUM_ART_VISUALIZER_TOGGLE, "experimental": True},
             {"key": "external_album_art_enabled", "label": "External album-art window", "action": EXTERNAL_ALBUM_ART_TOGGLE},
-            {"key": "karaoke_visualizer_expansion_enabled", "label": "Visualizer expands through karaoke", "action": KARAOKE_VISUALIZER_EXPAND_TOGGLE},
+            {"key": "karaoke_visualizer_expansion_enabled", "label": "Visualizer expands through karaoke", "action": KARAOKE_VISUALIZER_EXPAND_TOGGLE, "experimental": True},
             {
                 "key": "frequency_warp_enabled",
                 "label": "Frequency warp",
@@ -15075,7 +15207,7 @@ def paf_web_allowed_actions() -> frozenset[str]:
     actions.update({WEB_PLAY, WEB_PAUSE})
     actions.update(
         str(item["action"])
-        for item in paf_web_control_schema()["toggles"]
+        for item in paf_web_control_schema()["toggles"] if "action" in item
     )
     actions.update(
         f"visualizer-mode-digit:{index}"
@@ -15109,10 +15241,22 @@ def paf_web_action_is_allowed(action: str) -> bool:
 
     ranges = {
         "visualizer_mode": (1, len(VISUALIZER_MODE_NAMES)),
+        "visualizer_type": (1, len(VISUALIZER_TYPE_NAMES)),
+        "visualizer_treatment": (1, len(VISUALIZER_TREATMENT_NAMES)),
+        "art_color_representation": (0, len(ART_COLOR_VISUALIZER_REPRESENTATIONS) - 1),
+        "art_color_blackness": (0, 1),
+        "art_color_bars": (0, 1),
+        "art_color_karaoke_sides": (0, 1),
+        "art_color_karaoke": (0, 1),
+        "art_color_demo": (0, 2),
+        "art_color_bar_strength": (0, 100),
+        "art_color_black_strength": (0, 100),
         "color_style": (1, len(PALETTE_NAMES)),
         "processing_style": (1, len(PROCESSING_STYLE_NAMES)),
         "persistence_mode": (1, len(PERSISTENCE_MODE_NAMES)),
         "visualizer_granularity": (1, len(VISUALIZER_GRANULARITY_NAMES)),
+        "visualizer_rows": (4, 48),
+        "truncate_visualizer_rows": (0, 8),
         "karaoke_style": (1, len(KARAOKE_STYLE_NAMES)),
         "karaoke_treatment": (1, len(KARAOKE_TREATMENT_NAMES)),
         "progress_style": (1, len(PROGRESS_STYLE_NAMES)),
@@ -15120,6 +15264,7 @@ def paf_web_action_is_allowed(action: str) -> bool:
         "speed_index": (0, len(PLAYBACK_SPEEDS) - 1),
         "output_channels": (2, 7),
         "karaoke_visualizer_height_mode": (0, 3),
+        "karaoke_offset_delta": (-20, 20),
         "volume": (0, 400),
         "balance": (-100, 100),
     }
@@ -15174,10 +15319,13 @@ def _paf_web_html() -> str:
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;display:grid;grid-template-columns:minmax(260px,32vw) 1fr;gap:22px;padding:22px;overflow:hidden}
+body{margin:0;display:grid;grid-template-columns:minmax(260px,32vw) 1fr;grid-template-rows:auto auto minmax(220px,1fr);gap:12px 22px;padding:22px;overflow:hidden}
+body>div:first-of-type{grid-column:1;grid-row:1}main{display:contents}
+#playerFixed{grid-column:2;grid-row:1}#lyricDock{grid-column:1/-1;grid-row:2;width:100%}
+#choicesFrame{grid-column:1/-1;grid-row:3;width:100%}
 #art{width:100%;aspect-ratio:1;object-fit:contain;background:#000;border:1px solid #394353;border-radius:7px;cursor:pointer}
 a{color:#67c9ff;text-decoration:underline;text-underline-offset:2px}a:hover{color:#b7ebff}
-main{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+main{min-width:0;min-height:0;overflow:hidden}
 #playerFixed{flex:0 0 auto}
 h1{margin:.12em 0;font-size:1.7rem}.muted{color:var(--muted)}.path{word-break:break-all;color:#95e6b5}
 #lyricDock{flex:0 0 auto;overflow:visible;transition:none}
@@ -15225,7 +15373,7 @@ h1{margin:.12em 0;font-size:1.7rem}.muted{color:var(--muted)}.path{word-break:br
 .wawi:hover{background:linear-gradient(#f0f0f0,#aaa)}
 .wawi:active{border-style:inset;background:linear-gradient(#888,#c4c4c4)}
 .wawi.play{color:#08752e}.wawi.pause{color:#7b6400}.wawi.stop{color:#9a1111}
-.chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}.chip{background:#1a2230;border:1px solid #344155;border-radius:999px;padding:5px 9px}
+.chips{display:flex;flex-wrap:nowrap;gap:7px;margin:10px 0;overflow-x:auto;white-space:nowrap}.chip{background:#1a2230;border:1px solid #344155;border-radius:999px;padding:5px 9px;flex:0 0 auto}
 .group{margin:15px 0}.group h3{margin:.3em 0 .5em}.buttons{display:flex;flex-wrap:wrap;gap:7px}
 button,select,input{font:inherit}
 .buttons button,.secondary-button,select{
@@ -15242,6 +15390,12 @@ button,select,input{font:inherit}
 .toggle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:7px}
 .toggle{display:flex;gap:8px;align-items:center;background:var(--panel);padding:8px;border:1px solid #293648;border-radius:5px}
 .toggle.experimental{border-color:#705d2b}.experimental::after{content:" EXP";color:#ffd66b;font-size:.72em;font-weight:800}
+.section-visualizer .control-item,.section-visualizer .toggle{background:#10283b;border-color:#287cb6}.section-visualizer h3{color:#6bc8ff}
+.section-karaoke .control-item,.section-karaoke .toggle{background:#291844;border-color:#8e52d5}.section-karaoke h3{color:#d1a1ff}
+.section-playback .control-item,.section-playback .toggle{background:#163529;border-color:#348e69}.section-playback h3{color:#82ebba}
+.section-progress .control-item,.section-progress .toggle{background:#3a2b13;border-color:#ad7c27}.section-progress h3{color:#ffd27a}
+.experimental-area .control-item,.experimental-area .toggle{background:#3c3312;border-color:#b69a30}.experimental-area h3{color:#ffe47a}
+.broken-area .toggle{background:#411a20;border-color:#b6404e}.broken-area h3{color:#ff8b96}
 details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;background:#0e131c;padding:12px;border-radius:8px}
 #tags{background:#0e131c;padding:10px;border-radius:8px}
 .tag-row{display:grid;grid-template-columns:minmax(70px,.7fr) minmax(110px,1fr) minmax(180px,3fr);gap:8px;padding:3px 4px;border-bottom:1px solid #182230}
@@ -15285,14 +15439,26 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
 <div id="lyricDock"><div id="lyric" aria-live="polite"></div></div>
 
 <section id="choicesFrame" aria-label="Scrollable choices">
-<div class="group">
-  <h3>Choices</h3>
-  <div class="control-grid" id="selectControls"></div>
+<div class="group section-playback"><h3>Playback</h3><div class="control-grid" id="playbackControls"></div><div class="toggle-grid" id="playbackToggles"></div></div>
+<div class="group section-visualizer">
+  <h3>Console Visualizer</h3><div class="control-grid" id="visualizerControls"></div>
+</div>
+<div class="group section-karaoke">
+  <h3>Console Karaoke</h3><div class="control-grid" id="karaokeControls"></div>
+</div>
+<div class="group section-progress">
+  <h3>Progress Bar</h3><div class="control-grid" id="progressControls"></div>
 </div>
 <div class="group">
-  <h3>Toggles / experimentals</h3>
+  <h3>Playback and display toggles</h3>
   <div class="toggle-grid" id="toggleControls"></div>
 </div>
+<div class="group experimental-area">
+  <h3>Experimental</h3>
+  <div class="control-grid" id="experimentalSelectControls"></div>
+  <div class="toggle-grid" id="experimentalControls"></div>
+</div>
+<div class="group broken-area"><h3>Broken / diagnostic</h3><div class="toggle-grid" id="brokenControls"></div></div>
 <div class="group">
   <h3>Other actions</h3>
   <div id="controls"></div>
@@ -15316,6 +15482,7 @@ let controlSchema=null;
 let lyricReservedHeight=0;
 let lyricUnusedSince=null;
 let lastMouseActivity=performance.now();
+let loadedPlayerVersion=null;
 
 function markMouseActivity(){lastMouseActivity=performance.now()}
 for(const eventName of ['pointermove','pointerdown','wheel']){
@@ -15465,7 +15632,7 @@ function makeSlider(item){
 function makeToggle(item){
   const wrap=document.createElement('label');wrap.className='toggle'+(item.experimental?' experimental':'');
   const input=document.createElement('input');input.type='checkbox';input.id='ctl-'+item.key;input.dataset.key=item.key;
-  input.onchange=()=>action(item.action);
+  input.onchange=()=>item.web_key?action('web-set:'+item.web_key+':'+(input.checked?'1':'0')):action(item.action);
   const text=document.createElement('span');text.textContent=item.label;
   wrap.append(input,text);return wrap;
 }
@@ -15473,7 +15640,14 @@ function makeToggle(item){
 function syncControls(s){
   if(!controlSchema) return;
   for(const item of controlSchema.selects||[]){
-    const el=document.getElementById('ctl-'+item.key);if(el && s[item.key]!==undefined) el.value=String(s[item.key]);
+    const el=document.getElementById('ctl-'+item.key);
+    let value=s[item.key];
+    if(value===undefined && s.visualizer_mode!==undefined){
+      const mode=Math.max(1,Number(s.visualizer_mode))-1;
+      if(item.key==='visualizer_type') value=(mode%25)+1;
+      if(item.key==='visualizer_treatment') value=Math.floor(mode/25)+1;
+    }
+    if(el && value!==undefined) el.value=String(value);
   }
   for(const item of controlSchema.sliders||[]){
     const el=document.getElementById('ctl-'+item.key);
@@ -15483,6 +15657,7 @@ function syncControls(s){
   for(const item of controlSchema.toggles||[]){
     const el=document.getElementById('ctl-'+item.key);if(el && s[item.key]!==undefined) el.checked=!!s[item.key];
   }
+  const transportVolume=document.getElementById('transportVolume');if(transportVolume && s.volume!==undefined) transportVolume.value=String(s.volume);
 }
 
 function appendLinkified(parent,text){
@@ -15544,11 +15719,42 @@ webArt.addEventListener('mousedown',event=>{
 
 async function build(){
   controlSchema=await (await fetch('/api/control-schema')).json();
-  const selects=document.getElementById('selectControls');
-  (controlSchema.selects||[]).forEach(item=>selects.appendChild(makeSelect(item)));
-  (controlSchema.sliders||[]).forEach(item=>selects.appendChild(makeSlider(item)));
-  const toggles=document.getElementById('toggleControls');
-  (controlSchema.toggles||[]).forEach(item=>toggles.appendChild(makeToggle(item)));
+  const visualizer=document.getElementById('visualizerControls'), karaoke=document.getElementById('karaokeControls'), progress=document.getElementById('progressControls'), playback=document.getElementById('playbackControls'), experimentalSelects=document.getElementById('experimentalSelectControls');
+  for(const item of [...(controlSchema.selects||[]),...(controlSchema.sliders||[])]){
+    const host=item.experimental?experimentalSelects:(['speed_index','output_channels','balance'].includes(item.key)?playback:(item.key.startsWith('karaoke')?karaoke:(item.key.includes('progress')||item.key==='fade_style'?progress:visualizer)));
+    host.appendChild(item.min===undefined?makeSelect(item):makeSlider(item));
+  }
+  const coverDemo=document.createElement('button');coverDemo.className='secondary-button experimental';coverDemo.textContent='Console Cover Art Over Visualizer Demo';coverDemo.dataset.active='0';
+  coverDemo.onclick=()=>{const active=coverDemo.dataset.active==='1';coverDemo.dataset.active=active?'0':'1';coverDemo.textContent=active?'Console Cover Art Over Visualizer Demo':'Restore Console Cover Art Settings';action('web-set:art_color_demo:'+(active?'0':'1'))};
+  visualizer.appendChild(coverDemo);
+  const rowsDefault=document.createElement('button');rowsDefault.className='secondary-button';rowsDefault.textContent='Default visualizer height';rowsDefault.onclick=()=>action('web-set:visualizer_rows:16');visualizer.appendChild(rowsDefault);
+  const toggles=document.getElementById('toggleControls'), playbackToggles=document.getElementById('playbackToggles');
+  const experimental=document.getElementById('experimentalControls');
+  (controlSchema.toggles||[]).forEach(item=>{
+    const playbackKeys=['shuffle','loop','autoplay','external_album_art_enabled'];
+    const karaokeKeys=['karaoke_emojimax'];
+    const visualizerKeys=['color_reverse'];
+    const brokenKeys=['sixel_enabled','album_art_visualizer_enabled','karaoke_visualizer_expansion_enabled','frequency_warp_enabled','karaoke_visualizer_overlay'];
+    let target=toggles;
+    if(brokenKeys.includes(item.key)) target=document.getElementById('brokenControls');
+    else if(['art_color_bars','art_color_karaoke','art_color_karaoke_sides'].includes(item.key)) target=experimental;
+    else if(item.key.startsWith('art_color_') || item.key==='drcs_enabled' || visualizerKeys.includes(item.key)) target=visualizer;
+    else if(playbackKeys.includes(item.key)) target=playbackToggles;
+    else if(karaokeKeys.includes(item.key)) target=karaoke;
+    else if(item.experimental) target=experimental;
+    target.appendChild(makeToggle(item));
+  });
+  const transport=document.querySelector('.transport');
+  for(const [index,[label,name,title]] of [['−','speed-down','Slower'],['1×','speed-reset','Normal speed'],['+','speed-up','Faster']].entries()){
+    const button=document.createElement('button');button.className='wawi';button.textContent=label;button.title=title;
+    if(index===0) button.style.marginLeft='16px';
+    button.onclick=()=>action(name);transport.appendChild(button);
+  }
+  const volume=document.createElement('input');volume.id='transportVolume';volume.type='range';volume.min='0';volume.max='400';volume.step='5';volume.value='100';volume.title='Volume';volume.style.width='110px';volume.style.marginLeft='16px';
+  let volumeTimer=null;volume.oninput=()=>{clearTimeout(volumeTimer);volumeTimer=setTimeout(()=>action('web-set:volume:'+volume.value),80)};
+  transport.appendChild(volume);
+  const karaokeSpacer=document.createElement('span');karaokeSpacer.style.flex='1';transport.appendChild(karaokeSpacer);
+  for(const [label,delta] of [['K−',-2],['K+',2]]){const button=document.createElement('button');button.className='wawi';button.textContent=label;button.title='Adjust karaoke display timing by 0.2 seconds';button.onclick=()=>action('web-set:karaoke_offset_delta:'+delta);transport.appendChild(button)}
 
   const groups=await (await fetch('/api/actions')).json();
   const host=document.getElementById('controls');
@@ -15574,6 +15780,8 @@ async function tick(){
  try{
   const s=await (await fetch('/api/status',{cache:'no-store'})).json();
   latestState=s;
+  if(loadedPlayerVersion===null) loadedPlayerVersion=String(s.version||'');
+  else if(String(s.version||'') && String(s.version)!==loadedPlayerVersion){location.reload();return;}
   const m=s.metadata||{},t=s.track||{};
   document.getElementById('state').textContent=(s.paused?'⏸ Paused':s.playing?'▶ Playing':'■ Idle')+'  •  '+(s.version||'');
   document.getElementById('songTitle').textContent=m.Song||t.filename||'Waiting for playback…';
@@ -15582,7 +15790,9 @@ async function tick(){
   renderDetectedUrls(s.urls||[]);
   document.getElementById('bar').style.width=((s.progress||0)*100).toFixed(2)+'%';
   const indicator=s.paused?'⏸':'▶';
-  document.getElementById('time').textContent=indicator+' '+fmtTime(s.position_seconds)+' / '+fmtTime(s.duration_seconds)+'   '+Math.round((s.progress||0)*100)+'%';
+  const karaokeOffset=Number(s.karaoke_offset_seconds||0);
+  const karaokeSuffix=karaokeOffset ? '  [karaoke offset: '+(karaokeOffset>0?'+':'')+karaokeOffset.toFixed(1)+'s]' : '';
+  document.getElementById('time').textContent=indicator+' '+fmtTime(s.position_seconds)+' / '+fmtTime(s.duration_seconds)+'   '+Math.round((s.progress||0)*100)+'%'+karaokeSuffix;
   if(!spectrumPaused) setRainbowLyric(s.lyric||'');
   const pauseButton=document.getElementById('pauseResumeButton');
   if(pauseButton){pauseButton.textContent=s.paused?'▶':'⏸︎';pauseButton.title=s.paused?'Resume':'Pause';}
@@ -16066,6 +16276,7 @@ class ExternalAlbumArtWindow:
         self._current_audio: Path | None = None
         self._current_has_art: bool | None = None
         self._window_title = ""
+        self._web_url = ""
         self._track_identity = ""
         self._current_lyric = ""
         self._current_lyric_progress = 0.0
@@ -16245,6 +16456,12 @@ class ExternalAlbumArtWindow:
             self._track_identity = identity
         if self._thread is not None and self._thread.is_alive():
             self._commands.put(("track-identity", identity))
+
+    def set_web_interface_url(self, url: str) -> None:
+        """Give the artwork title bar a safe default-browser web-interface link."""
+        self._web_url = str(url or "")
+        if self._thread is not None and self._thread.is_alive():
+            self._commands.put(("web-url", self._web_url))
 
     def toggle_floating_lyrics(self) -> None:
         """Toggle floating lyrics independently of whether album art is visible."""
@@ -16428,6 +16645,7 @@ class ExternalAlbumArtWindow:
             "tk_image_cache_key": None,
             "audio": None,
             "player_title": self._window_title,
+            "web_url": self._web_url,
             "track_identity": self._track_identity,
             "lyric": self._current_lyric,
             "lyric_progress": self._current_lyric_progress,
@@ -17394,7 +17612,10 @@ class ExternalAlbumArtWindow:
         def reveal_floating_lyrics_window() -> None:
             """Make the enabled floating lyric window visible and raise it."""
             if not lyrics_mode_includes_floating(int(state.get("lyrics_mode", 0) or 0)):
-                return
+                new_mode = 2 if lyrics_mode_includes_artwork(int(state.get("lyrics_mode", 0) or 0)) else 1
+                state["lyrics_mode"] = new_mode
+                save_external_album_art_lyrics_mode(new_mode)
+                apply_lyrics_mode()
             ensure_floating_lyrics_window()
             window = state.get("floating_window")
             if window is not None:
@@ -18084,6 +18305,14 @@ class ExternalAlbumArtWindow:
             )
             button.pack(side="right", padx=4, pady=3)
             state["title_button"] = button
+            web_button = tk.Button(
+                control_strip, text="🌐", padx=6, pady=2, relief="raised",
+                borderwidth=2, font=("Segoe UI Emoji", 10), takefocus=False,
+                command=lambda: webbrowser.open(str(state.get("web_url", "")), new=2)
+                if str(state.get("web_url", "")) else None,
+            )
+            web_button.pack(side="right", padx=(2, 2), pady=3)
+            install_tooltip(web_button, "show web interface")
             install_tooltip(button, "Cycle lyric display: Over Artwork → Floating → Both")
 
             art_color_button = tk.Button(
@@ -18104,7 +18333,7 @@ class ExternalAlbumArtWindow:
             floating_color_button = tk.Button(
                 control_strip,
                 text="🔠",
-                command=lambda: show_karaoke_color_configurator("floating"),
+                command=reveal_floating_lyrics_window,
                 padx=6,
                 pady=2,
                 relief="raised",
@@ -21235,6 +21464,10 @@ class ExternalAlbumArtWindow:
                         state["player_title"] = str(player_title or "")
                         update_window_title()
                         continue
+                    if kind == "web-url":
+                        _kind, url = command
+                        state["web_url"] = str(url or "")
+                        continue
                     if kind == "track-identity":
                         _kind, identity = command
                         state["track_identity"] = str(identity or "")
@@ -21786,6 +22019,106 @@ def composite_album_art_background(
         return spectrum_png
 
 
+def composite_cover_art_visualizer_style(
+    spectrum_png: bytes,
+    album_art: bytes,
+    width: int,
+    height: int,
+    style: str,
+) -> bytes:
+    """Compose a centered/tiled cover treatment for the SIXEL visualizer."""
+    try:
+        from PIL import Image, ImageChops, ImageEnhance, ImageOps  # type: ignore
+        with Image.open(io.BytesIO(album_art)) as source_image:
+            source = source_image.convert("RGB")
+        width, height = max(1, int(width)), max(1, int(height))
+        fitted = ImageOps.contain(source, (width, height), method=Image.Resampling.LANCZOS)
+        tile_w, tile_h = max(1, fitted.width), max(1, fitted.height)
+        tiles_x = max(1, math.ceil(width / tile_w) + 1)
+        tiles_y = max(1, math.ceil(height / tile_h) + 1)
+        total_w, total_h = tiles_x * tile_w, tiles_y * tile_h
+        tiled = Image.new("RGB", (total_w, total_h), "black")
+        for row in range(tiles_y):
+            for column in range(tiles_x):
+                tiled.paste(fitted, (column * tile_w, row * tile_h))
+        left = (total_w - width) // 2
+        top = (total_h - height) // 2
+        cover = tiled.crop((left, top, left + width, top + height)).convert("RGBA")
+        spectrum = Image.open(io.BytesIO(spectrum_png)).convert("RGBA").resize(
+            (width, height), Image.Resampling.BILINEAR
+        )
+        alpha = ImageChops.lighter(
+            ImageChops.lighter(spectrum.getchannel("R"), spectrum.getchannel("G")),
+            spectrum.getchannel("B"),
+        ).point(lambda value: round(value * max(0.0, min(1.0, ALBUM_ART_SPECTRUM_OPACITY))))
+        style = str(style or "cover-on-both").casefold()
+        if style == "cover-on-black":
+            result = Image.new("RGBA", (width, height), "black")
+            result.alpha_composite(cover)
+        elif style == "cover-on-bars":
+            result = Image.new("RGBA", (width, height), "black")
+            cover.putalpha(alpha)
+            result.alpha_composite(cover)
+        else:
+            dim = ImageEnhance.Brightness(cover.convert("RGB")).enhance(0.10).convert("RGBA")
+            result = dim
+            spectrum.putalpha(alpha)
+            result.alpha_composite(spectrum)
+        output = io.BytesIO()
+        result.convert("RGB").save(output, format="PNG", optimize=False)
+        return output.getvalue()
+    except (OSError, ValueError, TypeError):
+        return spectrum_png
+
+
+@lru_cache(maxsize=24)
+def album_art_visualizer_color_grid(
+    audio_name: str, columns: int, rows: int, horizontal_subcells: int = 1,
+) -> tuple[tuple[tuple[int, int, int], ...], ...]:
+    """Return up to four Chafa-source artworks as a tiny DRCS-grid colormap."""
+    try:
+        from PIL import Image, ImageFilter, ImageOps  # type: ignore
+        variants = extract_album_art_variants(Path(audio_name), 4)
+        if not variants:
+            return tuple()
+        cell_width, cell_height = terminal_cell_pixel_size_nonintrusive()
+        sample_width = max(0.25, float(cell_width) / max(1, int(horizontal_subcells)))
+        physical_aspect_scale = float(cell_height) / sample_width
+        fitted_variants = []
+        for art in variants:
+            with Image.open(io.BytesIO(art)) as image:
+                source = image.convert("RGB")
+                fitted_width = max(1, round((source.width / max(1, source.height)) * rows * physical_aspect_scale))
+                # Downsample once per cached artwork/geometry combination with a
+                # high-quality kernel, then recover edges that would otherwise
+                # disappear at the terminal's very small color-grid resolution.
+                # UnsharpMask is edge-thresholded, so flat/noisy regions are not
+                # indiscriminately contrast-boosted. This never runs per frame.
+                fitted = source.resize((fitted_width, rows), Image.Resampling.LANCZOS)
+                fitted = fitted.filter(ImageFilter.UnsharpMask(radius=0.8, percent=145, threshold=3))
+                fitted_variants.append(fitted)
+        strip_width = sum(image.width for image in fitted_variants)
+        strip = Image.new("RGB", (max(1, strip_width), rows), "black")
+        cursor = 0
+        for image in fitted_variants:
+            strip.paste(image, (cursor, 0))
+            cursor += image.width
+        repetitions = 1 if strip.width >= columns else math.ceil(columns / max(1, strip.width)) + 1
+        tiled = Image.new("RGB", (repetitions * strip.width, rows), "black")
+        for repeat in range(repetitions):
+            tiled.paste(strip, (repeat * strip.width, 0))
+        # Preserve variant priority whenever the natural-height artwork strip is
+        # wider than the visualizer: show cover #1 first, then #2, and so on.
+        # Center only a repeated strip whose combined artwork is narrower than
+        # the requested canvas, keeping the leftover tiling symmetric.
+        crop_left = 0 if strip.width >= columns else (tiled.width - columns) // 2
+        canvas = tiled.crop((crop_left, 0, crop_left + columns, rows))
+        pixels = list(canvas.getdata())
+        return tuple(tuple(tuple(map(int, pixels[row * columns + column])) for column in range(columns)) for row in range(rows))
+    except (OSError, ValueError, TypeError):
+        return tuple()
+
+
 def render_preplay_album_cover(audio_path: Path, columns: int) -> bytes:
     """Render up to sixteen covers as a four-column by four-row SIXEL grid."""
     chafa = shutil.which("chafa")
@@ -21913,6 +22246,7 @@ def render_sixel_visualizer(
     audio_path: Path, start_seconds: float, columns: int,
     album_art_background: bool = True,
     rows: int = SIXEL_VISUALIZER_ROWS,
+    album_art_style: str = "legacy",
 ) -> bytes:
     """Return one FFmpeg spectrum frame encoded as a DEC SIXEL image.
 
@@ -21959,9 +22293,14 @@ def render_sixel_visualizer(
         if ENABLE_ALBUM_ART_BACKGROUND and album_art_background:
             album_art = extract_album_art(audio_path)
             if album_art:
-                frame = composite_album_art_background(
-                    frame, album_art, pixels_wide, pixels_high
-                )
+                if str(album_art_style).casefold() in ALBUM_ART_VISUALIZER_STYLE_NAMES:
+                    frame = composite_cover_art_visualizer_style(
+                        frame, album_art, pixels_wide, pixels_high, album_art_style
+                    )
+                else:
+                    frame = composite_album_art_background(
+                        frame, album_art, pixels_wide, pixels_high
+                    )
         sixel = subprocess.run(
             [chafa, "--format=sixels", "--colors=full", "--scale=1", "--stretch",
              "--optimize=9", "--work=9", "--color-space=din99d",
@@ -22088,8 +22427,11 @@ def play_audio_file(
     album_art_status_state: list[bool | None] | None = None,
     karaoke_visualizer_expansion_state: list[bool] | None = None,
     karaoke_visualizer_height_mode_state: list[int] | None = None,
+    visualizer_rows_state: list[int] | None = None,
+    truncate_visualizer_rows_state: list[int] | None = None,
     now_playing_targets: list[Path] | None = None,
     album_art_display: bool = True,
+    album_art_visualizer_style: str = "cover-on-both",
     genre_emoji_enabled: bool = ENABLE_GENRE_EMOJI,
     marquee_animation_if_longer_than: int = MARQUEE_ANIMATION_IF_LONGER_THAN,
     song_throb_seconds: float = SONG_RAINBOW_THROB_SECONDS,
@@ -22442,6 +22784,8 @@ def play_audio_file(
     layered_art_visualizer_enabled = (
         bool(layered_art_visualizer_state[0]) if layered_art_visualizer_state is not None else False
     )
+    configured_visualizer_rows = min(48, max(4, int(visualizer_rows_state[0] if visualizer_rows_state else DRCS_VISUALIZER_ROWS)))
+    truncate_top_visualizer_lines = min(8, max(0, int(truncate_visualizer_rows_state[0] if truncate_visualizer_rows_state else truncate_top_visualizer_lines)))
     karaoke_visualizer_expansion_enabled = (
         bool(karaoke_visualizer_expansion_state[0])
         if karaoke_visualizer_expansion_state is not None else DEFAULT_KARAOKE_VISUALIZER_EXPANSION
@@ -22589,6 +22933,7 @@ def play_audio_file(
     last_help_press_at = -10.0
     all_audio_tags_active = bool(all_audio_tags_state and all_audio_tags_state[0])
     hud_details_visible = bool(hud_details_state and hud_details_state[0])
+    alternate_hud_enabled = False
     all_audio_tags_rows: list[tuple[str, str, str]] | None = None
     all_audio_tags_page_index = 0
     all_audio_tags_page_count = 1
@@ -22641,7 +22986,7 @@ def play_audio_file(
     terminal_lines = shutil.get_terminal_size((120, 30)).lines
     fixed_rows = DRCS_ROW + (SIXEL_VISUALIZER_ROWS if sixel_enabled else 0)
     drcs_rows = (
-        min(max(0, DRCS_VISUALIZER_ROWS - truncate_top_visualizer_lines), max(0, terminal_lines - fixed_rows - TERMINAL_BOTTOM_RESERVE_TRIM_ROWS))
+        min(max(0, configured_visualizer_rows - truncate_top_visualizer_lines), max(0, terminal_lines - fixed_rows - TERMINAL_BOTTOM_RESERVE_TRIM_ROWS))
         if drcs_enabled else 0
     )
     SIXEL_ROW = DRCS_ROW + drcs_rows
@@ -22678,7 +23023,7 @@ def play_audio_file(
         lines = shutil.get_terminal_size((120, 30)).lines
         fixed = STATUS_ROW + 1 + (SIXEL_VISUALIZER_ROWS if sixel_enabled else 0) + LYRIC_ROWS
         desired = (
-            min(max(0, DRCS_VISUALIZER_ROWS - truncate_top_visualizer_lines), max(0, lines - fixed - TERMINAL_BOTTOM_RESERVE_TRIM_ROWS))
+            min(max(0, configured_visualizer_rows - truncate_top_visualizer_lines), max(0, lines - fixed - TERMINAL_BOTTOM_RESERVE_TRIM_ROWS))
             if drcs_enabled else 0
         )
         drcs_rows = desired
@@ -23343,13 +23688,19 @@ def play_audio_file(
             move_to(METADATA_ROW + index) + "\033[2K"
             for index in range(len(tag_plain_rows))
         ]
-        for index in range(len(tag_plain_rows)):
-            row = animated_rows[index] if index < len(animated_rows) else ""
-            output.append(
-                move_to(METADATA_ROW + index)
-                + truncate_ansi_to_cells(BIG_OFF + row, available)
-                + "\033[K"
-            )
+        if alternate_hud_enabled and animated_rows:
+            primary = truncate_ansi_to_cells(animated_rows[0], max(12, available // 2))
+            output.append(move_to(METADATA_ROW) + "\033#3" + primary + "\033[K")
+            if len(tag_plain_rows) > 1:
+                output.append(move_to(METADATA_ROW + 1) + "\033#4" + primary + "\033[K" + BIG_OFF)
+        else:
+            for index in range(len(tag_plain_rows)):
+                row = animated_rows[index] if index < len(animated_rows) else ""
+                output.append(
+                    move_to(METADATA_ROW + index)
+                    + truncate_ansi_to_cells(BIG_OFF + row, available)
+                    + "\033[K"
+                )
         if output:
             write_console("".join(output) + "\033[?25l")
 
@@ -23907,6 +24258,7 @@ def play_audio_file(
         expand_visualizer_into_lyrics = bool(
             (karaoke_visualizer_expansion_enabled and LYRIC_ROWS and active_lyric is None and not karaoke_visualizer_overlay)
             or extend_visualizer_through_karaoke
+            or (LYRIC_ROWS and (ART_COLOR_VISUALIZER_KARAOKE_SIDES or ART_COLOR_VISUALIZER_KARAOKE))
         )
 
         # V66 modes 1/2/3 all use full-height spectrum geometry.  Their
@@ -24007,7 +24359,17 @@ def play_audio_file(
                 rendered_rows: list[str] = []
                 # V66 modes 1/2/3 all render the same full-height spectrum.
                 # Their only difference is how karaoke is composited afterward.
-                top_blank_by_logical_column: list[int] | None = None
+                top_blank_by_logical_column: list[int] | None = (
+                    [LYRIC_ROWS] * logical_visualizer_width
+                    if LYRIC_ROWS and (ART_COLOR_VISUALIZER_KARAOKE_SIDES or ART_COLOR_VISUALIZER_KARAOKE)
+                    else None
+                )
+                # Artwork beneath karaoke is static for the track/geometry. Use
+                # row-delta transport even when the general diagnostic switch is
+                # off, so the high-rate analyzer does not repaint those lyric
+                # rows and contend with the slower karaoke text compositor.
+                artwork_karaoke_static_rows = bool(top_blank_by_logical_column)
+                use_delta_visualizer_rows = bool(delta_row_visualizer or artwork_karaoke_static_rows)
                 rendered_visualizer = render_drcs_visualizer(
                     visualizer_width, levels, drcs_recent_energy,
                     mode=visualizer_mode,
@@ -24023,12 +24385,27 @@ def play_audio_file(
                     disable_autowrap_during_paint=not disable_visualizer_autowrap_toggle,
                     force_row_column_one=not disable_visualizer_force_column_one,
                     use_cud_row_advance=not disable_visualizer_cud_row_advance,
-                    rows_out=rendered_rows if delta_row_visualizer else None,
+                    rows_out=rendered_rows if use_delta_visualizer_rows else None,
                     force_monochrome=monochrome_visualizer,
                     omit_big_off=omit_visualizer_big_off,
                     omit_erase_eol=omit_visualizer_erase_eol,
                     top_blank_by_logical_column=top_blank_by_logical_column,
                     rgb_rows_out=(visualizer_rgb_rows if karaoke_visualizer_height_mode == 2 else None),
+                    artwork_color_grid=(
+                        album_art_visualizer_color_grid(
+                            str(audio_path), logical_visualizer_width, visualizer_source_rows,
+                            2 if render_granularity in {2, 3} else 1,
+                        )
+                        if ART_COLOR_VISUALIZER_REPRESENTATION in {"bars", "blackness", "both"} else None
+                    ),
+                    artwork_bar_strength=(
+                        ART_COLOR_VISUALIZER_BAR_STRENGTH
+                        if ART_COLOR_VISUALIZER_REPRESENTATION in {"bars", "both"} else 0.0
+                    ),
+                    artwork_background_strength=(
+                        ART_COLOR_VISUALIZER_BLACK_STRENGTH
+                        if ART_COLOR_VISUALIZER_REPRESENTATION in {"blackness", "both"} else 0.0
+                    ),
                 )
                 if karaoke_visualizer_height_mode == 3:
                     # "Over karaoke" is an explicit paint-order mode, not an
@@ -24046,7 +24423,7 @@ def play_audio_file(
                         + ("\033[?2026l" if synchronized_output_enabled else "")
                     )
                 visible_row_count = max(1, visualizer_source_rows - truncate_top_visualizer_lines)
-                if delta_row_visualizer and rendered_rows:
+                if use_delta_visualizer_rows and rendered_rows:
                     changed = [
                         index for index, row_text in enumerate(rendered_rows)
                         if last_visualizer_rows is None
@@ -25303,6 +25680,7 @@ def play_audio_file(
         audio-path-affecting controls (speed/output/volume/balance) request an
         FFplay reconstruction; visual choices repaint in-place.
         """
+        global ART_COLOR_VISUALIZER_REPRESENTATION, ART_COLOR_VISUALIZER_BAR_STRENGTH, ART_COLOR_VISUALIZER_BLACK_STRENGTH, ART_COLOR_VISUALIZER_KARAOKE_SIDES, ART_COLOR_VISUALIZER_KARAOKE, ART_COLOR_VISUALIZER_DEMO_SAVED, KARAOKE_DISPLAY_OFFSET_SECONDS
         nonlocal visualizer_mode, color_style, processing_style, persistence_mode
         nonlocal visualizer_granularity, karaoke_style, karaoke_treatment
         nonlocal karaoke_visualizer_height_mode
@@ -25310,6 +25688,7 @@ def play_audio_file(
         nonlocal volume, balance, color_notice_until, processing_notice_until
         nonlocal persistence_notice_until, granularity_notice_until
         nonlocal last_drcs_position, last_visualizer_payload, last_lyric_index
+        nonlocal configured_visualizer_rows, truncate_top_visualizer_lines
 
         parsed = parse_web_set_action(action)
         if parsed is None:
@@ -25319,6 +25698,55 @@ def play_audio_file(
 
         if key == "visualizer_mode":
             visualizer_mode = min(len(VISUALIZER_MODE_NAMES), max(1, value))
+            if visualizer_mode_state is not None:
+                visualizer_mode_state[0] = visualizer_mode
+            persistence_state.clear()
+            persistence_state.update(new_visualizer_persistence_state())
+            last_drcs_position = None
+            last_visualizer_payload = None
+        elif key == "karaoke_offset_delta":
+            KARAOKE_DISPLAY_OFFSET_SECONDS = max(-20.0, min(20.0, KARAOKE_DISPLAY_OFFSET_SECONDS + value / 10.0))
+            last_lyric_index = None
+        elif key == "art_color_representation":
+            ART_COLOR_VISUALIZER_REPRESENTATION = ART_COLOR_VISUALIZER_REPRESENTATIONS[
+                min(len(ART_COLOR_VISUALIZER_REPRESENTATIONS) - 1, max(0, value))
+            ]
+            last_visualizer_payload = None
+        elif key in {"art_color_blackness", "art_color_bars"}:
+            black = ART_COLOR_VISUALIZER_REPRESENTATION in {"blackness", "both"}
+            bars = ART_COLOR_VISUALIZER_REPRESENTATION in {"bars", "both"}
+            if key == "art_color_blackness": black = bool(value)
+            else: bars = bool(value)
+            ART_COLOR_VISUALIZER_REPRESENTATION = "both" if black and bars else "blackness" if black else "bars" if bars else "none"
+            last_visualizer_payload = None
+        elif key == "art_color_karaoke_sides":
+            ART_COLOR_VISUALIZER_KARAOKE_SIDES = bool(value)
+        elif key == "art_color_karaoke":
+            ART_COLOR_VISUALIZER_KARAOKE = bool(value)
+        elif key == "art_color_demo":
+            if value and ART_COLOR_VISUALIZER_DEMO_SAVED is None:
+                ART_COLOR_VISUALIZER_DEMO_SAVED = (ART_COLOR_VISUALIZER_REPRESENTATION, ART_COLOR_VISUALIZER_BAR_STRENGTH, ART_COLOR_VISUALIZER_BLACK_STRENGTH)
+                ART_COLOR_VISUALIZER_REPRESENTATION = "both"
+                ART_COLOR_VISUALIZER_BAR_STRENGTH = 0.90
+                ART_COLOR_VISUALIZER_BLACK_STRENGTH = 0.15
+            elif not value and ART_COLOR_VISUALIZER_DEMO_SAVED is not None:
+                ART_COLOR_VISUALIZER_REPRESENTATION, ART_COLOR_VISUALIZER_BAR_STRENGTH, ART_COLOR_VISUALIZER_BLACK_STRENGTH = ART_COLOR_VISUALIZER_DEMO_SAVED
+                ART_COLOR_VISUALIZER_DEMO_SAVED = None
+            last_visualizer_payload = None
+        elif key == "art_color_bar_strength":
+            ART_COLOR_VISUALIZER_BAR_STRENGTH = max(0.0, min(1.0, value / 100.0))
+            last_visualizer_payload = None
+        elif key == "art_color_black_strength":
+            ART_COLOR_VISUALIZER_BLACK_STRENGTH = max(0.0, min(1.0, value / 100.0))
+            last_visualizer_payload = None
+        elif key in {"visualizer_type", "visualizer_treatment"}:
+            current_type = (visualizer_mode - 1) % len(VISUALIZER_TYPE_NAMES) + 1
+            current_treatment = (visualizer_mode - 1) // len(VISUALIZER_TYPE_NAMES) + 1
+            if key == "visualizer_type":
+                current_type = min(len(VISUALIZER_TYPE_NAMES), max(1, value))
+            else:
+                current_treatment = min(len(VISUALIZER_TREATMENT_NAMES), max(1, value))
+            visualizer_mode = (current_treatment - 1) * len(VISUALIZER_TYPE_NAMES) + current_type
             if visualizer_mode_state is not None:
                 visualizer_mode_state[0] = visualizer_mode
             persistence_state.clear()
@@ -25356,6 +25784,16 @@ def play_audio_file(
             visualizer_agc_state.update(new_visualizer_agc_state())
             granularity_notice_until = now_value + 3.0
             last_drcs_position = None
+            last_visualizer_payload = None
+        elif key == "visualizer_rows":
+            configured_visualizer_rows = min(48, max(4, value))
+            if visualizer_rows_state is not None: visualizer_rows_state[0] = configured_visualizer_rows
+            reflow_rows_for_terminal()
+            last_visualizer_payload = None
+        elif key == "truncate_visualizer_rows":
+            truncate_top_visualizer_lines = min(8, max(0, value))
+            if truncate_visualizer_rows_state is not None: truncate_visualizer_rows_state[0] = truncate_top_visualizer_lines
+            reflow_rows_for_terminal()
             last_visualizer_payload = None
         elif key == "karaoke_style":
             karaoke_style = min(len(KARAOKE_STYLE_NAMES), max(1, value))
@@ -26253,7 +26691,8 @@ def play_audio_file(
             external_album_art_window.set_spectrum_ready_for_art_karaoke(True)
         sixel_frame = (
             render_sixel_visualizer(
-                audio_path, position, visualizer_columns, album_art_visualizer_enabled
+                audio_path, position, visualizer_columns, album_art_visualizer_enabled,
+                album_art_style=album_art_visualizer_style,
             )
             if sixel_enabled and not all_audio_tags_active else b""
         )
@@ -26437,9 +26876,9 @@ def play_audio_file(
                         ),
                     )
                     last_external_lyric_publish = now
-                if web_server is not None and not config_visualizers_paused and now - last_web_spectrum_publish >= (0.5 if config_visualizer_low_fps else 0.05):
-                    # V172 restores the responsive browser analyzer path: a tiny
-                    # spectrum-only payload is produced/transmitted at 20 fps,
+                if web_server is not None and not config_visualizers_paused and now - last_web_spectrum_publish >= (0.5 if config_visualizer_low_fps else (0.10 if configured_visualizer_rows >= 24 else 0.05)):
+                    # The browser analyzer uses a deliberately coarse, tiny
+                    # spectrum-only payload produced/transmitted at up to 20 fps,
                     # independently of the much larger metadata/control status.
                     web_raw_spectrum = spectrum_frame_interpolated_at(
                         drcs_timeline,
@@ -26448,7 +26887,7 @@ def play_audio_file(
                     if web_raw_spectrum:
                         web_spectrum = visualizer_mode_heights(
                             web_raw_spectrum,
-                            96,
+                            WEB_SPECTRUM_BINS,
                             visualizer_mode,
                             frequency_warp_enabled,
                         )
@@ -26482,12 +26921,22 @@ def play_audio_file(
                         loop=bool(looping),
                         autoplay=bool(autoplay_state[0]) if autoplay_state is not None else False,
                         visualizer_mode=visualizer_mode,
+                        art_color_representation=ART_COLOR_VISUALIZER_REPRESENTATIONS.index(ART_COLOR_VISUALIZER_REPRESENTATION),
+                        art_color_blackness=ART_COLOR_VISUALIZER_REPRESENTATION in {"blackness", "both"},
+                        art_color_bars=ART_COLOR_VISUALIZER_REPRESENTATION in {"bars", "both"},
+                        art_color_karaoke_sides=ART_COLOR_VISUALIZER_KARAOKE_SIDES,
+                        art_color_karaoke=ART_COLOR_VISUALIZER_KARAOKE,
+                        art_color_bar_strength=round(ART_COLOR_VISUALIZER_BAR_STRENGTH * 100),
+                        art_color_black_strength=round(ART_COLOR_VISUALIZER_BLACK_STRENGTH * 100),
                         color_style=color_style,
                         color_reverse=color_reverse,
                         processing_style=processing_style,
                         persistence_mode=persistence_mode,
                         visualizer_granularity=visualizer_granularity,
+                        visualizer_rows=configured_visualizer_rows,
+                        truncate_visualizer_rows=truncate_top_visualizer_lines,
                         karaoke_style=karaoke_style,
+                        karaoke_offset_seconds=round(KARAOKE_DISPLAY_OFFSET_SECONDS, 1),
                         karaoke_treatment=karaoke_treatment,
                         karaoke_emojimax=karaoke_emojimax,
                         progress_style=progress_style,
@@ -26841,7 +27290,8 @@ def play_audio_file(
                     art_row = LYRIC_ROW if expand_now else DRCS_ROW
                     art_rows = max(1, drcs_rows + (LYRIC_ROWS if expand_now else 0))
                     frame = render_sixel_visualizer(
-                        audio_path, displayed_position, visualizer_columns, True, rows=art_rows
+                        audio_path, displayed_position, visualizer_columns, True,
+                        rows=art_rows, album_art_style=album_art_visualizer_style,
                     )
                     if frame:
                         write_console(move_to(art_row))
@@ -26884,6 +27334,14 @@ def play_audio_file(
                     last_drcs_position = None
                     last_visualizer_payload = None
                     last_visualizer_rows = None
+                    clear_region(HEADER_ROW, UI_ROWS)
+                    render_static_header(displayed_position)
+                    render_controls(playback_fraction(displayed_position))
+                    show_status(displayed_position, indicator)
+                    continue
+                if action == ALTERNATE_HUD_TOGGLE:
+                    alternate_hud_enabled = not alternate_hud_enabled
+                    last_visualizer_payload = None
                     clear_region(HEADER_ROW, UI_ROWS)
                     render_static_header(displayed_position)
                     render_controls(playback_fraction(displayed_position))
@@ -27613,7 +28071,7 @@ def play_audio_file(
                                 paused_web_spectrum = normalize_visualizer_heights(
                                     visualizer_mode_heights(
                                         paused_raw_spectrum,
-                                        96,
+                                        WEB_SPECTRUM_BINS,
                                         visualizer_mode,
                                         frequency_warp_enabled,
                                     ),
@@ -28076,7 +28534,8 @@ def play_audio_file(
                                 art_row = LYRIC_ROW if expand_now else DRCS_ROW
                                 art_rows = max(1, drcs_rows + (LYRIC_ROWS if expand_now else 0))
                                 frame = render_sixel_visualizer(
-                                    audio_path, position, visualizer_columns, True, rows=art_rows
+                                    audio_path, position, visualizer_columns, True,
+                                    rows=art_rows, album_art_style=album_art_visualizer_style,
                                 )
                                 if frame:
                                     write_console(move_to(art_row))
@@ -29317,7 +29776,7 @@ class PlayWaveFileTests(unittest.TestCase):
 
     def test_v46_theory_range_help_order_and_bottom_trim(self) -> None:
         self.assertEqual(49, THEORY_MAX)
-        self.assertEqual(2, TERMINAL_BOTTOM_RESERVE_TRIM_ROWS)
+        self.assertEqual(0, TERMINAL_BOTTOM_RESERVE_TRIM_ROWS)
         source = Path(__file__).read_text(encoding="utf-8")
         self.assertIn('f"📅 Last play: {heard_text}  ║  🎚️ReplayGain: {replaygain_plain}"', source)
         self.assertIn('range(1, THEORY_MAX + 1)', source)
@@ -30714,6 +31173,31 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('tags=("artwork-base",)', renderer)
         self.assertIn('canvas.tag_lower(base_item)', renderer)
         self.assertNotIn('draw_artwork_lyric_overlay_safely(width, height)\n                    if progress < 1.0', renderer)
+
+    def test_v200_cover_art_visualizer_styles_tile_and_mask_as_requested(self) -> None:
+        from PIL import Image
+        def png(size, color):
+            output = io.BytesIO()
+            Image.new("RGB", size, color).save(output, format="PNG")
+            return output.getvalue()
+        cover = png((2, 4), (220, 40, 80))
+        spectrum = png((8, 4), (255, 255, 255))
+        for style in ALBUM_ART_VISUALIZER_STYLE_NAMES:
+            rendered = composite_cover_art_visualizer_style(spectrum, cover, 8, 4, style)
+            with Image.open(io.BytesIO(rendered)) as image:
+                self.assertEqual((8, 4), image.size)
+        self.assertIn("cover-on-black", ALBUM_ART_VISUALIZER_STYLE_NAMES)
+        self.assertIn("cover-on-both", ALBUM_ART_VISUALIZER_STYLE_NAMES)
+        self.assertIn("cover-on-bars", ALBUM_ART_VISUALIZER_STYLE_NAMES)
+
+    def test_v200_last_played_is_a_paged_rainbow_audit_query(self) -> None:
+        import inspect
+        source = inspect.getsource(main)
+        self.assertIn('if "--last-played" in arguments:', source)
+        source = inspect.getsource(display_last_played_regex)
+        self.assertIn('page_playlist_analysis_table(header, body, summary)', source)
+        self.assertIn('matcher.search(filename_text)', source)
+        self.assertIn('matcher.search(tag_text)', source)
 
 
 
@@ -34627,8 +35111,8 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('render_karaoke_color_config_preview(preview_mode', hero)
 
     def test_v192_release_identity_and_three_layer_coloring_model(self) -> None:
-        self.assertEqual("V197", PROGRAM_VERSION)
-        self.assertIn("v197", PLAYER_BUILD_ID)
+        self.assertEqual("V222", PROGRAM_VERSION)
+        self.assertIn("v222", PLAYER_BUILD_ID)
         self.assertEqual(("pattern", "rainbow-glyphs", "solid"), EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES)
         self.assertEqual(13, len(EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS))
         self.assertEqual(20, len(EXTERNAL_ALBUM_ART_KARAOKE_TIMING_TYPES))
@@ -36802,6 +37286,12 @@ def main(argv: list[str] | None = None) -> int:
         return run_unit_tests()
     if arguments in (["--emoji-display-test"], ["-e"]):
         return run_emoji_display_test()
+    if "--last-played" in arguments:
+        option_index = arguments.index("--last-played")
+        if option_index + 1 >= len(arguments) or arguments[option_index + 1].startswith("-"):
+            print("💥 ERROR: --last-played requires a regular-expression argument.", file=sys.stderr)
+            return 2
+        return display_last_played_regex(arguments[option_index + 1])
     start_pafplayer_diagnostic_session(arguments)
     atexit.register(finish_pafplayer_diagnostic_session)
     if "--process-compound-subtitle-and-lyric-file" in arguments:
@@ -36859,8 +37349,8 @@ def main(argv: list[str] | None = None) -> int:
             default_text = f"default: {default}" if default else ""
             print(
                 f"  \033[38;2;145;205;255m{syntax:<68}\033[0m"
-                f"\033[38;2;210;165;255m{explanation:<38}\033[0m"
-                f"\033[38;2;120;225;155m{default_text:<13}\033[0m"
+                f"\033[38;2;210;165;255m{explanation:<42}\033[0m"
+                f"  \033[38;2;120;225;155m{default_text:<16}\033[0m"
                 + (f" \033[38;2;105;95;85m({note})\033[0m" if note else "")
             )
 
@@ -36882,6 +37372,7 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("--process-compound-subtitle-and-lyric-file [DIR]", "scan SRT/LRC/TXT collection; write emoji-code-snippet.txt and open it in TXT editor")
         usage_line("--display-last-played-date-for-playlist PLAYLIST", "paged full-path history table + unwrapped playlist-analysis.txt export", note="progress: load → history match → analysis generation")
         usage_line("--last-play-regex REGEX", "query SQLite play history by regex over filename or normalized Artist/Song; print latest match")
+        usage_line("--last-played REGEX", "paged rainbow audit of every matching stored track and its last-played time")
         usage_line("-l, --loop / -L, --no-loop", "loop the current track", "on")
         usage_line("-k, --karaoke / -K, --no-karaoke", "display available lyrics", "on")
         usage_line("--replaygain=on|off|track|album", "playback-time ReplayGain; track/album select preference with opposite fallback", "track" if REPLAYGAIN_ENABLED else "off")
@@ -36963,6 +37454,19 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("--genre-emoji / --no-genre-emoji", "show a genre-specific emoji beside Genre", "on")
         usage_line("-b, --initial-blank-line / -B, --suppress-initial-blank-line", "leading blank line", "on")
         usage_line("Playback SQL policy", "predictable startup history SELECTs are prefetched in background during prior playback; startup never waits on SQLite")
+        usage_banner("📜", "PLAYBACK HISTORY")
+        usage_line("--last-played REGEX", "paged rainbow internal-history audit: every matching track and last-played time")
+        usage_line("--last-play-regex REGEX", "latest internal-history match by filename or Artist/Song")
+        usage_line("--display-last-played-date-for-playlist PLAYLIST", "paged internal-history report plus playlist-analysis export")
+        usage_line("Ctrl+Alt+S", "force internal Last-heard update and Last.fm scrobble")
+        usage_line("-ghfl / -dh", "generate / display the Last.fm-derived play-history CSV")
+        usage_banner("🎤", "KARAOKE OPTIONS")
+        usage_line("-k, --karaoke / -K, --no-karaoke", "enable / disable lyric display", "on")
+        usage_line("F2 / F3", "previous / next karaoke style")
+        usage_line("Shift+F2 / Shift+F3", "previous / next karaoke treatment")
+        usage_line("F4", "toggle Emojimaxx")
+        usage_banner("📈", "PROGRESS BAR OPTIONS")
+        usage_line("P / Shift+P", "next / previous progress-bar style", "Progress 01")
         usage_banner("📊", "VISUALIZER OPTIONS")
         usage_line("-v, --visualizers / -V, --no-visualizers", "enable/disable both")
         usage_line(
@@ -36985,6 +37489,7 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("Ctrl+R / Ctrl+Alt+R", "re-read playlist from disk, reload karaoke/lyrics, then rebuild shuffled queue/cache")
         usage_line("--visualizer-target-fps=FPS", "target spectrum repaint rate; interpolates 30-Hz analysis and adapts downward to terminal throughput", f"{VISUALIZER_TARGET_FPS:g}")
         usage_line("-a, --album-art / -A, --no-album-art", "SIXEL artwork background", "on")
+        usage_line("--album-art-style STYLE", "cover-on-black, cover-on-both, or cover-on-bars; aspect-mismatched covers tile from a centered origin", "cover-on-both")
         usage_line("--external-album-art / --no-external-album-art", "enable/disable separate movable GUI cover-art window for this run", "on" if ENABLE_EXTERNAL_ALBUM_ART_WINDOW else "off")
         usage_line("--external-album-art-idle-foreground-seconds=SECONDS", "idle time before auto-raising artwork; 0=never", f"{EXTERNAL_ALBUM_ART_IDLE_FOREGROUND_SECONDS:g}s")
         usage_line("--web-server / --no-web-server", "enable/disable live HTTP status + remote controls", "on" if WEB_SERVER_ENABLED else "off")
@@ -36992,6 +37497,7 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("--web-port=PORT", "web status/control TCP port", str(WEB_SERVER_PORT))
         usage_line("http://localhost:666/", "web UI: fixed karaoke above an independently scrollable Choices frame; wrapped lyric space shrinks after 30s unused + 30s mouse-idle")
         usage_banner("🏷️", "LYRIC / ATTRIBUTE EDITING")
+        usage_banner("🗂️", "ATTRIBUTE EDITING")
         usage_line("--suppress-attribute-management", "disable Claire-specific attribute-management hotkeys for this run", "off")
         usage_line("CLAIRE_ECOSYSTEM", "source-code master switch for Claire-specific attribute management", str(CLAIRE_ECOSYSTEM))
         usage_line("Attribute lookup default", "walk parent attrib.lst files in a low-priority background worker", "attrib.lst")
@@ -37050,6 +37556,7 @@ def main(argv: list[str] | None = None) -> int:
         print(r"  play_audio_file.py --drcs-visualizer --no-sixel-visualizer C:\mp3\song.mp3")
         print(r"  play_audio_file.py --album-art C:\mp3\song.mp3")
         print(r"  play_audio_file.py --no-album-art C:\mp3\song.mp3")
+        print(r"  play_audio_file.py --album-art-style=cover-on-bars C:\mp3\song.mp3")
         print(r"  play_audio_file.py --trim-silence-threshold-db=-43 --trim-silence-min-duration=0.35 C:\mp3\song.mp3")
         print(r"  play_audio_file.py --trim-edge-silence --trim-silence-keep=0.08 C:\mp3\song.mp3")
         print(r"  play_audio_file.py --process-compound-subtitle-and-lyric-file C:\mp3")
@@ -37058,6 +37565,7 @@ def main(argv: list[str] | None = None) -> int:
         print(r"  play_audio_file.py --display-play-history")
         print(r"  play_audio_file.py --display-last-played-date-for-playlist C:\mp3\lists\changer.m3u")
         print(r"  play_audio_file.py --last-play-regex ""^artist.*song$""")
+        print(r"  play_audio_file.py --last-played ""metallica.*whom.*bell.*tolls""")
         print(r"  In playlist analysis: PgUp/PgDn/↑/↓ navigate; Home/End or Ctrl+Home/Ctrl+End jump; Space pages down; Q/Esc exits.")
         print(r"  play_audio_file.py --no-now-playing C:\mp3\song.mp3")
         print(r"  play_audio_file.py --now-playing C:\temp\paf-now-playing.txt C:\mp3\song.mp3")
@@ -37101,6 +37609,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     load_mp3_base_attribute_rules(MP3_BASE_ATTRIBUTES_PATH)
     persisted_settings = load_player_settings()
+    global ART_COLOR_VISUALIZER_REPRESENTATION, ART_COLOR_VISUALIZER_BAR_STRENGTH, ART_COLOR_VISUALIZER_BLACK_STRENGTH, ART_COLOR_VISUALIZER_KARAOKE_SIDES, ART_COLOR_VISUALIZER_KARAOKE
+    ART_COLOR_VISUALIZER_REPRESENTATION = ART_COLOR_VISUALIZER_REPRESENTATIONS[min(3, max(0, persisted_settings.get("ArtColorRepresentation", 0)))]
+    ART_COLOR_VISUALIZER_BAR_STRENGTH = persisted_settings.get("ArtColorBarStrength", 70) / 100.0
+    ART_COLOR_VISUALIZER_BLACK_STRENGTH = persisted_settings.get("ArtColorBlackStrength", 25) / 100.0
+    ART_COLOR_VISUALIZER_KARAOKE_SIDES = bool(persisted_settings.get("ArtColorKaraokeSides", 0))
+    ART_COLOR_VISUALIZER_KARAOKE = bool(persisted_settings.get("ArtColorKaraoke", 0))
     sixel_enabled = bool(persisted_settings['SixelEnabled'])
     drcs_enabled = bool(persisted_settings['DrcsEnabled'])
     fade_seconds = DEFAULT_VISUALIZER_FADE_SECONDS
@@ -37114,6 +37628,7 @@ def main(argv: list[str] | None = None) -> int:
     now_playing_sidecar = True
     external_now_playing: Path | None = None
     album_art_display = True
+    album_art_visualizer_style = "cover-on-both"
     external_album_art_enabled = bool(ENABLE_EXTERNAL_ALBUM_ART_WINDOW)
     external_album_art_idle_foreground_seconds = EXTERNAL_ALBUM_ART_IDLE_FOREGROUND_SECONDS
     genre_emoji_enabled = ENABLE_GENRE_EMOJI
@@ -37302,6 +37817,14 @@ def main(argv: list[str] | None = None) -> int:
             album_art_display = True
         elif argument in {"--no-album-art", "-A"}:
             album_art_display = False
+        elif argument == "--album-art-style":
+            argument_index += 1
+            if argument_index >= len(arguments):
+                print("💥 ERROR: --album-art-style requires cover-on-black, cover-on-both, or cover-on-bars.", file=sys.stderr)
+                return 2
+            album_art_visualizer_style = arguments[argument_index].casefold()
+        elif argument.startswith("--album-art-style="):
+            album_art_visualizer_style = argument.partition("=")[2].casefold()
         elif argument == "--external-album-art":
             external_album_art_enabled = True
         elif argument == "--no-external-album-art":
@@ -37496,6 +38019,13 @@ def main(argv: list[str] | None = None) -> int:
     if truncate_top_visualizer_lines < 0:
         print("💥 ERROR: --truncate-top-visualizer-lines must be zero or greater.", file=sys.stderr)
         return 2
+    if album_art_visualizer_style not in ALBUM_ART_VISUALIZER_STYLE_NAMES:
+        print(
+            "💥 ERROR: --album-art-style must be one of: "
+            + ", ".join(ALBUM_ART_VISUALIZER_STYLE_NAMES),
+            file=sys.stderr,
+        )
+        return 2
     if not math.isfinite(shuffle_expiration_in_hours) or shuffle_expiration_in_hours < 0:
         print("💥 ERROR: --shuffle-expiration-in-hours must be zero or greater.", file=sys.stderr)
         return 2
@@ -37665,6 +38195,8 @@ def main(argv: list[str] | None = None) -> int:
             external_album_art_enabled,
             idle_foreground_seconds=external_album_art_idle_foreground_seconds,
         )
+        if web_server is not None and web_server.enabled:
+            external_album_art_window.set_web_interface_url(web_server.url)
         append_pafplayer_trace(
             "session.services-ready",
             web_enabled=web_server_enabled,
@@ -37729,7 +38261,9 @@ def main(argv: list[str] | None = None) -> int:
         all_audio_tags_state = [False]
         hud_details_state = [bool(persisted_settings.get("HudDetails", 0))]
         inline_last_play_alignment_state = [bool(ALIGN_INLINE_LAST_PLAY_TO_HUD_COLONS)]
-        karaoke_visualizer_expansion_state = [DEFAULT_KARAOKE_VISUALIZER_EXPANSION]
+        karaoke_visualizer_expansion_state = [bool(persisted_settings.get("KaraokeVisualizerExpansion", 0))]
+        visualizer_rows_state = [persisted_settings.get("VisualizerRows", DRCS_VISUALIZER_ROWS)]
+        truncate_visualizer_rows_state = [persisted_settings.get("TruncateTopVisualizerLines", 2)]
         karaoke_visualizer_height_mode_state = [0]
         playlist_path: Path | None = None
         playlist_switch_state: list[Path | None] = [None]
@@ -38337,8 +38871,11 @@ def main(argv: list[str] | None = None) -> int:
                 album_art_status_state=album_art_status_state,
                 karaoke_visualizer_expansion_state=karaoke_visualizer_expansion_state,
                 karaoke_visualizer_height_mode_state=karaoke_visualizer_height_mode_state,
+                visualizer_rows_state=visualizer_rows_state,
+                truncate_visualizer_rows_state=truncate_visualizer_rows_state,
                 now_playing_targets=now_playing_targets,
                 album_art_display=album_art_display,
+                album_art_visualizer_style=album_art_visualizer_style,
                 genre_emoji_enabled=genre_emoji_enabled,
                 marquee_animation_if_longer_than=marquee_animation_if_longer_than,
                 song_throb_seconds=song_throb_seconds,
@@ -38412,6 +38949,14 @@ def main(argv: list[str] | None = None) -> int:
                 'SixelEnabled': int(sixel_enabled_state[0]),
                 'HudDetails': int(hud_details_state[0]),
                 'PlaybackPaused': int(playback_paused_state[0]),
+                'KaraokeVisualizerExpansion': int(karaoke_visualizer_expansion_state[0]),
+                'VisualizerRows': int(visualizer_rows_state[0]),
+                'TruncateTopVisualizerLines': int(truncate_visualizer_rows_state[0]),
+                'ArtColorRepresentation': ART_COLOR_VISUALIZER_REPRESENTATIONS.index(ART_COLOR_VISUALIZER_REPRESENTATION),
+                'ArtColorBarStrength': round(ART_COLOR_VISUALIZER_BAR_STRENGTH * 100),
+                'ArtColorBlackStrength': round(ART_COLOR_VISUALIZER_BLACK_STRENGTH * 100),
+                'ArtColorKaraokeSides': int(ART_COLOR_VISUALIZER_KARAOKE_SIDES),
+                'ArtColorKaraoke': int(ART_COLOR_VISUALIZER_KARAOKE),
             })
             save_player_settings(persisted_settings)
             initial_resume_position = 0.0
