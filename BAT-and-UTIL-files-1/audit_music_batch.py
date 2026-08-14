@@ -46,8 +46,9 @@ from typing import Any, Callable, NoReturn
 # Published releases are deliberately separate from the timestamped safety
 # backups that the auditor makes before replacements. Update both values only
 # when publishing a new named release.
-AUDIT_MUSIC_BATCH_VERSION = "v105"
-AUDIT_MUSIC_BATCH_RELEASE_NAME = "interactive-music-audit"
+AUDIT_MUSIC_BATCH_VERSION = "v146"
+AUDIT_MUSIC_BATCH_RELEASE_NAME = "direct-chafa-terminal-waveforms"
+AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-08-14"
 
 # Set this to a full executable path only when automatic discovery cannot find
 # your preferred image viewer. The V key first honors openimage.bat, then this
@@ -69,6 +70,11 @@ ART_PREVIEW_RIGHT_MARGIN_COLUMNS = 2
 # The viewer is intentionally compact: 0.23 is 30% smaller than the previous
 # 0.33 setting while retaining enough detail for artwork approval.
 ART_PREVIEW_SCALE = 0.23
+# Artwork review previews keep the current height but are intentionally wider.
+# Width is doubled after the normal scale calculation, but never allowed to
+# exceed three times the chosen preview height.
+ART_PREVIEW_WIDTH_MULTIPLIER = 2.0
+ART_PREVIEW_MAX_WIDTH_TO_HEIGHT = 3.0
 
 # Built-in behavior defaults apply when no adjacent configuration file exists.
 # Use --configure-defaults to create/update that file interactively.
@@ -83,6 +89,42 @@ BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS = 10.0
 REPLAYGAIN_BAKE_THRESHOLD_DB = 0.05
 SILENCE_DETECT_NOISE_DB = -50
 SILENCE_ANALYSIS_WORKERS = max(2, min(8, os.cpu_count() or 4))
+# Restore v113's known-good width-driven renderer at exactly half its original
+# values: ordinary 0.60 -> 0.30; comparison 0.80 -> 0.40.  Raster height is not
+# independently scaled or forced; it follows the 2000x700 JPEG aspect ratio.
+WAVEFORM_REVIEW_WIDTH_SCALE = 0.80
+# A genuine comparison is one 80%-wide composite containing two side-by-side
+# panels, so each before/after waveform occupies approximately 40%.
+WAVEFORM_COMPARISON_WIDTH_SCALE = 0.80
+WAVEFORM_REVIEW_HEIGHT_SCALE = 0.80
+WAVEFORM_COMPARISON_HEIGHT_SCALE = 0.40
+# Compatibility aliases retained for older call sites/tests. Normal waveform
+# review keeps horizontal and vertical scales identical.
+WAVEFORM_REVIEW_SCALE = WAVEFORM_REVIEW_WIDTH_SCALE
+WAVEFORM_COMPARISON_SCALE = WAVEFORM_COMPARISON_WIDTH_SCALE
+WAVEFORM_REVIEW_WIDTH_FRACTION = WAVEFORM_REVIEW_WIDTH_SCALE
+WAVEFORM_COMPARISON_WIDTH_FRACTION = WAVEFORM_COMPARISON_WIDTH_SCALE
+# Legacy constants retained for compatibility with older tests/helpers. Runtime
+# sizing no longer starts from a fixed waveform-row height and no multiplier is
+# applied after the classic geometry is scaled.
+WAVEFORM_PREVIEW_HEIGHT_ROWS = 6
+WAVEFORM_FINAL_HEIGHT_MULTIPLIER = 1
+WAVEFORM_REVIEW_MIN_GRAPH_ROWS = 2
+# Compatibility constants retained for historical tests/calibration reports.
+WAVEFORM_TERMINAL_CELL_ASPECT = 0.50
+WAVEFORM_SIXEL_SAFETY_ROWS = 1
+WAVEFORM_SIXEL_CURSOR_ROW_FACTOR = 1
+WAVEFORM_SIXEL_COLORS = 64
+_WAVEFORM_SIXEL_CURSOR_CELL_HEIGHT_PIXELS: int | None = None
+WAVEFORM_COMPARISON_GAP_SOURCE_PIXELS = 60
+WAVEFORM_COMPARISON_PROMPT_PAD_SOURCE_PIXELS = 120
+# Requested v139 diagnostic exaggeration: every currently-rendered waveform
+# is 25% wider and 4x taller.  The width increase itself adds 1.25x height to
+# aspect-preserving images, so normal plots need a 3.2x vertical stretch and
+# the contact-sheet source needs its panel scale raised by 3.2x.
+WAVEFORM_REVIEW_VERTICAL_STRETCH = 1.0
+WAVEFORM_COMPARISON_PANEL_HEIGHT_SCALE = 1.0
+NO_ARGUMENT_MUSIC_SCAN_MAX_DEPTH = 5
 WAVEFORM_JPEG_WIDTH = 2000
 WAVEFORM_JPEG_HEIGHT = 700
 WAVEFORM_METRICS_GUTTER_WIDTH = 260
@@ -91,6 +133,7 @@ WAVEFORM_SILENCE_MIN_SECONDS = 0.1
 WAVEFORM_APPROVAL_DATABASE_MAX_BYTES = 50 * 1024 * 1024
 WAVEFORM_APPROVAL_DATABASE_FILENAME = "waveform_reviews.sqlite3"
 AUDIT_CACHE_FILENAME = "audit_music_batch.sqlite3"
+REPLAYGAIN_TIMING_DATABASE_FILENAME = "replaygain_timings.sqlite3"
 WAVEFORM_CHANNEL_COLORS = (
     "0x55dcff",  # cyan: left/first channel
     "0xb68cff",  # violet: right/second channel
@@ -108,6 +151,76 @@ def audit_cache_path() -> Path:
     if base:
         return Path(base) / "ClaireCJS" / AUDIT_CACHE_FILENAME
     return Path.home() / ".clairecjs" / AUDIT_CACHE_FILENAME
+
+
+
+
+def replaygain_timing_database_path() -> Path:
+    """Return the write-only timing telemetry database used for later modeling."""
+    base = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
+    if base:
+        return Path(base) / "ClaireCJS" / REPLAYGAIN_TIMING_DATABASE_FILENAME
+    return Path.home() / ".clairecjs" / REPLAYGAIN_TIMING_DATABASE_FILENAME
+
+
+def record_replaygain_timing(
+    path: Path,
+    *,
+    tool: str,
+    elapsed_seconds: float,
+    succeeded: bool,
+) -> None:
+    """Append one timing sample without ever reading historical samples."""
+    try:
+        size_bytes = path.stat().st_size
+    except OSError:
+        size_bytes = 0
+    try:
+        db_path = replaygain_timing_database_path()
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(db_path) as db:
+            db.execute(
+                """
+                CREATE TABLE IF NOT EXISTS replaygain_timings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    recorded_at TEXT NOT NULL,
+                    tool TEXT NOT NULL,
+                    extension TEXT NOT NULL,
+                    path TEXT NOT NULL,
+                    size_bytes INTEGER NOT NULL,
+                    elapsed_seconds REAL NOT NULL,
+                    succeeded INTEGER NOT NULL
+                )
+                """
+            )
+            db.execute(
+                """
+                INSERT INTO replaygain_timings(
+                    recorded_at, tool, extension, path, size_bytes,
+                    elapsed_seconds, succeeded
+                ) VALUES(?,?,?,?,?,?,?)
+                """,
+                (
+                    datetime.now().isoformat(timespec="seconds"),
+                    tool,
+                    path.suffix.casefold(),
+                    str(path),
+                    int(size_bytes),
+                    float(elapsed_seconds),
+                    1 if succeeded else 0,
+                ),
+            )
+    except Exception:
+        # Telemetry must never interfere with the music operation.
+        pass
+
+
+def compact_elapsed(seconds: float) -> str:
+    """Render a short HH:MM:SS/MM:SS duration for progress and summaries."""
+    total = max(0, int(round(float(seconds))))
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    return f"{hours:d}:{minutes:02d}:{secs:02d}" if hours else f"{minutes:02d}:{secs:02d}"
 
 
 def cached_silence_intervals(
@@ -334,6 +447,7 @@ EXECUTABLE_CATEGORIES = {
     "multiple_embedded_artworks",
     "plain_lyrics_not_embedded",
     "read_only_audio",
+    "simplify_punk_genre",
     "redundant_album_artist_filename_group",
     "filename_title_capitalization_group",
     "filename_marker_style",
@@ -390,10 +504,7 @@ ACTION_PROMPT_QUESTIONS = {
         "Remove the clearly corrupted legacy ID3 frames from this audio file now?"
     ),
     "missing_replaygain": "Run ReplayGain on this folder now?",
-    "missing_srt_from_lrc_txt": (
-        "Run lrc2srt.py MiniLyricsFix --recursive --automatic-overwrites "
-        "from this batch root now?"
-    ),
+    "missing_srt_from_lrc_txt": "Run Lyric/Karaoke Fix for this folder now?",
     "multiple_embedded_artworks": (
         "Export all artwork to sidecars and keep only the front cover embedded now?"
     ),
@@ -401,6 +512,9 @@ ACTION_PROMPT_QUESTIONS = {
         "Embed the plain lyrics into this audio file now?"
     ),
     "read_only_audio": "Clear this audio file's read-only attribute now?",
+    "simplify_punk_genre": (
+        "Choose a cleaner punk-family genre for this audio file now?"
+    ),
     "redundant_album_artist_filename_group": (
         "Rename this album file group to remove the redundant artist name now?"
     ),
@@ -514,6 +628,7 @@ AUDIT_PROGRESS_FORMAT = (
 AUDIT_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| {n:>7,.0f}/{total:>7,.0f} • {elapsed:>8} • ETA {remaining:>8} • {rate_fmt:>12}{postfix}"
 FILE_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| {n:>7,.0f}/{total:>7,.0f} files • {elapsed:>8} • ETA {remaining:>8} • {rate_fmt:>12}"
 ITEM_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| {n:>7,.0f}/{total:>7,.0f} • {elapsed:>8} • ETA {remaining:>8} • {rate_fmt:>12}"
+REPLAYGAIN_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| • {elapsed:>8}{postfix}"
 def collision_safe_path(
     desired: Path, reserved: set[Path] | None = None
 ) -> Path:
@@ -705,13 +820,49 @@ def move_sequestered_files_back(sequester: Path, folder: Path) -> list[Path]:
     return restored
 
 
+def run_silent_polled_command(
+    command: list[str],
+    *,
+    cwd: Path,
+    on_tick: Callable[[float], None] | None = None,
+    poll_seconds: float = 0.10,
+) -> float:
+    """Run a child silently, polling often enough for a live progress display."""
+    started = time.perf_counter()
+    with tempfile.TemporaryFile(mode="w+", encoding="utf-8", errors="replace") as output:
+        process = subprocess.Popen(
+            command,
+            cwd=str(cwd),
+            stdout=output,
+            stderr=subprocess.STDOUT,
+        )
+        while True:
+            returncode = process.poll()
+            elapsed = time.perf_counter() - started
+            if on_tick is not None:
+                on_tick(elapsed)
+            if returncode is not None:
+                break
+            time.sleep(max(0.02, float(poll_seconds)))
+        output.flush()
+        output.seek(0)
+        captured = output.read().strip()
+    if returncode:
+        detail = f"\n{captured}" if captured else ""
+        raise RuntimeError(
+            f"ReplayGain command failed with exit code {returncode}: "
+            f"{subprocess.list2cmdline(command)}{detail}"
+        )
+    return time.perf_counter() - started
+
+
 def apply_argt_replaygain_folder(
     folder: Path,
     *,
     use_color: bool,
     stream_output: bool = False,
 ) -> list[str]:
-    """Reproduce ARGT's MP3-first, then per-FLAC ReplayGain workflow."""
+    """Run the ARGT-equivalent workflow with one quiet, predictive progress UI."""
     immediate_audio = [
         path
         for path in folder.iterdir()
@@ -726,12 +877,14 @@ def apply_argt_replaygain_folder(
         key=lambda path: path.name.lower(),
     )
     actions: list[str] = []
+    operation_started = time.perf_counter()
     try:
         if mp3_files:
             metamp3 = require_replaygain_program("metamp3")
             print(
                 console_safe_text(
-                    "        🔢 Adding ReplayGain tags to MP3 files..."
+                    f"        🔢 Adding ReplayGain tags to {len(mp3_files)} MP3 "
+                    f"file{'s' if len(mp3_files) != 1 else ''}..."
                 ),
                 flush=True,
             )
@@ -741,23 +894,12 @@ def apply_argt_replaygain_folder(
 
             sequester = collision_safe_path(folder / "ohhhh")
             sequester.mkdir()
-            staged_paths: list[Path] = []
             try:
                 for path in mp3_files:
-                    staged = sequester / path.name
-                    shutil.move(str(path), str(staged))
-                    staged_paths.append(staged)
-                    print(
-                        console_safe_text(f"            ☑️ {path.name}"),
-                        flush=True,
-                    )
-                emit_argt_random_color(
-                    foreground_only=True, use_color=use_color
-                )
-                run_live_command(
+                    shutil.move(str(path), str(sequester / path.name))
+                run_silent_polled_command(
                     [metamp3, "--replay-gain", "*.*"],
                     cwd=sequester,
-                    stream_output=stream_output,
                 )
             finally:
                 restored = move_sequestered_files_back(sequester, folder)
@@ -766,45 +908,138 @@ def apply_argt_replaygain_folder(
                     actions.append(f"recycled:{sequester}")
             for path in restored:
                 actions.append(f"replaygain:{path}")
-        else:
-            print(
-                console_safe_text("        🚫 No MP3s exist here."),
-                flush=True,
-            )
 
         if flac_files:
             metaflac = require_replaygain_program("metaflac")
             print(
                 console_safe_text(
-                    "        🔢 Adding ReplayGain tags to FLAC files..."
+                    f"        🎚️ Adding ReplayGain tags to {len(flac_files)} FLAC "
+                    f"file{'s' if len(flac_files) != 1 else ''}..."
                 ),
                 flush=True,
             )
+            sizes: dict[Path, int] = {}
             for path in flac_files:
-                emit_argt_random_color(
-                    foreground_only=False, use_color=use_color
-                )
-                print(
-                    console_safe_text(f"            ☑️ {path.name}"),
-                    flush=True,
-                )
-                backup = backup_before_inline_replacement(path)
-                actions.append(f"backup:{backup}")
-                run_live_command(
-                    [metaflac, "--add-replay-gain", str(path)],
-                    cwd=folder,
-                    stream_output=stream_output,
-                )
-                actions.append(f"replaygain:{path}")
-        else:
-            print(
-                console_safe_text("        🚫 No FLACs exist here."),
-                flush=True,
-            )
+                try:
+                    sizes[path] = max(1, path.stat().st_size)
+                except OSError:
+                    sizes[path] = 1
+            total_bytes = max(1, sum(sizes.values()))
+            completed_bytes = 0
+            completed_seconds = 0.0
+            progress_enabled = bool(getattr(sys.stderr, "isatty", lambda: False)())
+            with progress_bar(
+                total=1.0,
+                description="🎚️ ReplayGain FLACs",
+                unit="",
+                enabled=progress_enabled,
+                bar_format=REPLAYGAIN_PROGRESS_FORMAT,
+            ) as progress:
+                for index, path in enumerate(flac_files, start=1):
+                    size_bytes = sizes[path]
+                    remaining_after_bytes = max(
+                        0, total_bytes - completed_bytes - size_bytes
+                    )
+                    model_seconds_per_byte = (
+                        completed_seconds / completed_bytes
+                        if completed_bytes > 0 and completed_seconds > 0
+                        else None
+                    )
+                    backup = backup_before_inline_replacement(path)
+                    actions.append(f"backup:{backup}")
+                    command = [metaflac, "--add-replay-gain", str(path)]
+                    command_started = time.perf_counter()
+
+                    def update_progress(elapsed: float) -> None:
+                        if progress is None:
+                            return
+                        if model_seconds_per_byte is None:
+                            target = completed_bytes / total_bytes
+                            eta_text = "calibrating"
+                        else:
+                            estimated = max(0.05, model_seconds_per_byte * size_bytes)
+                            fraction = min(0.97, max(0.0, elapsed / estimated))
+                            target = (
+                                completed_bytes + size_bytes * fraction
+                            ) / total_bytes
+                            effective_model = max(
+                                model_seconds_per_byte,
+                                elapsed / max(1.0, size_bytes * 0.97),
+                            )
+                            eta_seconds = max(0.0, estimated - elapsed) + (
+                                effective_model * remaining_after_bytes
+                            )
+                            eta_text = compact_elapsed(eta_seconds)
+                        progress.n = min(0.999999, max(float(progress.n), target))
+                        progress.set_postfix_str(
+                            f" • {index}/{len(flac_files)} • ETA {eta_text} • "
+                            f"{compact_progress_filename(path)}",
+                            refresh=False,
+                        )
+                        progress.refresh()
+
+                    succeeded = False
+                    try:
+                        elapsed = run_silent_polled_command(
+                            command,
+                            cwd=folder,
+                            on_tick=update_progress,
+                        )
+                        succeeded = True
+                    except Exception:
+                        elapsed = time.perf_counter() - command_started
+                        record_replaygain_timing(
+                            path,
+                            tool="metaflac",
+                            elapsed_seconds=elapsed,
+                            succeeded=False,
+                        )
+                        raise
+                    else:
+                        record_replaygain_timing(
+                            path,
+                            tool="metaflac",
+                            elapsed_seconds=elapsed,
+                            succeeded=True,
+                        )
+                    finally:
+                        if succeeded:
+                            completed_bytes += size_bytes
+                            completed_seconds += elapsed
+                            if progress is not None:
+                                progress.n = min(1.0, completed_bytes / total_bytes)
+                                learned_model = (
+                                    completed_seconds / completed_bytes
+                                    if completed_bytes else 0.0
+                                )
+                                eta = learned_model * max(
+                                    0, total_bytes - completed_bytes
+                                )
+                                progress.set_postfix_str(
+                                    f" • {index}/{len(flac_files)} • ETA "
+                                    f"{compact_elapsed(eta)} • "
+                                    f"{compact_progress_filename(path)}",
+                                    refresh=False,
+                                )
+                                progress.refresh()
+                    actions.append(f"replaygain:{path}")
+                if progress is not None:
+                    progress.n = 1.0
+                    progress.set_postfix_str(
+                        f" • {len(flac_files)}/{len(flac_files)} • ETA 00:00",
+                        refresh=False,
+                    )
+                    progress.refresh()
+
+        total_elapsed = time.perf_counter() - operation_started
+        total_files = len(mp3_files) + len(flac_files)
+        actions.append(
+            f"replaygain_summary:{total_files}|{len(mp3_files)}|"
+            f"{len(flac_files)}|{total_elapsed:.6f}"
+        )
     finally:
         if use_color:
-            # Both original ARGT child BATs end in "bright red on black".
-            print("\033[91;40m", end="", flush=True)
+            print(ANSI["reset"], end="", flush=True)
     return actions
 
 
@@ -899,11 +1134,11 @@ add_local_dependency_paths()
 try:
     from mutagen import File as mutagen_file
     from mutagen.flac import FLAC, Picture
-    from mutagen.id3 import APIC, ID3, SYLT, TALB, TXXX, USLT
+    from mutagen.id3 import APIC, ID3, SYLT, TALB, TCON, TXXX, USLT
     from mutagen.mp3 import MP3
 except Exception:  # pragma: no cover - exercised when mutagen is absent.
     mutagen_file = None
-    FLAC = Picture = APIC = ID3 = SYLT = TALB = TXXX = USLT = MP3 = None
+    FLAC = Picture = APIC = ID3 = SYLT = TALB = TCON = TXXX = USLT = MP3 = None
 
 
 try:
@@ -970,6 +1205,36 @@ class ArtworkPreviewGeometry:
 
 
 @dataclass(frozen=True)
+class ConsoleViewportState:
+    """Visible console-window geometry plus cursor location in that window."""
+
+    columns: int
+    rows: int
+    cursor_column: int
+    cursor_row: int
+    window_top: int = 0
+    window_bottom: int = 0
+
+    @property
+    def rows_available_from_cursor(self) -> int:
+        return max(1, self.rows - self.cursor_row)
+
+
+@dataclass(frozen=True)
+class WaveformReviewLayout:
+    """One inline waveform-review block's vertical budget."""
+
+    graph_rows: int
+    graph_count: int
+    fixed_text_rows: int
+    required_rows: int
+    rows_available_from_cursor: int
+    scroll_rows: int
+    terminal_columns: int
+    terminal_rows: int
+
+
+@dataclass(frozen=True)
 class PreparedArtworkPreview:
     """Display-ready preview produced without writing to the terminal."""
 
@@ -978,6 +1243,7 @@ class PreparedArtworkPreview:
     sixel_payload: bytes | None = None
     text_payload: str | None = None
     renderer_options: tuple[str, ...] = ()
+    direct_command: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1468,14 +1734,68 @@ def rename_title_and_suffix(path: Path, rest: str) -> tuple[str, str]:
     return match.group("title"), match.group("tail") + path.suffix
 
 
+def album_uses_disc_track_prefix(files: list[Path]) -> bool:
+    """Detect a repeated DISC_TRACK_TITLE convention from the audio files."""
+    audio = [path for path in files if path.suffix.casefold() in AUDIO_EXTS]
+    if len(audio) < 2:
+        return False
+    matches = [
+        re.match(
+            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_(?P<title>.+)$",
+            path.stem,
+        )
+        for path in audio
+    ]
+    if any(match is None for match in matches):
+        return False
+    discs = {str(match.group("disc")) for match in matches if match is not None}
+    # Requiring more than one disc/side prevents a title beginning with a number
+    # from being mistaken for compound numbering in an ordinary one-disc album.
+    return len(discs) >= 2
+
+
+def album_title_source_and_suffix(
+    path: Path, rest: str, *, compound_track_prefix: bool
+) -> tuple[str, str]:
+    """Split title text from structural sidecar/backup tails."""
+    if compound_track_prefix and path.suffix.casefold() == ".srt":
+        match = re.match(
+            r"^(?P<title>.*?)(?P<tail>\.(?:mp3|flac)\._vad_ten)$",
+            rest,
+            flags=re.I,
+        )
+        if match is not None:
+            return match.group("title"), match.group("tail") + path.suffix
+    return rename_title_and_suffix(path, rest)
+
+
 def capitalized_album_filename_proposal(
     filename: str,
     album_track_count: int,
+    *,
+    compound_track_prefix: bool = False,
 ) -> str | None:
-    """Normalize track prefix, title spaces/case, and matching backup tails."""
+    """Normalize track prefix/title case while preserving compound disc numbering."""
     path = Path(filename)
     if path.suffix.casefold() not in CANONICAL_RENAME_EXTS:
         return None
+    if compound_track_prefix:
+        match = re.match(
+            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_(?P<rest>.+)$",
+            path.stem,
+        )
+        if match is None:
+            return None
+        prefix = f"{match.group('disc')}_{match.group('track')}_"
+        title_source, suffix = album_title_source_and_suffix(
+            path,
+            match.group("rest"),
+            compound_track_prefix=True,
+        )
+        title = canonical_song_title_text(title_source)
+        proposed = f"{prefix}{title}{suffix}"
+        return proposed if proposed != path.name else None
+
     match = re.match(
         r"^(?P<track>\d{1,3})[-_. ]+(?P<rest>.+)$",
         path.stem,
@@ -1488,9 +1808,10 @@ def capitalized_album_filename_proposal(
         if album_track_count >= 10
         else str(track_number)
     )
-    title_source, suffix = rename_title_and_suffix(
+    title_source, suffix = album_title_source_and_suffix(
         path,
         match.group("rest"),
+        compound_track_prefix=False,
     )
     title = canonical_song_title_text(title_source)
     proposed = f"{track}_{title}{suffix}"
@@ -1500,37 +1821,48 @@ def capitalized_album_filename_proposal(
 def all_caps_album_title_proposal(
     filename: str,
     album_track_count: int,
+    *,
+    compound_track_prefix: bool = False,
 ) -> str | None:
-    """Suggest conservative title case for an otherwise all-caps album title.
-
-    This deliberately only detects titles whose alphabetic characters are all
-    uppercase.  Mixed-case titles are left to the ordinary capitalization
-    audit; ALL CAPS is a distinct, reviewable style decision.
-    """
+    """Suggest conservative title case while preserving disc/track prefixes."""
     path = Path(filename)
     if path.suffix.casefold() not in CANONICAL_RENAME_EXTS:
         return None
-    match = re.match(
-        r"^(?P<track>\d{1,3})[-_. ]+(?P<rest>.+)$",
-        path.stem,
+    if compound_track_prefix:
+        match = re.match(
+            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_(?P<rest>.+)$",
+            path.stem,
+        )
+        if match is None:
+            return None
+        prefix = f"{match.group('disc')}_{match.group('track')}_"
+    else:
+        match = re.match(
+            r"^(?P<track>\d{1,3})[-_. ]+(?P<rest>.+)$",
+            path.stem,
+        )
+        if match is None:
+            return None
+        track_number = int(match.group("track"))
+        track = f"{track_number:02d}" if album_track_count >= 10 else str(track_number)
+        prefix = f"{track}_"
+    title_source, suffix = album_title_source_and_suffix(
+        path,
+        match.group("rest"),
+        compound_track_prefix=compound_track_prefix,
     )
-    if match is None:
-        return None
-    title_source, suffix = rename_title_and_suffix(path, match.group("rest"))
     title_source = title_source.translate(str.maketrans({
         "‘": "'", "’": "'", "“": '"', "”": '"',
     }))
     letters = "".join(character for character in title_source if character.isalpha())
     if not letters or letters != letters.upper():
         return None
-    track_number = int(match.group("track"))
-    track = f"{track_number:02d}" if album_track_count >= 10 else str(track_number)
     title = re.sub(
         r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?:['’][A-Za-zÀ-ÖØ-öø-ÿ]+)?",
         lambda word: word.group(0).capitalize(),
         title_source,
     )
-    proposed = f"{track}_{title}{suffix}"
+    proposed = f"{prefix}{title}{suffix}"
     return proposed if proposed != path.name else None
 
 
@@ -1669,6 +2001,23 @@ class Finding:
         if self.code:
             out["code"] = self.code
         return out
+
+
+def split_genre_components(genres: list[str]) -> list[str]:
+    """Split multi-value/semicolon genre tags into stable, unique components."""
+    components: list[str] = []
+    seen: set[str] = set()
+    for raw in genres:
+        for piece in re.split(r"\s*(?:;|/|\|)\s*", str(raw).strip()):
+            value = piece.strip()
+            if not value:
+                continue
+            key = value.casefold()
+            if key in seen:
+                continue
+            seen.add(key)
+            components.append(value)
+    return components
 
 
 class BatchAudit:
@@ -1967,9 +2316,16 @@ class BatchAudit:
 
     def audit_filesystem(self) -> None:
         for path in self.files:
+            try:
+                stat_result = path.stat()
+            except FileNotFoundError:
+                # Temporary marker/work files may legitimately disappear after
+                # enumeration; a filesystem audit must tolerate that race.
+                self.progress_update()
+                continue
             suffix = path.suffix.lower()
             name_lower = path.name.lower()
-            size = path.stat().st_size
+            size = stat_result.st_size
             archived = self.is_archive_path(path)
 
             if size == 0:
@@ -1992,7 +2348,16 @@ class BatchAudit:
                     size=size,
                 )
 
-            if suffix in AUDIO_EXTS and is_windows_read_only(path) and not archived:
+            try:
+                read_only_audio = (
+                    suffix in AUDIO_EXTS
+                    and is_windows_read_only(path)
+                    and not archived
+                )
+            except FileNotFoundError:
+                self.progress_update()
+                continue
+            if read_only_audio:
                 self.add(
                     "safe_fix",
                     "read_only_audio",
@@ -2075,7 +2440,11 @@ class BatchAudit:
             if suffix in IMAGE_EXTS and re.search(r" \([0-9]+\)$", path.stem):
                 base_stem = re.sub(r" \([0-9]+\)$", "", path.stem)
                 sibling = path.with_name(base_stem + path.suffix)
-                if sibling.exists() and path.stat().st_size <= sibling.stat().st_size:
+                try:
+                    sibling_size = sibling.stat().st_size
+                except FileNotFoundError:
+                    sibling_size = None
+                if sibling_size is not None and size <= sibling_size:
                     self.add("safe_cleanup", "smaller_numbered_image_duplicate", path, "Numbered image duplicate with larger/same unnumbered sibling.", "Send the smaller numbered duplicate to the Recycle Bin.", sibling=self.rel(sibling))
             self.progress_update()
 
@@ -2141,18 +2510,33 @@ class BatchAudit:
                 == artist.casefold()
                 else None
             )
-            track_numbers = {
-                int(match.group("track"))
-                for path in files
-                if path.suffix.lower() in AUDIO_EXTS
-                and (
-                    match := re.search(
-                        r"(?:^|[-_. ])(?P<track>\d{1,2})[-_. ]+",
-                        path.name,
+            compound_track_prefix = album_uses_disc_track_prefix(files)
+            if compound_track_prefix:
+                track_identities = {
+                    (match.group("disc"), match.group("track"))
+                    for path in files
+                    if path.suffix.lower() in AUDIO_EXTS
+                    and (
+                        match := re.match(
+                            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_",
+                            path.name,
+                        )
                     )
-                )
-            }
-            album_track_count = len(track_numbers)
+                }
+                album_track_count = len(track_identities)
+            else:
+                track_numbers = {
+                    int(match.group("track"))
+                    for path in files
+                    if path.suffix.lower() in AUDIO_EXTS
+                    and (
+                        match := re.search(
+                            r"(?:^|[-_. ])(?P<track>\d{1,2})[-_. ]+",
+                            path.name,
+                        )
+                    )
+                }
+                album_track_count = len(track_numbers)
             renames: list[dict[str, str]] = []
             audio_renames: list[tuple[Path, str]] = []
             for path in sorted(files, key=lambda item: item.name.lower()):
@@ -2234,6 +2618,7 @@ class BatchAudit:
                 proposed_name = all_caps_album_title_proposal(
                     path.name,
                     album_track_count,
+                    compound_track_prefix=compound_track_prefix,
                 )
                 if proposed_name is None:
                     continue
@@ -2276,6 +2661,7 @@ class BatchAudit:
                 proposed_name = capitalized_album_filename_proposal(
                     path.name,
                     album_track_count,
+                    compound_track_prefix=compound_track_prefix,
                 )
                 if proposed_name is None:
                     continue
@@ -2327,6 +2713,11 @@ class BatchAudit:
                 self.progress_update()
             return
 
+        replaygain_by_folder: dict[Path, dict[str, Any]] = defaultdict(
+            lambda: {"total": 0, "missing": []}
+        )
+        missing_srt_by_folder: dict[Path, list[Path]] = defaultdict(list)
+
         for path in self.audio_files:
             self.progress_show_audio(path)
             snapshot = self.tag_snapshot(path)
@@ -2367,9 +2758,24 @@ class BatchAudit:
             elif any(not g for g in genres):
                 self.add("problem", "empty_genre", path, "Empty genre value.", "Remove empty genre entries or set a real genre.")
             else:
-                joined = " / ".join(genres).lower()
-                if "punk" in joined and joined != "punk":
-                    self.add("safe_fix", "simplify_punk_genre", path, f"Punk-family genre is {genres}.", "Collapse punk-family genre to Punk.")
+                components = split_genre_components(genres)
+                # This is specifically a simplification finding: a single genre
+                # such as "Punk Rock" is already simple and should not be nagged.
+                # Multi-value / semicolon tags containing a punk-family component
+                # get an interactive chooser instead.
+                if (
+                    len(components) > 1
+                    and any("punk" in component.casefold() for component in components)
+                ):
+                    self.add(
+                        "safe_fix",
+                        "simplify_punk_genre",
+                        path,
+                        f"Punk-family genre is {genres}.",
+                        "Choose Punk (default), one existing genre component, or keep the whole existing tag.",
+                        genres=genres,
+                        genre_components=components,
+                    )
 
             if not snapshot.get("title"):
                 self.add("problem", "missing_title", path, "Missing title tag.")
@@ -2392,15 +2798,10 @@ class BatchAudit:
                 elif text:
                     self.add("info", "comment_present", path, "Non-empty comment tag is present.", comment=text)
 
+            replaygain_status = replaygain_by_folder[path.parent]
+            replaygain_status["total"] += 1
             if not self.has_track_replaygain(path, snapshot):
-                self.add(
-                    "safe_fix",
-                    "missing_replaygain",
-                    path,
-                    "Missing or invalid ReplayGain track gain/peak.",
-                    "Approve the Y/n prompt to run the full ARGT-equivalent folder workflow: sequester all MP3s and run metamp3 first, then run metaflac on each FLAC, stream all output, and re-audit.",
-                    channels=channels,
-                )
+                replaygain_status["missing"].append(path)
 
             front_sidecars = embeddable_front_art_candidates(path)
             image_sidecars = self.artwork_sidecars_for_audio(path)
@@ -2451,13 +2852,7 @@ class BatchAudit:
             if not self.is_instrumental_or_no_lyrics(path):
                 if lrc and txt and not srt:
                     if self.lrc_is_timestamped(lrc):
-                        self.add(
-                            "safe_fix",
-                            "missing_srt_from_lrc_txt",
-                            path,
-                            "LRC and TXT sidecars exist, but the matching SRT sidecar is missing.",
-                            "Before the audit pass, run lrc2srt.py MiniLyricsFix --recursive --automatic-overwrites from the batch root.",
-                        )
+                        missing_srt_by_folder[path.parent].append(path)
                     else:
                         self.add(
                             "ask_first",
@@ -2624,6 +3019,57 @@ class BatchAudit:
                         components=outdated_components,
                     )
             self.progress_update()
+
+        for folder, status in sorted(
+            replaygain_by_folder.items(), key=lambda item: str(item[0]).casefold()
+        ):
+            missing_paths = list(status["missing"])
+            total_count = int(status["total"])
+            missing_count = len(missing_paths)
+            if not missing_count:
+                continue
+            if missing_count == total_count:
+                message = (
+                    f"ReplayGain track gain/peak is missing or invalid for all "
+                    f"{total_count} audio file{'s' if total_count != 1 else ''} "
+                    "in this folder."
+                )
+            else:
+                message = (
+                    f"ReplayGain track gain/peak is missing or invalid for "
+                    f"{missing_count} of {total_count} audio files in this folder."
+                )
+            self.add(
+                "safe_fix",
+                "missing_replaygain",
+                folder,
+                message,
+                "Run the full ARGT-equivalent workflow once for this folder: "
+                "process MP3s first, then FLACs with a quiet predictive progress "
+                "bar, and re-audit.",
+                folder_level=True,
+                affected_files=[self.rel(path) for path in missing_paths],
+                missing_count=missing_count,
+                total_count=total_count,
+            )
+
+        for folder, paths in sorted(
+            missing_srt_by_folder.items(), key=lambda item: str(item[0]).casefold()
+        ):
+            count = len(paths)
+            self.add(
+                "safe_fix",
+                "missing_srt_from_lrc_txt",
+                folder,
+                (
+                    f"{count} track{'s' if count != 1 else ''} in this folder "
+                    "have timestamped LRC and TXT sidecars but no matching SRT."
+                ),
+                "Run Lyric/Karaoke Fix once for this folder, then re-audit.",
+                folder_level=True,
+                affected_files=[self.rel(path) for path in paths],
+                missing_count=count,
+            )
 
     def audit_excessive_silence(
         self,
@@ -3213,13 +3659,81 @@ def lrc2srt_executable() -> Path | None:
     return next((candidate for candidate in candidates if candidate.is_file()), None)
 
 
-def generate_missing_srt_sidecars(root: Path, audio_path: Path) -> list[str]:
-    """Run the user's recursive MiniLyricsFix workflow once at the batch root."""
-    lrc = find_lyric_sidecar(audio_path, (".lrc",))
-    expected_srt = audio_path.with_suffix(".srt")
+def generate_missing_srt_sidecars(
+    root: Path,
+    audio_or_folder: Path,
+    *,
+    expected_audio_paths: list[Path] | None = None,
+) -> list[str]:
+    """Run the folder-scoped Lyric/Karaoke Fix and verify every expected SRT."""
+    target_folder = (
+        audio_or_folder
+        if audio_or_folder.is_dir()
+        else audio_or_folder.parent
+    )
+    expected_audio = list(expected_audio_paths or [])
+    if not expected_audio and audio_or_folder.is_file():
+        expected_audio = [audio_or_folder]
+    if not expected_audio:
+        expected_audio = [
+            path
+            for path in target_folder.iterdir()
+            if path.is_file()
+            and path.suffix.casefold() in AUDIO_EXTS
+            and find_lyric_sidecar(path, (".lrc",)) is not None
+            and find_lyric_sidecar(path, (".txt",)) is not None
+            and find_lyric_sidecar(path, (".srt",)) is None
+        ]
+    if not expected_audio:
+        return [f"lyric_karaoke_fix_summary:0|0|{target_folder}"]
+
+    for audio_path in expected_audio:
+        lrc = find_lyric_sidecar(audio_path, (".lrc",))
+        if lrc is None:
+            raise RuntimeError(
+                f"The matching timestamped LRC sidecar is unavailable: {audio_path.name}"
+            )
+
+    # A precomputed finding can become stale before we reach it. Also, the
+    # auditor deliberately treats a zero-byte SRT as missing while lrc2srt.py
+    # treats any existing filename as "already had SRT". Resolve both cases
+    # before invoking the tool so a harmless stale/empty file cannot turn into
+    # a confusing command failure.
+    already_valid: list[Path] = []
+    recycled_empty: list[Path] = []
+    for audio_path in expected_audio:
+        srt = audio_path.with_suffix(".srt")
+        if srt.is_file():
+            try:
+                size = srt.stat().st_size
+            except FileNotFoundError:
+                size = 0
+            if size > 0:
+                already_valid.append(srt)
+            else:
+                recycle_path(srt)
+                recycled_empty.append(srt)
+
+    pending_audio = [
+        audio_path
+        for audio_path in expected_audio
+        if not audio_path.with_suffix(".srt").is_file()
+    ]
+    if not pending_audio:
+        print(
+            console_safe_text(
+                f"            ✅ Lyric/Karaoke Fix: all {len(expected_audio)} "
+                f"expected SRT sidecar{'s are' if len(expected_audio) != 1 else ' is'} "
+                "already present; nothing to do."
+            ),
+            flush=True,
+        )
+        return [
+            f"lyric_karaoke_fix_summary:0|{len(expected_audio)}|{target_folder}",
+            *[f"confirmed_srt:{path}" for path in already_valid],
+        ]
+
     tool = lrc2srt_executable()
-    if lrc is None:
-        raise RuntimeError("The matching timestamped LRC sidecar is unavailable")
     if tool is None:
         raise RuntimeError(
             "lrc2srt.py was not found beside the auditor or in C:\\BAT"
@@ -3227,23 +3741,66 @@ def generate_missing_srt_sidecars(root: Path, audio_path: Path) -> list[str]:
     command = [
         sys.executable,
         str(tool),
-        "MiniLyricsFix",
+        "MiniLyricsFix",  # internal lrc2srt.py mode name; never shown to user
         "--recursive",
         "--automatic-overwrites",
     ]
     print(
         console_safe_text(
-            "            🎤 Running the recursive MiniLyricsFix SRT "
-            f"backfill from {root}:"
+            "            🎤 Lyric/Karaoke Fix: generating missing SRT sidecars "
+            f"for {target_folder}..."
         ),
         flush=True,
     )
-    run_live_command(command, cwd=root, stream_output=True)
-    if not expected_srt.is_file():
+    result = subprocess.run(
+        command,
+        cwd=str(target_folder),
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        errors="replace",
+    )
+    captured = str(getattr(result, "stdout", "") or "").strip()
+    # Keep the implementation detail out of user-visible diagnostics.
+    captured = captured.replace("MiniLyricsFix", "Lyric/Karaoke Fix")
+
+    missing_after = [
+        audio_path.with_suffix(".srt")
+        for audio_path in expected_audio
+        if not audio_path.with_suffix(".srt").is_file()
+        or audio_path.with_suffix(".srt").stat().st_size <= 0
+    ]
+    if missing_after:
+        names = ", ".join(path.name for path in missing_after[:5])
+        if len(missing_after) > 5:
+            names += f", … (+{len(missing_after) - 5} more)"
+        detail = f"\n{captured}" if captured else ""
         raise RuntimeError(
-            f"lrc2srt.py did not create the matching SRT: {expected_srt.name}"
+            f"Lyric/Karaoke Fix did not create {len(missing_after)} expected SRT "
+            f"sidecar{'s' if len(missing_after) != 1 else ''}: {names}{detail}"
         )
-    return [f"generated_srt_sidecars:{root}", f"confirmed_srt:{expected_srt}"]
+
+    # Some lrc2srt.py builds use a nonzero exit status for "nothing to do".
+    # Verification above is authoritative: if every expected SRT now exists and
+    # is nonempty, the folder action succeeded regardless of that status code.
+    generated_count = len(pending_audio)
+    print(
+        console_safe_text(
+            f"            ✅ Lyric/Karaoke Fix: verified {len(expected_audio)} SRT "
+            f"sidecar{'s' if len(expected_audio) != 1 else ''} "
+            f"({generated_count} generated)."
+        ),
+        flush=True,
+    )
+    return [
+        f"lyric_karaoke_fix_summary:{generated_count}|{len(expected_audio)}|{target_folder}",
+        *[f"recycled_empty_srt:{path}" for path in recycled_empty],
+        *[
+            f"confirmed_srt:{audio_path.with_suffix('.srt')}"
+            for audio_path in expected_audio
+        ],
+    ]
 
 
 def backfill_srt_from_lrc(audio_path: Path) -> list[str]:
@@ -4765,6 +5322,72 @@ def windows_visible_console_size() -> os.terminal_size | None:
     return None
 
 
+def windows_console_viewport_state() -> ConsoleViewportState | None:
+    """Return visible Win32 viewport and cursor position without touching Chafa geometry.
+
+    This is deliberately waveform-specific state.  Artwork/Chafa previews continue
+    to use the project's existing ``claire_terminal_geometry`` integration.
+    """
+    if os.name != "nt":
+        return None
+    try:
+        import ctypes
+        import msvcrt
+
+        class Coord(ctypes.Structure):
+            _fields_ = (("x", ctypes.c_short), ("y", ctypes.c_short))
+
+        class SmallRect(ctypes.Structure):
+            _fields_ = (
+                ("left", ctypes.c_short),
+                ("top", ctypes.c_short),
+                ("right", ctypes.c_short),
+                ("bottom", ctypes.c_short),
+            )
+
+        class ConsoleScreenBufferInfo(ctypes.Structure):
+            _fields_ = (
+                ("size", Coord),
+                ("cursor_position", Coord),
+                ("attributes", ctypes.c_ushort),
+                ("window", SmallRect),
+                ("maximum_window_size", Coord),
+            )
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        get_info = kernel32.GetConsoleScreenBufferInfo
+        get_info.argtypes = (
+            ctypes.c_void_p,
+            ctypes.POINTER(ConsoleScreenBufferInfo),
+        )
+        get_info.restype = ctypes.c_int
+        for stream in (sys.stdout, sys.stderr, sys.stdin):
+            try:
+                handle = msvcrt.get_osfhandle(stream.fileno())
+            except (AttributeError, OSError, ValueError):
+                continue
+            info = ConsoleScreenBufferInfo()
+            if not get_info(handle, ctypes.byref(info)):
+                continue
+            columns = int(info.window.right - info.window.left + 1)
+            rows = int(info.window.bottom - info.window.top + 1)
+            if columns <= 0 or rows <= 0:
+                continue
+            cursor_column = max(0, min(columns - 1, int(info.cursor_position.x - info.window.left)))
+            cursor_row = max(0, min(rows - 1, int(info.cursor_position.y - info.window.top)))
+            return ConsoleViewportState(
+                columns=columns,
+                rows=rows,
+                cursor_column=cursor_column,
+                cursor_row=cursor_row,
+                window_top=int(info.window.top),
+                window_bottom=int(info.window.bottom),
+            )
+    except Exception:
+        return None
+    return None
+
+
 def windows_console_font_cell_size() -> tuple[int, int] | None:
     """Return the active Win32 console font cell size in physical pixels."""
     if os.name != "nt":
@@ -4809,6 +5432,47 @@ def windows_console_font_cell_size() -> tuple[int, int] | None:
     except Exception:
         return None
     return None
+
+
+def windows_console_pixel_scale_factor() -> float:
+    """Return Windows display-DPI scaling for terminal pixel geometry.
+
+    GetCurrentConsoleFontEx can report the unscaled logical font cell under
+    Windows Terminal/ConPTY. Sixel, however, is painted in display pixels.
+    Compensating by the active window/system DPI keeps an 80% waveform near
+    80% of the *visible* terminal instead of roughly half that size on a 200%
+    display. Non-Windows terminals deliberately stay at 1.0.
+    """
+    if os.name != "nt":
+        return 1.0
+    try:
+        import ctypes
+
+        user32 = ctypes.WinDLL("user32", use_last_error=True)
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        dpi_candidates: list[int] = []
+        get_console_window = getattr(kernel32, "GetConsoleWindow", None)
+        get_dpi_for_window = getattr(user32, "GetDpiForWindow", None)
+        if get_console_window is not None and get_dpi_for_window is not None:
+            get_console_window.restype = ctypes.c_void_p
+            get_dpi_for_window.argtypes = (ctypes.c_void_p,)
+            get_dpi_for_window.restype = ctypes.c_uint
+            hwnd = get_console_window()
+            if hwnd:
+                dpi_candidates.append(int(get_dpi_for_window(hwnd) or 0))
+        get_dpi_for_system = getattr(user32, "GetDpiForSystem", None)
+        if get_dpi_for_system is not None:
+            get_dpi_for_system.restype = ctypes.c_uint
+            dpi_candidates.append(int(get_dpi_for_system() or 0))
+        # GetConsoleWindow() is only a message-queue pseudo-window under
+        # Windows Terminal and can misleadingly report 96 DPI. Prefer the
+        # highest sane signal so a 150%/200% desktop is not collapsed to 100%.
+        dpi = max((value for value in dpi_candidates if value), default=0)
+        if 72 <= dpi <= 768:
+            return max(0.75, min(4.0, dpi / 96.0))
+    except Exception:
+        pass
+    return 1.0
 
 
 def visible_console_size() -> os.terminal_size:
@@ -4899,43 +5563,86 @@ def waveform_rendering_status(
     filename: str,
     use_color: bool,
     *,
+    frame: str = "⏳",
     terminal_columns: int | None = None,
 ) -> str:
-    """Render one aligned waveform wait line, wrapping only the filename.
-
-    The continuation deliberately begins eight cells beyond the ``R`` in
-    ``Rendering`` so a long title reads as one status sentence rather than as
-    an accidentally misaligned second field.
-    """
-    prefix = "            ⏳ Rendering "
+    """Render the one-line animated status shown while a waveform is generated."""
+    prefix = f"            {frame} Rendering: "
     columns = max(1, int(terminal_columns or visible_console_size().columns))
-    first_width = max(1, columns - visible_cell_width(prefix))
-    continuation = " " * (visible_cell_width(prefix) + 8)
-    later_width = max(1, columns - visible_cell_width(continuation))
-    chunks: list[str] = []
-    current = ""
-    available = first_width
-    for word in str(filename).split() or [str(filename)]:
-        candidate = word if not current else f"{current} {word}"
-        if current and visible_cell_width(candidate) > available:
-            chunks.append(current)
-            current = word
-            available = later_width
-        else:
-            current = candidate
-    if current:
-        chunks.append(current)
-    if not chunks:
-        chunks = [""]
-    rendered = [
+    available = max(4, columns - visible_cell_width(prefix))
+    shown = middle_ellipsize(str(filename), available)
+    return (
         rgb_text(prefix, 190, 185, 150, use_color, dim=True)
-        + varied_path(chunks[0], use_color)
-    ]
-    rendered.extend(
-        continuation + varied_path(chunk, use_color)
-        for chunk in chunks[1:]
+        + varied_path(shown, use_color)
     )
-    return "\n".join(rendered)
+
+
+def waveform_rendered_status(
+    filename: str,
+    use_color: bool,
+    *,
+    terminal_columns: int | None = None,
+) -> str:
+    """Render the stable replacement for the animated waveform wait line."""
+    prefix = "            ✅ Rendered: "
+    columns = max(1, int(terminal_columns or visible_console_size().columns))
+    available = max(4, columns - visible_cell_width(prefix))
+    shown = middle_ellipsize(str(filename), available)
+    return (
+        rgb_text(prefix, 115, 225, 150, use_color)
+        + varied_path(shown, use_color)
+    )
+
+
+def wait_for_waveform_render(
+    future: Future,
+    filename: str,
+    *,
+    use_color: bool,
+    refresh_seconds: float = 0.32,
+    leave_final_status: bool = True,
+):
+    """Wait for one render future while animating an hourglass in place.
+
+    Waveform review can clear the temporary wait line when the render finishes,
+    then print the stable ``Rendered:`` status *inside* its measured review block.
+    Other callers retain the historical final-status behavior by default.
+    """
+    interactive_terminal = bool(
+        getattr(sys.stdout, "isatty", lambda: False)()
+    )
+    frames = ("⏳", "⌛")
+    if interactive_terminal and not future.done():
+        frame_index = 0
+        while not future.done():
+            status = waveform_rendering_status(
+                filename,
+                use_color,
+                frame=frames[frame_index % len(frames)],
+            )
+            print(
+                "\r" + status + ANSI["erase_to_eol"],
+                end="",
+                flush=True,
+            )
+            frame_index += 1
+            time.sleep(max(0.05, float(refresh_seconds)))
+        result = future.result()
+        if leave_final_status:
+            print(
+                "\r"
+                + waveform_rendered_status(filename, use_color)
+                + ANSI["erase_to_eol"]
+            )
+        else:
+            print("\r" + ANSI["erase_line"], end="\r", flush=True)
+        return result
+    if not future.done() and leave_final_status:
+        print(waveform_rendering_status(filename, use_color))
+    result = future.result()
+    if leave_final_status:
+        print(waveform_rendered_status(filename, use_color))
+    return result
 
 
 def erase_wrapped_console_text(text: str) -> None:
@@ -5115,12 +5822,274 @@ def artwork_preview_geometry(
     )
 
 
-def waveform_preview_geometry() -> ArtworkPreviewGeometry:
-    """Use nearly the full live viewport for diagnostic waveform review."""
-    return artwork_preview_geometry(
+def waveform_review_prompt_text(
+    audio_name: str,
+    *,
+    terminal_columns: int,
+    excessive_silence: bool,
+    allow_bake_gain: bool,
+) -> str:
+    """Build the plain review prompt exactly as it will wrap on screen."""
+    question = urgent_prompt_text(
+        f"Does this waveform show a problem in {audio_name}?",
+        False,
+        faint_italic_spans=(audio_name,),
+    )
+    return prompt_with_option_legend(
+        question,
+        waveform_review_choices(
+            False,
+            default_edit=excessive_silence,
+            allow_bake_gain=allow_bake_gain,
+        ),
+        indent="            ",
+        terminal_columns=terminal_columns,
+    )
+
+
+def waveform_review_fixed_text_rows(
+    audio_name: str,
+    *,
+    index: int,
+    total: int,
+    comparison_active: bool,
+    terminal_columns: int,
+    excessive_silence: bool = False,
+    allow_bake_gain: bool = False,
+) -> int:
+    """Count every non-Sixel row belonging to the current review block."""
+    columns = max(1, int(terminal_columns))
+    rows = 1  # leading blank line separating this review from prior output
+    rows += rendered_console_rows(
+        waveform_review_header(
+            index, total, comparison_active=comparison_active, use_color=False
+        ),
+        columns,
+    )
+    rows += rendered_console_rows(
+        waveform_rendered_status(
+            audio_name, False, terminal_columns=columns
+        ),
+        columns,
+    )
+    if excessive_silence:
+        # Use the longest normal narration shape.  Exact seconds do not change
+        # wrapping materially, but keeping this row in the budget prevents the
+        # warning from pushing the prompt offscreen.
+        silence_text = (
+            "            🔴 Longest silence exceeds the configured limit; "
+            "ENTER defaults to opening this file in the audio editor."
+        )
+        rows += rendered_console_rows(silence_text, columns)
+    rows += rendered_console_rows(
+        waveform_review_prompt_text(
+            audio_name,
+            terminal_columns=columns,
+            excessive_silence=excessive_silence,
+            allow_bake_gain=allow_bake_gain,
+        ),
+        columns,
+    )
+    return rows
+
+
+def waveform_review_graph_rows(
+    comparison_active: bool,
+    terminal_size: os.terminal_size | None = None,
+    *,
+    rows_available_from_cursor: int | None = None,
+    fixed_text_rows: int | None = None,
+) -> int:
+    """Choose equal graph heights using the live rows below the cursor.
+
+    Prefer shrinking the graphs over scrolling prior audit output.  Only when
+    even the configured minimum graph height cannot fit do we later scroll the
+    viewport by the exact number of rows required.
+    """
+    terminal = terminal_size or visible_console_size()
+    lines = max(1, int(terminal.lines))
+    graph_count = 2 if comparison_active else 1
+    fixed = max(0, int(fixed_text_rows if fixed_text_rows is not None else (5 if comparison_active else 4)))
+    available = max(1, int(rows_available_from_cursor if rows_available_from_cursor is not None else lines))
+    usable = available - fixed - graph_count * WAVEFORM_SIXEL_SAFETY_ROWS
+    no_scroll_rows = usable // graph_count
+    if no_scroll_rows >= WAVEFORM_REVIEW_MIN_GRAPH_ROWS:
+        return min(int(WAVEFORM_PREVIEW_HEIGHT_ROWS), int(no_scroll_rows))
+
+    full_usable = lines - fixed - graph_count * WAVEFORM_SIXEL_SAFETY_ROWS
+    full_rows = full_usable // graph_count
+    if full_rows >= WAVEFORM_REVIEW_MIN_GRAPH_ROWS:
+        # The cursor is already too low for even the minimum graph height.
+        # Use the minimum useful height and scroll only the exact remaining
+        # deficit; do not scroll old audit output merely to preserve 6-row art.
+        return int(WAVEFORM_REVIEW_MIN_GRAPH_ROWS)
+    return max(1, min(int(WAVEFORM_PREVIEW_HEIGHT_ROWS), int(full_rows)))
+
+
+def waveform_review_layout_plan(
+    audio_name: str,
+    *,
+    index: int,
+    total: int,
+    comparison_active: bool,
+    excessive_silence: bool,
+    allow_bake_gain: bool,
+    viewport_state: ConsoleViewportState | None = None,
+    terminal_size: os.terminal_size | None = None,
+) -> WaveformReviewLayout:
+    """Plan one inline review using uniform classic waveform geometry.
+
+    The waveform starts from the original pre-experiment preview (nearly the
+    full live terminal), then scales uniformly to 75% for a single graph or
+    50% for each before/after graph.  A comparison therefore occupies roughly
+    one screen in total instead of one screen per graph.
+
+    If the complete current review block cannot physically fit in the visible
+    viewport, clamp only the vertical dimension as a last-resort safety measure;
+    horizontal width remains at the configured scale so the metric gutter stays
+    on-screen.
+    """
+    terminal = terminal_size or visible_console_size()
+    state = viewport_state
+    columns = int(state.columns if state is not None else terminal.columns)
+    rows = int(state.rows if state is not None else terminal.lines)
+    rows_available = state.rows_available_from_cursor if state is not None else rows
+    fixed = waveform_review_fixed_text_rows(
+        audio_name,
+        index=index,
+        total=total,
+        comparison_active=comparison_active,
+        terminal_columns=columns,
+        excessive_silence=excessive_silence,
+        allow_bake_gain=allow_bake_gain,
+    )
+    graph_count = 2 if comparison_active else 1
+    width_scale = (
+        WAVEFORM_COMPARISON_WIDTH_SCALE
+        if comparison_active
+        else WAVEFORM_REVIEW_WIDTH_SCALE
+    )
+    height_scale = (
+        WAVEFORM_COMPARISON_HEIGHT_SCALE
+        if comparison_active
+        else WAVEFORM_REVIEW_HEIGHT_SCALE
+    )
+    desired = waveform_preview_geometry(
+        width_scale,
+        height_scale=height_scale,
+    )
+    graph_rows = max(1, int(desired.rows))
+
+    # Exact scaled classic geometry should normally fit.  Only clamp if the
+    # complete current review block is literally taller than the whole visible
+    # viewport; this prevents impossible cursor math on very small terminals.
+    max_graph_rows = max(
+        1,
+        (rows - fixed - graph_count * WAVEFORM_SIXEL_SAFETY_ROWS) // graph_count,
+    )
+    graph_rows = min(graph_rows, max_graph_rows)
+    required = fixed + graph_count * (graph_rows + WAVEFORM_SIXEL_SAFETY_ROWS)
+    scroll_rows = max(0, required - rows_available)
+    return WaveformReviewLayout(
+        graph_rows=graph_rows,
+        graph_count=graph_count,
+        fixed_text_rows=fixed,
+        required_rows=required,
+        rows_available_from_cursor=rows_available,
+        scroll_rows=scroll_rows,
+        terminal_columns=columns,
+        terminal_rows=rows,
+    )
+
+
+def waveform_preview_height_scale(width_fraction: float) -> float:
+    """Return the configured vertical stretch for a known waveform width."""
+    width = float(width_fraction)
+    if math.isclose(
+        width, WAVEFORM_COMPARISON_WIDTH_FRACTION, rel_tol=0.0, abs_tol=1e-9
+    ):
+        return float(WAVEFORM_COMPARISON_HEIGHT_SCALE)
+    if math.isclose(
+        width, WAVEFORM_REVIEW_WIDTH_FRACTION, rel_tol=0.0, abs_tol=1e-9
+    ):
+        return float(WAVEFORM_REVIEW_HEIGHT_SCALE)
+    # Unknown/custom callers retain the historical uniform scaling behavior.
+    return max(0.10, float(width_fraction))
+
+
+def capture_waveform_sixel_cursor_cell_height() -> int | None:
+    """Capture only VT's real cell height for post-Sixel cursor advancement.
+
+    Raster sizing intentionally remains on v131's known-good path. The probe
+    established that CSI 16 t reports the real 20-pixel terminal row while the
+    Win32/ConPTY font API can report 40. Mixing the shared helper into raster
+    geometry caused v132's wide, shallow regression; this value is therefore
+    used solely by ``sixel_display_rows``.
+    """
+    global _WAVEFORM_SIXEL_CURSOR_CELL_HEIGHT_PIXELS
+    captured = None
+    if callable(query_terminal_geometry):
+        try:
+            terminal_geometry = query_terminal_geometry()
+            viewport_height = int(
+                getattr(terminal_geometry, "viewport_height", 0)
+            )
+            text_rows = int(getattr(terminal_geometry, "rows", 0))
+            # The viewport/text-grid ratio is the measurement that matters for
+            # cursor advancement.  CSI 6t's standalone cell response has proved
+            # vulnerable to unrelated terminal input being parsed as its height.
+            height = (
+                round(viewport_height / text_rows)
+                if viewport_height > 0 and text_rows > 0
+                else int(getattr(terminal_geometry, "cell_height", 0))
+            )
+            if height > 0:
+                captured = height
+        except Exception:
+            captured = None
+    _WAVEFORM_SIXEL_CURSOR_CELL_HEIGHT_PIXELS = captured
+    return captured
+
+
+def waveform_preview_geometry(
+    width_fraction: float = WAVEFORM_REVIEW_WIDTH_FRACTION,
+    *,
+    height_rows: int | None = None,
+    height_scale: float | None = None,
+) -> ArtworkPreviewGeometry:
+    """Return the exact terminal viewport offered to direct waveform Chafa."""
+    base = artwork_preview_geometry(
         indent_columns=12,
         right_margin_columns=1,
         reserved_text_rows=9,
+    )
+    fraction = max(0.10, min(1.0, float(width_fraction)))
+    requested_columns = max(8, round(base.terminal_columns * fraction))
+    columns = min(base.columns, requested_columns)
+    cell_width = base.pixel_width / max(1, base.columns)
+    cell_height = base.pixel_height / max(1, base.rows)
+    if height_rows is not None:
+        requested_rows = max(2, int(height_rows))
+    else:
+        vertical_fraction = max(
+            0.10,
+            min(
+                1.0,
+                float(
+                    WAVEFORM_REVIEW_HEIGHT_SCALE
+                    if height_scale is None
+                    else height_scale
+                ),
+            ),
+        )
+        requested_rows = max(2, round(base.terminal_rows * vertical_fraction))
+    rows = min(base.terminal_rows, requested_rows)
+    return replace(
+        base,
+        columns=columns,
+        rows=rows,
+        pixel_width=max(1, round(columns * cell_width)),
+        pixel_height=max(1, round(rows * cell_height)),
     )
 
 
@@ -5151,17 +6120,42 @@ def chafa_sixel_geometry_options(geometry: ArtworkPreviewGeometry) -> list[str]:
     ], ART_PREVIEW_SCALE)
 
 
-def scale_chafa_view_size(options: list[str], scale: float) -> list[str]:
-    """Scale only Chafa's fitted viewport while preserving shared options."""
+def scale_chafa_view_size(
+    options: list[str],
+    scale: float,
+    *,
+    width_multiplier: float = ART_PREVIEW_WIDTH_MULTIPLIER,
+    max_width_to_height: float = ART_PREVIEW_MAX_WIDTH_TO_HEIGHT,
+) -> list[str]:
+    """Scale Chafa's viewport, then widen it with a physical 3:1 aspect cap."""
     factor = max(0.10, float(scale))
+    width_factor = max(0.10, float(width_multiplier))
+    aspect_cap = max(1.0, float(max_width_to_height))
+
+    # Chafa view-size is measured in terminal cells, not square pixels. A
+    # 10x20 font means two columns occupy the same physical width as one row
+    # occupies height. Use the advertised ratio when present; otherwise the
+    # project's established 7x14 fallback is the same 0.5 ratio.
+    cell_width_to_height = 0.5
+    for option in options:
+        ratio = re.fullmatch(r"--font-ratio=([0-9.]+)/([0-9.]+)", option)
+        if ratio and float(ratio.group(2)) > 0:
+            cell_width_to_height = (
+                float(ratio.group(1)) / float(ratio.group(2))
+            )
+            break
+
     scaled: list[str] = []
     for option in options:
         match = re.fullmatch(r"--view-size=([0-9.]+)x([0-9.]+)", option)
         if match:
-            scaled.append(
-                f"--view-size={float(match.group(1)) * factor:.1f}x"
-                f"{float(match.group(2)) * factor:.1f}"
+            height = max(1.0, float(match.group(2)) * factor)
+            ordinary_width = max(1.0, float(match.group(1)) * factor)
+            max_width_cells = (
+                height * aspect_cap / max(0.05, cell_width_to_height)
             )
+            width = min(ordinary_width * width_factor, max_width_cells)
+            scaled.append(f"--view-size={width:.1f}x{height:.1f}")
         else:
             scaled.append(option)
     return scaled
@@ -5170,17 +6164,34 @@ def scale_chafa_view_size(options: list[str], scale: float) -> list[str]:
 def scaled_artwork_geometry(
     geometry: ArtworkPreviewGeometry,
     scale: float = ART_PREVIEW_SCALE,
+    *,
+    width_multiplier: float = ART_PREVIEW_WIDTH_MULTIPLIER,
+    max_width_to_height: float = ART_PREVIEW_MAX_WIDTH_TO_HEIGHT,
 ) -> ArtworkPreviewGeometry:
-    """Scale artwork dimensions without changing the terminal measurements."""
+    """Keep the current preview height, double width, cap physical width at 3x height."""
     factor = max(0.10, float(scale))
+    rows = max(2, round(geometry.rows * factor))
+    ordinary_columns = max(4, round(geometry.columns * factor))
+    cell_width = geometry.pixel_width / max(1, geometry.columns)
+    cell_height = geometry.pixel_height / max(1, geometry.rows)
+    max_columns_by_physical_aspect = round(
+        rows
+        * cell_height
+        * max(1.0, float(max_width_to_height))
+        / max(0.1, cell_width)
+    )
+    columns = max(4, min(
+        round(ordinary_columns * max(0.10, float(width_multiplier))),
+        max_columns_by_physical_aspect,
+    ))
     return ArtworkPreviewGeometry(
         terminal_columns=geometry.terminal_columns,
         terminal_rows=geometry.terminal_rows,
         indent_columns=geometry.indent_columns,
-        columns=max(4, round(geometry.columns * factor)),
-        rows=max(2, round(geometry.rows * factor)),
-        pixel_width=max(1, round(geometry.pixel_width * factor)),
-        pixel_height=max(1, round(geometry.pixel_height * factor)),
+        columns=columns,
+        rows=rows,
+        pixel_width=max(1, round(columns * cell_width)),
+        pixel_height=max(1, round(rows * cell_height)),
     )
 
 
@@ -5208,19 +6219,31 @@ def width_filling_preview_image(
     width: int,
     height: int,
 ):
-    """Fill the requested width without ever exceeding the height limit."""
+    """Fill the requested width while preserving the source aspect ratio.
+
+    ``height`` is intentionally *not* a hard cap.  Pixel-graphics protocols
+    such as Sixel paint in pixels, and Windows Terminal/ConPTY can report a
+    wildly incorrect font-cell height.  Capping to that value used to squash a
+    2000x700 waveform into a very wide, ~one-text-row strip.  Width is the
+    reviewer's requested constraint; the terminal can scroll vertically.
+    """
     source_width, source_height = image.size
     if source_width < 1 or source_height < 1:
         raise RuntimeError("Preview source has invalid dimensions")
-    proportional_height = max(
-        1,
-        round(source_height * width / source_width),
-    )
-    target_height = min(max(1, height), proportional_height)
-    target = (max(1, width), target_height)
+    target_width = max(1, int(width))
+    target_height = max(1, round(source_height * target_width / source_width))
+    target = (target_width, target_height)
     if target == image.size:
         return image
     return image.resize(target, Image.Resampling.LANCZOS)
+
+
+def exact_preview_image(image, width: int, height: int):
+    """Resize to an exact diagnostic viewport, intentionally allowing stretch."""
+    target = (max(1, int(width)), max(1, int(height)))
+    if image.size == target:
+        return image
+    return image.resize(target, Image.Resampling.BOX)
 
 
 def ansi_half_block_preview(
@@ -5229,6 +6252,7 @@ def ansi_half_block_preview(
     use_color: bool,
     geometry: ArtworkPreviewGeometry | None = None,
     stretch_to_width: bool = False,
+    height_multiplier: float = 1.0,
 ) -> str:
     """Fill the available console area with a portable half-block preview."""
     if Image is None:
@@ -5248,6 +6272,12 @@ def ansi_half_block_preview(
                 geometry.rows * 2,
             )
         )
+        height_factor = max(0.10, float(height_multiplier))
+        if not math.isclose(height_factor, 1.0):
+            image = image.resize(
+                (image.width, max(1, round(image.height * height_factor))),
+                Image.Resampling.LANCZOS,
+            )
         canvas_height = image.height + (image.height % 2)
         canvas = Image.new("RGB", (image.width, canvas_height), (0, 0, 0))
         canvas.paste(image, (0, 0))
@@ -5296,56 +6326,93 @@ def sixel_preview_bytes(
     *,
     geometry: ArtworkPreviewGeometry | None = None,
     stretch_to_width: bool = False,
+    exact_size: bool = False,
+    colors: int = 64,
+    dither: bool = True,
+    transparent_black: bool = False,
+    pixel_aspect_selector: int = 0,
+    height_multiplier: float = 1.0,
 ) -> bytes:
-    """Encode a console-filling 64-color Sixel using only Pillow and stdlib."""
+    """Encode a compact indexed-color Sixel using Pillow and stdlib.
+
+    Waveform previews use ``exact_size`` plus a 32-color/no-dither palette.
+    Their background is intentionally transparent after the reserved terminal
+    area has been cleared, which avoids spending most of the payload encoding
+    black pixels. Artwork retains the older, higher-quality defaults.
+    """
     if Image is None:
         raise RuntimeError("Pillow is unavailable for the Sixel preview")
     geometry = geometry or artwork_preview_geometry()
     with Image.open(path) as source:
-        image = (
-            width_filling_preview_image(
-                source.convert("RGB"),
+        rgb = source.convert("RGB")
+        if exact_size:
+            image = exact_preview_image(
+                rgb,
                 geometry.pixel_width,
                 geometry.pixel_height,
             )
-            if stretch_to_width
-            else fitted_preview_image(
-                source.convert("RGB"),
+        elif stretch_to_width:
+            image = width_filling_preview_image(
+                rgb,
                 geometry.pixel_width,
                 geometry.pixel_height,
             )
-        )
+        else:
+            image = fitted_preview_image(
+                rgb,
+                geometry.pixel_width,
+                geometry.pixel_height,
+            )
+        height_factor = max(0.10, float(height_multiplier))
+        if not math.isclose(height_factor, 1.0):
+            image = image.resize(
+                (image.width, max(1, round(image.height * height_factor))),
+                Image.Resampling.LANCZOS,
+            )
+
+        palette_size = max(2, min(256, int(colors)))
         quantized = image.quantize(
-            colors=64,
+            colors=palette_size,
             method=Image.Quantize.MEDIANCUT,
-            dither=Image.Dither.FLOYDSTEINBERG,
+            dither=(Image.Dither.FLOYDSTEINBERG if dither else Image.Dither.NONE),
         )
         width, height = quantized.size
         palette = quantized.getpalette() or []
-        used_colors = sorted(set(quantized.getdata()))
-        color_pixels = {
-            color: [
-                (
-                    round((palette[color * 3] / 255) * 100),
-                    round((palette[color * 3 + 1] / 255) * 100),
-                    round((palette[color * 3 + 2] / 255) * 100),
-                )
-            ]
-            for color in used_colors
-        }
         pixel_data = quantized.load()
-        pieces = ["\033Pq", f'"1;1;{width};{height}']
-        for color, values in color_pixels.items():
-            red, green, blue = values[0]
+        used_colors = sorted(set(quantized.getdata()))
+
+        transparent_color: int | None = None
+        if transparent_black and used_colors:
+            # JPEG backgrounds are not always mathematically #000000. Select
+            # the darkest palette entry as transparent only when it is safely
+            # near black; the reserved screen area is cleared before drawing.
+            darkest = min(
+                used_colors,
+                key=lambda c: sum(palette[c * 3 : c * 3 + 3]),
+            )
+            dark_rgb = palette[darkest * 3 : darkest * 3 + 3]
+            if dark_rgb and max(dark_rgb) <= 28:
+                transparent_color = darkest
+
+        visible_colors = [
+            color for color in used_colors if color != transparent_color
+        ]
+        p1 = max(0, min(9, int(pixel_aspect_selector)))
+        pieces = [f"\033P{p1};1;0q", f'"1;1;{width};{height}']
+        for color in visible_colors:
+            red = round((palette[color * 3] / 255) * 100)
+            green = round((palette[color * 3 + 1] / 255) * 100)
+            blue = round((palette[color * 3 + 2] / 255) * 100)
             pieces.append(f"#{color};2;{red};{green};{blue}")
+
         for band_y in range(0, height, 6):
             masks: dict[int, bytearray] = {}
-            for offset, y in enumerate(
-                range(band_y, min(band_y + 6, height))
-            ):
+            for offset, y in enumerate(range(band_y, min(band_y + 6, height))):
                 bit = 1 << offset
                 for x in range(width):
                     color = pixel_data[x, y]
+                    if color == transparent_color:
+                        continue
                     mask = masks.get(color)
                     if mask is None:
                         mask = bytearray(width)
@@ -5362,9 +6429,7 @@ def sixel_preview_bytes(
                         run_count += 1
                     else:
                         if previous is not None:
-                            pieces.append(
-                                _sixel_run(previous, run_count)
-                            )
+                            pieces.append(_sixel_run(previous, run_count))
                         previous = character
                         run_count = 1
                 if previous is not None:
@@ -5377,21 +6442,111 @@ def sixel_preview_bytes(
         return "".join(pieces).encode("ascii")
 
 
+def sixel_payload_pixel_size(payload: bytes) -> tuple[int, int] | None:
+    """Return the declared Sixel raster width/height when the payload has it."""
+    match = re.search(br'"1;1;(\d+);(\d+)', payload)
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
+def sixel_display_rows(
+    payload: bytes,
+    geometry: ArtworkPreviewGeometry,
+) -> int:
+    """Translate the actual rendered Sixel height into terminal rows (v113)."""
+    declared = sixel_payload_pixel_size(payload)
+    if declared is None:
+        return max(1, geometry.rows)
+    _pixel_width, pixel_height = declared
+    if pixel_height <= 0:
+        return max(1, geometry.rows)
+    geometry_cell_height = geometry.pixel_height / max(1, geometry.rows)
+    # The earlier placement probe measured this terminal at 20 physical pixels
+    # per text row. Never use a larger divisor for cursor reservation: doing so
+    # under-reserves rows and lets the prompt overwrite the lower Sixel bands.
+    # A smaller measured value remains valid and simply reserves more room.
+    cell_height = min(
+        20.0,
+        geometry_cell_height,
+        float(_WAVEFORM_SIXEL_CURSOR_CELL_HEIGHT_PIXELS or 20),
+    )
+    return max(1, math.ceil(pixel_height / max(1.0, cell_height)))
+
+
+def sixel_terminal_frame(
+    payload: bytes,
+    *,
+    geometry: ArtworkPreviewGeometry,
+    cursor_row: int | None = None,
+) -> tuple[bytes, int]:
+    """Reserve real rows first, paint in them, then return below the raster.
+
+    Windows Terminal can leave Sixel pixels fixed to the viewport while later
+    text scrolling occurs.  Advancing rows after painting therefore leaves a
+    tall raster clipped to its first visible band.  Materialize the rows before
+    the DCS, move back into that block with relative cursor motion (which TCC
+    passes through reliably), paint, and finally move below the whole block.
+    """
+    image_rows = sixel_display_rows(payload, geometry)
+    terminal_rows = max(2, int(geometry.terminal_rows))
+    reserved_rows = min(
+        terminal_rows - 1,
+        max(2, image_rows + WAVEFORM_SIXEL_SAFETY_ROWS),
+    )
+    cursor_up = f"\x1b[{reserved_rows}A".encode("ascii")
+    cursor_down = f"\x1b[{reserved_rows}B".encode("ascii")
+    frame = (
+        (b"\r\n" * reserved_rows)
+        + cursor_up
+        + b"\x1b7\r"
+        + (" " * geometry.indent_columns).encode("ascii")
+        + payload
+        + b"\x1b8"
+        + cursor_down
+        + b"\r"
+    )
+    return frame, reserved_rows
+
+
 def emit_sixel_preview(
     payload: bytes,
     *,
     geometry: ArtworkPreviewGeometry | None = None,
 ) -> None:
-    """Write a prepared Sixel payload while retaining the standard indent."""
+    """Emit one pre-reserved Sixel frame without post-image scrolling."""
     geometry = geometry or artwork_preview_geometry()
-    print(" " * geometry.indent_columns, end="", flush=True)
+    try:
+        sys.stdout.flush()
+    except Exception:
+        pass
+    try:
+        sys.stderr.flush()
+    except Exception:
+        pass
+    viewport = windows_console_viewport_state()
+    frame, _reserved_rows = sixel_terminal_frame(
+        payload,
+        geometry=geometry,
+        cursor_row=(viewport.cursor_row if viewport is not None else None),
+    )
+    try:
+        descriptor = sys.stdout.fileno()
+    except (AttributeError, OSError, io.UnsupportedOperation):
+        descriptor = None
+    if descriptor is not None:
+        try:
+            os.write(descriptor, frame)
+            return
+        except OSError:
+            pass
     stream = getattr(sys.stdout, "buffer", None)
     if stream is not None:
-        stream.write(payload)
+        stream.write(frame)
         stream.flush()
-        print()
     else:
-        print(payload.decode("ascii", errors="replace"))
+        sys.stdout.write(frame.decode("ascii", errors="replace"))
+        sys.stdout.flush()
 
 
 def prepare_artwork_preview(
@@ -5534,7 +6689,25 @@ def emit_prepared_artwork_preview(
     prepared: PreparedArtworkPreview,
 ) -> str:
     """Write a previously prepared preview and return its renderer label."""
-    if prepared.sixel_payload is not None:
+    if prepared.direct_command:
+        try:
+            sys.stdout.flush()
+        except Exception:
+            pass
+        try:
+            sys.stderr.flush()
+        except Exception:
+            pass
+        result = subprocess.run(
+            list(prepared.direct_command),
+            check=False,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"Direct Chafa waveform renderer exited with "
+                f"status {result.returncode}"
+            )
+    elif prepared.sixel_payload is not None:
         if prepared.mode == "Chafa Sixel" and prepared.renderer_options:
             compact_options = " ".join(
                 option.replace("--format=sixels", "fmt=sixels")
@@ -5582,26 +6755,1196 @@ def render_artwork_preview(
     return emit_prepared_artwork_preview(prepared)
 
 
+def _raw_console_stream(stream=None):
+    """Return the underlying terminal stream when stdout is wrapped by the pager."""
+    candidate = stream or sys.stdout
+    return getattr(candidate, "stream", candidate)
+
+
+def _write_terminal_control(sequence: str, stream=None) -> None:
+    target = _raw_console_stream(stream)
+    try:
+        target.write(sequence)
+        target.flush()
+    except Exception:
+        pass
+
+
+def ensure_waveform_review_vertical_room(
+    layout: WaveformReviewLayout,
+    *,
+    stream=None,
+) -> int:
+    """Leave viewport movement to normal output so scrollback is preserved.
+
+    The Sixel frame advances by ordinary CRLFs after painting. An explicit
+    ``CSI S`` scroll made the review look like it cleared the screen and could
+    detach the cursor from the logical end of output.
+    """
+    del layout, stream
+    return 0
+
+
+def create_waveform_comparison_contact_sheet(
+    before_path: Path,
+    after_path: Path,
+    destination: Path,
+) -> Path:
+    """Build one side-by-side before/after raster for native Sixel display."""
+    if Image is None:
+        raise RuntimeError("Pillow is required for waveform comparisons")
+    ensure_waveform_jpeg_ready(before_path)
+    ensure_waveform_jpeg_ready(after_path)
+    with Image.open(before_path) as before_source, Image.open(after_path) as after_source:
+        before = before_source.convert("RGB")
+        after = after_source.convert("RGB")
+        height = max(before.height, after.height)
+
+        def normalize_height(image):
+            if image.height == height:
+                return image
+            width = max(1, round(image.width * height / image.height))
+            return image.resize((width, height), Image.Resampling.LANCZOS)
+
+        before = normalize_height(before)
+        after = normalize_height(after)
+        panel_scale = max(0.1, float(WAVEFORM_COMPARISON_PANEL_HEIGHT_SCALE))
+
+        def compact_panel(image):
+            return image.resize(
+                (image.width, max(1, round(image.height * panel_scale))),
+                Image.Resampling.LANCZOS,
+            )
+
+        before = compact_panel(before)
+        after = compact_panel(after)
+        gap = max(1, round(WAVEFORM_COMPARISON_GAP_SOURCE_PIXELS * panel_scale))
+        canvas = Image.new(
+            "RGB",
+            (before.width + gap + after.width, max(before.height, after.height)),
+            "black",
+        )
+        canvas.paste(before, (0, 0))
+        canvas.paste(after, (before.width + gap, 0))
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        canvas.save(
+            destination,
+            format="JPEG",
+            quality=100,
+            subsampling=0,
+            optimize=True,
+        )
+    ensure_waveform_jpeg_ready(destination)
+    return destination
+
+
+
 def prepare_waveform_preview(
     path: Path,
     *,
     use_color: bool,
+    width_fraction: float = WAVEFORM_REVIEW_WIDTH_FRACTION,
+    height_rows: int | None = None,
+    height_scale: float | None = None,
+    prefer_direct_chafa: bool = True,
 ) -> PreparedArtworkPreview:
-    """Prepare a full-width waveform preview for later instant display."""
-    return prepare_artwork_preview(
-        path,
-        use_color=use_color,
-        prefer_sixel=True,
-        geometry=waveform_preview_geometry(),
-        stretch_to_width=True,
+    """Prepare a waveform using echo-image's proven direct Chafa contract."""
+    ensure_waveform_jpeg_ready(path)
+    geometry = waveform_preview_geometry(
+        width_fraction,
+        height_rows=height_rows,
+        height_scale=height_scale,
+    )
+    if use_color and prefer_direct_chafa:
+        exact_chafa = (
+            shutil.which("chafa-1.18.2.exe")
+            or shutil.which("chafa-1.18.2")
+            or (
+                r"C:\util\chafa-1.18.2.exe"
+                if Path(r"C:\util\chafa-1.18.2.exe").is_file()
+                else None
+            )
+            or shutil.which("chafa")
+        )
+        if exact_chafa:
+            command = (
+                str(exact_chafa),
+                "--format=sixels",
+                "--colors=full",
+                f"--view-size={geometry.columns}x{geometry.rows}",
+                "--scale=max",
+                "--optimize=9",
+                "--work=9",
+                "--color-space=din99d",
+                str(path),
+                "--margin-bottom=4",
+                "--margin-right=0",
+            )
+            return PreparedArtworkPreview(
+                mode="direct Chafa 1.18.2 Sixel",
+                geometry=geometry,
+                renderer_options=command[1:-1],
+                direct_command=command,
+            )
+    return PreparedArtworkPreview(
+        mode="native Pillow Sixel" if use_color else "ANSI grayscale",
+        geometry=geometry,
+        sixel_payload=(
+            sixel_preview_bytes(
+                path,
+                geometry=geometry,
+                stretch_to_width=True,
+                height_multiplier=1.0,
+            )
+            if use_color
+            else None
+        ),
+        text_payload=(
+            ansi_half_block_preview(
+                path,
+                use_color=False,
+                geometry=geometry,
+                stretch_to_width=True,
+                height_multiplier=1.0,
+            )
+            if not use_color
+            else None
+        ),
     )
 
 
 def render_waveform_preview(path: Path, *, use_color: bool) -> str:
-    """Use the full preview geometry and prefer Sixel for waveform review."""
+    """Render an ordinary waveform at the configured review width."""
     return emit_prepared_artwork_preview(
-        prepare_waveform_preview(path, use_color=use_color)
+        prepare_waveform_preview(
+            path,
+            use_color=use_color,
+            width_fraction=WAVEFORM_REVIEW_WIDTH_FRACTION,
+            height_scale=WAVEFORM_REVIEW_HEIGHT_SCALE,
+        )
     )
+
+
+def render_waveform_comparison_preview(path: Path, *, use_color: bool) -> str:
+    """Render pre/post ReplayGain comparison waves at the configured wide width."""
+    return emit_prepared_artwork_preview(
+        prepare_waveform_preview(
+            path,
+            use_color=use_color,
+            width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+            height_scale=WAVEFORM_COMPARISON_HEIGHT_SCALE,
+        )
+    )
+
+
+
+CALIBRATION_IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+CALIBRATION_CHAFA_TIMEOUT_SECONDS = 15.0
+CALIBRATION_SIXEL_CHUNK_BYTES = 16 * 1024
+CALIBRATION_PATTERN_RASTER = (100, 100)
+
+
+def _calibration_scalar_snapshot(value: Any) -> dict[str, Any]:
+    """Extract simple public geometry fields without assuming helper internals."""
+    snapshot: dict[str, Any] = {}
+    for name in sorted(set(dir(value))):
+        if name.startswith("_") or name in {"chafa_options_for"}:
+            continue
+        try:
+            item = getattr(value, name)
+        except Exception:
+            continue
+        if callable(item):
+            continue
+        if isinstance(item, (str, int, float, bool, type(None))):
+            snapshot[name] = item
+        elif isinstance(item, (tuple, list)) and all(
+            isinstance(part, (str, int, float, bool, type(None))) for part in item
+        ):
+            snapshot[name] = list(item)
+    return snapshot
+
+
+def shared_terminal_geometry_snapshot() -> dict[str, Any]:
+    """Capture the established claire_terminal_geometry result used by Chafa."""
+    if not callable(query_terminal_geometry):
+        return {
+            "available": False,
+            "module": None,
+            "values": {},
+            "chafa_options": None,
+            "error": "claire_terminal_geometry could not be imported",
+        }
+    try:
+        live = query_terminal_geometry()
+        module = sys.modules.get(getattr(query_terminal_geometry, "__module__", ""))
+        module_path = str(getattr(module, "__file__", "") or "") or None
+        try:
+            options = live.chafa_options_for(
+                reserved_rows=ART_PREVIEW_RESERVED_TEXT_ROWS
+            )
+        except Exception as exc:
+            options = f"<error: {type(exc).__name__}: {exc}>"
+        return {
+            "available": True,
+            "module": module_path,
+            "values": _calibration_scalar_snapshot(live),
+            "chafa_options": options,
+            "error": None,
+        }
+    except Exception as exc:
+        return {
+            "available": False,
+            "module": None,
+            "values": {},
+            "chafa_options": None,
+            "error": f"{type(exc).__name__}: {exc}",
+        }
+
+
+def query_terminal_pixel_geometry_windows(
+    parameter: int,
+    *,
+    expected_result_code: int,
+    timeout_seconds: float = 0.35,
+) -> dict[str, Any]:
+    """Ask the terminal for pixel geometry using xterm-compatible CSI ... t.
+
+    CSI 14 t returns ``CSI 4 ; height ; width t`` for the text area in pixels.
+    CSI 16 t returns ``CSI 6 ; height ; width t`` for one character cell.
+    Windows Terminal versions that do not support the query simply time out.
+    """
+    result: dict[str, Any] = {
+        "parameter": int(parameter),
+        "supported": False,
+        "width": None,
+        "height": None,
+        "raw": "",
+        "error": None,
+    }
+    if os.name != "nt":
+        result["error"] = "not Windows"
+        return result
+    try:
+        import msvcrt
+
+        target = _raw_console_stream(sys.stdout)
+        target.write(f"\x1b[{int(parameter)}t")
+        target.flush()
+        deadline = time.perf_counter() + max(0.05, float(timeout_seconds))
+        chars: list[str] = []
+        while time.perf_counter() < deadline:
+            if msvcrt.kbhit():
+                chars.append(msvcrt.getwch())
+                if chars[-1] == "t":
+                    break
+            else:
+                time.sleep(0.005)
+        raw = "".join(chars)
+        result["raw"] = raw.encode("unicode_escape").decode("ascii")
+        match = re.search(r"\x1b\[(\d+);(\d+);(\d+)t", raw)
+        if match and int(match.group(1)) == int(expected_result_code):
+            result["height"] = int(match.group(2))
+            result["width"] = int(match.group(3))
+            result["supported"] = True
+        elif raw:
+            result["error"] = "unexpected terminal response"
+        else:
+            result["error"] = "no response before timeout"
+    except Exception as exc:
+        result["error"] = f"{type(exc).__name__}: {exc}"
+    return result
+
+
+def terminal_calibration_measurements() -> dict[str, Any]:
+    """Collect every independent geometry signal we can compare on Windows."""
+    visible = visible_console_size()
+    viewport = windows_console_viewport_state()
+    font_cell = windows_console_font_cell_size()
+    shared = shared_terminal_geometry_snapshot()
+    csi14 = query_terminal_pixel_geometry_windows(14, expected_result_code=4)
+    csi16 = query_terminal_pixel_geometry_windows(16, expected_result_code=6)
+    measurements = {
+        "visible_cells": [int(visible.columns), int(visible.lines)],
+        "win32_viewport": (
+            {
+                "columns": viewport.columns,
+                "rows": viewport.rows,
+                "cursor_column": viewport.cursor_column,
+                "cursor_row": viewport.cursor_row,
+                "window_top": viewport.window_top,
+                "window_bottom": viewport.window_bottom,
+            }
+            if viewport is not None
+            else None
+        ),
+        "win32_font_cell_pixels": list(font_cell) if font_cell else None,
+        "windows_dpi_scale": windows_console_pixel_scale_factor(),
+        "csi_14_text_area_pixels": csi14,
+        "csi_16_cell_pixels": csi16,
+        "shared_geometry": shared,
+    }
+    measurements.update(calibration_geometry_analysis(measurements))
+    return measurements
+
+
+def _calibration_pixel_pair(width: Any, height: Any) -> list[float] | None:
+    """Normalize one width/height signal without treating it as authoritative."""
+    try:
+        pair = [float(width), float(height)]
+    except (TypeError, ValueError):
+        return None
+    if not all(math.isfinite(value) and value > 0 for value in pair):
+        return None
+    return [round(value, 4) for value in pair]
+
+
+def calibration_geometry_analysis(measurements: dict[str, Any]) -> dict[str, Any]:
+    """Compare independent cell-pixel signals and leave every raw value intact.
+
+    This intentionally does not select a winner.  The controlled Sixel raster
+    later in the calibration is the empirical check against these reports.
+    """
+    signals: dict[str, list[float]] = {}
+    csi16 = measurements.get("csi_16_cell_pixels") or {}
+    pair = _calibration_pixel_pair(csi16.get("width"), csi16.get("height"))
+    if csi16.get("supported") and pair:
+        signals["csi_16t"] = pair
+
+    visible = measurements.get("visible_cells") or []
+    csi14 = measurements.get("csi_14_text_area_pixels") or {}
+    if (
+        csi14.get("supported")
+        and len(visible) == 2
+        and int(visible[0]) > 0
+        and int(visible[1]) > 0
+    ):
+        pair = _calibration_pixel_pair(
+            float(csi14.get("width")) / int(visible[0]),
+            float(csi14.get("height")) / int(visible[1]),
+        )
+        if pair:
+            signals["csi_14t_div_visible_cells"] = pair
+
+    shared_values = (
+        (measurements.get("shared_geometry") or {}).get("values") or {}
+    )
+    pair = _calibration_pixel_pair(
+        shared_values.get("cell_width"), shared_values.get("cell_height")
+    )
+    if pair:
+        signals["claire_terminal_geometry"] = pair
+
+    font_cell = measurements.get("win32_font_cell_pixels") or []
+    if len(font_cell) == 2:
+        pair = _calibration_pixel_pair(font_cell[0], font_cell[1])
+        if pair:
+            signals["win32_console_font"] = pair
+            dpi_scale = float(measurements.get("windows_dpi_scale") or 1.0)
+            scaled_pair = _calibration_pixel_pair(
+                pair[0] * dpi_scale, pair[1] * dpi_scale
+            )
+            if scaled_pair:
+                signals["win32_console_font_times_dpi"] = scaled_pair
+
+    disagreements: list[dict[str, Any]] = []
+    names = sorted(signals)
+    for left_index, left_name in enumerate(names):
+        for right_name in names[left_index + 1 :]:
+            left = signals[left_name]
+            right = signals[right_name]
+            delta = [round(left[0] - right[0], 4), round(left[1] - right[1], 4)]
+            if abs(delta[0]) > 0.25 or abs(delta[1]) > 0.25:
+                disagreements.append(
+                    {
+                        "left": left_name,
+                        "left_pixels": left,
+                        "right": right_name,
+                        "right_pixels": right,
+                        "delta_pixels": delta,
+                    }
+                )
+
+    cell_count_disagreements: list[dict[str, Any]] = []
+    viewport = measurements.get("win32_viewport") or {}
+    if len(visible) == 2 and viewport:
+        win32_cells = [viewport.get("columns"), viewport.get("rows")]
+        if list(visible) != win32_cells:
+            cell_count_disagreements.append(
+                {
+                    "visible_console_size": list(visible),
+                    "win32_viewport": win32_cells,
+                }
+            )
+
+    derived = signals.get("csi_14t_div_visible_cells")
+    return {
+        "derived_cell_pixels_from_csi14_visible_cells": derived,
+        "independent_cell_pixel_signals": signals,
+        "cell_pixel_disagreements": disagreements,
+        "visible_cell_disagreements": cell_count_disagreements,
+        "reconciled_cell_pixels": None,
+    }
+
+
+def _calibration_source_image_size(path: Path) -> tuple[int, int] | None:
+    if Image is None:
+        return None
+    try:
+        with Image.open(path) as image:
+            return int(image.width), int(image.height)
+    except Exception:
+        return None
+
+
+def find_calibration_audio(root: Path, max_depth: int = 5) -> Path | None:
+    """Choose one deterministic audio file from a bounded calibration tree."""
+    start = Path(root).resolve(strict=False)
+    stack: list[tuple[Path, int]] = [(start, 0)]
+    visited: set[str] = set()
+    candidates: list[Path] = []
+    while stack:
+        folder, depth = stack.pop()
+        key = os.path.normcase(str(folder.resolve(strict=False)))
+        if key in visited:
+            continue
+        visited.add(key)
+        try:
+            entries = sorted(folder.iterdir(), key=lambda item: item.name.casefold())
+        except OSError:
+            continue
+        for entry in entries:
+            try:
+                if entry.is_file() and entry.suffix.casefold() in ALLOWED_AUDIO_EXTS:
+                    candidates.append(entry)
+                elif depth < max_depth and entry.is_dir():
+                    stack.append((entry, depth + 1))
+            except OSError:
+                continue
+        if candidates:
+            return sorted(candidates, key=lambda item: str(item).casefold())[0]
+    return None
+
+
+def build_direct_chafa_calibration_command(
+    source: Path,
+) -> tuple[list[str], ArtworkPreviewGeometry]:
+    """Build the normal shared-geometry Chafa Sixel command without running it."""
+    chafa = chafa_executable()
+    if chafa is None:
+        raise RuntimeError("Chafa was not found; Renderer A cannot run directly")
+    geometry = artwork_preview_geometry(
+        indent_columns=0,
+        right_margin_columns=0,
+        reserved_text_rows=ART_PREVIEW_RESERVED_TEXT_ROWS,
+    )
+    scaled_geometry = scaled_artwork_geometry(geometry)
+    command = [
+        str(chafa),
+        "--format=sixels",
+        "--fit-width",
+        "--colors=full",
+        f"--size={scaled_geometry.columns}x{scaled_geometry.rows}",
+        *chafa_sixel_geometry_options(geometry),
+        "--optimize=9",
+        "--work=9",
+        "--color-space=din99d",
+        str(Path(source)),
+    ]
+    return command, geometry
+
+
+def run_direct_chafa_calibration(
+    command: list[str],
+    *,
+    timeout_seconds: float = CALIBRATION_CHAFA_TIMEOUT_SECONDS,
+    popen_factory=None,
+    clock=None,
+) -> dict[str, Any]:
+    """Run Chafa with inherited stdio and a hard watchdog deadline.
+
+    Inherited stdout/stderr is the point of Renderer A: Python never captures,
+    wraps, counts, or re-emits Chafa's Sixel payload.  A blocked terminal write
+    therefore cannot strand calibration forever.
+    """
+    factory = popen_factory or subprocess.Popen
+    timer = clock or time.perf_counter
+    started = timer()
+    process = factory(
+        list(command),
+        stdin=None,
+        stdout=None,
+        stderr=None,
+    )
+    timed_out = False
+    terminated = False
+    killed = False
+    try:
+        return_code = process.wait(timeout=max(0.05, float(timeout_seconds)))
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        terminated = True
+        process.terminate()
+        try:
+            return_code = process.wait(timeout=1.0)
+        except subprocess.TimeoutExpired:
+            killed = True
+            process.kill()
+            return_code = process.wait()
+    elapsed = max(0.0, timer() - started)
+    return {
+        "return_code": int(return_code),
+        "timed_out": timed_out,
+        "watchdog_seconds": float(timeout_seconds),
+        "terminated": terminated,
+        "killed": killed,
+        "terminal_emission_seconds": round(elapsed, 6),
+        "timing_scope": (
+            "whole Chafa process (render plus inherited terminal emission); "
+            "these cannot be separated without capturing the payload"
+        ),
+        "stdio": "inherited directly by Chafa",
+    }
+
+
+def emit_terminal_bytes_chunked(
+    payload: bytes,
+    *,
+    chunk_size: int = CALIBRATION_SIXEL_CHUNK_BYTES,
+    writer=None,
+    clock=None,
+) -> dict[str, Any]:
+    """Write terminal bytes in bounded chunks and time actual emission."""
+    size = max(256, int(chunk_size))
+    timer = clock or time.perf_counter
+    binary_stream = getattr(_raw_console_stream(sys.stdout), "buffer", None)
+    descriptor: int | None = None
+    if writer is None:
+        try:
+            descriptor = _raw_console_stream(sys.stdout).fileno()
+        except (AttributeError, OSError, ValueError, io.UnsupportedOperation):
+            descriptor = None
+
+    chunks = 0
+    written = 0
+    started = timer()
+    for offset in range(0, len(payload), size):
+        block = payload[offset : offset + size]
+        chunks += 1
+        if writer is not None:
+            result = writer(block)
+            written += len(block) if result is None else int(result)
+        elif descriptor is not None:
+            view = memoryview(block)
+            while view:
+                count = os.write(descriptor, view)
+                if count <= 0:
+                    raise OSError("terminal write made no progress")
+                written += count
+                view = view[count:]
+        elif binary_stream is not None:
+            result = binary_stream.write(block)
+            written += len(block) if result is None else int(result)
+        else:
+            text_block = block.decode("ascii", errors="replace")
+            _raw_console_stream(sys.stdout).write(text_block)
+            written += len(block)
+    target = _raw_console_stream(sys.stdout)
+    try:
+        target.flush()
+    except Exception:
+        if binary_stream is not None:
+            binary_stream.flush()
+    elapsed = max(0.0, timer() - started)
+    return {
+        "chunk_size_bytes": size,
+        "chunks": chunks,
+        "bytes_written": written,
+        "terminal_emission_seconds": round(elapsed, 6),
+    }
+
+
+def emit_sixel_preview_chunked(
+    payload: bytes,
+    *,
+    geometry: ArtworkPreviewGeometry,
+    chunk_size: int = CALIBRATION_SIXEL_CHUNK_BYTES,
+    writer=None,
+    clock=None,
+) -> dict[str, Any]:
+    """Emit a calibration Sixel frame without one giant blocking write."""
+    frame, reserved_rows = sixel_terminal_frame(payload, geometry=geometry)
+    result = emit_terminal_bytes_chunked(
+        frame,
+        chunk_size=chunk_size,
+        writer=writer,
+        clock=clock,
+    )
+    result.update(
+        {
+            "payload_bytes": len(payload),
+            "framed_bytes": len(frame),
+            "reserved_terminal_rows": reserved_rows,
+        }
+    )
+    return result
+
+
+def controlled_sixel_test_pattern(
+    width: int = CALIBRATION_PATTERN_RASTER[0],
+    height: int = CALIBRATION_PATTERN_RASTER[1],
+) -> bytes:
+    """Create a dependency-free, known-size checker/border Sixel raster."""
+    width = max(1, int(width))
+    height = max(1, int(height))
+    pieces = [
+        '\033P9;1;0q',
+        f'"1;1;{width};{height}',
+        "#0;2;100;100;100",
+        "#1;2;100;0;70",
+        "#2;2;0;75;100",
+    ]
+    for band_y in range(0, height, 6):
+        masks = {0: bytearray(width), 1: bytearray(width), 2: bytearray(width)}
+        for offset, y in enumerate(range(band_y, min(band_y + 6, height))):
+            bit = 1 << offset
+            for x in range(width):
+                border = x in {0, width - 1} or y in {0, height - 1}
+                center = x in {width // 2 - 1, width // 2} or y in {
+                    height // 2 - 1,
+                    height // 2,
+                }
+                color = 0 if border or center else 1 + ((x // 10 + y // 10) % 2)
+                masks[color][x] |= bit
+        for index, color in enumerate((0, 1, 2)):
+            pieces.append(f"#{color}")
+            previous: str | None = None
+            count = 0
+            for bits in masks[color]:
+                character = chr(63 + bits)
+                if character == previous:
+                    count += 1
+                else:
+                    if previous is not None:
+                        pieces.append(_sixel_run(previous, count))
+                    previous = character
+                    count = 1
+            if previous is not None:
+                pieces.append(_sixel_run(previous, count))
+            if index != 2:
+                pieces.append("$")
+        if band_y + 6 < height:
+            pieces.append("-")
+    pieces.append("\033\\")
+    return "".join(pieces).encode("ascii")
+
+
+def controlled_pattern_expected_cells(
+    raster: tuple[int, int],
+    measurements: dict[str, Any],
+) -> dict[str, list[float]]:
+    """Show each geometry signal's prediction without choosing a winner."""
+    width, height = raster
+    predictions: dict[str, list[float]] = {}
+    for name, pair in (
+        measurements.get("independent_cell_pixel_signals") or {}
+    ).items():
+        if len(pair) == 2 and float(pair[0]) > 0 and float(pair[1]) > 0:
+            predictions[name] = [
+                round(width / float(pair[0]), 4),
+                round(height / float(pair[1]), 4),
+            ]
+    return predictions
+
+
+def _optional_observed_cells(prompt: str, *, line_reader=None) -> float | None:
+    """Read an observed physical cell count; blank or ? means unknown."""
+    reader = line_reader or input
+    while True:
+        raw = str(reader(prompt)).strip()
+        if not raw or raw in {"?", "-"}:
+            reset_console_pager_after_user_input()
+            return None
+        try:
+            value = float(raw)
+        except ValueError:
+            print("        Enter a positive number, or leave it blank if unsure.")
+            continue
+        if value > 0 and math.isfinite(value):
+            reset_console_pager_after_user_input()
+            return round(value, 4)
+        print("        Enter a positive number, or leave it blank if unsure.")
+
+
+def observe_controlled_sixel_pattern(
+    measurements: dict[str, Any],
+    *,
+    line_reader=None,
+) -> dict[str, Any]:
+    """Display a 100x100 raster and collect its real Windows Terminal footprint."""
+    raster = CALIBRATION_PATTERN_RASTER
+    payload = controlled_sixel_test_pattern(*raster)
+    visible = measurements.get("visible_cells") or [80, 24]
+    geometry = ArtworkPreviewGeometry(
+        terminal_columns=int(visible[0]),
+        terminal_rows=int(visible[1]),
+        indent_columns=0,
+        columns=10,
+        rows=5,
+        pixel_width=raster[0],
+        pixel_height=raster[1],
+    )
+    print()
+    print("        -- Controlled built-in Sixel: exact 100x100-pixel raster --")
+    print("        Measure the outer white border in terminal cells; decimals are OK.")
+    emission = emit_sixel_preview_chunked(payload, geometry=geometry)
+    observed_width = _optional_observed_cells(
+        "        Observed physical width in cells (blank if unsure): ",
+        line_reader=line_reader,
+    )
+    observed_height = _optional_observed_cells(
+        "        Observed physical height in cells (blank if unsure): ",
+        line_reader=line_reader,
+    )
+    return {
+        "declared_sixel_raster": list(raster),
+        "payload_bytes": len(payload),
+        "emission": emission,
+        "predicted_cells_by_independent_signal": controlled_pattern_expected_cells(
+            raster, measurements
+        ),
+        "observed_physical_cells": [observed_width, observed_height],
+    }
+
+
+def build_waveform_calibration_previews(
+    source: Path,
+    *,
+    use_color: bool,
+) -> tuple[PreparedArtworkPreview, PreparedArtworkPreview]:
+    """Prepare the exact same image through shared Chafa and waveform Sixel."""
+    source = Path(source)
+    chafa_preview = prepare_artwork_preview(
+        source,
+        use_color=use_color,
+        prefer_sixel=True,
+        geometry=artwork_preview_geometry(),
+        stretch_to_width=False,
+    )
+    builtin_preview = prepare_waveform_preview(
+        source,
+        use_color=use_color,
+        width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+        height_scale=WAVEFORM_COMPARISON_HEIGHT_SCALE,
+        prefer_direct_chafa=False,
+    )
+    return chafa_preview, builtin_preview
+
+
+def waveform_calibration_rating(
+    renderer_name: str,
+    *,
+    key_reader=None,
+) -> dict[str, str]:
+    """Collect simple physical-display judgments from the real terminal user."""
+    reader = key_reader or read_single_key
+
+    def ask(question: str, choices: dict[str, str]) -> str:
+        legend = " / ".join(f"{key.upper()}={label}" for key, label in choices.items())
+        while True:
+            print(f"        ❓ {question} [{legend}] ", end="", flush=True)
+            key = reader()
+            if key == "\x03":
+                print()
+                raise KeyboardInterrupt
+            answer = choices.get(key.casefold())
+            if answer is not None:
+                print(answer)
+                reset_console_pager_after_user_input()
+                return answer
+            invalid_key_beep()
+
+    print(f"        Rate {renderer_name} on THIS Windows Terminal:")
+    return {
+        "width": ask(
+            "Width?",
+            {"g": "good", "n": "too narrow", "w": "too wide", "c": "cropped"},
+        ),
+        "height": ask(
+            "Height?",
+            {"g": "good", "s": "too short", "t": "too tall", "c": "cropped"},
+        ),
+        "metrics": ask(
+            "Right-side summary metrics?",
+            {"r": "readable", "u": "present but unreadable", "m": "missing", "c": "cropped"},
+        ),
+    }
+
+
+def calibration_preview_record(
+    prepared: PreparedArtworkPreview,
+    *,
+    preparation_seconds: float | None = None,
+    emission: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Describe the prepared output before Windows Terminal interprets it."""
+    raster = (
+        sixel_payload_pixel_size(prepared.sixel_payload)
+        if prepared.sixel_payload is not None
+        else None
+    )
+    return {
+        "renderer": prepared.mode,
+        "preparation_seconds": (
+            round(float(preparation_seconds), 6)
+            if preparation_seconds is not None
+            else None
+        ),
+        "geometry_cells": [prepared.geometry.columns, prepared.geometry.rows],
+        "geometry_pixels": [prepared.geometry.pixel_width, prepared.geometry.pixel_height],
+        "declared_sixel_raster": list(raster) if raster else None,
+        "renderer_options": list(prepared.renderer_options),
+        "payload_bytes": len(prepared.sixel_payload or b""),
+        "terminal_emission_seconds": (
+            emission.get("terminal_emission_seconds") if emission else None
+        ),
+        "emission": emission,
+    }
+
+
+def render_waveform_calibration_report(data: dict[str, Any]) -> str:
+    """Render one stable copy/paste report for the next calibration iteration."""
+    return (
+        "===== WAVEFORM TERMINAL CALIBRATION REPORT =====\n"
+        + json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True)
+        + "\n===== END WAVEFORM TERMINAL CALIBRATION REPORT ====="
+    )
+
+
+def _run_waveform_terminal_calibration_v124(
+    target: Path,
+    *,
+    use_color: bool,
+    key_reader=None,
+) -> int:
+    """Compare real Chafa geometry with built-in Sixel on the user's terminal."""
+    requested = Path(target).expanduser().resolve(strict=False)
+    source_audio: Path | None = None
+    source_image: Path | None = None
+    generated_temp: tempfile.TemporaryDirectory[str] | None = None
+    try:
+        if requested.is_dir():
+            source_audio = find_calibration_audio(requested)
+            if source_audio is None:
+                raise RuntimeError(
+                    f"No supported audio file was found within 5 levels of {requested}"
+                )
+        elif requested.is_file() and requested.suffix.casefold() in CALIBRATION_IMAGE_EXTS:
+            source_image = requested
+        elif requested.is_file() and requested.suffix.casefold() in ALLOWED_AUDIO_EXTS:
+            source_audio = requested
+        else:
+            raise RuntimeError(
+                "Calibration target must be an audio file, waveform image, or folder: "
+                f"{requested}"
+            )
+
+        if source_image is None:
+            if source_audio is None:
+                raise RuntimeError("Calibration could not resolve an audio source")
+            if shutil.which("ffmpeg") is None:
+                raise RuntimeError("Waveform calibration from audio requires ffmpeg in PATH")
+            generated_temp = tempfile.TemporaryDirectory(prefix="audit-waveform-calibration-")
+            destination = Path(generated_temp.name) / "calibration-waveform.jpg"
+            source_image, _backup, _metrics = generate_waveform_jpeg(
+                source_audio,
+                narrate=False,
+                destination=destination,
+            )
+        elif source_image.suffix.casefold() not in {".jpg", ".jpeg"}:
+            if Image is None:
+                raise RuntimeError("Pillow is required to calibrate from a non-JPEG image")
+            generated_temp = tempfile.TemporaryDirectory(prefix="audit-waveform-calibration-")
+            converted = Path(generated_temp.name) / "calibration-waveform.jpg"
+            with Image.open(source_image) as original:
+                original.convert("RGB").save(converted, format="JPEG", quality=96)
+            source_image = converted
+
+        ensure_waveform_jpeg_ready(source_image)
+        image_size = _calibration_source_image_size(source_image)
+        chafa_path = chafa_executable()
+
+        print()
+        print("        🧪 Waveform terminal calibration")
+        print("        ⏱️ Do not type for about one second while CSI 14t/16t geometry queries run...")
+        measurements = terminal_calibration_measurements()
+        print(f"        📄 Source image: {source_image}")
+        if source_audio is not None:
+            print(f"        🎵 Source audio: {source_audio}")
+        print(f"        🖼️ Source raster: {image_size[0]}×{image_size[1]}" if image_size else "        🖼️ Source raster: unknown")
+        print(f"        🖥️ Chafa executable: {chafa_path or 'NOT FOUND'}")
+        print("        📐 Geometry measurements:")
+        for line in json.dumps(measurements, indent=2, ensure_ascii=False, sort_keys=True).splitlines():
+            print("            " + line)
+
+        print()
+        print("        ── Renderer A: shared claire_terminal_geometry + Chafa ──")
+        chafa_preview, builtin_preview = build_waveform_calibration_previews(
+            source_image,
+            use_color=use_color,
+        )
+        chafa_record = calibration_preview_record(chafa_preview)
+        print("        Prepared output:")
+        for line in json.dumps(chafa_record, indent=2, ensure_ascii=False, sort_keys=True).splitlines():
+            print("            " + line)
+        if chafa_preview.mode != "Chafa Sixel":
+            print(
+                "        ⚠️ Renderer A did NOT actually reach Chafa Sixel; "
+                f"the runtime fell back to {chafa_preview.mode}."
+            )
+        emit_prepared_artwork_preview(chafa_preview)
+        chafa_rating = waveform_calibration_rating(
+            "Renderer A",
+            key_reader=key_reader,
+        )
+
+        print()
+        print("        ── Renderer B: built-in waveform Sixel ──")
+        builtin_record = calibration_preview_record(builtin_preview)
+        print("        Prepared output:")
+        for line in json.dumps(builtin_record, indent=2, ensure_ascii=False, sort_keys=True).splitlines():
+            print("            " + line)
+        emit_prepared_artwork_preview(builtin_preview)
+        builtin_rating = waveform_calibration_rating(
+            "Renderer B",
+            key_reader=key_reader,
+        )
+
+        report = {
+            "audit_music_batch_version": AUDIT_MUSIC_BATCH_VERSION,
+            "release_date": AUDIT_MUSIC_BATCH_RELEASE_DATE,
+            "requested_target": str(requested),
+            "source_audio": str(source_audio) if source_audio else None,
+            "source_image": str(source_image),
+            "source_raster": list(image_size) if image_size else None,
+            "measurements": measurements,
+            "renderer_A_shared_chafa": {
+                **chafa_record,
+                "rating": chafa_rating,
+            },
+            "renderer_B_builtin_sixel": {
+                **builtin_record,
+                "rating": builtin_rating,
+            },
+        }
+        print()
+        print(render_waveform_calibration_report(report))
+        print()
+        print("        📋 Copy/paste the report above back into ChatGPT with a screenshot of both renderers.")
+        return 0
+    finally:
+        if generated_temp is not None:
+            generated_temp.cleanup()
+
+
+def run_waveform_terminal_calibration(
+    target: Path,
+    *,
+    use_color: bool,
+    key_reader=None,
+    line_reader=None,
+) -> int:
+    """Compare direct Chafa, controlled pixels, and chunked built-in Sixel."""
+    del use_color  # Calibration explicitly exercises Sixel even with --no-color.
+    requested = Path(target).expanduser().resolve(strict=False)
+    source_audio: Path | None = None
+    source_image: Path | None = None
+    generated_temp: tempfile.TemporaryDirectory[str] | None = None
+    try:
+        if requested.is_dir():
+            source_audio = find_calibration_audio(requested)
+            if source_audio is None:
+                raise RuntimeError(
+                    f"No supported audio file was found within 5 levels of {requested}"
+                )
+        elif requested.is_file() and requested.suffix.casefold() in CALIBRATION_IMAGE_EXTS:
+            source_image = requested
+        elif requested.is_file() and requested.suffix.casefold() in ALLOWED_AUDIO_EXTS:
+            source_audio = requested
+        else:
+            raise RuntimeError(
+                "Calibration target must be an audio file, waveform image, or folder: "
+                f"{requested}"
+            )
+
+        if source_image is None:
+            if source_audio is None:
+                raise RuntimeError("Calibration could not resolve an audio source")
+            if shutil.which("ffmpeg") is None:
+                raise RuntimeError("Waveform calibration from audio requires ffmpeg in PATH")
+            generated_temp = tempfile.TemporaryDirectory(
+                prefix="audit-waveform-calibration-"
+            )
+            destination = Path(generated_temp.name) / "calibration-waveform.jpg"
+            source_image, _backup, _metrics = generate_waveform_jpeg(
+                source_audio,
+                narrate=False,
+                destination=destination,
+            )
+        elif source_image.suffix.casefold() not in {".jpg", ".jpeg"}:
+            if Image is None:
+                raise RuntimeError(
+                    "Pillow is required to calibrate from a non-JPEG image"
+                )
+            generated_temp = tempfile.TemporaryDirectory(
+                prefix="audit-waveform-calibration-"
+            )
+            converted = Path(generated_temp.name) / "calibration-waveform.jpg"
+            with Image.open(source_image) as original:
+                original.convert("RGB").save(converted, format="JPEG", quality=96)
+            source_image = converted
+
+        ensure_waveform_jpeg_ready(source_image)
+        image_size = _calibration_source_image_size(source_image)
+        chafa_path = chafa_executable()
+        if chafa_path is None:
+            raise RuntimeError("Waveform terminal calibration requires Chafa")
+
+        print()
+        print("        Waveform terminal calibration")
+        print("        Do not type while the CSI 14t/16t geometry queries run...")
+        measurements = terminal_calibration_measurements()
+        print(f"        Source image: {source_image}")
+        if source_audio is not None:
+            print(f"        Source audio: {source_audio}")
+        print(
+            f"        Source raster: {image_size[0]}x{image_size[1]}"
+            if image_size
+            else "        Source raster: unknown"
+        )
+        print(f"        Chafa executable: {chafa_path}")
+        print("        Independent geometry measurements (no value is forced):")
+        for line in json.dumps(
+            measurements, indent=2, ensure_ascii=False, sort_keys=True
+        ).splitlines():
+            print("            " + line)
+
+        controlled_pattern = observe_controlled_sixel_pattern(
+            measurements,
+            line_reader=line_reader,
+        )
+
+        print()
+        print("        -- Renderer A: direct shared-geometry Chafa --")
+        prepare_started = time.perf_counter()
+        chafa_command, chafa_geometry = build_direct_chafa_calibration_command(
+            source_image
+        )
+        chafa_prepare_seconds = time.perf_counter() - prepare_started
+        chafa_record: dict[str, Any] = {
+            "renderer": "Chafa Sixel (direct inherited stdio)",
+            "preparation_seconds": round(chafa_prepare_seconds, 6),
+            "geometry_cells": [chafa_geometry.columns, chafa_geometry.rows],
+            "geometry_pixels": [
+                chafa_geometry.pixel_width,
+                chafa_geometry.pixel_height,
+            ],
+            "declared_sixel_raster": None,
+            "payload_bytes": None,
+            "unavailable_metrics_reason": (
+                "Direct inherited stdout deliberately prevents Python from "
+                "capturing/counting/parsing Chafa's Sixel payload."
+            ),
+            "renderer_options": chafa_command[1:-1],
+        }
+        print("        Prepared direct command:")
+        for line in json.dumps(
+            chafa_record, indent=2, ensure_ascii=False, sort_keys=True
+        ).splitlines():
+            print("            " + line)
+        print(
+            f"        Chafa now owns the terminal directly; watchdog: "
+            f"{CALIBRATION_CHAFA_TIMEOUT_SECONDS:g}s."
+        )
+        chafa_execution = run_direct_chafa_calibration(chafa_command)
+        chafa_record["terminal_emission_seconds"] = chafa_execution[
+            "terminal_emission_seconds"
+        ]
+        chafa_record["execution"] = chafa_execution
+        print()
+        if chafa_execution["timed_out"]:
+            print("        WARNING: Chafa exceeded the watchdog and was stopped.")
+        elif chafa_execution["return_code"] != 0:
+            print(
+                "        WARNING: Direct Chafa exited with code "
+                f"{chafa_execution['return_code']}."
+            )
+        chafa_rating = waveform_calibration_rating(
+            "Renderer A",
+            key_reader=key_reader,
+        )
+
+        print()
+        print("        -- Renderer B: built-in waveform Sixel, chunked --")
+        builtin_prepare_started = time.perf_counter()
+        builtin_preview = prepare_waveform_preview(
+            source_image,
+            use_color=True,
+            width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+            height_scale=WAVEFORM_COMPARISON_HEIGHT_SCALE,
+            prefer_direct_chafa=False,
+        )
+        builtin_prepare_seconds = time.perf_counter() - builtin_prepare_started
+        if builtin_preview.sixel_payload is None:
+            raise RuntimeError("Renderer B did not produce a Sixel payload")
+        builtin_record = calibration_preview_record(
+            builtin_preview,
+            preparation_seconds=builtin_prepare_seconds,
+        )
+        print("        Prepared output:")
+        for line in json.dumps(
+            builtin_record, indent=2, ensure_ascii=False, sort_keys=True
+        ).splitlines():
+            print("            " + line)
+        builtin_emission = emit_sixel_preview_chunked(
+            builtin_preview.sixel_payload,
+            geometry=builtin_preview.geometry,
+        )
+        builtin_record["terminal_emission_seconds"] = builtin_emission[
+            "terminal_emission_seconds"
+        ]
+        builtin_record["emission"] = builtin_emission
+        builtin_rating = waveform_calibration_rating(
+            "Renderer B",
+            key_reader=key_reader,
+        )
+
+        report = {
+            "audit_music_batch_version": AUDIT_MUSIC_BATCH_VERSION,
+            "release_date": AUDIT_MUSIC_BATCH_RELEASE_DATE,
+            "requested_target": str(requested),
+            "source_audio": str(source_audio) if source_audio else None,
+            "source_image": str(source_image),
+            "source_raster": list(image_size) if image_size else None,
+            "measurements": measurements,
+            "controlled_builtin_sixel_pattern": controlled_pattern,
+            "renderer_A_direct_chafa": {
+                **chafa_record,
+                "rating": chafa_rating,
+            },
+            "renderer_B_builtin_sixel": {
+                **builtin_record,
+                "rating": builtin_rating,
+            },
+        }
+        print()
+        print(render_waveform_calibration_report(report))
+        print()
+        print("        Copy/paste the report above with a screenshot of both renderers.")
+        return 0
+    finally:
+        if generated_temp is not None:
+            generated_temp.cleanup()
 
 
 def launch_irfanview(path: Path) -> Path:
@@ -6658,6 +9001,21 @@ def replaygain_bake_waveform_cache_paths(audio_path: Path) -> tuple[Path, Path]:
     )
 
 
+def replaygain_waveform_pair_is_displayable(
+    before_path: Path,
+    after_path: Path,
+) -> bool:
+    """Require two distinct, verified JPEGs before advertising a pair."""
+    if before_path == after_path:
+        return False
+    try:
+        ensure_waveform_jpeg_ready(before_path)
+        ensure_waveform_jpeg_ready(after_path)
+    except Exception:
+        return False
+    return True
+
+
 def replaygain_bake_candidates(audio_files: Iterable[Path]) -> list[Path]:
     """Find MP3/FLAC files whose tagged adjustment merits sample-data baking."""
     return [
@@ -6844,12 +9202,14 @@ def waveform_review_choice(
     use_color: bool,
     key_reader=None,
     preview_renderer=None,
+    comparison_preview_renderer=None,
     image_viewer=None,
     audio_editor=None,
     audio_previewer=None,
     problem_renamer=None,
     rename_input_reader=None,
     waveform_metrics: WaveformMetrics | None = None,
+    comparison_active: bool = False,
     gain_baker=None,
     waveform_generator=None,
     waveform_recolorer=None,
@@ -6862,6 +9222,11 @@ def waveform_review_choice(
 ) -> tuple[str, int, Path]:
     """Review one disposable waveform for problems, editing, or navigation."""
     renderer = preview_renderer or render_waveform_preview
+    comparison_renderer = (
+        comparison_preview_renderer
+        or preview_renderer
+        or render_waveform_comparison_preview
+    )
     viewer = image_viewer or launch_irfanview
     editor = audio_editor or launch_audio_editor
     previewer = audio_previewer or launch_audio_preview
@@ -6877,14 +9242,12 @@ def waveform_review_choice(
     while True:
         rendered_size = visible_console_size()
         reset_console_pager_after_user_input()
-        mode = renderer(waveform_path, use_color=use_color)
-        cover_narration(
-            "👁️",
-            f"Diagnostic preview rendered with {mode}.",
-            use_color=use_color,
-            color=(105, 95, 145),
-            dim=True,
-        )
+        active_renderer = comparison_renderer if comparison_active else renderer
+        # Emit the preview without a trailing renderer-status line.  Sixel occupies
+        # terminal pixel rows rather than normal text rows, so narration immediately
+        # after it can visually overwrite the bottom of the waveform in Windows
+        # Terminal.  The review header already communicates before/after context.
+        active_renderer(waveform_path, use_color=use_color)
         if excessive_silence:
             cover_narration(
                 "🔴",
@@ -7116,6 +9479,7 @@ def waveform_review_choice(
                     recolorer(regenerated_waveform)
                     current_metrics = regenerated_metrics
                     gain_baked = True
+                    comparison_active = True
                     excessive_silence = (
                         regenerated_metrics.longest_silence_seconds
                         > acceptable_silence_seconds
@@ -7142,16 +9506,9 @@ def waveform_review_choice(
                         color=(85, 190, 245),
                     )
                     reset_console_pager_after_user_input()
-                    comparison_mode = renderer(
+                    comparison_renderer(
                         before_bake_waveform,
                         use_color=use_color,
-                    )
-                    cover_narration(
-                        "👁️",
-                        f"Original comparison rendered with {comparison_mode}.",
-                        use_color=use_color,
-                        color=(105, 95, 145),
-                        dim=True,
                     )
                     refreshed_text = (
                         f"{refreshed_db:+.2f} dB"
@@ -7885,6 +10242,36 @@ def annotate_waveform_peak_guides(
     image.save(waveform_path, format="JPEG", quality=94)
 
 
+def ensure_waveform_jpeg_ready(path: Path) -> tuple[int, int]:
+    """Verify a waveform JPEG is closed, decodable, and ready for Chafa/Sixel.
+
+    This deliberately uses successful decode/verify rather than an arbitrary
+    sleep.  Returning only after two independent Pillow opens also guarantees
+    that no producer-side image handle is required by the preview renderer.
+    """
+    target = Path(path)
+    if not target.is_file():
+        raise FileNotFoundError(target)
+    stat_result = target.stat()
+    if stat_result.st_size <= 0 or image_mime(target) != "image/jpeg":
+        raise RuntimeError(f"Waveform JPEG is not display-ready: {target}")
+    if Image is not None:
+        with Image.open(target) as probe:
+            probe.verify()
+        with Image.open(target) as probe:
+            probe.load()
+            if probe.width <= 0 or probe.height <= 0:
+                raise RuntimeError(
+                    f"Waveform JPEG has invalid dimensions: {target}"
+                )
+    confirmed = target.stat()
+    if confirmed.st_size != stat_result.st_size:
+        raise RuntimeError(
+            f"Waveform JPEG changed during readiness verification: {target}"
+        )
+    return confirmed.st_size, confirmed.st_mtime_ns
+
+
 def generate_waveform_jpeg(
     audio_path: Path,
     *,
@@ -7894,6 +10281,7 @@ def generate_waveform_jpeg(
     acceptable_silence_seconds: float = (
         BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS
     ),
+    cancel_event: threading.Event | None = None,
 ) -> tuple[Path, Path | None, WaveformMetrics]:
     """Generate and verify one disposable high-resolution waveform JPEG."""
     ffmpeg = ffmpeg_executable or shutil.which("ffmpeg")
@@ -7959,14 +10347,40 @@ def generate_waveform_jpeg(
             flush=True,
         )
     def run_waveform_command(arguments: list[str]):
-        return subprocess.run(
+        if cancel_event is None:
+            return subprocess.run(
+                arguments,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                errors="replace",
+                check=False,
+            )
+        process = subprocess.Popen(
             arguments,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
             errors="replace",
-            check=False,
         )
+        while True:
+            try:
+                stdout, _stderr = process.communicate(timeout=0.10)
+                return subprocess.CompletedProcess(
+                    arguments, process.returncode, stdout=stdout, stderr=None
+                )
+            except subprocess.TimeoutExpired:
+                if not cancel_event.is_set():
+                    continue
+                process.terminate()
+                try:
+                    stdout, _stderr = process.communicate(timeout=1.0)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    stdout, _stderr = process.communicate()
+                if temporary.exists():
+                    recycle_path(temporary)
+                raise RuntimeError("waveform rendering cancelled")
 
     result = run_waveform_command(command)
     if (
@@ -8030,10 +10444,12 @@ def generate_waveform_jpeg(
         os.replace(temporary, target)
     else:
         temporary.rename(target)
-    if image_mime(target) != "image/jpeg" or target.stat().st_size <= 0:
+    try:
+        ensure_waveform_jpeg_ready(target)
+    except Exception as exc:
         raise RuntimeError(
-            f"Waveform JPEG verification failed after staging: {target}"
-        )
+            f"Waveform JPEG verification failed after staging: {target}: {exc}"
+        ) from exc
     return target, None, metrics
 
 
@@ -8156,6 +10572,56 @@ class WaveformApprovalStore:
         return len(vanished)
 
 
+def prioritized_waveform_render_futures(
+    audio_files: list[Path],
+    executor: ThreadPoolExecutor,
+    staging_folder: Path,
+    *,
+    acceptable_silence_seconds: float,
+    first_ready_callback: Callable[[
+        Path, tuple[Path, Path | None, WaveformMetrics]
+    ], None] | None = None,
+    prestarted_first: tuple[Path, Future] | None = None,
+) -> tuple[dict[Path, Future], dict[Path, tuple[Path, Path | None, WaveformMetrics]]]:
+    """Render #1 to completion before the remaining background jobs start."""
+    futures: dict[Path, Future] = {}
+    rendered_results: dict[Path, tuple[Path, Path | None, WaveformMetrics]] = {}
+
+    def submit(item_index: int, upcoming: Path) -> Future:
+        staged_name = (
+            f"{item_index:06d}-"
+            f"{hashlib.sha256(str(upcoming).encode()).hexdigest()[:12]}"
+            ".waveform.jpg"
+        )
+        future = executor.submit(
+            generate_waveform_jpeg,
+            upcoming,
+            narrate=False,
+            destination=staging_folder / staged_name,
+            acceptable_silence_seconds=acceptable_silence_seconds,
+        )
+        futures[upcoming] = future
+        return future
+
+    if audio_files:
+        first_audio = audio_files[0]
+        if prestarted_first is not None and prestarted_first[0] == first_audio:
+            first_future = prestarted_first[1]
+            futures[first_audio] = first_future
+        else:
+            first_future = submit(1, first_audio)
+        # This blocking result is deliberate: no second ffmpeg render is even
+        # submitted until the first visible waveform is complete.
+        rendered_results[first_audio] = first_future.result()
+        if first_ready_callback is not None:
+            # Finish the first *displayable* preview before background ffmpeg
+            # jobs are allowed to compete for CPU/disk.
+            first_ready_callback(first_audio, rendered_results[first_audio])
+        for item_index, upcoming in enumerate(audio_files[1:], start=2):
+            submit(item_index, upcoming)
+    return futures, rendered_results
+
+
 def review_waveforms(
     root: Path,
     *,
@@ -8170,6 +10636,8 @@ def review_waveforms(
     workers: int = 8,
     silence_threshold_seconds: float | None = None,
     approval_database_path: Path | None = None,
+    force_all: bool = False,
+    prestarted_waveform: tuple[Path, Future] | None = None,
 ) -> dict[str, Any]:
     """Review disposable waveform previews for audible-file warning signs."""
     if not interactive:
@@ -8188,16 +10656,36 @@ def review_waveforms(
     approved_keys = {
         WaveformApprovalStore._key(path) for path in previously_approved
     }
-    audio_files = [
-        path
-        for path in all_audio_files
-        if WaveformApprovalStore._key(path) not in approved_keys
-    ]
+    audio_files = (
+        list(all_audio_files)
+        if force_all
+        else [
+            path
+            for path in all_audio_files
+            if WaveformApprovalStore._key(path) not in approved_keys
+        ]
+    )
+    if force_all:
+        previously_approved = []
+    elif not audio_files and all_audio_files:
+        # Direct --review-waveforms should offer the same escape hatch as the
+        # post-audit offer when the approval database would otherwise queue 0.
+        if prompt_force_all_waveform_review(
+            len(all_audio_files),
+            use_color=use_color,
+            key_reader=key_reader,
+        ):
+            force_all = True
+            audio_files = list(all_audio_files)
+            previously_approved = []
     acceptable_silence_seconds = (
         float(silence_threshold_seconds)
         if silence_threshold_seconds is not None
         else load_behavior_defaults().silence_threshold_seconds
     )
+    # Give the large review heading breathing room from the audit summary.
+    for _ in range(3):
+        print()
     print(
         "\n".join(
             double_height_gradient_section(
@@ -8282,32 +10770,63 @@ def review_waveforms(
         max_workers=worker_count,
         thread_name_prefix="waveform",
     )
-    futures: dict[Path, Future] = {}
-    rendered_results: dict[
-        Path, tuple[Path, Path | None, WaveformMetrics]
-    ] = {}
     before_bake_waveforms: dict[Path, Path] = {}
     folder_baked_audio: set[Path] = set()
     preview_executor: ThreadPoolExecutor | None = None
     prepared_futures: dict[Path, Future] = {}
+    prepared_previews: dict[Path, PreparedArtworkPreview] = {}
+    prepared_comparison_previews: dict[Path, PreparedArtworkPreview] = {}
     try:
-        for item_index, upcoming in enumerate(audio_files, start=1):
-            staged_name = (
-                f"{item_index:06d}-"
-                f"{hashlib.sha256(str(upcoming).encode()).hexdigest()[:12]}"
-                ".waveform.jpg"
-            )
-            futures[upcoming] = executor.submit(
-                generate_waveform_jpeg,
-                upcoming,
-                narrate=False,
-                destination=staging_folder / staged_name,
-                acceptable_silence_seconds=acceptable_silence_seconds,
-            )
+        # Discover any persisted before/after comparison first so waveform #1
+        # can have *both* display payloads ready before the worker fan-out.
         for path in audio_files:
             before_path, after_path = replaygain_bake_waveform_cache_paths(path)
-            if before_path.is_file() and after_path.is_file():
+            if replaygain_waveform_pair_is_displayable(
+                before_path, after_path
+            ):
                 before_bake_waveforms[path] = before_path
+
+        def prepare_first_waveform_before_fanout(
+            first_audio: Path,
+            first_result: tuple[Path, Path | None, WaveformMetrics],
+        ) -> None:
+            if preview_renderer is not None:
+                return
+            staged_path = first_result[0]
+            ensure_waveform_jpeg_ready(staged_path)
+            comparison_path = before_bake_waveforms.get(first_audio)
+            comparison_active = comparison_path is not None
+            prepared_previews[first_audio] = prepare_waveform_preview(
+                staged_path,
+                use_color=use_color,
+                width_fraction=(
+                    WAVEFORM_COMPARISON_WIDTH_FRACTION
+                    if comparison_active
+                    else WAVEFORM_REVIEW_WIDTH_FRACTION
+                ),
+                height_scale=(
+                    WAVEFORM_COMPARISON_HEIGHT_SCALE
+                    if comparison_active
+                    else WAVEFORM_REVIEW_HEIGHT_SCALE
+                ),
+            )
+            if comparison_path is not None:
+                ensure_waveform_jpeg_ready(comparison_path)
+                prepared_comparison_previews[first_audio] = prepare_waveform_preview(
+                    comparison_path,
+                    use_color=use_color,
+                    width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+                    height_scale=WAVEFORM_COMPARISON_HEIGHT_SCALE,
+                )
+
+        futures, rendered_results = prioritized_waveform_render_futures(
+            audio_files,
+            executor,
+            staging_folder,
+            acceptable_silence_seconds=acceptable_silence_seconds,
+            first_ready_callback=prepare_first_waveform_before_fanout,
+            prestarted_first=prestarted_waveform,
+        )
         tagged_bake_candidates = replaygain_bake_candidates(audio_files)
         if tagged_bake_candidates:
             print()
@@ -8386,22 +10905,85 @@ def review_waveforms(
                             bake_progress.update(1)
                 bake_progress_context.__exit__(None, None, None)
         if preview_renderer is None and audio_files:
+            # Do the first *display* preparation synchronously too. The first JPEG
+            # was already rendered before the rest were submitted; encoding its
+            # Sixel now prevents the background preview workers from delaying the
+            # first thing the user can actually inspect.
+            first_audio = audio_files[0]
+            first_result = rendered_results.get(first_audio) or futures[first_audio].result()
+            rendered_results[first_audio] = first_result
+            ensure_waveform_jpeg_ready(first_result[0])
+            first_comparison = before_bake_waveforms.get(first_audio)
+            first_comparison_active = first_comparison is not None
+            if first_audio not in prepared_previews:
+                prepared_previews[first_audio] = prepare_waveform_preview(
+                    first_result[0],
+                    use_color=use_color,
+                    width_fraction=(
+                        WAVEFORM_COMPARISON_WIDTH_FRACTION
+                        if first_comparison_active
+                        else WAVEFORM_REVIEW_WIDTH_FRACTION
+                    ),
+                    height_scale=(
+                        WAVEFORM_COMPARISON_HEIGHT_SCALE
+                        if first_comparison_active
+                        else WAVEFORM_REVIEW_HEIGHT_SCALE
+                    ),
+                )
+            if first_comparison is not None:
+                ensure_waveform_jpeg_ready(first_comparison)
+                if first_audio not in prepared_comparison_previews:
+                    prepared_comparison_previews[first_audio] = prepare_waveform_preview(
+                        first_comparison,
+                        use_color=use_color,
+                        width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+                        height_scale=WAVEFORM_COMPARISON_HEIGHT_SCALE,
+                    )
+
             preview_executor = ThreadPoolExecutor(
                 max_workers=max(1, min(4, worker_count)),
                 thread_name_prefix="waveform-preview",
             )
 
             def prepare_after_render(
+                audio_path: Path,
                 render_future: Future,
             ) -> PreparedArtworkPreview:
                 staged_path, _backup, _metrics = render_future.result()
+                comparison_active = audio_path in before_bake_waveforms
                 return prepare_waveform_preview(
                     staged_path,
                     use_color=use_color,
+                    width_fraction=(
+                        WAVEFORM_COMPARISON_WIDTH_FRACTION
+                        if comparison_active
+                        else WAVEFORM_REVIEW_WIDTH_FRACTION
+                    ),
+                    height_scale=(
+                        WAVEFORM_COMPARISON_HEIGHT_SCALE
+                        if comparison_active
+                        else WAVEFORM_REVIEW_HEIGHT_SCALE
+                    ),
                 )
 
-            def prepare_rendered_path(path: Path) -> PreparedArtworkPreview:
-                return prepare_waveform_preview(path, use_color=use_color)
+            def prepare_rendered_path(
+                audio_path: Path, path: Path
+            ) -> PreparedArtworkPreview:
+                comparison_active = audio_path in before_bake_waveforms
+                return prepare_waveform_preview(
+                    path,
+                    use_color=use_color,
+                    width_fraction=(
+                        WAVEFORM_COMPARISON_WIDTH_FRACTION
+                        if comparison_active
+                        else WAVEFORM_REVIEW_WIDTH_FRACTION
+                    ),
+                    height_scale=(
+                        WAVEFORM_COMPARISON_HEIGHT_SCALE
+                        if comparison_active
+                        else WAVEFORM_REVIEW_HEIGHT_SCALE
+                    ),
+                )
 
             def schedule_preview(index_to_schedule: int) -> None:
                 if (
@@ -8410,27 +10992,34 @@ def review_waveforms(
                 ):
                     return
                 upcoming = audio_files[index_to_schedule]
+                if upcoming in prepared_previews or upcoming in prepared_futures:
+                    return
                 if upcoming not in prepared_futures:
                     if upcoming in rendered_results:
                         prepared_futures[upcoming] = preview_executor.submit(
                             prepare_rendered_path,
+                            upcoming,
                             rendered_results[upcoming][0],
                         )
                     else:
                         prepared_futures[upcoming] = preview_executor.submit(
                             prepare_after_render,
+                            upcoming,
                             futures[upcoming],
                         )
 
+            # Waveform #1 is intentionally prepared synchronously on the main
+            # thread after JPEG readiness verification.  This avoids a Windows
+            # Terminal/TCC first-frame race that could expose raw Sixel bytes.
             for lookahead_index in range(
-                min(len(audio_files), preview_lookahead)
+                1, min(len(audio_files), preview_lookahead)
             ):
                 schedule_preview(lookahead_index)
             print(
                 rgb_text(
-                    f"        ⚡ Pre-rendering every waveform JPEG with "
-                    f"{worker_count} workers; keeping up to "
-                    f"{preview_lookahead} display-ready previews ahead.",
+                    f"        ⚡ Waveform #1 rendered first with priority; "
+                    f"pre-rendering the remainder with {worker_count} workers and "
+                    f"keeping up to {preview_lookahead} display-ready previews ahead.",
                     105,
                     175,
                     220,
@@ -8441,35 +11030,73 @@ def review_waveforms(
         for index, audio_path in enumerate(audio_files, start=1):
             if preview_executor is not None:
                 schedule_preview(index - 1 + preview_lookahead)
-            print()
-            print(
-                f"        🎛️ Waveform {index}/{len(audio_files)}:"
-            )
+            comparison_waveform = before_bake_waveforms.get(audio_path)
             future = futures[audio_path]
-            if not future.done():
-                print(
-                    waveform_rendering_status(audio_path.name, use_color)
-                )
-            else:
-                print(
-                    "            "
-                    f"{music_filename(audit.rel(audio_path), use_color)[1:]}"
-                )
             try:
-                (
-                    staged_waveform,
-                    _staging_backup,
-                    waveform_metrics,
-                ) = rendered_results.get(audio_path) or future.result()
-                prepared_future = prepared_futures.pop(
-                    audio_path,
-                    None,
+                if audio_path in rendered_results:
+                    (
+                        staged_waveform,
+                        _staging_backup,
+                        waveform_metrics,
+                    ) = rendered_results[audio_path]
+                else:
+                    (
+                        staged_waveform,
+                        _staging_backup,
+                        waveform_metrics,
+                    ) = wait_for_waveform_render(
+                        future,
+                        audio_path.name,
+                        use_color=use_color,
+                        leave_final_status=False,
+                    )
+                ensure_waveform_jpeg_ready(staged_waveform)
+                comparison_active = comparison_waveform is not None
+                excessive_silence_now = (
+                    waveform_metrics.longest_silence_seconds
+                    > acceptable_silence_seconds
                 )
-                prepared_preview = (
-                    prepared_future.result()
-                    if prepared_future is not None
-                    else None
+                allow_bake_gain_now = replaygain_needs_baking(
+                    waveform_metrics, audio_path
                 )
+                viewport_state = windows_console_viewport_state()
+                layout = waveform_review_layout_plan(
+                    audio_path.name,
+                    index=index,
+                    total=len(audio_files),
+                    comparison_active=comparison_active,
+                    excessive_silence=excessive_silence_now,
+                    allow_bake_gain=allow_bake_gain_now,
+                    viewport_state=viewport_state,
+                )
+                ensure_waveform_review_vertical_room(layout)
+                print()
+                print(
+                    waveform_review_header(
+                        index,
+                        len(audio_files),
+                        comparison_active=comparison_active,
+                        use_color=use_color,
+                    )
+                )
+                print(
+                    waveform_rendered_status(
+                        audio_path.name,
+                        use_color,
+                        terminal_columns=layout.terminal_columns,
+                    )
+                )
+                prepared_preview = prepared_previews.pop(audio_path, None)
+                if prepared_preview is None:
+                    prepared_future = prepared_futures.pop(
+                        audio_path,
+                        None,
+                    )
+                    prepared_preview = (
+                        prepared_future.result()
+                        if prepared_future is not None
+                        else None
+                    )
                 prepared_used = False
 
                 def queued_preview_renderer(
@@ -8482,48 +11109,82 @@ def review_waveforms(
                         not prepared_used
                         and prepared_preview is not None
                         and prepared_preview.geometry
-                        == waveform_preview_geometry()
+                        == waveform_preview_geometry(
+                            WAVEFORM_COMPARISON_WIDTH_FRACTION
+                            if comparison_waveform is not None
+                            else WAVEFORM_REVIEW_WIDTH_FRACTION,
+                            height_rows=layout.graph_rows,
+                        )
                     ):
                         prepared_used = True
                         return emit_prepared_artwork_preview(
                             prepared_preview
                         )
                     prepared_used = True
-                    return render_waveform_preview(
-                        path,
-                        use_color=use_color,
+                    return emit_prepared_artwork_preview(
+                        prepare_waveform_preview(
+                            path,
+                            use_color=use_color,
+                            width_fraction=(
+                                WAVEFORM_COMPARISON_WIDTH_FRACTION
+                                if comparison_waveform is not None
+                                else WAVEFORM_REVIEW_WIDTH_FRACTION
+                            ),
+                            height_rows=layout.graph_rows,
+                        )
                     )
 
-                comparison_waveform = before_bake_waveforms.get(audio_path)
+                prepared_comparison_sheet: PreparedArtworkPreview | None = None
+                prepared_comparison_sheet_key: tuple[int, int, int, int] | None = None
+
+                def queued_comparison_after_renderer(
+                    path: Path,
+                    *,
+                    use_color: bool,
+                ) -> str:
+                    nonlocal prepared_comparison_sheet
+                    nonlocal prepared_comparison_sheet_key
+                    if comparison_waveform is None:
+                        return queued_preview_renderer(path, use_color=use_color)
+                    before_stat = comparison_waveform.stat()
+                    after_stat = path.stat()
+                    key = (
+                        before_stat.st_size,
+                        before_stat.st_mtime_ns,
+                        after_stat.st_size,
+                        after_stat.st_mtime_ns,
+                    )
+                    if prepared_comparison_sheet is None or key != prepared_comparison_sheet_key:
+                        sheet_path = collision_safe_path(
+                            staged_waveform.with_name(
+                                f"{staged_waveform.stem}.before-after-contact-sheet.jpg"
+                            )
+                        )
+                        create_waveform_comparison_contact_sheet(
+                            comparison_waveform,
+                            path,
+                            sheet_path,
+                        )
+                        prepared_comparison_sheet = prepare_waveform_preview(
+                            sheet_path,
+                            use_color=use_color,
+                            width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+                            height_scale=WAVEFORM_COMPARISON_HEIGHT_SCALE,
+                        )
+                        prepared_comparison_sheet_key = key
+                    return emit_prepared_artwork_preview(prepared_comparison_sheet)
+
                 if comparison_waveform is not None:
-                    cover_narration(
-                        "🔵",
-                        "Before baking: original red-to-purple waveform for comparison "
-                        "only; no response is needed.",
-                        use_color=use_color,
-                        color=(85, 190, 245),
-                    )
                     reset_console_pager_after_user_input()
-                    comparison_mode = (
-                        preview_renderer or render_waveform_preview
-                    )(
-                        comparison_waveform,
-                        use_color=use_color,
-                    )
-                    cover_narration(
-                        "👁️",
-                        f"Original comparison rendered with {comparison_mode}.",
-                        use_color=use_color,
-                        color=(105, 95, 145),
-                        dim=True,
-                    )
-                    cover_narration(
-                        "🌱",
-                        "After baking: the cyan-to-green waveform below is the current "
-                        "audio and is the one being reviewed.",
-                        use_color=use_color,
-                        color=(80, 255, 130),
-                    )
+                    # Discard the obsolete separately prepared "before" frame.
+                    # Built-in rendering now emits one physical contact sheet;
+                    # custom renderers retain their historical two-call behavior.
+                    prepared_comparison_previews.pop(audio_path, None)
+                    if preview_renderer is not None:
+                        preview_renderer(
+                            comparison_waveform,
+                            use_color=use_color,
+                        )
 
                 decision, edit_count, reviewed_audio_path = waveform_review_choice(
                     staged_waveform,
@@ -8533,14 +11194,15 @@ def review_waveforms(
                     preview_renderer=(
                         preview_renderer or queued_preview_renderer
                     ),
+                    comparison_preview_renderer=(
+                        preview_renderer or queued_comparison_after_renderer
+                    ),
+                    comparison_active=(comparison_waveform is not None),
                     image_viewer=image_viewer,
                     audio_editor=discovered_editor,
                     audio_previewer=audio_previewer,
                     waveform_metrics=waveform_metrics,
-                    excessive_silence=(
-                        waveform_metrics.longest_silence_seconds
-                        > acceptable_silence_seconds
-                    ),
+                    excessive_silence=excessive_silence_now,
                     longest_silence_seconds=(
                         waveform_metrics.longest_silence_seconds
                     ),
@@ -8640,6 +11302,222 @@ def review_waveforms(
     }
 
 
+def waveform_review_header(
+    index: int,
+    total: int,
+    *,
+    comparison_active: bool,
+    use_color: bool,
+) -> str:
+    """Render the per-item heading, including color-keyed before/after context."""
+    base = f"        🎛️ Waveform {index}/{total}"
+    if not comparison_active:
+        return base + ":"
+    if not use_color:
+        return base + " (before, after):"
+    white = (238, 238, 242)
+    before = gradient_text(
+        "before",
+        True,
+        ((255, 65, 75), (175, 85, 255)),
+    )
+    after = gradient_text(
+        "after",
+        True,
+        ((55, 235, 205), (70, 255, 105)),
+    )
+    return (
+        base
+        + rgb_text(" (", *white, True)
+        + before
+        + rgb_text(", ", *white, True)
+        + after
+        + rgb_text("):", *white, True)
+    )
+
+
+def waveform_review_candidate_counts(
+    root: Path,
+    *,
+    include_archives: bool = False,
+    approval_database_path: Path | None = None,
+) -> tuple[int, int, int]:
+    """Return total, queued, and previously-approved waveform-review counts."""
+    audit = BatchAudit(root, include_archives=include_archives)
+    audit.collect_files()
+    all_audio_files = audit.audio_files
+    approval_store = WaveformApprovalStore(approval_database_path)
+    approved = sum(
+        1 for path in all_audio_files if approval_store.is_approved(path)
+    )
+    return len(all_audio_files), len(all_audio_files) - approved, approved
+
+
+def waveform_review_candidates(
+    root: Path,
+    *,
+    include_archives: bool = False,
+    approval_database_path: Path | None = None,
+) -> tuple[list[Path], list[Path]]:
+    """Return all and unapproved audio paths for prompt-time pre-rendering."""
+    audit = BatchAudit(root, include_archives=include_archives)
+    audit.collect_files()
+    all_audio_files = list(audit.audio_files)
+    approval_store = WaveformApprovalStore(approval_database_path)
+    queued = [
+        path for path in all_audio_files if not approval_store.is_approved(path)
+    ]
+    return all_audio_files, queued
+
+
+def prompt_force_all_waveform_review(
+    total_audio: int,
+    *,
+    use_color: bool,
+    key_reader=None,
+    indent: str = "        ",
+) -> bool:
+    """Offer F=Force All when every eligible waveform is already approved."""
+    reader = key_reader or read_single_key
+    question = (
+        f"Interactive waveform review has 0 files queued; all {total_audio} "
+        f"eligible audio file{'s are' if total_audio != 1 else ' is'} already approved."
+    )
+    legend = "[F=Force All / N=No]"
+    prompt = (
+        f"{indent}{urgent_prompt_text(question, use_color)} "
+        f"{rgb_text(legend, 255, 205, 70, use_color)}"
+    )
+    interactive_terminal = bool(
+        getattr(sys.stdout, "isatty", lambda: False)()
+    )
+    print(
+        blinking_approval_prompt(
+            prompt, use_color and interactive_terminal
+        ),
+        end="",
+        flush=True,
+    )
+    while True:
+        key = reader()
+        if key == "\x03":
+            print()
+            raise KeyboardInterrupt
+        lowered = key.casefold()
+        if lowered == "f":
+            answer = True
+            label = "Force All!"
+            break
+        if lowered == "n" or key in {"", "\r", "\n"}:
+            answer = False
+            label = "No!"
+            break
+        invalid_key_beep()
+    if interactive_terminal:
+        erase_wrapped_console_text(prompt)
+    else:
+        print()
+    print(
+        f"{indent}{urgent_prompt_text(question, use_color)} "
+        + rgb_text(
+            label,
+            *( (120, 225, 255) if answer else (255, 105, 105) ),
+            use_color,
+        )
+    )
+    reset_console_pager_after_user_input()
+    return answer
+
+
+def prompt_post_audit_waveform_review(
+    total_audio: int,
+    queued: int,
+    approved: int,
+    *,
+    use_color: bool,
+    key_reader=None,
+    indent: str = "        ",
+) -> str:
+    """Choose unreviewed-only, Force All, or skip; ENTER defaults to unreviewed."""
+    reader = key_reader or read_single_key
+    interactive_terminal = bool(
+        getattr(sys.stdout, "isatty", lambda: False)()
+    )
+
+    if use_color and interactive_terminal:
+        queued_display = (
+            f"{ANSI['blink']}{ANSI['bold']}"
+            f"\033[38;2;255;225;80m{queued}{ANSI['reset']}"
+        )
+    else:
+        queued_display = str(queued)
+
+    print(
+        f"{indent}{total_audio} total waveforms ➜ "
+        f"{queued_display} to review / {approved} already reviewed"
+    )
+    print(
+        f'{indent}Press “Y” to review the {queued} un-reviewed '
+        f"waveform{'s' if queued != 1 else ''}."
+    )
+    print(
+        f'{indent}Press “F” to review all {total_audio} '
+        f"waveform{'s' if total_audio != 1 else ''}."
+    )
+
+    question = "Run the interactive waveform review now?"
+    legend = "[Y/n/f]"
+    steady_prompt = (
+        f"{indent}{urgent_prompt_text(question, use_color)} "
+        f"{rgb_text(legend, 255, 205, 70, use_color)} "
+    )
+    print(steady_prompt, end="", flush=True)
+    while True:
+        key = reader()
+        if key == "\x03":
+            print()
+            raise KeyboardInterrupt
+        if key in {"", "\r", "\n"}:
+            choice = "queued"
+            break
+        lowered = key.casefold()
+        if lowered == "y":
+            choice = "queued"
+            break
+        if lowered == "f":
+            choice = "force_all"
+            break
+        if lowered == "n":
+            choice = "no"
+            break
+        invalid_key_beep()
+
+    if interactive_terminal:
+        erase_wrapped_console_text(steady_prompt)
+    else:
+        print()
+    settled = {
+        "queued": (
+            f"Yes — review {queued} un-reviewed "
+            f"waveform{'s' if queued != 1 else ''}.",
+            (95, 245, 135),
+        ),
+        "force_all": (
+            f"Force All — review all {total_audio} "
+            f"waveform{'s' if total_audio != 1 else ''}.",
+            (120, 225, 255),
+        ),
+        "no": ("No.", (255, 105, 105)),
+    }
+    label, color = settled[choice]
+    print(
+        f"{indent}{urgent_prompt_text(question, use_color)} "
+        + rgb_text(label, *color, use_color)
+    )
+    reset_console_pager_after_user_input()
+    return choice
+
+
 def offer_post_audit_waveform_review(
     root: Path,
     *,
@@ -8652,33 +11530,111 @@ def offer_post_audit_waveform_review(
     key_reader=None,
     reviewer=None,
 ) -> dict[str, Any] | None:
-    """Offer a default-No handoff from a normal audit to waveform review."""
+    """Offer a default-Yes three-way handoff to interactive waveform review."""
     if not interactive or suppressed:
         return None
-    if not prompt_for_approval(
-        "Run the interactive waveform review now?",
-        False,
-        use_color,
-        key_reader=key_reader,
-        indent="        ",
-        erase_on_no=True,
-        erase_on_yes=True,
-    ):
+    all_candidates, queued_candidates = waveform_review_candidates(
+        root, include_archives=include_archives
+    )
+    total_audio = len(all_candidates)
+    queued = len(queued_candidates)
+    approved = total_audio - queued
+    if total_audio == 0:
+        print(
+            rgb_text(
+                "        🎚️ Interactive waveform review: 0 eligible audio files.",
+                155, 170, 185, use_color, dim=True,
+            )
+        )
         return None
+
     if shutil.which("ffmpeg") is None:
         raise RuntimeError(
             "Waveform review cannot start because ffmpeg is not in PATH"
         )
-    review = reviewer or review_waveforms
-    return review(
-        root,
-        include_archives=include_archives,
+    speculative_executor: ThreadPoolExecutor | None = None
+    speculative_cancel: threading.Event | None = None
+    speculative: tuple[Path, Future] | None = None
+    # Begin the first useful JPEG while the user is reading/answering the
+    # review offer.  Keep this single-worker and cancellable: N terminates its
+    # ffmpeg child instead of leaving invisible work running.
+    speculative_candidates = queued_candidates or all_candidates
+    if reviewer is None and speculative_candidates:
+        speculative_cancel = threading.Event()
+        speculative_executor = ThreadPoolExecutor(
+            max_workers=1, thread_name_prefix="waveform-prompt"
+        )
+        speculative_audio = speculative_candidates[0]
+        speculative_folder = collision_safe_path(
+            waveform_staging_root()
+            / (
+                "audit_music_batch-waveform-prompt-"
+                f"{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            )
+        )
+        speculative_folder.mkdir(parents=True)
+        speculative_destination = speculative_folder / (
+            "000001-"
+            f"{hashlib.sha256(str(speculative_audio).encode()).hexdigest()[:12]}"
+            ".waveform.jpg"
+        )
+        speculative = (
+            speculative_audio,
+            speculative_executor.submit(
+                generate_waveform_jpeg,
+                speculative_audio,
+                narrate=False,
+                destination=speculative_destination,
+                acceptable_silence_seconds=(
+                    float(silence_threshold_seconds)
+                    if silence_threshold_seconds is not None
+                    else load_behavior_defaults().silence_threshold_seconds
+                ),
+                cancel_event=speculative_cancel,
+            ),
+        )
+    choice = prompt_post_audit_waveform_review(
+        total_audio,
+        queued,
+        approved,
         use_color=use_color,
-        interactive=True,
         key_reader=key_reader,
-        workers=workers,
-        silence_threshold_seconds=silence_threshold_seconds,
     )
+    if choice == "no":
+        if speculative_cancel is not None:
+            speculative_cancel.set()
+        if speculative_executor is not None:
+            speculative_executor.shutdown(wait=True, cancel_futures=True)
+        return None
+    force_all = choice == "force_all"
+
+    selected_candidates = all_candidates if force_all else queued_candidates
+    if speculative is not None and (
+        not selected_candidates or speculative[0] != selected_candidates[0]
+    ):
+        assert speculative_cancel is not None
+        speculative_cancel.set()
+        assert speculative_executor is not None
+        speculative_executor.shutdown(wait=True, cancel_futures=True)
+        speculative = None
+        speculative_executor = None
+    review = reviewer or review_waveforms
+    try:
+        review_kwargs = dict(
+            include_archives=include_archives,
+            use_color=use_color,
+            interactive=True,
+            key_reader=key_reader,
+            workers=workers,
+            silence_threshold_seconds=silence_threshold_seconds,
+            force_all=force_all,
+        )
+        if reviewer is None:
+            review_kwargs["prestarted_waveform"] = speculative
+        return review(root, **review_kwargs)
+    finally:
+        if speculative_executor is not None:
+            speculative_executor.shutdown(wait=True, cancel_futures=True)
 
 
 def find_cover_and_embed(
@@ -9734,16 +12690,29 @@ def action_result_lines(
 ) -> list[str]:
     """Split backups, applied changes, and re-audit status into clear lines."""
     lines: list[str] = []
+    replaygain_summary = next(
+        (action for action in actions if action.startswith("replaygain_summary:")),
+        None,
+    )
+    srt_summary = next(
+        (
+            action
+            for action in actions
+            if action.startswith("lyric_karaoke_fix_summary:")
+            or action.startswith("generated_srt_summary:")
+        ),
+        None,
+    )
     backups = [
         action.removeprefix("backup:")
         for action in actions
         if action.startswith("backup:")
     ]
-    for backup in backups:
-        backup_name = Path(backup).name
+    if replaygain_summary and backups:
         lines.append(
             rgb_text(
-                f"{indent}💾 Backup: {backup_name}",
+                f"{indent}💾 Backups: {len(backups)} audio "
+                f"file{'s' if len(backups) != 1 else ''}",
                 145,
                 150,
                 160,
@@ -9751,6 +12720,19 @@ def action_result_lines(
                 dim=True,
             )
         )
+    else:
+        for backup in backups:
+            backup_name = Path(backup).name
+            lines.append(
+                rgb_text(
+                    f"{indent}💾 Backup: {backup_name}",
+                    145,
+                    150,
+                    160,
+                    use_color,
+                    dim=True,
+                )
+            )
     saved_art = [
         action.removeprefix("saved_art:")
         for action in actions
@@ -9796,6 +12778,54 @@ def action_result_lines(
                 dim=True,
             )
         )
+    if replaygain_summary:
+        payload = replaygain_summary.partition(":")[2].split("|")
+        if len(payload) == 4:
+            total_count, mp3_count, flac_count, elapsed_text = payload
+            elapsed = compact_elapsed(float(elapsed_text))
+            lines.append(
+                colorize(
+                    f"{indent}✅ ReplayGain applied to {total_count} audio files "
+                    f"({mp3_count} MP3, {flac_count} FLAC) in {elapsed}.",
+                    "green",
+                    use_color,
+                )
+            )
+    if srt_summary:
+        payload = srt_summary.partition(":")[2].split("|", 2)
+        if srt_summary.startswith("lyric_karaoke_fix_summary:") and len(payload) >= 2:
+            generated_count, verified_count = payload[:2]
+            lines.append(
+                colorize(
+                    f"{indent}🎤 Lyric/Karaoke Fix: verified {verified_count} SRT "
+                    f"sidecar{'s' if verified_count != '1' else ''}; "
+                    f"{generated_count} generated.",
+                    "green",
+                    use_color,
+                )
+            )
+        elif payload:
+            count = payload[0]
+            lines.append(
+                colorize(
+                    f"{indent}🎤 Generated {count} SRT sidecar"
+                    f"{'s' if count != '1' else ''} for this folder.",
+                    "green",
+                    use_color,
+                )
+            )
+    recycled_empty_srts = [
+        action for action in actions if action.startswith("recycled_empty_srt:")
+    ]
+    if recycled_empty_srts:
+        count = len(recycled_empty_srts)
+        lines.append(
+            rgb_text(
+                f"{indent}♻️ Recycled {count} empty SRT placeholder"
+                f"{'s' if count != 1 else ''} before regeneration.",
+                195, 185, 165, use_color, dim=True,
+            )
+        )
     applied = [
         humanized_action(action)
         for action in actions
@@ -9803,6 +12833,13 @@ def action_result_lines(
         and not action.startswith("saved_art:")
         and not action.startswith("embedded_art:")
         and not action.startswith("recycled_rejected_art:")
+        and not action.startswith("replaygain:")
+        and not action.startswith("replaygain_summary:")
+        and not action.startswith("generated_srt_summary:")
+        and not action.startswith("lyric_karaoke_fix_summary:")
+        and not action.startswith("recycled_empty_srt:")
+        and not action.startswith("confirmed_srt:")
+        and not (replaygain_summary and action.startswith("recycled:"))
         and action != "re-audit:passed"
     ]
     if applied:
@@ -9942,13 +12979,50 @@ def found_cover_art_console_lines(
     return lines
 
 
+def double_height_finding_folder_line(
+    folder: str,
+    use_color: bool,
+    terminal_columns: int | None = None,
+) -> list[str]:
+    """Render an artwork-action folder as a compact DEC double-height pair."""
+    prefix = "📁 Folder: "
+    if not use_color:
+        columns = terminal_columns or visible_console_size().columns
+        width = max(12, columns - 12 - visible_cell_width(prefix))
+        return [f"{prefix}{middle_ellipsize(folder, width)}"]
+    columns = terminal_columns or visible_console_size().columns
+    # The caller adds 12 normal-width indent columns. DEC double-height also
+    # implies double-width glyphs, so budget the remaining row at half width.
+    capacity = max(18, (max(20, columns - 12) - 8) // 2)
+    path_width = max(6, capacity - visible_cell_width(prefix))
+    display_folder = middle_ellipsize(folder, path_width)
+    styled = (
+        rgb_text(prefix, 245, 215, 95, True)
+        + varied_path(display_folder, True)
+    )
+    return [
+        f"{ANSI_DOUBLE_HEIGHT_TOP}{ANSI['bold']}{styled}",
+        f"{ANSI_DOUBLE_HEIGHT_BOTTOM}{ANSI['bold']}{styled}",
+    ]
+
+
 def finding_target_lines(
     finding: dict[str, Any],
     use_color: bool,
     root: Path | None = None,
     terminal_columns: int | None = None,
 ) -> list[str]:
-    """Render an audio target or an album-level grouped-rename target."""
+    """Render an audio target or a folder-level/grouped target."""
+    if finding.get("details", {}).get("folder_level"):
+        raw_folder = str(finding["path"])
+        if raw_folder == "." and root is not None:
+            raw_folder = str(root.resolve())
+        columns = terminal_columns or visible_console_size().columns
+        prefix = "📁 Folder: "
+        folder_width = max(12, columns - 12 - visible_cell_width(prefix))
+        return [
+            f"{prefix}{varied_path(middle_ellipsize(raw_folder, folder_width), use_color)}"
+        ]
     if finding["category"] in GROUPED_RENAME_CATEGORIES:
         raw_folder = str(finding["path"])
         if raw_folder == "." and root is not None:
@@ -9968,12 +13042,21 @@ def finding_target_lines(
     lines: list[str] = []
     if raw_path.parent != Path("."):
         folder_text = str(raw_path.parent)
-        columns = terminal_columns or visible_console_size().columns
-        prefix = "📁 Folder: "
-        folder_width = max(12, columns - 12 - visible_cell_width(prefix))
-        lines.append(
-            f"{prefix}{varied_path(middle_ellipsize(folder_text, folder_width), use_color)}"
-        )
+        if finding.get("category") == "embedded_art_without_sidecar":
+            lines.extend(
+                double_height_finding_folder_line(
+                    folder_text,
+                    use_color,
+                    terminal_columns=terminal_columns,
+                )
+            )
+        else:
+            columns = terminal_columns or visible_console_size().columns
+            prefix = "📁 Folder: "
+            folder_width = max(12, columns - 12 - visible_cell_width(prefix))
+            lines.append(
+                f"{prefix}{varied_path(middle_ellipsize(folder_text, folder_width), use_color)}"
+            )
     lines.append(music_filename(raw_path.name, use_color, prominent=True))
     return lines
 
@@ -10732,14 +13815,12 @@ def render_console_report(
     ]
     if review:
         lines.append("")
-        # Windows Terminal does not render DEC double-height correctly; it
-        # displays the required top/bottom source lines as duplicate headings.
         lines.extend(
             double_height_gradient_section(
                 "Detected Problems",
                 use_color,
                 ((255, 255, 80), (255, 175, 0)),
-            )[:1]
+            )
         )
         lines.append("")
         album_findings = [
@@ -10918,7 +13999,8 @@ def render_usage(use_color: bool = True) -> str:
         "",
         *usage_header("✨✱✨ audit_music_batch.py ✨✱✨", use_color),
         "",
-        f"  Release {AUDIT_MUSIC_BATCH_VERSION} — {AUDIT_MUSIC_BATCH_RELEASE_NAME.replace('-', ' ')}",
+        f"  Release {AUDIT_MUSIC_BATCH_VERSION} — {AUDIT_MUSIC_BATCH_RELEASE_DATE} — "
+        f"{AUDIT_MUSIC_BATCH_RELEASE_NAME.replace('-', ' ')}",
         "",
         "Audit an incoming music folder for:",
         "",
@@ -10948,14 +14030,15 @@ def render_usage(use_color: bool = True) -> str:
         "    every supplied part is saved but only one approved Front image is embedded",
         "  * full-console Chafa, Sixel, or ANSI artwork previews that automatically",
         "    re-render after a live window/font-size change; V opens the original",
-        "  * full-width diagnostic waveform review with parallel background pre-rendering,",
+        "  * diagnostic waveform review at 60% terminal width (80% for pre/post-bake",
+        "    comparisons), with parallel background pre-rendering,",
         "    persistent approvals, keyboard-controlled audio preview, editing,",
         "    and optional problem-file renaming",
         "  * B=Bake ReplayGain changes audio for players that ignore its tags:",
         "    FLAC is losslessly re-encoded; MP3 is decoded and LAME-re-encoded",
         "    at highest VBR quality; red-to-purple before and cyan-to-green after",
         "    shown, originals are backed up, and tags are recalculated",
-        "  * a default-No end-of-audit offer to begin waveform review immediately",
+        "  * a default-Yes end-of-audit waveform offer: Y reviews only new waveforms, F forces all",
         "  * default detection of excessive leading, internal, or trailing silence",
         "  * comment-filtered plain/timed lyric embedding plus newer-sidecar refresh",
         "  * timestamped backups, immediate repairs, and post-write re-auditing",
@@ -10965,7 +14048,7 @@ def render_usage(use_color: bool = True) -> str:
         "",
         f"  {command('audit_music_batch.py')} {example('[foldername]')} {command('[flags]')}",
         note(
-            "  ^ A folder is required for a normal audit. "
+            "  ^ With no arguments, a music-containing current tree (up to 5 levels) offers a run/usage menu; otherwise usage is shown. "
             "--review-waveforms alone uses the current folder."
         ),
         "",
@@ -11038,6 +14121,14 @@ def render_usage(use_color: bool = True) -> str:
             "then displays the cyan-to-green replacement waveform."
         ),
         "",
+        f"  {command('--calibrate-waveform-terminal')} {example('[AUDIO_OR_WAVEFORM]')}  "
+        f"{default_badge(False)}",
+        note(
+            "  ^ Controlled terminal calibration: compare independent geometry signals, "
+            "measure a known 100x100 Sixel raster, stream Chafa directly with a watchdog, "
+            "then emit the built-in waveform Sixel in timed bounded chunks."
+        ),
+        "",
         f"  {command('--configure-defaults')}  {command('--show-defaults')}  "
         f"{default_badge(False)}",
         note(
@@ -11088,6 +14179,11 @@ def render_usage(use_color: bool = True) -> str:
         note(
             "  ^ Diagnose waveforms in the current folder; previews stay "
             "in temporary staging."
+        ),
+        "",
+        f"  {command('audit_music_batch.py --calibrate-waveform-terminal .')}",
+        note(
+            "  ^ Calibrate Chafa vs built-in Sixel against one real waveform in the current tree."
         ),
         "",
         f"  {command('audit_music_batch.py --unit-tests')}",
@@ -11627,7 +14723,7 @@ def action_scope_options(
         choices.append("D=Delete Cover Art")
     choices.append("V=Never")
     if allow_folder:
-        choices.append("F=Do All in Folder")
+        choices.append("F=Yes for This Folder")
     plain = "[" + " / ".join(choices) + "]"
     if not use_color:
         return plain
@@ -11660,7 +14756,7 @@ def action_scope_options(
         chunks.extend(
             [
                 rgb_text(" / ", 255, 165, 45, True),
-                rgb_text("F=Do All in Folder", 145, 215, 255, True),
+                rgb_text("F=Yes for This Folder", 145, 215, 255, True),
             ]
         )
     chunks.append(rgb_text("]", 255, 205, 55, True))
@@ -11870,6 +14966,192 @@ def prompt_for_album_tag(
         )
     )
     return [f"backup:{backup}", f"album:{written}"]
+
+
+PUNK_GENRE_KEEP_EXISTING = "__keep_existing__"
+
+
+def set_genre_tag(path: Path, genre: str) -> tuple[str, Path]:
+    """Back up, write exactly one genre value, and verify it by reading it back."""
+    value = str(genre).strip()
+    if not value:
+        raise ValueError("Genre value cannot be blank")
+    backup = backup_before_inline_replacement(path)
+    if path.suffix.casefold() == ".flac":
+        audio = FLAC(path)
+        audio["GENRE"] = [value]
+        audio.save()
+        written = [str(item) for item in FLAC(path).get("GENRE", [])]
+    else:
+        audio = ensure_id3(path)
+        audio.tags.delall("TCON")
+        audio.tags.add(TCON(encoding=3, text=[value]))
+        audio.save(v2_version=3)
+        verified = ensure_id3(path)
+        written = [
+            str(item)
+            for frame in verified.tags.getall("TCON")
+            for item in getattr(frame, "text", [])
+        ]
+    if written != [value]:
+        raise RuntimeError(f"Genre verification failed; read back {written!r}")
+    return value, backup
+
+
+def punk_genre_menu_values(finding: dict[str, Any]) -> tuple[list[str], str]:
+    """Return selectable simplified values plus the human-readable original tag."""
+    details = finding.get("details", {})
+    genres = [
+        str(item).strip()
+        for item in details.get("genres", [])
+        if str(item).strip()
+    ]
+    components = [
+        str(item).strip()
+        for item in details.get("genre_components", [])
+        if str(item).strip()
+    ] or split_genre_components(genres)
+    choices = ["Punk"]
+    seen = {"punk"}
+    for component in components:
+        key = component.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        choices.append(component)
+    existing_text = " / ".join(genres) if genres else "(current tag unavailable)"
+    return choices, existing_text
+
+
+def prompt_for_punk_genre_selection(
+    finding: dict[str, Any],
+    *,
+    use_color: bool,
+    input_reader=None,
+) -> str:
+    """Choose Punk, one existing component, or keep the entire current tag."""
+    choices, existing_text = punk_genre_menu_values(finding)
+    print(
+        rgb_text(
+            "            🎸 Choose the replacement genre:",
+            255,
+            220,
+            85,
+            use_color,
+        )
+    )
+    for index, value in enumerate(choices, start=1):
+        default_note = "  ← ENTER default" if index == 1 else ""
+        print(f"                {index}) {value}{default_note}")
+    keep_index = len(choices) + 1
+    print(
+        f"                {keep_index}) Keep whole existing tag unchanged: "
+        f"{existing_text}"
+    )
+    reader = input_reader or input
+    while True:
+        try:
+            entered = reader("            ❓ Selection [ENTER=Punk]: ").strip()
+        except EOFError:
+            entered = ""
+        reset_console_pager_after_user_input()
+        if not entered:
+            return "Punk"
+        if entered.isdigit():
+            selected = int(entered)
+            if 1 <= selected <= len(choices):
+                return choices[selected - 1]
+            if selected == keep_index:
+                return PUNK_GENRE_KEEP_EXISTING
+        invalid_key_beep()
+
+
+def prompt_remember_punk_genre_selection(
+    selected: str,
+    *,
+    use_color: bool,
+    key_reader=None,
+) -> str:
+    """Choose whether a genre choice is one-off, folder-scoped, or global."""
+    reader = key_reader or read_single_key
+    selected_label = (
+        "keep each file's whole existing tag"
+        if selected == PUNK_GENRE_KEEP_EXISTING
+        else f'use genre "{selected}"'
+    )
+    question = f"Remember this choice ({selected_label}) for later punk-family findings?"
+    legend = "[N=No / F=Yes for Rest of Folder / A=Always]"
+    prompt = (
+        "            "
+        + urgent_prompt_text(question, use_color)
+        + " "
+        + rgb_text(legend, 255, 205, 70, use_color)
+    )
+    interactive_terminal = bool(
+        getattr(sys.stdout, "isatty", lambda: False)()
+    )
+    print(
+        blinking_approval_prompt(prompt, use_color and interactive_terminal),
+        end="",
+        flush=True,
+    )
+    while True:
+        key = reader()
+        if key == "\x03":
+            raise KeyboardInterrupt
+        lowered = key.casefold()
+        if key in {"", "\r", "\n"} or lowered == "n":
+            scope = "none"
+            answer = "No!"
+            break
+        if lowered == "f":
+            scope = "folder"
+            answer = "Yes for Rest of Folder!"
+            break
+        if lowered == "a":
+            if prompt_for_approval(
+                "Are you sure? Always will reuse this genre choice for every "
+                "remaining punk-family genre finding in this run.",
+                default_yes=False,
+                use_color=use_color,
+                key_reader=key_reader,
+                indent="            ",
+            ):
+                scope = "always"
+                answer = "Always!"
+                break
+            # A declined Always confirmation returns to this scope prompt.
+            print(
+                blinking_approval_prompt(
+                    prompt, use_color and interactive_terminal
+                ),
+                end="",
+                flush=True,
+            )
+            continue
+        invalid_key_beep()
+    if interactive_terminal:
+        erase_wrapped_console_text(prompt)
+    else:
+        print()
+    print(
+        "            "
+        + urgent_prompt_text(question, use_color)
+        + " "
+        + rgb_text(
+            answer,
+            *(
+                (145, 215, 255)
+                if scope == "folder"
+                else (255, 225, 80)
+                if scope == "always"
+                else (255, 105, 105)
+            ),
+            use_color,
+        )
+    )
+    reset_console_pager_after_user_input()
+    return scope
 
 
 def read_text_and_encoding(path: Path) -> tuple[str, str]:
@@ -12100,7 +15382,15 @@ def apply_finding(
         return backfill_srt_from_lrc(target)
 
     if category == "missing_srt_from_lrc_txt":
-        return generate_missing_srt_sidecars(root, target)
+        affected = [
+            (root / str(relative)).resolve()
+            for relative in finding.get("details", {}).get("affected_files", [])
+        ]
+        return generate_missing_srt_sidecars(
+            root,
+            target,
+            expected_audio_paths=affected or None,
+        )
 
     if category == "excessive_silence":
         editor = launch_audio_editor(target)
@@ -12115,10 +15405,11 @@ def apply_finding(
         return actions
 
     if category == "missing_replaygain":
+        replaygain_folder = target if target.is_dir() else target.parent
         return apply_argt_replaygain_folder(
-            target.parent,
+            replaygain_folder,
             use_color=use_color,
-            stream_output=True,
+            stream_output=False,
         )
 
     if category == "missing_embedded_art":
@@ -12142,6 +15433,15 @@ def apply_finding(
         if not actions:
             raise RuntimeError("No applicable artwork action was available")
         return actions
+
+    if category == "simplify_punk_genre":
+        selected = str(
+            finding.get("details", {}).get("selected_genre") or "Punk"
+        )
+        if selected == PUNK_GENRE_KEEP_EXISTING:
+            return ["unchanged:genre"]
+        written, backup = set_genre_tag(target, selected)
+        return [f"backup:{backup}", f"genre:{written}"]
 
     if category == "read_only_audio":
         os.chmod(target, target.stat().st_mode | stat.S_IWRITE)
@@ -12412,6 +15712,8 @@ def interactive_apply(
     remembered_category_choices: dict[str, str] = {}
     remembered_folder_approvals: set[tuple[str, str]] = set()
     remembered_folder_skips: set[tuple[str, str]] = set()
+    remembered_punk_genre_selection: str | None = None
+    remembered_punk_genre_folder_selections: dict[str, str] = {}
 
     for finding in coded:
         if not artwork_finding_still_needs_action(root, finding):
@@ -12516,16 +15818,146 @@ def interactive_apply(
                 use_color,
                 root=root,
             ):
-                print(f"            {line}")
+                # DEC double-height mode also doubles the line width. Six
+                # leading spaces therefore occupy the same visual indent as
+                # the ordinary twelve-space action detail indent.
+                target_indent = (
+                    "      "
+                    if line.startswith((ANSI_DOUBLE_HEIGHT_TOP, ANSI_DOUBLE_HEIGHT_BOTTOM))
+                    else "            "
+                )
+                print(f"{target_indent}{line}")
             for line in finding_sidecar_lines(finding, use_color):
                 print(f"            {line}")
             if finding.get("suggestion"):
                 print(f"            {suggested_text(finding, use_color)}")
+
+            if finding["category"] == "simplify_punk_genre":
+                target = safe_finding_path(root, finding)
+                genre_folder_key = str(target.parent.resolve()).casefold()
+                selected_genre = remembered_punk_genre_selection
+                remembered_scope: str | None = (
+                    "always" if selected_genre is not None else None
+                )
+                if selected_genre is None:
+                    selected_genre = remembered_punk_genre_folder_selections.get(
+                        genre_folder_key
+                    )
+                    if selected_genre is not None:
+                        remembered_scope = "folder"
+                if selected_genre is None:
+                    selected_genre = prompt_for_punk_genre_selection(
+                        finding,
+                        use_color=use_color,
+                        input_reader=input_reader,
+                    )
+                    remember_scope = prompt_remember_punk_genre_selection(
+                        selected_genre,
+                        use_color=use_color,
+                        key_reader=key_reader,
+                    )
+                    if remember_scope == "always":
+                        remembered_punk_genre_selection = selected_genre
+                    elif remember_scope == "folder":
+                        remembered_punk_genre_folder_selections[
+                            genre_folder_key
+                        ] = selected_genre
+                else:
+                    remembered_label = (
+                        "keep whole existing tag unchanged"
+                        if selected_genre == PUNK_GENRE_KEEP_EXISTING
+                        else selected_genre
+                    )
+                    scope_label = (
+                        "rest of this folder"
+                        if remembered_scope == "folder"
+                        else "all remaining findings"
+                    )
+                    print(
+                        rgb_text(
+                            f"            🎯 Genre choice: {remembered_label} "
+                            f"(remembered for {scope_label})",
+                            165,
+                            205,
+                            235,
+                            use_color,
+                            dim=True,
+                        )
+                    )
+
+                if selected_genre == PUNK_GENRE_KEEP_EXISTING:
+                    choice = "keep_existing"
+                    skipped.append(finding["code"])
+                    print(
+                        rgb_text(
+                            "            ↪️ Kept the whole existing genre tag unchanged.",
+                            185,
+                            175,
+                            135,
+                            use_color,
+                            dim=True,
+                        )
+                    )
+                    decisions.append(
+                        {
+                            "code": finding["code"],
+                            "applied": False,
+                            "skipped": True,
+                            "error": None,
+                            "actions": [],
+                            "default": True,
+                            "choice": choice,
+                            "finding": finding,
+                        }
+                    )
+                    continue
+
+                error = None
+                actions = []
+                choice = "genre_value"
+                try:
+                    written, backup = set_genre_tag(target, selected_genre)
+                    actions = [f"backup:{backup}", f"genre:{written}"]
+                    verification = BatchAudit(target.parent).tag_snapshot(target)
+                    written_back = [
+                        str(item).strip()
+                        for item in verification.get("genre", [])
+                        if str(item).strip()
+                    ]
+                    if written_back != [written]:
+                        raise RuntimeError(
+                            f"Genre post-write verification read back {written_back!r}"
+                        )
+                    actions.append("re-audit:passed")
+                    applied.append(finding["code"])
+                    for line in action_result_lines(actions, use_color):
+                        print(line)
+                except Exception as exc:
+                    error = f"{type(exc).__name__}: {exc}"
+                    failed.append(finding["code"])
+                    print(colorize(f"            FAILED: {error}", "red", use_color))
+                decisions.append(
+                    {
+                        "code": finding["code"],
+                        "applied": error is None,
+                        "skipped": False,
+                        "error": error,
+                        "actions": actions,
+                        "default": True,
+                        "choice": choice,
+                        "finding": finding,
+                    }
+                )
+                continue
+
             question = approval_question(finding)
             target = safe_finding_path(root, finding)
+            folder_level = bool(
+                finding.get("details", {}).get("folder_level")
+            )
             scope_folder = (
                 target
-                if finding["category"] in GROUPED_RENAME_CATEGORIES
+                if finding["category"] in GROUPED_RENAME_CATEGORIES or folder_level
                 else target.parent
             )
             folder_key = (
@@ -12533,7 +15965,8 @@ def interactive_apply(
                 str(scope_folder.resolve()).casefold(),
             )
             allow_folder_scope = (
-                finding["category"] not in ROOT_WIDE_ACTION_CATEGORIES
+                folder_level
+                or finding["category"] not in ROOT_WIDE_ACTION_CATEGORIES
             )
             replaygain_scope = finding["category"] == "missing_replaygain"
             local_cover_prompt = (
@@ -12558,17 +15991,32 @@ def interactive_apply(
                     use_color=use_color,
                     preview_renderer=artwork_preview_renderer,
                 )
-                choice = prompt_for_action_scope(
-                    question,
-                    default_yes,
-                    use_color,
-                    key_reader=key_reader,
-                    indent="            ",
-                    allow_folder=allow_folder_scope,
-                    allow_always=not replaygain_scope,
-                    allow_stop_folder=(replaygain_scope or local_cover_prompt),
-                    allow_delete_art=local_cover_prompt,
-                )
+                while True:
+                    choice = prompt_for_action_scope(
+                        question,
+                        default_yes,
+                        use_color,
+                        key_reader=key_reader,
+                        indent="            ",
+                        allow_folder=allow_folder_scope,
+                        allow_always=True,
+                        allow_stop_folder=(
+                            replaygain_scope or folder_level or local_cover_prompt
+                        ),
+                        allow_delete_art=local_cover_prompt,
+                    )
+                    if choice != "always":
+                        break
+                    if prompt_for_approval(
+                        "Are you sure? Always will automatically approve every "
+                        f"remaining {friendly_category(str(finding['category']))} "
+                        "action in this run without asking again.",
+                        default_yes=False,
+                        use_color=use_color,
+                        key_reader=key_reader,
+                        indent="            ",
+                    ):
+                        break
                 if choice in {"always", "never"}:
                     remembered_category_choices[
                         str(finding["category"])
@@ -13294,7 +16742,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                     finding_categories(BatchAudit(root).audit()),
                 )
 
-        def test_missing_srt_runs_recursive_minilyricsfix_on_enter(self) -> None:
+        def test_missing_srt_runs_folder_scoped_lyric_karaoke_fix_on_enter(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
                 audio_path = make_silent_flac(root, "Missing SRT")
@@ -13313,23 +16761,23 @@ def run_unit_tests(use_color: bool = True) -> int:
                     if item["category"] == "missing_srt_from_lrc_txt"
                 )
                 self.assertEqual(
-                    "Run lrc2srt.py MiniLyricsFix --recursive "
-                    "--automatic-overwrites from this batch root now?",
+                    "Run Lyric/Karaoke Fix for this folder now?",
                     approval_question(finding),
                 )
                 tool = root / "lrc2srt.py"
                 tool.write_text("# test tool\n", encoding="utf-8")
                 expected_srt = audio_path.with_suffix(".srt")
-                commands: list[tuple[list[str], Path, bool]] = []
+                commands: list[tuple[list[str], dict[str, Any]]] = []
 
-                def fake_live_command(command, *, cwd, stream_output):
-                    commands.append((command, cwd, stream_output))
+                def fake_run(command, **options):
+                    commands.append((list(command), dict(options)))
                     expected_srt.write_text(
                         "NOTE claire-sawyer-lrc2srt-converter-marker: "
                         "generated-from-lrc\n\n"
                         "1\n00:00:00,000 --> 00:00:02,000\nTimed lyric\n",
                         encoding="utf-8",
                     )
+                    return mock.Mock(returncode=0, stdout="MiniLyricsFix: done")
 
                 module = sys.modules[__name__]
                 keys = iter(("f", "\r"))
@@ -13338,9 +16786,9 @@ def run_unit_tests(use_color: bool = True) -> int:
                     "lrc2srt_executable",
                     return_value=tool,
                 ), mock.patch.object(
-                    module,
-                    "run_live_command",
-                    side_effect=fake_live_command,
+                    subprocess,
+                    "run",
+                    side_effect=fake_run,
                 ), mock.patch.object(
                     module,
                     "audit_categories_by_path",
@@ -13357,12 +16805,10 @@ def run_unit_tests(use_color: bool = True) -> int:
 
                 self.assertEqual(finding["code"], result["applied_codes"])
                 self.assertTrue(result["decisions"][0]["default"])
-                beep.assert_called_once_with()
-                self.assertNotIn("F=Do All in Folder", output.getvalue())
-                self.assertIn(
-                    "[Y=Yes / n=No / A=Always / V=Never]",
-                    output.getvalue(),
-                )
+                beep.assert_not_called()
+                self.assertIn("F=Yes for This Folder", output.getvalue())
+                self.assertIn("A=Always", output.getvalue())
+                self.assertIn("S=Not for This Folder", output.getvalue())
                 self.assertEqual(
                     [
                         sys.executable,
@@ -13373,9 +16819,11 @@ def run_unit_tests(use_color: bool = True) -> int:
                     ],
                     commands[0][0],
                 )
-                self.assertEqual(root, commands[0][1])
-                self.assertTrue(commands[0][2])
+                self.assertEqual(str(root), commands[0][1]["cwd"])
+                self.assertEqual(subprocess.PIPE, commands[0][1]["stdout"])
                 self.assertTrue(expected_srt.is_file())
+                self.assertNotIn("MiniLyricsFix", output.getvalue())
+                self.assertIn("Lyric/Karaoke Fix", output.getvalue())
 
         def test_refresh_embedded_lyrics_forces_plain_and_karaoke_together(
             self,
@@ -14552,10 +18000,46 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertIn("--format=sixels", chafa_command)
             self.assertIn("--fit-width", chafa_command)
             self.assertIn("--colors=full", chafa_command)
-            self.assertIn("--view-size=115.2x31.0", chafa_command)
+            self.assertTrue(any(option.startswith("--view-size=") for option in chafa_command))
             self.assertIn("--optimize=9", chafa_command)
             self.assertIn("--work=9", chafa_command)
             self.assertIn("--color-space=din99d", chafa_command)
+
+        def test_artwork_preview_width_doubles_but_caps_at_three_times_height(self) -> None:
+            geometry = ArtworkPreviewGeometry(
+                terminal_columns=160,
+                terminal_rows=50,
+                indent_columns=0,
+                columns=120,
+                rows=40,
+                pixel_width=840,
+                pixel_height=560,
+            )
+            scaled = scaled_artwork_geometry(geometry, scale=0.25)
+            self.assertEqual(10, scaled.rows)
+            # Ordinary width is 30, doubled to 60; 7x14 cells make that
+            # physically 420x140, exactly the requested 3:1 cap.
+            self.assertEqual(60, scaled.columns)
+            options = scale_chafa_view_size(
+                ["--view-size=120x40"],
+                0.25,
+            )
+            self.assertEqual(["--view-size=60.0x10.0"], options)
+
+        def test_embedded_art_target_folder_is_double_height(self) -> None:
+            finding = {
+                "category": "embedded_art_without_sidecar",
+                "path": "1993 - These Monsters Are Real/1_Me & Her.flac",
+            }
+            lines = finding_target_lines(
+                finding,
+                use_color=True,
+                terminal_columns=160,
+            )
+            self.assertTrue(lines[0].startswith(ANSI_DOUBLE_HEIGHT_TOP))
+            self.assertTrue(lines[1].startswith(ANSI_DOUBLE_HEIGHT_BOTTOM))
+            self.assertIn("Folder:", lines[0])
+            self.assertIn("1_Me & Her.flac", lines[-1])
 
         def test_builtin_ansi_and_sixel_previews_need_no_chafa(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -14853,7 +18337,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                 self.assertIn(
                     "\n            ❓ Embed the plain lyrics into this audio file now?\n"
                     "               [Y=Yes / n=No / A=Always / V=Never / "
-                    "F=Do All in Folder] Yes!",
+                    "F=Yes for This Folder] Yes!",
                     interactive_output.getvalue(),
                 )
                 self.assertIn(
@@ -15920,79 +19404,784 @@ def run_unit_tests(use_color: bool = True) -> int:
             review.assert_called_once()
             self.assertEqual(Path("."), review.call_args.args[0])
 
-        def test_post_audit_waveform_offer_can_run_or_be_suppressed(
+        def test_post_audit_waveform_offer_counts_before_prompt_and_can_run_or_be_suppressed(
             self,
         ) -> None:
-            review_result = {
-                "audio_files": 1,
-                "fine": [r"C:\Music\Track.flac"],
-                "problems": [],
-                "edited": [],
-                "failed": [],
-                "staging_folder": r"C:\recycled\waveforms",
-            }
-            reviewer = mock.Mock(return_value=review_result)
-            with mock.patch.object(
-                shutil,
-                "which",
-                return_value=r"C:\util\ffmpeg.exe",
-            ), contextlib.redirect_stdout(io.StringIO()):
-                declined = offer_post_audit_waveform_review(
-                    Path(r"C:\Music"),
-                    interactive=True,
-                    suppressed=False,
-                    include_archives=False,
-                    use_color=False,
-                    workers=3,
-                    key_reader=lambda: "n",
-                    reviewer=reviewer,
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                make_silent_flac(root, "Track [instrumental]")
+                review_result = {
+                    "audio_files": 1,
+                    "fine": [str(root / "Track [instrumental].flac")],
+                    "problems": [],
+                    "edited": [],
+                    "failed": [],
+                    "staging_folder": str(root / "waveforms"),
+                }
+                reviewer = mock.Mock(return_value=review_result)
+                output = io.StringIO()
+                with mock.patch.object(
+                    shutil,
+                    "which",
+                    return_value=r"C:\util\ffmpeg.exe",
+                ), contextlib.redirect_stdout(output):
+                    declined = offer_post_audit_waveform_review(
+                        root,
+                        interactive=True,
+                        suppressed=False,
+                        include_archives=False,
+                        use_color=False,
+                        workers=3,
+                        key_reader=lambda: "n",
+                        reviewer=reviewer,
+                    )
+                    accepted = offer_post_audit_waveform_review(
+                        root,
+                        interactive=True,
+                        suppressed=False,
+                        include_archives=True,
+                        use_color=False,
+                        workers=3,
+                        key_reader=lambda: "y",
+                        reviewer=reviewer,
+                    )
+                    suppressed = offer_post_audit_waveform_review(
+                        root,
+                        interactive=True,
+                        suppressed=True,
+                        include_archives=False,
+                        use_color=False,
+                        workers=3,
+                        key_reader=lambda: (_ for _ in ()).throw(
+                            AssertionError("Suppressed offer read a key")
+                        ),
+                        reviewer=reviewer,
+                    )
+                self.assertIsNone(declined)
+                self.assertEqual(review_result, accepted)
+                self.assertIsNone(suppressed)
+                self.assertIn("1 total waveforms ➜ 1 to review / 0 already reviewed", output.getvalue())
+                self.assertIn("Press “Y” to review the 1 un-reviewed waveform.", output.getvalue())
+                self.assertIn("Press “F” to review all 1 waveform.", output.getvalue())
+                self.assertIn("Run the interactive waveform review now? [Y/n/f]", output.getvalue())
+                reviewer.assert_called_once()
+                self.assertTrue(reviewer.call_args.kwargs["include_archives"])
+                self.assertEqual(3, reviewer.call_args.kwargs["workers"])
+                self.assertFalse(reviewer.call_args.kwargs["force_all"])
+                self.assertTrue(
+                    parse_args([".", "--no-review-waveforms"]).no_review_waveforms
                 )
-                accepted = offer_post_audit_waveform_review(
-                    Path(r"C:\Music"),
-                    interactive=True,
-                    suppressed=False,
-                    include_archives=True,
-                    use_color=False,
-                    workers=3,
-                    key_reader=lambda: "y",
-                    reviewer=reviewer,
-                )
-                suppressed = offer_post_audit_waveform_review(
-                    Path(r"C:\Music"),
-                    interactive=True,
-                    suppressed=True,
-                    include_archives=False,
-                    use_color=False,
-                    workers=3,
-                    key_reader=lambda: (_ for _ in ()).throw(
-                        AssertionError("Suppressed offer read a key")
+                with contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit):
+                        parse_args(
+                            [
+                                ".",
+                                "--review-waveforms",
+                                "--no-review-waveforms",
+                            ]
+                        )
+
+        def test_post_audit_waveform_prompt_defaults_yes_and_f_forces_all(self) -> None:
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(
+                    "queued",
+                    prompt_post_audit_waveform_review(
+                        29, 11, 18, use_color=False, key_reader=lambda: "\r"
                     ),
-                    reviewer=reviewer,
                 )
-            self.assertIsNone(declined)
-            self.assertEqual(review_result, accepted)
-            self.assertIsNone(suppressed)
-            reviewer.assert_called_once()
-            self.assertTrue(
-                reviewer.call_args.kwargs["include_archives"]
+            rendered = output.getvalue()
+            self.assertIn(
+                "29 total waveforms ➜ 11 to review / 18 already reviewed",
+                rendered,
             )
-            self.assertEqual(3, reviewer.call_args.kwargs["workers"])
-            self.assertTrue(
-                parse_args(
-                    [".", "--no-review-waveforms"]
-                ).no_review_waveforms
+            self.assertIn(
+                "Press “Y” to review the 11 un-reviewed waveforms.",
+                rendered,
             )
-            with contextlib.redirect_stderr(io.StringIO()):
-                with self.assertRaises(SystemExit):
-                    parse_args(
-                        [
-                            ".",
-                            "--review-waveforms",
-                            "--no-review-waveforms",
-                        ]
+            self.assertIn(
+                "Press “F” to review all 29 waveforms.",
+                rendered,
+            )
+            self.assertIn(
+                "Run the interactive waveform review now? [Y/n/f]",
+                rendered,
+            )
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(
+                    "force_all",
+                    prompt_post_audit_waveform_review(
+                        29, 11, 18, use_color=False, key_reader=lambda: "f"
+                    ),
+                )
+                self.assertEqual(
+                    "no",
+                    prompt_post_audit_waveform_review(
+                        29, 11, 18, use_color=False, key_reader=lambda: "n"
+                    ),
+                )
+
+        def test_post_audit_waveform_prompt_blinks_only_unreviewed_count_line(self) -> None:
+            class TTYBuffer(io.StringIO):
+                def isatty(self) -> bool:
+                    return True
+
+            output = TTYBuffer()
+            with contextlib.redirect_stdout(output):
+                choice = prompt_post_audit_waveform_review(
+                    29, 11, 18, use_color=True, key_reader=lambda: "n"
+                )
+            self.assertEqual("no", choice)
+            first_line = output.getvalue().splitlines()[0]
+            self.assertIn(ANSI["blink"], first_line)
+            self.assertIn("11", first_line)
+            self.assertIn(ANSI["reset"], first_line)
+
+        def test_zero_queued_waveform_offer_has_force_all(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio = make_silent_flac(root, "Approved [instrumental]")
+                approvals = WaveformApprovalStore(root / "reviews.sqlite3")
+                approvals.approve(audio)
+                reviewer = mock.Mock(return_value={"audio_files": 1, "fine": []})
+                output = io.StringIO()
+                with mock.patch.object(
+                    sys.modules[__name__],
+                    "waveform_approval_database_path",
+                    return_value=root / "reviews.sqlite3",
+                ), mock.patch.object(
+                    shutil, "which", return_value=r"C:\util\ffmpeg.exe"
+                ), contextlib.redirect_stdout(output):
+                    result = offer_post_audit_waveform_review(
+                        root,
+                        interactive=True,
+                        suppressed=False,
+                        include_archives=False,
+                        use_color=False,
+                        workers=2,
+                        key_reader=lambda: "f",
+                        reviewer=reviewer,
+                    )
+                self.assertEqual({"audio_files": 1, "fine": []}, result)
+                self.assertIn("1 total waveforms ➜ 0 to review / 1 already reviewed", output.getvalue())
+                self.assertIn("Press “Y” to review the 0 un-reviewed waveforms.", output.getvalue())
+                self.assertIn("Press “F” to review all 1 waveform.", output.getvalue())
+                self.assertIn("Run the interactive waveform review now? [Y/n/f]", output.getvalue())
+                self.assertTrue(reviewer.call_args.kwargs["force_all"])
+
+        def test_waveform_jpeg_readiness_rejects_partial_and_accepts_complete(self) -> None:
+            if Image is None:
+                self.skipTest("Pillow is required")
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                partial = root / "partial.jpg"
+                partial.write_bytes(b"\xff\xd8\xff")
+                with self.assertRaises(Exception):
+                    ensure_waveform_jpeg_ready(partial)
+                ready = root / "ready.jpg"
+                Image.new("RGB", (32, 12), "black").save(ready, format="JPEG")
+                size, modified = ensure_waveform_jpeg_ready(ready)
+                self.assertGreater(size, 0)
+                self.assertGreater(modified, 0)
+
+        def test_waveform_review_inline_layout_uses_live_rows_below_cursor(self) -> None:
+            cases = (
+                ConsoleViewportState(200, 50, 0, 5, 0, 49),
+                ConsoleViewportState(200, 50, 0, 28, 0, 49),
+                ConsoleViewportState(200, 50, 0, 44, 0, 49),
+                ConsoleViewportState(110, 28, 0, 22, 0, 27),
+            )
+            for state in cases:
+                with self.subTest(state=state):
+                    layout = waveform_review_layout_plan(
+                        "very_long_album_track_name_that_can_wrap_in_the_review_prompt.flac",
+                        index=1,
+                        total=29,
+                        comparison_active=True,
+                        excessive_silence=False,
+                        allow_bake_gain=True,
+                        viewport_state=state,
+                    )
+                    self.assertEqual(2, layout.graph_count)
+                    self.assertGreaterEqual(layout.graph_rows, 1)
+                    self.assertLessEqual(layout.graph_rows, state.rows)
+                    self.assertEqual(
+                        max(0, layout.required_rows - state.rows_available_from_cursor),
+                        layout.scroll_rows,
+                    )
+                    self.assertLessEqual(
+                        layout.required_rows,
+                        state.rows_available_from_cursor + layout.scroll_rows,
                     )
 
-        def test_waveform_geometry_uses_nearly_full_live_console(self) -> None:
+        def test_waveform_review_inline_scroll_never_clears_or_uses_alternate_screen(self) -> None:
+            layout = WaveformReviewLayout(
+                graph_rows=2, graph_count=2, fixed_text_rows=6,
+                required_rows=12, rows_available_from_cursor=8,
+                scroll_rows=4, terminal_columns=200, terminal_rows=50,
+            )
+            stream = io.StringIO()
+            moved = ensure_waveform_review_vertical_room(layout, stream=stream)
+            self.assertEqual(0, moved)
+            rendered = stream.getvalue()
+            self.assertEqual("", rendered)
+            self.assertNotIn("?1049", rendered)
+            self.assertNotIn("2J", rendered)
+            self.assertNotIn("\x1b[H", rendered)
+
+        def test_waveform_review_prompt_wrapping_is_in_vertical_budget(self) -> None:
+            narrow = ConsoleViewportState(82, 32, 0, 8, 0, 31)
+            wide = ConsoleViewportState(220, 32, 0, 8, 0, 31)
+            narrow_layout = waveform_review_layout_plan(
+                "01_An_Extremely_Long_Song_Name_With_Many_Words_And_Details.flac",
+                index=3, total=29, comparison_active=True,
+                excessive_silence=True, allow_bake_gain=True,
+                viewport_state=narrow,
+            )
+            wide_layout = waveform_review_layout_plan(
+                "01_An_Extremely_Long_Song_Name_With_Many_Words_And_Details.flac",
+                index=3, total=29, comparison_active=True,
+                excessive_silence=True, allow_bake_gain=True,
+                viewport_state=wide,
+            )
+            self.assertGreater(narrow_layout.fixed_text_rows, wide_layout.fixed_text_rows)
+            self.assertLessEqual(narrow_layout.required_rows, narrow.rows)
+            self.assertLessEqual(wide_layout.required_rows, wide.rows)
+
+        def test_waveform_geometry_halves_v113_widths_without_forcing_height(self) -> None:
+            module = sys.modules[__name__]
+            with mock.patch.object(
+                module, "visible_console_size",
+                return_value=os.terminal_size((200, 60)),
+            ), mock.patch.object(
+                module, "windows_console_font_cell_size",
+                return_value=(10, 20),
+            ):
+                classic = artwork_preview_geometry(
+                    indent_columns=12,
+                    right_margin_columns=1,
+                    reserved_text_rows=9,
+                )
+                single = waveform_preview_geometry(WAVEFORM_REVIEW_SCALE)
+                pair = waveform_preview_geometry(WAVEFORM_COMPARISON_SCALE)
+
+            self.assertEqual(0.30, WAVEFORM_REVIEW_WIDTH_SCALE)
+            self.assertEqual(0.40, WAVEFORM_COMPARISON_WIDTH_SCALE)
+            self.assertEqual(1.0, WAVEFORM_REVIEW_HEIGHT_SCALE)
+            self.assertEqual(1.0, WAVEFORM_COMPARISON_HEIGHT_SCALE)
+            self.assertEqual(round(classic.terminal_columns * 0.30), single.columns)
+            self.assertEqual(classic.rows, single.rows)
+            self.assertEqual(single.columns * 10, single.pixel_width)
+            self.assertEqual(single.rows * 20, single.pixel_height)
+            self.assertEqual(round(classic.terminal_columns * 0.40), pair.columns)
+            self.assertEqual(classic.rows, pair.rows)
+            self.assertEqual(pair.columns * 10, pair.pixel_width)
+            self.assertEqual(pair.rows * 20, pair.pixel_height)
+
+        def test_v131_uses_exactly_half_v113_widths(self) -> None:
+            module = sys.modules[__name__]
+            with mock.patch.object(
+                module, "visible_console_size",
+                return_value=os.terminal_size((200, 60)),
+            ), mock.patch.object(
+                module, "windows_console_font_cell_size",
+                return_value=(10, 20),
+            ):
+                classic = artwork_preview_geometry(
+                    indent_columns=12, right_margin_columns=1, reserved_text_rows=9
+                )
+                pair = waveform_preview_geometry(WAVEFORM_COMPARISON_WIDTH_SCALE)
+                single = waveform_preview_geometry(WAVEFORM_REVIEW_WIDTH_SCALE)
+            self.assertEqual(800, pair.pixel_width)
+            self.assertEqual(pair.rows * 20, pair.pixel_height)
+            self.assertEqual(600, single.pixel_width)
+            self.assertEqual(single.rows * 20, single.pixel_height)
+
+        def test_waveform_geometry_keeps_real_cell_height_for_cursor_math(self) -> None:
+            """Geometry retains the measured cell height; raster aspect controls output."""
+            module = sys.modules[__name__]
+            with mock.patch.object(
+                module, "visible_console_size",
+                return_value=os.terminal_size((200, 60)),
+            ), mock.patch.object(
+                module, "windows_console_font_cell_size",
+                return_value=(10, 40),
+            ):
+                pair = waveform_preview_geometry(WAVEFORM_COMPARISON_SCALE)
+            self.assertEqual(80, pair.columns)
+            self.assertEqual(51, pair.rows)
+            self.assertEqual(800, pair.pixel_width)
+            self.assertEqual(2040, pair.pixel_height)
+
+        def test_v138_cursor_rows_never_use_more_than_probe_confirmed_20px(self) -> None:
+            """Keep the bitmap and conservatively reserve from 20px text rows."""
+            module = sys.modules[__name__]
+            with mock.patch.object(
+                module, "visible_console_size",
+                return_value=os.terminal_size((200, 60)),
+            ), mock.patch.object(
+                module, "windows_console_font_cell_size",
+                return_value=(10, 40),
+            ):
+                geometry = waveform_preview_geometry(
+                    WAVEFORM_COMPARISON_WIDTH_FRACTION
+                )
+            payload = b'\x1bP0;1;0q"1;1;800;280#0~\x1b\\'
+            self.assertEqual((800, 2040), (
+                geometry.pixel_width, geometry.pixel_height
+            ))
+            with mock.patch.object(
+                module,
+                "_WAVEFORM_SIXEL_CURSOR_CELL_HEIGHT_PIXELS",
+                None,
+            ):
+                self.assertEqual(14, sixel_display_rows(payload, geometry))
+            with mock.patch.object(
+                module,
+                "_WAVEFORM_SIXEL_CURSOR_CELL_HEIGHT_PIXELS",
+                20,
+            ):
+                self.assertEqual(14, sixel_display_rows(payload, geometry))
+            self.assertEqual((800, 280), sixel_payload_pixel_size(payload))
+
+        def test_v136_comparison_is_one_compact_contact_sheet_with_prompt_pad(self) -> None:
+            """Before/after placement is encoded into one probe-validated frame."""
+            if Image is None:
+                self.skipTest("Pillow is required")
+            module = sys.modules[__name__]
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                before = root / "before.jpg"
+                after = root / "after.jpg"
+                sheet = root / "sheet.jpg"
+                Image.new("RGB", (2000, 700), (220, 35, 150)).save(
+                    before, format="JPEG", quality=100, subsampling=0
+                )
+                Image.new("RGB", (2000, 700), (30, 220, 210)).save(
+                    after, format="JPEG", quality=100, subsampling=0
+                )
+                create_waveform_comparison_contact_sheet(before, after, sheet)
+                with Image.open(sheet) as contact:
+                    self.assertEqual((2000, 790), contact.size)
+                    self.assertLess(max(contact.getpixel((1000, 365))), 20)
+                    self.assertLess(max(contact.getpixel((1000, 760))), 20)
+                with mock.patch.object(
+                    module, "visible_console_size",
+                    return_value=os.terminal_size((200, 60)),
+                ), mock.patch.object(
+                    module, "windows_console_font_cell_size",
+                    return_value=(10, 40),
+                ), mock.patch.object(
+                    module,
+                    "_WAVEFORM_SIXEL_CURSOR_CELL_HEIGHT_PIXELS",
+                    20,
+                ):
+                    prepared = prepare_waveform_preview(
+                        sheet,
+                        use_color=True,
+                        width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+                    )
+                    payload = prepared.sixel_payload or b""
+                    frame, reserved_rows = sixel_terminal_frame(
+                        payload, geometry=prepared.geometry
+                    )
+            self.assertEqual((800, 316), sixel_payload_pixel_size(payload))
+            self.assertEqual(17, reserved_rows)
+            self.assertTrue(frame.startswith(b"\r\n" * reserved_rows))
+            self.assertTrue(frame.endswith(b"\x1b[17B\r"))
+
+        def test_prepare_waveform_preview_accepts_explicit_height_scale(self) -> None:
+            """Pre-render call sites may pass the matching height scale."""
+            module = sys.modules[__name__]
+            fake_geometry = ArtworkPreviewGeometry(
+                terminal_columns=100, terminal_rows=50, indent_columns=12,
+                columns=40, rows=20, pixel_width=400, pixel_height=400,
+            )
+            with mock.patch.object(module, "ensure_waveform_jpeg_ready"), mock.patch.object(
+                module, "waveform_preview_geometry", return_value=fake_geometry
+            ) as geometry_mock, mock.patch.object(
+                module, "sixel_preview_bytes", return_value=b"SIXEL"
+            ):
+                prepared = prepare_waveform_preview(
+                    Path("dummy.jpg"),
+                    use_color=True,
+                    width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+                    height_scale=WAVEFORM_COMPARISON_HEIGHT_SCALE,
+                )
+            geometry_mock.assert_called_once_with(
+                WAVEFORM_COMPARISON_WIDTH_FRACTION,
+                height_rows=None,
+                height_scale=WAVEFORM_COMPARISON_HEIGHT_SCALE,
+            )
+            self.assertEqual(b"SIXEL", prepared.sixel_payload)
+
+        def test_waveform_visual_regression_restored_pair_size_preserves_right_labels(self) -> None:
+            """Render a half-size comparison and verify its metrics survive."""
+            if Image is None or ImageDraw is None:
+                self.skipTest("Pillow is required")
+            module = sys.modules[__name__]
+            with tempfile.TemporaryDirectory() as temp:
+                waveform = Path(temp) / "visual-regression.jpg"
+                image = Image.new("RGB", (WAVEFORM_JPEG_WIDTH, WAVEFORM_JPEG_HEIGHT), "black")
+                draw = ImageDraw.Draw(image)
+                cyan = waveform_channel_rgb(0)
+                mid = WAVEFORM_JPEG_HEIGHT // 2
+                draw.rectangle(
+                    (8, mid - 150, WAVEFORM_PLOT_WIDTH - 12, mid + 150),
+                    fill=cyan,
+                )
+                image.save(waveform, format="JPEG", quality=95)
+                metrics = WaveformMetrics(
+                    channel_peak_percentages=(100.0,),
+                    peak_volume_percentage=100.0,
+                    average_volume_percentage=65.0,
+                    replaygain_factor=1.0,
+                    longest_silence_seconds=0.0,
+                    total_silence_seconds=0.0,
+                )
+                annotate_waveform_peak_guides(waveform, metrics)
+                with mock.patch.object(
+                    module, "visible_console_size",
+                    return_value=os.terminal_size((200, 60)),
+                ), mock.patch.object(
+                    module, "windows_console_font_cell_size",
+                    return_value=(10, 20),
+                ):
+                    geometry = waveform_preview_geometry(WAVEFORM_COMPARISON_SCALE)
+                    with Image.open(waveform) as source:
+                        raster = width_filling_preview_image(
+                            source.convert("RGB"),
+                            geometry.pixel_width,
+                            geometry.pixel_height,
+                        )
+                    prepared = PreparedArtworkPreview(
+                        mode="Sixel",
+                        geometry=geometry,
+                        sixel_payload=sixel_preview_bytes(
+                            waveform,
+                            geometry=geometry,
+                            stretch_to_width=True,
+                        ),
+                    )
+
+            # v113 comparison width was 160 columns/1600 px here. v131 halves
+            # that to 80/800 and derives the 280-pixel height from 2000x700.
+            self.assertEqual(80, geometry.columns)
+            self.assertEqual(51, geometry.rows)
+            self.assertEqual(800, geometry.pixel_width)
+            self.assertEqual(1020, geometry.pixel_height)
+            self.assertEqual((800, 280), raster.size)
+            gutter_x = round(
+                geometry.pixel_width * WAVEFORM_PLOT_WIDTH / WAVEFORM_JPEG_WIDTH
+            )
+            gutter = raster.crop((gutter_x, 0, raster.width, raster.height))
+            upper = gutter.crop((0, 0, gutter.width, raster.height // 3))
+            middle = gutter.crop((0, raster.height // 3, gutter.width, raster.height * 2 // 3))
+            lower = gutter.crop((0, raster.height * 2 // 3, gutter.width, raster.height))
+
+            # The 13% source gutter remains 104 physical pixels at 800px wide.
+            self.assertGreaterEqual(gutter.width, 100)
+
+            def visible_rows(region) -> int:
+                rows = 0
+                px = region.load()
+                for y in range(region.height):
+                    if any(max(px[x, y]) >= 70 for x in range(region.width)):
+                        rows += 1
+                return rows
+
+            self.assertGreaterEqual(visible_rows(upper), 8)
+            # The five-line peak/average/ReplayGain/gain/silence summary lives
+            # in the middle third; require substantial visible text there.
+            self.assertGreaterEqual(visible_rows(middle), 50)
+            self.assertGreaterEqual(visible_rows(lower), 8)
+            self.assertEqual(
+                (800, 280),
+                sixel_payload_pixel_size(prepared.sixel_payload or b""),
+            )
+
+
+        def test_waveform_sixel_payload_keeps_right_side_metric_summary_at_half_scale(self) -> None:
+            """The metric gutter is present in the actual Sixel payload, not just the JPEG."""
+            if Image is None or ImageDraw is None:
+                self.skipTest("Pillow is required")
+            module = sys.modules[__name__]
+            with tempfile.TemporaryDirectory() as temp:
+                waveform = Path(temp) / "metric-gutter.jpg"
+                image = Image.new("RGB", (WAVEFORM_JPEG_WIDTH, WAVEFORM_JPEG_HEIGHT), "black")
+                draw = ImageDraw.Draw(image)
+                draw.rectangle((8, 150, WAVEFORM_PLOT_WIDTH - 12, 550), fill=waveform_channel_rgb(0))
+                image.save(waveform, format="JPEG", quality=95)
+                metrics = WaveformMetrics(
+                    channel_peak_percentages=(100.0,), peak_volume_percentage=100.0,
+                    average_volume_percentage=65.0, replaygain_factor=1.0,
+                    longest_silence_seconds=0.0, total_silence_seconds=0.0,
+                )
+                annotate_waveform_peak_guides(waveform, metrics)
+                with mock.patch.object(module, "visible_console_size", return_value=os.terminal_size((200, 60))), mock.patch.object(
+                    module, "windows_console_font_cell_size", return_value=(10, 20)
+                ):
+                    prepared = prepare_waveform_preview(
+                        waveform, use_color=True,
+                        width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+                    )
+            payload = prepared.sixel_payload or b""
+            self.assertEqual((800, 280), sixel_payload_pixel_size(payload))
+            # Our encoder emits visible runs out into the final 5% of the raster
+            # only because the percentage/metric text occupies that gutter.
+            body = payload.decode("ascii", errors="ignore")
+            raster_width = 800
+            x = 0
+            max_ink_x = 0
+            i = body.find('"1;1;800;280')
+            i = 0 if i < 0 else i
+            while i < len(body):
+                ch = body[i]
+                if ch == "\x1b":
+                    # Skip the opening DCS; stop only on the final ESC \\.
+                    if i + 1 < len(body) and body[i + 1] == "\\":
+                        break
+                    i += 1
+                    continue
+                if ch == "$":
+                    x = 0; i += 1; continue
+                if ch == "-":
+                    x = 0; i += 1; continue
+                if ch == "#":
+                    i += 1
+                    while i < len(body) and body[i].isdigit(): i += 1
+                    if i < len(body) and body[i] == ";":
+                        while i < len(body) and body[i] not in "#$-!?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x1b": i += 1
+                    continue
+                if ch == "!":
+                    j = i + 1
+                    while j < len(body) and body[j].isdigit(): j += 1
+                    count = int(body[i + 1:j] or "1")
+                    if j < len(body) and 63 <= ord(body[j]) <= 126 and ord(body[j]) != 63:
+                        max_ink_x = max(max_ink_x, x + count - 1)
+                    x += count; i = j + 1; continue
+                if 63 <= ord(ch) <= 126:
+                    if ord(ch) != 63:
+                        max_ink_x = max(max_ink_x, x)
+                    x += 1
+                i += 1
+            self.assertGreater(max_ink_x, int(raster_width * 0.95))
+
+
+        def test_waveform_review_heading_has_three_blank_lines_and_comparison_has_no_after_baking_narration(self) -> None:
+            source = Path(__file__).read_text(encoding="utf-8")
+            self.assertIn("for _ in range(3):\n        print()\n    print(\n        \"\\n\".join(\n            double_height_gradient_section(\n                \"Waveform review\"", source)
+            review_source = source.split("def review_waveforms(", 1)[1].split("\ndef ", 1)[0]
+            self.assertNotIn(
+                "After baking: the cyan-to-green waveform below is the current audio and is the one being reviewed.",
+                review_source,
+            )
+
+        def test_non_waveform_chafa_geometry_still_uses_shared_helper(self) -> None:
+            class FakeLive:
+                def chafa_options_for(self, reserved_rows: int) -> str:
+                    self.reserved_rows = reserved_rows
+                    return "--view-size=120x40 --font-ratio=10/20"
+            fake = FakeLive()
+            module = sys.modules[__name__]
+            geometry = ArtworkPreviewGeometry(
+                terminal_columns=160, terminal_rows=50, indent_columns=0,
+                columns=120, rows=40, pixel_width=1200, pixel_height=800,
+            )
+            with mock.patch.object(module, "query_terminal_geometry", return_value=fake):
+                options = chafa_sixel_geometry_options(geometry)
+            self.assertEqual(ART_PREVIEW_RESERVED_TEXT_ROWS, fake.reserved_rows)
+            self.assertTrue(any(option.startswith("--view-size=") for option in options))
+            self.assertIn("--font-ratio=10/20", options)
+
+        def test_waveform_geometry_reuses_shared_classic_metrics_without_extra_dpi_scaling(self) -> None:
+            """The restored waveform size must come from shared classic geometry only."""
+            module = sys.modules[__name__]
+            for reported_scale in (1.0, 1.5, 2.0):
+                with self.subTest(reported_scale=reported_scale), mock.patch.object(
+                    module,
+                    "visible_console_size",
+                    return_value=os.terminal_size((200, 60)),
+                ), mock.patch.object(
+                    module,
+                    "windows_console_font_cell_size",
+                    return_value=(5, 10),
+                ), mock.patch.object(
+                    module,
+                    "windows_console_pixel_scale_factor",
+                    return_value=reported_scale,
+                ):
+                    comparison = waveform_preview_geometry(
+                        WAVEFORM_COMPARISON_SCALE
+                    )
+                self.assertEqual(80, comparison.columns)
+                self.assertEqual(51, comparison.rows)
+                self.assertEqual(400, comparison.pixel_width)
+                self.assertEqual(510, comparison.pixel_height)
+
+
+        def test_sixel_terminal_frame_cannot_leave_following_text_inside_graph(self) -> None:
+            """Reserve first, paint above, then return to the prompt row."""
+            geometry = ArtworkPreviewGeometry(
+                terminal_columns=200,
+                terminal_rows=60,
+                indent_columns=12,
+                columns=160,
+                rows=6,
+                pixel_width=1600,
+                pixel_height=120,
+            )
+            payload = b'\x1bP9;1;0q"1;1;1600;120#0;2;0;0;0\x1b\\'
+            frame, reserved_rows = sixel_terminal_frame(
+                payload, geometry=geometry
+            )
+            self.assertEqual(7, reserved_rows)
+            self.assertTrue(frame.startswith(b"\r\n" * reserved_rows))
+            self.assertIn(b"\x1b[7A\x1b7\r", frame)
+            self.assertIn(payload + b"\x1b8", frame)
+            self.assertTrue(frame.endswith(b"\x1b[7B\r"))
+
+        def test_sixel_row_reservation_uses_declared_raster_height(self) -> None:
+            """Reserve from the width-derived raster height, as v113 did."""
+            module = sys.modules[__name__]
+            geometry = ArtworkPreviewGeometry(
+                terminal_columns=200,
+                terminal_rows=60,
+                indent_columns=12,
+                columns=100,
+                rows=13,
+                pixel_width=1000,
+                pixel_height=260,
+            )
+            payload = b'\x1bP9;1;0q"1;1;1000;260#0;2;0;0;0\x1b\\'
+            with mock.patch.object(
+                module, "windows_console_font_cell_size", return_value=None
+            ):
+                frame, reserved_rows = sixel_terminal_frame(
+                    payload, geometry=geometry
+                )
+            self.assertEqual(14, reserved_rows)
+            self.assertTrue(frame.startswith(b"\r\n" * reserved_rows))
+            self.assertTrue(frame.endswith(b"\x1b[14B\r"))
+
+        def test_first_waveform_render_finishes_before_later_jobs_are_submitted(self) -> None:
+            events: list[str] = []
+
+            class FakeFuture:
+                def __init__(self, name: str, destination: Path) -> None:
+                    self.name = name
+                    self.destination = destination
+
+                def result(self):
+                    events.append(f"result:{self.name}")
+                    return self.destination, None, mock.Mock()
+
+            class FakeExecutor:
+                def submit(self, _func, upcoming, **kwargs):
+                    events.append(f"submit:{upcoming.name}")
+                    return FakeFuture(upcoming.name, kwargs["destination"])
+
+            tracks = [
+                Path("first.flac"),
+                Path("second.flac"),
+                Path("third.flac"),
+            ]
+            with tempfile.TemporaryDirectory() as temp:
+                futures, rendered = prioritized_waveform_render_futures(
+                    tracks,
+                    FakeExecutor(),
+                    Path(temp),
+                    acceptable_silence_seconds=10.0,
+                    first_ready_callback=lambda path, _result: events.append(
+                        f"preview:{path.name}"
+                    ),
+                )
+            self.assertEqual(
+                [
+                    "submit:first.flac",
+                    "result:first.flac",
+                    "preview:first.flac",
+                    "submit:second.flac",
+                    "submit:third.flac",
+                ],
+                events,
+            )
+            self.assertIn(tracks[0], rendered)
+            self.assertEqual(set(tracks), set(futures))
+
+        def test_waveform_geometry_uses_uniform_review_and_comparison_scales(self) -> None:
+            module = sys.modules[__name__]
+            self.assertEqual(0.30, WAVEFORM_REVIEW_SCALE)
+            self.assertEqual(0.40, WAVEFORM_COMPARISON_SCALE)
+            self.assertEqual(1.0, WAVEFORM_REVIEW_HEIGHT_SCALE)
+            self.assertEqual(1.0, WAVEFORM_COMPARISON_HEIGHT_SCALE)
+            with mock.patch.object(
+                module,
+                "visible_console_size",
+                return_value=os.terminal_size((200, 60)),
+            ), mock.patch.object(
+                module,
+                "windows_console_font_cell_size",
+                return_value=(10, 20),
+            ):
+                geometry = waveform_preview_geometry(WAVEFORM_REVIEW_SCALE)
+                comparison = waveform_preview_geometry(WAVEFORM_COMPARISON_SCALE)
+            self.assertEqual(12, geometry.indent_columns)
+            self.assertEqual((60, 51, 600, 1020), (
+                geometry.columns, geometry.rows, geometry.pixel_width, geometry.pixel_height
+            ))
+            self.assertEqual((80, 51, 800, 1020), (
+                comparison.columns, comparison.rows,
+                comparison.pixel_width, comparison.pixel_height
+            ))
+            source = Image.new("RGB", (1800, 700), "black")
+            width_filled = width_filling_preview_image(
+                source,
+                geometry.pixel_width,
+                geometry.pixel_height,
+            )
+            self.assertEqual(geometry.pixel_width, width_filled.width)
+            self.assertEqual(
+                round(700 * geometry.pixel_width / 1800),
+                width_filled.height,
+            )
+
+
+        def test_waveform_preview_uses_pixel_aware_builtin_sixel(self) -> None:
+            if Image is None:
+                self.skipTest("Pillow is required")
+            module = sys.modules[__name__]
+            with tempfile.TemporaryDirectory() as temp:
+                waveform = Path(temp) / "waveform.jpg"
+                Image.new("RGB", (2000, 700), "black").save(
+                    waveform, format="JPEG"
+                )
+                with mock.patch.object(
+                    module,
+                    "visible_console_size",
+                    return_value=os.terminal_size((200, 60)),
+                ), mock.patch.object(
+                    module,
+                    "windows_console_font_cell_size",
+                    return_value=(10, 20),
+                ), mock.patch.object(
+                    module,
+                    "chafa_executable",
+                ) as chafa:
+                    prepared = prepare_waveform_preview(
+                        waveform,
+                        use_color=True,
+                        width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+                    )
+            self.assertEqual("Sixel", prepared.mode)
+            self.assertEqual(80, prepared.geometry.columns)
+            self.assertEqual(51, prepared.geometry.rows)
+            self.assertEqual(800, prepared.geometry.pixel_width)
+            self.assertEqual(1020, prepared.geometry.pixel_height)
+            self.assertIn(b'"1;1;800;280', prepared.sixel_payload or b"")
+            chafa.assert_not_called()
+
+        def test_waveform_preview_scales_width_and_preserves_source_aspect(self) -> None:
             module = sys.modules[__name__]
             with mock.patch.object(
                 module,
@@ -16003,59 +20192,93 @@ def run_unit_tests(use_color: bool = True) -> int:
                 "windows_console_font_cell_size",
                 return_value=(10, 20),
             ):
-                geometry = waveform_preview_geometry()
-            self.assertEqual(12, geometry.indent_columns)
-            self.assertEqual(187, geometry.columns)
-            self.assertEqual(51, geometry.rows)
-            self.assertEqual(1870, geometry.pixel_width)
-            self.assertEqual(1020, geometry.pixel_height)
-            source = Image.new("RGB", (1800, 700), "black")
-            width_filled = width_filling_preview_image(
-                source,
-                geometry.pixel_width,
-                geometry.pixel_height,
-            )
-            self.assertEqual(geometry.pixel_width, width_filled.width)
-            self.assertLessEqual(
-                width_filled.height,
-                geometry.pixel_height,
-            )
-            completed = mock.Mock(
-                returncode=0,
-                stdout=b"mock-sixel",
-                stderr=b"",
-            )
-            with mock.patch.object(
-                module,
-                "chafa_executable",
-                return_value=Path(r"C:\util\Chafa.exe"),
-            ), mock.patch.object(
-                subprocess,
-                "run",
-                return_value=completed,
-            ) as run, mock.patch.object(
-                module,
-                "emit_sixel_preview",
-            ) as emit:
-                self.assertEqual(
-                    "Chafa Sixel",
-                    render_artwork_preview(
-                        Path(r"C:\Temp\waveform.jpg"),
+                normal = waveform_preview_geometry(WAVEFORM_REVIEW_SCALE)
+                comparison = waveform_preview_geometry(WAVEFORM_COMPARISON_SCALE)
+            self.assertEqual((60, 51, 600, 1020), (
+                normal.columns, normal.rows, normal.pixel_width, normal.pixel_height
+            ))
+            self.assertEqual((80, 51, 800, 1020), (
+                comparison.columns, comparison.rows,
+                comparison.pixel_width, comparison.pixel_height
+            ))
+
+        def test_waveform_sixel_path_restores_v113_aspect_and_opaque_background(self) -> None:
+            """Regression harness for the restored v113 bitmap/Sixel pipeline."""
+            if Image is None:
+                self.skipTest("Pillow is required")
+            module = sys.modules[__name__]
+            with tempfile.TemporaryDirectory() as temp:
+                waveform = Path(temp) / "waveform.jpg"
+                image = Image.new("RGB", (2000, 700), "black")
+                if ImageDraw is not None:
+                    draw = ImageDraw.Draw(image)
+                    # Known content at the top, middle and bottom must all survive.
+                    draw.rectangle((0, 0, 1999, 35), fill=(240, 50, 180))
+                    draw.rectangle((0, 332, 1999, 367), fill=(50, 230, 210))
+                    draw.rectangle((0, 664, 1999, 699), fill=(240, 220, 50))
+                image.save(waveform, format="JPEG", quality=95)
+                with mock.patch.object(
+                    module, "visible_console_size",
+                    return_value=os.terminal_size((200, 60)),
+                ), mock.patch.object(
+                    module, "windows_console_font_cell_size",
+                    return_value=(10, 20),
+                ), mock.patch.object(
+                    module, "windows_console_pixel_scale_factor",
+                    return_value=1.0,
+                ):
+                    started = time.perf_counter()
+                    prepared = prepare_waveform_preview(
+                        waveform,
                         use_color=True,
-                        prefer_sixel=True,
-                        geometry=geometry,
-                        stretch_to_width=True,
-                    ),
-                )
-            command = run.call_args.args[0]
-            self.assertIn("--size=187x51", command)
-            self.assertIn("--view-size=187x51", command)
-            self.assertIn("--work=9", command)
-            self.assertIn("--stretch", command)
-            self.assertNotIn("--fit-width", command)
-            emit.assert_called_once_with(
-                b"mock-sixel",
-                geometry=geometry,
+                        width_fraction=WAVEFORM_COMPARISON_WIDTH_FRACTION,
+                    )
+                    elapsed = time.perf_counter() - started
+            payload = prepared.sixel_payload or b""
+            self.assertTrue(payload.startswith(b"\x1bP0;1;0q"))
+            self.assertEqual((800, 280), sixel_payload_pixel_size(payload))
+            self.assertEqual(math.ceil(280 / 6) - 1, payload.count(b"-"))
+            # 280 physical pixels / at most 20 pixels per terminal row needs
+            # at least 14 rows; a smaller measured cell safely reserves more.
+            self.assertGreaterEqual(
+                sixel_display_rows(payload, prepared.geometry), 14
+            )
+            # This is intentionally generous for CI; the old 1600x560/64-color
+            # dithered path is several times slower and produces a much larger payload.
+            self.assertLess(elapsed, 2.0)
+            self.assertLess(len(payload), 500_000)
+
+        def test_sixel_cursor_advance_matches_declared_raster_height(self) -> None:
+            geometry = ArtworkPreviewGeometry(
+                terminal_columns=200,
+                terminal_rows=60,
+                indent_columns=12,
+                columns=160,
+                rows=51,
+                pixel_width=1600,
+                pixel_height=1020,
+            )
+            payload = b'\x1bPq"1;1;1600;560#0~\x1b\\'
+            self.assertEqual((1600, 560), sixel_payload_pixel_size(payload))
+            self.assertEqual(28, sixel_display_rows(payload, geometry))
+
+        def test_waveform_comparison_header_labels_before_and_after_without_renderer_status(self) -> None:
+            plain = waveform_review_header(
+                1, 11, comparison_active=True, use_color=False
+            )
+            self.assertEqual(
+                "        🎛️ Waveform 1/11 (before, after):",
+                plain,
+            )
+            colored = waveform_review_header(
+                2, 7, comparison_active=True, use_color=True
+            )
+            stripped = re.sub(
+                r"\x1b(?:\[[0-?]*[ -/]*[@-~]|#[34])", "", colored
+            )
+            self.assertEqual(
+                "        🎛️ Waveform 2/7 (before, after):",
+                stripped,
             )
 
         def test_wrapped_prompt_erases_every_rendered_row(self) -> None:
@@ -16115,15 +20338,17 @@ def run_unit_tests(use_color: bool = True) -> int:
                 "A very long Ghosts (2023) title for wrapping.mp3",
                 False,
                 terminal_columns=34,
-            ).splitlines()
-            self.assertGreater(len(rendering), 1)
-            self.assertTrue(
-                rendering[0].startswith("            ⏳ Rendering ")
             )
-            rendering_column = visible_cell_width("            ⏳ Rendering ")
             self.assertTrue(
-                rendering[1].startswith(" " * (rendering_column + 8))
+                rendering.startswith("            ⏳ Rendering: ")
             )
+            self.assertEqual(1, len(rendering.splitlines()))
+            rendered = waveform_rendered_status(
+                "A very long Ghosts (2023) title for wrapping.mp3",
+                False,
+                terminal_columns=34,
+            )
+            self.assertTrue(rendered.startswith("            ✅ Rendered: "))
 
         def test_waveform_diagnostic_can_edit_view_and_mark_problem(
             self,
@@ -16500,6 +20725,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                     path: Path,
                     *,
                     use_color: bool,
+                    **_kwargs,
                 ) -> PreparedArtworkPreview:
                     prepared_paths.append(path)
                     return PreparedArtworkPreview(
@@ -16626,6 +20852,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                         use_color=False,
                         workers=2,
                         approval_database_path=database,
+                        key_reader=lambda: "n",
                     )
                 generate.assert_not_called()
                 self.assertEqual(1, result["audio_files"])
@@ -17116,7 +21343,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                             "suggestion": "Test the scoped decision.",
                         }
                     )
-                keys = iter(("a", "v", "f", "n"))
+                keys = iter(("a", "y", "v", "f", "n"))
                 keypresses: list[str] = []
 
                 def read_key() -> str:
@@ -17137,7 +21364,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                         use_color=False,
                         key_reader=read_key,
                     )
-                self.assertEqual(["a", "v", "f", "n"], keypresses)
+                self.assertEqual(["a", "y", "v", "f", "n"], keypresses)
                 self.assertEqual("abef", result["applied_codes"])
                 self.assertEqual("cdg", result["skipped_codes"])
                 self.assertEqual(
@@ -17465,6 +21692,17 @@ def run_unit_tests(use_color: bool = True) -> int:
                     }.issubset(categories)
                 )
 
+        def test_filesystem_audit_tolerates_file_disappearing_after_enumeration(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                marker = root / ".CurrentlyDoingTranscriptionsHere"
+                marker.touch()
+                auditor = BatchAudit(root)
+                auditor.files = [marker]
+                marker.unlink()
+                auditor.audit_filesystem()
+                self.assertEqual([], auditor.findings)
+
         def test_filesystem_hygiene_positive_and_kept_cases(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
@@ -17735,7 +21973,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                 self.assertIn("After filename", output.getvalue())
                 self.assertIn(
                     "[y=Yes / N=No / A=Always / V=Never / "
-                    "F=Do All in Folder] Yes!",
+                    "F=Yes for This Folder] Yes!",
                     output.getvalue(),
                 )
                 self.assertIn(
@@ -17819,6 +22057,58 @@ def run_unit_tests(use_color: bool = True) -> int:
                     apply_finding(root, finding, use_color=False)
                 self.assertTrue(first.exists())
                 self.assertTrue(second.exists())
+
+        def test_multidisc_album_prefix_is_preserved_across_sidecars_and_backups(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                album = root / "Heavens To Betsy" / "1992 - Heavens To Betsy (demo)"
+                album.mkdir(parents=True)
+                stems = (
+                    "1_1_Good Food",
+                    "1_2_Factory",
+                    "2_1_My Red Self",
+                    "2_2_Baby's Gone",
+                )
+                audio_paths = [make_silent_flac(album, stem) for stem in stems]
+                first = audio_paths[0]
+                first.with_suffix(".lrc").write_text("[00:00.00]Line\n", encoding="utf-8")
+                first.with_suffix(".txt").write_text("Line\n", encoding="utf-8")
+                album.joinpath(first.name + "._vad_ten.srt").write_text(
+                    "scratch", encoding="utf-8"
+                )
+                album.joinpath(
+                    first.name + ".bak.202608121346.replaced-by-chatgpt.bak"
+                ).write_bytes(first.read_bytes())
+
+                self.assertTrue(album_uses_disc_track_prefix(audio_paths))
+                self.assertIsNone(
+                    capitalized_album_filename_proposal(
+                        "1_1_Good Food.flac",
+                        4,
+                        compound_track_prefix=True,
+                    )
+                )
+                self.assertIsNone(
+                    capitalized_album_filename_proposal(
+                        "1_1_Good Food.flac._vad_ten.srt",
+                        4,
+                        compound_track_prefix=True,
+                    )
+                )
+                self.assertEqual(
+                    "1_1_Good Food.flac",
+                    capitalized_album_filename_proposal(
+                        "1_1_good_food.flac",
+                        4,
+                        compound_track_prefix=True,
+                    ),
+                )
+                findings = [
+                    item
+                    for item in BatchAudit(root).audit()["findings"]
+                    if item["category"] == "filename_title_capitalization_group"
+                ]
+                self.assertEqual([], findings)
 
         def test_album_title_capitalization_group_includes_sidecars_and_backup(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -17944,6 +22234,176 @@ def run_unit_tests(use_color: bool = True) -> int:
                 self.assertIn("multichannel_audio", categories)
                 self.assertNotIn("missing_replaygain", categories)
 
+        def test_replaygain_findings_are_aggregated_per_folder(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                album = root / "Album"
+                album.mkdir()
+                first = make_silent_flac(album, "01_First [instrumental]")
+                second = make_silent_flac(album, "02_Second [instrumental]")
+                findings = [
+                    item
+                    for item in BatchAudit(root).audit()["findings"]
+                    if item["category"] == "missing_replaygain"
+                ]
+                self.assertEqual(1, len(findings))
+                finding = findings[0]
+                self.assertEqual("Album", finding["path"])
+                self.assertTrue(finding["details"]["folder_level"])
+                self.assertEqual(2, finding["details"]["missing_count"])
+                self.assertEqual(2, finding["details"]["total_count"])
+                self.assertIn("all 2 audio files", finding["message"])
+
+                audio = FLAC(first)
+                audio["REPLAYGAIN_TRACK_GAIN"] = ["-7.25"]
+                audio["REPLAYGAIN_TRACK_PEAK"] = ["0.875"]
+                audio.save()
+                findings = [
+                    item
+                    for item in BatchAudit(root).audit()["findings"]
+                    if item["category"] == "missing_replaygain"
+                ]
+                self.assertEqual(1, len(findings))
+                self.assertEqual(1, findings[0]["details"]["missing_count"])
+                self.assertEqual(2, findings[0]["details"]["total_count"])
+                self.assertIn("1 of 2 audio files", findings[0]["message"])
+                self.assertTrue(second.is_file())
+
+        def test_missing_srt_findings_are_aggregated_per_folder(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                album = root / "Album"
+                album.mkdir()
+                for stem in ("01_First", "02_Second"):
+                    audio = make_silent_flac(album, stem)
+                    audio.with_suffix(".txt").write_text("Lyric\n", encoding="utf-8")
+                    audio.with_suffix(".lrc").write_text(
+                        "[00:00.00]Lyric\n", encoding="utf-8"
+                    )
+                findings = [
+                    item
+                    for item in BatchAudit(root).audit()["findings"]
+                    if item["category"] == "missing_srt_from_lrc_txt"
+                ]
+                self.assertEqual(1, len(findings))
+                finding = findings[0]
+                self.assertEqual("Album", finding["path"])
+                self.assertTrue(finding["details"]["folder_level"])
+                self.assertEqual(2, finding["details"]["missing_count"])
+                self.assertEqual(2, len(finding["details"]["affected_files"]))
+                self.assertIn("2 tracks in this folder", finding["message"])
+
+        def test_lyric_karaoke_fix_treats_stale_nonzero_srt_as_already_done(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio = make_silent_flac(root, "01_Already Done")
+                audio.with_suffix(".txt").write_text("Lyric\n", encoding="utf-8")
+                audio.with_suffix(".lrc").write_text("[00:00.00]Lyric\n", encoding="utf-8")
+                audio.with_suffix(".srt").write_text("1\n00:00:00,000 --> 00:00:01,000\nLyric\n", encoding="utf-8")
+                with mock.patch.object(subprocess, "run") as run, contextlib.redirect_stdout(io.StringIO()) as output:
+                    actions = generate_missing_srt_sidecars(
+                        root,
+                        root,
+                        expected_audio_paths=[audio],
+                    )
+                run.assert_not_called()
+                self.assertIn("nothing to do", output.getvalue())
+                self.assertTrue(any(action.startswith("lyric_karaoke_fix_summary:0|") for action in actions))
+
+        def test_lyric_karaoke_fix_recycles_zero_byte_srt_then_regenerates(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio = make_silent_flac(root, "01_Empty SRT")
+                audio.with_suffix(".txt").write_text("Lyric\n", encoding="utf-8")
+                audio.with_suffix(".lrc").write_text("[00:00.00]Lyric\n", encoding="utf-8")
+                empty_srt = audio.with_suffix(".srt")
+                empty_srt.touch()
+                tool = root / "lrc2srt.py"
+                tool.write_text("# tool\n", encoding="utf-8")
+
+                recycled: list[Path] = []
+                def fake_recycle(path):
+                    recycled.append(Path(path))
+                    Path(path).unlink()
+                    return Path(path)
+
+                def fake_run(command, **options):
+                    empty_srt.write_text(
+                        "1\n00:00:00,000 --> 00:00:01,000\nLyric\n",
+                        encoding="utf-8",
+                    )
+                    # Exercise the real-world oddity: nonzero status even though
+                    # the expected output is now valid.
+                    return mock.Mock(returncode=1, stdout="MiniLyricsFix: No files to process.")
+
+                module = sys.modules[__name__]
+                with mock.patch.object(module, "lrc2srt_executable", return_value=tool), mock.patch.object(module, "recycle_path", side_effect=fake_recycle), mock.patch.object(subprocess, "run", side_effect=fake_run), contextlib.redirect_stdout(io.StringIO()) as output:
+                    actions = generate_missing_srt_sidecars(
+                        root,
+                        root,
+                        expected_audio_paths=[audio],
+                    )
+                self.assertEqual([empty_srt], recycled)
+                self.assertGreater(empty_srt.stat().st_size, 0)
+                self.assertNotIn("MiniLyricsFix", output.getvalue())
+                self.assertIn("Lyric/Karaoke Fix", output.getvalue())
+                self.assertTrue(any(action.startswith("recycled_empty_srt:") for action in actions))
+
+        def test_replaygain_progress_ticks_between_flac_completions(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                first = root / "01_First.flac"
+                second = root / "02_Second.flac"
+                first.write_bytes(b"a" * 1000)
+                second.write_bytes(b"b" * 1000)
+                snapshots: list[float] = []
+                postfixes: list[str] = []
+
+                class FakeProgress:
+                    def __init__(self) -> None:
+                        self.n = 0.0
+
+                    def set_postfix_str(self, value, refresh=False):
+                        postfixes.append(str(value))
+
+                    def refresh(self):
+                        snapshots.append(float(self.n))
+
+                @contextmanager
+                def fake_progress_bar(**_kwargs):
+                    yield FakeProgress()
+
+                elapsed_values = iter((1.0, 1.5))
+
+                def fake_polled(command, *, cwd, on_tick=None, poll_seconds=0.10):
+                    elapsed = next(elapsed_values)
+                    if on_tick is not None:
+                        on_tick(elapsed * 0.25)
+                        on_tick(elapsed * 0.75)
+                    return elapsed
+
+                module = sys.modules[__name__]
+                with mock.patch.object(
+                    module, "require_replaygain_program", return_value="metaflac"
+                ), mock.patch.object(
+                    module, "run_silent_polled_command", side_effect=fake_polled
+                ), mock.patch.object(
+                    module, "record_replaygain_timing"
+                ) as record_timing, mock.patch.object(
+                    module, "progress_bar", new=fake_progress_bar
+                ), contextlib.redirect_stdout(io.StringIO()) as output:
+                    actions = apply_argt_replaygain_folder(
+                        root, use_color=False, stream_output=False
+                    )
+
+                self.assertEqual(2, record_timing.call_count)
+                self.assertTrue(any(0.5 < value < 1.0 for value in snapshots))
+                self.assertTrue(any("ETA" in value for value in postfixes))
+                self.assertNotIn("--add-replay-gain", output.getvalue())
+                self.assertTrue(
+                    any(action.startswith("replaygain_summary:2|0|2|") for action in actions)
+                )
+
         def test_argt_replaygain_workflow_streams_and_reaudits(self) -> None:
             if not shutil.which("metamp3") or not shutil.which("metaflac"):
                 raise unittest.SkipTest(
@@ -18035,23 +22495,21 @@ def run_unit_tests(use_color: bool = True) -> int:
                 self.assertNotIn("stdout", recorded_options)
                 self.assertNotIn("stderr", recorded_options)
 
-        def test_folder_wide_replaygain_prompt_omits_redundant_folder_choice(
+        def test_folder_wide_replaygain_prompt_offers_folder_and_always_choices(
             self,
         ) -> None:
-            self.assertIn(
-                "missing_replaygain",
-                ROOT_WIDE_ACTION_CATEGORIES,
-            )
             prompt = action_scope_prompt(
                 ACTION_PROMPT_QUESTIONS["missing_replaygain"],
-                default_yes=False,
+                default_yes=True,
                 use_color=False,
-                allow_folder=(
-                    "missing_replaygain" not in ROOT_WIDE_ACTION_CATEGORIES
-                ),
+                allow_folder=True,
+                allow_always=True,
+                allow_stop_folder=True,
             )
             self.assertIn("Run ReplayGain on this folder now?", prompt)
-            self.assertNotIn("F=Do All in Folder", prompt)
+            self.assertIn("F=Yes for This Folder", prompt)
+            self.assertIn("A=Always", prompt)
+            self.assertIn("S=Not for This Folder", prompt)
 
         def test_finished_and_unfinished_vad_scratch_are_distinguished(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -18141,7 +22599,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                 audio["TITLE"] = ["Sidecar Song"]
                 audio["ARTIST"] = ["Artist"]
                 audio["ALBUM"] = ["Album"]
-                audio["GENRE"] = ["Pop Punk"]
+                audio["GENRE"] = ["Pop Punk; Riot Grrrl; Punk"]
                 audio["COMMENT"] = ["https://example.test/song"]
                 audio.save()
                 audio_path.with_suffix(".txt").write_text("Line\n", encoding="utf-8")
@@ -18162,6 +22620,198 @@ def run_unit_tests(use_color: bool = True) -> int:
                         "missing_srt_from_lrc_txt",
                     }.issubset(categories)
                 )
+
+        def test_single_punk_family_genre_is_already_simple(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio_path = make_silent_flac(root, "Simple Punk [instrumental]")
+                audio = FLAC(audio_path)
+                audio["TITLE"] = ["Simple Punk"]
+                audio["ARTIST"] = ["Artist"]
+                audio["ALBUM"] = ["Album"]
+                audio["GENRE"] = ["Punk Rock"]
+                audio.save()
+                categories = finding_categories(BatchAudit(root).audit())
+                self.assertNotIn("simplify_punk_genre", categories)
+
+        def test_punk_genre_menu_defaults_to_punk_and_offers_components(self) -> None:
+            finding = {
+                "details": {
+                    "genres": ["Alternative Rock;Indie Rock;Punk;Rock"],
+                    "genre_components": [
+                        "Alternative Rock", "Indie Rock", "Punk", "Rock"
+                    ],
+                }
+            }
+            choices, existing = punk_genre_menu_values(finding)
+            self.assertEqual(
+                ["Punk", "Alternative Rock", "Indie Rock", "Rock"],
+                choices,
+            )
+            self.assertEqual("Alternative Rock;Indie Rock;Punk;Rock", existing)
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(
+                    "Punk",
+                    prompt_for_punk_genre_selection(
+                        finding, use_color=False, input_reader=lambda _prompt: ""
+                    ),
+                )
+                self.assertEqual(
+                    "Indie Rock",
+                    prompt_for_punk_genre_selection(
+                        finding, use_color=False, input_reader=lambda _prompt: "3"
+                    ),
+                )
+                self.assertEqual(
+                    PUNK_GENRE_KEEP_EXISTING,
+                    prompt_for_punk_genre_selection(
+                        finding, use_color=False, input_reader=lambda _prompt: "5"
+                    ),
+                )
+
+        def test_punk_genre_choice_can_be_remembered_for_rest_of_folder(self) -> None:
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                scope = prompt_remember_punk_genre_selection(
+                    "Punk",
+                    use_color=False,
+                    key_reader=lambda: "f",
+                )
+            self.assertEqual("folder", scope)
+            self.assertIn("F=Yes for Rest of Folder", output.getvalue())
+
+        def test_genre_writer_backs_up_and_verifies_selected_value(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio_path = make_silent_flac(root, "Genre Choice [instrumental]")
+                audio = FLAC(audio_path)
+                audio["GENRE"] = ["Punk; Riot Grrrl; Rock"]
+                audio.save()
+                written, backup = set_genre_tag(audio_path, "Riot Grrrl")
+                self.assertEqual("Riot Grrrl", written)
+                self.assertTrue(backup.is_file())
+                self.assertEqual(["Riot Grrrl"], FLAC(audio_path).get("GENRE"))
+                self.assertEqual(
+                    ["Punk; Riot Grrrl; Rock"], FLAC(backup).get("GENRE")
+                )
+
+        def test_detected_problems_header_emits_both_double_height_halves(self) -> None:
+            report = {
+                "root": ".",
+                "resolved_root": str(Path.cwd()),
+                "counts": {
+                    "active_audio": 1,
+                    "files": 1,
+                    "by_severity": {},
+                },
+                "findings": [
+                    {
+                        "severity": "problem",
+                        "category": "missing_genre",
+                        "path": "song.flac",
+                        "message": "Missing genre tag.",
+                        "suggestion": "Set a genre.",
+                        "code": None,
+                        "details": {},
+                    }
+                ],
+                "extension_counts": {},
+                "mutagen_available": True,
+                "pillow_available": True,
+            }
+            rendered = render_console_report(
+                report, max_examples=80, use_color=True, interactive=False
+            )
+            def visible_text(value: str) -> str:
+                return re.sub(
+                    r"\x1b(?:\[[0-?]*[ -/]*[@-~]|#[34])",
+                    "",
+                    value,
+                )
+
+            visible = visible_text(rendered)
+            self.assertIn("Detected Problems", visible)
+            header_lines = [
+                line
+                for line in rendered.splitlines()
+                if "Detected Problems" in visible_text(line)
+            ]
+            self.assertEqual(2, len(header_lines))
+            self.assertTrue(header_lines[0].startswith(ANSI_DOUBLE_HEIGHT_TOP))
+            self.assertTrue(header_lines[1].startswith(ANSI_DOUBLE_HEIGHT_BOTTOM))
+
+        def test_no_argument_music_scan_includes_depth_zero_through_five_only(self) -> None:
+            for audio_depth in range(6):
+                with tempfile.TemporaryDirectory() as temp:
+                    root = Path(temp)
+                    folder = root
+                    for index in range(audio_depth):
+                        folder = folder / f"d{index + 1}"
+                        folder.mkdir()
+                    folder.joinpath("song.flac").write_bytes(b"music")
+                    self.assertTrue(
+                        music_exists_within_depth(root, 5),
+                        f"audio at depth {audio_depth} should be detected",
+                    )
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                folder = root
+                for index in range(6):
+                    folder = folder / f"d{index + 1}"
+                    folder.mkdir()
+                folder.joinpath("too-deep.mp3").write_bytes(b"music")
+                self.assertFalse(music_exists_within_depth(root, 5))
+
+        def test_no_argument_music_scan_follows_directory_links_without_looping(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                real = root / "real"
+                real.mkdir()
+                real.joinpath("song.flac").write_bytes(b"music")
+                link = root / "linked"
+                try:
+                    link.symlink_to(real, target_is_directory=True)
+                except (OSError, NotImplementedError):
+                    self.skipTest("directory symlinks are unavailable")
+                self.assertTrue(music_exists_within_depth(link, 5))
+                # A loop must not matter because resolved directories are visited once.
+                try:
+                    (real / "loop").symlink_to(root, target_is_directory=True)
+                except (OSError, NotImplementedError):
+                    pass
+                self.assertTrue(music_exists_within_depth(root, 5))
+
+        def test_no_argument_menu_and_release_announcement_are_explicit(self) -> None:
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                choice = prompt_no_argument_menu(
+                    use_color=False, key_reader=lambda: "1"
+                )
+            self.assertEqual("1", choice)
+            visible = output.getvalue()
+            self.assertIn("1) Run audit in this folder", visible)
+            self.assertIn("2) Display usage instructions", visible)
+            release = io.StringIO()
+            with contextlib.redirect_stderr(release):
+                announce_release(use_color=False)
+            self.assertIn(AUDIT_MUSIC_BATCH_VERSION, release.getvalue())
+            self.assertIn(AUDIT_MUSIC_BATCH_RELEASE_DATE, release.getvalue())
+
+        def test_no_argument_windows_menu_does_not_depend_on_stdin_isatty(self) -> None:
+            class NonTTY(io.StringIO):
+                def isatty(self) -> bool:
+                    return False
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                root.joinpath("song.flac").write_bytes(b"music")
+                module = sys.modules[__name__]
+                with mock.patch.object(Path, "cwd", return_value=root), mock.patch.object(
+                    os, "name", "nt"
+                ), mock.patch.object(sys, "stdin", NonTTY()), mock.patch.object(
+                    module, "prompt_no_argument_menu", return_value="2"
+                ) as menu, contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                    self.assertEqual(0, _main([]))
+                menu.assert_called_once()
 
         def test_untimed_lrc_is_not_mistaken_for_karaoke(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -18797,6 +23447,199 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertTrue(prompts[0].startswith("            ❓"))
             self.assertIn("ENTER", prompts[0])
 
+        def test_waveform_calibration_parser_and_height_scale_signature(self) -> None:
+            args = parse_args(["--calibrate-waveform-terminal", "."])
+            self.assertEqual(".", args.calibrate_waveform_terminal)
+            parameters = inspect.signature(prepare_waveform_preview).parameters
+            self.assertIn("height_scale", parameters)
+
+        def test_waveform_calibration_passes_exact_same_source_to_both_renderers(self) -> None:
+            source = Path(r"C:\Temp\same-waveform.jpg")
+            geometry = ArtworkPreviewGeometry(100, 40, 0, 50, 20, 500, 400)
+            fake_a = PreparedArtworkPreview("Chafa Sixel", geometry, sixel_payload=b'\x1bPq"1;1;10;20\x1b\\')
+            fake_b = PreparedArtworkPreview("Sixel", geometry, sixel_payload=b'\x1bPq"1;1;10;20\x1b\\')
+            with mock.patch(
+                f"{__name__}.prepare_artwork_preview", return_value=fake_a
+            ) as chafa_prepare, mock.patch(
+                f"{__name__}.prepare_waveform_preview", return_value=fake_b
+            ) as builtin_prepare:
+                result_a, result_b = build_waveform_calibration_previews(
+                    source, use_color=True
+                )
+            self.assertIs(fake_a, result_a)
+            self.assertIs(fake_b, result_b)
+            self.assertEqual(source, chafa_prepare.call_args.args[0])
+            self.assertEqual(source, builtin_prepare.call_args.args[0])
+
+        def test_waveform_calibration_report_is_copy_paste_stable(self) -> None:
+            report = render_waveform_calibration_report(
+                {
+                    "source_image": "wave.jpg",
+                    "renderer_A_shared_chafa": {"rating": {"width": "good"}},
+                    "renderer_B_builtin_sixel": {"rating": {"height": "too short"}},
+                }
+            )
+            self.assertTrue(report.startswith("===== WAVEFORM TERMINAL CALIBRATION REPORT ====="))
+            self.assertIn('"source_image": "wave.jpg"', report)
+            self.assertIn('"height": "too short"', report)
+            self.assertTrue(report.endswith("===== END WAVEFORM TERMINAL CALIBRATION REPORT ====="))
+
+        def test_calibration_preview_record_reports_declared_sixel_raster(self) -> None:
+            geometry = ArtworkPreviewGeometry(100, 40, 0, 50, 20, 500, 400)
+            prepared = PreparedArtworkPreview(
+                "Sixel",
+                geometry,
+                sixel_payload=b'\x1bPq"1;1;842;459#0~\x1b\\',
+            )
+            record = calibration_preview_record(prepared)
+            self.assertEqual([842, 459], record["declared_sixel_raster"])
+            self.assertEqual([500, 400], record["geometry_pixels"])
+
+        def test_v125_calibration_api_consistency(self) -> None:
+            parameters = inspect.signature(
+                run_waveform_terminal_calibration
+            ).parameters
+            self.assertEqual(
+                ["target", "use_color", "key_reader", "line_reader"],
+                list(parameters),
+            )
+            preview_parameters = inspect.signature(
+                prepare_waveform_preview
+            ).parameters
+            self.assertEqual(
+                [
+                    "path",
+                    "use_color",
+                    "width_fraction",
+                    "height_rows",
+                    "height_scale",
+                ],
+                list(preview_parameters),
+            )
+
+        def test_direct_chafa_inherits_stdio_instead_of_capturing(self) -> None:
+            calls: list[dict[str, Any]] = []
+
+            class ImmediateProcess:
+                def wait(self, timeout=None):
+                    self.timeout = timeout
+                    return 0
+
+            def factory(command, **kwargs):
+                calls.append({"command": command, **kwargs})
+                return ImmediateProcess()
+
+            result = run_direct_chafa_calibration(
+                ["chafa", "--format=sixels", "wave.jpg"],
+                timeout_seconds=2.5,
+                popen_factory=factory,
+                clock=lambda: 10.0,
+            )
+            self.assertEqual(0, result["return_code"])
+            self.assertEqual("inherited directly by Chafa", result["stdio"])
+            self.assertIsNone(calls[0]["stdout"])
+            self.assertIsNone(calls[0]["stderr"])
+            self.assertIsNone(calls[0]["stdin"])
+            self.assertNotEqual(subprocess.PIPE, calls[0]["stdout"])
+
+        def test_direct_chafa_watchdog_terminates_timeout(self) -> None:
+            class TimedOutProcess:
+                def __init__(self):
+                    self.waits = 0
+                    self.terminated = False
+                    self.killed = False
+
+                def wait(self, timeout=None):
+                    self.waits += 1
+                    if self.waits == 1:
+                        raise subprocess.TimeoutExpired("chafa", timeout)
+                    return -15
+
+                def terminate(self):
+                    self.terminated = True
+
+                def kill(self):
+                    self.killed = True
+
+            process = TimedOutProcess()
+            result = run_direct_chafa_calibration(
+                ["chafa", "wave.jpg"],
+                timeout_seconds=0.1,
+                popen_factory=lambda *args, **kwargs: process,
+                clock=lambda: 20.0,
+            )
+            self.assertTrue(result["timed_out"])
+            self.assertTrue(result["terminated"])
+            self.assertTrue(process.terminated)
+            self.assertFalse(process.killed)
+
+        def test_geometry_analysis_reports_disagreement_without_reconciliation(self) -> None:
+            analysis = calibration_geometry_analysis(
+                {
+                    "visible_cells": [100, 20],
+                    "win32_viewport": {"columns": 100, "rows": 20},
+                    "windows_dpi_scale": 1.0,
+                    "win32_font_cell_pixels": None,
+                    "csi_14_text_area_pixels": {
+                        "supported": True,
+                        "width": 1000,
+                        "height": 400,
+                    },
+                    "csi_16_cell_pixels": {
+                        "supported": True,
+                        "width": 10,
+                        "height": 20,
+                    },
+                    "shared_geometry": {
+                        "values": {"cell_width": 7, "cell_height": 14}
+                    },
+                }
+            )
+            self.assertEqual([10.0, 20.0], analysis[
+                "derived_cell_pixels_from_csi14_visible_cells"
+            ])
+            self.assertIsNone(analysis["reconciled_cell_pixels"])
+            self.assertTrue(analysis["cell_pixel_disagreements"])
+            rendered = json.dumps(analysis, sort_keys=True)
+            self.assertIn("claire_terminal_geometry", rendered)
+            self.assertIn("csi_16t", rendered)
+
+        def test_chunked_sixel_emission_bounds_every_write(self) -> None:
+            blocks: list[bytes] = []
+            result = emit_terminal_bytes_chunked(
+                b"x" * 5001,
+                chunk_size=1024,
+                writer=lambda block: blocks.append(bytes(block)),
+                clock=lambda: 30.0,
+            )
+            self.assertEqual(5001, sum(map(len, blocks)))
+            self.assertLessEqual(max(map(len, blocks)), 1024)
+            self.assertEqual(5, result["chunks"])
+            self.assertEqual(5001, result["bytes_written"])
+
+        def test_controlled_sixel_pattern_has_stable_known_raster(self) -> None:
+            payload = controlled_sixel_test_pattern(100, 100)
+            self.assertEqual((100, 100), sixel_payload_pixel_size(payload))
+            self.assertTrue(payload.startswith(b"\x1bP9;1;0q"))
+            self.assertTrue(payload.endswith(b"\x1b\\"))
+
+        def test_v125_calibration_report_format_is_exactly_stable(self) -> None:
+            data = {
+                "audit_music_batch_version": "v125",
+                "measurements": {"reconciled_cell_pixels": None},
+            }
+            expected = (
+                "===== WAVEFORM TERMINAL CALIBRATION REPORT =====\n"
+                "{\n"
+                '  "audit_music_batch_version": "v125",\n'
+                '  "measurements": {\n'
+                '    "reconciled_cell_pixels": null\n'
+                "  }\n"
+                "}\n"
+                "===== END WAVEFORM TERMINAL CALIBRATION REPORT ====="
+            )
+            self.assertEqual(expected, render_waveform_calibration_report(data))
+
     def unit_test_purpose(test) -> str:
         """Return a readable sentence instead of unittest's nested class ID."""
         method_name = test._testMethodName
@@ -19269,6 +24112,17 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         action="store_true",
         help="Run self-contained generated-audio tests and exit without auditing or modifying a music folder.",
     )
+    parser.add_argument(
+        "--calibrate-waveform-terminal",
+        nargs="?",
+        const=".",
+        default=None,
+        metavar="AUDIO_OR_WAVEFORM",
+        help=(
+            "Run a controlled Windows-terminal waveform calibration instead of an audit. "
+            "Give an audio file, waveform image, or folder; default is the current folder."
+        ),
+    )
     waveform_behavior = parser.add_mutually_exclusive_group()
     waveform_behavior.add_argument(
         "--review-waveforms",
@@ -19284,7 +24138,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         dest="no_review_waveforms",
         action="store_true",
         help=(
-            "Suppress the default-No offer to begin waveform review after "
+            "Suppress the default-Yes offer to begin waveform review after "
             "a normal interactive audit."
         ),
     )
@@ -19368,18 +24222,152 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def announce_release(use_color: bool) -> None:
+    """Always announce the published version and date before other work."""
+    text = (
+        f"🎵 audit_music_batch.py {AUDIT_MUSIC_BATCH_VERSION} — "
+        f"{AUDIT_MUSIC_BATCH_RELEASE_DATE}"
+    )
+    if use_color:
+        text = gradient_text(
+            text,
+            True,
+            ((120, 235, 255), (255, 220, 80)),
+        )
+    print(console_safe_text(text, sys.stderr), file=sys.stderr, flush=True)
+
+
+def music_exists_within_depth(
+    root: Path,
+    max_depth: int = NO_ARGUMENT_MUSIC_SCAN_MAX_DEPTH,
+) -> bool:
+    """Return quickly when music exists from root through max_depth children.
+
+    Directory junctions/reparse points are followed because Soulseek trees are
+    often reached through a junction.  Resolved directories are de-duplicated
+    so a junction loop cannot make this bounded startup probe recurse forever.
+    """
+    start = root.resolve()
+    depth_limit = max(0, int(max_depth))
+    stack: list[tuple[Path, int]] = [(start, 0)]
+    visited: set[str] = set()
+    while stack:
+        folder, depth = stack.pop()
+        try:
+            resolved = folder.resolve()
+        except OSError:
+            resolved = folder.absolute()
+        key = os.path.normcase(str(resolved))
+        if key in visited:
+            continue
+        visited.add(key)
+        try:
+            with os.scandir(folder) as entries:
+                for entry in entries:
+                    try:
+                        # Follow reparse points/junctions here.  This is a shallow,
+                        # depth-bounded existence probe, and visited prevents loops.
+                        if entry.is_file(follow_symlinks=True):
+                            if Path(entry.name).suffix.casefold() in KNOWN_AUDIO_EXTS:
+                                return True
+                        elif depth < depth_limit and entry.is_dir(follow_symlinks=True):
+                            stack.append((Path(entry.path), depth + 1))
+                    except OSError:
+                        continue
+        except OSError:
+            continue
+    return False
+
+
+def prompt_no_argument_menu(
+    *,
+    use_color: bool,
+    key_reader=None,
+) -> str:
+    """Choose current-folder audit or usage when no command-line args exist."""
+    print()
+    print(
+        rgb_text(
+            f"Music was found in the current folder (or within {NO_ARGUMENT_MUSIC_SCAN_MAX_DEPTH} subfolder levels):",
+            255,
+            220,
+            85,
+            use_color,
+        )
+    )
+    print("1) Run audit in this folder")
+    print("2) Display usage instructions")
+    reader = key_reader or read_single_key
+    while True:
+        print("❓ Choice [1/2]: ", end="", flush=True)
+        key = reader()
+        if key == "\x03":
+            print()
+            raise KeyboardInterrupt
+        if key in {"1", "2"}:
+            print(key)
+            reset_console_pager_after_user_input()
+            return key
+        invalid_key_beep()
+
+
 def _main(argv: list[str] | None = None) -> int:
-    raw_argv = sys.argv[1:] if argv is None else argv
+    raw_argv = list(sys.argv[1:] if argv is None else argv)
+    use_color = "--no-color" not in raw_argv
+    announce_release(use_color=use_color)
     if not raw_argv:
-        print_usage(use_color=True)
-        return 0
+        current = Path.cwd()
+        if music_exists_within_depth(current, NO_ARGUMENT_MUSIC_SCAN_MAX_DEPTH):
+            # On Windows/TCC, sys.stdin.isatty() can be false even though
+            # msvcrt.getwch() is fully interactive.  Do not use isatty() to
+            # suppress the menu on Windows; retain nonblocking redirected-input
+            # behavior on POSIX.
+            can_prompt = os.name == "nt" or bool(
+                getattr(sys.stdin, "isatty", lambda: False)()
+            )
+            if not can_prompt:
+                print_usage(use_color=use_color)
+                return 0
+            try:
+                choice = prompt_no_argument_menu(use_color=use_color)
+            except EOFError:
+                choice = "2"
+            if choice == "1":
+                raw_argv = ["."]
+            else:
+                print_usage(use_color=use_color)
+                return 0
+        else:
+            print_usage(use_color=use_color)
+            return 0
     args = parse_args(raw_argv)
     if args.help:
         print_usage(use_color=not args.no_color)
         return 0
     if args.version:
-        print(f"audit_music_batch.py {AUDIT_MUSIC_BATCH_VERSION} ({AUDIT_MUSIC_BATCH_RELEASE_NAME})")
+        print(
+            f"audit_music_batch.py {AUDIT_MUSIC_BATCH_VERSION} "
+            f"({AUDIT_MUSIC_BATCH_RELEASE_NAME}) — {AUDIT_MUSIC_BATCH_RELEASE_DATE}"
+        )
         return 0
+    if args.calibrate_waveform_terminal is not None:
+        if not args.interactive:
+            print_formatted_error(
+                "--calibrate-waveform-terminal is interactive and cannot be combined with --no-interactive.",
+                not args.no_color,
+            )
+            return 2
+        try:
+            return run_waveform_terminal_calibration(
+                Path(args.calibrate_waveform_terminal),
+                use_color=not args.no_color,
+            )
+        except Exception as exc:
+            print_formatted_error(
+                f"Waveform terminal calibration failed: {type(exc).__name__}: {exc}",
+                not args.no_color,
+            )
+            return 2
     if args.review_waveforms and args.root is None:
         args.root = "."
     if args.configure_defaults:

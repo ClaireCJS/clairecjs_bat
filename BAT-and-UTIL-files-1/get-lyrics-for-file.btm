@@ -2856,11 +2856,11 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
                                         iff exist  "%TXT_SIDECAR_FILENAME_TEMP%" .and. exist  "%TXT_SIDECAR_FILENAME%" then 
                                                 rem Display the files:
-                                                        call debug "block 2647 start"
+                                                        rem call debug "block 2647 start"
                                                         call review-file -wh -stL "%TXT_SIDECAR_FILENAME%"  
                                                         set TXT_FILE_REVIEWED=1
                                                         call review-file -wh -stU "%TXT_SIDECAR_FILENAME_TEMP%" 
-                                                        call debug "block 2647 end"
+                                                        rem call debug "block 2647 end"
                                                         set TEXT_SHOWN=1
                                                 rem Ask if we want to replace:
                                                         :reask_sl_3
@@ -4895,12 +4895,15 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         rem Confirm:
                                 set hold_hand_answer=%answer%
                                 rem call askyn "We already hand-edited this, are you sure you want to again" no 300
-                                echo %ansi_color_unimportant%%star3% We already hand-edited this, so we’re not doing it again%ansi_color_normal%
+                                echo %ansi_color_unimportant%%star3% We already hand-edited this, so we’re not doing it again...%ansi_color_normal%
                                 set already_answer=%answer%
                                 set        answer=%hold_hand_answer%
                         rem Exit if that’s what we want:
                                 rem call debug "if “N” == “%already_answer%” return"
                                 if "N" == "%already_answer%" return
+                        rem 2026/08/12 Let’s just return anyway:
+                                call debug "GOAT: 2026/08/12 Let’s just return anyway:"
+                                return
                 endiff
                 set do_next_block=0                                                                                                                                                                                                                     %+ rem echo %ansi_color_orange%� mid1:   edit_lyrics_now_if_we_answered_H [subarg=%subarg% force=%force%] ALREADY_HAND_EDITED=“%ALREADY_HAND_EDITED%”, answer=“%answer%”, do_next_block=“%do_next_block%”, subarg=“%subarg%”, force=“%force%”%ansi_color_normal%
                 if "H" == "%ANSWER%" .or. "%force%" == "force" .or. ("%ANSWER%" == "%subarg%" .and. "" !=  "%subarg") set do_next_block=1                                                                                                               %+ rem echo %ansi_color_orange% mid2:   edit_lyrics_now_if_we_answered_H [subarg=%subarg% force=%force%] ALREADY_HAND_EDITED=“%ALREADY_HAND_EDITED%”, answer=“%answer%”, do_next_block=“%do_next_block%”%ansi_color_normal%

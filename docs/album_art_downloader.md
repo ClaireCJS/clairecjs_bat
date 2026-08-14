@@ -213,6 +213,7 @@ The review controls are `--chafa-command`, `--chafa-size`, `--chafa-format`, and
 | `--log PATH` | Choose the timestamped text log path. |
 | `--manifest PATH` | Append machine-readable JSON Lines results. |
 | `--append-log` | Append instead of replacing the text log. |
+| `--ansi-logging yes|no` | Colorize console logs with ANSI escapes; defaults to `yes`. Log files remain plain text. |
 | `--dry-run` | Search and plan without downloading files. |
 | `--fail-fast` | Stop at the first folder error. |
 | `--quiet` | Suppress console output while retaining the log. |
@@ -231,10 +232,10 @@ The checkpoint is compared case-insensitively against root-relative folder paths
 
 ## Tests
 
-Run the test suite from the project folder:
+Run the internal test suite from the project folder:
 
 ```powershell
-python -m unittest discover -s tests -p "test_album_art_downloader.py" -v
+python album_art_downloader.py --unit-tests
 ```
 
 The tests use temporary folders and mocked network responses. They do not alter the real music trees.

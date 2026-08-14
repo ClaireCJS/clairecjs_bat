@@ -23,7 +23,8 @@ rem USAGE:
 rem ENVIRONMENT VALIDATE (once):
         on break cancel
         iff "1" != "%validated_echoimage" then
-                call validate-in-path chafa %echoimage_chafa% "we need a chafa-1.18.2.exe specifically for future stability"
+                rem we need a chafa-1.18.2.exe specifically for future stability
+                call validate-in-path chafa %echoimage_chafa% 
                 set  validated_echoimage=1
         endiff
 

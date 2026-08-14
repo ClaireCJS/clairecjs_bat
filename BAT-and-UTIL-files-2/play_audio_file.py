@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# CHAT ARTIFACT BUILD: 2026-08-11-V112-BASELINE-LEDGER-PRESERVATION-V120
+# CHAT ARTIFACT BUILD: 2026-08-12-CONFIGURATOR-RESPONSIVE-CONSOLE-FOCUS-Q-TRIPLE-V173
 """Interactively preview an audio file from a Windows console.
 
 This program uses FFplay and accepts any audio format FFmpeg can decode,
@@ -8,10 +8,10 @@ including WAV, FLAC, and MP3.
 Playback controls
 -----------------
 X, Ctrl+W, Alt+F4, Ctrl+C, or Ctrl+Break
-    Stop playback immediately. Esc is ignored during normal playback.
-J / Q
-    Search tracks already in the active playlist; Enter queues selections and
-    Shift+Enter jumps when exactly one result is highlighted.
+    Stop playback immediately. Ctrl+Q/Alt+Q/Ctrl+Alt+Q also quit.
+Q
+    Open the same playlist search as INS; three consecutive Q presses quit.
+    Esc is ignored during normal playback.
 Left / Right
     Seek backward or forward five seconds.
 Shift+Left / Shift+Right
@@ -179,7 +179,6 @@ _CLAIRE_HELPERS = (
     "claire_terminal_geometry",
     "claire_lastfm",
     "claire_console",
-    "ClaireAudioProcessing",
 )
 
 
@@ -294,21 +293,12 @@ except ImportError:  # pragma: no cover
         return _DummyProgressBar()
 
 
-# Shared, UI-neutral destructive audio processing.  Startup bootstrap makes a
-# best-effort recovery, but a failed download never prevents ordinary playback:
-# Ctrl+Alt+B retries the same atomic helper recovery only when baking is asked
-# for.  audit_music_batch imports the packaged helper directly.
-def bake_replaygain_into_audio(*args, **kwargs):
-    helper = _import_claire_helper("ClaireAudioProcessing")
-    return helper.bake_replaygain_into_audio(*args, **kwargs)
-
-
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID                 = "2026-08-11-v112-baseline-ledger-preservation-v120"
+PLAYER_BUILD_ID                 = "2026-08-14-sandbox-sync-and-history-regex-v199"
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION                 = "V120"
+PROGRAM_VERSION                 = "V199"
 WRITE_NOWPLAYING_THIS_OFTEN     = 5.0
 PREVENT_WINAMP_PAUSE_WHEN_WE_ARE_PAUSED = 0
 LYRIC_FADE_SECONDS              = 6.0
@@ -345,7 +335,8 @@ REPLAYGAIN_DEFAULT_MODE         = "track"  # "track" prefers REPLAYGAIN_TRACK_GA
 WEB_SERVER_ENABLED              = True   # Integrated local status/control page is on by default.
 WEB_SERVER_HOST                 = "127.0.0.1"  # Loopback-only unless explicitly overridden.
 WEB_SERVER_PORT                 = 666    # Historical/requested PAFPlayer local control port.
-WEB_STATUS_POLL_MILLISECONDS    = 350    # Browser status refresh cadence; intentionally low-rate vs terminal visualizer.
+WEB_STATUS_POLL_MILLISECONDS    = 350    # Browser metadata/control refresh cadence. Spectrum has its own reduced 20-fps payload.
+WEB_SPECTRUM_POLL_MILLISECONDS  = 50     # Dedicated /api/spectrum cadence: 20 fps, small payload, independent of full status JSON.
 THEORY_MAX                      = 49    # Highest accepted --theory diagnostic mode.
 TERMINAL_BOTTOM_RESERVE_TRIM_ROWS = 2  # Do not reserve the two trailing terminal rows that are not painted by the live UI.
 PROGRESS_EMPTY_BACKGROUND_BRIGHTNESS_BOOST = 1.08
@@ -404,11 +395,11 @@ SIXEL_VISUALIZER_TOGGLE         = "sixel-visualizer-toggle"
 DRCS_VISUALIZER_TOGGLE          = "drcs-visualizer-toggle"
 KARAOKE_VISUALIZER_OVERLAY_TOGGLE = "karaoke-visualizer-overlay-toggle"
 ALBUM_ART_VISUALIZER_TOGGLE     = "album-art-visualizer-toggle"
+LAYERED_ART_VISUALIZER_TOGGLE   = "layered-art-visualizer-toggle"
 EXTERNAL_ALBUM_ART_TOGGLE       = "external-album-art-toggle"
 KARAOKE_VISUALIZER_EXPAND_TOGGLE = "karaoke-visualizer-expand-toggle"
 KARAOKE_VISUALIZER_HEIGHT_CYCLE = "karaoke-visualizer-height-cycle"
 FREQUENCY_WARP_TOGGLE            = "frequency-warp-toggle"
-REPLAYGAIN_BAKE                  = "replaygain-bake"
 RANDOM_TOGGLE                   = "random-toggle"
 VISUALIZER_MODE_FIRST           = "visualizer-mode-first"
 VISUALIZER_MODE_PREVIOUS        = "visualizer-mode-previous"
@@ -462,6 +453,8 @@ ALL_AUDIO_TAGS_OVERLAY          = "all-audio-tags-overlay"
 ALL_AUDIO_TAGS_FIRST_PAGE       = "all-audio-tags-first-page"
 ALL_AUDIO_TAGS_LAST_PAGE        = "all-audio-tags-last-page"
 HUD_DETAILS_TOGGLE              = "hud-details-toggle"
+HUD_SMART_ALIGNMENT_TOGGLE        = "hud-smart-alignment-toggle"
+INLINE_LAST_PLAY_ALIGNMENT_TOGGLE = HUD_SMART_ALIGNMENT_TOGGLE  # Backward-compatible internal alias retained for V168 callers/tests.
 OPEN_NEW_PLAYLIST               = "open-new-playlist"
 OPEN_NEW_PLAYLIST_RESULT        = "open-new-playlist-result"
 QUIT_Q                          = "quit-q"
@@ -472,11 +465,11 @@ WEB_PAUSE                       = "web-pause"
 WEB_SEEK_RATIO_PREFIX           = "web-seek-ratio:"
 WEB_SET_PREFIX                  = "web-set:"
 PLAYLIST_ADD_SEARCH             = "playlist-add-search"
+PLAYLIST_ADD_SEARCH_Q           = "playlist-add-search-q"  # Bare Q opens the same INS search; two more consecutive Qs inside that picker quit.
 PLAYLIST_ADD_PICKER             = "playlist-add-picker"
 PLAYLIST_VIEW_PREVIOUS          = "playlist-view-previous"
 PLAYLIST_VIEW_NEXT              = "playlist-view-next"
 PLAYLIST_JUMP_RESULT            = "playlist-jump"
-PLAYLIST_QUEUE_SEARCH           = "playlist-queue-search"
 PERSISTENCE_PREVIOUS            = "persistence-previous"
 PERSISTENCE_NEXT                = "persistence-next"
 PERSISTENCE_FAVORITE_TOGGLE     = "persistence-favorite-toggle"
@@ -523,7 +516,7 @@ SPECTRUM_BACKGROUND_START_DELAY_SECONDS = 0.35 # Enough time for FFplay to own a
 DEFAULT_VISUALIZER_FADE_SECONDS = 0.08
 DEFAULT_PERSISTENCE_MODE        = 8  # Phosphor Glow is closest to the pre-V25 smooth persistence behavior.
 DEFAULT_VISUALIZER_GRANULARITY  = 3  # 1=one bin/cell, 2=two Unicode half-cell bins/cell, 3=two-bin custom DRCS twin-bar glyphs (default).
-DEFAULT_FREQUENCY_WARP_ENABLED   = 1  # Normal default-on frequency-axis mapping: left 55% unchanged, upper ~30% compressed into the final ~15%; Ctrl+Alt+F9 toggles it for comparison.
+DEFAULT_FREQUENCY_WARP_ENABLED   = 0  # Ctrl+Alt+F9 experimental frequency-axis curve: left 55% unchanged, upper ~30% compressed into the final ~15%.
 VISUALIZER_DISABLE_AUTOWRAP_DURING_PAINT = 1  # Full-width block rows can leave VT terminals in a wrap-pending state; disable DECAWM while painting and force every row back to absolute column 1.
 VISUALIZER_FORCE_ROW_COLUMN_ONE = 1  # Emit CSI 1G at every spectrum row boundary so no DRCS/half-cell/font-state transition can make a later row inherit a shifted horizontal cursor position.
 VISUALIZER_SYNCHRONIZED_OUTPUT  = 1  # Wrap every complete spectrum repaint in DEC synchronized-output (mode 2026) so Windows Terminal presents all visualizer rows as one frame instead of exposing top/bottom rows from different 120-Hz frames. Unsupported terminals simply ignore the private mode.
@@ -535,6 +528,8 @@ VISUALIZER_AGC_BOOST_SMOOTHING  = 0.30  # Gain rises gently so quiet passages do
 VISUALIZER_AGC_CUT_SMOOTHING    = 0.55  # Gain falls faster when a louder passage arrives, preventing clipping at the top.
 MARQUEE_ANIMATION_IF_LONGER_THAN = 20
 ENABLE_GENRE_EMOJI               = True
+HUD_SMART_ALIGNMENT_ENABLED      = True  # Information density wins; when spare width remains, optimize metadata/Last-play colon alignment. Ctrl+Alt+Numpad1 toggles this for the current PAFPlayer session.
+ALIGN_INLINE_LAST_PLAY_TO_HUD_COLONS = HUD_SMART_ALIGNMENT_ENABLED  # Backward-compatible source flag name; V169 applies the same switch to the whole HUD optimizer.
 TITLE_MARQUEE_WIDTH              = 54
 ALBUM_ART_PREVIEW_COLUMNS        = 4
 ALBUM_ART_PREVIEW_ROWS           = 4
@@ -553,11 +548,91 @@ ENABLE_EXTERNAL_ALBUM_ART_WINDOW = True  # Separate movable/resizable GUI cover-
 EXTERNAL_ALBUM_ART_DEFAULT_SIZE  = 520
 EXTERNAL_ALBUM_ART_MIN_SIZE      = 160
 EXTERNAL_ALBUM_ART_GEOMETRY_VALUE = "ExternalAlbumArtGeometry"
+EXTERNAL_ALBUM_ART_TOPMOST_VALUE = "ExternalAlbumArtAlwaysOnTop"
 EXTERNAL_ALBUM_ART_MANUAL_SIZE_VALUE = "ExternalAlbumArtManualSize"
-EXTERNAL_ALBUM_ART_LYRICS_MODE_VALUE = "ExternalAlbumArtLyricsMode"
+EXTERNAL_ALBUM_ART_LYRICS_MODE_VALUE = "ExternalAlbumArtLyricsMode"  # Legacy V179-and-earlier 0=off/1=art/2=float key; read only for migration.
+EXTERNAL_ALBUM_ART_LYRICS_MODE_V180_VALUE = "ExternalAlbumArtLyricsModeV180"  # V180 three-way: 0=artwork, 1=floating, 2=both.
+EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_VALUE = "ExternalAlbumArtLyricFontScalePercent"
+EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODE_VALUE = "ExternalAlbumArtKaraokeColorMode"
+EXTERNAL_ALBUM_ART_KARAOKE_COLOR_FAVORITES_VALUE = "ExternalAlbumArtKaraokeColorFavorites"
+EXTERNAL_ALBUM_ART_KARAOKE_COLOR_DEFAULT_VALUE = "ExternalAlbumArtKaraokeColorDefaultMode"
+EXTERNAL_ALBUM_ART_KARAOKE_COLOR_PALETTES_VALUE = "ExternalAlbumArtKaraokeColorPalettes"
+EXTERNAL_ALBUM_ART_KARAOKE_COLOR_SPEEDS_VALUE = "ExternalAlbumArtKaraokeColorSpeeds"
+EXTERNAL_ALBUM_ART_KARAOKE_TIMED_EMPHASIS_VALUE = "ExternalAlbumArtKaraokeTimedEmphasis"  # V188 legacy migration only.
+EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS_VALUE = "ExternalAlbumArtKaraokePatternTreatmentsV192"
+EXTERNAL_ALBUM_ART_KARAOKE_TIMINGS_VALUE = "ExternalAlbumArtKaraokeTimingsV192"
+EXTERNAL_ALBUM_ART_KARAOKE_BRIGHTNESSES_VALUE = "ExternalAlbumArtKaraokeBrightnessesV192"
+EXTERNAL_ALBUM_ART_KARAOKE_SATURATIONS_VALUE = "ExternalAlbumArtKaraokeSaturationsV192"
+EXTERNAL_ALBUM_ART_KARAOKE_SHADOW_SIZES_VALUE = "ExternalAlbumArtKaraokeShadowSizesV192"
 EXTERNAL_FLOATING_LYRICS_GEOMETRY_VALUE = "ExternalFloatingLyricsGeometry"
+EXTERNAL_FLOATING_LYRICS_LAYOUT_SIZE_VALUE = "ExternalFloatingLyricsLayoutSizeV197"
 EXTERNAL_FLOATING_LYRICS_TOPMOST_VALUE = "ExternalFloatingLyricsAlwaysOnTop"
-EXTERNAL_ALBUM_ART_LYRICS_MODES = ("off", "artwork", "floating")
+EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_MODE_VALUE = "ExternalFloatingLyricsKaraokeColorMode"
+EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_FAVORITES_VALUE = "ExternalFloatingLyricsKaraokeColorFavorites"
+EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_DEFAULT_VALUE = "ExternalFloatingLyricsKaraokeColorDefaultMode"
+EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_PALETTES_VALUE = "ExternalFloatingLyricsKaraokeColorPalettes"
+EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_SPEEDS_VALUE = "ExternalFloatingLyricsKaraokeColorSpeeds"
+EXTERNAL_FLOATING_LYRICS_KARAOKE_TIMED_EMPHASIS_VALUE = "ExternalFloatingLyricsKaraokeTimedEmphasis"  # V188 legacy migration only.
+EXTERNAL_FLOATING_LYRICS_KARAOKE_PATTERN_TREATMENTS_VALUE = "ExternalFloatingLyricsKaraokePatternTreatmentsV192"
+EXTERNAL_FLOATING_LYRICS_KARAOKE_TIMINGS_VALUE = "ExternalFloatingLyricsKaraokeTimingsV192"
+EXTERNAL_FLOATING_LYRICS_KARAOKE_BRIGHTNESSES_VALUE = "ExternalFloatingLyricsKaraokeBrightnessesV192"
+EXTERNAL_FLOATING_LYRICS_KARAOKE_SATURATIONS_VALUE = "ExternalFloatingLyricsKaraokeSaturationsV192"
+EXTERNAL_FLOATING_LYRICS_KARAOKE_SHADOW_SIZES_VALUE = "ExternalFloatingLyricsKaraokeShadowSizesV192"
+EXTERNAL_ALBUM_ART_LYRICS_MODES = ("artwork", "floating", "both")
+EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES = (
+    "pattern", "rainbow-glyphs", "solid",
+)
+EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS = (
+    "Pattern fill", "Per-letter color", "Solid color",
+)
+EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS = (
+    "plasma",
+    "horizontal-wave", "vertical-wave", "diagonal-wave", "radial-ripple",
+    "vortex", "checker-pulse", "neon-stripes", "lava-lamp",
+    "aurora-curtain", "electric-zigzag", "sparkle-field", "kaleidoscope",
+)
+EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_LABELS = (
+    "Plasma",
+    "Horizontal wave", "Vertical wave", "Diagonal wave", "Radial ripple",
+    "Vortex", "Checker pulse", "Neon stripes", "Lava lamp",
+    "Aurora curtain", "Electric zigzag", "Sparkle field", "Kaleidoscope",
+)
+EXTERNAL_ALBUM_ART_KARAOKE_TIMING_TYPES = (
+    "none", "inverse", "underline", "italic", "cursive", "brighten",
+    "dim-unsung", "desaturate-unsung", "glow", "outline", "shadow-bloom",
+    "color-wash", "white-hot", "blackout-trail", "pulse", "sparkle",
+    "scanline", "gradient-veil", "complement-trail", "karaoke-gold",
+)
+EXTERNAL_ALBUM_ART_KARAOKE_TIMING_LABELS = (
+    "None", "Inverse", "Underline sweep", "Italicize sung", "Cursive after sung",
+    "Brighten sung", "Dim unsung", "Desaturate unsung", "Glow frontier",
+    "Outline sung", "Shadow bloom", "Color wash", "White-hot sweep",
+    "Blackout trail", "Pulse frontier", "Sparkle trail", "Scanline sweep",
+    "Gradient veil", "Complement trail", "Karaoke gold",
+)
+EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM = "Sphinx of black quartz, judge my vow."
+KARAOKE_COLOR_CONFIG_PREVIEW_TICK_MS = 50  # Hero/marquee cadence: always 20 fps while the configurator is visible.
+KARAOKE_COLOR_CONFIG_ROW_BASE_TICK_MS = 80  # V188: visible row samples target ~12.5 fps; palette widgets no longer repaint every sample frame.
+KARAOKE_COLOR_CONFIG_ROW_MAX_TICK_MS = 320  # V188: keep row samples visibly animated; hero remains independently fixed at 20 fps.
+KARAOKE_COLOR_CONFIG_ROW_BATCH = 2  # Legacy V178 tuning constant; V184 refreshes every visible row together and adapts cadence instead.
+KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT = 48  # V185: one-line centered samples; the hero remains the large showcase.
+KARAOKE_COLOR_CONFIG_HERO_MIN_HEIGHT = 150  # V186: compact marquee; row browser gets more vertical room.
+KARAOKE_COLOR_SPEED_MIN = 0.10
+KARAOKE_COLOR_SPEED_MAX = 6.0
+KARAOKE_COLOR_SPEED_STEP = 0.05
+KARAOKE_BRIGHTNESS_MIN = 0.25
+KARAOKE_BRIGHTNESS_MAX = 2.00
+KARAOKE_SATURATION_MIN = 0.00
+KARAOKE_SATURATION_MAX = 2.00
+KARAOKE_SHADOW_SIZE_MIN = 0.00
+KARAOKE_SHADOW_SIZE_MAX = 0.18  # Fraction of lyric height, therefore DPI/resolution independent.
+KARAOKE_SHADOW_SIZE_DEFAULT = 0.045
+KARAOKE_TIMED_EMPHASIS_BAND_FRACTION = 0.10
+EXTERNAL_ALBUM_ART_MANUAL_IDLE_INPUT_GRACE_SECONDS = 3.0  # Ctrl+Alt+I manual idle preview ignores input during this grace so the initiating mouse/keyboard can be put down.
+EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MIN = 0.50
+EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MAX = 2.50
+EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_STEP = 0.10
+EXTERNAL_ALBUM_ART_TRANSPARENT_KEY = "#010203"  # Windows chroma key used only for non-image gutters/border pixels.
 EXTERNAL_ALBUM_ART_BASE_DPI = 96
 EXTERNAL_ALBUM_ART_BASE_BORDER_PIXELS = 5
 EXTERNAL_ALBUM_ART_MONITOR_RECHECK_SECONDS = 2.0
@@ -714,7 +789,34 @@ PALETTE_STOPS = (
 
 KARAOKE_LEGACY_STYLES = (11, 12, 13, 16, 17, 21, 22, 24, 26, 36, 37, 39, 41, 42, 46)
 
-PROGRESS_STYLE_NAMES = tuple(f"Progress {number:02d}" for number in range(1, 26))
+# V167 retains V166's ASCII-safe progress-bar glyph table.  The full source  The
+# recovery below also restores every inherited mojibaked Unicode literal; this
+# table remains escaped so its one-cell glyphs cannot regress.  Earlier builds
+# contained mojibaked UTF-8 text such as multi-character stand-ins for █.
+# Because render_status() multiplied those strings
+# by a cell count, a nominal 1-column bar cell became several terminal cells
+# and the status row overflowed/wrapped into the visualizer.  \u escapes are
+# deliberately used here so this table survives source-file encoding round trips.
+PROGRESS_GLYPH_PAIRS = (
+    ("\u2588", "\u2591"), ("\u2593", "\u00b7"), ("\u25a0", "\u25a1"),
+    ("\u2501", "\u2500"), ("\u25b0", "\u25b1"), ("\u25cf", "\u25cb"),
+    ("\u25c6", "\u25c7"), ("\u25ae", "\u25af"), ("\u2589", "\u258f"),
+    ("#", "."), ("=", "-"), ("\u2587", "\u2581"), ("\u2586", "\u2582"),
+    ("\u25a3", "\u25a2"), ("\u2588", " "), (">", " "), ("*", "."),
+    ("+", "."), ("X", "x"), ("|", "."), ("\u25a0", "\u00b7"),
+    ("\u25b0", "\u25b1"), ("\u25b8", "\u25b9"), ("\u25cf", "\u00b7"),
+    ("\u25c6", "\u00b7"),
+)
+PROGRESS_PARTIAL_BLOCKS = (
+    "", "\u258f", "\u258e", "\u258d", "\u258c", "\u258b", "\u258a", "\u2589"
+)
+PROGRESS_TEXTURED_EMPTY_GLYPHS = frozenset({
+    "\u2591", "\u2592", "\u25b1", "\u25af", "\u25a1",
+    "\u25cb", "\u25c7", "\u25a2", "\u25b9",
+})
+PROGRESS_STYLE_NAMES = tuple(
+    f"Progress {number:02d}" for number in range(1, len(PROGRESS_GLYPH_PAIRS) + 1)
+)
 FADE_STYLE_NAMES = ("Energy dim", "ROYGBIV decay", "Hard cutoff", "Pulse decay")
 VISUALIZER_GRANULARITY_NAMES = ("1× Cells", "2× Half Cells", "2× Twin DRCS")
 
@@ -1853,6 +1955,7 @@ PLAYER_SETTING_DEFAULTS: dict[str, int] = {
     "DrcsEnabled": int(bool(ENABLE_DRCS_VISUALIZER)),
     "SixelEnabled": int(bool(ENABLE_SIXEL_VISUALIZER)),
     "HudDetails": 0,
+    "PlaybackPaused": 0,  # V174: restore the actual play/pause state from the previous clean exit.
 }
 
 
@@ -1886,6 +1989,7 @@ def load_player_settings() -> dict[str, int]:
     settings["Volume"] = min(400, max(0, settings["Volume"]))
     settings["SpeedIndex"] = min(len(PLAYBACK_SPEEDS) - 1, max(0, settings["SpeedIndex"]))
     settings["HudDetails"] = int(bool(settings.get("HudDetails", 0)))
+    settings["PlaybackPaused"] = int(bool(settings.get("PlaybackPaused", 0)))
     return settings
 
 
@@ -1943,6 +2047,7 @@ def effective_player_defaults() -> dict[str, int]:
     result["ColorReverse"] = int(bool(result.get("ColorReverse", 0)))
     result["FrequencyWarp"] = int(bool(result.get("FrequencyWarp", 0)))
     result["HudDetails"] = int(bool(result.get("HudDetails", 0)))
+    result["PlaybackPaused"] = int(bool(result.get("PlaybackPaused", 0)))
     return result
 
 
@@ -2375,13 +2480,11 @@ class AudioCatalogIndex:
         fallback: Path = AUDIO_CATALOG_FALLBACK,
         refresh_seconds: float = AUDIO_CATALOG_REFRESH_SECONDS,
         library_root: Path = AUDIO_CATALOG_LIBRARY_ROOT,
-        create_missing: bool = False,
     ) -> None:
         self.primary = Path(primary)
         self.fallback = Path(fallback)
         self.library_root = Path(library_root)
         self.refresh_seconds = max(2.0, float(refresh_seconds))
-        self.create_missing = bool(create_missing)
         self._lock = threading.RLock()
         self._entries: list[Path] = []
         self._search_records: tuple[tuple[Path, str, str, tuple[object, ...]], ...] = ()
@@ -2394,20 +2497,8 @@ class AudioCatalogIndex:
         self._query_scan_thread: threading.Thread | None = None
         self._query_scan_generation = 0
         self._query_scan_words: tuple[str, ...] = ()
-        self._build_thread: threading.Thread | None = None
 
     def start(self) -> None:
-        if (
-            self.create_missing
-            and not self.primary.is_file()
-            and (self._build_thread is None or not self._build_thread.is_alive())
-        ):
-            self._build_thread = threading.Thread(
-                target=self._create_missing_catalog_atomically,
-                name="audio-catalog-create",
-                daemon=True,
-            )
-            self._build_thread.start()
         if self._thread is not None and self._thread.is_alive():
             return
         self._thread = threading.Thread(target=self._worker, name="audio-catalog-refresh", daemon=True)
@@ -2415,54 +2506,6 @@ class AudioCatalogIndex:
 
     def close(self) -> None:
         self._stop.set()
-
-    def _create_missing_catalog_atomically(self) -> None:
-        """Build an explicitly requested missing catalog without exposing partial data."""
-        target = self.primary
-        if target.is_file() or not self.library_root.is_dir():
-            return
-        temporary: Path | None = None
-        try:
-            values = sorted(
-                (
-                    lexical_absolute_path(path)
-                    for path in self.library_root.rglob("*")
-                    if not self._stop.is_set()
-                    and path.is_file()
-                    and path.suffix.casefold() in AUDIO_EXTENSIONS
-                ),
-                key=natural_path_key,
-            )
-            if self._stop.is_set():
-                return
-            target.parent.mkdir(parents=True, exist_ok=True)
-            temporary = target.with_name(
-                f".{target.name}.{os.getpid()}.{threading.get_ident()}.tmp"
-            )
-            payload = "\n".join(str(path) for path in values) + ("\n" if values else "")
-            temporary.write_text(payload, encoding="utf-8", newline="\n")
-            os.replace(temporary, target)
-            self._signature = None
-            self.refresh_now()
-            append_pafplayer_trace(
-                "audio.catalog.created",
-                path=target,
-                library_root=self.library_root,
-                tracks=len(values),
-                success=True,
-            )
-        except Exception as exc:
-            append_pafplayer_exception(f"create audio catalog {target}", exc)
-            append_pafplayer_trace(
-                "audio.catalog.created",
-                path=target,
-                library_root=self.library_root,
-                success=False,
-            )
-        finally:
-            if temporary is not None:
-                with contextlib.suppress(OSError):
-                    temporary.unlink()
 
     def _choose_source(self) -> Path | None:
         return self.primary if self.primary.is_file() else (self.fallback if self.fallback.is_file() else None)
@@ -2904,6 +2947,8 @@ def interactive_audio_catalog_picker(
     pump_callback=None,
     display_rows: int | None = None,
     sleeper_fn=time.sleep,
+    initial_quit_q_presses: int = 0,
+    quit_callback=None,
 ) -> Path | None:
     """Keyboard-first INS picker whose input wait never stalls playback painting.
 
@@ -2918,6 +2963,7 @@ def interactive_audio_catalog_picker(
     query = ""
     selected = 0
     page_top = 0
+    consecutive_quit_q_presses = max(0, int(initial_quit_q_presses))
     while True:
         matches = catalog.search(query)
         if selected >= len(matches):
@@ -2956,6 +3002,15 @@ def interactive_audio_catalog_picker(
             sleeper_fn(0.01)
         key = msvcrt.getwch()
         shift = _windows_key_down(0x10)
+        ctrl = _windows_key_down(0x11)
+        alt = _windows_key_down(0x12)
+        if key == "\x11" or (key.isprintable() and key.casefold() == "q" and (ctrl or alt)):
+            if quit_callback is not None:
+                with contextlib.suppress(Exception):
+                    quit_callback()
+            return None
+        if not (key.isprintable() and key.casefold() == "q"):
+            consecutive_quit_q_presses = 0
         if key == "\x1b":
             return None
         if key in {"\r", "\n"}:
@@ -2986,6 +3041,20 @@ def interactive_audio_catalog_picker(
                     return picked[0]
             continue
         if key.isprintable():
+            if key.casefold() == "q" and consecutive_quit_q_presses:
+                consecutive_quit_q_presses, should_quit = catalog_picker_q_sequence_step(
+                    consecutive_quit_q_presses, key
+                )
+                if should_quit:
+                    if quit_callback is not None:
+                        with contextlib.suppress(Exception):
+                            quit_callback()
+                    return None
+                # The second Q remains real search text.  If the next key is not
+                # Q the sequence resets and the user simply searches for q...
+                query += key
+                selected = page_top = 0
+                continue
             query += key
             selected = page_top = 0
 
@@ -3270,192 +3339,6 @@ def interactive_playlist_browser(paths: list[Path], current_index: int, *, initi
                 selected = max(0, selected - rows)
             elif ext == "Q":
                 selected = min(len(paths) - 1, selected + rows)
-
-
-def playlist_queue_search_matches(
-    paths: Iterable[Path],
-    query: str,
-) -> list[tuple[int, Path]]:
-    """Return playlist line/path matches using INS-style words-any-order search."""
-    words = tuple(part.casefold() for part in str(query or "").split() if part.strip())
-    return [
-        (line_number, Path(path))
-        for line_number, path in enumerate(paths, 1)
-        if all(word in str(path).casefold() for word in words)
-    ]
-
-
-def interactive_playlist_queue_picker(
-    paths: list[Path],
-    current: Path,
-    *,
-    pump_callback=None,
-    sleeper_fn=time.sleep,
-) -> tuple[str, tuple[Path, ...]] | None:
-    """Open the J/Q searchable playlist queue manager with native multi-select."""
-    if os.name != "nt" or not paths:
-        return None
-    result_queue: queue.Queue[tuple[str, tuple[Path, ...]] | None] = queue.Queue(maxsize=1)
-    finished = threading.Event()
-    cancel_requested = threading.Event()
-
-    def gui() -> None:
-        try:
-            import tkinter as tk
-            root = tk.Tk()
-            root.title("PAFPlayer — Queue playlist tracks")
-            root.geometry(centered_primary_window_geometry(
-                980, 650, external_album_art_monitor_work_areas()
-            ))
-            root.minsize(620, 360)
-            query_var = tk.StringVar()
-            instruction_var = tk.StringVar(value="Enter queues selected tracks")
-            tk.Label(
-                root,
-                textvariable=instruction_var,
-                anchor="w",
-                font=("Segoe UI", 10, "bold"),
-                padx=8,
-                pady=6,
-            ).pack(fill="x")
-            entry = tk.Entry(root, textvariable=query_var, font=("Segoe UI", 11))
-            entry.pack(fill="x", padx=8, pady=(0, 6))
-            frame = tk.Frame(root)
-            frame.pack(fill="both", expand=True, padx=8, pady=(0, 8))
-            scrollbar = tk.Scrollbar(frame, orient="vertical")
-            listing = tk.Listbox(
-                frame,
-                selectmode=tk.EXTENDED,
-                exportselection=False,
-                activestyle="dotbox",
-                font=("Consolas", 10),
-                yscrollcommand=scrollbar.set,
-            )
-            scrollbar.configure(command=listing.yview)
-            scrollbar.pack(side="right", fill="y")
-            listing.pack(side="left", fill="both", expand=True)
-            matches: list[tuple[int, Path]] = []
-
-            def selected_rows() -> list[tuple[int, Path]]:
-                return [
-                    matches[index]
-                    for index in listing.curselection()
-                    if index < len(matches)
-                ]
-
-            def update_instruction(_event=None) -> None:
-                chosen = selected_rows()
-                if len(chosen) == 1:
-                    instruction_var.set(
-                        f"Shift+Enter to move to playlist line {chosen[0][0]:,}  •  "
-                        "Enter to queue this track"
-                    )
-                elif len(chosen) > 1:
-                    instruction_var.set(
-                        f"Enter to queue these {len(chosen):,} selected tracks"
-                    )
-                else:
-                    instruction_var.set(
-                        "Enter queues selected tracks  •  Ctrl-click/Shift-click select multiple"
-                    )
-
-            def rebuild(*_args) -> None:
-                nonlocal matches
-                matches = playlist_queue_search_matches(paths, query_var.get())
-                listing.delete(0, tk.END)
-                current_index = None
-                for display_index, (line_number, path) in enumerate(matches):
-                    marker = "▶" if same_audio_file_identity_strict(path, current) else " "
-                    listing.insert(tk.END, f"{marker} {line_number:>6,}  {path}")
-                    if marker == "▶":
-                        current_index = display_index
-                if current_index is not None:
-                    listing.selection_set(current_index)
-                    listing.activate(current_index)
-                    listing.see(current_index)
-                update_instruction()
-
-            def finish(value: tuple[str, tuple[Path, ...]] | None) -> None:
-                with contextlib.suppress(queue.Full):
-                    result_queue.put_nowait(value)
-                root.quit()
-
-            def queue_selected(_event=None):
-                chosen = tuple(path for _line, path in selected_rows())
-                if chosen:
-                    finish(("queue", chosen))
-                return "break"
-
-            def jump_selected(_event=None):
-                chosen = selected_rows()
-                if len(chosen) == 1:
-                    finish(("jump", (chosen[0][1],)))
-                return "break"
-
-            button_bar = tk.Frame(root, padx=8, pady=8)
-            button_bar.pack(fill="x")
-            tk.Button(
-                button_bar,
-                text="Queue selected",
-                command=queue_selected,
-                default=tk.ACTIVE,
-                padx=12,
-            ).pack(side="left", padx=(0, 8))
-            tk.Button(
-                button_bar,
-                text="Jump to one",
-                command=jump_selected,
-                padx=12,
-            ).pack(side="left", padx=(0, 8))
-            tk.Button(
-                button_bar,
-                text="Cancel",
-                command=lambda: finish(None),
-                padx=12,
-            ).pack(side="right")
-
-            query_var.trace_add("write", rebuild)
-            listing.bind("<<ListboxSelect>>", update_instruction)
-            listing.bind("<Return>", queue_selected)
-            listing.bind("<Shift-Return>", jump_selected)
-            entry.bind("<Return>", queue_selected)
-            entry.bind("<Shift-Return>", jump_selected)
-            root.bind("<Escape>", lambda _event: finish(None))
-            root.protocol("WM_DELETE_WINDOW", lambda: finish(None))
-
-            def poll_cancel() -> None:
-                if cancel_requested.is_set():
-                    finish(None)
-                    return
-                root.after(50, poll_cancel)
-
-            root.after(50, poll_cancel)
-            rebuild()
-            entry.focus_set()
-            root.mainloop()
-            with contextlib.suppress(Exception):
-                root.destroy()
-        except Exception as exc:
-            append_pafplayer_exception("J/Q playlist queue browser", exc)
-            with contextlib.suppress(queue.Full):
-                result_queue.put_nowait(None)
-        finally:
-            finished.set()
-
-    thread = threading.Thread(
-        target=gui,
-        name="paf-playlist-queue-picker",
-        daemon=False,
-    )
-    thread.start()
-    while not finished.wait(0.01):
-        if pump_callback is not None and pump_callback() is False:
-            cancel_requested.set()
-        sleeper_fn(0.005)
-    thread.join()
-    with contextlib.suppress(queue.Empty):
-        return result_queue.get_nowait()
-    return None
 
 
 def load_playlist(playlist_path: Path, *, show_progress: bool = True, progress_callback=None) -> list[Path]:
@@ -4089,19 +3972,6 @@ def playlist_history_mark_identity_played(
         )
         if owns_database:
             db.commit()
-            readback = db.execute(
-                "SELECT played_at FROM played_tracks_recent "
-                "WHERE filename=? AND duration_seconds=? AND tag=?",
-                (filename_key, int(duration_seconds), str(tag)),
-            ).fetchone()
-            if (
-                readback is None
-                or len(readback) != 1
-                or float(readback[0]) + 0.000001 < when
-            ):
-                raise RuntimeError(
-                    "Local play-history commit could not be verified by exact-row read-back"
-                )
     finally:
         if owns_database:
             db.close()
@@ -4163,6 +4033,45 @@ def format_last_heard_calendar(played_at: float, *, now_timestamp: float | None 
     if played.tm_year == current.tm_year:
         return f"{month} {day}"
     return f"{month} {day} ’{played.tm_year % 100:02d}"
+
+
+def query_playlist_history_regex(pattern: str) -> int:
+    """Print the latest stored play matching a regex over filename or Artist/Song."""
+    try:
+        matcher = re.compile(str(pattern), re.IGNORECASE)
+    except re.error as exc:
+        print(f"ERROR: invalid history regex: {exc}", file=sys.stderr)
+        return 2
+    matches: list[tuple[float, str, str]] = []
+    try:
+        with playlist_history_connection() as database:
+            rows = database.execute(
+                "SELECT filename, tag, played_at FROM played_tracks_recent"
+            ).fetchall()
+    except (OSError, sqlite3.Error) as exc:
+        print(f"ERROR: could not query playlist history database: {exc}", file=sys.stderr)
+        return 1
+    for filename, tag, played_at in rows:
+        filename_text = str(filename or "")
+        tag_text = str(tag or "").replace("\x1f", " ")
+        if matcher.search(filename_text) or matcher.search(tag_text):
+            try:
+                timestamp = float(played_at)
+            except (TypeError, ValueError):
+                continue
+            matches.append((timestamp, filename_text, tag_text))
+    print(f"PAFPlayer {PROGRAM_VERSION} history regex: /{pattern}/")
+    print(f"Matching stored identities: {len(matches):,}")
+    if not matches:
+        print("Last played: NEVER (no matching history)")
+        return 0
+    latest = max(matches, key=lambda item: item[0])
+    timestamp, filename_text, tag_text = latest
+    print(f"Last played: {_playlist_analysis_format_played_at(timestamp)}")
+    print(f"Matched filename: {filename_text}")
+    if tag_text.strip():
+        print(f"Matched Artist/Song: {tag_text}")
+    return 0
 
 
 def playlist_history_runtime_key(track: Path) -> str:
@@ -4493,7 +4402,7 @@ def playlist_history_mark_played(
             success=True,
         )
         return True
-    except (OSError, sqlite3.Error, RuntimeError, TypeError, ValueError) as exc:
+    except (OSError, sqlite3.Error) as exc:
         append_pafplayer_exception("write local play history", exc)
         append_pafplayer_trace("history.play.write", track=track, success=False)
         return False
@@ -6269,6 +6178,35 @@ def lyric_at(
         0.0, (fade_end - position) / max(0.001, fade_end - fade_start)
     )
     return active_index, text, opacity
+
+
+def lyric_emphasis_progress_at(
+    entries: list[tuple[float, float | None, str]],
+    position: float,
+) -> float:
+    """Return 0..1 progress through the current cue for MiniLyrics-style emphasis."""
+    if not entries:
+        return 0.0
+    position = max(0.0, float(position))
+    timed = any(start > 0 or end is not None for start, end, _text in entries)
+    if not timed:
+        return max(0.0, min(1.0, (position % 4.0) / 4.0))
+    active_index = max(
+        (index for index, (start, _end, _text) in enumerate(entries) if start <= position),
+        default=-1,
+    )
+    if active_index < 0:
+        return 0.0
+    start, explicit_end, _text = entries[active_index]
+    next_start = entries[active_index + 1][0] if active_index + 1 < len(entries) else None
+    if explicit_end is not None and explicit_end > start:
+        end = explicit_end
+    elif next_start is not None and next_start > start:
+        end = next_start
+    else:
+        end = start + LYRIC_MAX_UNTIMED_SECONDS
+    duration = max(0.05, float(end) - float(start))
+    return max(0.0, min(1.0, (position - float(start)) / duration))
 
 
 def lyric_title_text_at(
@@ -8365,7 +8303,7 @@ def get_audio_attributes(audio_path: Path, *, from_attributes_dat: bool | None =
 def merge_attribute_display_tags(
     attributes: Iterable[object],
 ) -> tuple[tuple[str, bool], ...]:
-    """Merge singular/plural instrumental classifications for display only.
+    """Merge exact singular/plural tag pairs for display only.
 
     ``attrib.lst`` and ``attributes.dat`` remain untouched: both source tags may
     carry useful independent provenance.  When both exact case-insensitive forms
@@ -8374,22 +8312,33 @@ def merge_attribute_display_tags(
     Boolean marker to make only the combined label 25% brighter.
     """
     cleaned = [str(value).strip() for value in attributes if str(value).strip()]
-    instrumental_indexes = [
-        index
-        for index, value in enumerate(cleaned)
-        if value.casefold() in {"instrumental", "instrumentals"}
-    ]
-    present = {cleaned[index].casefold() for index in instrumental_indexes}
-    if present != {"instrumental", "instrumentals"}:
-        return tuple((value, False) for value in cleaned)
-
-    insertion_index = min(instrumental_indexes)
-    result: list[tuple[str, bool]] = []
+    folded_indexes: dict[str, list[int]] = {}
     for index, value in enumerate(cleaned):
-        if index == insertion_index:
-            result.append(("instrumental(s)", True))
-        if value.casefold() in {"instrumental", "instrumentals"}:
+        folded_indexes.setdefault(value.casefold(), []).append(index)
+    pair_by_index: dict[int, tuple[int, str]] = {}
+    for plural, plural_indexes in folded_indexes.items():
+        if len(plural) <= 1 or not plural.endswith("s"):
             continue
+        singular = plural[:-1]
+        for singular_index in folded_indexes.get(singular, ()):
+            plural_index = next((item for item in plural_indexes if item != singular_index), None)
+            if plural_index is not None:
+                pair_by_index[singular_index] = (plural_index, singular)
+                pair_by_index[plural_index] = (singular_index, singular)
+    result: list[tuple[str, bool]] = []
+    consumed: set[int] = set()
+    for index, value in enumerate(cleaned):
+        if index in consumed:
+            continue
+        pair = pair_by_index.get(index)
+        if pair is not None:
+            other_index, singular = pair
+            if index < other_index:
+                result.append((singular + "(s)", True))
+                consumed.add(other_index)
+                continue
+            if other_index in consumed:
+                continue
         result.append((value, False))
     return tuple(result)
 
@@ -8482,6 +8431,311 @@ def genre_emoji_for(genre: str) -> str:
     return ""
 
 
+HUD_LAYOUT_GAP_CELLS = 2
+HUD_LAYOUT_ALIGNMENT_BONUS = 180
+HUD_LAYOUT_ALIGNMENT_PADDING_COST = 1
+HUD_LAYOUT_ROW_MIGRATION_COST = 1000
+HUD_LAYOUT_MISALIGNMENT_COST = 2
+
+
+@lru_cache(maxsize=512)
+def optimize_hud_field_positions(
+    field_specs: tuple[tuple[str, int, int, int, int], ...],
+    width: int,
+    play_colon_stop: int,
+) -> tuple[tuple[tuple[str, int], ...], ...] | None:
+    """Find the densest full-information two-row HUD geometry, then beautify it.
+
+    ``field_specs`` entries are ``(label, rendered_cells, lane, preferred_row, order)``.
+    ``rendered_cells`` includes the natural ``Label: value`` width.  The optimizer
+    never truncates or drops a field: candidates that cannot display every field
+    in two rows are rejected and the caller falls back to the existing wrapping
+    renderer.  Among full-information candidates, semantic row preference is
+    stronger than prettiness, while shared colon columns earn a bonus only when
+    the padding needed to create them is cheap enough.  In other words: pack the
+    information first, then justify it, and deliberately break justification
+    whenever justification would cost useful space.
+    """
+    width = max(1, int(width))
+    if not field_specs:
+        return ()
+    if len(field_specs) > 12:
+        return None
+
+    spec_by_label = {spec[0]: spec for spec in field_specs}
+    labels = tuple(spec_by_label)
+    label_index = {label: index for index, label in enumerate(labels)}
+
+    semantic_pairs: list[tuple[str, str, int]] = []
+    for left, right, lane in (("Act", "Year", 0), ("Song", "Genre", 1)):
+        if left in spec_by_label and right in spec_by_label:
+            semantic_pairs.append((left, right, lane))
+    if "Album" in spec_by_label:
+        if "Last play" in spec_by_label:
+            semantic_pairs.append(("Album", "Last play", 2))
+        elif "Original artist" in spec_by_label:
+            semantic_pairs.append(("Album", "Original artist", 2))
+    if "Comment" in spec_by_label and "Composer" in spec_by_label:
+        semantic_pairs.append(("Comment", "Composer", 3))
+
+    best_key: tuple[int, int, int, int] | None = None
+    best_rows: tuple[tuple[tuple[str, int], ...], ...] | None = None
+    field_count = len(field_specs)
+
+    for row_mask in range(1 << field_count):
+        assignment = {
+            label: ((row_mask >> label_index[label]) & 1)
+            for label in labels
+        }
+        if not any(row == 0 for row in assignment.values()) or not any(
+            row == 1 for row in assignment.values()
+        ):
+            continue
+
+        row_labels: dict[int, list[str]] = {0: [], 1: []}
+        for label, _cells, lane, _preferred_row, order in field_specs:
+            row_labels[assignment[label]].append(label)
+        for row in (0, 1):
+            row_labels[row].sort(
+                key=lambda label: (
+                    spec_by_label[label][2],
+                    spec_by_label[label][4],
+                    label,
+                )
+            )
+
+        available_pairs = [
+            pair for pair in semantic_pairs
+            if assignment[pair[0]] != assignment[pair[1]]
+        ]
+        # Four semantic pair constraints means at most sixteen beauty variants
+        # per row assignment.  Results are cached by exact field widths/terminal
+        # width, so animated metadata recoloring does not repeat this search.
+        for alignment_mask in range(1 << len(available_pairs)):
+            selected_pairs = {
+                available_pairs[index][2]: available_pairs[index]
+                for index in range(len(available_pairs))
+                if alignment_mask & (1 << index)
+            }
+            starts: dict[str, int] = {}
+            ends = {0: 0, 1: 0}
+            has_field = {0: False, 1: False}
+            invalid = False
+
+            def natural_start(row: int, label: str) -> int:
+                start = ends[row] + (HUD_LAYOUT_GAP_CELLS if has_field[row] else 0)
+                if not has_field[row] and label in {"Act", "Year"}:
+                    start = max(start, max(0, play_colon_stop - len(label)))
+                return start
+
+            def place(row: int, label: str, start: int) -> None:
+                nonlocal invalid
+                cells = spec_by_label[label][1]
+                starts[label] = int(start)
+                ends[row] = int(start) + cells
+                has_field[row] = True
+                if ends[row] > width:
+                    invalid = True
+
+            for lane in sorted({spec[2] for spec in field_specs}):
+                lane_items = {
+                    row: [
+                        label for label in row_labels[row]
+                        if spec_by_label[label][2] == lane
+                    ]
+                    for row in (0, 1)
+                }
+                pair = selected_pairs.get(lane)
+                if pair is None:
+                    for row in (0, 1):
+                        for label in lane_items[row]:
+                            place(row, label, natural_start(row, label))
+                    if invalid:
+                        break
+                    continue
+
+                left, right, _lane = pair
+                pair_label_for_row = {
+                    assignment[left]: left,
+                    assignment[right]: right,
+                }
+                # Same-lane extras (notably Original artist + Last play) retain
+                # semantic order around the aligned pair instead of being lost.
+                for row in (0, 1):
+                    pair_label = pair_label_for_row[row]
+                    for label in lane_items[row]:
+                        if label == pair_label:
+                            break
+                        place(row, label, natural_start(row, label))
+                if invalid:
+                    break
+
+                pair_min_starts = {
+                    row: natural_start(row, pair_label_for_row[row])
+                    for row in (0, 1)
+                }
+                target_colon = max(
+                    pair_min_starts[row] + len(pair_label_for_row[row])
+                    for row in (0, 1)
+                )
+                if lane == 0:
+                    target_colon = max(target_colon, play_colon_stop)
+                # A Comment/Composer pair is a natural right-side HUD column and
+                # also the most useful anchor for inline Last play.  When there
+                # is genuine slack, nudge that shared colon into the right half;
+                # if the values would overflow, this aligned candidate simply
+                # loses and the optimizer is free to "fuck up" the alignment.
+                if {left, right} == {"Comment", "Composer"}:
+                    target_colon = max(target_colon, round(width * 0.62))
+                for row in (0, 1):
+                    label = pair_label_for_row[row]
+                    place(row, label, target_colon - len(label))
+                if invalid:
+                    break
+                for row in (0, 1):
+                    pair_label = pair_label_for_row[row]
+                    seen_pair = False
+                    for label in lane_items[row]:
+                        if label == pair_label:
+                            seen_pair = True
+                            continue
+                        if seen_pair:
+                            place(row, label, natural_start(row, label))
+                if invalid:
+                    break
+
+            if invalid:
+                continue
+
+            migration_weights = {
+                "Act": 1600, "Song": 1600, "Year": 1400, "Genre": 1400,
+                "Album": 1100, "Last play": 800,
+                "Original artist": 500, "Composer": 450,
+                "Comment": 350, "URL": 300,
+            }
+            migrations = 0
+            migration_penalty = 0
+            for label, _cells, _lane, preferred_row, _order in field_specs:
+                if assignment[label] != preferred_row:
+                    migrations += 1
+                    migration_penalty += migration_weights.get(label, HUD_LAYOUT_ROW_MIGRATION_COST)
+
+            extra_padding = 0
+            for row in (0, 1):
+                previous_end = 0
+                first = True
+                for label in row_labels[row]:
+                    base = previous_end + (HUD_LAYOUT_GAP_CELLS if not first else 0)
+                    if first and label in {"Act", "Year"}:
+                        base = max(base, max(0, play_colon_stop - len(label)))
+                    extra_padding += max(0, starts[label] - base)
+                    previous_end = starts[label] + spec_by_label[label][1]
+                    first = False
+
+            aligned_count = len(selected_pairs)
+            misalignment_distance = 0
+            for left, right, _lane in available_pairs:
+                if _lane in selected_pairs:
+                    continue
+                left_colon = starts[left] + len(left)
+                right_colon = starts[right] + len(right)
+                misalignment_distance += abs(left_colon - right_colon)
+
+            score = (
+                -migration_penalty
+                + aligned_count * HUD_LAYOUT_ALIGNMENT_BONUS
+                - extra_padding * HUD_LAYOUT_ALIGNMENT_PADDING_COST
+                - misalignment_distance * HUD_LAYOUT_MISALIGNMENT_COST
+            )
+            # Deterministic ties: less padding, fewer migrations, then tighter
+            # combined right edges.  The score itself intentionally allows a
+            # pretty alignment to lose when it burns too many cells.
+            key = (
+                score,
+                -extra_padding,
+                -migrations,
+                -(ends[0] + ends[1]),
+            )
+            if best_key is None or key > best_key:
+                best_key = key
+                best_rows = tuple(
+                    tuple((label, starts[label]) for label in row_labels[row])
+                    for row in (0, 1)
+                )
+
+    return best_rows
+
+
+HUD_OPPORTUNISTIC_COLON_ALIGNMENT_MAX_SHIFT = 12
+HUD_OPPORTUNISTIC_CROSS_LANE_PAIRS = (("Album", "URL"),)
+
+
+def opportunistically_align_hud_colons(
+    geometry: tuple[tuple[tuple[str, int], ...], ...],
+    field_specs: tuple[tuple[str, int, int, int, int], ...],
+    width: int,
+    *,
+    pairs: tuple[tuple[str, str], ...] = HUD_OPPORTUNISTIC_CROSS_LANE_PAIRS,
+    max_shift: int = HUD_OPPORTUNISTIC_COLON_ALIGNMENT_MAX_SHIFT,
+) -> tuple[tuple[tuple[str, int], ...], ...]:
+    """Use otherwise-idle cells to align useful cross-lane label colons.
+
+    The main optimizer deliberately treats information density as more important
+    than a rigid grid.  Some aesthetically obvious relationships span different
+    semantic lanes, though, so they are easy for the combinatorial pass to miss.
+    This final beauty pass may shift a field *and every field after it on that
+    row* to the right, but only when the entire suffix still fits at full width.
+    It never truncates, drops, reorders, or moves anything left.  Large padding
+    jumps are rejected so alignment remains a soft preference rather than a new
+    source of wasted space.
+    """
+    if not geometry or not pairs:
+        return geometry
+    width = max(1, int(width))
+    max_shift = max(0, int(max_shift))
+    cells_by_label = {label: int(cells) for label, cells, _lane, _preferred, _order in field_specs}
+    rows = [list(row) for row in geometry]
+
+    def locate(label: str) -> tuple[int, int] | None:
+        for row_index, row in enumerate(rows):
+            for field_index, (candidate, _start) in enumerate(row):
+                if candidate == label:
+                    return row_index, field_index
+        return None
+
+    for first, second in pairs:
+        first_loc = locate(first)
+        second_loc = locate(second)
+        if first_loc is None or second_loc is None or first_loc[0] == second_loc[0]:
+            continue
+        first_start = rows[first_loc[0]][first_loc[1]][1]
+        second_start = rows[second_loc[0]][second_loc[1]][1]
+        first_colon = int(first_start) + len(first)
+        second_colon = int(second_start) + len(second)
+        if first_colon == second_colon:
+            continue
+
+        if first_colon < second_colon:
+            mover_label, mover_loc, delta = first, first_loc, second_colon - first_colon
+        else:
+            mover_label, mover_loc, delta = second, second_loc, first_colon - second_colon
+        if delta <= 0 or delta > max_shift:
+            continue
+
+        row_index, field_index = mover_loc
+        row = rows[row_index]
+        # Moving the entire suffix preserves all established inter-field gaps.
+        shifted_last_label, shifted_last_start = row[-1]
+        shifted_last_end = int(shifted_last_start) + cells_by_label[shifted_last_label] + delta
+        if shifted_last_end > width:
+            continue
+        for index in range(field_index, len(row)):
+            label, start = row[index]
+            row[index] = (label, int(start) + delta)
+
+    return tuple(tuple(row) for row in rows)
+
+
 def format_tag_panel(
     tags: dict[str, str],
     *,
@@ -8491,6 +8745,7 @@ def format_tag_panel(
     karaoke_visualizer_expansion_enabled: bool = False,
     genre_emoji_enabled: bool = ENABLE_GENRE_EMOJI,
     width: int | None = None,
+    smart_alignment_enabled: bool = HUD_SMART_ALIGNMENT_ENABLED,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Render metadata with stable semantic column stops.
 
@@ -8612,6 +8867,92 @@ def format_tag_panel(
     if url:
         sequence.append(("URL", url, "url"))
 
+    def render_smart_two_row_layout() -> list[tuple[str, str]] | None:
+        """Optimize complete two-row metadata before falling back to wrapping.
+
+        Every candidate contains every field at full value width.  This is the
+        information-density gate: alignment is allowed to spend only otherwise
+        spare cells, never to delete/truncate a value or force a third row.
+        """
+        if not smart_alignment_enabled or len(sequence) < 2:
+            return None
+        dense_cells = (
+            sum(len(label) + 2 + terminal_cell_width(value) for label, value, _kind in sequence)
+            + HUD_LAYOUT_GAP_CELLS * max(0, len(sequence) - 1)
+        )
+        if dense_cells <= width:
+            # One full-information row is denser than any two-row beautification.
+            return None
+
+        semantic_meta = {
+            "Act": (0, 0, 0),
+            "Year": (0, 1, 1),
+            "Song": (1, 0, 0),
+            "Genre": (1, 1, 1),
+            "Album": (2, 0, 0),
+            "Original artist": (2, 1, 1),
+            "Last play": (2, 1, 2),
+            "Comment": (3, 0, 0),
+            "Composer": (3, 1, 1),
+            "URL": (4, 1, 0),
+        }
+        field_map = {label: (label, value, kind) for label, value, kind in sequence}
+        specs: list[tuple[str, int, int, int, int]] = []
+        for label, value, _kind in sequence:
+            lane, preferred_row, order = semantic_meta.get(label, (9, 1, 0))
+            specs.append((
+                label,
+                len(label) + 2 + terminal_cell_width(value),
+                lane,
+                preferred_row,
+                order,
+            ))
+
+        specs_tuple = tuple(specs)
+        geometry = optimize_hud_field_positions(
+            specs_tuple,
+            width,
+            play_colon_stop,
+        )
+        if not geometry:
+            return None
+        geometry = opportunistically_align_hud_colons(
+            geometry,
+            specs_tuple,
+            width,
+        )
+
+        rendered: list[tuple[str, str]] = []
+        for positioned_fields in geometry:
+            if not positioned_fields:
+                continue
+            plain = ""
+            ansi = ""
+            visible = 0
+            for label, start in positioned_fields:
+                field = field_map[label]
+                _label, value, kind = field
+                pad = max(0, int(start) - visible)
+                plain += " " * pad
+                ansi += " " * pad
+                label_plain = f"{label}: "
+                label_ansi = f"\033[2;90m{label}:\033[0m "
+                plain += label_plain + value
+                ansi += label_ansi + ansi_value(
+                    kind,
+                    value,
+                    hyperlink_target=value if kind == "url" else None,
+                )
+                visible = int(start) + terminal_cell_width(label_plain) + terminal_cell_width(value)
+            if terminal_cell_width(plain) > width:
+                return None
+            rendered.append((plain.rstrip(), ansi.rstrip()))
+        return rendered if rendered else None
+
+    smart_rows = render_smart_two_row_layout()
+    if smart_rows is not None:
+        return tuple(item[0] for item in smart_rows), tuple(item[1] for item in smart_rows)
+
     def dedupe_metadata_rows(
         rendered_rows: list[tuple[str, str]],
     ) -> list[tuple[str, str]]:
@@ -8732,59 +9073,162 @@ def format_tag_panel(
     def justify_greedy_rows(
         rendered_rows: list[tuple[str, str]],
     ) -> list[tuple[str, str]]:
-        """Use genuine spare width to spread three-or-more-field dense rows.
+        """Use spare width to make unconstrained metadata gaps as equal as possible.
 
-        Motivation: dense fallback is valuable when long Song/Album values defeat
-        the strict semantic grid, but V92 packed rows such as
-        ``Album ...  Year ...  Genre ...`` against the left even with dozens of
-        unused cells.  For rows containing at least three metadata fields, divide
-        all spare terminal cells across the existing inter-field gaps so the last
-        field reaches the rightmost usable column.  Two-field rows are left alone
-        to avoid comically huge single gaps.
+        Information density still wins, and established semantic colon anchors are
+        never broken just to make spacing prettier.  Within any stretch whose end
+        colon is *not* constrained by a meaningful cross-row alignment, though,
+        V183 treats the whitespace between fields as a shared pool and redistributes
+        it so the visible gaps differ by at most one cell.  Any trailing spare width
+        on the row joins the final unconstrained pool, so a dense one-line HUD no
+        longer ends up with 2/3-cell gaps on the left and a giant gap before Comment
+        merely because one value carried invisible reserve padding.
+
+        Cross-row alignments that remain hard anchors here are the relationships the
+        optimizer intentionally creates: Act/Year, Song/Genre, Album/Last play,
+        Album/Original artist, Comment/Composer, and the opportunistic Album/URL
+        pairing.  Gaps before such anchors may be internally equalized only while
+        preserving their *total* width, keeping the anchored colon exactly fixed.
         """
-        label_names = sorted(
-            {label for label, _value, _kind in sequence},
-            key=len,
-            reverse=True,
-        )
-        if not label_names:
+        if not rendered_rows:
             return rendered_rows
-        pattern = re.compile(
-            r"(?<=\S) {2,}(?=(?:" + "|".join(re.escape(label) for label in label_names) + r"): )"
+
+        field_map: dict[str, Field] = {
+            label: (label, value, kind)
+            for label, value, kind in sequence
+        }
+        if not field_map:
+            return rendered_rows
+
+        positions_by_row = [metadata_field_positions(plain) for plain, _ansi in rendered_rows]
+        label_locations: dict[str, list[tuple[int, int]]] = {}
+        for row_index, positions in enumerate(positions_by_row):
+            for label, _start, colon in positions:
+                label_locations.setdefault(label, []).append((row_index, colon))
+
+        meaningful_pairs = (
+            ("Act", "Year"),
+            ("Song", "Genre"),
+            ("Album", "Last play"),
+            ("Album", "Original artist"),
+            ("Comment", "Composer"),
+            ("Album", "URL"),
         )
+        anchored_labels_by_row: list[set[str]] = [set() for _ in rendered_rows]
+        for first, second in meaningful_pairs:
+            first_locations = label_locations.get(first, ())
+            second_locations = label_locations.get(second, ())
+            for first_row, first_colon in first_locations:
+                for second_row, second_colon in second_locations:
+                    if first_row == second_row or first_colon != second_colon:
+                        continue
+                    anchored_labels_by_row[first_row].add(first)
+                    anchored_labels_by_row[second_row].add(second)
+
+        def spread(total: int, count: int) -> list[int]:
+            if count <= 0:
+                return []
+            quotient, remainder = divmod(max(0, int(total)), count)
+            return [
+                quotient + (1 if index < remainder else 0)
+                for index in range(count)
+            ]
+
         output: list[tuple[str, str]] = []
-        for plain, ansi in rendered_rows:
-            gaps = list(pattern.finditer(plain))
-            if len(gaps) < 2:
-                output.append((plain, ansi))
-                continue
-            spare = max(0, width - terminal_cell_width(plain))
-            if spare <= 0:
+        for row_index, ((plain, ansi), positions) in enumerate(zip(rendered_rows, positions_by_row)):
+            if len(positions) < 3:
                 output.append((plain, ansi))
                 continue
 
-            quotient, remainder = divmod(spare, len(gaps))
-            allocations = [
-                quotient + (1 if index < remainder else 0)
-                for index in range(len(gaps))
-            ]
-            updated_plain = plain
-            updated_ansi = ansi
-            for gap, extra in reversed(list(zip(gaps, allocations))):
-                if extra <= 0:
+            labels = [item[0] for item in positions]
+            if any(label not in field_map for label in labels):
+                output.append((plain, ansi))
+                continue
+
+            leading_cells = max(0, int(positions[0][1]))
+            stripped_values: dict[str, str] = {}
+            rendered_cells: dict[str, int] = {}
+            for label in labels:
+                _label, value, _kind = field_map[label]
+                # Reserve-padding spaces at the tail of a value (notably Genre's
+                # stable marker reserve) are visually indistinguishable from the
+                # inter-field gap.  Fold them into the whitespace pool so spacing
+                # is judged by what the user actually sees on screen.
+                clean_value = value.rstrip(" ")
+                stripped_values[label] = clean_value
+                rendered_cells[label] = (
+                    len(label) + 2 + terminal_cell_width(clean_value)
+                )
+
+            gaps: list[int] = []
+            for field_index in range(1, len(labels)):
+                previous_label = labels[field_index - 1]
+                previous_start = int(positions[field_index - 1][1])
+                current_start = int(positions[field_index][1])
+                previous_end_without_trailing_padding = (
+                    previous_start + rendered_cells[previous_label]
+                )
+                gaps.append(max(2, current_start - previous_end_without_trailing_padding))
+
+            last_label = labels[-1]
+            row_end_without_trailing_padding = int(positions[-1][1]) + rendered_cells[last_label]
+            trailing_spare = max(0, width - row_end_without_trailing_padding)
+            new_gaps = list(gaps)
+
+            # Every anchored field after the first closes a segment.  Equalize the
+            # gaps *inside* that segment while keeping their total fixed, so the
+            # anchor's colon cannot move.  The final unanchored suffix receives the
+            # row's genuine trailing spare width and can therefore spread out.
+            segment_start = 0  # index into gaps
+            anchored = anchored_labels_by_row[row_index]
+            for field_index in range(1, len(labels)):
+                label = labels[field_index]
+                if label not in anchored:
                     continue
-                insert_at = gap.end()
-                updated_plain = (
-                    updated_plain[:insert_at]
-                    + " " * extra
-                    + updated_plain[insert_at:]
+                segment_end = field_index - 1
+                count = segment_end - segment_start + 1
+                if count > 0:
+                    total = sum(gaps[segment_start:segment_end + 1])
+                    new_gaps[segment_start:segment_end + 1] = spread(total, count)
+                segment_start = field_index
+
+            if segment_start < len(gaps):
+                total = sum(gaps[segment_start:]) + trailing_spare
+                new_gaps[segment_start:] = spread(total, len(gaps) - segment_start)
+            elif not anchored:
+                # Defensive fallback for the normal all-free row; in practice this
+                # branch is covered by the suffix path above because >=3 fields
+                # implies at least two gaps.
+                total = sum(gaps) + trailing_spare
+                new_gaps[:] = spread(total, len(gaps))
+
+            rebuilt_plain = " " * leading_cells
+            rebuilt_ansi = " " * leading_cells
+            for field_index, label in enumerate(labels):
+                _label, _value, kind = field_map[label]
+                value = stripped_values[label]
+                label_plain = f"{label}: "
+                label_ansi = f"\033[2;90m{label}:\033[0m "
+                rebuilt_plain += label_plain + value
+                rebuilt_ansi += label_ansi + ansi_value(
+                    kind,
+                    value,
+                    hyperlink_target=value if kind == "url" else None,
                 )
-                updated_ansi = _insert_spaces_at_visible_index(
-                    updated_ansi,
-                    insert_at,
-                    extra,
-                )
-            output.append((updated_plain, updated_ansi))
+                if field_index < len(new_gaps):
+                    spacer = " " * max(2, int(new_gaps[field_index]))
+                    rebuilt_plain += spacer
+                    rebuilt_ansi += spacer
+
+            rebuilt_plain = rebuilt_plain.rstrip()
+            rebuilt_ansi = rebuilt_ansi.rstrip()
+            if terminal_cell_width(rebuilt_plain) > width:
+                # Equalization is cosmetic only.  If a future exotic-width glyph
+                # makes our cell math disagree with the terminal, fail closed to
+                # the established dense layout rather than sacrifice information.
+                output.append((plain, ansi))
+                continue
+            output.append((rebuilt_plain, rebuilt_ansi))
         return output
 
 
@@ -9222,6 +9666,83 @@ def format_tag_panel(
     rows = dedupe_metadata_rows(rows)
     return tuple(item[0] for item in rows), tuple(item[1] for item in rows)
 
+
+INLINE_LAST_PLAY_ALIGNMENT_LABELS = (
+    "Composer", "Comment", "URL", "Original artist",
+    "Album", "Genre", "Song", "Year", "Act",
+)
+INLINE_LAST_PLAY_PREFERRED_ALIGNMENT_LABELS = frozenset({
+    "Composer", "Comment", "URL", "Original artist",
+})
+
+
+def hud_metadata_label_colons(rows: tuple[str, ...] | list[str]) -> list[tuple[str, int]]:
+    """Return real metadata-label colon cells from already-rendered plain HUD rows.
+
+    Values can contain colons (URLs, titles, timestamps), so this recognizes only
+    known HUD labels that begin a field at the start of a row or after a 2+ space
+    inter-field gap.  It is deliberately independent of ``format_tag_panel``'s
+    internal packing strategy so it can be used as a true second pass.
+    """
+    label_pattern = "|".join(
+        re.escape(label)
+        for label in sorted(INLINE_LAST_PLAY_ALIGNMENT_LABELS, key=len, reverse=True)
+    )
+    pattern = re.compile(r"(?:^ *| {2,})(?P<label>" + label_pattern + r"): ")
+    found: list[tuple[str, int]] = []
+    for row in rows:
+        for match in pattern.finditer(str(row)):
+            label = match.group("label")
+            colon_char = match.start("label") + len(label)
+            found.append((label, terminal_cell_width(str(row)[:colon_char])))
+    return found
+
+
+def aligned_inline_last_play_gap(
+    base_play_plain: str,
+    last_play_value: str,
+    metadata_rows: tuple[str, ...] | list[str],
+    *,
+    width: int,
+    enabled: bool = True,
+    minimum_gap: int = 3,
+) -> int:
+    """Choose Play→Last-play spacing that reuses an existing HUD colon when possible.
+
+    ``base_play_plain`` excludes Last play itself.  The function never makes the
+    Play row exceed ``width`` and never uses fewer than ``minimum_gap`` cells.
+    Tail labels (Composer/Comment/URL/Original artist) are preferred because they
+    are the visually obvious right-side anchors in the supplied real-session HUD
+    captures.  If none are usable, the nearest other metadata colon to the right
+    is used.  Otherwise the historical three-space gap is preserved.
+    """
+    minimum_gap = max(0, int(minimum_gap))
+    if not enabled or not last_play_value:
+        return minimum_gap
+
+    base_cells = terminal_cell_width(base_play_plain)
+    label_cells = terminal_cell_width("Last play")
+    value_cells = terminal_cell_width(last_play_value)
+    minimum_colon = base_cells + minimum_gap + label_cells
+
+    candidates: list[tuple[int, int, str]] = []
+    for label, colon in hud_metadata_label_colons(metadata_rows):
+        if colon < minimum_colon:
+            continue
+        # Colon cell + ': ' + value must remain inside the terminal width.
+        if colon + 2 + value_cells > width:
+            continue
+        preferred_rank = 0 if label in INLINE_LAST_PLAY_PREFERRED_ALIGNMENT_LABELS else 1
+        candidates.append((preferred_rank, colon, label))
+
+    if not candidates:
+        return minimum_gap
+
+    preferred_rank = min(item[0] for item in candidates)
+    eligible = [item for item in candidates if item[0] == preferred_rank]
+    _rank, target_colon, _label = min(eligible, key=lambda item: item[1])
+    return max(minimum_gap, target_colon - base_cells - label_cells)
+
 def interpret_console_key(
     first: str,
     *,
@@ -9250,8 +9771,12 @@ def interpret_console_key(
         return HELP_OVERLAY
     if first == "\x0b":
         return KARAOKE_FAVORITE_TOGGLE if alt else KARAOKE_TREATMENT_NEXT
-    if first.casefold() in {"j", "q"}:
-        return PLAYLIST_QUEUE_SEARCH
+    if first == "\x11":  # Ctrl+Q commonly arrives as DC1 with no printable q left.
+        return QUIT_Q
+    if first.casefold() == "q":
+        if ctrl or alt:
+            return QUIT_Q
+        return PLAYLIST_ADD_SEARCH_Q
     if first.casefold() == "x":
         return STOP
     if first == " ":
@@ -9262,8 +9787,6 @@ def interpret_console_key(
         return ALBUM_ART_DOWNLOAD_OR_DRCS
     if ctrl and alt and (first.casefold() == "s" or first == "\x13"):
         return LASTFM_SCROBBLE_NOW
-    if ctrl and alt and (first.casefold() == "b" or first == "\x02"):
-        return REPLAYGAIN_BAKE
     if ctrl and alt and (first.casefold() == "l" or first == "\x0c"):
         return MARK_SONG_LEARNED
     if ctrl and alt and (first.casefold() == "i" or first == "\x09"):
@@ -9374,6 +9897,8 @@ def interpret_console_key(
     if extended == "?":
         return REDRAW_UI_CLEAR_ART if ctrl and alt else REDRAW_UI
     if extended == "@":
+        if ctrl and alt:
+            return LAYERED_ART_VISUALIZER_TOGGLE
         if alt:
             return PROCESSING_PREVIOUS
         return VISUALIZER_TREATMENT_PREVIOUS if shift else VISUALIZER_MODE_PREVIOUS
@@ -9853,9 +10378,9 @@ def read_windows_key_action() -> str | None:
     console has focus because their ordinary buffered key/scancode path remains
     in ``interpret_console_key``.
 
-    Ctrl+Alt+L and Ctrl+Alt+I retain defensive physical-modifier assists only
-    when ``msvcrt.kbhit()`` proves this console actually received input, so both
-    are focus-only. Ctrl+Alt+A artwork foreground and media transport keys remain
+    Ctrl+Alt+L and Ctrl+Alt+I retain defensive physical-modifier assists only when
+    ``msvcrt.kbhit()`` proves this console actually received input, so both are focus-only.
+    Ctrl+Alt+Numpad1 is the temporary focus-only smart-HUD toggle. Ctrl+Alt+A artwork foreground and media transport keys remain
     intentionally physically polled because the user did not request changing
     those controls in V84.
     """
@@ -9988,6 +10513,18 @@ def read_windows_key_action() -> str | None:
         if not _windows_key_down(virtual_key):
             _ASYNC_KEY_LATCH.discard(latch_key)
 
+    # Ctrl+Alt+Numpad1 owns the temporary smart-HUD toggle.  Keep it focus-gated
+    # and suppress the buffered Numpad1 scan/character after the physical chord fires.
+    numpad1_latch = 0x961
+    numpad1_down = bool(ctrl_down and alt_down and _windows_key_down(0x61))
+    if focused_buffered_input and numpad1_down and numpad1_latch not in _ASYNC_KEY_LATCH:
+        _ASYNC_KEY_LATCH.add(numpad1_latch)
+        _ASYNC_CHAR_SUPPRESS_ONCE["1"] = time.monotonic() + 1.0
+        _ASYNC_EXTENDED_SUPPRESS_ONCE["O"] = time.monotonic() + 1.0
+        return HUD_SMART_ALIGNMENT_TOGGLE
+    if not _windows_key_down(0x61):
+        _ASYNC_KEY_LATCH.discard(numpad1_latch)
+
     # Ctrl+Alt+Numpad7 is likewise focus-gated rather than globally polled.
     numpad7_latch = 0x967
     numpad7_down = bool(ctrl_down and alt_down and _windows_key_down(0x67))
@@ -10001,9 +10538,9 @@ def read_windows_key_action() -> str | None:
     # because msvcrt may reduce Ctrl+Alt+R/S to a bare control byte, but the
     # pending-console-input gate prevents cross-application activation.
     focused_ctrl_letter_actions = (
-        (0x49, "\x09", alt_down, EXTERNAL_ALBUM_ART_IDLE_START),                 # Ctrl+Alt+I
-        (0x52, "\x12", True, FORCE_SHUFFLE_REBUILD),                             # Ctrl+R / Ctrl+Alt+R
-        (0x53, "\x13", alt_down, LASTFM_SCROBBLE_NOW),                           # Ctrl+Alt+S
+        (0x49, "\x09", alt_down, EXTERNAL_ALBUM_ART_IDLE_START),                     # Ctrl+Alt+I (Shift is tolerated for backward compatibility)
+        (0x52, "\x12", True, FORCE_SHUFFLE_REBUILD),                                      # Ctrl+R / Ctrl+Alt+R
+        (0x53, "\x13", alt_down, LASTFM_SCROBBLE_NOW),                                    # Ctrl+Alt+S
     )
     for virtual_key, control_char, modifier_match, action in focused_ctrl_letter_actions:
         latch_key = 0x800 + virtual_key
@@ -10384,6 +10921,29 @@ def stop_process(process) -> None:
     except subprocess.TimeoutExpired:
         process.kill()
         process.wait(timeout=1.0)
+
+
+def hard_stop_process(process) -> None:
+    """Kill a live FFplay child immediately once PAFPlayer has committed to stopping.
+
+    Seek/pause/restart paths still use ``stop_process`` so they may terminate cleanly.
+    Final stop/quit and console abort signals use this hard path: there is no one-second
+    graceful wait after the user has already told the player to stop.
+    """
+    if process is None:
+        return
+    try:
+        if process.poll() is not None:
+            return
+    except Exception:
+        pass
+    try:
+        process.kill()
+    except Exception:
+        with contextlib.suppress(Exception):
+            process.terminate()
+    with contextlib.suppress(Exception):
+        process.wait(timeout=0.25)
 
 
 def set_console_cursor_visible(visible: bool) -> None:
@@ -12045,18 +12605,10 @@ def render_status(
     percentage = int(fraction * 100)
     filled_eighth_cells = round(bar_width * 8 * fraction)
     full_cells, partial_eighth = divmod(filled_eighth_cells, 8)
-    pairs = (
-        ("█", "░"), ("▓", "·"), ("■", "□"), ("━", "─"), ("▰", "▱"),
-        ("●", "○"), ("◆", "◇"), ("▮", "▯"), ("▉", "▏"), ("#", "."),
-        ("=", "-"), ("▇", "▁"), ("▆", "▂"), ("▣", "▢"), ("█", " "),
-        (">", " "), ("*", "."), ("+", "."), ("X", "x"), ("|", "."),
-        ("■", "·"), ("▰", "▱"), ("▸", "▹"), ("●", "·"), ("◆", "·"),
-    )
-    filled_char, empty_char = pairs[(progress_style - 1) % len(pairs)]
-    # Unicode left-block fractions give 1/8-cell granularity without consuming
-    # another terminal column: ▏▎▍▌▋▊▉. This is 8× finer than whole cells.
-    partial_blocks = ("", "▏", "▎", "▍", "▌", "▋", "▊", "▉")
-    partial = partial_blocks[partial_eighth]
+    filled_char, empty_char = PROGRESS_GLYPH_PAIRS[(progress_style - 1) % len(PROGRESS_GLYPH_PAIRS)]
+    # Unicode left-block fractions give 1/8-cell granularity while still
+    # consuming exactly one terminal cell at the moving edge.
+    partial = PROGRESS_PARTIAL_BLOCKS[partial_eighth]
     empty_cells = max(0, bar_width - full_cells - (1 if partial else 0))
     bar_color = rainbow_rgb(fraction)
     if progress_style in {15, 25}:
@@ -12068,7 +12620,7 @@ def render_status(
     # visible black seam.  Treat the whole unplayed remainder as one continuous
     # dim, rainbow-tinted background.  The fractional boundary cell and every
     # empty cell therefore share exactly the same background RGB.
-    if empty_char in {"░", "▒", "▱", "▯", "□", "○", "◇", "▢", "▹"}:
+    if empty_char in PROGRESS_TEXTURED_EMPTY_GLYPHS:
         empty_bg_strength = 0.22
     else:
         empty_bg_strength = 0.10
@@ -12806,29 +13358,809 @@ def save_external_album_art_manual_size(manually_sized: bool) -> None:
         pass
 
 
+def lyrics_mode_includes_artwork(mode: int) -> bool:
+    """Return whether the V180 three-way lyric choice includes over-art karaoke."""
+    return max(0, min(2, int(mode))) in {0, 2}
+
+
+def lyrics_mode_includes_floating(mode: int) -> bool:
+    """Return whether the V180 three-way lyric choice includes floating karaoke."""
+    return max(0, min(2, int(mode))) in {1, 2}
+
+
 def load_external_album_art_lyrics_mode() -> int:
-    """Return the persisted 0=off, 1=art overlay, 2=floating lyric mode."""
+    """Return V180's 0=artwork, 1=floating, 2=both choice, migrating the old key."""
     if os.name != "nt":
         return 0
     try:
         import winreg
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
-            value, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_LYRICS_MODE_VALUE)
-        return max(0, min(len(EXTERNAL_ALBUM_ART_LYRICS_MODES) - 1, int(value)))
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_LYRICS_MODE_V180_VALUE)
+        return max(0, min(2, int(value)))
+    except (OSError, TypeError, ValueError):
+        pass
+    # V179 and earlier stored 0=off, 1=artwork, 2=floating.  There is no V180
+    # off state: old off/artwork both migrate to Artwork; old floating stays Floating.
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            legacy, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_LYRICS_MODE_VALUE)
+        return 1 if int(legacy) == 2 else 0
     except (OSError, TypeError, ValueError):
         return 0
 
 
 def save_external_album_art_lyrics_mode(mode: int) -> None:
-    """Persist the native artwork/floating-lyrics three-way title-bar choice."""
+    """Persist V180's Artwork / Floating / Both three-way title-bar choice."""
     if os.name != "nt":
         return
-    value = max(0, min(len(EXTERNAL_ALBUM_ART_LYRICS_MODES) - 1, int(mode)))
+    value = max(0, min(2, int(mode)))
     try:
         import winreg
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
             winreg.SetValueEx(
-                key, EXTERNAL_ALBUM_ART_LYRICS_MODE_VALUE, 0, winreg.REG_DWORD, value
+                key, EXTERNAL_ALBUM_ART_LYRICS_MODE_V180_VALUE, 0, winreg.REG_DWORD, value
+            )
+    except OSError:
+        pass
+
+
+def load_external_album_art_lyric_font_scale() -> float:
+    """Return the persisted over-art lyric font scale, clamped to safe bounds."""
+    if os.name != "nt":
+        return 1.0
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_VALUE)
+        scale = float(value) / 100.0
+    except (OSError, TypeError, ValueError):
+        scale = 1.0
+    return max(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MIN, min(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MAX, scale))
+
+
+def save_external_album_art_lyric_font_scale(scale: float) -> None:
+    """Persist the user's focused artwork-karaoke zoom as an integer percent."""
+    if os.name != "nt":
+        return
+    value = max(
+        EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MIN,
+        min(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MAX, float(scale)),
+    )
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(
+                key,
+                EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_VALUE,
+                0,
+                winreg.REG_DWORD,
+                int(round(value * 100.0)),
+            )
+    except OSError:
+        pass
+
+
+def load_external_album_art_karaoke_color_mode() -> int:
+    """Return the V192 base fill mode, migrating the former pattern-as-mode values."""
+    if os.name != "nt":
+        return 0
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODE_VALUE)
+        legacy = int(value)
+        return legacy if legacy in (0, 1, 2) else 0
+    except (OSError, TypeError, ValueError):
+        return 0
+
+
+def save_external_album_art_karaoke_color_mode(mode: int) -> None:
+    """Persist the artwork-karaoke coloring dropdown choice."""
+    if os.name != "nt":
+        return
+    value = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode)))
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(
+                key,
+                EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODE_VALUE,
+                0,
+                winreg.REG_DWORD,
+                value,
+            )
+    except OSError:
+        pass
+
+
+def normalize_external_album_art_karaoke_color_favorites(mask: int) -> int:
+    """Clamp a favorite bitmask to the coloring modes that actually exist."""
+    valid_bits = (1 << len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES)) - 1
+    return max(0, int(mask)) & valid_bits
+
+
+def external_album_art_karaoke_color_is_favorite(mask: int, mode: int) -> bool:
+    """Return whether one artwork-karaoke coloring mode is favorited."""
+    index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode)))
+    return bool(normalize_external_album_art_karaoke_color_favorites(mask) & (1 << index))
+
+
+def load_external_album_art_karaoke_color_favorites() -> int:
+    """Return the persisted set of favorited artwork-karaoke coloring modes."""
+    if os.name != "nt":
+        return 0
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_KARAOKE_COLOR_FAVORITES_VALUE)
+        return normalize_external_album_art_karaoke_color_favorites(int(value))
+    except (OSError, TypeError, ValueError):
+        return 0
+
+
+def save_external_album_art_karaoke_color_favorites(mask: int) -> None:
+    """Persist the complete multi-select favorite set as a DWORD bitmask."""
+    if os.name != "nt":
+        return
+    value = normalize_external_album_art_karaoke_color_favorites(mask)
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(
+                key,
+                EXTERNAL_ALBUM_ART_KARAOKE_COLOR_FAVORITES_VALUE,
+                0,
+                winreg.REG_DWORD,
+                value,
+            )
+    except OSError:
+        pass
+
+
+def load_external_album_art_karaoke_color_default_mode(fallback: int = 0) -> int:
+    """Return the one persisted default coloring mode, or *fallback* if unset."""
+    fallback = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(fallback)))
+    if os.name != "nt":
+        return fallback
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_KARAOKE_COLOR_DEFAULT_VALUE)
+        legacy = int(value)
+        return legacy if legacy in (0, 1, 2) else 0
+    except (OSError, TypeError, ValueError):
+        return fallback
+
+
+def save_external_album_art_karaoke_color_default_mode(mode: int) -> None:
+    """Persist exactly one default artwork-karaoke coloring mode."""
+    if os.name != "nt":
+        return
+    value = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode)))
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(
+                key,
+                EXTERNAL_ALBUM_ART_KARAOKE_COLOR_DEFAULT_VALUE,
+                0,
+                winreg.REG_DWORD,
+                value,
+            )
+    except OSError:
+        pass
+
+
+def load_external_album_art_karaoke_startup_color_mode() -> int:
+    """Use an explicitly chosen Default at startup; otherwise preserve V170's last-used mode."""
+    last_used = load_external_album_art_karaoke_color_mode()
+    return load_external_album_art_karaoke_color_default_mode(last_used)
+
+
+def normalize_external_album_art_karaoke_color_palettes(values: Iterable[int] | None) -> tuple[int, ...]:
+    """Return one valid zero-based visualizer palette index for every lettering mode."""
+    incoming = list(values or [])
+    count = len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES)
+    maximum = max(0, len(PALETTE_NAMES) - 1)
+    normalized: list[int] = []
+    for index in range(count):
+        try:
+            value = int(incoming[index]) if index < len(incoming) else 0
+        except (TypeError, ValueError):
+            value = 0
+        normalized.append(max(0, min(maximum, value)))
+    return tuple(normalized)
+
+
+def load_external_album_art_karaoke_color_palettes() -> tuple[int, ...]:
+    """Load the per-lettering-style palette table from the existing settings key."""
+    fallback = normalize_external_album_art_karaoke_color_palettes(())
+    if os.name != "nt":
+        return fallback
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_KARAOKE_COLOR_PALETTES_VALUE)
+        parsed = json.loads(str(value))
+        if not isinstance(parsed, list):
+            return fallback
+        return normalize_external_album_art_karaoke_color_palettes(parsed)
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        return fallback
+
+
+def save_external_album_art_karaoke_color_palettes(values: Iterable[int]) -> None:
+    """Persist all per-style palettes atomically as a tiny JSON settings value."""
+    normalized = normalize_external_album_art_karaoke_color_palettes(values)
+    if os.name != "nt":
+        return
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(
+                key,
+                EXTERNAL_ALBUM_ART_KARAOKE_COLOR_PALETTES_VALUE,
+                0,
+                winreg.REG_SZ,
+                json.dumps(list(normalized), separators=(",", ":")),
+            )
+    except OSError:
+        pass
+
+
+def normalize_external_karaoke_color_speeds(values: Iterable[float] | None) -> tuple[float, ...]:
+    """Return one clamped animation-speed multiplier for every lettering style."""
+    incoming = list(values or [])
+    result: list[float] = []
+    for index in range(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES)):
+        try:
+            value = float(incoming[index]) if index < len(incoming) else 1.0
+        except (TypeError, ValueError):
+            value = 1.0
+        result.append(round(max(KARAOKE_COLOR_SPEED_MIN, min(KARAOKE_COLOR_SPEED_MAX, value)), 2))
+    return tuple(result)
+
+
+def normalize_external_karaoke_indices(
+    values: Iterable[int] | None,
+    count: int,
+    maximum: int,
+    default: int = 0,
+) -> tuple[int, ...]:
+    """Normalize a compact per-mode dropdown table."""
+    incoming = list(values or [])
+    result: list[int] = []
+    for index in range(max(0, int(count))):
+        try:
+            value = int(incoming[index]) if index < len(incoming) else int(default)
+        except (TypeError, ValueError):
+            value = int(default)
+        result.append(max(0, min(max(0, int(maximum)), value)))
+    return tuple(result)
+
+
+def normalize_external_karaoke_adjustments(
+    values: Iterable[float] | None,
+    minimum: float,
+    maximum: float,
+    default: float,
+) -> tuple[float, ...]:
+    """Normalize one resolution-independent numeric modifier per base coloring mode."""
+    incoming = list(values or [])
+    result: list[float] = []
+    for index in range(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES)):
+        try:
+            value = float(incoming[index]) if index < len(incoming) else float(default)
+        except (TypeError, ValueError):
+            value = float(default)
+        result.append(round(max(float(minimum), min(float(maximum), value)), 3))
+    return tuple(result)
+
+
+def _load_karaoke_json_tuple(value_name: str, normalizer, fallback):
+    if os.name != "nt":
+        return fallback
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, value_name)
+        parsed = json.loads(str(value))
+        if not isinstance(parsed, list):
+            return fallback
+        return normalizer(parsed)
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        return fallback
+
+
+def _save_karaoke_json_tuple(value_name: str, values: Iterable[object]) -> None:
+    if os.name != "nt":
+        return
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(key, value_name, 0, winreg.REG_SZ, json.dumps(list(values), separators=(",", ":")))
+    except OSError:
+        pass
+
+
+def load_external_album_art_karaoke_color_speeds() -> tuple[float, ...]:
+    fallback = normalize_external_karaoke_color_speeds(())
+    return _load_karaoke_json_tuple(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_SPEEDS_VALUE, normalize_external_karaoke_color_speeds, fallback)
+
+
+def save_external_album_art_karaoke_color_speeds(values: Iterable[float]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_SPEEDS_VALUE, normalize_external_karaoke_color_speeds(values))
+
+
+def _load_karaoke_v192_profile(value_name: str, normalizer, default):
+    fallback = normalizer(())
+    return _load_karaoke_json_tuple(value_name, normalizer, fallback if default is None else default)
+
+
+def normalize_external_karaoke_pattern_treatments(values: Iterable[int] | None) -> tuple[int, ...]:
+    return normalize_external_karaoke_indices(
+        values, len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES),
+        len(EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS) - 1,
+    )
+
+
+def normalize_external_karaoke_timings(values: Iterable[int] | None) -> tuple[int, ...]:
+    return normalize_external_karaoke_indices(
+        values, len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES),
+        len(EXTERNAL_ALBUM_ART_KARAOKE_TIMING_TYPES) - 1,
+    )
+
+
+def normalize_external_karaoke_brightnesses(values: Iterable[float] | None) -> tuple[float, ...]:
+    return normalize_external_karaoke_adjustments(values, KARAOKE_BRIGHTNESS_MIN, KARAOKE_BRIGHTNESS_MAX, 1.0)
+
+
+def normalize_external_karaoke_saturations(values: Iterable[float] | None) -> tuple[float, ...]:
+    return normalize_external_karaoke_adjustments(values, KARAOKE_SATURATION_MIN, KARAOKE_SATURATION_MAX, 1.0)
+
+
+def normalize_external_karaoke_shadow_sizes(values: Iterable[float] | None) -> tuple[float, ...]:
+    return normalize_external_karaoke_adjustments(values, KARAOKE_SHADOW_SIZE_MIN, KARAOKE_SHADOW_SIZE_MAX, KARAOKE_SHADOW_SIZE_DEFAULT)
+
+
+def _load_artwork_v192_profile(value_name: str, normalizer):
+    return _load_karaoke_json_tuple(value_name, normalizer, normalizer(()))
+
+
+def load_external_album_art_karaoke_pattern_treatments() -> tuple[int, ...]:
+    values = _load_artwork_v192_profile(EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS_VALUE, normalize_external_karaoke_pattern_treatments)
+    if os.name == "nt" and values == normalize_external_karaoke_pattern_treatments(()) and load_external_album_art_karaoke_color_mode() == 0:
+        with contextlib.suppress(Exception):
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+                legacy, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODE_VALUE)
+            legacy_name = (
+                "plasma", "rainbow-glyphs", "solid", "horizontal-wave", "vertical-wave",
+                "diagonal-wave", "radial-ripple", "vortex", "checker-pulse", "neon-stripes",
+                "lava-lamp", "aurora-curtain", "electric-zigzag", "sparkle-field", "kaleidoscope",
+            )[max(0, min(14, int(legacy)))]
+            if legacy_name in EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS:
+                migrated = list(values)
+                migrated[0] = EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS.index(legacy_name)
+                return tuple(migrated)
+    return values
+
+
+def save_external_album_art_karaoke_pattern_treatments(values: Iterable[int]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS_VALUE, normalize_external_karaoke_pattern_treatments(values))
+
+
+def load_external_album_art_karaoke_timings() -> tuple[int, ...]:
+    return _load_artwork_v192_profile(EXTERNAL_ALBUM_ART_KARAOKE_TIMINGS_VALUE, normalize_external_karaoke_timings)
+
+
+def save_external_album_art_karaoke_timings(values: Iterable[int]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_ALBUM_ART_KARAOKE_TIMINGS_VALUE, normalize_external_karaoke_timings(values))
+
+
+def load_external_album_art_karaoke_brightnesses() -> tuple[float, ...]:
+    return _load_artwork_v192_profile(EXTERNAL_ALBUM_ART_KARAOKE_BRIGHTNESSES_VALUE, normalize_external_karaoke_brightnesses)
+
+
+def save_external_album_art_karaoke_brightnesses(values: Iterable[float]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_ALBUM_ART_KARAOKE_BRIGHTNESSES_VALUE, normalize_external_karaoke_brightnesses(values))
+
+
+def load_external_album_art_karaoke_saturations() -> tuple[float, ...]:
+    return _load_artwork_v192_profile(EXTERNAL_ALBUM_ART_KARAOKE_SATURATIONS_VALUE, normalize_external_karaoke_saturations)
+
+
+def save_external_album_art_karaoke_saturations(values: Iterable[float]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_ALBUM_ART_KARAOKE_SATURATIONS_VALUE, normalize_external_karaoke_saturations(values))
+
+
+def load_external_album_art_karaoke_shadow_sizes() -> tuple[float, ...]:
+    return _load_artwork_v192_profile(EXTERNAL_ALBUM_ART_KARAOKE_SHADOW_SIZES_VALUE, normalize_external_karaoke_shadow_sizes)
+
+
+def save_external_album_art_karaoke_shadow_sizes(values: Iterable[float]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_ALBUM_ART_KARAOKE_SHADOW_SIZES_VALUE, normalize_external_karaoke_shadow_sizes(values))
+
+
+def load_external_album_art_karaoke_timed_emphasis() -> int:
+    if os.name != "nt":
+        return 0
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_KARAOKE_TIMED_EMPHASIS_VALUE)
+        return normalize_external_album_art_karaoke_color_favorites(int(value))
+    except (OSError, TypeError, ValueError):
+        return 0
+
+
+def save_external_album_art_karaoke_timed_emphasis(mask: int) -> None:
+    if os.name != "nt":
+        return
+    value = normalize_external_album_art_karaoke_color_favorites(mask)
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(key, EXTERNAL_ALBUM_ART_KARAOKE_TIMED_EMPHASIS_VALUE, 0, winreg.REG_DWORD, value)
+    except OSError:
+        pass
+
+
+def normalize_external_floating_karaoke_color_palettes(values: Iterable[int] | None) -> tuple[int, ...]:
+    return normalize_external_album_art_karaoke_color_palettes(values)
+
+
+def load_external_floating_karaoke_color_mode() -> int:
+    if os.name != "nt":
+        return 0
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_MODE_VALUE)
+        legacy = int(value)
+        return legacy if legacy in (0, 1, 2) else 0
+    except (OSError, TypeError, ValueError):
+        return 0
+
+
+def save_external_floating_karaoke_color_mode(mode: int) -> None:
+    if os.name != "nt":
+        return
+    value = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode)))
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(key, EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_MODE_VALUE, 0, winreg.REG_DWORD, value)
+    except OSError:
+        pass
+
+
+def load_external_floating_karaoke_color_favorites() -> int:
+    if os.name != "nt":
+        return 0
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_FAVORITES_VALUE)
+        return normalize_external_album_art_karaoke_color_favorites(int(value))
+    except (OSError, TypeError, ValueError):
+        return 0
+
+
+def save_external_floating_karaoke_color_favorites(mask: int) -> None:
+    if os.name != "nt":
+        return
+    value = normalize_external_album_art_karaoke_color_favorites(mask)
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(key, EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_FAVORITES_VALUE, 0, winreg.REG_DWORD, value)
+    except OSError:
+        pass
+
+
+def load_external_floating_karaoke_color_default_mode(fallback: int = 0) -> int:
+    fallback = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(fallback)))
+    if os.name != "nt":
+        return fallback
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_DEFAULT_VALUE)
+        legacy = int(value)
+        return legacy if legacy in (0, 1, 2) else 0
+    except (OSError, TypeError, ValueError):
+        return fallback
+
+
+def save_external_floating_karaoke_color_default_mode(mode: int) -> None:
+    if os.name != "nt":
+        return
+    value = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode)))
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(key, EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_DEFAULT_VALUE, 0, winreg.REG_DWORD, value)
+    except OSError:
+        pass
+
+
+def load_external_floating_karaoke_startup_color_mode() -> int:
+    last_used = load_external_floating_karaoke_color_mode()
+    return load_external_floating_karaoke_color_default_mode(last_used)
+
+
+def load_external_floating_karaoke_color_palettes() -> tuple[int, ...]:
+    fallback = normalize_external_floating_karaoke_color_palettes(())
+    return _load_karaoke_json_tuple(EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_PALETTES_VALUE, normalize_external_floating_karaoke_color_palettes, fallback)
+
+
+def save_external_floating_karaoke_color_palettes(values: Iterable[int]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_PALETTES_VALUE, normalize_external_floating_karaoke_color_palettes(values))
+
+
+def load_external_floating_karaoke_color_speeds() -> tuple[float, ...]:
+    fallback = normalize_external_karaoke_color_speeds(())
+    return _load_karaoke_json_tuple(EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_SPEEDS_VALUE, normalize_external_karaoke_color_speeds, fallback)
+
+
+def save_external_floating_karaoke_color_speeds(values: Iterable[float]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_SPEEDS_VALUE, normalize_external_karaoke_color_speeds(values))
+
+
+def _load_floating_v192_profile(value_name: str, normalizer):
+    return _load_karaoke_json_tuple(value_name, normalizer, normalizer(()))
+
+
+def load_external_floating_karaoke_pattern_treatments() -> tuple[int, ...]:
+    values = _load_floating_v192_profile(EXTERNAL_FLOATING_LYRICS_KARAOKE_PATTERN_TREATMENTS_VALUE, normalize_external_karaoke_pattern_treatments)
+    if os.name == "nt" and values == normalize_external_karaoke_pattern_treatments(()) and load_external_floating_karaoke_color_mode() == 0:
+        with contextlib.suppress(Exception):
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+                legacy, _kind = winreg.QueryValueEx(key, EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_MODE_VALUE)
+            legacy_names = (
+                "plasma", "rainbow-glyphs", "solid", "horizontal-wave", "vertical-wave",
+                "diagonal-wave", "radial-ripple", "vortex", "checker-pulse", "neon-stripes",
+                "lava-lamp", "aurora-curtain", "electric-zigzag", "sparkle-field", "kaleidoscope",
+            )
+            legacy_name = legacy_names[max(0, min(len(legacy_names) - 1, int(legacy)))]
+            if legacy_name in EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS:
+                migrated = list(values)
+                migrated[0] = EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS.index(legacy_name)
+                return tuple(migrated)
+    return values
+
+
+def save_external_floating_karaoke_pattern_treatments(values: Iterable[int]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_FLOATING_LYRICS_KARAOKE_PATTERN_TREATMENTS_VALUE, normalize_external_karaoke_pattern_treatments(values))
+
+
+def load_external_floating_karaoke_timings() -> tuple[int, ...]:
+    return _load_floating_v192_profile(EXTERNAL_FLOATING_LYRICS_KARAOKE_TIMINGS_VALUE, normalize_external_karaoke_timings)
+
+
+def save_external_floating_karaoke_timings(values: Iterable[int]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_FLOATING_LYRICS_KARAOKE_TIMINGS_VALUE, normalize_external_karaoke_timings(values))
+
+
+def load_external_floating_karaoke_brightnesses() -> tuple[float, ...]:
+    return _load_floating_v192_profile(EXTERNAL_FLOATING_LYRICS_KARAOKE_BRIGHTNESSES_VALUE, normalize_external_karaoke_brightnesses)
+
+
+def save_external_floating_karaoke_brightnesses(values: Iterable[float]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_FLOATING_LYRICS_KARAOKE_BRIGHTNESSES_VALUE, normalize_external_karaoke_brightnesses(values))
+
+
+def load_external_floating_karaoke_saturations() -> tuple[float, ...]:
+    return _load_floating_v192_profile(EXTERNAL_FLOATING_LYRICS_KARAOKE_SATURATIONS_VALUE, normalize_external_karaoke_saturations)
+
+
+def save_external_floating_karaoke_saturations(values: Iterable[float]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_FLOATING_LYRICS_KARAOKE_SATURATIONS_VALUE, normalize_external_karaoke_saturations(values))
+
+
+def load_external_floating_karaoke_shadow_sizes() -> tuple[float, ...]:
+    return _load_floating_v192_profile(EXTERNAL_FLOATING_LYRICS_KARAOKE_SHADOW_SIZES_VALUE, normalize_external_karaoke_shadow_sizes)
+
+
+def save_external_floating_karaoke_shadow_sizes(values: Iterable[float]) -> None:
+    _save_karaoke_json_tuple(EXTERNAL_FLOATING_LYRICS_KARAOKE_SHADOW_SIZES_VALUE, normalize_external_karaoke_shadow_sizes(values))
+
+
+def load_external_floating_karaoke_timed_emphasis() -> int:
+    if os.name != "nt":
+        return 0
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_FLOATING_LYRICS_KARAOKE_TIMED_EMPHASIS_VALUE)
+        return normalize_external_album_art_karaoke_color_favorites(int(value))
+    except (OSError, TypeError, ValueError):
+        return 0
+
+
+def save_external_floating_karaoke_timed_emphasis(mask: int) -> None:
+    if os.name != "nt":
+        return
+    value = normalize_external_album_art_karaoke_color_favorites(mask)
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(key, EXTERNAL_FLOATING_LYRICS_KARAOKE_TIMED_EMPHASIS_VALUE, 0, winreg.REG_DWORD, value)
+    except OSError:
+        pass
+
+
+def external_karaoke_emphasis_enabled(mask: int, mode: int) -> bool:
+    return external_album_art_karaoke_color_is_favorite(mask, mode)
+
+
+def external_album_art_karaoke_pattern_position(
+    mode: str,
+    x: float,
+    y: float,
+    phase: float,
+) -> float:
+    """Map a pixel to a moving 0..1 palette coordinate for one lettering treatment."""
+    mode = str(mode or "plasma")
+    cx, cy = x - 24.0, y - 24.0
+    radius = math.hypot(cx, cy)
+    angle = math.atan2(cy, cx)
+    if mode == "horizontal-wave":
+        value = x / 31.0 + 0.18 * math.sin(y * 0.23 + phase * 1.9) + phase * 0.16
+    elif mode == "vertical-wave":
+        value = y / 31.0 + 0.18 * math.sin(x * 0.21 - phase * 1.7) - phase * 0.14
+    elif mode == "diagonal-wave":
+        value = (x + y) / 48.0 + 0.22 * math.sin((x - y) * 0.17 + phase * 2.0) + phase * 0.12
+    elif mode == "radial-ripple":
+        value = radius / 18.0 - phase * 0.42 + 0.09 * math.sin(angle * 5.0 + phase)
+    elif mode == "vortex":
+        value = angle / (2.0 * math.pi) + radius / 42.0 - phase * 0.18
+    elif mode == "checker-pulse":
+        checker = (math.floor(x / 6.0) + math.floor(y / 6.0)) & 1
+        value = checker * 0.48 + 0.22 * math.sin(phase * 2.7 + radius * 0.18) + phase * 0.08
+    elif mode == "neon-stripes":
+        value = 0.5 + 0.48 * math.sin((x * 0.48 + y * 0.12) - phase * 3.1)
+    elif mode == "lava-lamp":
+        value = 0.5 + 0.16 * (
+            math.sin(x * 0.11 + phase * 1.2)
+            + math.sin(y * 0.16 - phase * 0.9)
+            + math.sin((x - y) * 0.08 + phase * 0.7)
+        )
+    elif mode == "aurora-curtain":
+        curtain = y / 42.0 + 0.34 * math.sin(x * 0.16 + phase * 1.4)
+        value = curtain + 0.12 * math.sin(x * 0.05 - phase * 0.6)
+    elif mode == "electric-zigzag":
+        zig = abs(((x / 7.0 + phase * 1.7) % 2.0) - 1.0)
+        value = zig * 0.82 + y / 96.0 + 0.12 * math.sin(phase * 4.3)
+    elif mode == "sparkle-field":
+        noise = math.sin(x * 12.9898 + y * 78.233 + math.floor(phase * 7.0) * 37.719) * 43758.5453
+        sparkle = noise - math.floor(noise)
+        value = (x + y) / 72.0 + phase * 0.10 + (0.52 if sparkle > 0.88 else 0.0)
+    elif mode == "kaleidoscope":
+        folded = abs(((angle / math.pi * 6.0) % 2.0) - 1.0)
+        value = folded * 0.55 + radius / 34.0 - phase * 0.24
+    else:  # plasma and unknown future modes
+        wave = (
+            math.sin(x * 0.145 + phase * 1.00)
+            + math.sin(y * 0.173 - phase * 1.31)
+            + math.sin((x + y) * 0.097 + phase * 0.73)
+            + math.sin(radius * 0.155 - phase * 0.91)
+        )
+        value = 0.5 + 0.125 * wave + phase * 0.035
+    return float(value) % 1.0
+
+
+def external_album_art_karaoke_pattern_rgb(
+    mode: str,
+    x: float,
+    y: float,
+    phase: float,
+    palette_index: int = 0,
+) -> tuple[int, int, int]:
+    """Sample one lettering animation through the style's selected PAFPlayer palette."""
+    palette_index = max(0, min(len(PALETTE_STOPS) - 1, int(palette_index)))
+    if mode == "solid":
+        # Spatially solid, but slowly travel through the selected palette so the
+        # style remains visibly animated like the other coloring treatments.
+        position = (0.58 + float(phase) * 0.06) % 1.0
+    else:
+        position = external_album_art_karaoke_pattern_position(mode, x, y, phase)
+    return _palette_rgb(PALETTE_STOPS[palette_index], position)
+
+
+def external_album_art_plasma_rgb(x: float, y: float, phase: float) -> tuple[int, int, int]:
+    """Backward-compatible Full Rainbow sample of the Plasma lettering treatment."""
+    return external_album_art_karaoke_pattern_rgb("plasma", x, y, phase, 0)
+
+
+def adapt_karaoke_color_config_row_interval(
+    current_ms: int | float,
+    render_ms: int | float,
+    visible_count: int,
+) -> int:
+    """Return the next row-preview interval without ever affecting hero cadence.
+
+    The hero/marquee owns a fixed 20-fps scheduler.  Row previews are secondary:
+    if their measured render cost consumes too much of their budget, back them
+    off aggressively; when the GUI has headroom, recover gradually toward the
+    normal row cadence.  More simultaneously visible rows also bias toward a
+    slower interval because each style will be revisited through round-robin
+    staggering.
+    """
+    base = int(KARAOKE_COLOR_CONFIG_ROW_BASE_TICK_MS)
+    maximum = int(KARAOKE_COLOR_CONFIG_ROW_MAX_TICK_MS)
+    current = max(base, min(maximum, int(round(float(current_ms)))))
+    render = max(0.0, float(render_ms))
+    visible = max(1, int(visible_count))
+    overloaded = render > current * 0.48 or (visible >= 7 and render > current * 0.30)
+    if overloaded:
+        target = max(current * 1.30, render * 2.35, base + (visible - 4) * 12)
+        return max(base, min(maximum, int(round(target))))
+    if current > base and render < current * 0.22:
+        return max(base, int(round(current * 0.90)))
+    return current
+
+
+def next_karaoke_color_config_preview_index(
+    available_mode_indices: Iterable[int],
+    cursor: int,
+) -> tuple[int | None, int]:
+    """Choose exactly one configurator preview for this Tk event-loop turn.
+
+    V172 repainted every live preview in one callback.  On slower Windows/Tk
+    combinations that could monopolize the GUI thread badly enough that the new
+    configurator appeared hung.  V173 advances one preview at a time in a fair
+    round-robin cycle, leaving a real event-loop turn between expensive Pillow/
+    ImageTk work.
+    """
+    indices = tuple(sorted({int(value) for value in available_mode_indices}))
+    if not indices:
+        return None, 0
+    normalized = max(0, int(cursor)) % len(indices)
+    return indices[normalized], (normalized + 1) % len(indices)
+
+
+def catalog_picker_q_sequence_step(current_count: int, key: str) -> tuple[int, bool]:
+    """Advance the special Q→INS triple-Q escape without stealing normal query text.
+
+    The opener seeds ``current_count`` to one.  A second consecutive Q is still
+    allowed to become the first query character; only the third consecutive Q
+    requests quit.  Any different key breaks the sequence.
+    """
+    count = max(0, int(current_count))
+    if count and str(key).casefold() == "q":
+        count += 1
+        return count, count >= 3
+    return 0, False
+
+
+
+def load_external_album_art_topmost() -> bool:
+    """Return the user's persistent artwork-window always-on-top choice."""
+    if os.name != "nt":
+        return False
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_ALBUM_ART_TOPMOST_VALUE)
+        return bool(int(value))
+    except (OSError, TypeError, ValueError):
+        return False
+
+
+def save_external_album_art_topmost(enabled: bool) -> None:
+    """Persist the artwork window's independently toggleable z-order."""
+    if os.name != "nt":
+        return
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(
+                key, EXTERNAL_ALBUM_ART_TOPMOST_VALUE, 0,
+                winreg.REG_DWORD, int(bool(enabled)),
             )
     except OSError:
         pass
@@ -12862,6 +14194,37 @@ def save_external_floating_lyrics_geometry(geometry: str) -> None:
                 key, EXTERNAL_FLOATING_LYRICS_GEOMETRY_VALUE, 0, winreg.REG_SZ, value
             )
     except OSError:
+        pass
+
+
+def load_external_floating_lyrics_layout_size() -> tuple[int, int] | None:
+    """Load the persistent typography constraint independently of compact geometry."""
+    if os.name != "nt":
+        return None
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_FLOATING_LYRICS_LAYOUT_SIZE_VALUE)
+        match = re.fullmatch(r"(\d+)x(\d+)", str(value).strip())
+        if match:
+            return max(60, int(match.group(1))), max(36, int(match.group(2)))
+    except (OSError, TypeError, ValueError):
+        pass
+    return None
+
+
+def save_external_floating_lyrics_layout_size(width: int, height: int) -> None:
+    """Persist the edit rectangle used for floating lyric font fit/wrapping."""
+    if os.name != "nt":
+        return
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            winreg.SetValueEx(
+                key, EXTERNAL_FLOATING_LYRICS_LAYOUT_SIZE_VALUE, 0,
+                winreg.REG_SZ, f"{max(60, int(width))}x{max(36, int(height))}",
+            )
+    except (OSError, TypeError, ValueError):
         pass
 
 
@@ -13103,6 +14466,62 @@ def snap_external_album_art_geometry_to_aspect_keep_origin(
     return f"{width}x{height}{x:+d}{y:+d}"
 
 
+
+def compact_external_album_art_geometry_to_fitted_image(
+    geometry: str,
+    *,
+    source_width: int,
+    source_height: int,
+    control_height: int,
+    control_min_width: int,
+    border_pixels: int,
+) -> str:
+    """Shrink only unused aspect-ratio gutters while preserving origin and controls.
+
+    The persisted/user-owned geometry remains authoritative.  This helper returns
+    a *transient* smaller client rectangle when a contained image leaves horizontal
+    or vertical transparent gutters.  Width never becomes smaller than the fixed
+    title/control chrome requires, and the result never grows beyond the supplied
+    geometry.  Therefore changing tracks may make the native title bar hug a
+    portrait image without hiding the buttons, while a later track can restore the
+    user's saved geometry rather than treating the compact fit as a manual resize.
+    """
+    parsed = _parse_external_album_art_geometry(geometry)
+    if parsed is None or source_width <= 0 or source_height <= 0:
+        return geometry
+    width, height, x, y = parsed
+    border = max(0, int(border_pixels))
+    controls_h = max(0, min(height - 1, int(control_height)))
+    min_controls_w = max(1, min(width, int(control_min_width)))
+    canvas_h = max(1, height - controls_h)
+    drawable_w = max(1, width - border * 2)
+    drawable_h = max(1, canvas_h - border * 2)
+    scale = min(
+        drawable_w / max(1, int(source_width)),
+        drawable_h / max(1, int(source_height)),
+    )
+    fitted_w = max(1, round(source_width * scale))
+    fitted_h = max(1, round(source_height * scale))
+
+    new_width = width
+    new_height = height
+    # Side gutters: reduce the whole top-level width, which also shortens the
+    # native caption/title bar.  Keep enough room for every client-area control.
+    if fitted_w < drawable_w - 1:
+        new_width = max(min_controls_w, fitted_w + border * 2)
+    # Top/bottom gutters: reduce the client height, retaining the complete
+    # control strip plus border and fitted image.
+    if fitted_h < drawable_h - 1:
+        new_height = max(
+            EXTERNAL_ALBUM_ART_MIN_SIZE,
+            controls_h + fitted_h + border * 2,
+        )
+
+    new_width = max(EXTERNAL_ALBUM_ART_MIN_SIZE, min(width, int(new_width)))
+    new_height = max(EXTERNAL_ALBUM_ART_MIN_SIZE, min(height, int(new_height)))
+    return f"{new_width}x{new_height}{x:+d}{y:+d}"
+
+
 def external_album_art_rotation_weights(count: int) -> list[float]:
     """Return the requested long-run non-idle dwell share for related artwork.
 
@@ -13305,15 +14724,45 @@ def windows_window_rect(hwnd: int | None) -> tuple[int, int, int, int] | None:
         return None
 
 
+def windows_foreground_window_handle() -> int:
+    """Return the current foreground HWND without changing activation."""
+    if os.name != "nt":
+        return 0
+    try:
+        import ctypes
+        return int(ctypes.windll.user32.GetForegroundWindow() or 0)
+    except Exception:
+        return 0
+
+
+def windows_restore_foreground_window(hwnd: int) -> bool:
+    """Best-effort foreground restore used after Tk startup steals console focus."""
+    if os.name != "nt" or not int(hwnd or 0):
+        return False
+    try:
+        import ctypes
+        from ctypes import wintypes
+        user32 = ctypes.windll.user32
+        target = wintypes.HWND(int(hwnd))
+        # ShowWindow is harmless for an already-visible terminal and helps when
+        # the host minimized/restored during Tk initialization.
+        with contextlib.suppress(Exception):
+            user32.ShowWindow(target, 5)  # SW_SHOW
+        restored = bool(user32.SetForegroundWindow(target))
+        if not restored:
+            with contextlib.suppress(Exception):
+                user32.BringWindowToTop(target)
+            restored = bool(user32.SetForegroundWindow(target))
+        return restored
+    except Exception:
+        return False
+
+
 def windows_foreground_window_rect() -> tuple[int, int, int, int] | None:
     """Return the current foreground window rectangle without changing focus."""
     if os.name != "nt":
         return None
-    try:
-        import ctypes
-        hwnd = int(ctypes.windll.user32.GetForegroundWindow() or 0)
-    except Exception:
-        return None
+    hwnd = windows_foreground_window_handle()
     return windows_window_rect(hwnd)
 
 
@@ -13825,7 +15274,7 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
 <div class="transport" aria-label="Winamp-style transport">
   <button class="wawi" onclick="action('previous-file')" title="Last">|◀</button>
   <button class="wawi play" onclick="action('web-play')" title="Play / resume">▶</button>
-  <button class="wawi pause" onclick="action('web-pause')" title="Pause">Ⅱ</button>
+  <button id="pauseResumeButton" class="wawi pause" onclick="action('pause-toggle')" title="Pause / resume">⏸︎</button>
   <button class="wawi stop" onclick="action('stop')" title="Stop">■</button>
   <button class="wawi" onclick="action('next-file')" title="Next">▶|</button>
 </div>
@@ -13854,6 +15303,7 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
 </main>
 <script>
 const ms=__POLL_MS__;
+const spectrumMs=__SPECTRUM_POLL_MS__;
 let artGeneration=-1;
 let webArtIndex=0;
 let latestState={};
@@ -13861,6 +15311,7 @@ let lyricText='';
 let lyricSpans=[];
 let spectrumTarget=[];
 let spectrumCurrent=[];
+let spectrumPaused=false;
 let controlSchema=null;
 let lyricReservedHeight=0;
 let lyricUnusedSince=null;
@@ -13939,6 +15390,7 @@ function setRainbowLyric(text){
 }
 
 function animateLyric(now){
+  if(spectrumPaused){requestAnimationFrame(animateLyric);return;}
   const count=Math.max(1,lyricSpans.length);
   const phase=(now/28)%360;
   lyricSpans.forEach((span,index)=>{
@@ -13958,6 +15410,7 @@ function resizeCanvas(){
 }
 
 function drawSpectrum(now){
+  if(spectrumPaused){requestAnimationFrame(drawSpectrum);return;}
   resizeCanvas();
   const canvas=document.getElementById('visualizer');
   const ctx=canvas.getContext('2d');
@@ -14130,8 +15583,9 @@ async function tick(){
   document.getElementById('bar').style.width=((s.progress||0)*100).toFixed(2)+'%';
   const indicator=s.paused?'⏸':'▶';
   document.getElementById('time').textContent=indicator+' '+fmtTime(s.position_seconds)+' / '+fmtTime(s.duration_seconds)+'   '+Math.round((s.progress||0)*100)+'%';
-  setRainbowLyric(s.lyric||'');
-  spectrumTarget=Array.isArray(s.spectrum)?s.spectrum:[];
+  if(!spectrumPaused) setRainbowLyric(s.lyric||'');
+  const pauseButton=document.getElementById('pauseResumeButton');
+  if(pauseButton){pauseButton.textContent=s.paused?'▶':'⏸︎';pauseButton.title=s.paused?'Resume':'Pause';}
   const chips=[
     'Vol '+(s.volume??'')+'%',
     'Speed '+(s.speed??'')+'×',
@@ -14153,6 +15607,16 @@ async function tick(){
  setTimeout(tick,ms);
 }
 
+
+async function spectrumTick(){
+ try{
+  const s=await (await fetch('/api/spectrum',{cache:'no-store'})).json();
+  spectrumPaused=!!s.paused;
+  if(!spectrumPaused) spectrumTarget=Array.isArray(s.spectrum)?s.spectrum:[];
+ }catch(e){}
+ setTimeout(spectrumTick,spectrumMs);
+}
+
 document.querySelector('details').addEventListener('toggle',async e=>{
  if(e.target.open){
    const rows=await (await fetch('/api/tags')).json();
@@ -14170,10 +15634,13 @@ new ResizeObserver(resizeCanvas).observe(document.getElementById('visualizer'));
 new ResizeObserver(()=>updateKaraokeReservation()).observe(document.getElementById('lyric'));
 window.addEventListener('resize',()=>requestAnimationFrame(()=>updateKaraokeReservation()));
 setInterval(()=>updateKaraokeReservation(),500);
-build();tick();requestAnimationFrame(drawSpectrum);requestAnimationFrame(animateLyric);
+build();tick();spectrumTick();requestAnimationFrame(drawSpectrum);requestAnimationFrame(animateLyric);
 </script>
 </body></html>"""
-    return html.replace("__POLL_MS__", str(WEB_STATUS_POLL_MILLISECONDS))
+    return (
+        html.replace("__POLL_MS__", str(WEB_STATUS_POLL_MILLISECONDS))
+        .replace("__SPECTRUM_POLL_MS__", str(WEB_SPECTRUM_POLL_MILLISECONDS))
+    )
 
 
 class PAFWebServer:
@@ -14201,6 +15668,7 @@ class PAFWebServer:
         self._art_variant_mimes: list[str] = []
         self._art_generation = 0
         self._art_worker_generation = 0
+        self._spectrum_state: dict[str, object] = {"spectrum": [], "sequence": 0, "paused": False}
         self._state: dict[str, object] = {
             "program": PROGRAM_TITLE,
             "version": PROGRAM_VERSION,
@@ -14271,6 +15739,9 @@ class PAFWebServer:
                     return
                 if path == "/api/status":
                     self._json(200, owner.snapshot())
+                    return
+                if path == "/api/spectrum":
+                    self._json(200, owner.spectrum_snapshot())
                     return
                 if path == "/api/actions":
                     self._json(200, paf_web_action_catalog())
@@ -14380,6 +15851,28 @@ class PAFWebServer:
         with self._lock:
             return _paf_web_json_safe(dict(self._state))
 
+    def spectrum_snapshot(self) -> dict[str, object]:
+        """Return only the compact high-rate browser visualizer payload."""
+        with self._lock:
+            return _paf_web_json_safe(dict(self._spectrum_state))
+
+    def set_visualizer_paused(self, paused: bool) -> None:
+        """Freeze/unfreeze the browser spectrum without affecting audio or status polling."""
+        with self._lock:
+            paused = bool(paused)
+            if bool(self._spectrum_state.get("paused", False)) == paused:
+                return
+            self._spectrum_state["paused"] = paused
+            self._spectrum_state["sequence"] = int(self._spectrum_state.get("sequence", 0) or 0) + 1
+
+    def publish_spectrum(self, spectrum) -> None:
+        """Publish a reduced visualizer frame independently of full status JSON."""
+        with self._lock:
+            if bool(self._spectrum_state.get("paused", False)):
+                return
+            self._spectrum_state["spectrum"] = _paf_web_json_safe(list(spectrum or []))
+            self._spectrum_state["sequence"] = int(self._spectrum_state.get("sequence", 0) or 0) + 1
+
     def current_audio(self) -> Path | None:
         with self._lock:
             return Path(self._current_audio) if self._current_audio is not None else None
@@ -14454,6 +15947,7 @@ class PAFWebServer:
                 "art_generation": self._art_generation,
                 "art_count": 0,
             })
+            self._spectrum_state = {"spectrum": [], "sequence": int(self._spectrum_state.get("sequence", 0) or 0) + 1, "paused": False}
             self._art_variants = []
             self._art_variant_mimes = []
             self._art_worker_generation += 1
@@ -14550,6 +16044,7 @@ class PAFWebServer:
             self._state["paused"] = False
             self._state["result"] = str(result)
             self._state["updated_at_epoch"] = time.time()
+            self._spectrum_state = {"spectrum": [], "sequence": int(self._spectrum_state.get("sequence", 0) or 0) + 1, "paused": False}
 
 
 class ExternalAlbumArtWindow:
@@ -14573,10 +16068,20 @@ class ExternalAlbumArtWindow:
         self._window_title = ""
         self._track_identity = ""
         self._current_lyric = ""
+        self._current_lyric_progress = 0.0
         self._terminal_redraw_requested = threading.Event()
+        self._color_configurator_active = threading.Event()
+        self._color_configurator_target: str | None = None
+        self._spectrum_ready_for_art_karaoke = threading.Event()
         self._generation = 0
+        # Capture the console/terminal while the playback owner still has focus.
+        # Tk() itself can momentarily activate a new top-level before it is
+        # withdrawn; using this pre-Tk HWND lets V173 restore the console after
+        # initialization instead of accidentally "restoring" focus to Tk.
+        self._player_window_hwnd = windows_foreground_window_handle()
         self._player_window_rect = (
-            windows_foreground_window_rect()
+            windows_window_rect(self._player_window_hwnd)
+            or windows_foreground_window_rect()
             or windows_console_host_rect()
         )
 
@@ -14619,6 +16124,8 @@ class ExternalAlbumArtWindow:
                 "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
             )
         finally:
+            self._color_configurator_active.clear()
+            self._spectrum_ready_for_art_karaoke.clear()
             # _gui_main's frame is gone here, so cycles containing Tk widgets or
             # ImageTk objects can be collected on the same thread that created
             # Tcl rather than later on Python's main/finalizer thread.
@@ -14633,6 +16140,7 @@ class ExternalAlbumArtWindow:
                 return
             self._current_audio = path
             self._current_has_art = None
+            self._spectrum_ready_for_art_karaoke.clear()
             self._generation += 1
             generation = self._generation
             enabled = self._enabled
@@ -14707,6 +16215,18 @@ class ExternalAlbumArtWindow:
         with self._lock:
             return self._current_has_art
 
+    @property
+    def color_configurator_active(self) -> bool:
+        """True while the lettering configurator owns PAFPlayer's visual animation budget."""
+        return self._color_configurator_active.is_set()
+
+    def set_spectrum_ready_for_art_karaoke(self, ready: bool = True) -> None:
+        """Gate startup artwork-karaoke animation until the analyzer has a usable frame."""
+        if ready:
+            self._spectrum_ready_for_art_karaoke.set()
+        else:
+            self._spectrum_ready_for_art_karaoke.clear()
+
     def update_title(self, title: str) -> None:
         """Mirror PAFPlayer's live console/web title into the art popup."""
         with self._lock:
@@ -14735,16 +16255,33 @@ class ExternalAlbumArtWindow:
         self._commands.put(("toggle-floating-lyrics",))
         append_pafplayer_trace("lyrics.floating.toggle-request")
 
-    def update_lyric(self, lyric: str) -> None:
-        """Publish the current karaoke line to artwork/floating lyric renderers."""
+    def update_lyric(self, lyric: str, emphasis_progress: float = 0.0) -> None:
+        """Publish the current karaoke line plus 0..1 cue progress to both GUI renderers."""
         value = str(lyric or "").strip()
+        progress = max(0.0, min(1.0, float(emphasis_progress)))
         with self._lock:
-            if self._closed or value == self._current_lyric:
+            if self._closed:
+                return
+            text_changed = value != self._current_lyric
+            progress_changed = abs(progress - self._current_lyric_progress) >= 0.005
+            if not text_changed and not progress_changed:
                 return
             self._current_lyric = value
+            self._current_lyric_progress = progress
+        if (
+            self._color_configurator_active.is_set()
+            and self._color_configurator_target != "floating"
+        ):
+            # Keep newest cue/progress in the owner object while an artwork
+            # configurator owns the GUI animation budget.  A floating-lyrics
+            # configurator is the exception: its real floating lyric stays live.
+            return
         if self._thread is not None and self._thread.is_alive():
-            self._commands.put(("lyric", value))
-            append_pafplayer_trace("lyrics.cue", text=value[:500], length=len(value))
+            if text_changed:
+                self._commands.put(("lyric", value, progress))
+                append_pafplayer_trace("lyrics.cue", text=value[:500], length=len(value))
+            else:
+                self._commands.put(("lyric-progress", progress))
 
     def consume_terminal_redraw_request(self) -> bool:
         """Return and clear the GUI's request for one owner-thread HUD repaint."""
@@ -14827,6 +16364,7 @@ class ExternalAlbumArtWindow:
     def _gui_main(self) -> None:
         try:
             import tkinter as tk
+            from tkinter import ttk
         except Exception:
             return
         try:
@@ -14846,24 +16384,39 @@ class ExternalAlbumArtWindow:
         root.report_callback_exception = report_tk_callback_exception
 
         root.title("PAFPlayer Album Art")
-        root.configure(background="black")
+        art_transparent = EXTERNAL_ALBUM_ART_TRANSPARENT_KEY
+        root.configure(background=art_transparent)
+        with contextlib.suppress(Exception):
+            root.configure(borderwidth=0)
+        with contextlib.suppress(Exception):
+            root.attributes("-transparentcolor", art_transparent)
         root.minsize(EXTERNAL_ALBUM_ART_MIN_SIZE, EXTERNAL_ALBUM_ART_MIN_SIZE)
         # A normal client-area command strip is deliberately used instead of a
         # second borderless window laid over the native caption.  The old overlay
         # looked like a graphical glitch and could fight the caption buttons.
         control_strip = tk.Frame(root, background="#f0f0f0", borderwidth=0)
         control_strip.pack(fill="x", side="top")
+        # V181 owns exactly one five-pixel focus border, OUTSIDE the artwork
+        # canvas.  Earlier builds used Canvas highlight pixels as the focus
+        # border while a second outer/native edge could remain visible, which
+        # looked like a five-pixel window nested inside another five-pixel
+        # window.  The wrapper is the sole application border; the canvas itself
+        # is borderless.
+        initial_art_border = external_album_art_scaled_border_pixels(EXTERNAL_ALBUM_ART_BASE_DPI)
+        art_border_frame = tk.Frame(
+            root, background=art_transparent, borderwidth=0, highlightthickness=0
+        )
+        art_border_frame.pack(fill="both", expand=True, side="top")
         canvas = tk.Canvas(
-            root,
-            background="black",
-            highlightthickness=external_album_art_scaled_border_pixels(
-                EXTERNAL_ALBUM_ART_BASE_DPI
-            ),
-            highlightbackground="#707070",
-            highlightcolor="#909090",
+            art_border_frame,
+            background=art_transparent,
+            highlightthickness=0,
             borderwidth=0,
         )
-        canvas.pack(fill="both", expand=True, side="top")
+        canvas.pack(
+            fill="both", expand=True,
+            padx=initial_art_border, pady=initial_art_border,
+        )
         root.withdraw()
 
         state: dict[str, object] = {
@@ -14877,10 +16430,31 @@ class ExternalAlbumArtWindow:
             "player_title": self._window_title,
             "track_identity": self._track_identity,
             "lyric": self._current_lyric,
+            "lyric_progress": self._current_lyric_progress,
             "lyrics_mode": load_external_album_art_lyrics_mode(),
-            "border_pixels": external_album_art_scaled_border_pixels(
-                EXTERNAL_ALBUM_ART_BASE_DPI
-            ),
+            "lyric_font_scale": load_external_album_art_lyric_font_scale(),
+            "karaoke_color_mode": load_external_album_art_karaoke_startup_color_mode(),
+            "karaoke_color_favorites": load_external_album_art_karaoke_color_favorites(),
+            "karaoke_color_default_mode": load_external_album_art_karaoke_color_default_mode(load_external_album_art_karaoke_color_mode()),
+            "karaoke_color_palettes": load_external_album_art_karaoke_color_palettes(),
+            "karaoke_color_speeds": load_external_album_art_karaoke_color_speeds(),
+            "karaoke_pattern_treatments": load_external_album_art_karaoke_pattern_treatments(),
+            "karaoke_timings": load_external_album_art_karaoke_timings(),
+            "karaoke_brightnesses": load_external_album_art_karaoke_brightnesses(),
+            "karaoke_saturations": load_external_album_art_karaoke_saturations(),
+            "karaoke_shadow_sizes": load_external_album_art_karaoke_shadow_sizes(),
+            "floating_karaoke_color_mode": load_external_floating_karaoke_startup_color_mode(),
+            "floating_karaoke_color_favorites": load_external_floating_karaoke_color_favorites(),
+            "floating_karaoke_color_default_mode": load_external_floating_karaoke_color_default_mode(load_external_floating_karaoke_color_mode()),
+            "floating_karaoke_color_palettes": load_external_floating_karaoke_color_palettes(),
+            "floating_karaoke_color_speeds": load_external_floating_karaoke_color_speeds(),
+            "floating_karaoke_pattern_treatments": load_external_floating_karaoke_pattern_treatments(),
+            "floating_karaoke_timings": load_external_floating_karaoke_timings(),
+            "floating_karaoke_brightnesses": load_external_floating_karaoke_brightnesses(),
+            "floating_karaoke_saturations": load_external_floating_karaoke_saturations(),
+            "floating_karaoke_shadow_sizes": load_external_floating_karaoke_shadow_sizes(),
+            "border_pixels": initial_art_border,
+            "art_border_frame": art_border_frame,
             "art_aspect": None,
             "aspect_constraint_active": False,
             "aspect_constraint_supported": True,
@@ -14898,20 +16472,79 @@ class ExternalAlbumArtWindow:
             "transient_geometry": "",
             "title_button": None,
             "identity_label": None,
+            "zoom_frame": None,
+            "zoom_out_button": None,
+            "zoom_in_button": None,
+            "art_color_config_button": None,
+            "floating_color_config_button": None,
+            "color_config_window": None,
+            "color_config_target": "artwork",
+            "color_config_after": None,  # legacy alias; V178 uses independent hero/row schedulers below.
+            "color_config_hero_after": None,
+            "color_config_rows_after": None,
+            "color_config_row_interval_ms": KARAOKE_COLOR_CONFIG_ROW_BASE_TICK_MS,
+            "color_config_row_render_ema_ms": 0.0,
+            "color_config_preview_cursor": 0,
+            "color_config_preview_canvases": {},
+            "color_config_scroller": None,
+            "color_config_preview_photos": {},
+            "color_config_preview_items": {},
+            "color_config_preview_item_keys": {},
+            "color_config_preview_layout_cache": {},
+            "color_config_pillow_font_cache": {},
+            "color_config_favorite_vars": {},
+            "color_config_enabled_var": None,
+            "color_config_default_var": None,
+            "color_config_palette_vars": {},
+            "color_config_palette_picker_canvases": {},
+            "color_config_palette_picker_font": None,
+            "color_config_palette_popup": None,
+            "color_config_speed_vars": {},
+            "color_config_timing_vars": {},
+            "color_config_treatment_vars": {},
+            "color_config_brightness_vars": {},
+            "color_config_saturation_vars": {},
+            "color_config_shadow_vars": {},
+            "color_config_title_buttons": {},
+            "color_config_hero_canvas": None,
+            "color_config_hero_photo": None,
+            "color_config_hero_item": None,
+            "color_config_hero_item_key": None,
+            "color_config_hero_label": None,
+            "color_config_animation_tick": 0,
+            "color_config_preview_mode": None,
+            "art_fit_key": None,
+            "window_active": False,
             "floating_window": None,
             "floating_canvas": None,
             "floating_glyph_boxes": [],
             "floating_drag": None,
+            "floating_geometry_sync": False,
+            "floating_content_center": None,
+            "floating_layout_size": load_external_floating_lyrics_layout_size(),
             "floating_resize_after": None,
             "floating_color_after": None,
             "floating_save_after": None,
             "floating_color_items": [],
+            "floating_lyric_mask": None,
+            "floating_lyric_photo": None,
+            "floating_lyric_item": None,
+            "floating_lyric_origin": None,
+            "floating_lyric_shadow": 0,
             "floating_wndproc": None,
             "floating_original_wndproc": None,
             "floating_hwnd": 0,
+            "floating_edit_mode": False,
+            "floating_focus_after": None,
+            "art_topmost": load_external_album_art_topmost(),
             "floating_topmost": load_external_floating_lyrics_topmost(),
             "artwork_lyric_color_after": None,
             "artwork_lyric_color_items": [],
+            "artwork_lyric_plasma_item": None,
+            "artwork_lyric_plasma_photo": None,
+            "artwork_lyric_plasma_mask": None,
+            "artwork_lyric_plasma_origin": None,
+            "artwork_lyric_plasma_shadow": 0,
             "mouse_buttons": set(),
             "mouse_click_after": None,
             "left_click_count": 0,
@@ -14938,7 +16571,32 @@ class ExternalAlbumArtWindow:
             "crossfade_from_frame": None,
             "crossfade_to_frame": None,
             "attention_acknowledged": False,
+            "initial_console_focus_restore_pending": bool(self._player_window_hwnd),
+            "initial_console_focus_restore_attempts": 0,
+            "native_border_after": None,
+            "native_border_region_key": None,
+            "native_border_style_hwnd": 0,
         }
+
+        def restore_console_focus_after_initialization() -> None:
+            """Return foreground ownership to the console after Tk startup/show.
+
+            Tk may activate its root while creating the artwork window even though
+            PAFPlayer immediately withdraws it.  V173 captured the terminal HWND
+            before starting Tk, so this callback can restore the intended owner
+            without guessing from whichever window happens to be foreground now.
+            """
+            if not bool(state.get("initial_console_focus_restore_pending")):
+                return
+            attempts = int(state.get("initial_console_focus_restore_attempts", 0) or 0) + 1
+            state["initial_console_focus_restore_attempts"] = attempts
+            restored = windows_restore_foreground_window(self._player_window_hwnd)
+            if restored or attempts >= 4 or os.name != "nt":
+                state["initial_console_focus_restore_pending"] = False
+                return
+            with contextlib.suppress(Exception):
+                root.after(90, restore_console_focus_after_initialization)
+
 
         def current_geometry() -> str:
             try:
@@ -14954,6 +16612,10 @@ class ExternalAlbumArtWindow:
         root.geometry(initial)
         state["last_geometry"] = initial
         state["preferred_geometry"] = initial
+        # Tk() can briefly take foreground ownership even though root was
+        # withdrawn above. Give Windows/Tk one event-loop turn, then return focus
+        # to the console captured before the GUI thread existed.
+        root.after(1, restore_console_focus_after_initialization)
 
         def ctrl_is_down() -> bool:
             if os.name != "nt":
@@ -14999,6 +16661,157 @@ class ExternalAlbumArtWindow:
                     pass
             return EXTERNAL_ALBUM_ART_BASE_DPI
 
+        def suppress_native_windows_border() -> None:
+            """Hide the native one-pixel frame without blocking Tk's Configure loop.
+
+            V172/V173 applied ``SetWindowRgn`` synchronously from every Configure
+            callback (and, through ``refresh_monitor_scaled_chrome``, sometimes
+            twice per callback).  On Windows 10 that can recursively generate more
+            nonclient/configure work faster than Tk can drain it, leaving a black
+            ``(Not Responding)`` artwork window.
+
+            V174 applies style cleanup once per HWND and clips the one-pixel frame
+            at most once per *settled outer size*.  The caller always reaches this
+            function through a debounced ``after`` callback, never directly from
+            ``<Configure>``.
+            """
+            if os.name != "nt":
+                return
+            hwnd = widget_root_hwnd(root)
+            if not hwnd:
+                return
+            try:
+                if not bool(root.winfo_viewable()):
+                    return
+            except Exception:
+                return
+            try:
+                import ctypes
+                from ctypes import wintypes
+                user32 = ctypes.windll.user32
+                gdi32 = ctypes.windll.gdi32
+
+                # Apply static nonclient style cleanup only once for this HWND.
+                if int(state.get("native_border_style_hwnd", 0) or 0) != int(hwnd):
+                    # Windows 11+: DWMWA_BORDER_COLOR = 34, DWMWA_COLOR_NONE.
+                    with contextlib.suppress(Exception):
+                        color_none = ctypes.c_uint(0xFFFFFFFE)
+                        ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                            wintypes.HWND(hwnd), 34, ctypes.byref(color_none), ctypes.sizeof(color_none)
+                        )
+                    GWL_EXSTYLE = -20
+                    WS_EX_CLIENTEDGE = 0x00000200
+                    WS_EX_STATICEDGE = 0x00020000
+                    get_long = user32.GetWindowLongPtrW
+                    set_long = user32.SetWindowLongPtrW
+                    get_long.argtypes = [wintypes.HWND, ctypes.c_int]
+                    get_long.restype = ctypes.c_ssize_t
+                    set_long.argtypes = [wintypes.HWND, ctypes.c_int, ctypes.c_ssize_t]
+                    set_long.restype = ctypes.c_ssize_t
+                    exstyle = int(get_long(wintypes.HWND(hwnd), GWL_EXSTYLE) or 0)
+                    cleaned = exstyle & ~(WS_EX_CLIENTEDGE | WS_EX_STATICEDGE)
+                    if cleaned != exstyle:
+                        set_long(wintypes.HWND(hwnd), GWL_EXSTYLE, cleaned)
+                    state["native_border_style_hwnd"] = int(hwnd)
+
+                # Windows 10 fallback: clip only the outermost physical pixel.
+                # Crucially, repeat this only when the settled OUTER size changes.
+                rect = wintypes.RECT()
+                if not user32.GetWindowRect(wintypes.HWND(hwnd), ctypes.byref(rect)):
+                    return
+                outer_w = max(3, int(rect.right - rect.left))
+                outer_h = max(3, int(rect.bottom - rect.top))
+                # The native frame is never one of PAFPlayer's visible borders.
+                # Clip two physical pixels in BOTH focus states so Windows 10/11
+                # cannot contribute a second edge outside our sole 5px wrapper.
+                inset = 2
+                region_key = (int(hwnd), outer_w, outer_h, inset)
+                if state.get("native_border_region_key") == region_key:
+                    return
+                region = gdi32.CreateRectRgn(inset, inset, outer_w - inset, outer_h - inset)
+                if region:
+                    if user32.SetWindowRgn(wintypes.HWND(hwnd), region, True):
+                        # Windows owns a successfully installed HRGN.
+                        state["native_border_region_key"] = region_key
+                    else:
+                        gdi32.DeleteObject(region)
+            except Exception:
+                return
+
+        def schedule_native_windows_border_suppression(delay_ms: int = 70) -> None:
+            """Coalesce native-frame work so resize/configure storms stay responsive."""
+            prior = state.get("native_border_after")
+            if prior is not None:
+                with contextlib.suppress(Exception):
+                    root.after_cancel(prior)
+            def apply_once() -> None:
+                state["native_border_after"] = None
+                suppress_native_windows_border()
+            with contextlib.suppress(Exception):
+                state["native_border_after"] = root.after(max(1, int(delay_ms)), apply_once)
+
+        def centered_native_caption_text(value: str) -> str:
+            """Return one caption string shared by titlebar and taskbar, without padding."""
+            return str(value or "").strip()
+
+        def window_is_active() -> bool:
+            """Return whether the native artwork top-level currently owns foreground focus."""
+            if os.name == "nt":
+                try:
+                    import ctypes
+                    hwnd = widget_root_hwnd(root)
+                    return bool(hwnd and int(ctypes.windll.user32.GetForegroundWindow() or 0) == hwnd)
+                except (AttributeError, OSError, ValueError, TypeError):
+                    pass
+            with contextlib.suppress(Exception):
+                return root.focus_displayof() is not None
+            return False
+
+        def apply_focus_chrome() -> None:
+            """Show exactly one OUTER five-pixel art border only while focused.
+
+            The border is the wrapper behind the borderless canvas.  When focus is
+            elsewhere the wrapper becomes the chroma-key transparent color, and
+            native Windows edge suppression remains active independently.
+            """
+            active = bool(window_is_active())
+            state["window_active"] = active
+            border_color = "#909090" if active else art_transparent
+            border_frame = state.get("art_border_frame")
+            if border_frame is not None:
+                with contextlib.suppress(Exception):
+                    border_frame.configure(background=border_color)
+            zoom_frame = state.get("zoom_frame")
+            if zoom_frame is not None:
+                with contextlib.suppress(Exception):
+                    if active:
+                        if not bool(zoom_frame.winfo_ismapped()):
+                            zoom_frame.pack(side="right", padx=(0, 4), pady=3)
+                    else:
+                        zoom_frame.pack_forget()
+
+        def schedule_focus_chrome_update(_event=None) -> None:
+            prior = state.get("focus_chrome_after")
+            if prior is not None:
+                with contextlib.suppress(Exception):
+                    root.after_cancel(prior)
+            # FocusOut fires before Windows has always committed the new
+            # foreground HWND. Query after that transition instead of repainting
+            # against the stale active window.
+            with contextlib.suppress(Exception):
+                state["focus_chrome_after"] = root.after(
+                    75,
+                    lambda: (state.__setitem__("focus_chrome_after", None), apply_focus_chrome()),
+                )
+            schedule_native_windows_border_suppression(delay_ms=12)
+
+        def focus_chrome_watch() -> None:
+            """Repair missed Windows focus transitions without visible polling work."""
+            if bool(window_is_active()) != bool(state.get("window_active")):
+                apply_focus_chrome()
+            with contextlib.suppress(Exception):
+                root.after(180, focus_chrome_watch)
+
         def refresh_monitor_scaled_chrome() -> None:
             """Resize art border pixels after a cross-monitor DPI transition."""
             dpi = widget_dpi(root)
@@ -15006,7 +16819,13 @@ class ExternalAlbumArtWindow:
             if border != int(state.get("border_pixels", 0) or 0):
                 state["border_pixels"] = border
                 with contextlib.suppress(Exception):
-                    canvas.configure(highlightthickness=border)
+                    canvas.pack_configure(padx=border, pady=border)
+            apply_focus_chrome()
+            schedule_native_windows_border_suppression()
+
+        root.bind("<FocusIn>", schedule_focus_chrome_update, add="+")
+        root.bind("<FocusOut>", schedule_focus_chrome_update, add="+")
+        root.after(180, focus_chrome_watch)
 
         def floating_current_geometry() -> str:
             window = state.get("floating_window")
@@ -15034,21 +16853,99 @@ class ExternalAlbumArtWindow:
                     window.after_cancel(prior)
             state["floating_save_after"] = window.after(350, save_floating_geometry_now)
 
-        def render_floating_lyric() -> None:
-            """Rebuild floating lyric geometry only after text/size changes.
+        def build_floating_lyric_mask(width: int, height: int, lyric: str):
+            """Build a tightly cropped floating-lyric mask while preserving its hit box."""
+            from PIL import Image, ImageDraw  # type: ignore
+            max_width = max(60, width - max(20, round(width * 0.06)))
+            max_height = max(36, height - max(14, round(height * 0.08)))
+            scratch = Image.new("L", (8, 8), 0)
+            draw = ImageDraw.Draw(scratch)
+            desired = max(18, min(160, round(height * 0.36)))
+            chosen = None
+            for pixel_size in range(desired, 15, -1):
+                font = resolve_artwork_pillow_font(pixel_size)
+                words = lyric.split()
+                lines: list[str] = []
+                current = ""
+                def measure(value: str) -> int:
+                    box = draw.textbbox((0, 0), value, font=font)
+                    return max(0, int(box[2] - box[0]))
+                for word in words:
+                    candidate = word if not current else current + " " + word
+                    if current and measure(candidate) > max_width:
+                        lines.append(current)
+                        current = word
+                    else:
+                        current = candidate
+                if current:
+                    lines.append(current)
+                if not lines:
+                    lines = [lyric]
+                text = "\n".join(lines)
+                bbox = draw.multiline_textbbox((0, 0), text, font=font, spacing=0, align="center")
+                tw = max(1, int(bbox[2] - bbox[0]))
+                th = max(1, int(bbox[3] - bbox[1]))
+                shadow = max(0, round(pixel_size * karaoke_shadow_size("floating")))
+                pad = shadow + 4
+                if tw + pad * 2 <= max_width and th + pad * 2 <= max_height:
+                    chosen = (font, text, bbox, shadow, pad)
+                    break
+            if chosen is None:
+                font = resolve_artwork_pillow_font(16)
+                text = lyric
+                bbox = draw.textbbox((0, 0), text, font=font)
+                chosen = (font, text, bbox, max(0, round(16 * karaoke_shadow_size("floating"))), 5)
+            font, text, bbox, shadow, pad = chosen
+            crop_w = max(1, int(bbox[2] - bbox[0]) + pad * 2)
+            crop_h = max(1, int(bbox[3] - bbox[1]) + pad * 2)
+            mask = Image.new("L", (crop_w, crop_h), 0)
+            mask_draw = ImageDraw.Draw(mask)
+            mask_draw.multiline_text(
+                (pad - bbox[0], pad - bbox[1]), text, font=font, fill=255,
+                spacing=0, align="center",
+            )
+            origin = (max(0, (width - crop_w) // 2), max(0, (height - crop_h) // 2))
+            return mask, origin, int(shadow)
 
-            V103 rebuilt every glyph repeatedly as part of lyric animation.  That
-            GUI-thread workload could starve the terminal painter badly enough
-            for DRCS frames to appear at stale cursor positions.  V104 creates
-            glyphs once and lets a tiny item-color timer animate them in place.
+        def fit_floating_window_to_content(width: int, height: int) -> None:
+            """Keep the transparent overlay no larger than the rendered lyric itself.
+
+            Geometry is deliberately *not* monitor-clamped here.  The saved x/y
+            is the lyric's exact screen-space top-left, so a user can place it
+            flush against an edge (or intentionally partly beyond one) without
+            Windows snapping a much larger invisible canvas back into view.
             """
+            window = state.get("floating_window")
+            if window is None or bool(state.get("floating_edit_mode")):
+                return
+            geometry = _parse_external_album_art_geometry(floating_current_geometry())
+            if geometry is None:
+                return
+            _old_width, _old_height, x, y = geometry
+            anchor = state.get("floating_content_center")
+            if isinstance(anchor, tuple) and len(anchor) == 2:
+                # A deliberate edit-mode resize establishes a visual center.
+                # Preserve that center when the large edit canvas collapses to
+                # its compact transparent lyric window.
+                x = round(float(anchor[0]) - max(1, int(width)) / 2.0)
+                y = round(float(anchor[1]) - max(1, int(height)) / 2.0)
+            desired = f"{max(1, int(width))}x{max(1, int(height))}{x:+d}{y:+d}"
+            if floating_current_geometry() == desired:
+                return
+            state["floating_geometry_sync"] = True
+            with contextlib.suppress(Exception):
+                window.geometry(desired)
+            with contextlib.suppress(Exception):
+                window.after_idle(lambda: state.__setitem__("floating_geometry_sync", False))
+
+        def render_floating_lyric() -> None:
+            """Render floating lyrics through the same V192 mode/treatment profile as artwork."""
             state["floating_resize_after"] = None
             window = state.get("floating_window")
             floating_canvas = state.get("floating_canvas")
             if window is None or floating_canvas is None:
                 return
             try:
-                import tkinter.font as tkfont
                 floating_canvas.delete("all")
                 width = max(1, int(floating_canvas.winfo_width()))
                 height = max(1, int(floating_canvas.winfo_height()))
@@ -15056,121 +16953,136 @@ class ExternalAlbumArtWindow:
                 return
 
             lyric = str(state.get("lyric") or "").strip()
-            boxes: list[tuple[int, int, int, int]] = []
-            state["floating_glyph_boxes"] = boxes
+            state["floating_glyph_boxes"] = []
             state["floating_color_items"] = []
+            state["floating_lyric_mask"] = None
+            state["floating_lyric_photo"] = None
+            state["floating_lyric_item"] = None
+            state["floating_lyric_origin"] = None
+            state["floating_lyric_shadow"] = 0
             if not lyric:
-                # Keep a newly enabled floating window discoverable even before
-                # the first timed cue.  This also distinguishes "no cue yet"
-                # from a window that failed to open.
-                waiting_font = tkfont.Font(
-                    root=window,
-                    family="Segoe UI",
-                    size=max(12, min(24, round(height * 0.15))),
-                    weight="bold",
-                )
-                item = floating_canvas.create_text(
-                    width // 2,
-                    height // 2,
-                    text="Waiting for lyrics…",
-                    fill="#8fdcff",
-                    font=waiting_font,
-                    anchor="center",
-                )
-                bbox = floating_canvas.bbox(item)
-                if bbox is not None:
-                    boxes.append(tuple(int(value) for value in bbox))
-                state["floating_glyph_boxes"] = boxes
+                # Keep an idle overlay to a single transparent pixel.  It is
+                # still a real window, but it cannot create a giant invisible
+                # hit area or force a placement away from a screen edge.
+                fit_floating_window_to_content(1, 1)
                 return
 
-            font_size = max(18, min(72, round(height * 0.34)))
-            font = tkfont.Font(
-                root=window,
-                family="Segoe UI",
-                size=font_size,
-                weight="bold",
-            )
-            max_width = max(40, width - max(20, round(width * 0.05)))
-            words = lyric.split()
-            lines: list[str] = []
-            current = ""
-            for word in words:
-                proposed = word if not current else current + " " + word
-                if current and font.measure(proposed) > max_width:
-                    lines.append(current)
-                    current = word
+            try:
+                from PIL import ImageTk  # type: ignore
+                mode_index = karaoke_color_mode_index("floating")
+                mode = karaoke_render_mode_name("floating", mode_index)
+                palette_index = karaoke_palette_index("floating", mode_index)
+                speed = karaoke_speed("floating", mode_index)
+                timing_type = karaoke_timing_type("floating", mode_index)
+                emphasis_progress = (
+                    float(state.get("lyric_progress", 0.0) or 0.0)
+                    if karaoke_timed_emphasis_enabled("floating", mode_index)
+                    else None
+                )
+                if bool(state.get("floating_edit_mode")):
+                    layout_width, layout_height = width, height
                 else:
-                    current = proposed
-            if current:
-                lines.append(current)
-            if not lines:
-                lines = [lyric]
-
-            line_height = max(1, int(font.metrics("linespace")))
-            total_height = line_height * len(lines)
-            y = max(0, (height - total_height) // 2)
-            glyph_index = 0
-            visible_count = max(1, sum(not ch.isspace() for line in lines for ch in line))
-            shadow = max(1, round(font_size / 24))
-            color_items: list[tuple[int, int, int]] = []
-            for line in lines:
-                x = max(0, (width - font.measure(line)) // 2)
-                for character in line:
-                    advance = max(1, int(font.measure(character)))
-                    if not character.isspace():
-                        for dx, dy in ((-shadow, 0), (shadow, 0), (0, -shadow), (0, shadow)):
-                            floating_canvas.create_text(
-                                x + dx,
-                                y + dy,
-                                text=character,
-                                fill="#000000",
-                                font=font,
-                                anchor="nw",
-                            )
-                        hue = (glyph_index / visible_count + time.monotonic() / 14.0) % 1.0
-                        red, green, blue = colorsys.hsv_to_rgb(hue, 0.82, 1.0)
-                        item = floating_canvas.create_text(
-                            x,
-                            y,
-                            text=character,
-                            fill=f"#{round(red * 255):02x}{round(green * 255):02x}{round(blue * 255):02x}",
-                            font=font,
-                            anchor="nw",
-                        )
-                        bbox = floating_canvas.bbox(item)
-                        if bbox is not None:
-                            boxes.append(tuple(int(value) for value in bbox))
-                        color_items.append((int(item), glyph_index, visible_count))
-                        glyph_index += 1
-                    x += advance
-                y += line_height
-            state["floating_glyph_boxes"] = boxes
-            state["floating_color_items"] = color_items
+                    # The last edit rectangle is the typography constraint even
+                    # though the transparent runtime window becomes compact.
+                    # Thus a wide/tall resize actually changes wrapping and font
+                    # scale instead of being discarded on focus loss.
+                    saved_layout = state.get("floating_layout_size")
+                    if isinstance(saved_layout, tuple) and len(saved_layout) == 2:
+                        layout_width = max(60, int(saved_layout[0]))
+                        layout_height = max(36, int(saved_layout[1]))
+                    else:
+                        layout_width = max(360, min(1280, int(window.winfo_screenwidth()) - 4))
+                        layout_height = max(90, min(320, int(window.winfo_screenheight()) - 4))
+                mask, origin, shadow = build_floating_lyric_mask(layout_width, layout_height, lyric)
+                if not bool(state.get("floating_edit_mode")):
+                    fit_floating_window_to_content(mask.size[0], mask.size[1])
+                    origin = (0, 0)
+                phase = (time.monotonic() / 2.7) * speed
+                rgba = pattern_rgba_for_mask(
+                    mask, shadow, phase, mode, palette_index,
+                    emphasis_progress=emphasis_progress,
+                    timing_type=timing_type,
+                    brightness=karaoke_brightness("floating", mode_index),
+                    saturation=karaoke_saturation("floating", mode_index),
+                )
+                photo = ImageTk.PhotoImage(rgba, master=window)
+                item = floating_canvas.create_image(
+                    int(origin[0]), int(origin[1]), image=photo, anchor="nw"
+                )
+                state["floating_lyric_mask"] = mask
+                state["floating_lyric_photo"] = photo
+                state["floating_lyric_item"] = int(item)
+                state["floating_lyric_origin"] = origin
+                state["floating_lyric_shadow"] = int(shadow)
+                state["floating_glyph_boxes"] = [
+                    (int(origin[0]), int(origin[1]), int(origin[0] + mask.size[0]), int(origin[1] + mask.size[1]))
+                ]
+                ensure_floating_color_animation()
+            except Exception as exc:
+                record_pafplayer_runtime_warning(
+                    f"Floating lyric renderer failed: {type(exc).__name__}: {exc}",
+                    "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
+                )
 
         def animate_floating_lyric_colors() -> None:
-            """Cycle existing floating glyph colors without rebuilding pixels."""
+            """Animate the floating lyric ImageTk layer using its independent saved style."""
             state["floating_color_after"] = None
             window = state.get("floating_window")
             floating_canvas = state.get("floating_canvas")
             if (
-                int(state.get("lyrics_mode", 0) or 0) != 2
+                not lyrics_mode_includes_floating(int(state.get("lyrics_mode", 0) or 0))
+                or (
+                    self._color_configurator_active.is_set()
+                    and self._color_configurator_target != "floating"
+                )
                 or window is None
                 or floating_canvas is None
             ):
                 return
-            phase = time.monotonic() / 3.0
-            for item, glyph_index, visible_count in list(state.get("floating_color_items") or []):
-                hue = (glyph_index / max(1, visible_count) + phase) % 1.0
-                red, green, blue = colorsys.hsv_to_rgb(hue, 0.84, 1.0)
+            mask = state.get("floating_lyric_mask")
+            item = state.get("floating_lyric_item")
+            if mask is None or item is None:
+                return
+            if state.get("floating_drag") is not None:
+                # Preserve a stable client coordinate system while the pointer
+                # owns a drag.  Rendering resumes immediately on release.
                 with contextlib.suppress(Exception):
-                    floating_canvas.itemconfigure(
-                        item,
-                        fill=f"#{round(red * 255):02x}{round(green * 255):02x}{round(blue * 255):02x}",
-                    )
-            with contextlib.suppress(Exception):
-                state["floating_color_after"] = window.after(
-                    150, animate_floating_lyric_colors
+                    state["floating_color_after"] = window.after(100, animate_floating_lyric_colors)
+                return
+            try:
+                from PIL import ImageTk  # type: ignore
+                mode_index = karaoke_color_mode_index("floating")
+                mode = karaoke_render_mode_name("floating", mode_index)
+                palette_index = karaoke_palette_index("floating", mode_index)
+                speed = karaoke_speed("floating", mode_index)
+                timing_type = karaoke_timing_type("floating", mode_index)
+                emphasis_progress = (
+                    float(state.get("lyric_progress", 0.0) or 0.0)
+                    if karaoke_timed_emphasis_enabled("floating", mode_index)
+                    else None
                 )
+                phase = (time.monotonic() / 2.7) * speed
+                shadow = max(0, int(state.get("floating_lyric_shadow", 0) or 0))
+                rgba = pattern_rgba_for_mask(
+                    mask, shadow, phase, mode, palette_index,
+                    emphasis_progress=emphasis_progress,
+                    timing_type=timing_type,
+                    brightness=karaoke_brightness("floating", mode_index),
+                    saturation=karaoke_saturation("floating", mode_index),
+                )
+                photo = ImageTk.PhotoImage(rgba, master=window)
+                state["floating_lyric_photo"] = photo
+                floating_canvas.itemconfigure(int(item), image=photo)
+            except Exception as exc:
+                record_pafplayer_runtime_warning(
+                    f"Floating lyric animation failed: {type(exc).__name__}: {exc}",
+                    "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
+                )
+                return
+            pixel_area = int(mask.size[0]) * int(mask.size[1])
+            animation_ms = 90 if pixel_area < 180_000 else (140 if pixel_area < 500_000 else 220)
+            with contextlib.suppress(Exception):
+                state["floating_color_after"] = window.after(animation_ms, animate_floating_lyric_colors)
 
         def schedule_floating_render() -> None:
             window = state.get("floating_window")
@@ -15186,10 +17098,10 @@ class ExternalAlbumArtWindow:
             window = state.get("floating_window")
             if window is None or state.get("floating_color_after") is not None:
                 return
+            if karaoke_color_mode_name("floating") == "solid" and not karaoke_timed_emphasis_enabled("floating"):
+                return
             with contextlib.suppress(Exception):
-                state["floating_color_after"] = window.after(
-                    0, animate_floating_lyric_colors
-                )
+                state["floating_color_after"] = window.after(0, animate_floating_lyric_colors)
 
         def install_floating_hit_test(window) -> None:
             """Make transparent pixels mouse-transparent without losing glyph dragging.
@@ -15261,7 +17173,7 @@ class ExternalAlbumArtWindow:
                             boxes = state.get("floating_glyph_boxes")
                             if not isinstance(boxes, list):
                                 boxes = []
-                            if not floating_lyric_point_is_clickable(
+                            if not bool(state.get("floating_edit_mode")) and not floating_lyric_point_is_clickable(
                                 int(point.x),
                                 int(point.y),
                                 boxes,
@@ -15306,7 +17218,89 @@ class ExternalAlbumArtWindow:
                     "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
                 )
 
+        def set_floating_edit_mode(enabled: bool) -> None:
+            """Expose ordinary window chrome while a floating lyric is being manipulated."""
+            window = state.get("floating_window")
+            floating_canvas = state.get("floating_canvas")
+            if window is None or floating_canvas is None:
+                return
+            enabled = bool(enabled)
+            if enabled == bool(state.get("floating_edit_mode")):
+                return
+            if not enabled:
+                # Native caption/frame resizing does not emit our canvas's
+                # ButtonRelease event. Capture the final client rectangle here,
+                # before overrideredirect collapses it, so both font fitting and
+                # compact-window placement honor what the user just drew.
+                geometry = _parse_external_album_art_geometry(floating_current_geometry())
+                if geometry is not None:
+                    width, height, x, y = geometry
+                    state["floating_layout_size"] = (width, height)
+                    save_external_floating_lyrics_layout_size(width, height)
+                    state["floating_content_center"] = (
+                        x + width / 2.0,
+                        y + height / 2.0,
+                    )
+            state["floating_edit_mode"] = enabled
+            with contextlib.suppress(Exception):
+                window.overrideredirect(not enabled)
+            if enabled:
+                with contextlib.suppress(Exception):
+                    floating_canvas.configure(
+                        background="#151922", highlightthickness=2,
+                        highlightbackground="#73b8ff",
+                    )
+                with contextlib.suppress(Exception):
+                    window.deiconify()
+                    window.lift()
+                    window.focus_force()
+            else:
+                with contextlib.suppress(Exception):
+                    floating_canvas.configure(
+                        background=EXTERNAL_ALBUM_ART_TRANSPARENT_KEY,
+                        highlightthickness=0,
+                    )
+                with contextlib.suppress(Exception):
+                    window.attributes("-transparentcolor", EXTERNAL_ALBUM_ART_TRANSPARENT_KEY)
+            if not enabled:
+                schedule_floating_render()
+
+        def restore_floating_transparency_if_unfocused() -> None:
+            state["floating_focus_after"] = None
+            window = state.get("floating_window")
+            if window is None or not bool(state.get("floating_edit_mode")):
+                return
+            active = False
+            if os.name == "nt":
+                with contextlib.suppress(Exception):
+                    import ctypes
+                    hwnd = widget_root_hwnd(window)
+                    active = bool(hwnd and int(ctypes.windll.user32.GetForegroundWindow() or 0) == int(hwnd))
+            else:
+                with contextlib.suppress(Exception):
+                    active = window.focus_displayof() is not None
+            if not active:
+                set_floating_edit_mode(False)
+
+        def floating_focus_out(_event=None) -> None:
+            window = state.get("floating_window")
+            if window is None:
+                return
+            prior = state.get("floating_focus_after")
+            if prior is not None:
+                with contextlib.suppress(Exception):
+                    window.after_cancel(prior)
+            with contextlib.suppress(Exception):
+                state["floating_focus_after"] = window.after(100, restore_floating_transparency_if_unfocused)
+
         def floating_mouse_press(event) -> None:
+            set_floating_edit_mode(True)
+            # Toggling native chrome changes Tk's client origin.  Rebase after
+            # that transition so dx/dy always describes the physical mouse.
+            window = state.get("floating_window")
+            if window is not None:
+                with contextlib.suppress(Exception):
+                    window.update_idletasks()
             geometry = _parse_external_album_art_geometry(floating_current_geometry())
             if geometry is None:
                 return
@@ -15362,8 +17356,56 @@ class ExternalAlbumArtWindow:
                 window.geometry(f"{width}x{height}{x:+d}{y:+d}")
 
         def floating_mouse_release(_event=None) -> None:
+            geometry = _parse_external_album_art_geometry(floating_current_geometry())
+            if geometry is not None and bool(state.get("floating_edit_mode")):
+                width, height, x, y = geometry
+                # Remember the user's actual visual placement, not the
+                # top-left of the temporary full-screen edit canvas.
+                state["floating_content_center"] = (
+                    x + width / 2.0,
+                    y + height / 2.0,
+                )
             state["floating_drag"] = None
             save_floating_geometry_now()
+            schedule_floating_render()
+
+        def apply_art_topmost_setting(enabled: bool) -> None:
+            """Persist and apply the artwork window's always-on-top choice."""
+            enabled = bool(enabled)
+            state["art_topmost"] = enabled
+            save_external_album_art_topmost(enabled)
+            with contextlib.suppress(Exception):
+                root.attributes("-topmost", enabled)
+                if enabled:
+                    root.lift()
+
+        def apply_floating_topmost_setting(enabled: bool) -> None:
+            """Persist and apply the floating lyric window's always-on-top choice."""
+            enabled = bool(enabled)
+            state["floating_topmost"] = enabled
+            save_external_floating_lyrics_topmost(enabled)
+            window = state.get("floating_window")
+            if window is not None:
+                with contextlib.suppress(Exception):
+                    window.attributes("-topmost", enabled)
+                    if enabled:
+                        window.lift()
+
+        def reveal_floating_lyrics_window() -> None:
+            """Make the enabled floating lyric window visible and raise it."""
+            if not lyrics_mode_includes_floating(int(state.get("lyrics_mode", 0) or 0)):
+                return
+            ensure_floating_lyrics_window()
+            window = state.get("floating_window")
+            if window is not None:
+                with contextlib.suppress(Exception):
+                    window.deiconify()
+                    window.lift()
+                    window.attributes(
+                        "-topmost", bool(state.get("floating_topmost", True))
+                    )
+            schedule_floating_render()
+            ensure_floating_color_animation()
 
         def ensure_floating_lyrics_window() -> None:
             existing = state.get("floating_window")
@@ -15387,7 +17429,9 @@ class ExternalAlbumArtWindow:
                 floating.attributes("-transparentcolor", transparent)
             with contextlib.suppress(Exception):
                 floating.attributes("-topmost", bool(state.get("floating_topmost", True)))
-            floating.minsize(160, 80)
+            # Borderless operation is content-sized (down to one transparent
+            # pixel); Ctrl-resizing is available only while edit chrome is up.
+            floating.minsize(1, 1)
             floating_canvas = tk.Canvas(
                 floating,
                 background=transparent,
@@ -15395,10 +17439,7 @@ class ExternalAlbumArtWindow:
                 borderwidth=0,
             )
             floating_canvas.pack(fill="both", expand=True)
-            geometry = clamp_external_album_art_geometry(
-                load_external_floating_lyrics_geometry() or "760x180+80+80",
-                external_album_art_monitor_work_areas(),
-            )
+            geometry = load_external_floating_lyrics_geometry() or "1x1+80+80"
             floating.geometry(geometry)
             state["floating_window"] = floating
             state["floating_canvas"] = floating_canvas
@@ -15411,12 +17452,7 @@ class ExternalAlbumArtWindow:
             floating_menu = tk.Menu(floating, tearoff=False)
 
             def apply_floating_topmost() -> None:
-                enabled = bool(topmost_choice.get())
-                state["floating_topmost"] = enabled
-                save_external_floating_lyrics_topmost(enabled)
-                with contextlib.suppress(Exception):
-                    floating.attributes("-topmost", enabled)
-                    floating.lift()
+                apply_floating_topmost_setting(bool(topmost_choice.get()))
 
             floating_menu.add_checkbutton(
                 label="Always on top",
@@ -15424,8 +17460,35 @@ class ExternalAlbumArtWindow:
                 command=apply_floating_topmost,
             )
 
+            def set_exact_floating_position() -> None:
+                from tkinter import simpledialog
+                geometry = _parse_external_album_art_geometry(floating_current_geometry())
+                if geometry is None:
+                    return
+                width, height, x, y = geometry
+                answer = simpledialog.askstring(
+                    "Floating lyric position",
+                    "Exact screen position (X, Y):",
+                    initialvalue=f"{x}, {y}",
+                    parent=floating,
+                )
+                if not answer:
+                    return
+                match = re.fullmatch(r"\s*(-?\d+)\s*,\s*(-?\d+)\s*", answer)
+                if match is None:
+                    return
+                new_x, new_y = (int(value) for value in match.groups())
+                # Exact-position entry is explicitly a top-left coordinate;
+                # do not reinterpret it as an earlier resize-center anchor.
+                state["floating_content_center"] = None
+                floating.geometry(f"{width}x{height}{new_x:+d}{new_y:+d}")
+                save_floating_geometry_now()
+
+            floating_menu.add_command(label="Set exact screen position…", command=set_exact_floating_position)
+
             def show_floating_menu(event) -> None:
                 with contextlib.suppress(Exception):
+                    topmost_choice.set(bool(state.get("floating_topmost", True)))
                     floating_menu.tk_popup(event.x_root, event.y_root)
 
             floating_canvas.bind("<Button-3>", show_floating_menu)
@@ -15434,9 +17497,11 @@ class ExternalAlbumArtWindow:
                 if event.widget is not floating:
                     return
                 schedule_floating_geometry_save()
-                schedule_floating_render()
+                if not state.get("floating_geometry_sync") and state.get("floating_drag") is None:
+                    schedule_floating_render()
 
             floating.bind("<Configure>", floating_configure)
+            floating.bind("<FocusOut>", floating_focus_out, add="+")
             floating.update_idletasks()
             install_floating_hit_test(floating)
             floating.deiconify()
@@ -15459,18 +17524,38 @@ class ExternalAlbumArtWindow:
 
         def lyrics_mode_button_text() -> str:
             return (
-                "Lyrics: Off",
                 "Lyrics: Over Artwork",
                 "Lyrics: Floating",
-            )[int(state.get("lyrics_mode", 0) or 0) % 3]
+                "Lyrics: Both",
+            )[max(0, min(2, int(state.get("lyrics_mode", 0) or 0)))]
+
+        def sync_lyric_config_buttons_visibility() -> None:
+            """Show 🔡/🔠 only when that lyric destination is part of the three-way mode."""
+            mode = max(0, min(2, int(state.get("lyrics_mode", 0) or 0)))
+            art_button = state.get("art_color_config_button")
+            floating_button = state.get("floating_color_config_button")
+            if art_button is not None:
+                with contextlib.suppress(Exception):
+                    if lyrics_mode_includes_artwork(mode):
+                        if not art_button.winfo_manager():
+                            art_button.pack(side="right", padx=(2, 2), pady=3)
+                    else:
+                        art_button.pack_forget()
+            if floating_button is not None:
+                with contextlib.suppress(Exception):
+                    if lyrics_mode_includes_floating(mode):
+                        if not floating_button.winfo_manager():
+                            floating_button.pack(side="right", padx=(2, 2), pady=3)
+                    else:
+                        floating_button.pack_forget()
 
         def apply_lyrics_mode() -> None:
-            mode = int(state.get("lyrics_mode", 0) or 0) % 3
+            mode = max(0, min(2, int(state.get("lyrics_mode", 0) or 0)))
             state["lyrics_mode"] = mode
             append_pafplayer_trace(
                 "lyrics.mode.apply",
                 mode=mode,
-                label=("off", "over-artwork", "floating")[mode],
+                label=("over-artwork", "floating", "both")[mode],
                 art_track=state.get("audio_path"),
                 lyric_length=len(str(state.get("lyric") or "")),
             )
@@ -15478,36 +17563,514 @@ class ExternalAlbumArtWindow:
             if button is not None:
                 with contextlib.suppress(Exception):
                     button.configure(text=lyrics_mode_button_text())
-            if mode == 2:
+            if lyrics_mode_includes_floating(mode):
                 ensure_floating_lyrics_window()
+                schedule_floating_render()
+                ensure_floating_color_animation()
             else:
                 hide_floating_lyrics_window()
-            if mode != 1:
+            if not lyrics_mode_includes_artwork(mode):
                 art_after = state.get("artwork_lyric_color_after")
                 if art_after is not None:
                     with contextlib.suppress(Exception):
                         root.after_cancel(art_after)
                 state["artwork_lyric_color_after"] = None
                 state["artwork_lyric_color_items"] = []
-            # Changing GUI lyric ownership must never rebuild the cover image or
-            # alter the terminal from this Tk thread.  Repaint only the tagged
-            # lyric layer; the playback owner consumes the event below and does
-            # one independently anchored terminal HUD repaint.
+                state["artwork_lyric_plasma_item"] = None
+                state["artwork_lyric_plasma_photo"] = None
+                state["artwork_lyric_plasma_mask"] = None
+                state["artwork_lyric_plasma_origin"] = None
             with contextlib.suppress(Exception):
                 redraw_artwork_lyric_layer()
+            sync_lyric_config_buttons_visibility()
             self._terminal_redraw_requested.set()
 
         def cycle_lyrics_mode() -> None:
-            state["lyrics_mode"] = (int(state.get("lyrics_mode", 0) or 0) + 1) % 3
+            state["lyrics_mode"] = (max(0, min(2, int(state.get("lyrics_mode", 0) or 0))) + 1) % 3
             save_external_album_art_lyrics_mode(int(state["lyrics_mode"]))
             apply_lyrics_mode()
 
+        def normalize_karaoke_target(target: str) -> str:
+            return "floating" if str(target).casefold().startswith("float") else "artwork"
+
+        def karaoke_target_state_key(target: str, suffix: str) -> str:
+            target = normalize_karaoke_target(target)
+            return f"floating_{suffix}" if target == "floating" else suffix
+
+        def karaoke_color_mode_index(target: str = "artwork") -> int:
+            key = karaoke_target_state_key(target, "karaoke_color_mode")
+            return int(state.get(key, 0) or 0) % len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES)
+
+        def karaoke_color_mode_name(target: str = "artwork") -> str:
+            return EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES[karaoke_color_mode_index(target)]
+
+        def karaoke_render_mode_name(target: str = "artwork", mode_index: int | None = None) -> str:
+            """Resolve Pattern fill to its selected treatment; other modes render directly."""
+            if mode_index is None:
+                mode_index = karaoke_color_mode_index(target)
+            mode_index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode_index)))
+            base_mode = EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES[mode_index]
+            if base_mode != "pattern":
+                return base_mode
+            treatments = karaoke_pattern_treatment_values(target)
+            return EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS[treatments[mode_index]]
+
+        def karaoke_color_mode_label(target: str = "artwork") -> str:
+            return EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS[karaoke_color_mode_index(target)]
+
+        def karaoke_palette_values(target: str = "artwork") -> tuple[int, ...]:
+            key = karaoke_target_state_key(target, "karaoke_color_palettes")
+            return normalize_external_album_art_karaoke_color_palettes(
+                state.get(key) if isinstance(state.get(key), (tuple, list)) else ()
+            )
+
+        def karaoke_palette_index(target: str = "artwork", mode_index: int | None = None) -> int:
+            if mode_index is None:
+                mode_index = karaoke_color_mode_index(target)
+            mode_index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode_index)))
+            return int(karaoke_palette_values(target)[mode_index])
+
+        def karaoke_speed_values(target: str = "artwork") -> tuple[float, ...]:
+            key = karaoke_target_state_key(target, "karaoke_color_speeds")
+            return normalize_external_karaoke_color_speeds(
+                state.get(key) if isinstance(state.get(key), (tuple, list)) else ()
+            )
+
+        def karaoke_speed(target: str = "artwork", mode_index: int | None = None) -> float:
+            if mode_index is None:
+                mode_index = karaoke_color_mode_index(target)
+            mode_index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode_index)))
+            return float(karaoke_speed_values(target)[mode_index])
+
+        def karaoke_pattern_treatment_values(target: str = "artwork") -> tuple[int, ...]:
+            key = karaoke_target_state_key(target, "karaoke_pattern_treatments")
+            return normalize_external_karaoke_pattern_treatments(
+                state.get(key) if isinstance(state.get(key), (tuple, list)) else ()
+            )
+
+        def karaoke_timing_values(target: str = "artwork") -> tuple[int, ...]:
+            key = karaoke_target_state_key(target, "karaoke_timings")
+            return normalize_external_karaoke_timings(
+                state.get(key) if isinstance(state.get(key), (tuple, list)) else ()
+            )
+
+        def karaoke_timing_type(target: str = "artwork", mode_index: int | None = None) -> str:
+            if mode_index is None:
+                mode_index = karaoke_color_mode_index(target)
+            index = karaoke_timing_values(target)[int(mode_index)]
+            return EXTERNAL_ALBUM_ART_KARAOKE_TIMING_TYPES[index]
+
+        def karaoke_adjustment_values(target: str, suffix: str, normalizer) -> tuple[float, ...]:
+            key = karaoke_target_state_key(target, suffix)
+            return normalizer(state.get(key) if isinstance(state.get(key), (tuple, list)) else ())
+
+        def karaoke_brightness(target: str = "artwork", mode_index: int | None = None) -> float:
+            if mode_index is None:
+                mode_index = karaoke_color_mode_index(target)
+            return karaoke_adjustment_values(target, "karaoke_brightnesses", normalize_external_karaoke_brightnesses)[int(mode_index)]
+
+        def karaoke_saturation(target: str = "artwork", mode_index: int | None = None) -> float:
+            if mode_index is None:
+                mode_index = karaoke_color_mode_index(target)
+            return karaoke_adjustment_values(target, "karaoke_saturations", normalize_external_karaoke_saturations)[int(mode_index)]
+
+        def karaoke_shadow_size(target: str = "artwork", mode_index: int | None = None) -> float:
+            if mode_index is None:
+                mode_index = karaoke_color_mode_index(target)
+            return karaoke_adjustment_values(target, "karaoke_shadow_sizes", normalize_external_karaoke_shadow_sizes)[int(mode_index)]
+
+        def karaoke_emphasis_mask(target: str = "artwork") -> int:
+            key = karaoke_target_state_key(target, "karaoke_timed_emphasis")
+            return normalize_external_album_art_karaoke_color_favorites(int(state.get(key, 0) or 0))
+
+        def karaoke_timed_emphasis_enabled(target: str = "artwork", mode_index: int | None = None) -> bool:
+            """Compatibility predicate: any non-None V192 Timing treatment is timed."""
+            return karaoke_timing_type(target, mode_index) != "none"
+
+        def persist_karaoke_mode(target: str, value: int) -> None:
+            if normalize_karaoke_target(target) == "floating":
+                save_external_floating_karaoke_color_mode(value)
+            else:
+                save_external_album_art_karaoke_color_mode(value)
+
+        def persist_karaoke_favorites(target: str, value: int) -> None:
+            if normalize_karaoke_target(target) == "floating":
+                save_external_floating_karaoke_color_favorites(value)
+            else:
+                save_external_album_art_karaoke_color_favorites(value)
+
+        def persist_karaoke_default(target: str, value: int) -> None:
+            if normalize_karaoke_target(target) == "floating":
+                save_external_floating_karaoke_color_default_mode(value)
+            else:
+                save_external_album_art_karaoke_color_default_mode(value)
+
+        def persist_karaoke_palettes(target: str, values: Iterable[int]) -> None:
+            if normalize_karaoke_target(target) == "floating":
+                save_external_floating_karaoke_color_palettes(values)
+            else:
+                save_external_album_art_karaoke_color_palettes(values)
+
+        def persist_karaoke_speeds(target: str, values: Iterable[float]) -> None:
+            if normalize_karaoke_target(target) == "floating":
+                save_external_floating_karaoke_color_speeds(values)
+            else:
+                save_external_album_art_karaoke_color_speeds(values)
+
+        def persist_karaoke_profile_values(target: str, suffix: str, values: Iterable[object]) -> None:
+            floating = normalize_karaoke_target(target) == "floating"
+            writers = {
+                "karaoke_pattern_treatments": (save_external_album_art_karaoke_pattern_treatments, save_external_floating_karaoke_pattern_treatments),
+                "karaoke_timings": (save_external_album_art_karaoke_timings, save_external_floating_karaoke_timings),
+                "karaoke_brightnesses": (save_external_album_art_karaoke_brightnesses, save_external_floating_karaoke_brightnesses),
+                "karaoke_saturations": (save_external_album_art_karaoke_saturations, save_external_floating_karaoke_saturations),
+                "karaoke_shadow_sizes": (save_external_album_art_karaoke_shadow_sizes, save_external_floating_karaoke_shadow_sizes),
+            }
+            writer_pair = writers.get(str(suffix))
+            if writer_pair is not None:
+                writer_pair[1 if floating else 0](values)
+
+        def persist_karaoke_emphasis(target: str, mask: int) -> None:
+            if normalize_karaoke_target(target) == "floating":
+                save_external_floating_karaoke_timed_emphasis(mask)
+            else:
+                save_external_album_art_karaoke_timed_emphasis(mask)
+
+        def refresh_target_lyrics(target: str) -> None:
+            target = normalize_karaoke_target(target)
+            if (
+                self._color_configurator_active.is_set()
+                and not (
+                    target == "floating"
+                    and self._color_configurator_target == "floating"
+                )
+            ):
+                return
+            if target == "floating":
+                if lyrics_mode_includes_floating(int(state.get("lyrics_mode", 0) or 0)):
+                    ensure_floating_lyrics_window()
+                    schedule_floating_render()
+                    ensure_floating_color_animation()
+            else:
+                if lyrics_mode_includes_artwork(int(state.get("lyrics_mode", 0) or 0)):
+                    redraw_artwork_lyric_layer()
+
+        def sync_karaoke_color_ui() -> None:
+            """Mirror Enabled/Default/Favorite/Palette/Speed/Emphasis for the open target."""
+            target = normalize_karaoke_target(str(state.get("color_config_target") or "artwork"))
+            index = karaoke_color_mode_index(target)
+            enabled_variable = state.get("color_config_enabled_var")
+            if enabled_variable is not None:
+                with contextlib.suppress(Exception):
+                    enabled_variable.set(index)
+            favorite_vars = state.get("color_config_favorite_vars")
+            if isinstance(favorite_vars, dict):
+                mask_key = karaoke_target_state_key(target, "karaoke_color_favorites")
+                mask = normalize_external_album_art_karaoke_color_favorites(int(state.get(mask_key, 0) or 0))
+                for mode_index, variable in favorite_vars.items():
+                    with contextlib.suppress(Exception):
+                        variable.set(external_album_art_karaoke_color_is_favorite(mask, int(mode_index)))
+            default_variable = state.get("color_config_default_var")
+            if default_variable is not None:
+                default_key = karaoke_target_state_key(target, "karaoke_color_default_mode")
+                with contextlib.suppress(Exception):
+                    default_variable.set(int(state.get(default_key, 0) or 0))
+            palettes = karaoke_palette_values(target)
+            palette_vars = state.get("color_config_palette_vars")
+            if isinstance(palette_vars, dict):
+                for mode_index, variable in palette_vars.items():
+                    with contextlib.suppress(Exception):
+                        variable.set(PALETTE_NAMES[palettes[int(mode_index)]])
+            picker_canvases = state.get("color_config_palette_picker_canvases")
+            if isinstance(picker_canvases, dict):
+                for mode_index, picker in picker_canvases.items():
+                    palette_index = int(palettes[int(mode_index)])
+                    with contextlib.suppress(Exception):
+                        paint_palette_picker_canvas(
+                            picker, int(mode_index), palette_index, PALETTE_NAMES[palette_index], time.monotonic()
+                        )
+            speeds = karaoke_speed_values(target)
+            speed_vars = state.get("color_config_speed_vars")
+            if isinstance(speed_vars, dict):
+                for mode_index, variable in speed_vars.items():
+                    with contextlib.suppress(Exception):
+                        variable.set(float(speeds[int(mode_index)]))
+            profile_sync = (
+                ("color_config_treatment_vars", karaoke_pattern_treatment_values(target), EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_LABELS),
+                ("color_config_timing_vars", karaoke_timing_values(target), EXTERNAL_ALBUM_ART_KARAOKE_TIMING_LABELS),
+            )
+            for state_key, values, labels in profile_sync:
+                variables = state.get(state_key)
+                if isinstance(variables, dict):
+                    for mode_index, variable in variables.items():
+                        with contextlib.suppress(Exception):
+                            variable.set(labels[int(values[int(mode_index)])])
+            adjustment_sync = (
+                ("color_config_brightness_vars", karaoke_adjustment_values(target, "karaoke_brightnesses", normalize_external_karaoke_brightnesses)),
+                ("color_config_saturation_vars", karaoke_adjustment_values(target, "karaoke_saturations", normalize_external_karaoke_saturations)),
+                ("color_config_shadow_vars", karaoke_adjustment_values(target, "karaoke_shadow_sizes", normalize_external_karaoke_shadow_sizes)),
+            )
+            for state_key, values in adjustment_sync:
+                variables = state.get(state_key)
+                if isinstance(variables, dict):
+                    for mode_index, variable in variables.items():
+                        with contextlib.suppress(Exception):
+                            variable.set(float(values[int(mode_index)]))
+            preview_mode = state.get("color_config_preview_mode")
+            try:
+                preview_index = int(preview_mode)
+            except (TypeError, ValueError):
+                preview_index = index
+            preview_index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS) - 1, preview_index))
+            title_buttons = state.get("color_config_title_buttons")
+            if isinstance(title_buttons, dict):
+                for mode_index, title_widget in title_buttons.items():
+                    selected = int(mode_index) == preview_index
+                    enabled = int(mode_index) == index
+                    with contextlib.suppress(Exception):
+                        title_widget.configure(
+                            font=("Segoe UI", 10, "bold" if enabled else "normal"),
+                            background="#cfe8ff" if selected else "#f7f7f7",
+                            relief="solid" if selected else "flat",
+                            borderwidth=1 if selected else 0,
+                        )
+            hero_label = state.get("color_config_hero_label")
+            if hero_label is not None:
+                with contextlib.suppress(Exception):
+                    destination = "Floating" if target == "floating" else "Artwork"
+                    preview_name = EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS[preview_index]
+                    enabled_name = EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS[index]
+                    if preview_index == index:
+                        hero_label.configure(text=f"{destination} preview: {preview_name} (enabled)")
+                    else:
+                        hero_label.configure(text=f"{destination} preview: {preview_name}   •   Enabled: {enabled_name}")
+
+        # Backward-compatible internal name retained for older regression contracts.
+        def sync_artwork_karaoke_color_ui() -> None:
+            sync_karaoke_color_ui()
+
+        def set_karaoke_color_mode(target: str, index: int) -> None:
+            target = normalize_karaoke_target(target)
+            index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(index)))
+            key = karaoke_target_state_key(target, "karaoke_color_mode")
+            if index != int(state.get(key, 0) or 0):
+                state[key] = index
+                persist_karaoke_mode(target, index)
+            if normalize_karaoke_target(str(state.get("color_config_target") or "artwork")) == target:
+                state["color_config_preview_mode"] = index
+            sync_karaoke_color_ui()
+            refresh_target_lyrics(target)
+
+        def set_artwork_karaoke_color_mode(index: int) -> None:
+            set_karaoke_color_mode("artwork", index)
+
+        def set_floating_karaoke_color_mode(index: int) -> None:
+            set_karaoke_color_mode("floating", index)
+
+        def set_karaoke_color_favorite(target: str, index: int, wanted: bool) -> None:
+            target = normalize_karaoke_target(target)
+            index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(index)))
+            key = karaoke_target_state_key(target, "karaoke_color_favorites")
+            mask = normalize_external_album_art_karaoke_color_favorites(int(state.get(key, 0) or 0))
+            mask = (mask | (1 << index)) if wanted else (mask & ~(1 << index))
+            state[key] = normalize_external_album_art_karaoke_color_favorites(mask)
+            persist_karaoke_favorites(target, int(state[key]))
+            sync_karaoke_color_ui()
+
+        def set_karaoke_color_default(target: str, index: int) -> None:
+            target = normalize_karaoke_target(target)
+            index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(index)))
+            key = karaoke_target_state_key(target, "karaoke_color_default_mode")
+            state[key] = index
+            persist_karaoke_default(target, index)
+            sync_karaoke_color_ui()
+
+        def set_karaoke_color_palette(target: str, index: int, palette_label: str) -> None:
+            target = normalize_karaoke_target(target)
+            index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(index)))
+            try:
+                palette_index = PALETTE_NAMES.index(str(palette_label))
+            except ValueError:
+                return
+            values = list(karaoke_palette_values(target))
+            if values[index] != palette_index:
+                values[index] = palette_index
+                key = karaoke_target_state_key(target, "karaoke_color_palettes")
+                state[key] = tuple(values)
+                persist_karaoke_palettes(target, values)
+            sync_karaoke_color_ui()
+            refresh_target_lyrics(target)
+
+        def set_karaoke_color_speed(target: str, index: int, value: float, *, persist: bool = False) -> None:
+            target = normalize_karaoke_target(target)
+            index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(index)))
+            speed = round(max(KARAOKE_COLOR_SPEED_MIN, min(KARAOKE_COLOR_SPEED_MAX, float(value))), 2)
+            values = list(karaoke_speed_values(target))
+            values[index] = speed
+            key = karaoke_target_state_key(target, "karaoke_color_speeds")
+            state[key] = tuple(values)
+            if persist:
+                persist_karaoke_speeds(target, values)
+            refresh_target_lyrics(target)
+
+        def set_karaoke_profile_index(target: str, index: int, suffix: str, value: int, normalizer) -> None:
+            target = normalize_karaoke_target(target)
+            index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(index)))
+            key = karaoke_target_state_key(target, suffix)
+            values = list(normalizer(state.get(key) if isinstance(state.get(key), (tuple, list)) else ()))
+            values[index] = int(value)
+            state[key] = tuple(values)
+            persist_karaoke_profile_values(target, suffix, values)
+            sync_karaoke_color_ui()
+            refresh_target_lyrics(target)
+
+        def set_karaoke_pattern_treatment(target: str, index: int, label: str) -> None:
+            try:
+                value = EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_LABELS.index(str(label))
+            except ValueError:
+                return
+            set_karaoke_profile_index(target, index, "karaoke_pattern_treatments", value, normalize_external_karaoke_pattern_treatments)
+
+        def set_karaoke_timing(target: str, index: int, label: str) -> None:
+            try:
+                value = EXTERNAL_ALBUM_ART_KARAOKE_TIMING_LABELS.index(str(label))
+            except ValueError:
+                return
+            set_karaoke_profile_index(target, index, "karaoke_timings", value, normalize_external_karaoke_timings)
+
+        def set_karaoke_adjustment(
+            target: str,
+            index: int,
+            suffix: str,
+            value: float,
+            normalizer,
+            *,
+            persist: bool = False,
+        ) -> None:
+            target = normalize_karaoke_target(target)
+            index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(index)))
+            key = karaoke_target_state_key(target, suffix)
+            values = list(normalizer(state.get(key) if isinstance(state.get(key), (tuple, list)) else ()))
+            values[index] = float(value)
+            values = list(normalizer(values))
+            state[key] = tuple(values)
+            if persist:
+                persist_karaoke_profile_values(target, suffix, values)
+            refresh_target_lyrics(target)
+
+        def set_karaoke_timed_emphasis(target: str, index: int, wanted: bool) -> None:
+            """Legacy internal adapter; V192 exposes Timing rather than a Timed checkbox."""
+            set_karaoke_timing(target, index, "Inverse" if wanted else "None")
+
+        # Backward-compatible artwork wrappers used by older tests/callers.
+        def set_artwork_karaoke_color_favorite(index: int, wanted: bool) -> None:
+            set_karaoke_color_favorite("artwork", index, wanted)
+
+        def choose_artwork_karaoke_color_default_for_mode(index: int) -> None:
+            set_karaoke_color_default("artwork", index)
+
+        def artwork_karaoke_palette_index(mode_index: int | None = None) -> int:
+            return karaoke_palette_index("artwork", mode_index)
+
+        def set_artwork_karaoke_color_palette(index: int, palette_label: str) -> None:
+            set_karaoke_color_palette("artwork", index, palette_label)
+
+        def adjust_artwork_lyric_zoom(direction: int) -> str:
+            current = float(state.get("lyric_font_scale", 1.0) or 1.0)
+            next_scale = current + (EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_STEP * (1 if direction > 0 else -1))
+            next_scale = max(
+                EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MIN,
+                min(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MAX, next_scale),
+            )
+            if not math.isclose(next_scale, current, abs_tol=1e-9):
+                state["lyric_font_scale"] = next_scale
+                save_external_album_art_lyric_font_scale(next_scale)
+                redraw_artwork_lyric_layer()
+            return "break"
+
+        def artwork_zoom_mousewheel(event) -> str | None:
+            if not window_is_active():
+                return None
+            delta = int(getattr(event, "delta", 0) or 0)
+            if delta == 0:
+                return None
+            return adjust_artwork_lyric_zoom(1 if delta > 0 else -1)
+
+        def artwork_zoom_key(event) -> str | None:
+            if not window_is_active():
+                return None
+            keysym = str(getattr(event, "keysym", "") or "").casefold()
+            char = str(getattr(event, "char", "") or "")
+            if keysym in {"plus", "equal", "kp_add"} or char in {"+", "="}:
+                return adjust_artwork_lyric_zoom(1)
+            if keysym in {"minus", "underscore", "kp_subtract"} or char in {"-", "_"}:
+                return adjust_artwork_lyric_zoom(-1)
+            return None
+
+        def install_tooltip(widget, text: str, *, delay_ms: int = 450) -> None:
+            """Attach a small Windows-style hover tooltip without stealing focus."""
+            tip_state = {"after": None, "window": None}
+
+            def hide_tooltip(_event=None) -> None:
+                after_id = tip_state.get("after")
+                if after_id is not None:
+                    with contextlib.suppress(Exception):
+                        widget.after_cancel(after_id)
+                tip_state["after"] = None
+                tip = tip_state.get("window")
+                if tip is not None:
+                    with contextlib.suppress(Exception):
+                        tip.destroy()
+                tip_state["window"] = None
+
+            def show_tooltip() -> None:
+                tip_state["after"] = None
+                if tip_state.get("window") is not None:
+                    return
+                try:
+                    if not widget.winfo_exists() or not widget.winfo_ismapped():
+                        return
+                    x, y = widget.winfo_pointerxy()
+                    tip = tk.Toplevel(widget)
+                    tip.withdraw()
+                    tip.overrideredirect(True)
+                    with contextlib.suppress(Exception):
+                        tip.attributes("-topmost", True)
+                    label = tk.Label(
+                        tip,
+                        text=str(text),
+                        background="#ffffe1",
+                        foreground="#111111",
+                        relief="solid",
+                        borderwidth=1,
+                        padx=6,
+                        pady=3,
+                        font=("Segoe UI", 9),
+                        justify="left",
+                    )
+                    label.pack()
+                    tip.geometry(f"+{int(x) + 14}+{int(y) + 18}")
+                    tip.deiconify()
+                    tip_state["window"] = tip
+                except Exception:
+                    hide_tooltip()
+
+            def schedule_tooltip(_event=None) -> None:
+                hide_tooltip()
+                with contextlib.suppress(Exception):
+                    tip_state["after"] = widget.after(max(50, int(delay_ms)), show_tooltip)
+
+            widget.bind("<Enter>", schedule_tooltip, add="+")
+            widget.bind("<Leave>", hide_tooltip, add="+")
+            widget.bind("<ButtonPress>", hide_tooltip, add="+")
+            widget.bind("<Destroy>", hide_tooltip, add="+")
+
         def ensure_titlebar_lyrics_button() -> None:
             if state.get("title_button") is not None:
+                apply_focus_chrome()
                 return
-            # Native-looking Tk buttons use the user's Windows theme, have an
-            # ordinary raised border, and live in a fixed control strip rather
-            # than pretending to be part of the non-client title bar.
+            # Native-looking Tk controls live in the ordinary client-area strip.
+            # Zoom +/- is packed only while this artwork top-level owns focus.
             button = tk.Button(
                 control_strip,
                 text=lyrics_mode_button_text(),
@@ -15521,10 +18084,124 @@ class ExternalAlbumArtWindow:
             )
             button.pack(side="right", padx=4, pady=3)
             state["title_button"] = button
+            install_tooltip(button, "Cycle lyric display: Over Artwork → Floating → Both")
+
+            art_color_button = tk.Button(
+                control_strip,
+                text="🔡",
+                command=lambda: show_karaoke_color_configurator("artwork"),
+                padx=6,
+                pady=2,
+                relief="raised",
+                borderwidth=2,
+                font=("Segoe UI Emoji", 10),
+                takefocus=False,
+            )
+            art_color_button.pack(side="right", padx=(2, 2), pady=3)
+            state["art_color_config_button"] = art_color_button
+            install_tooltip(art_color_button, "Configure artwork lyric coloring")
+
+            floating_color_button = tk.Button(
+                control_strip,
+                text="🔠",
+                command=lambda: show_karaoke_color_configurator("floating"),
+                padx=6,
+                pady=2,
+                relief="raised",
+                borderwidth=2,
+                font=("Segoe UI Emoji", 10),
+                takefocus=False,
+            )
+            floating_color_button.pack(side="right", padx=(2, 2), pady=3)
+            state["floating_color_config_button"] = floating_color_button
+            install_tooltip(floating_color_button, "Configure floating lyric coloring")
+
+            art_topmost_choice = tk.BooleanVar(
+                master=root, value=bool(state.get("art_topmost", False))
+            )
+            art_button_menu = tk.Menu(root, tearoff=False)
+            art_button_menu.add_checkbutton(
+                label="Always on top",
+                variable=art_topmost_choice,
+                command=lambda: apply_art_topmost_setting(bool(art_topmost_choice.get())),
+            )
+
+            def show_art_color_button_menu(event) -> str:
+                art_topmost_choice.set(bool(state.get("art_topmost", False)))
+                with contextlib.suppress(Exception):
+                    art_button_menu.tk_popup(event.x_root, event.y_root)
+                return "break"
+
+            art_color_button.bind("<Button-3>", show_art_color_button_menu, add="+")
+
+            floating_button_topmost_choice = tk.BooleanVar(
+                master=root, value=bool(state.get("floating_topmost", True))
+            )
+            floating_button_menu = tk.Menu(root, tearoff=False)
+            floating_button_menu.add_checkbutton(
+                label="Always on top",
+                variable=floating_button_topmost_choice,
+                command=lambda: apply_floating_topmost_setting(
+                    bool(floating_button_topmost_choice.get())
+                ),
+            )
+            floating_button_menu.add_separator()
+            floating_button_menu.add_command(
+                label="Make floating lyrics window appear",
+                command=reveal_floating_lyrics_window,
+            )
+
+            def show_floating_color_button_menu(event) -> str:
+                floating_button_topmost_choice.set(
+                    bool(state.get("floating_topmost", True))
+                )
+                with contextlib.suppress(Exception):
+                    floating_button_menu.tk_popup(event.x_root, event.y_root)
+                return "break"
+
+            floating_color_button.bind(
+                "<Button-3>", show_floating_color_button_menu, add="+"
+            )
+            state["art_color_button_menu"] = art_button_menu
+            state["floating_color_button_menu"] = floating_button_menu
+            sync_lyric_config_buttons_visibility()
+
+            zoom_frame = tk.Frame(control_strip, background="#f0f0f0", borderwidth=0)
+            zoom_out = tk.Button(
+                zoom_frame,
+                text="−",
+                command=lambda: adjust_artwork_lyric_zoom(-1),
+                width=2,
+                padx=2,
+                pady=2,
+                relief="raised",
+                borderwidth=2,
+                font=("Segoe UI", 9, "bold"),
+                takefocus=False,
+            )
+            zoom_in = tk.Button(
+                zoom_frame,
+                text="+",
+                command=lambda: adjust_artwork_lyric_zoom(1),
+                width=2,
+                padx=2,
+                pady=2,
+                relief="raised",
+                borderwidth=2,
+                font=("Segoe UI", 9, "bold"),
+                takefocus=False,
+            )
+            zoom_out.pack(side="left")
+            zoom_in.pack(side="left", padx=(2, 0))
+            state["zoom_frame"] = zoom_frame
+            state["zoom_out_button"] = zoom_out
+            state["zoom_in_button"] = zoom_in
+
             identity_label = tk.Label(
                 control_strip,
                 text=str(state.get("track_identity") or ""),
-                anchor="w",
+                anchor="center",
+                justify="center",
                 background="#f0f0f0",
                 foreground="#202020",
                 font=("Segoe UI", 9),
@@ -15532,6 +18209,10 @@ class ExternalAlbumArtWindow:
             )
             identity_label.pack(side="left", fill="x", expand=True, pady=3)
             state["identity_label"] = identity_label
+            apply_focus_chrome()
+
+        root.bind("<Control-MouseWheel>", artwork_zoom_mousewheel, add="+")
+        root.bind("<Control-KeyPress>", artwork_zoom_key, add="+")
 
         def clear_native_aspect_constraint() -> None:
             if not bool(state.get("aspect_constraint_supported", True)):
@@ -15628,23 +18309,22 @@ class ExternalAlbumArtWindow:
             state["preferred_geometry"] = valid
 
         def _pillow_fit_canvas_image(data: bytes, width: int, height: int):
-            """Decode and letterbox one artwork blob into an exact black canvas.
+            """Decode and contain one artwork blob in an exact transparent RGBA frame.
 
-            Crossfading sources of different shapes requires identical frame
-            dimensions, but the user's popup rectangle is authoritative.  Fit the
-            complete image inside that rectangle and use black bars for the rest;
-            never crop pixels and never resize the window to match a new source.
+            Crossfading sources of different shapes still requires identical frame
+            dimensions, but unused aspect-ratio gutters are alpha=0 so the popup's
+            chroma-key background shows the desktop rather than black letterboxing.
             """
             from PIL import Image, ImageOps  # type: ignore
             with Image.open(io.BytesIO(bytes(data))) as opened:
-                source = opened.convert("RGB").copy()
+                source = opened.convert("RGBA").copy()
             fitted = ImageOps.contain(
                 source,
                 (max(1, width), max(1, height)),
                 method=Image.Resampling.LANCZOS,
             )
-            canvas_image = Image.new("RGB", (max(1, width), max(1, height)), "black")
-            canvas_image.paste(
+            canvas_image = Image.new("RGBA", (max(1, width), max(1, height)), (0, 0, 0, 0))
+            canvas_image.alpha_composite(
                 fitted,
                 ((canvas_image.width - fitted.width) // 2, (canvas_image.height - fitted.height) // 2),
             )
@@ -15671,71 +18351,1602 @@ class ExternalAlbumArtWindow:
             state["crossfade_to_frame"] = None
             state["pil_image"] = None
 
+        def artwork_karaoke_color_mode_name() -> str:
+            return karaoke_render_mode_name("artwork")
+
+        def artwork_karaoke_color_mode_label() -> str:
+            return karaoke_color_mode_label("artwork")
+
+        def fit_artwork_lyric_tk_layout(width: int, height: int, lyric: str):
+            """Return a never-clipped Tk lyric layout honoring the user's zoom preference."""
+            import tkinter.font as tkfont
+            border = int(state.get("border_pixels", 5) or 5)
+            scale = float(state.get("lyric_font_scale", 1.0) or 1.0)
+            scale = max(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MIN, min(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MAX, scale))
+            safe_x = max(12, border * 3)
+            safe_y = max(10, border * 2)
+            max_width = max(40, width - safe_x * 2)
+            max_height = max(24, height - safe_y * 2)
+            desired_size = max(12, min(260, round(min(width, height) * 0.085 * scale)))
+            words = lyric.split()
+
+            chosen = None
+            for font_size in range(desired_size, 9, -1):
+                font = tkfont.Font(root=root, family="Segoe UI", size=font_size, weight="bold")
+                lines: list[str] = []
+                current = ""
+                for word in words:
+                    proposed = word if not current else current + " " + word
+                    if current and font.measure(proposed) > max_width:
+                        lines.append(current)
+                        current = word
+                    else:
+                        current = proposed
+                if current:
+                    lines.append(current)
+                if not lines:
+                    lines = [lyric]
+                if max((font.measure(line) for line in lines), default=0) > max_width:
+                    continue
+                line_height = max(1, int(font.metrics("linespace")))
+                shadow = max(1, round(font_size / 20))
+                total_height = line_height * len(lines) + shadow * 2 + 4
+                if total_height <= max_height or font_size <= 10:
+                    chosen = (font, font_size, lines, line_height, shadow, safe_x, safe_y)
+                    break
+            if chosen is None:
+                font = tkfont.Font(root=root, family="Segoe UI", size=10, weight="bold")
+                chosen = (font, 10, [lyric], max(1, int(font.metrics("linespace"))), 1, safe_x, safe_y)
+
+            font, font_size, lines, line_height, shadow, safe_x, safe_y = chosen
+            text_height = line_height * len(lines)
+            preferred_center_y = round(height * 0.78)
+            top = preferred_center_y - text_height // 2
+            min_top = safe_y + shadow
+            max_top = max(min_top, height - safe_y - shadow - text_height)
+            top = max(min_top, min(max_top, top))
+            return {
+                "font": font,
+                "font_size": font_size,
+                "lines": lines,
+                "line_height": line_height,
+                "shadow": shadow,
+                "center_x": width // 2,
+                "top": top,
+                "max_width": max_width,
+                "safe_x": safe_x,
+                "safe_y": safe_y,
+            }
+
+        def resolve_artwork_pillow_font(pixel_size: int):
+            """Resolve a bold UI font for per-pixel plasma text, with portable fallbacks."""
+            from PIL import ImageFont  # type: ignore
+            candidates = [
+                Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts" / "segoeuib.ttf",
+                Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts" / "arialbd.ttf",
+            ]
+            for candidate in candidates:
+                with contextlib.suppress(Exception):
+                    if candidate.is_file():
+                        return ImageFont.truetype(str(candidate), max(8, int(pixel_size)))
+            for name in ("DejaVuSans-Bold.ttf", "arialbd.ttf", "arial.ttf"):
+                with contextlib.suppress(Exception):
+                    return ImageFont.truetype(name, max(8, int(pixel_size)))
+            return ImageFont.load_default()
+
+        def titlebar_control_min_width() -> int:
+            """Return a compact width that still leaves every title-strip control usable."""
+            with contextlib.suppress(Exception):
+                root.update_idletasks()
+            fixed = 0
+            identity = state.get("identity_label")
+            for child in list(control_strip.winfo_children()):
+                if child is identity:
+                    continue
+                with contextlib.suppress(Exception):
+                    fixed += max(1, int(child.winfo_reqwidth())) + 6
+            # The centered song field is allowed to truncate visually, but never
+            # disappear.  180 px keeps it useful without letting a long title
+            # veto aspect-fit compaction forever.
+            return max(320, fixed + 180 + 18)
+
+        def maybe_compact_window_to_art(source_width: int, source_height: int, art_key) -> bool:
+            """Apply one transient aspect-fit shrink for a newly selected art blob."""
+            if state.get("art_fit_key") == art_key:
+                return False
+            state["art_fit_key"] = art_key
+            if bool(state.get("manual_size")):
+                # Once the person has moved or resized the popup, its exact
+                # rectangle is theirs.  A new track may replace the pixels,
+                # never the popup's screen placement or dimensions.
+                return False
+            preferred = str(state.get("preferred_geometry") or current_geometry())
+            parsed = _parse_external_album_art_geometry(preferred)
+            if parsed is None:
+                return False
+            with contextlib.suppress(Exception):
+                root.update_idletasks()
+            control_height = max(1, int(control_strip.winfo_reqheight()))
+            compact = compact_external_album_art_geometry_to_fitted_image(
+                preferred,
+                source_width=source_width,
+                source_height=source_height,
+                control_height=control_height,
+                control_min_width=titlebar_control_min_width(),
+                border_pixels=int(state.get("border_pixels", 5) or 5),
+            )
+            current = current_geometry()
+            if compact == current:
+                state["transient_geometry"] = compact if compact != preferred else ""
+                return False
+            state["programmatic_geometry"] = True
+            state["aspect_adjusting"] = True
+            state["transient_geometry"] = compact if compact != preferred else ""
+            with contextlib.suppress(Exception):
+                root.geometry(compact)
+            root.after(90, lambda: state.__setitem__("programmatic_geometry", False))
+            root.after(90, lambda: state.__setitem__("aspect_adjusting", False))
+            root.after(95, update_window_title)
+            root.after(100, schedule_render)
+            return True
+
+        def render_karaoke_color_config_preview(
+            mode_index: int,
+            preview_canvas,
+            phase: float,
+            *,
+            hero: bool = False,
+        ) -> None:
+            """Paint one clipped live sample with one shared physical text layout for every style.
+
+            V187 deliberately computes the fitted text once from Pillow metrics, independent
+            of coloring mode.  Pattern-filled styles therefore no longer look mysteriously
+            smaller than Rainbow letters/Solid palette, while the latter retain their
+            intended per-glyph/solid coloring semantics.  Row samples stay a single line,
+            centered in both axes, and the hero keeps its own larger fitted layout.
+            """
+            try:
+                import tkinter.font as tkfont
+                from PIL import Image, ImageDraw, ImageTk  # type: ignore
+
+                width = max(160, int(preview_canvas.winfo_width()))
+                height = max(36, int(preview_canvas.winfo_height()))
+                mode_index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode_index)))
+                target = normalize_karaoke_target(str(state.get("color_config_target") or "artwork"))
+                mode = karaoke_render_mode_name(target, mode_index)
+                palette_index = karaoke_palette_index(target, mode_index)
+                raw_phase = float(phase)
+                scaled_phase = raw_phase * karaoke_speed(target, mode_index)
+                emphasis_progress = ((raw_phase / 5.0) % 1.0) if karaoke_timed_emphasis_enabled(target, mode_index) else None
+                timing_type = karaoke_timing_type(target, mode_index)
+                brightness = karaoke_brightness(target, mode_index)
+                saturation = karaoke_saturation(target, mode_index)
+                shadow_fraction = karaoke_shadow_size(target, mode_index)
+                sample_text = EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM
+
+                def truncate_for_measure(value: str, max_width: int, measure) -> str:
+                    value = str(value)
+                    if measure(value) <= max_width:
+                        return value
+                    ellipsis = "…"
+                    if measure(ellipsis) > max_width:
+                        return ""
+                    low, high = 0, len(value)
+                    while low < high:
+                        middle = (low + high + 1) // 2
+                        candidate = value[:middle].rstrip() + ellipsis
+                        if measure(candidate) <= max_width:
+                            low = middle
+                        else:
+                            high = middle - 1
+                    return value[:low].rstrip() + ellipsis
+
+                layout_key = (bool(hero), width, height)
+                layout_cache = state.get("color_config_preview_layout_cache")
+                cached_layout = layout_cache.get(layout_key) if isinstance(layout_cache, dict) else None
+                if cached_layout is None:
+                    scratch = Image.new("L", (8, 8), 0)
+                    draw = ImageDraw.Draw(scratch)
+                    max_text_width = max(20, width - (30 if hero else 18))
+                    max_text_height = max(12, height - (12 if hero else 8))
+                    desired_size = max(24, round(height * 0.44)) if hero else max(26, round(height * 0.58))
+                    minimum_size = 22 if hero else desired_size
+                    chosen_font = None
+                    chosen_box = None
+                    chosen_text = sample_text
+                    chosen_pixel_size = desired_size
+                    for pixel_size in range(desired_size, minimum_size - 1, -1):
+                        font = resolve_artwork_pillow_font(pixel_size)
+                        box = draw.textbbox((0, 0), sample_text, font=font)
+                        if (box[2] - box[0]) <= max_text_width and (box[3] - box[1]) <= max_text_height:
+                            chosen_font, chosen_box, chosen_pixel_size = font, box, pixel_size
+                            break
+                    if chosen_font is None:
+                        chosen_pixel_size = minimum_size
+                        chosen_font = resolve_artwork_pillow_font(chosen_pixel_size)
+                        def pillow_measure(value: str) -> int:
+                            box = draw.textbbox((0, 0), value, font=chosen_font)
+                            return max(0, int(box[2] - box[0]))
+                        chosen_text = truncate_for_measure(sample_text, max_text_width, pillow_measure)
+                        chosen_box = draw.textbbox((0, 0), chosen_text, font=chosen_font)
+                    box = chosen_box
+                    mask = Image.new("L", (width, height), 0)
+                    mask_draw = ImageDraw.Draw(mask)
+                    tw = max(1, int(box[2] - box[0]))
+                    th = max(1, int(box[3] - box[1]))
+                    x = (width - tw) // 2 - box[0]
+                    y = (height - th) // 2 - box[1]
+                    mask_draw.text((x, y), chosen_text, font=chosen_font, fill=255)
+                    bbox = mask.getbbox()
+                    cropped_mask = mask.crop(bbox) if bbox else None
+                    cached_layout = (chosen_text, chosen_pixel_size, cropped_mask, bbox)
+                    if isinstance(layout_cache, dict):
+                        layout_cache[layout_key] = cached_layout
+
+                text, chosen_pixel_size, cropped_mask, bbox = cached_layout
+
+                # Pattern-filled styles use the exact same cached text mask, so their
+                # physical text size is identical regardless of treatment complexity.
+                if mode:
+                    if cropped_mask is not None and bbox is not None:
+                        # Solid palette remains spatially solid but gently walks through its
+                        # palette so its configurator sample is visibly alive like the rest.
+                        render_phase = scaled_phase
+                        if mode == "solid":
+                            render_phase = scaled_phase * 0.55
+                        rgba = pattern_rgba_for_mask(
+                            cropped_mask, round(chosen_pixel_size * shadow_fraction), render_phase, mode, palette_index,
+                            emphasis_progress=emphasis_progress,
+                            timing_type=timing_type,
+                            brightness=brightness,
+                            saturation=saturation,
+                        )
+                        photo = ImageTk.PhotoImage(rgba, master=preview_canvas)
+                        item_key = (int(mode_index), width, height, int(bbox[0]), int(bbox[1]))
+                        if hero:
+                            state["color_config_hero_photo"] = photo
+                            existing_item = state.get("color_config_hero_item")
+                            if existing_item is None or state.get("color_config_hero_item_key") != item_key:
+                                preview_canvas.delete("all")
+                                existing_item = preview_canvas.create_image(bbox[0], bbox[1], image=photo, anchor="nw")
+                                state["color_config_hero_item"] = int(existing_item)
+                                state["color_config_hero_item_key"] = item_key
+                            else:
+                                preview_canvas.itemconfigure(int(existing_item), image=photo)
+                        else:
+                            photos = state.get("color_config_preview_photos")
+                            items = state.get("color_config_preview_items")
+                            keys = state.get("color_config_preview_item_keys")
+                            if isinstance(photos, dict):
+                                photos[mode_index] = photo
+                            existing_item = items.get(mode_index) if isinstance(items, dict) else None
+                            existing_key = keys.get(mode_index) if isinstance(keys, dict) else None
+                            if existing_item is None or existing_key != item_key:
+                                preview_canvas.delete("all")
+                                existing_item = preview_canvas.create_image(bbox[0], bbox[1], image=photo, anchor="nw")
+                                if isinstance(items, dict):
+                                    items[mode_index] = int(existing_item)
+                                if isinstance(keys, dict):
+                                    keys[mode_index] = item_key
+                            else:
+                                preview_canvas.itemconfigure(int(existing_item), image=photo)
+                    else:
+                        preview_canvas.delete("all")
+                    return
+
+                # Rainbow letters is intentionally per-glyph, but its Tk font is derived
+                # from the same Pillow pixel size so it visually matches every other row.
+                preview_canvas.delete("all")
+                if hero:
+                    state["color_config_hero_item"] = None
+                    state["color_config_hero_item_key"] = None
+                else:
+                    items = state.get("color_config_preview_items")
+                    keys = state.get("color_config_preview_item_keys")
+                    if isinstance(items, dict):
+                        items.pop(mode_index, None)
+                    if isinstance(keys, dict):
+                        keys.pop(mode_index, None)
+
+                dpi = max(72, widget_dpi(preview_canvas))
+                point_size = max(7, round(float(chosen_pixel_size) * 72.0 / float(dpi)))
+                font = tkfont.Font(root=preview_canvas, family="Segoe UI", size=point_size, weight="bold")
+                max_text_width = max(20, width - (30 if hero else 18))
+                if font.measure(text) > max_text_width:
+                    text = truncate_for_measure(text, max_text_width, font.measure)
+                center_y = height // 2
+                visible_count = max(1, sum(not ch.isspace() for ch in text))
+                glyph_index = 0
+                x = max(4, (width - font.measure(text)) // 2)
+                for character in text:
+                    advance = max(1, int(font.measure(character)))
+                    if not character.isspace():
+                        fraction = glyph_index / max(1, visible_count - 1)
+                        position = (glyph_index / visible_count + scaled_phase / 3.0) % 1.0
+                        if emphasis_progress is not None and fraction <= emphasis_progress:
+                            position = (position + 0.26) % 1.0
+                        red, green, blue = _palette_rgb(PALETTE_STOPS[palette_index], position)
+                        preview_canvas.create_text(
+                            x, center_y, text=character,
+                            fill=f"#{red:02x}{green:02x}{blue:02x}",
+                            font=font, anchor="w",
+                        )
+                        glyph_index += 1
+                    x += advance
+            except Exception:
+                return
+
+        def color_config_window_is_viewable(window) -> bool:
+            try:
+                return bool(window is not None and window.winfo_exists() and window.winfo_viewable())
+            except Exception:
+                return False
+
+        def animate_karaoke_color_config_hero() -> None:
+            """Run the hero/marquee on its own fixed 20-fps clock, regardless of row load."""
+            state["color_config_hero_after"] = None
+            window = state.get("color_config_window")
+            if window is None:
+                return
+            if not color_config_window_is_viewable(window):
+                with contextlib.suppress(Exception):
+                    state["color_config_hero_after"] = window.after(250, animate_karaoke_color_config_hero)
+                return
+            target = normalize_karaoke_target(str(state.get("color_config_target") or "artwork"))
+            enabled_mode = karaoke_color_mode_index(target)
+            try:
+                preview_mode = int(state.get("color_config_preview_mode"))
+            except (TypeError, ValueError):
+                preview_mode = enabled_mode
+            preview_mode = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, preview_mode))
+            hero_canvas = state.get("color_config_hero_canvas")
+            if hero_canvas is not None:
+                render_karaoke_color_config_preview(preview_mode, hero_canvas, time.monotonic(), hero=True)
+            with contextlib.suppress(Exception):
+                state["color_config_hero_after"] = window.after(
+                    KARAOKE_COLOR_CONFIG_PREVIEW_TICK_MS,
+                    animate_karaoke_color_config_hero,
+                )
+
+        def animate_karaoke_color_config_rows() -> None:
+            """Animate every visible compact row, adapting cadence to measured render cost."""
+            state["color_config_rows_after"] = None
+            window = state.get("color_config_window")
+            if window is None:
+                return
+            if not color_config_window_is_viewable(window):
+                with contextlib.suppress(Exception):
+                    state["color_config_rows_after"] = window.after(300, animate_karaoke_color_config_rows)
+                return
+
+            canvases = state.get("color_config_preview_canvases")
+            visible_indices: list[int] = []
+            scroller = state.get("color_config_scroller")
+            if isinstance(canvases, dict) and canvases and scroller is not None:
+                with contextlib.suppress(Exception):
+                    viewport_top = int(scroller.winfo_rooty())
+                    viewport_bottom = viewport_top + max(1, int(scroller.winfo_height()))
+                    for mode_index, preview_canvas in canvases.items():
+                        top = int(preview_canvas.winfo_rooty())
+                        bottom = top + max(1, int(preview_canvas.winfo_height()))
+                        if bottom > viewport_top and top < viewport_bottom:
+                            visible_indices.append(int(mode_index))
+            visible_indices.sort()
+
+            started = time.perf_counter()
+            if visible_indices and isinstance(canvases, dict):
+                # V184: every row that is actually on-screen gets a frame on every
+                # row-animation pass.  The adaptive interval still backs off under
+                # load, but no visible sample is left blank/stale while its neighbor
+                # animates.  KARAOKE_COLOR_CONFIG_ROW_BATCH remains as a historical
+                # tuning constant for older regression/documentation references.
+                phase = time.monotonic()
+                for mode_index in visible_indices:
+                    preview_canvas = canvases.get(mode_index)
+                    if preview_canvas is not None:
+                        render_karaoke_color_config_preview(mode_index, preview_canvas, phase)
+                state["color_config_preview_cursor"] = 0
+            render_ms = max(0.0, (time.perf_counter() - started) * 1000.0)
+            prior_ema = float(state.get("color_config_row_render_ema_ms", 0.0) or 0.0)
+            ema = render_ms if prior_ema <= 0.0 else prior_ema * 0.76 + render_ms * 0.24
+            state["color_config_row_render_ema_ms"] = ema
+            current_interval = int(state.get("color_config_row_interval_ms", KARAOKE_COLOR_CONFIG_ROW_BASE_TICK_MS) or KARAOKE_COLOR_CONFIG_ROW_BASE_TICK_MS)
+            interval = adapt_karaoke_color_config_row_interval(current_interval, ema, len(visible_indices))
+            state["color_config_row_interval_ms"] = interval
+            with contextlib.suppress(Exception):
+                state["color_config_rows_after"] = window.after(
+                    interval,
+                    animate_karaoke_color_config_rows,
+                )
+
+        def show_karaoke_color_configurator(target: str = "artwork") -> None:
+            """Open the shared color browser for either over-art or floating karaoke."""
+            target = normalize_karaoke_target(target)
+            existing = state.get("color_config_window")
+            if existing is not None:
+                current_target = normalize_karaoke_target(str(state.get("color_config_target") or "artwork"))
+                if current_target == target:
+                    self._color_configurator_target = target
+                    self._color_configurator_active.set()
+                    with contextlib.suppress(Exception):
+                        existing.deiconify()
+                        existing.lift()
+                    if target == "floating" and lyrics_mode_includes_floating(int(state.get("lyrics_mode", 0) or 0)):
+                        ensure_floating_lyrics_window()
+                        schedule_floating_render()
+                        ensure_floating_color_animation()
+                    sync_karaoke_color_ui()
+                    return
+                closer = state.get("color_config_close_callback")
+                if callable(closer):
+                    closer()
+                    with contextlib.suppress(Exception):
+                        root.after(20, lambda: show_karaoke_color_configurator(target))
+                    return
+
+            # The configurator owns the heavy GUI animation budget while open.
+            # Audio and the selected configurator previews continue.  V182 makes
+            # the floating destination special: while configuring floating lyrics,
+            # the real floating lyric itself keeps animating and receiving cues.
+            self._color_configurator_target = target
+            self._color_configurator_active.set()
+            art_after = state.get("artwork_lyric_color_after")
+            if art_after is not None:
+                with contextlib.suppress(Exception):
+                    root.after_cancel(art_after)
+            state["artwork_lyric_color_after"] = None
+            if target != "floating":
+                floating_after = state.get("floating_color_after")
+                floating_window = state.get("floating_window")
+                if floating_after is not None and floating_window is not None:
+                    with contextlib.suppress(Exception):
+                        floating_window.after_cancel(floating_after)
+                state["floating_color_after"] = None
+
+            config = tk.Toplevel(root)
+            config.withdraw()
+            destination_label = "floating" if target == "floating" else "artwork"
+            config.title(f"{PROGRAM_TITLE} {PROGRAM_VERSION} — {destination_label} lyric coloring")
+            config.minsize(960, 620)
+            config.geometry("1500x900")
+            state["color_config_window"] = config
+            state["color_config_target"] = target
+            if target == "floating" and lyrics_mode_includes_floating(int(state.get("lyrics_mode", 0) or 0)):
+                ensure_floating_lyrics_window()
+                schedule_floating_render()
+                ensure_floating_color_animation()
+            state["color_config_preview_cursor"] = 0
+            state["color_config_preview_canvases"] = {}
+            state["color_config_preview_photos"] = {}
+            state["color_config_preview_items"] = {}
+            state["color_config_preview_item_keys"] = {}
+            state["color_config_preview_layout_cache"] = {}
+            state["color_config_pillow_font_cache"] = {}
+            state["color_config_row_interval_ms"] = KARAOKE_COLOR_CONFIG_ROW_BASE_TICK_MS
+            state["color_config_row_render_ema_ms"] = 0.0
+            state["color_config_favorite_vars"] = {}
+            state["color_config_palette_vars"] = {}
+            state["color_config_palette_picker_canvases"] = {}
+            state["color_config_palette_picker_font"] = None
+            state["color_config_palette_popup"] = None
+            state["color_config_speed_vars"] = {}
+            state["color_config_timing_vars"] = {}
+            state["color_config_treatment_vars"] = {}
+            state["color_config_brightness_vars"] = {}
+            state["color_config_saturation_vars"] = {}
+            state["color_config_shadow_vars"] = {}
+            state["color_config_title_buttons"] = {}
+            state["color_config_hero_photo"] = None
+            state["color_config_hero_item"] = None
+            state["color_config_hero_item_key"] = None
+            state["color_config_animation_tick"] = 0
+            state["color_config_preview_mode"] = karaoke_color_mode_index(target)
+
+            enabled_variable = tk.IntVar(master=config, value=karaoke_color_mode_index(target))
+            default_key = karaoke_target_state_key(target, "karaoke_color_default_mode")
+            default_variable = tk.IntVar(master=config, value=int(state.get(default_key, 0) or 0))
+            state["color_config_enabled_var"] = enabled_variable
+            state["color_config_default_var"] = default_variable
+
+            outer = tk.Frame(config, background="#ececec")
+            outer.pack(fill="both", expand=True)
+            outer.grid_columnconfigure(0, weight=1)
+            outer.grid_rowconfigure(0, weight=0, minsize=KARAOKE_COLOR_CONFIG_HERO_MIN_HEIGHT)
+            outer.grid_rowconfigure(1, weight=0)
+            outer.grid_rowconfigure(2, weight=3)
+
+            hero_frame = tk.Frame(outer, background="#11151b", borderwidth=1, relief="groove")
+            hero_frame.grid(row=0, column=0, sticky="nsew", padx=8, pady=(8, 5))
+            hero_frame.grid_columnconfigure(0, weight=1)
+            hero_frame.grid_rowconfigure(1, weight=1)
+            hero_label = tk.Label(
+                hero_frame,
+                text="",
+                anchor="center",
+                justify="center",
+                background="#11151b",
+                foreground="#dce7f5",
+                font=("Segoe UI", 10, "bold"),
+                pady=4,
+            )
+            hero_label.grid(row=0, column=0, sticky="ew")
+            state["color_config_hero_label"] = hero_label
+            hero_canvas = tk.Canvas(
+                hero_frame,
+                height=max(90, KARAOKE_COLOR_CONFIG_HERO_MIN_HEIGHT - 34),
+                background="#080a0f",
+                borderwidth=0,
+                highlightthickness=0,
+            )
+            hero_canvas.grid(row=1, column=0, sticky="nsew")
+            state["color_config_hero_canvas"] = hero_canvas
+
+            section_tabs = tk.Frame(outer, background="#c8c8c8")
+            section_tabs.grid(row=1, column=0, sticky="ew", padx=8, pady=(1, 4))
+            section_tabs.grid_rowconfigure(0, weight=1)
+            # The selected destination visibly owns 80% of the row; clicking the
+            # compact 20% peer swaps the proportions and opens that independent profile.
+            tab_order = (("artwork", "🎨 Artwork Lyric Coloring"), ("floating", "☁ Floating Lyric Coloring"))
+            for column, (tab_target, tab_text) in enumerate(tab_order):
+                selected = tab_target == target
+                section_tabs.grid_columnconfigure(column, weight=4 if selected else 1, uniform="lyric-destination-tabs")
+                tab = tk.Button(
+                    section_tabs,
+                    text=tab_text,
+                    command=lambda wanted=tab_target: show_karaoke_color_configurator(wanted),
+                    anchor="center",
+                    justify="center",
+                    background="#dceeff" if selected else "#e4e4e4",
+                    activebackground="#c7e4ff",
+                    foreground="#102030" if selected else "#555555",
+                    font=("Segoe UI", 26 if selected else 12, "bold"),
+                    relief="sunken" if selected else "raised",
+                    borderwidth=2 if selected else 1,
+                    pady=5,
+                    cursor="hand2",
+                )
+                tab.grid(row=0, column=column, sticky="nsew", padx=(0, 1) if column == 0 else 0)
+                install_tooltip(tab, f"Configure {tab_target} lyric coloring" + (" (selected)" if selected else ""))
+
+            browser = tk.Frame(outer, background="#ececec")
+            browser.grid(row=2, column=0, sticky="nsew")
+            browser.grid_columnconfigure(0, weight=1)
+            browser.grid_rowconfigure(0, weight=0)
+            browser.grid_rowconfigure(1, weight=1)
+            sticky_header = tk.Frame(browser, background="#dedede")
+            sticky_header.grid(row=0, column=0, sticky="ew")
+            scroller = tk.Canvas(browser, background="#ececec", borderwidth=0, highlightthickness=0)
+            state["color_config_scroller"] = scroller
+            scrollbar = tk.Scrollbar(browser, orient="vertical", command=scroller.yview)
+            scroller.configure(yscrollcommand=scrollbar.set)
+            scrollbar.grid(row=1, column=1, sticky="ns")
+            scroller.grid(row=1, column=0, sticky="nsew")
+            table = tk.Frame(scroller, background="#ececec")
+            window_item = scroller.create_window((0, 0), window=table, anchor="nw")
+
+            def resize_inner(event) -> None:
+                with contextlib.suppress(Exception):
+                    scroller.itemconfigure(window_item, width=max(1, int(event.width)))
+                    scroller.configure(scrollregion=scroller.bbox("all"))
+
+            def update_scrollregion(_event=None) -> None:
+                with contextlib.suppress(Exception):
+                    scroller.configure(scrollregion=scroller.bbox("all"))
+
+            scroller.bind("<Configure>", resize_inner)
+            table.bind("<Configure>", update_scrollregion)
+
+            def wheel(event) -> str:
+                delta = int(getattr(event, "delta", 0) or 0)
+                if delta:
+                    scroller.yview_scroll(-1 if delta > 0 else 1, "units")
+                return "break"
+
+            config.bind("<MouseWheel>", wheel, add="+")
+
+            def persist_current_speeds() -> None:
+                persist_karaoke_speeds(target, karaoke_speed_values(target))
+
+            def persist_current_profile_adjustments() -> None:
+                persist_karaoke_profile_values(
+                    target, "karaoke_brightnesses",
+                    karaoke_adjustment_values(target, "karaoke_brightnesses", normalize_external_karaoke_brightnesses),
+                )
+                persist_karaoke_profile_values(
+                    target, "karaoke_saturations",
+                    karaoke_adjustment_values(target, "karaoke_saturations", normalize_external_karaoke_saturations),
+                )
+                persist_karaoke_profile_values(
+                    target, "karaoke_shadow_sizes",
+                    karaoke_adjustment_values(target, "karaoke_shadow_sizes", normalize_external_karaoke_shadow_sizes),
+                )
+
+            def palette_selected(mode_index: int, variable) -> None:
+                set_karaoke_color_palette(target, mode_index, str(variable.get()))
+
+            def palette_arrow(event, mode_index: int, variable, direction: int) -> str:
+                try:
+                    current = PALETTE_NAMES.index(str(variable.get()))
+                except ValueError:
+                    current = 0
+                next_index = (current + int(direction)) % len(PALETTE_NAMES)
+                variable.set(PALETTE_NAMES[next_index])
+                set_karaoke_color_palette(target, mode_index, PALETTE_NAMES[next_index])
+                picker = state.get("color_config_palette_picker_canvases", {}).get(mode_index) if isinstance(state.get("color_config_palette_picker_canvases"), dict) else None
+                if picker is not None:
+                    paint_palette_picker_canvas(picker, mode_index, next_index, PALETTE_NAMES[next_index], time.monotonic())
+                return "break"
+
+            def paint_palette_picker_canvas(
+                picker, mode_index: int, palette_index: int, label: str, phase: float,
+                *, show_arrow: bool = True,
+            ) -> None:
+                """Draw a tiny live style/palette swatch plus style-colored palette name."""
+                try:
+                    import tkinter.font as tkfont
+                    actual_width = int(picker.winfo_width() or 0)
+                    actual_height = int(picker.winfo_height() or 0)
+                    requested_width = int(picker.winfo_reqwidth() or 210)
+                    requested_height = int(picker.winfo_reqheight() or 28)
+                    width = max(120, requested_width if actual_width <= 1 else actual_width)
+                    height = max(22, requested_height if actual_height <= 1 else actual_height)
+                    picker.delete("all")
+                    picker.create_rectangle(0, 0, width - 1, height - 1, outline="#8b8b8b", fill="#ffffff")
+                    mode_index = max(0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode_index)))
+                    palette_index = max(0, min(len(PALETTE_NAMES) - 1, int(palette_index)))
+                    mode = karaoke_render_mode_name(target, mode_index)
+                    scaled_phase = float(phase) * karaoke_speed(target, mode_index)
+                    swatch = max(14, min(height - 6, 22))
+                    sx, sy = 4, max(2, (height - swatch) // 2)
+                    cells = 5
+                    for yy in range(cells):
+                        y0 = sy + round(yy * swatch / cells)
+                        y1 = sy + round((yy + 1) * swatch / cells)
+                        for xx in range(cells):
+                            x0 = sx + round(xx * swatch / cells)
+                            x1 = sx + round((xx + 1) * swatch / cells)
+                            red, green, blue = external_album_art_karaoke_pattern_rgb(
+                                mode, xx * 8.0, yy * 8.0, scaled_phase, palette_index
+                            )
+                            picker.create_rectangle(
+                                x0, y0, x1, y1, outline="",
+                                fill=f"#{red:02x}{green:02x}{blue:02x}",
+                            )
+                    font = state.get("color_config_palette_picker_font")
+                    if font is None:
+                        font = tkfont.Font(root=config, family="Segoe UI", size=9, weight="bold")
+                        state["color_config_palette_picker_font"] = font
+                    x = sx + swatch + 7
+                    available_right = width - (22 if show_arrow else 5)
+                    text = str(label)
+                    # Truncate by measured glyph widths while keeping the palette treatment visible.
+                    while text and x + int(font.measure(text)) > available_right:
+                        text = (text[:-2].rstrip() + "…") if len(text) > 1 else ""
+                    visible_chars = max(1, sum(not ch.isspace() for ch in text))
+                    glyph = 0
+                    for ch in text:
+                        advance = max(1, int(font.measure(ch)))
+                        if not ch.isspace():
+                            red, green, blue = external_album_art_karaoke_pattern_rgb(
+                                mode, glyph * 7.0, 14.0, scaled_phase, palette_index
+                            )
+                            picker.create_text(
+                                x, height // 2, text=ch, anchor="w", font=font,
+                                fill=f"#{red:02x}{green:02x}{blue:02x}",
+                            )
+                            glyph += 1
+                        x += advance
+                    if show_arrow:
+                        picker.create_text(width - 11, height // 2, text="▼", anchor="center", fill="#333333", font=("Segoe UI", 9))
+                except Exception:
+                    return
+
+            def close_palette_picker_popup() -> None:
+                popup = state.get("color_config_palette_popup")
+                state["color_config_palette_popup"] = None
+                if popup is not None:
+                    with contextlib.suppress(Exception):
+                        popup.grab_release()
+                    with contextlib.suppress(Exception):
+                        popup.destroy()
+
+            def open_palette_picker(mode_index: int, variable, picker) -> str:
+                """Open the visual palette picker without the old FocusOut race."""
+                close_palette_picker_popup()
+                with contextlib.suppress(Exception):
+                    picker.focus_set()
+                    picker.update_idletasks()
+                popup = tk.Toplevel(config)
+                popup.withdraw()
+                popup.overrideredirect(True)
+                popup.configure(background="#d0d0d0")
+                state["color_config_palette_popup"] = popup
+                width = max(250, int(picker.winfo_width() or 250))
+                visible_rows = min(12, len(PALETTE_NAMES))
+                row_h = 30
+                height = visible_rows * row_h + 4
+                x = int(picker.winfo_rootx())
+                y = int(picker.winfo_rooty()) + int(picker.winfo_height())
+                popup.geometry(f"{width}x{height}+{x}+{y}")
+                body = tk.Frame(popup, background="#d0d0d0")
+                body.pack(fill="both", expand=True)
+                menu_canvas = tk.Canvas(body, background="#ffffff", borderwidth=0, highlightthickness=1, highlightbackground="#777777")
+                menu_scroll = tk.Scrollbar(body, orient="vertical", command=menu_canvas.yview)
+                menu_canvas.configure(yscrollcommand=menu_scroll.set)
+                menu_scroll.pack(side="right", fill="y")
+                menu_canvas.pack(side="left", fill="both", expand=True)
+                inner = tk.Frame(menu_canvas, background="#ffffff")
+                inner_item = menu_canvas.create_window((0, 0), window=inner, anchor="nw")
+
+                def fit_inner(event) -> None:
+                    with contextlib.suppress(Exception):
+                        menu_canvas.itemconfigure(inner_item, width=max(1, int(event.width)))
+
+                def refresh_region(_event=None) -> None:
+                    with contextlib.suppress(Exception):
+                        menu_canvas.configure(scrollregion=menu_canvas.bbox("all"))
+
+                menu_canvas.bind("<Configure>", fit_inner)
+                inner.bind("<Configure>", refresh_region)
+
+                def choose(palette_index: int) -> str:
+                    palette_index = max(0, min(len(PALETTE_NAMES) - 1, int(palette_index)))
+                    name = PALETTE_NAMES[palette_index]
+                    variable.set(name)
+                    set_karaoke_color_palette(target, mode_index, name)
+                    paint_palette_picker_canvas(picker, mode_index, palette_index, name, time.monotonic())
+                    row_canvas = state.get("color_config_preview_canvases", {}).get(mode_index) if isinstance(state.get("color_config_preview_canvases"), dict) else None
+                    if row_canvas is not None:
+                        render_karaoke_color_config_preview(mode_index, row_canvas, time.monotonic())
+                    try:
+                        current_preview_mode = int(state.get("color_config_preview_mode"))
+                    except (TypeError, ValueError):
+                        current_preview_mode = -1
+                    if current_preview_mode == int(mode_index):
+                        hero_canvas = state.get("color_config_hero_canvas")
+                        if hero_canvas is not None:
+                            render_karaoke_color_config_preview(mode_index, hero_canvas, time.monotonic(), hero=True)
+                    close_palette_picker_popup()
+                    with contextlib.suppress(Exception):
+                        picker.focus_set()
+                    return "break"
+
+                snapshot_phase = time.monotonic()
+                for palette_index, palette_name in enumerate(PALETTE_NAMES):
+                    item = tk.Canvas(
+                        inner, height=row_h, width=max(120, width - 18), background="#ffffff", borderwidth=0,
+                        highlightthickness=1, highlightbackground="#ececec", takefocus=True, cursor="hand2",
+                    )
+                    item.pack(fill="x", expand=True)
+                    item.update_idletasks()
+                    paint_palette_picker_canvas(
+                        item, mode_index, palette_index, palette_name, snapshot_phase, show_arrow=False
+                    )
+                    item.bind("<ButtonRelease-1>", lambda _event, p=palette_index: choose(p), add="+")
+                    item.bind("<Return>", lambda _event, p=palette_index: choose(p), add="+")
+
+                def wheel_palette(event) -> str:
+                    delta = int(getattr(event, "delta", 0) or 0)
+                    if delta:
+                        menu_canvas.yview_scroll(-1 if delta > 0 else 1, "units")
+                    return "break"
+
+                popup.bind("<MouseWheel>", wheel_palette, add="+")
+                popup.bind("<Escape>", lambda _event: (close_palette_picker_popup(), "break")[1], add="+")
+                popup.deiconify()
+                popup.lift()
+                with contextlib.suppress(Exception):
+                    popup.attributes("-topmost", True)
+                with contextlib.suppress(Exception):
+                    popup.grab_set()
+                with contextlib.suppress(Exception):
+                    popup.focus_set()
+                return "break"
+
+            mode_count = len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS)
+
+            # V188: the sample is deliberately a stable showcase width; any extra
+            # horizontal room belongs to Style controls. Shorter Mode/Fave headers keep
+            # the state columns genuinely narrow and make sticky-header geometry match
+            # the body exactly. One-pixel table-background gaps remain the cell rules.
+            import tkinter.font as tkfont
+            header_font = tkfont.Font(root=config, family="Segoe UI", size=9, weight="bold")
+            name_font = tkfont.Font(root=config, family="Segoe UI", size=11, weight="bold")
+            table.configure(background="#c8c8c8")
+            sticky_header.configure(background="#c8c8c8")
+            fixed_widths = {
+                0: max(44, int(header_font.measure("Mode")) + 10),
+                1: max(54, int(header_font.measure("Default")) + 10),
+                2: max(42, int(header_font.measure("Fave")) + 10),
+                3: max(
+                    int(header_font.measure("Color mode")) + 14,
+                    max(int(name_font.measure(name)) for name in EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS) + 16,
+                ),
+                4: 360,
+            }
+            table.grid_columnconfigure(0, weight=0, minsize=fixed_widths[0])
+            table.grid_columnconfigure(1, weight=0, minsize=fixed_widths[1])
+            table.grid_columnconfigure(2, weight=0, minsize=fixed_widths[2])
+            table.grid_columnconfigure(3, weight=0, minsize=fixed_widths[3])
+            table.grid_columnconfigure(4, weight=0, minsize=fixed_widths[4])
+            table.grid_columnconfigure(5, weight=1, minsize=620)
+            sticky_header.grid_columnconfigure(0, weight=0, minsize=fixed_widths[0])
+            sticky_header.grid_columnconfigure(1, weight=0, minsize=fixed_widths[1])
+            sticky_header.grid_columnconfigure(2, weight=0, minsize=fixed_widths[2])
+            sticky_header.grid_columnconfigure(3, weight=0, minsize=fixed_widths[3])
+            sticky_header.grid_columnconfigure(4, weight=0, minsize=fixed_widths[4])
+            sticky_header.grid_columnconfigure(5, weight=1, minsize=620)
+
+            for column, heading, anchor in (
+                (0, "Mode", "center"),
+                (1, "Default", "center"),
+                (2, "Fave", "center"),
+                (3, "Color mode", "e"),
+                (4, "Live sample", "center"),
+                (5, "Style controls", "center"),
+            ):
+                tk.Label(
+                    sticky_header,
+                    text=heading,
+                    anchor=anchor,
+                    justify="center" if anchor == "center" else "right",
+                    background="#dedede",
+                    foreground="#202020",
+                    font=header_font,
+                    padx=5,
+                    pady=4,
+                ).grid(row=0, column=column, sticky="nsew", padx=(0, 1), pady=(0, 1))
+
+            def select_color_config_preview(mode_index: int) -> str:
+                """Preview a style in the marquee without changing Enabled."""
+                state["color_config_preview_mode"] = max(
+                    0, min(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES) - 1, int(mode_index))
+                )
+                sync_karaoke_color_ui()
+                hero_canvas = state.get("color_config_hero_canvas")
+                if hero_canvas is not None:
+                    render_karaoke_color_config_preview(
+                        int(state["color_config_preview_mode"]), hero_canvas, time.monotonic(), hero=True
+                    )
+                return "break"
+
+            for index, label in enumerate(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS):
+                grid_row = index
+                table.grid_rowconfigure(grid_row, weight=0)
+
+                favorite_key = karaoke_target_state_key(target, "karaoke_color_favorites")
+                favorite_variable = tk.BooleanVar(
+                    master=config,
+                    value=external_album_art_karaoke_color_is_favorite(
+                        int(state.get(favorite_key, 0) or 0), index
+                    ),
+                )
+                state["color_config_favorite_vars"][index] = favorite_variable
+
+                enabled_radio = tk.Radiobutton(
+                    table, text="", variable=enabled_variable, value=index,
+                    command=lambda mode_index=index: set_karaoke_color_mode(target, mode_index),
+                    background="#f7f7f7", activebackground="#f7f7f7", takefocus=True,
+                    padx=0, pady=0, borderwidth=0, highlightthickness=0,
+                )
+                default_radio = tk.Radiobutton(
+                    table, text="", variable=default_variable, value=index,
+                    command=lambda mode_index=index: set_karaoke_color_default(target, mode_index),
+                    background="#f7f7f7", activebackground="#f7f7f7", takefocus=True,
+                    padx=0, pady=0, borderwidth=0, highlightthickness=0,
+                )
+                favorite_checkbox = tk.Checkbutton(
+                    table, text="", variable=favorite_variable,
+                    command=lambda mode_index=index, variable=favorite_variable: set_karaoke_color_favorite(target, mode_index, bool(variable.get())),
+                    background="#f7f7f7", activebackground="#f7f7f7", takefocus=True,
+                    padx=0, pady=0, borderwidth=0, highlightthickness=0,
+                )
+                for column, widget in ((0, enabled_radio), (1, default_radio), (2, favorite_checkbox)):
+                    widget.grid(row=grid_row, column=column, sticky="nsew", padx=(0, 1), pady=(0, 1))
+                install_tooltip(enabled_radio, f"Enable {label} for {destination_label} lyrics")
+                install_tooltip(default_radio, f"Make {label} the default for {destination_label} lyrics")
+                install_tooltip(favorite_checkbox, f"Favorite or unfavorite {label}")
+
+                title_label = tk.Label(
+                    table,
+                    text=label,
+                    anchor="e",
+                    justify="right",
+                    background="#f7f7f7",
+                    foreground="#111111",
+                    font=name_font,
+                    padx=8,
+                    cursor="hand2",
+                )
+                title_label.grid(row=grid_row, column=3, sticky="nsew", padx=(0, 1), pady=(0, 1))
+                title_label.bind("<Button-1>", lambda _event, mode_index=index: select_color_config_preview(mode_index), add="+")
+                install_tooltip(title_label, f"Preview {label} in the marquee without enabling it")
+                state["color_config_title_buttons"][index] = title_label
+
+                sample_cell = tk.Frame(table, background="#080a0f", borderwidth=0)
+                sample_cell.grid(row=grid_row, column=4, sticky="nsew", padx=(0, 1), pady=(0, 1))
+                sample_cell.grid_columnconfigure(0, weight=1)
+                sample_cell.grid_rowconfigure(0, weight=1, minsize=KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT)
+                preview = tk.Canvas(
+                    sample_cell,
+                    height=KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT,
+                    background="#080a0f",
+                    borderwidth=0,
+                    highlightthickness=0,
+                )
+                preview.grid(row=0, column=0, sticky="nsew")
+                state["color_config_preview_canvases"][index] = preview
+                install_tooltip(preview, f"Live animated preview of {label}; click to show it in the marquee")
+                preview.bind("<Button-1>", lambda _event, mode_index=index: select_color_config_preview(mode_index), add="+")
+                preview.after_idle(
+                    lambda mode_index=index, canvas=preview: render_karaoke_color_config_preview(
+                        mode_index, canvas, time.monotonic()
+                    )
+                )
+
+                controls_cell = tk.Frame(table, background="#f7f7f7", borderwidth=0, padx=7, pady=2)
+                controls_cell.grid(row=grid_row, column=5, sticky="nsew", padx=(0, 1), pady=(0, 1))
+                controls_cell.grid_columnconfigure(1, weight=1)
+                controls_cell.grid_columnconfigure(3, weight=1)
+
+                treatment_values = karaoke_pattern_treatment_values(target)
+                treatment_variable = tk.StringVar(
+                    master=config,
+                    value=EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_LABELS[treatment_values[index]],
+                )
+                state["color_config_treatment_vars"][index] = treatment_variable
+                treatment_label = tk.Label(
+                    controls_cell, text="Pattern:", background="#f7f7f7",
+                    foreground="#333333", font=("Segoe UI", 9), anchor="e",
+                )
+                treatment_label.grid(row=0, column=0, sticky="e", padx=(0, 5))
+                treatment_combo = ttk.Combobox(
+                    controls_cell,
+                    textvariable=treatment_variable,
+                    values=EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_LABELS,
+                    state="readonly" if EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES[index] == "pattern" else "disabled",
+                    takefocus=True,
+                )
+                treatment_combo.grid(row=0, column=1, columnspan=3, sticky="ew")
+                treatment_combo.bind(
+                    "<<ComboboxSelected>>",
+                    lambda _event, mode_index=index, variable=treatment_variable: set_karaoke_pattern_treatment(target, mode_index, str(variable.get())),
+                    add="+",
+                )
+                install_tooltip(treatment_label, "Spatial or animated treatment used inside Pattern fill")
+                install_tooltip(treatment_combo, "Pattern treatment is independent of palette and timing")
+
+                palette_label = tk.Label(
+                    controls_cell, text="Palette:", background="#f7f7f7",
+                    foreground="#333333", font=("Segoe UI", 9), anchor="e",
+                )
+                palette_label.grid(row=1, column=0, sticky="e", padx=(0, 5), pady=(1, 0))
+                palettes = karaoke_palette_values(target)
+                palette_variable = tk.StringVar(master=config, value=PALETTE_NAMES[palettes[index]])
+                state["color_config_palette_vars"][index] = palette_variable
+                palette_picker = tk.Canvas(
+                    controls_cell,
+                    width=218, height=24, background="#ffffff",
+                    borderwidth=0, highlightthickness=0, takefocus=True, cursor="hand2",
+                )
+                palette_picker.grid(row=1, column=1, columnspan=3, sticky="ew", pady=(1, 0))
+                state["color_config_palette_picker_canvases"][index] = palette_picker
+                install_tooltip(palette_label, "Palette used by this coloring mode")
+                install_tooltip(palette_picker, "Choose palette; Up/Down cycles palettes without reopening the list")
+                palette_picker.bind(
+                    "<Button-1>",
+                    lambda _event, mode_index=index, variable=palette_variable, picker=palette_picker: open_palette_picker(mode_index, variable, picker),
+                    add="+",
+                )
+                palette_picker.bind(
+                    "<Up>",
+                    lambda event, mode_index=index, variable=palette_variable: palette_arrow(event, mode_index, variable, -1),
+                    add="+",
+                )
+                palette_picker.bind(
+                    "<Down>",
+                    lambda event, mode_index=index, variable=palette_variable: palette_arrow(event, mode_index, variable, 1),
+                    add="+",
+                )
+                palette_picker.bind(
+                    "<Return>",
+                    lambda _event, mode_index=index, variable=palette_variable, picker=palette_picker: open_palette_picker(mode_index, variable, picker),
+                    add="+",
+                )
+                palette_picker.after_idle(
+                    lambda mode_index=index, picker=palette_picker, variable=palette_variable: paint_palette_picker_canvas(
+                        picker, mode_index, PALETTE_NAMES.index(str(variable.get())) if str(variable.get()) in PALETTE_NAMES else 0, str(variable.get()), time.monotonic()
+                    )
+                )
+
+                timing_values = karaoke_timing_values(target)
+                timing_variable = tk.StringVar(
+                    master=config,
+                    value=EXTERNAL_ALBUM_ART_KARAOKE_TIMING_LABELS[timing_values[index]],
+                )
+                state["color_config_timing_vars"][index] = timing_variable
+                timing_label = tk.Label(
+                    controls_cell, text="Timing:", background="#f7f7f7",
+                    foreground="#333333", font=("Segoe UI", 9), anchor="e",
+                )
+                timing_label.grid(row=2, column=0, sticky="e", padx=(0, 5), pady=(1, 0))
+                timing_combo = ttk.Combobox(
+                    controls_cell,
+                    textvariable=timing_variable,
+                    values=EXTERNAL_ALBUM_ART_KARAOKE_TIMING_LABELS,
+                    state="readonly",
+                    takefocus=True,
+                )
+                timing_combo.grid(row=2, column=1, columnspan=3, sticky="ew", pady=(1, 0))
+                timing_combo.bind(
+                    "<<ComboboxSelected>>",
+                    lambda _event, mode_index=index, variable=timing_variable: set_karaoke_timing(target, mode_index, str(variable.get())),
+                    add="+",
+                )
+                install_tooltip(timing_label, "Progressive sung-word treatment; None disables timestamp interpolation")
+                install_tooltip(timing_combo, "MiniLyrics-style interpolation between lyric timestamps with 20 experimental treatments")
+
+                speed_variable = tk.DoubleVar(master=config, value=karaoke_speed(target, index))
+                state["color_config_speed_vars"][index] = speed_variable
+                speed_label = tk.Label(
+                    controls_cell, text="Speed:", background="#f7f7f7",
+                    foreground="#333333", font=("Segoe UI", 9), anchor="e",
+                )
+                speed_label.grid(row=3, column=0, sticky="e", padx=(0, 5))
+                speed_scale = tk.Scale(
+                    controls_cell,
+                    from_=KARAOKE_COLOR_SPEED_MIN,
+                    to=KARAOKE_COLOR_SPEED_MAX,
+                    resolution=KARAOKE_COLOR_SPEED_STEP,
+                    orient="horizontal",
+                    variable=speed_variable,
+                    length=175,
+                    showvalue=True,
+                    digits=3,
+                    background="#f7f7f7",
+                    highlightthickness=0,
+                    takefocus=True,
+                    command=lambda value, mode_index=index: set_karaoke_color_speed(target, mode_index, float(value), persist=False),
+                )
+                speed_scale.grid(row=3, column=1, columnspan=3, sticky="ew")
+                install_tooltip(speed_label, "Animation speed for this coloring style")
+                install_tooltip(speed_scale, "Animation speed: 0.10× to 6.00×")
+                speed_scale.bind("<ButtonRelease-1>", lambda _event: persist_current_speeds(), add="+")
+                speed_scale.bind("<KeyRelease>", lambda _event: persist_current_speeds(), add="+")
+
+                brightness_variable = tk.DoubleVar(master=config, value=karaoke_brightness(target, index))
+                saturation_variable = tk.DoubleVar(master=config, value=karaoke_saturation(target, index))
+                shadow_variable = tk.DoubleVar(master=config, value=karaoke_shadow_size(target, index))
+                state["color_config_brightness_vars"][index] = brightness_variable
+                state["color_config_saturation_vars"][index] = saturation_variable
+                state["color_config_shadow_vars"][index] = shadow_variable
+
+                brightness_label = tk.Label(
+                    controls_cell, text="Brightness:", background="#f7f7f7",
+                    foreground="#333333", font=("Segoe UI", 9), anchor="e",
+                )
+                brightness_label.grid(row=4, column=0, sticky="e", padx=(0, 5))
+                brightness_scale = tk.Scale(
+                    controls_cell,
+                    from_=KARAOKE_BRIGHTNESS_MIN, to=KARAOKE_BRIGHTNESS_MAX, resolution=0.05,
+                    orient="horizontal", variable=brightness_variable, showvalue=True, digits=3,
+                    background="#f7f7f7",
+                    highlightthickness=0, takefocus=True,
+                    command=lambda value, mode_index=index: set_karaoke_adjustment(
+                        target, mode_index, "karaoke_brightnesses", float(value),
+                        normalize_external_karaoke_brightnesses, persist=False,
+                    ),
+                )
+                brightness_scale.grid(row=4, column=1, sticky="ew")
+                saturation_label = tk.Label(
+                    controls_cell, text="Saturation:", background="#f7f7f7",
+                    foreground="#333333", font=("Segoe UI", 9), anchor="e",
+                )
+                saturation_label.grid(row=4, column=2, sticky="e", padx=(8, 5))
+                saturation_scale = tk.Scale(
+                    controls_cell,
+                    from_=KARAOKE_SATURATION_MIN, to=KARAOKE_SATURATION_MAX, resolution=0.05,
+                    orient="horizontal", variable=saturation_variable, showvalue=True, digits=3,
+                    background="#f7f7f7", highlightthickness=0, takefocus=True,
+                    command=lambda value, mode_index=index: set_karaoke_adjustment(
+                        target, mode_index, "karaoke_saturations", float(value),
+                        normalize_external_karaoke_saturations, persist=False,
+                    ),
+                )
+                saturation_scale.grid(row=4, column=3, sticky="ew")
+
+                shadow_label = tk.Label(
+                    controls_cell, text="Shadow size:", background="#f7f7f7",
+                    foreground="#333333", font=("Segoe UI", 9), anchor="e",
+                )
+                shadow_label.grid(row=5, column=0, sticky="e", padx=(0, 5))
+                shadow_scale = tk.Scale(
+                    controls_cell,
+                    from_=KARAOKE_SHADOW_SIZE_MIN, to=KARAOKE_SHADOW_SIZE_MAX, resolution=0.005,
+                    orient="horizontal", variable=shadow_variable, showvalue=True, digits=3,
+                    background="#f7f7f7", highlightthickness=0, takefocus=True,
+                    command=lambda value, mode_index=index: set_karaoke_adjustment(
+                        target, mode_index, "karaoke_shadow_sizes", float(value),
+                        normalize_external_karaoke_shadow_sizes, persist=False,
+                    ),
+                )
+                shadow_scale.grid(row=5, column=1, columnspan=3, sticky="ew")
+                install_tooltip(brightness_scale, "Brightness multiplier; 1.00 preserves the palette")
+                install_tooltip(saturation_scale, "Color intensity; 0.00 is grayscale and values above 1.00 boost color")
+                install_tooltip(shadow_scale, "360-degree shadow radius as a fraction of lyric height, independent of monitor pixels")
+                for scale_widget in (brightness_scale, saturation_scale, shadow_scale):
+                    scale_widget.bind("<ButtonRelease-1>", lambda _event: persist_current_profile_adjustments(), add="+")
+                    scale_widget.bind("<KeyRelease>", lambda _event: persist_current_profile_adjustments(), add="+")
+
+            footer_row = mode_count
+            tk.Label(
+                table,
+                text=f"Preview text: {EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM}",
+                background="#ececec",
+                foreground="#666666",
+                font=("Segoe UI", 8),
+            ).grid(row=footer_row, column=0, columnspan=6, sticky="ew", padx=10, pady=(2, 10))
+
+            def close_config() -> None:
+                persist_current_speeds()
+                persist_current_profile_adjustments()
+                for after_key in ("color_config_after", "color_config_hero_after", "color_config_rows_after"):
+                    after_id = state.get(after_key)
+                    if after_id is not None:
+                        with contextlib.suppress(Exception):
+                            config.after_cancel(after_id)
+                    state[after_key] = None
+                state["color_config_window"] = None
+                state["color_config_close_callback"] = None
+                state["color_config_preview_cursor"] = 0
+                state["color_config_preview_canvases"] = {}
+                state["color_config_scroller"] = None
+                state["color_config_preview_photos"] = {}
+                state["color_config_preview_items"] = {}
+                state["color_config_preview_item_keys"] = {}
+                state["color_config_preview_layout_cache"] = {}
+                state["color_config_pillow_font_cache"] = {}
+                state["color_config_favorite_vars"] = {}
+                state["color_config_enabled_var"] = None
+                state["color_config_default_var"] = None
+                close_palette_picker_popup()
+                state["color_config_palette_vars"] = {}
+                state["color_config_palette_picker_canvases"] = {}
+                state["color_config_palette_picker_font"] = None
+                state["color_config_speed_vars"] = {}
+                state["color_config_timing_vars"] = {}
+                state["color_config_treatment_vars"] = {}
+                state["color_config_brightness_vars"] = {}
+                state["color_config_saturation_vars"] = {}
+                state["color_config_shadow_vars"] = {}
+                state["color_config_title_buttons"] = {}
+                state["color_config_hero_canvas"] = None
+                state["color_config_hero_photo"] = None
+                state["color_config_hero_item"] = None
+                state["color_config_hero_item_key"] = None
+                state["color_config_hero_label"] = None
+                state["color_config_animation_tick"] = 0
+                state["color_config_preview_mode"] = None
+                self._color_configurator_active.clear()
+                self._color_configurator_target = None
+                with self._lock:
+                    latest_lyric = self._current_lyric
+                    latest_progress = self._current_lyric_progress
+                state["lyric"] = latest_lyric
+                state["lyric_progress"] = latest_progress
+                with contextlib.suppress(Exception):
+                    config.destroy()
+                mode = int(state.get("lyrics_mode", 0) or 0)
+                if lyrics_mode_includes_artwork(mode):
+                    with contextlib.suppress(Exception):
+                        redraw_artwork_lyric_layer()
+                if lyrics_mode_includes_floating(mode):
+                    with contextlib.suppress(Exception):
+                        ensure_floating_lyrics_window()
+                        schedule_floating_render()
+                        ensure_floating_color_animation()
+
+            state["color_config_close_callback"] = close_config
+            config.protocol("WM_DELETE_WINDOW", close_config)
+            sync_karaoke_color_ui()
+            config.deiconify()
+            config.lift()
+            state["color_config_hero_after"] = config.after(80, animate_karaoke_color_config_hero)
+            state["color_config_rows_after"] = config.after(120, animate_karaoke_color_config_rows)
+
+        def show_artwork_karaoke_color_configurator() -> None:
+            show_karaoke_color_configurator("artwork")
+
+        def show_floating_karaoke_color_configurator() -> None:
+            show_karaoke_color_configurator("floating")
+
+        def build_artwork_plasma_mask(width: int, height: int, lyric: str):
+            """Create a tightly cropped Pillow text mask that is guaranteed to stay on-canvas."""
+            from PIL import Image, ImageDraw  # type: ignore
+            scale = float(state.get("lyric_font_scale", 1.0) or 1.0)
+            scale = max(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MIN, min(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MAX, scale))
+            dpi = max(72, widget_dpi(root))
+            border = int(state.get("border_pixels", 5) or 5)
+            safe_x = max(12, border * 3)
+            safe_y = max(10, border * 2)
+            max_width = max(40, width - safe_x * 2)
+            max_height = max(24, height - safe_y * 2)
+            desired_points = max(12, min(260, round(min(width, height) * 0.085 * scale)))
+            desired_pixels = max(12, round(desired_points * dpi / 72.0))
+            words = lyric.split()
+            scratch = Image.new("L", (8, 8), 0)
+            draw = ImageDraw.Draw(scratch)
+
+            chosen = None
+            for pixel_size in range(desired_pixels, 9, -1):
+                font = resolve_artwork_pillow_font(pixel_size)
+                lines: list[str] = []
+                current = ""
+                def line_width(text: str) -> int:
+                    box = draw.textbbox((0, 0), text, font=font)
+                    return max(0, int(box[2] - box[0]))
+                for word in words:
+                    proposed = word if not current else current + " " + word
+                    if current and line_width(proposed) > max_width:
+                        lines.append(current)
+                        current = word
+                    else:
+                        current = proposed
+                if current:
+                    lines.append(current)
+                if not lines:
+                    lines = [lyric]
+                text = "\n".join(lines)
+                bbox = draw.multiline_textbbox((0, 0), text, font=font, spacing=0, align="center")
+                text_w = max(1, int(bbox[2] - bbox[0]))
+                text_h = max(1, int(bbox[3] - bbox[1]))
+                shadow = max(0, round(pixel_size * karaoke_shadow_size("artwork")))
+                padding = shadow + 4
+                if text_w + padding * 2 <= max_width and text_h + padding * 2 <= max_height:
+                    chosen = (font, text, bbox, shadow, padding)
+                    break
+            if chosen is None:
+                font = resolve_artwork_pillow_font(10)
+                text = lyric
+                bbox = draw.multiline_textbbox((0, 0), text, font=font, spacing=0, align="center")
+                chosen = (font, text, bbox, max(0, round(10 * karaoke_shadow_size("artwork"))), 5)
+
+            font, text, bbox, shadow, padding = chosen
+            crop_w = max(1, int(bbox[2] - bbox[0]) + padding * 2)
+            crop_h = max(1, int(bbox[3] - bbox[1]) + padding * 2)
+            mask = Image.new("L", (crop_w, crop_h), 0)
+            mask_draw = ImageDraw.Draw(mask)
+            mask_draw.multiline_text(
+                (padding - bbox[0], padding - bbox[1]),
+                text,
+                font=font,
+                fill=255,
+                spacing=0,
+                align="center",
+            )
+            preferred_center_y = round(height * 0.78)
+            origin_x = max(safe_x, min(width - safe_x - crop_w, width // 2 - crop_w // 2))
+            if width - safe_x - crop_w < safe_x:
+                origin_x = max(0, (width - crop_w) // 2)
+            origin_y = preferred_center_y - crop_h // 2
+            origin_y = max(safe_y, min(max(safe_y, height - safe_y - crop_h), origin_y))
+            return mask, (int(origin_x), int(origin_y)), int(shadow)
+
+        def pattern_rgba_for_mask(
+            mask,
+            shadow: int,
+            phase: float,
+            mode: str,
+            palette_index: int,
+            *,
+            emphasis_progress: float | None = None,
+            timing_type: str = "none",
+            brightness: float = 1.0,
+            saturation: float = 1.0,
+        ):
+            """Color one lyric mask through independent mode, treatment, timing, and tone layers."""
+            from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageOps  # type: ignore
+            tile_size = 48
+            if mode == "rainbow-glyphs":
+                # Resolve each contiguous glyph-width run from the real mask and
+                # paint that run one uniform color from top to bottom. This keeps
+                # the mode semantically distinct from a pattern exposed through text.
+                width, height = mask.size
+                field = Image.new("RGBA", mask.size, (0, 0, 0, 0))
+                field_draw = ImageDraw.Draw(field)
+                cached_runs = state.get("lyric_glyph_run_cache")
+                if isinstance(cached_runs, tuple) and len(cached_runs) == 2 and cached_runs[0] is mask:
+                    runs = cached_runs[1]
+                else:
+                    bbox = mask.getbbox()
+                    active_columns = []
+                    for x in range(width):
+                        column_box = (x, bbox[1], x + 1, bbox[3]) if bbox else (x, 0, x + 1, height)
+                        active_columns.append(bool(mask.crop(column_box).getbbox()))
+                    runs = []
+                    start: int | None = None
+                    for x, active in enumerate(active_columns + [False]):
+                        if active and start is None:
+                            start = x
+                        elif not active and start is not None:
+                            runs.append((start, x))
+                            start = None
+                    state["lyric_glyph_run_cache"] = (mask, runs)
+                for glyph_index, (left, right) in enumerate(runs):
+                    color = _palette_rgb(
+                        PALETTE_STOPS[palette_index],
+                        ((glyph_index / max(1, len(runs))) + phase * 0.08) % 1.0,
+                    )
+                    field_draw.rectangle((left, 0, max(left, right - 1), height), fill=(*color, 255))
+                field.putalpha(mask)
+            elif mode == "solid":
+                solid_rgb = external_album_art_karaoke_pattern_rgb("solid", 0.0, 0.0, phase, palette_index)
+                pixels = [solid_rgb] * (tile_size * tile_size)
+            else:
+                pixels = [
+                    external_album_art_karaoke_pattern_rgb(mode, x, y, phase, palette_index)
+                    for y in range(tile_size)
+                    for x in range(tile_size)
+                ]
+            if mode != "rainbow-glyphs":
+                tile = Image.new("RGB", (tile_size, tile_size))
+                tile.putdata(pixels)
+                # Saturation and brightness are pixel-local color transforms.
+                # Apply them to the 48x48 generator tile before the expensive
+                # full-mask resize instead of processing millions of duplicate
+                # fullscreen pixels every animation frame.
+                tile = ImageEnhance.Color(tile).enhance(
+                    max(KARAOKE_SATURATION_MIN, min(KARAOKE_SATURATION_MAX, float(saturation)))
+                )
+                tile = ImageEnhance.Brightness(tile).enhance(
+                    max(KARAOKE_BRIGHTNESS_MIN, min(KARAOKE_BRIGHTNESS_MAX, float(brightness)))
+                )
+                field = tile.resize(mask.size, Image.Resampling.BILINEAR).convert("RGBA")
+                field.putalpha(mask)
+            else:
+                # Glyph mode has no small repeated tile, so tone its already
+                # sparse full-size field once.
+                alpha = field.getchannel("A")
+                toned = ImageEnhance.Color(field.convert("RGB")).enhance(
+                    max(KARAOKE_SATURATION_MIN, min(KARAOKE_SATURATION_MAX, float(saturation)))
+                )
+                toned = ImageEnhance.Brightness(toned).enhance(
+                    max(KARAOKE_BRIGHTNESS_MIN, min(KARAOKE_BRIGHTNESS_MAX, float(brightness)))
+                )
+                field = toned.convert("RGBA")
+                field.putalpha(alpha)
+
+            timing_type = str(timing_type or "none")
+            if emphasis_progress is not None and timing_type != "none" and mask.size[0] > 0:
+                progress = max(0.0, min(1.0, float(emphasis_progress)))
+                width, height = mask.size
+                band = max(3, round(width * KARAOKE_TIMED_EMPHASIS_BAND_FRACTION))
+                frontier = progress * width
+                alpha_row: list[int] = []
+                for x in range(width):
+                    distance = frontier - x
+                    if distance >= band:
+                        strength = 1.0
+                    elif distance > -band:
+                        strength = (distance + band) / max(1.0, 2.0 * band)
+                    else:
+                        strength = 0.0
+                    alpha_row.append(max(0, min(255, round(255 * strength))))
+                emphasis_alpha = Image.new("L", (width, 1))
+                emphasis_alpha.putdata(alpha_row)
+                emphasis_alpha = emphasis_alpha.resize((width, height))
+                emphasis_alpha = ImageChops.multiply(mask, emphasis_alpha)
+                unsung_alpha = ImageChops.subtract(mask, emphasis_alpha)
+
+                def composite_color(rgb: tuple[int, int, int], amount: float = 1.0, region=emphasis_alpha) -> None:
+                    nonlocal field
+                    overlay = Image.new("RGBA", mask.size, (*rgb, 0))
+                    overlay.putalpha(region.point(lambda value: round(value * max(0.0, min(1.0, amount)))))
+                    field = Image.alpha_composite(field, overlay)
+
+                if timing_type in {"inverse", "complement-trail"}:
+                    inverse = ImageOps.invert(field.convert("RGB")).convert("RGBA")
+                    inverse.putalpha(emphasis_alpha.point(lambda value: value if timing_type == "inverse" else round(value * 0.62)))
+                    field = Image.alpha_composite(field, inverse)
+                elif timing_type == "underline":
+                    underline = Image.new("RGBA", mask.size, (0, 0, 0, 0))
+                    draw = ImageDraw.Draw(underline)
+                    bbox = mask.getbbox()
+                    if bbox:
+                        underline_y = min(height - 1, bbox[3] + max(1, shadow // 2))
+                        draw.line((bbox[0], underline_y, bbox[0] + round((bbox[2] - bbox[0]) * progress), underline_y), fill=(255, 255, 255, 240), width=max(1, round(height * 0.025)))
+                    field = Image.alpha_composite(field, underline)
+                elif timing_type in {"italic", "cursive"}:
+                    shear = -0.13 if timing_type == "italic" else -0.22
+                    slanted = field.transform(field.size, Image.Transform.AFFINE, (1.0, shear, -shear * height * 0.45, 0.0, 1.0, 0.0), resample=Image.Resampling.BICUBIC)
+                    slanted.putalpha(emphasis_alpha)
+                    if timing_type == "cursive":
+                        tint = Image.new("RGBA", mask.size, (255, 180, 235, 0))
+                        tint.putalpha(emphasis_alpha.point(lambda value: round(value * 0.22)))
+                        slanted = Image.alpha_composite(slanted, tint)
+                    field = Image.alpha_composite(field, slanted)
+                elif timing_type == "brighten":
+                    bright = ImageEnhance.Brightness(field.convert("RGB")).enhance(1.55).convert("RGBA")
+                    bright.putalpha(emphasis_alpha)
+                    field = Image.alpha_composite(field, bright)
+                elif timing_type == "dim-unsung":
+                    composite_color((0, 0, 0), 0.58, unsung_alpha)
+                elif timing_type == "desaturate-unsung":
+                    gray = ImageEnhance.Color(field.convert("RGB")).enhance(0.0).convert("RGBA")
+                    gray.putalpha(unsung_alpha.point(lambda value: round(value * 0.82)))
+                    field = Image.alpha_composite(field, gray)
+                elif timing_type in {"glow", "shadow-bloom"}:
+                    glow_mask = emphasis_alpha.filter(ImageFilter.GaussianBlur(max(1, round(height * (0.045 if timing_type == "glow" else 0.075)))))
+                    glow_rgb = (255, 255, 255) if timing_type == "glow" else (0, 0, 0)
+                    glow = Image.new("RGBA", mask.size, (*glow_rgb, 0))
+                    glow.putalpha(glow_mask.point(lambda value: round(value * (0.65 if timing_type == "glow" else 0.80))))
+                    field = Image.alpha_composite(glow, field)
+                elif timing_type == "outline":
+                    outline_mask = ImageChops.subtract(mask.filter(ImageFilter.MaxFilter(3)), mask)
+                    sung_region = Image.new("L", mask.size, 0)
+                    ImageDraw.Draw(sung_region).rectangle(
+                        (0, 0, max(0, min(width - 1, round(progress * width))), height),
+                        fill=255,
+                    )
+                    outline_mask = ImageChops.multiply(outline_mask, sung_region)
+                    outline = Image.new("RGBA", mask.size, (255, 255, 255, 0))
+                    outline.putalpha(outline_mask)
+                    field = Image.alpha_composite(outline, field)
+                elif timing_type == "color-wash":
+                    composite_color(_palette_rgb(PALETTE_STOPS[palette_index], (progress + 0.5) % 1.0), 0.48)
+                elif timing_type == "white-hot":
+                    composite_color((255, 255, 255), 0.78)
+                elif timing_type == "blackout-trail":
+                    composite_color((0, 0, 0), 0.90)
+                elif timing_type == "pulse":
+                    pulse_amount = 0.25 + 0.45 * (0.5 + 0.5 * math.sin(progress * math.tau * 8.0))
+                    composite_color((255, 255, 255), pulse_amount)
+                elif timing_type == "sparkle":
+                    sparkle = Image.new("RGBA", mask.size, (0, 0, 0, 0))
+                    draw = ImageDraw.Draw(sparkle)
+                    step = max(4, round(height * 0.12))
+                    for yy in range(step // 2, height, step):
+                        xx = int((yy * 17 + round(progress * width * 13)) % max(1, round(progress * width) + 1))
+                        if emphasis_alpha.getpixel((min(width - 1, xx), min(height - 1, yy))) > 80:
+                            draw.point((xx, yy), fill=(255, 255, 255, 255))
+                    field = Image.alpha_composite(field, sparkle)
+                elif timing_type == "scanline":
+                    scan = Image.new("RGBA", mask.size, (0, 0, 0, 0))
+                    draw = ImageDraw.Draw(scan)
+                    frontier_x = max(0, min(width - 1, round(progress * width)))
+                    draw.line((frontier_x, 0, frontier_x, height), fill=(255, 255, 255, 235), width=max(1, round(width * 0.008)))
+                    scan.putalpha(ImageChops.multiply(scan.getchannel("A"), mask))
+                    field = Image.alpha_composite(field, scan)
+                elif timing_type == "gradient-veil":
+                    composite_color((40, 60, 100), 0.36, unsung_alpha)
+                    composite_color((235, 250, 255), 0.28, emphasis_alpha)
+                elif timing_type == "karaoke-gold":
+                    composite_color((255, 196, 42), 0.76)
+
+            if shadow <= 0:
+                return field
+            # MaxFilter expands equally in every direction: this is a true all-direction
+            # outline shadow, never a resolution-dependent southeast drop shadow.
+            filter_size = max(3, int(shadow) * 2 + 1)
+            if filter_size % 2 == 0:
+                filter_size += 1
+            cached_shadow = state.get("lyric_shadow_alpha_cache")
+            if (
+                isinstance(cached_shadow, tuple) and len(cached_shadow) == 3
+                and cached_shadow[0] is mask and cached_shadow[1] == filter_size
+            ):
+                shadow_alpha = cached_shadow[2]
+            else:
+                shadow_alpha = ImageChops.subtract(mask.filter(ImageFilter.MaxFilter(filter_size)), mask)
+                state["lyric_shadow_alpha_cache"] = (mask, filter_size, shadow_alpha)
+            shadow_layer = Image.new("RGBA", mask.size, (0, 0, 0, 0))
+            shadow_layer.putalpha(shadow_alpha.point(lambda alpha: round(alpha * 0.90)))
+            return Image.alpha_composite(shadow_layer, field)
+
+        def plasma_rgba_for_mask(mask, shadow: int, phase: float):
+            """Compatibility wrapper retained for older regression contracts."""
+            return pattern_rgba_for_mask(mask, shadow, phase, "plasma", artwork_karaoke_palette_index())
+
         def draw_artwork_lyric_overlay(width: int, height: int) -> None:
-            """Build the over-art glyph layer once for the current lyric/frame."""
+            """Build a fitted over-art lyric layer; text is never allowed to clip."""
             state["artwork_lyric_color_items"] = []
-            if int(state.get("lyrics_mode", 0) or 0) != 1:
+            state["artwork_lyric_plasma_item"] = None
+            state["artwork_lyric_plasma_photo"] = None
+            state["artwork_lyric_plasma_mask"] = None
+            state["artwork_lyric_plasma_origin"] = None
+            if not lyrics_mode_includes_artwork(int(state.get("lyrics_mode", 0) or 0)):
                 return
             lyric = str(state.get("lyric") or "").strip()
             if not lyric:
                 return
-            try:
-                import tkinter.font as tkfont
-            except Exception:
+
+            mode = artwork_karaoke_color_mode_name()
+            palette_index = artwork_karaoke_palette_index()
+            mode_index = karaoke_color_mode_index("artwork")
+            speed = karaoke_speed("artwork", mode_index)
+            timing_type = karaoke_timing_type("artwork", mode_index)
+            emphasis_progress = (
+                float(state.get("lyric_progress", 0.0) or 0.0)
+                if karaoke_timed_emphasis_enabled("artwork", mode_index)
+                else None
+            )
+            if mode:
+                try:
+                    from PIL import ImageTk  # type: ignore
+                    mask, origin, shadow = build_artwork_plasma_mask(width, height, lyric)
+                    phase = (time.monotonic() / 2.7) * speed
+                    rgba = pattern_rgba_for_mask(
+                        mask, shadow, phase, mode, palette_index,
+                        emphasis_progress=emphasis_progress,
+                        timing_type=timing_type,
+                        brightness=karaoke_brightness("artwork", mode_index),
+                        saturation=karaoke_saturation("artwork", mode_index),
+                    )
+                    photo = ImageTk.PhotoImage(rgba, master=root)
+                    item = canvas.create_image(
+                        origin[0],
+                        origin[1],
+                        image=photo,
+                        anchor="nw",
+                        tags=("artwork-lyric-plasma",),
+                    )
+                    state["artwork_lyric_plasma_item"] = int(item)
+                    state["artwork_lyric_plasma_photo"] = photo
+                    state["artwork_lyric_plasma_mask"] = mask
+                    state["artwork_lyric_plasma_origin"] = origin
+                    state["artwork_lyric_plasma_shadow"] = shadow
+                    ensure_artwork_lyric_color_animation()
+                    return
+                except Exception as exc:
+                    record_pafplayer_runtime_warning(
+                        f"Artwork patterned lyric renderer failed; using rainbow glyphs: {type(exc).__name__}: {exc}",
+                        "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
+                    )
+                    mode = "rainbow-glyphs"
+
+            layout = fit_artwork_lyric_tk_layout(width, height, lyric)
+            font = layout["font"]
+            lines = list(layout["lines"])
+            line_height = int(layout["line_height"])
+            shadow = int(layout["shadow"])
+            center_x = int(layout["center_x"])
+            y = int(layout["top"])
+
+            if mode == "solid":
+                red, green, blue = external_album_art_karaoke_pattern_rgb(
+                    "solid", 0.0, 0.0, time.monotonic(), palette_index
+                )
+                fill = f"#{red:02x}{green:02x}{blue:02x}"
+                for line in lines:
+                    canvas.create_text(
+                        center_x + shadow, y + shadow, text=line, fill="#050505",
+                        font=font, anchor="n", tags=("artwork-lyric-shadow",),
+                    )
+                    canvas.create_text(
+                        center_x, y, text=line, fill=fill, font=font, anchor="n",
+                        tags=("artwork-lyric-color",),
+                    )
+                    y += line_height
                 return
-            border = int(state.get("border_pixels", 5) or 5)
-            font_size = max(16, min(68, round(min(width, height) * 0.085)))
-            text_width = max(40, width - max(24, border * 6))
-            center_x = width // 2
-            center_y = max(font_size, round(height * 0.78))
-            font = tkfont.Font(root=root, family="Segoe UI", size=font_size, weight="bold")
-            words = lyric.split()
-            lines: list[str] = []
-            current = ""
-            for word in words:
-                proposed = word if not current else current + " " + word
-                if current and font.measure(proposed) > text_width:
-                    lines.append(current)
-                    current = word
-                else:
-                    current = proposed
-            if current:
-                lines.append(current)
-            if not lines:
-                lines = [lyric]
-            line_height = max(1, int(font.metrics("linespace")))
-            y = center_y - (line_height * len(lines)) // 2
+
             visible_count = max(1, sum(not char.isspace() for line in lines for char in line))
             glyph_index = 0
-            shadow = max(1, round(font_size / 20))
-            phase = time.monotonic() / 3.0  # deliberately much faster than floating lyrics
+            phase = (time.monotonic() / 3.0) * speed
             color_items: list[tuple[int, int, int]] = []
             for line in lines:
                 x = center_x - font.measure(line) // 2
                 for character in line:
                     advance = max(1, int(font.measure(character)))
                     if not character.isspace():
-                        # The small offset shadow, rather than a fat outline,
-                        # remains readable without burying the cover underneath.
                         canvas.create_text(
-                            x + shadow,
-                            y + shadow,
-                            text=character,
-                            fill="#050505",
-                            font=font,
-                            anchor="nw",
-                            tags=("artwork-lyric-shadow",),
+                            x + shadow, y + shadow, text=character, fill="#050505",
+                            font=font, anchor="nw", tags=("artwork-lyric-shadow",),
                         )
-                        hue = (glyph_index / visible_count + phase) % 1.0
-                        red, green, blue = colorsys.hsv_to_rgb(hue, 0.88, 1.0)
+                        position = (glyph_index / visible_count + phase) % 1.0
+                        red, green, blue = _palette_rgb(PALETTE_STOPS[palette_index], position)
                         item = canvas.create_text(
-                            x,
-                            y,
-                            text=character,
-                            fill=f"#{round(red * 255):02x}{round(green * 255):02x}{round(blue * 255):02x}",
-                            font=font,
-                            anchor="nw",
-                            tags=("artwork-lyric-color",),
+                            x, y, text=character, fill=f"#{red:02x}{green:02x}{blue:02x}",
+                            font=font, anchor="nw", tags=("artwork-lyric-color",),
                         )
                         color_items.append((int(item), glyph_index, visible_count))
                         glyph_index += 1
@@ -15745,14 +19956,7 @@ class ExternalAlbumArtWindow:
             ensure_artwork_lyric_color_animation()
 
         def draw_artwork_lyric_overlay_safely(width: int, height: int) -> bool:
-            """Draw GUI lyrics without ever invalidating an already-decoded cover.
-
-            V105 called the lyric renderer from inside the broad Pillow decode
-            ``try``.  A Tk/font/Unicode error in the lyric layer was therefore
-            misreported as ``Album art could not be decoded`` and the valid
-            Pillow image was discarded.  The two renderers now have independent
-            failure boundaries.
-            """
+            """Draw GUI lyrics without ever invalidating an already-decoded cover."""
             try:
                 draw_artwork_lyric_overlay(width, height)
                 return True
@@ -15760,7 +19964,11 @@ class ExternalAlbumArtWindow:
                 with contextlib.suppress(Exception):
                     canvas.delete("artwork-lyric-shadow")
                     canvas.delete("artwork-lyric-color")
+                    canvas.delete("artwork-lyric-plasma")
                 state["artwork_lyric_color_items"] = []
+                state["artwork_lyric_plasma_item"] = None
+                state["artwork_lyric_plasma_photo"] = None
+                state["artwork_lyric_plasma_mask"] = None
                 record_pafplayer_runtime_warning(
                     f"Artwork lyric overlay failed: {type(exc).__name__}: {exc}",
                     "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
@@ -15768,52 +19976,105 @@ class ExternalAlbumArtWindow:
                 return False
 
         def redraw_artwork_lyric_layer() -> None:
-            """Replace only lyric glyphs, leaving the cached cover item intact."""
+            """Replace only lyric glyph/image items, leaving the cached cover untouched."""
             with contextlib.suppress(Exception):
                 canvas.delete("artwork-lyric-shadow")
                 canvas.delete("artwork-lyric-color")
+                canvas.delete("artwork-lyric-plasma")
             state["artwork_lyric_color_items"] = []
+            state["artwork_lyric_plasma_item"] = None
+            state["artwork_lyric_plasma_photo"] = None
+            state["artwork_lyric_plasma_mask"] = None
+            state["artwork_lyric_plasma_origin"] = None
+            state["artwork_lyric_plasma_shadow"] = 0
             width = max(1, int(canvas.winfo_width()))
             height = max(1, int(canvas.winfo_height()))
             draw_artwork_lyric_overlay_safely(width, height)
 
         def animate_artwork_lyric_colors() -> None:
-            """Animate only Tk text-item colors; never repaint album art here.
-
-            This strict boundary is the V104 visualizer fix.  The terminal owns
-            stdout/cursor painting, while this timer performs a handful of Tk
-            ``itemconfigure`` calls and cannot trigger image decode, resize,
-            canvas deletion, or a full-window render.
-            """
+            """Animate only the over-art lyric layer, yielding to startup/configurator work."""
             state["artwork_lyric_color_after"] = None
-            if int(state.get("lyrics_mode", 0) or 0) != 1:
+            if not lyrics_mode_includes_artwork(int(state.get("lyrics_mode", 0) or 0)):
                 return
-            phase = time.monotonic() / 3.0
-            for item, glyph_index, visible_count in list(state.get("artwork_lyric_color_items") or []):
-                hue = (glyph_index / max(1, visible_count) + phase) % 1.0
-                red, green, blue = colorsys.hsv_to_rgb(hue, 0.88, 1.0)
+            if self._color_configurator_active.is_set():
+                return
+            if bool(state.get("idle_promoted")):
+                # Idle-gallery crossfades repaint the base image frequently.
+                # Freeze the optional color animation so the lyric layer stays
+                # visually stable while many related covers rotate underneath.
                 with contextlib.suppress(Exception):
-                    canvas.itemconfigure(
-                        item,
-                        fill=f"#{round(red * 255):02x}{round(green * 255):02x}{round(blue * 255):02x}",
-                    )
-            with contextlib.suppress(Exception):
-                state["artwork_lyric_color_after"] = root.after(
-                    150, animate_artwork_lyric_colors
-                )
+                    state["artwork_lyric_color_after"] = root.after(260, animate_artwork_lyric_colors)
+                return
+            # V177: until the first analyzer frame exists, keep the initially
+            # rendered lyric completely static.  This removes the startup blink
+            # caused by competing ImageTk/Tk animation while spectrum startup is
+            # still doing its heaviest work.
+            if not self._spectrum_ready_for_art_karaoke.is_set():
+                with contextlib.suppress(Exception):
+                    state["artwork_lyric_color_after"] = root.after(120, animate_artwork_lyric_colors)
+                return
+            mode = artwork_karaoke_color_mode_name()
+            palette_index = artwork_karaoke_palette_index()
+            mode_index = karaoke_color_mode_index("artwork")
+            speed = karaoke_speed("artwork", mode_index)
+            timing_type = karaoke_timing_type("artwork", mode_index)
+            emphasis_progress = (
+                float(state.get("lyric_progress", 0.0) or 0.0)
+                if karaoke_timed_emphasis_enabled("artwork", mode_index)
+                else None
+            )
+            mask = state.get("artwork_lyric_plasma_mask")
+            if mask is not None:
+                item = state.get("artwork_lyric_plasma_item")
+                if mask is not None and item is not None:
+                    try:
+                        from PIL import ImageTk  # type: ignore
+                        phase = (time.monotonic() / 2.7) * speed
+                        shadow = max(0, int(state.get("artwork_lyric_plasma_shadow", 0) or 0))
+                        rgba = pattern_rgba_for_mask(
+                            mask, shadow, phase, mode, palette_index,
+                            emphasis_progress=emphasis_progress,
+                            timing_type=timing_type,
+                            brightness=karaoke_brightness("artwork", mode_index),
+                            saturation=karaoke_saturation("artwork", mode_index),
+                        )
+                        photo = ImageTk.PhotoImage(rgba, master=root)
+                        state["artwork_lyric_plasma_photo"] = photo
+                        canvas.itemconfigure(int(item), image=photo)
+                    except Exception as exc:
+                        record_pafplayer_runtime_warning(
+                            f"Artwork lyric animation failed: {type(exc).__name__}: {exc}",
+                            "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
+                        )
+                        return
+                pixel_area = int(mask.size[0]) * int(mask.size[1]) if mask is not None else 0
+                animation_ms = 90 if pixel_area < 180_000 else (140 if pixel_area < 500_000 else 220)
+                with contextlib.suppress(Exception):
+                    state["artwork_lyric_color_after"] = root.after(animation_ms, animate_artwork_lyric_colors)
+                return
+            if mode == "rainbow-glyphs":
+                phase = (time.monotonic() / 3.0) * speed
+                for item, glyph_index, visible_count in list(state.get("artwork_lyric_color_items") or []):
+                    position = (glyph_index / max(1, visible_count) + phase) % 1.0
+                    red, green, blue = _palette_rgb(PALETTE_STOPS[palette_index], position)
+                    with contextlib.suppress(Exception):
+                        canvas.itemconfigure(item, fill=f"#{red:02x}{green:02x}{blue:02x}")
+                with contextlib.suppress(Exception):
+                    state["artwork_lyric_color_after"] = root.after(150, animate_artwork_lyric_colors)
 
         def ensure_artwork_lyric_color_animation() -> None:
+            if artwork_karaoke_color_mode_name() == "solid" and not karaoke_timed_emphasis_enabled("artwork"):
+                return
+            if self._color_configurator_active.is_set():
+                return
             if state.get("artwork_lyric_color_after") is not None:
                 return
             with contextlib.suppress(Exception):
-                state["artwork_lyric_color_after"] = root.after(
-                    0, animate_artwork_lyric_colors
-                )
+                state["artwork_lyric_color_after"] = root.after(0, animate_artwork_lyric_colors)
 
         def render_art() -> None:
             """Render the main artwork, including Pillow-backed non-idle crossfades."""
             state["resize_after"] = None
-            canvas.delete("all")
             width = max(1, canvas.winfo_width())
             height = max(1, canvas.winfo_height())
             data = state.get("art_bytes")
@@ -15855,13 +20116,18 @@ class ExternalAlbumArtWindow:
                     blended = Image.blend(first_image, second_image, progress)
                     photo = ImageTk.PhotoImage(blended, master=root)
                     state["tk_image"] = photo
-                    canvas.create_image(
+                    canvas.delete("artwork-base")
+                    base_item = canvas.create_image(
                         width // 2,
                         height // 2,
                         image=photo,
                         anchor="center",
+                        tags=("artwork-base",),
                     )
-                    draw_artwork_lyric_overlay_safely(width, height)
+                    # Keep the existing lyric layer intact during each 45 ms
+                    # crossfade frame; only the base image is replaced. Lowering
+                    # the new image ensures it cannot cover those glyphs.
+                    canvas.tag_lower(base_item)
                     if progress < 1.0:
                         state["crossfade_after"] = root.after(45, render_art)
                         return
@@ -15878,6 +20144,8 @@ class ExternalAlbumArtWindow:
                     )
                     _cancel_crossfade(commit_target=True)
                     data = state.get("art_bytes")
+            else:
+                canvas.delete("all")
 
             if not isinstance(data, (bytes, bytearray)) or not data:
                 name = Path(audio).name if isinstance(audio, (str, Path)) else ""
@@ -15903,9 +20171,18 @@ class ExternalAlbumArtWindow:
                     state["pil_image"] = source
                 source_width, source_height = source.size
                 set_art_aspect(source_width, source_height)
-                border = int(state.get("border_pixels", 5) or 5)
-                drawable_width = max(1, width - border * 2)
-                drawable_height = max(1, height - border * 2)
+                if maybe_compact_window_to_art(
+                    source_width,
+                    source_height,
+                    (id(data), source_width, source_height),
+                ):
+                    return
+                # The Canvas highlight already consumes/paints the one focus border.
+                # Subtracting border*2 here created a second 5px transparent gutter
+                # around the image, visually producing a 5px window inside another
+                # 5px window. Render against the Canvas drawable extent exactly once.
+                drawable_width = max(1, width)
+                drawable_height = max(1, height)
                 scale = min(
                     drawable_width / max(1, source_width),
                     drawable_height / max(1, source_height),
@@ -15922,7 +20199,8 @@ class ExternalAlbumArtWindow:
                     photo = ImageTk.PhotoImage(image, master=root)
                     state["tk_image_cache_key"] = cache_key
                 state["tk_image"] = photo
-                canvas.create_image(width // 2, height // 2, image=photo, anchor="center")
+                base_item = canvas.create_image(width // 2, height // 2, image=photo, anchor="center", tags=("artwork-base",))
+                canvas.tag_lower(base_item)
                 draw_artwork_lyric_overlay_safely(width, height)
                 return
             except Exception as exc:
@@ -15961,6 +20239,12 @@ class ExternalAlbumArtWindow:
                 source_width = max(1, photo.width())
                 source_height = max(1, photo.height())
                 set_art_aspect(source_width, source_height)
+                if maybe_compact_window_to_art(
+                    source_width,
+                    source_height,
+                    (id(data), source_width, source_height),
+                ):
+                    return
                 scale = min(width / source_width, height / source_height)
                 if scale >= 1.0:
                     zoom = max(1, round(scale))
@@ -15971,7 +20255,8 @@ class ExternalAlbumArtWindow:
                     if divisor > 1:
                         photo = photo.subsample(divisor, divisor)
                 state["tk_image"] = photo
-                canvas.create_image(width // 2, height // 2, image=photo, anchor="center")
+                base_item = canvas.create_image(width // 2, height // 2, image=photo, anchor="center", tags=("artwork-base",))
+                canvas.tag_lower(base_item)
                 draw_artwork_lyric_overlay_safely(width, height)
             except Exception as exc:
                 error_context = (
@@ -16015,15 +20300,20 @@ class ExternalAlbumArtWindow:
                 not is_programmatic
                 and not bool(state.get("aspect_adjusting", False))
                 and isinstance(previous_size, tuple)
-                and current_size != previous_size
-                and current_size[0] > 1
-                and current_size[1] > 1
+                and _parse_external_album_art_geometry(geometry) is not None
             ):
-                # Configure events from a user resize are distinguishable from
-                # our native-size/aspect corrections.  This one bit means later
-                # album changes can never take the user's chosen size back.
-                state["manual_size"] = True
-                save_external_album_art_manual_size(True)
+                prior_geometry = _parse_external_album_art_geometry(
+                    str(state.get("last_geometry") or "")
+                )
+                user_resized = current_size != previous_size and current_size[0] > 1 and current_size[1] > 1
+                user_moved = prior_geometry is not None and geometry != str(state.get("last_geometry") or "")
+                if user_resized or user_moved:
+                    # A user move is just as intentional as a resize.  It
+                    # locks the popup rectangle against later per-track art
+                    # fitting, rather than allowing new cover dimensions to
+                    # make the window seem to jump on the desktop.
+                    state["manual_size"] = True
+                    save_external_album_art_manual_size(True)
             if geometry == transient:
                 pass
             elif _parse_external_album_art_geometry(geometry) is not None:
@@ -16054,6 +20344,9 @@ class ExternalAlbumArtWindow:
             if geometry != transient:
                 schedule_geometry_save()
             refresh_monitor_scaled_chrome()
+            schedule_native_windows_border_suppression()
+            with contextlib.suppress(Exception):
+                root.after_idle(update_window_title)
             schedule_render()
 
         root.bind("<Configure>", on_configure)
@@ -16065,13 +20358,13 @@ class ExternalAlbumArtWindow:
             suffix = f"  [{index + 1}/{count}]" if count > 1 else ""
             player_title = str(state.get("player_title") or "").strip()
             if player_title:
-                root.title(player_title + suffix)
+                root.title(centered_native_caption_text(player_title + suffix))
             else:
                 audio = state.get("audio")
                 if isinstance(audio, (str, Path)):
-                    root.title(f"PAFPlayer — {Path(audio).name}{suffix}")
+                    root.title(centered_native_caption_text(f"PAFPlayer — {Path(audio).name}{suffix}"))
                 else:
-                    root.title("PAFPlayer")
+                    root.title(centered_native_caption_text("PAFPlayer"))
 
         def select_art_variant(index: int) -> None:
             """Immediately select one art variant, cancelling any slideshow transition."""
@@ -16084,6 +20377,7 @@ class ExternalAlbumArtWindow:
             state["art_bytes"] = variants[index]
             state["pil_image"] = None
             state["art_aspect"] = None
+            state["art_fit_key"] = None
             state["next_rotation_at"] = (
                 time.monotonic() + EXTERNAL_ALBUM_ART_ROTATE_SECONDS
             )
@@ -16211,7 +20505,29 @@ class ExternalAlbumArtWindow:
             current = int(state.get("variant_index", 0) or 0)
             select_art_variant(current - max(1, count))
 
-        def mouse_press(button: int) -> None:
+        def artwork_lyric_click_reveals_floating(event) -> bool:
+            """Clicking a visible over-art lyric raises the enabled floating lyric window."""
+            if not str(state.get("lyric") or "").strip():
+                return False
+            if not lyrics_mode_includes_floating(int(state.get("lyrics_mode", 0) or 0)):
+                return False
+            try:
+                current = canvas.find_withtag("current")
+                if not current:
+                    return False
+                tags = set(canvas.gettags(current[-1]))
+            except Exception:
+                return False
+            if not tags.intersection(
+                {"artwork-lyric-shadow", "artwork-lyric-color", "artwork-lyric-plasma"}
+            ):
+                return False
+            reveal_floating_lyrics_window()
+            return True
+
+        def mouse_press(button: int, event=None) -> None:
+            if button == 1 and event is not None and artwork_lyric_click_reveals_floating(event):
+                return
             buttons = state.get("mouse_buttons")
             if not isinstance(buttons, set):
                 buttons = set()
@@ -16264,9 +20580,9 @@ class ExternalAlbumArtWindow:
             if isinstance(buttons, set):
                 buttons.discard(button)
 
-        canvas.bind("<ButtonPress-1>", lambda _event: mouse_press(1))
-        canvas.bind("<ButtonPress-2>", lambda _event: mouse_press(2))
-        canvas.bind("<ButtonPress-3>", lambda _event: mouse_press(3))
+        canvas.bind("<ButtonPress-1>", lambda event: mouse_press(1, event))
+        canvas.bind("<ButtonPress-2>", lambda event: mouse_press(2, event))
+        canvas.bind("<ButtonPress-3>", lambda event: mouse_press(3, event))
         canvas.bind("<ButtonRelease-1>", lambda _event: mouse_release(1))
         canvas.bind("<ButtonRelease-2>", lambda _event: mouse_release(2))
         canvas.bind("<ButtonRelease-3>", lambda _event: mouse_release(3))
@@ -16330,9 +20646,9 @@ class ExternalAlbumArtWindow:
                 time.sleep(0.045)
                 with contextlib.suppress(Exception):
                     user32.SetCursorPos(int(old_point.x), int(old_point.y))
-                if previous_hwnd and previous_hwnd != hwnd:
-                    with contextlib.suppress(Exception):
-                        user32.SetForegroundWindow(wintypes.HWND(previous_hwnd))
+                restore_hwnd = int(self._player_window_hwnd or previous_hwnd or 0)
+                if restore_hwnd and restore_hwnd != hwnd:
+                    windows_restore_foreground_window(restore_hwnd)
                 state["attention_acknowledged"] = True
             except Exception as exc:
                 append_pafplayer_exception(
@@ -16342,7 +20658,7 @@ class ExternalAlbumArtWindow:
         def hide_window() -> None:
             save_geometry_now()
             end_idle_art_routine()
-            if int(state.get("lyrics_mode", 0) or 0) != 2 or not self.enabled:
+            if not lyrics_mode_includes_floating(int(state.get("lyrics_mode", 0) or 0)) or not self.enabled:
                 hide_floating_lyrics_window()
             root.withdraw()
 
@@ -16355,7 +20671,10 @@ class ExternalAlbumArtWindow:
             if validate_geometry:
                 apply_valid_geometry(str(state.get("last_geometry") or "") or None)
             root.deiconify()
+            with contextlib.suppress(Exception):
+                root.attributes("-topmost", bool(state.get("art_topmost", False)))
             refresh_monitor_scaled_chrome()
+            schedule_native_windows_border_suppression(110)
             ensure_titlebar_lyrics_button()
             apply_lyrics_mode()
             schedule_render()
@@ -16364,6 +20683,10 @@ class ExternalAlbumArtWindow:
                     120,
                     lambda hwnd=previous_hwnd: acknowledge_created_window_attention_once(hwnd),
                 )
+                # The first visible artwork show can itself reactivate Tk after
+                # the earlier root-creation restore. Reassert the console once
+                # more after the nonclient attention acknowledgement completes.
+                root.after(230, restore_console_focus_after_initialization)
 
         def user_closed_window() -> None:
             with self._lock:
@@ -16385,7 +20708,12 @@ class ExternalAlbumArtWindow:
             with contextlib.suppress(Exception):
                 root.lift()
                 root.attributes("-topmost", True)
-                root.after(120, lambda: root.attributes("-topmost", False))
+                root.after(
+                    120,
+                    lambda: root.attributes(
+                        "-topmost", bool(state.get("art_topmost", False))
+                    ),
+                )
 
         def destroy_idle_extra_windows() -> None:
             """Destroy every ephemeral related-art idle window on the Tk owner thread.
@@ -16585,17 +20913,19 @@ class ExternalAlbumArtWindow:
                         else f" [{variant_index + 1}/{len(variants)}]"
                     )
                 )
-                extra.configure(background="black")
+                extra.configure(background=art_transparent)
+                with contextlib.suppress(Exception):
+                    extra.attributes("-transparentcolor", art_transparent)
                 extra.overrideredirect(True)
                 extra.resizable(False, False)
                 canvas_extra = tk.Canvas(
                     extra,
-                    background="black",
+                    background=art_transparent,
                     highlightthickness=external_album_art_scaled_border_pixels(
                         EXTERNAL_ALBUM_ART_BASE_DPI
                     ),
-                    highlightbackground="#707070",
-                    highlightcolor="#909090",
+                    highlightbackground=art_transparent,
+                    highlightcolor=art_transparent,
                     borderwidth=0,
                 )
                 canvas_extra.pack(fill="both", expand=True)
@@ -16764,7 +21094,8 @@ class ExternalAlbumArtWindow:
             state["idle_promoted"] = True
             state["manual_idle_active"] = bool(manual)
             state["manual_idle_arm_at"] = (
-                time.monotonic() + 0.80 if manual else 0.0
+                time.monotonic() + EXTERNAL_ALBUM_ART_MANUAL_IDLE_INPUT_GRACE_SECONDS
+                if manual else 0.0
             )
             state["manual_idle_input_tick"] = None
             state["next_rotation_at"] = (
@@ -16837,7 +21168,7 @@ class ExternalAlbumArtWindow:
             Motivation: automatic idle still follows the configured timeout and
             media-player guard, while Ctrl+Alt+I needs to start the same routine
             immediately even when the timeout is zero.  Manual activation ignores
-            the triggering key's own release for 800ms, then records the settled
+            the triggering gesture and mouse handling for 3 seconds, then records the settled
             GetLastInputInfo tick; any later mouse/keyboard activity ends the
             routine.  Both modes share the exact same main/extra dance engine.
             """
@@ -16913,20 +21244,32 @@ class ExternalAlbumArtWindow:
                                 label.configure(text=state["track_identity"])
                         continue
                     if kind == "toggle-floating-lyrics":
-                        new_mode = 0 if int(state.get("lyrics_mode", 0) or 0) == 2 else 2
+                        current_mode = max(0, min(2, int(state.get("lyrics_mode", 0) or 0)))
+                        # Ctrl+Alt+F remains an independent floating toggle within
+                        # the new three states: Artwork -> Both, Floating/Both -> Artwork.
+                        new_mode = 0 if lyrics_mode_includes_floating(current_mode) else 2
                         state["lyrics_mode"] = new_mode
                         save_external_album_art_lyrics_mode(new_mode)
                         apply_lyrics_mode()
                         continue
                     if kind == "lyric":
-                        _kind, lyric = command
+                        _kind, lyric, progress = command
                         state["lyric"] = str(lyric or "").strip()
-                        if int(state.get("lyrics_mode", 0) or 0) == 1:
+                        state["lyric_progress"] = max(0.0, min(1.0, float(progress)))
+                        lyric_mode = int(state.get("lyrics_mode", 0) or 0)
+                        if (
+                            lyrics_mode_includes_artwork(lyric_mode)
+                            and not self._color_configurator_active.is_set()
+                        ):
                             redraw_artwork_lyric_layer()
-                        elif int(state.get("lyrics_mode", 0) or 0) == 2:
+                        if lyrics_mode_includes_floating(lyric_mode):
                             ensure_floating_lyrics_window()
                             schedule_floating_render()
                             ensure_floating_color_animation()
+                        continue
+                    if kind == "lyric-progress":
+                        _kind, progress = command
+                        state["lyric_progress"] = max(0.0, min(1.0, float(progress)))
                         continue
                     if kind == "start-idle":
                         _kind, avoid_rect = command
@@ -16959,6 +21302,7 @@ class ExternalAlbumArtWindow:
                         )
                         state["pil_image"] = None
                         state["art_aspect"] = None
+                        state["art_fit_key"] = None
                         state["next_rotation_at"] = (
                             time.monotonic() + EXTERNAL_ALBUM_ART_ROTATE_SECONDS
                         )
@@ -17004,6 +21348,7 @@ class ExternalAlbumArtWindow:
                                         state["art_bytes"] = state["variants"][0]
                                     state["pil_image"] = None
                                     state["art_aspect"] = None
+                                    state["art_fit_key"] = None
                                     state["dance_origin"] = parsed_now
                                     state["dance_target"] = None
                                     state["manual_idle_active"] = manual_idle
@@ -17077,6 +21422,10 @@ class ExternalAlbumArtWindow:
                 "artwork_lyric_color_after",
                 "floating_color_after",
                 "mouse_click_after",
+                "color_config_after",
+                "color_config_hero_after",
+                "color_config_rows_after",
+                "native_border_after",
             ):
                 after_id = state.get(after_key)
                 if after_id is not None:
@@ -17268,6 +21617,25 @@ def absolute_viewport_cursor_sequence(origin_row: int, relative_row: int) -> str
     single session.
     """
     return f"\033[{max(1, int(origin_row) + int(relative_row))};1H"
+
+
+def stable_viewport_ui_origin(
+    viewport_lines: int,
+    ui_rows: int,
+    bottom_guard_rows: int = 0,
+) -> int:
+    """Anchor a live UI to the current viewport instead of cached buffer state.
+
+    Windows Terminal can reflow its scrollback and change the ConPTY viewport
+    while a process is running.  A row captured once with
+    GetConsoleScreenBufferInfo therefore becomes stale after resize/maximize and
+    turns later CUP writes into appended scrollback.  Deriving the origin from
+    the *current* viewport height keeps every frame on the same visible rows.
+    """
+    lines = max(1, int(viewport_lines))
+    rows = max(1, int(ui_rows))
+    guard = max(0, int(bottom_guard_rows))
+    return max(1, lines - rows - guard + 1)
 
 
 def scroll_console_viewport_to_output() -> None:
@@ -17608,6 +21976,58 @@ def render_sixel_visualizer(
         return b""
 
 
+def render_sixel_album_art_layer(
+    audio_path: Path,
+    columns: int,
+    rows: int,
+) -> bytes:
+    """Return a cached, static SIXEL cover layer for the V196 overlay experiment."""
+    rows = max(1, int(rows))
+    columns = max(1, int(columns))
+    cache = getattr(render_sixel_album_art_layer, "_cache", {})
+    key = (str(Path(audio_path).resolve()), columns, rows)
+    if key in cache:
+        return cache[key]
+    chafa = shutil.which("chafa")
+    art = extract_album_art(audio_path)
+    if not chafa or not art:
+        return b""
+    cell_width, cell_height = terminal_cell_pixel_size_nonintrusive()
+    view_width = max(1, math.ceil(columns * cell_width / 8))
+    view_height = max(1, math.ceil(rows * cell_height / 8))
+    try:
+        payload = subprocess.run(
+            [
+                chafa, "--format=sixels", "--colors=64", "--scale=max",
+                f"--size={columns}x{rows}",
+                f"--view-size={view_width}x{view_height}",
+                f"--font-ratio={cell_width}/{cell_height}",
+                "--optimize=9", "--work=9", "--color-space=din99d", "-",
+            ],
+            input=art,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            timeout=4,
+        ).stdout
+        payload = payload.replace(b"\033[?25l", b"").replace(b"\033[?25h", b"")
+        # Only the current layout is useful; bound retained cover data tightly.
+        render_sixel_album_art_layer._cache = {key: payload}
+        return payload
+    except (OSError, subprocess.TimeoutExpired):
+        return b""
+
+
+def layered_art_restore_period(columns: int, rows: int) -> float:
+    """Throttle retained-art bandwidth as the terminal image approaches fullscreen."""
+    cells = max(1, int(columns)) * max(1, int(rows))
+    if cells <= 3_000:
+        return 0.5
+    if cells <= 7_000:
+        return 0.75
+    return 1.0
+
+
 def should_show_directory_row(
     audio_path: Path,
     duration: float | None,
@@ -17662,6 +22082,7 @@ def play_audio_file(
     drcs_enabled_state: list[bool] | None = None,
     sixel_enabled_state: list[bool] | None = None,
     album_art_visualizer_state: list[bool] | None = None,
+    layered_art_visualizer_state: list[bool] | None = None,
     external_album_art_window: ExternalAlbumArtWindow | None = None,
     web_server: PAFWebServer | None = None,
     album_art_status_state: list[bool | None] | None = None,
@@ -17684,8 +22105,6 @@ def play_audio_file(
     playlist_remove_callback=None,
     playlist_add_callback=None,
     playlist_browser_callback=None,
-    playlist_snapshot_callback=None,
-    playlist_queue_callback=None,
     playlist_open_callback=None,
     playlist_switch_state: list[Path | None] | None = None,
     playlist_jump_state: list[Path | None] | None = None,
@@ -17697,8 +22116,11 @@ def play_audio_file(
     shuffle_rebuild_callback=None,
     all_audio_tags_state: list[bool] | None = None,
     hud_details_state: list[bool] | None = None,
+    inline_last_play_alignment_state: list[bool] | None = None,
     initial_position: float = 0.0,
     playback_position_state: list[float] | None = None,
+    initially_paused: bool = False,
+    paused_state: list[bool] | None = None,
     initial_blank_line: bool = True,
     manage_winamp: bool = True,
     guard_winamp: bool | None = None,
@@ -17973,11 +22395,15 @@ def play_audio_file(
     tag_ansi_rows: tuple[str, ...] = ()
     winamp_paused_by_preview = pause_playing_winamp() if manage_winamp else False
     guard_winamp = manage_winamp if guard_winamp is None else guard_winamp
+    process = None
     abort_requested = threading.Event()
     previous_handlers: dict[int, object] = {}
 
     def request_abort(_signum, _frame) -> None:
+        # Ctrl+C and Ctrl+Break are stop commitments, not restart operations.
+        # Kill FFplay immediately so Ctrl+C is every bit as hard/fast as Break.
         abort_requested.set()
+        hard_stop_process(process)
 
     if install_signal_handlers:
         supported_signals = [signal.SIGINT]
@@ -18013,6 +22439,9 @@ def play_audio_file(
     album_art_visualizer_enabled = (
         bool(album_art_visualizer_state[0]) if album_art_visualizer_state is not None else False
     )
+    layered_art_visualizer_enabled = (
+        bool(layered_art_visualizer_state[0]) if layered_art_visualizer_state is not None else False
+    )
     karaoke_visualizer_expansion_enabled = (
         bool(karaoke_visualizer_expansion_state[0])
         if karaoke_visualizer_expansion_state is not None else DEFAULT_KARAOKE_VISUALIZER_EXPANSION
@@ -18040,6 +22469,11 @@ def play_audio_file(
     _initial_header_available = max(12, shutil.get_terminal_size((120, 30)).columns - 1)
     _last_play_value = str(audio_tags.get("Last play", "") or "")
     _last_play_suffix_plain = f"   Last play: {_last_play_value}" if _last_play_value else ""
+    last_play_alignment_enabled = (
+        bool(inline_last_play_alignment_state[0])
+        if inline_last_play_alignment_state is not None
+        else bool(HUD_SMART_ALIGNMENT_ENABLED)
+    )
     _duration_label = format_duration_label(duration)
     _full_play_plain = f"▶ Play: {audio_path} ({_duration_label})"
     _short_play_plain = f"▶ Play: {audio_path.name} ({_duration_label})"
@@ -18067,7 +22501,26 @@ def play_audio_file(
         album_art_visualizer_enabled=album_art_visualizer_enabled,
         karaoke_visualizer_expansion_enabled=karaoke_visualizer_expansion_enabled,
         genre_emoji_enabled=genre_emoji_enabled,
+        smart_alignment_enabled=last_play_alignment_enabled,
     )
+
+    def refresh_inline_last_play_alignment() -> None:
+        """Second-pass the Play row after metadata packing has established real colon stops."""
+        nonlocal _last_play_suffix_plain
+        if not _last_play_value:
+            _last_play_suffix_plain = ""
+            return
+        base_plain = f"▶ Play: {inline_play_display_path} ({_duration_label})"
+        gap = aligned_inline_last_play_gap(
+            base_plain,
+            _last_play_value,
+            tag_plain_rows,
+            width=_initial_header_available,
+            enabled=bool(last_play_alignment_enabled and last_play_inline),
+        )
+        _last_play_suffix_plain = " " * gap + f"Last play: {_last_play_value}"
+
+    refresh_inline_last_play_alignment()
 
     last_play_lookup_applied = previous_played_at is not None
 
@@ -18100,7 +22553,9 @@ def play_audio_file(
             album_art_visualizer_enabled=album_art_visualizer_enabled,
             karaoke_visualizer_expansion_enabled=karaoke_visualizer_expansion_enabled,
             genre_emoji_enabled=genre_emoji_enabled,
+            smart_alignment_enabled=last_play_alignment_enabled,
         )
+        refresh_inline_last_play_alignment()
         last_play_lookup_applied = True
         if web_server is not None:
             web_server.publish(metadata=dict(audio_tags))
@@ -18125,7 +22580,6 @@ def play_audio_file(
             + tool_install_instructions("chafa")
         )
     speed_index = speed_index_state[0] if speed_index_state is not None else PLAYBACK_SPEEDS.index(1.0)
-    process = None
     status_rendered = False
     loop_indicator_until = 0.0
     help_overlay_until = 0.0
@@ -18151,7 +22605,9 @@ def play_audio_file(
     last_metadata_animation_write = -10.0
     last_now_playing_write = -10.0
     last_web_publish = -10.0
+    last_web_spectrum_publish = -10.0
     last_external_lyric_publish = -10.0
+    color_config_visualizers_paused = False
     last_winamp_enforcement = -10.0
     screen_closed = False
     drcs_timeline: tuple[bytes, int, int] = (b"", 12, SPECTRUM_ANALYSIS_FPS)
@@ -18193,10 +22649,17 @@ def play_audio_file(
     # reserves two so a long lyric can wrap without moving the rest of the UI.
     UI_ROWS = SIXEL_ROW + (SIXEL_VISUALIZER_ROWS if sixel_enabled else 0)
     last_hud_details_payload: tuple[str, ...] | None = None
-    # V105 uses a viewport-absolute CUP anchor on Windows instead of the shared
-    # CSI s/u save slot.  The slot can be overwritten by terminal graphics and
-    # caused every later HUD repaint to append at the visualizer cursor.
-    ui_origin_viewport_row: list[int | None] = [None]
+    # V165 derives the CUP anchor from current viewport geometry.  A one-time
+    # GetConsoleScreenBufferInfo coordinate becomes stale when Windows Terminal
+    # reflows or changes its viewport and was the source of repeated HUD frames
+    # accumulating in scrollback.
+    ui_origin_viewport_row: list[int] = [
+        stable_viewport_ui_origin(
+            terminal_lines,
+            UI_ROWS,
+            TERMINAL_BOTTOM_RESERVE_TRIM_ROWS,
+        )
+    ]
     drcs_has_space = drcs_rows > 0
     sixel_has_space = sixel_enabled
     last_lyric_index: int | None = None
@@ -18211,6 +22674,7 @@ def play_audio_file(
         '''Shrink/grow the visualizer reservation while protecting karaoke.'''
         nonlocal drcs_rows, DRCS_ROW, STATUS_ROW, SIXEL_ROW, LYRIC_ROW, UI_ROWS
         old_ui_rows = UI_ROWS
+        old_origin = ui_origin_viewport_row[0]
         lines = shutil.get_terminal_size((120, 30)).lines
         fixed = STATUS_ROW + 1 + (SIXEL_VISUALIZER_ROWS if sixel_enabled else 0) + LYRIC_ROWS
         desired = (
@@ -18222,11 +22686,32 @@ def play_audio_file(
         DRCS_ROW = (STATUS_ROW + 1 + LYRIC_ROWS) if karaoke_visualizer_overlay else (STATUS_ROW + 1 + LYRIC_ROWS)
         SIXEL_ROW = DRCS_ROW + drcs_rows
         UI_ROWS = SIXEL_ROW + (SIXEL_VISUALIZER_ROWS if sixel_enabled else 0)
-        if UI_ROWS > old_ui_rows:
-            write_console(move_to(old_ui_rows) + '\n' * (UI_ROWS - old_ui_rows))
-        elif UI_ROWS < old_ui_rows:
-            clear_region(UI_ROWS, old_ui_rows - UI_ROWS)
-            write_console(move_to(UI_ROWS) + f'\033[{old_ui_rows - UI_ROWS}M')
+        new_origin = stable_viewport_ui_origin(
+            lines,
+            UI_ROWS,
+            TERMINAL_BOTTOM_RESERVE_TRIM_ROWS,
+        )
+        # Never grow/shrink the live block with LF/IL/DL: at a viewport edge
+        # those operations scroll and preserve complete old frames.  Clear the
+        # old and new bottom-anchored footprints in place, then adopt the new
+        # origin.  Geometry changes are rare, so duplicate clears are harmless.
+        clear_rows = max(old_ui_rows, UI_ROWS)
+        union_origin = stable_viewport_ui_origin(
+            lines,
+            clear_rows,
+            TERMINAL_BOTTOM_RESERVE_TRIM_ROWS,
+        )
+        origins = tuple(dict.fromkeys((old_origin, union_origin, new_origin)))
+        write_console("".join(
+            "\033(B"
+            + absolute_viewport_cursor_sequence(origin, row)
+            + BIG_OFF
+            + "\033[2K"
+            for origin in origins
+            for row in range(clear_rows)
+            if origin + row <= lines
+        ))
+        ui_origin_viewport_row[0] = new_origin
     def set_controls_row_count(row_count: int) -> None:
         """Temporarily reserve one or two rows above the status/progress line.
 
@@ -18467,7 +22952,7 @@ def play_audio_file(
             seconds,
         )
     if web_server is not None and web_server.claim_startup_announcement():
-        web_plain = f"🌐 Web server: port {web_server.port}  {web_server.url}"
+        web_plain = f"🌐 {PROGRAM_TITLE} {PROGRAM_VERSION.casefold()} webserver: port {web_server.port}  {web_server.url}"
         set_transient_notice(
             web_plain,
             "\033[1;38;2;95;220;255m" + web_plain + "\033[0m",
@@ -18597,13 +23082,10 @@ def play_audio_file(
         return str(transient_notice.get("ansi", "") or "")
 
     def move_to(row: int, *, line_rendition: bool = True) -> str:
+        # The anchor is refreshed by every geometry/layout reflow.  Keep this
+        # primitive query-free because high-rate visualizer frames also use it.
         origin = ui_origin_viewport_row[0]
-        if origin is not None:
-            position = absolute_viewport_cursor_sequence(origin, row)
-        else:
-            # DEC save/restore is the portable fallback and deliberately avoids
-            # CSI s/u, whose single shared slot is used by some image renderers.
-            position = "\0338" + (f"\033[{row}B" if row else "") + "\r"
+        position = absolute_viewport_cursor_sequence(origin, row)
         return "\033(B" + position + (BIG_OFF if line_rendition else "")
 
     def clear_region(start_row: int, row_count: int) -> None:
@@ -18613,8 +23095,11 @@ def play_audio_file(
                 for row in range(row_count)
             )
         )
-    header_paused = False
-    prompt_paused_state = [False]
+    header_paused = bool(initially_paused)
+    prompt_paused_state = [bool(initially_paused)]
+    startup_pause_pending = bool(initially_paused)
+    if paused_state is not None:
+        paused_state[0] = bool(initially_paused)
     title_text = f"▶ Play: {audio_path.name} ({format_duration_label(duration)})"
     initial_visualizer_help = (
         f"visualizer: V ({'On' if drcs_enabled else 'Off'}); "
@@ -18626,7 +23111,6 @@ def play_audio_file(
         return f"   {label:>7}: {text}"
 
     help_texts: tuple[str, ...] = ()
-    help_directory_visible = False
 
     def current_tag_rows(current_position: float) -> tuple[tuple[str, ...], tuple[str, ...]]:
         available = max(12, shutil.get_terminal_size((120, 30)).columns - 1)
@@ -18638,6 +23122,7 @@ def play_audio_file(
             karaoke_visualizer_expansion_enabled=karaoke_visualizer_expansion_enabled,
             genre_emoji_enabled=genre_emoji_enabled,
             width=available,
+            smart_alignment_enabled=last_play_alignment_enabled,
         )
 
     def start_attribute_refresh(delay_seconds: float = ATTRIBUTE_BACKGROUND_START_DELAY_SECONDS) -> None:
@@ -18683,11 +23168,7 @@ def play_audio_file(
         """Render one cell-safe attribute line; synthesized tags are 25% brighter."""
         status, entries, error = attribute_display_snapshot()
         label = ("🏷️ " if icon else "") + "Tags:"
-        learned = any(value.casefold() == "learned" for value, _synthetic in entries)
-        chunks: list[str] = []
-        if learned:
-            chunks.append("\033[1;38;2;95;235;145m✅Learned\033[0m  ")
-        chunks.append("\033[1;38;2;105;185;235m" + label + "\033[0m ")
+        chunks: list[str] = ["\033[1;38;2;105;185;235m" + label + "\033[0m "]
         if status in {"pending", "loading"}:
             chunks.append("\033[38;2;95;165;210mloading quietly in background…\033[0m")
         elif status == "error":
@@ -18974,7 +23455,8 @@ def play_audio_file(
             + path_ansi
             + f" \033[2;38;2;165;175;185m({duration_label})\033[0m"
             + (
-                "   \033[2;90mLast play:\033[0m "
+                " " * max(0, terminal_cell_width(_last_play_suffix_plain) - terminal_cell_width(f"Last play: {_last_play_value}"))
+                + "\033[2;90mLast play:\033[0m "
                 + ("\033[3;38;2;185;180;184m" if _last_play_value.casefold() == "never" else "\033[38;2;175;195;215m")
                 + _last_play_value + "\033[0m"
                 if last_play_inline else ""
@@ -19058,7 +23540,7 @@ def play_audio_file(
         """Render the modal key map plus live diagnostics without changing the HUD.
 
         The ``?``/F1 overlay always presents Last play followed immediately by
-        the effective attribute tags, ReplayGain/playlist, and a divider before
+        the effective attribute tags and a divider, then ReplayGain/playlist and
         the key map. ``Ctrl+Alt+/`` may mirror those diagnostics into three live
         HUD rows, but Help remains their full, stable reference surface.
         """
@@ -19106,7 +23588,7 @@ def play_audio_file(
             (
                 ((115, 255, 160), (88, 205, 145), (105, 155, 130)),
                 (
-                    ("X/Ctrl+W/Ctrl+C/Alt+F4", "⏹ stop"),
+                    ("X/Q/Ctrl+W/Ctrl+C/Alt+F4", "⏹ stop"),
                     ("Space/Pause", "⏯ pause/resume"),
                     ("←/→", "⏪⏩ seek 5s"),
                     ("Shift+←/→", "seek 15s"),
@@ -19152,7 +23634,6 @@ def play_audio_file(
                     ("F6/F7", "visualizer style −/+"),
                     ("Shift+F6/F7", "visualizer treatment −/+"),
                     ("Alt+F6/F7", "processing style −/+"),
-                    ("Ctrl+Alt+F9", "frequency warp comparison"),
                     ("Shift+F4", "▦ granularity"),
                     ("C/Shift+C", "palette +/−"),
                     ("Alt+Shift+C", "reverse palette"),
@@ -19171,6 +23652,7 @@ def play_audio_file(
                     ("🧪 EXP", "experimental"),
                     ("W", "SIXEL visualizer"),
                     ("Ctrl+Alt+F8", "blank-karaoke expansion"),
+                    ("Ctrl+Alt+F9", "frequency warp"),
                     ("Shift+F10", "karaoke/visualizer overlay"),
                     ("Ctrl+Alt+NumPad7", "legacy→expanded→under→over"),
                 ),
@@ -19180,16 +23662,16 @@ def play_audio_file(
                 (
                     ("Ctrl+Alt+F", "toggle floating lyrics"),
                     ("Ctrl+Alt+/", "toggle ReplayGain/playlist/tags HUD rows"),
+                    ("Ctrl+Alt+Numpad1", "smart HUD packing/colon alignment"),
                     ("Ctrl+O", "📂 load a new playlist"),
                     ("Ctrl+U/Ctrl+B", "🌐 URL chooser"),
                     ("Alt+3", "🏷️ readable tags"),
                     ("Ctrl+Alt+S", "force scrobble"),
-                    ("Ctrl+Alt+B", "confirm + bake ReplayGain"),
                     ("Ctrl+R/Ctrl+Alt+R", "reload playlist"),
                     ("Ctrl+A", "✏ attrib.lst; inherited learned→nearest parent"),
                     *attribute_help_items,
-                    ("INS/Shift+INS", "add + queue next / multi-file picker"),
-                    ("J/Q", "queue selected; Shift+Enter jumps to one"),
+                    ("INS/Q / Shift+INS", "add + queue next / multi-file picker"),
+                    ("QQQ / Ctrl+Q / Alt+Q", "quit"),
                     ("DEL", "remove from playlist"),
                     ("PgUp/PgDn", "browse; Enter jumps to that playlist file"),
                     ("?/F1", "help"),
@@ -19197,8 +23679,7 @@ def play_audio_file(
                     ("Alt+F1", "undo restore"),
                     ("F5", "redraw; press twice within 3s to clear art"),
                     ("Ctrl+Alt+F5", "redraw and clear art"),
-                    ("D while Help", "toggle current-directory line"),
-                    ("Esc/Q", "close help/menu"),
+                    ("Esc", "close help/menu"),
                 ),
             ),
         )
@@ -19239,15 +23720,9 @@ def play_audio_file(
             "\033[1;38;2;215;235;255m" + title_plain + "\033[0m",
             last_play_ansi,
             attribute_tags_ansi(available),
-            diagnostics_ansi,
             "\033[38;2;85;195;185m" + divider_plain + "\033[0m",
+            diagnostics_ansi,
         ]
-        if help_directory_visible:
-            rendered.append(
-                "\033[38;2;145;185;215m📂 Current directory: "
-                + str(audio_path.parent)
-                + "\033[0m"
-            )
         for group_index, ((key_rgb, separator_rgb, text_rgb), items) in enumerate(groups):
             if group_index:
                 rendered.append(rgb_escape(separator_rgb) + divider_plain + "\033[0m")
@@ -19517,7 +23992,7 @@ def play_audio_file(
                 drcs_rows + truncate_top_visualizer_lines
                 + (LYRIC_ROWS if expand_visualizer_into_lyrics else 0)
             )
-            if not album_art_visualizer_enabled:
+            if not album_art_visualizer_enabled or layered_art_visualizer_enabled:
                 def visualizer_origin(target_row: int) -> str:
                     if minimal_visualizer_transport:
                         # Keep the saved-cursor restore only at the slow UI cadence:
@@ -20055,12 +24530,11 @@ def play_audio_file(
             if monotonic() < color_notice_until else ""
         )
         processing_notice = (
-            f"\033[2;38;2;135;140;155mPr{processing_style}:"
-            f"{'SigAur' if PROCESSING_STYLE_NAMES[processing_style - 1] == 'Signal Aurora' else PROCESSING_STYLE_NAMES[processing_style - 1]}\033[0m  "
+            f"\033[2;38;2;135;140;155mPr{processing_style}:{PROCESSING_STYLE_NAMES[processing_style - 1]}\033[0m  "
             if monotonic() < processing_notice_until else ""
         )
         frequency_warp_notice = (
-            f"\033[2;38;2;135;140;155mFrqWrp:{'on' if frequency_warp_enabled else 'off'}\033[0m  "
+            f"\033[2;38;2;135;140;155mFreqWarp:{'on' if frequency_warp_enabled else 'off'}\033[0m  "
             if monotonic() < frequency_warp_notice_until else ""
         )
         persistence_notice = (
@@ -20101,77 +24575,33 @@ def play_audio_file(
             f"\033[1;38;2;255;215;95m✏ {edit_prompt_text} — press D when done\033[0m  "
             if edit_prompt_text else ""
         )
-        frequency_warp_marker = (
-            f"FrqWrp:{'on' if frequency_warp_enabled else 'off'} "
-            if bool(frequency_warp_enabled) != bool(DEFAULT_FREQUENCY_WARP_ENABLED)
-            else ""
-        )
-        processing_console_name = (
-            "SigAur"
-            if PROCESSING_STYLE_NAMES[processing_style - 1] == "Signal Aurora"
-            else PROCESSING_STYLE_NAMES[processing_style - 1]
-        )
-        speed_token = speed_status.strip()
-        notice_lead = (
-            transient_prefix + edit_notice + processing_notice + color_notice
-            + frequency_warp_notice + persistence_notice + granularity_notice
-            + color_jump_notice + "\033[2;90m  ?: " + runtime_warning_indicator
-        )
-        transport_section = (
-            f"\033[38;2;175;175;185m{loop_glyph}·{shuffle_glyph}\033[2;90m · "
-            f"{volume_status(volume, volume_direction)}\033[2;90m"
-            + (f" · {frequency_warp_marker.strip()}" if frequency_warp_marker else "")
-            + (f" · {speed_token}" if speed_token else "")
-        )
-        karaoke_section = (
-            f"K:{KARAOKE_STYLE_NAMES[karaoke_style - 1]} · "
-            f"{KARAOKE_TREATMENT_NAMES[karaoke_treatment - 1]} · E:{emoji_glyph}"
-        )
-        visualizer_section = (
-            f"V:{'+' if drcs_enabled else '-'} · W:{sixel_glyph} · "
-            f"🎨{'+' if album_art_visualizer_enabled else '-'} · "
-            f"💹{'+' if karaoke_visualizer_expansion_enabled else '-'} · "
-            f"↕{'+' if karaoke_visualizer_overlay else '-'} · "
-            f"M{visualizer_mode}:{VISUALIZER_TYPE_NAMES[(visualizer_mode - 1) % len(VISUALIZER_TYPE_NAMES)]} · "
-            f"{VISUALIZER_TREATMENT_NAMES[(visualizer_mode - 1) // len(VISUALIZER_TYPE_NAMES)]} · "
-            f"Pr{processing_style}:{processing_console_name}"
-        )
-        palette_section = (
-            f"Pal{color_style}{'↔' if color_reverse else ''}:{PALETTE_NAMES[color_style - 1]} · "
-            f"Ps{persistence_mode}:{PERSISTENCE_MODE_NAMES[persistence_mode - 1]} · "
-            f"Gr{visualizer_granularity} · Fd:{FADE_STYLE_NAMES[fade_style - 1]} · "
-            f"Hz:{round(visualizer_effective_fps):d} · O:{output_channels} · B:{balance:+d}"
-        )
-        normal_controls = notice_lead + " │ ".join((
-            transport_section, karaoke_section, visualizer_section, palette_section,
-        ))
-        compact_controls = notice_lead + " │ ".join((
-            transport_section,
-            f"K{karaoke_style}·Kt{karaoke_treatment}·E{emoji_glyph}",
-            f"V{'+' if drcs_enabled else '-'}·W{sixel_glyph}·M{visualizer_mode}·Pr{processing_style}",
-            f"Pal{color_style}{'↔' if color_reverse else ''}·Ps{persistence_mode}·Gr{visualizer_granularity}·Fd{fade_style}·{round(visualizer_effective_fps):d}Hz",
-        ))
-        numbered_controls = notice_lead + " │ ".join((
-            transport_section,
-            f"K{karaoke_style}·{karaoke_treatment}",
-            f"V{visualizer_mode}·P{processing_style}",
-            f"C{color_style}{'↔' if color_reverse else ''}·Ps{persistence_mode}·G{visualizer_granularity}·F{fade_style}",
-        ))
-        controls = next(
-            (
-                candidate
-                for candidate in (normal_controls, compact_controls, numbered_controls)
-                if terminal_cell_width(ANSI_CSI_RE.sub("", candidate)) <= available
-            ),
-            numbered_controls,
+        controls = (
+            transient_prefix + edit_notice + processing_notice + color_notice + frequency_warp_notice + persistence_notice + granularity_notice + color_jump_notice
+            + f"\033[2;90m  ?: " + runtime_warning_indicator
+            + f"\033[38;2;175;175;185m{loop_glyph} {shuffle_glyph}\033[2;90m  "
+            f"{volume_status(volume, volume_direction)}\033[2;90m  "
+            + speed_status
+            + f"K:{KARAOKE_STYLE_NAMES[karaoke_style - 1]}/{KARAOKE_TREATMENT_NAMES[karaoke_treatment - 1]} E:{emoji_glyph} "
+            f"V:{'+' if drcs_enabled else '-'} W:{sixel_glyph} "
+            f"🎨{'+' if album_art_visualizer_enabled else '-'} "
+            f"Lay{'+' if layered_art_visualizer_enabled else '-'} "
+            f"{'' if karaoke_visualizer_expansion_enabled else '💹- '}"
+            f"↕{'+' if karaoke_visualizer_overlay else '-'} "
+            f"M{visualizer_mode}:{VISUALIZER_TYPE_NAMES[(visualizer_mode - 1) % len(VISUALIZER_TYPE_NAMES)]}/"
+            f"{VISUALIZER_TREATMENT_NAMES[(visualizer_mode - 1) // len(VISUALIZER_TYPE_NAMES)]} "
+            f"Pr{processing_style}:{PROCESSING_STYLE_NAMES[processing_style - 1]} "
+            f"Pal{color_style}{'↔' if color_reverse else ''}:{PALETTE_NAMES[color_style - 1]} "
+            f"Ps{persistence_mode}:{PERSISTENCE_MODE_NAMES[persistence_mode - 1]} Gr{visualizer_granularity} "
+            f"{'Fw+ ' if frequency_warp_enabled else ''}Fd:{FADE_STYLE_NAMES[fade_style - 1]} Hz:{round(visualizer_effective_fps):d} "
+            f"O:{output_channels} B:{balance:+d}"
         )
         if show_speed_status:
             speed_hint_ansi = " \033[2;38;2;105;110;120m[ press = to reset speed + volume]\033[2;90m"
             visible_controls = terminal_cell_width(ANSI_CSI_RE.sub("", controls))
             if visible_controls + terminal_cell_width("[ press = to reset speed + volume]") + 1 <= available:
                 controls = controls.replace(
-                    speed_token,
-                    speed_token + speed_hint_ansi,
+                    speed_status,
+                    speed_status.rstrip() + speed_hint_ansi + "  ",
                     1,
                 )
         exclusive_lines = tuple(transient_notice.get("exclusive_lines", ()) or ())
@@ -20990,7 +25420,6 @@ def play_audio_file(
     # from Last.fm and must remain visible when the network/auth scrobble fails.
     scrobble_state = ["not attempted"]  # not attempted | scrobbling | scrobbled | scrobble failed
     local_log_state: list[bool | None] = [None]
-    local_log_failure_reported = [False]
 
     def record_local_history_if_eligible(
         ranges: list[tuple[float, float]], *, force: bool = False,
@@ -21004,24 +25433,11 @@ def play_audio_file(
         """
         if local_log_state[0] is True:
             return True
-        if local_log_state[0] is False and not force:
-            return False
         if not force and not is_local_history_eligible(duration, ranges):
             return False
         local_log_state[0] = playlist_history_mark_played(
             audio_path, duration_seconds=duration, tags=audio_tags
         )
-        if local_log_state[0] is False and not local_log_failure_reported[0]:
-            local_log_failure_reported[0] = True
-            append_pafplayer_trace(
-                "history.play.visible_failure",
-                track=audio_path,
-                forced=force,
-            )
-            set_transient_error(
-                "💥 Local Last play update failed verification 💥",
-                seconds=8.0,
-            )
         return bool(local_log_state[0])
     # V56: scrobbling is scoped to this *visit* to the track.  A successful
     # submission permanently disarms ordinary scrobbling for this visit; leaving
@@ -21234,113 +25650,16 @@ def play_audio_file(
                 return True
             if key.casefold() == "n" or key == "\x1b":
                 return False
-            if key.casefold() == "q" or key in {"\x03", "\x1d"}:
+            if key == "\x11" or (key.casefold() == "q" and (_windows_key_down(0x11) or _windows_key_down(0x12))):
+                abort_requested.set()
+                return False
+            if key.casefold() == "q":
+                return False
+            if key in {"\x03", "\x1d"}:
                 abort_requested.set()
                 return False
             if key in {"\x00", "\xe0"} and msvcrt.kbhit():
                 msvcrt.getwch()
-
-    def confirm_replaygain_bake() -> bool:
-        """Require an explicit Y before destructive sample-data normalization."""
-        if os.name != "nt":
-            return False
-        requested_db = replaygain_info.requested_db
-        if audio_path.suffix.casefold() not in {".flac", ".mp3"}:
-            set_transient_warning(
-                "⚠ ReplayGain baking supports FLAC and MP3 only ⚠",
-                seconds=6.0,
-            )
-            return False
-        if requested_db is None:
-            set_transient_warning(
-                "⚠ No usable ReplayGain track/album gain to bake ⚠",
-                seconds=6.0,
-            )
-            return False
-        import msvcrt
-        available = max(12, shutil.get_terminal_size((120, 30)).columns - 1)
-        prompt = (
-            f"🎚 Bake {requested_db:+.2f} dB into “{audio_path.name}”? Y/N  "
-            "(verified backup + rollback; audio will stop briefly)"
-        )
-        while True:
-            write_console(
-                move_to(CONTROLS_ROW)
-                + "\033[1;5;38;2;255;205;95m"
-                + truncate_to_cells(prompt, available, "…")
-                + "\033[0m\033[K\033[?25l"
-            )
-            while not msvcrt.kbhit():
-                if not pump_prompt_visualizer():
-                    return False
-                sleeper(0.01)
-            key = msvcrt.getwch()
-            if key.casefold() == "y":
-                return True
-            if key.casefold() == "n" or key == "\x1b":
-                return False
-            if key.casefold() == "q" or key in {"\x03", "\x1d"}:
-                abort_requested.set()
-                return False
-            if key in {"\x00", "\xe0"} and msvcrt.kbhit():
-                msvcrt.getwch()
-
-    def perform_replaygain_bake(current_position: float) -> bool:
-        """Bake through the shared helper and refresh only metadata-side state."""
-        nonlocal replaygain_info
-        requested_db = replaygain_info.requested_db
-        if requested_db is None:
-            return False
-        append_pafplayer_trace(
-            "replaygain.bake.start",
-            track=audio_path,
-            position_seconds=current_position,
-            requested_db=requested_db,
-            peak=replaygain_info.peak,
-        )
-        try:
-            result = bake_replaygain_into_audio(
-                audio_path,
-                requested_db,
-                peak_ratio=replaygain_info.peak,
-                stream_output=False,
-            )
-            _AUDIO_METADATA_CACHE.clear()
-            _AUDIO_REPLAYGAIN_TAG_CACHE.clear()
-            replaygain_info = replaygain_probe(audio_path, replaygain_mode)
-            append_pafplayer_trace(
-                "replaygain.bake.finish",
-                track=audio_path,
-                position_seconds=current_position,
-                requested_db=result.requested_db,
-                applied_db=result.applied_db,
-                peak_limited=result.peak_limited,
-                backup=result.backup,
-                replacement_method=result.replacement_method,
-                success=True,
-            )
-            set_transient_notice(
-                f"ReplayGain baked; backup: {result.backup.name}",
-                "\033[1;38;2;90;235;145mReplayGain baked and verified\033[0m",
-                8.0,
-            )
-            return True
-        except Exception as exc:
-            append_pafplayer_exception(
-                f"Ctrl+Alt+B ReplayGain bake for {audio_path}", exc
-            )
-            append_pafplayer_trace(
-                "replaygain.bake.finish",
-                track=audio_path,
-                position_seconds=current_position,
-                success=False,
-                error=f"{type(exc).__name__}: {exc}",
-            )
-            set_transient_error(
-                f"💥 ReplayGain bake failed; original restored: {exc} 💥",
-                seconds=10.0,
-            )
-            return False
 
     def current_prompt_position() -> float:
         """Return the live playback position while a modal prompt owns input."""
@@ -21352,9 +25671,11 @@ def play_audio_file(
         return max(playback_start, live)
 
     def pump_prompt_visualizer() -> bool:
-        """Service the visualizer during modal keyboard waits; False means abort."""
+        """Service modal waits unless the lettering configurator owns the animation budget."""
         if abort_requested.is_set():
             return False
+        if external_album_art_window is not None and external_album_art_window.color_configurator_active:
+            return True
         show_status(current_prompt_position(), indicator, visualizer_only=True)
         return not abort_requested.is_set()
 
@@ -21373,7 +25694,11 @@ def play_audio_file(
             )
         write_console("".join(output) + "\033[?25l")
 
-    def add_track_via_insert(use_file_picker: bool) -> bool:
+    def add_track_via_insert(
+        use_file_picker: bool,
+        *,
+        initial_quit_q_presses: int = 0,
+    ) -> bool:
         """Add one/many files, queue them next, and reset speed to 1×.
 
         Motivation: INS offers the fast indexed fuzzy/path-completion picker;
@@ -21395,6 +25720,8 @@ def play_audio_file(
                     pump_callback=pump_prompt_visualizer,
                     display_rows=max(4, DRCS_ROW - HEADER_ROW),
                     sleeper_fn=sleeper,
+                    initial_quit_q_presses=initial_quit_q_presses,
+                    quit_callback=abort_requested.set,
                 )
                 if audio_catalog_index is not None
                 else None
@@ -21436,54 +25763,6 @@ def play_audio_file(
         else:
             set_transient_warning("⚠ Already in playlist ⚠", seconds=5.0)
         return False
-
-    def queue_existing_playlist_tracks() -> str:
-        """Run the J/Q queue manager; return none, queued, or jump."""
-        if (
-            playlist_snapshot_callback is None
-            or playlist_queue_callback is None
-            or playlist_jump_state is None
-        ):
-            set_transient_warning("⚠ No active playlist ⚠", seconds=5.0)
-            return "none"
-        try:
-            snapshot = [Path(path) for path in (playlist_snapshot_callback() or [])]
-            choice = interactive_playlist_queue_picker(
-                snapshot,
-                audio_path,
-                pump_callback=pump_prompt_visualizer,
-                sleeper_fn=sleeper,
-            )
-        except Exception as exc:
-            append_pafplayer_exception("J/Q playlist queue manager", exc)
-            set_transient_error(f"Could not open queue manager: {exc}", seconds=5.0)
-            return "none"
-        if choice is None:
-            return "none"
-        operation, selected = choice
-        if operation == "jump" and len(selected) == 1:
-            playlist_jump_state[0] = Path(selected[0])
-            return "jump"
-        if operation == "queue" and selected:
-            queued_count = int(playlist_queue_callback(tuple(selected)) or 0)
-            if queued_count <= 0:
-                set_transient_warning(
-                    "⚠ Selected tracks are no longer in the playlist ⚠",
-                    seconds=5.0,
-                )
-                return "none"
-            summary = (
-                f"➕ Queued “{selected[0].name}” next"
-                if queued_count == 1
-                else f"➕ Queued {queued_count:,} playlist tracks next"
-            )
-            set_transient_notice(
-                summary,
-                "\033[1;38;2;125;235;165m" + summary + "\033[0m",
-                5.0,
-            )
-            return "queued"
-        return "none"
 
     def render_learned_tag_prompt(buffer: str, remaining: float) -> None:
         """Paint the short optional-extra-tag prompt in the ordinary controls row.
@@ -21816,14 +26095,11 @@ def play_audio_file(
             + (f"\033[{reserve_newlines}A" if reserve_newlines else "")
             + "\r\033[?7l\033[?25l"
         )
-        cursor_state = console_cursor_and_viewport_top()
-        if cursor_state is not None:
-            cursor_row, viewport_top = cursor_state
-            ui_origin_viewport_row[0] = max(1, cursor_row - viewport_top + 1)
-        else:
-            # Save a private DEC-compatible fallback only on terminals where the
-            # Win32 viewport anchor cannot be obtained.
-            write_console("\0337")
+        ui_origin_viewport_row[0] = stable_viewport_ui_origin(
+            shutil.get_terminal_size((120, 30)).lines,
+            UI_ROWS,
+            TERMINAL_BOTTOM_RESERVE_TRIM_ROWS,
+        )
         clear_region(0, UI_ROWS)
         write_console(define_all_player_drcs() + "\033[?25l")
         render_static_header(position)
@@ -21839,6 +26115,8 @@ def play_audio_file(
         if cached_spectrum is not None:
             drcs_timeline = cached_spectrum
             spectrum_ready.set()
+            if external_album_art_window is not None:
+                external_album_art_window.set_spectrum_ready_for_art_karaoke(True)
         if spectrum_diagnostic_mode:
             diagnostic_action = (
                 "analyzer DISABLED; synthetic 120-Hz spectrum" if synthetic_visualizer_without_analyzer else
@@ -21898,6 +26176,15 @@ def play_audio_file(
             width = spectrum_analysis_columns
             fps = SPECTRUM_ANALYSIS_FPS
             while not abort_requested.is_set() and (duration is None or offset < duration):
+                # The lettering configurator is an intentional visual benchmark.
+                # Do not launch another analyzer chunk while it is open; this
+                # frees CPU/decoder bandwidth for the hero and visible row samples.
+                while (
+                    not abort_requested.is_set()
+                    and external_album_art_window is not None
+                    and external_album_art_window.color_configurator_active
+                ):
+                    time.sleep(0.05)
                 # Do not race far ahead of playback.  This tiny wait is the main
                 # startup-smoothness improvement: analysis gets spare time rather
                 # than trying to finish the song immediately.
@@ -21940,6 +26227,8 @@ def play_audio_file(
                 if not discard_spectrum_publish:
                     drcs_timeline = (bytes(accumulated), width, fps)
                     spectrum_ready.set()
+                    if external_album_art_window is not None:
+                        external_album_art_window.set_spectrum_ready_for_art_karaoke(True)
                 offset += chunk_seconds
                 first_chunk = False
             if (
@@ -21958,6 +26247,10 @@ def play_audio_file(
                 daemon=True,
             )
             spectrum_thread.start()
+        elif external_album_art_window is not None and cached_spectrum is None:
+            # No spectrum startup work will arrive, so there is nothing for the
+            # artwork-karaoke animation to yield to.
+            external_album_art_window.set_spectrum_ready_for_art_karaoke(True)
         sixel_frame = (
             render_sixel_visualizer(
                 audio_path, position, visualizer_columns, album_art_visualizer_enabled
@@ -22086,6 +26379,24 @@ def play_audio_file(
                         render_static_header(displayed_position)
                         render_controls(playback_fraction(displayed_position))
                         show_status(displayed_position, indicator)
+                config_visualizer_low_fps = bool(
+                    external_album_art_window is not None
+                    and external_album_art_window.color_configurator_active
+                )
+                # The lettering configurator no longer blanks the console.
+                # Keep its animation budget by painting the terminal/browser
+                # spectrum at a calm two frames per second instead.
+                config_visualizers_paused = False
+                if config_visualizers_paused != color_config_visualizers_paused:
+                    color_config_visualizers_paused = config_visualizers_paused
+                    if web_server is not None:
+                        web_server.set_visualizer_paused(config_visualizers_paused)
+                    if not config_visualizers_paused:
+                        last_drcs_position = None
+                        last_visualizer_payload = None
+                        last_visualizer_rows = None
+                        next_visualizer_deadline = now
+
                 if (
                     external_album_art_window is not None
                     and external_album_art_window.consume_terminal_redraw_request()
@@ -22110,7 +26421,7 @@ def play_audio_file(
                     elif not help_overlay_until:
                         render_controls(playback_fraction(displayed_position))
                     if not help_overlay_until:
-                        show_status(displayed_position, indicator)
+                        show_status(displayed_position, indicator, skip_visualizer=config_visualizers_paused)
                 if (
                     external_album_art_window is not None
                     and now - last_external_lyric_publish >= 0.10
@@ -22119,18 +26430,17 @@ def play_audio_file(
                         lyric_title_text_at(
                             lyrics,
                             playback_ui_position(displayed_position),
-                        ) or ""
+                        ) or "",
+                        lyric_emphasis_progress_at(
+                            lyrics,
+                            playback_ui_position(displayed_position),
+                        ),
                     )
                     last_external_lyric_publish = now
-                if web_server is not None and now - last_web_publish >= 0.10:
-                    current_lyric = lyric_title_text_at(
-                        lyrics,
-                        playback_ui_position(displayed_position),
-                    ) or ""
-
-                    # Browser-side visualizer: publish a compact processed spectrum
-                    # from the same FFmpeg analyzer timeline.  A separate AGC state
-                    # means the JavaScript view cannot alter terminal rendering.
+                if web_server is not None and not config_visualizers_paused and now - last_web_spectrum_publish >= (0.5 if config_visualizer_low_fps else 0.05):
+                    # V172 restores the responsive browser analyzer path: a tiny
+                    # spectrum-only payload is produced/transmitted at 20 fps,
+                    # independently of the much larger metadata/control status.
                     web_raw_spectrum = spectrum_frame_interpolated_at(
                         drcs_timeline,
                         displayed_position,
@@ -22148,6 +26458,14 @@ def play_audio_file(
                         )
                     else:
                         web_spectrum = []
+                    web_server.publish_spectrum(web_spectrum)
+                    last_web_spectrum_publish = now
+
+                if web_server is not None and now - last_web_publish >= 0.10:
+                    current_lyric = lyric_title_text_at(
+                        lyrics,
+                        playback_ui_position(displayed_position),
+                    ) or ""
 
                     web_server.publish(
                         playing=True,
@@ -22187,7 +26505,6 @@ def play_audio_file(
                         karaoke_visualizer_overlay=karaoke_visualizer_overlay,
                         karaoke_visualizer_height_mode=karaoke_visualizer_height_mode,
                         lyric=current_lyric,
-                        spectrum=web_spectrum,
                         playlist_track_count=(
                             playlist_track_count_state[0]
                             if playlist_track_count_state is not None
@@ -22223,7 +26540,13 @@ def play_audio_file(
                             render_controls(
                                 playback_fraction(displayed_position)
                             )
-                if handle_color_selection_input(now, displayed_position, indicator):
+                if startup_pause_pending:
+                    # V174 restores the previous process' play/pause state.  Consume
+                    # this latch exactly once; later FFplay reconstructions (seek,
+                    # speed, volume, etc.) must never re-pause themselves.
+                    action = PAUSE_TOGGLE
+                    startup_pause_pending = False
+                elif handle_color_selection_input(now, displayed_position, indicator):
                     action = None
                 elif favorite_menu_active:
                     menu_choice = read_windows_menu_choice()
@@ -22300,23 +26623,6 @@ def play_audio_file(
                         break
                     action = None
 
-                if action == REPLAYGAIN_BAKE:
-                    if confirm_replaygain_bake():
-                        record_segment(displayed_position)
-                        position = displayed_position
-                        if playback_end is not None:
-                            position = min(
-                                position,
-                                max(playback_start, playback_end - 0.05),
-                            )
-                        stop_process(process)
-                        perform_replaygain_bake(position)
-                        redraw_entire_player_ui(position, "🎚", clear_art=False)
-                        break
-                    render_controls(playback_fraction(displayed_position))
-                    show_status(displayed_position, indicator)
-                    continue
-
                 active_ranges = played_ranges + ([(position, displayed_position)] if displayed_position - position > 3.0 else [])
                 if local_log_state[0] is not True:
                     if record_local_history_if_eligible(active_ranges):
@@ -22385,7 +26691,7 @@ def play_audio_file(
                     indicator = "▶️"
                     loop_indicator_until = 0.0
                 if all_audio_tags_active:
-                    if action in {ALL_AUDIO_TAGS_OVERLAY, DISMISS_OVERLAY, QUIT_Q} or action == PLAYLIST_QUEUE_SEARCH:
+                    if action in {ALL_AUDIO_TAGS_OVERLAY, DISMISS_OVERLAY, QUIT_Q}:
                         set_live_audio_tags(False)
                         redraw_entire_player_ui(displayed_position, indicator)
                         continue
@@ -22413,11 +26719,7 @@ def play_audio_file(
                 if help_overlay_until and _windows_question_mark_down():
                     help_overlay_until = max(help_overlay_until, now + 1.0)
                 if help_overlay_until:
-                    if action == EDIT_CHANGES_DONE:
-                        help_directory_visible = not help_directory_visible
-                        render_help_overlay()
-                        continue
-                    if action in {DISMISS_OVERLAY, QUIT_Q} or action == PLAYLIST_QUEUE_SEARCH:
+                    if action in {DISMISS_OVERLAY, QUIT_Q}:
                         help_overlay_until = 0.0
                         clear_region(HEADER_ROW, max(UI_ROWS, help_overlay_rows))
                         render_static_header(displayed_position)
@@ -22468,9 +26770,9 @@ def play_audio_file(
                         else:
                             render_controls(playback_fraction(displayed_position))
                 if action is None:
-                    visualizer_period = 1.0 / max(1.0, visualizer_effective_fps)
+                    visualizer_period = 0.5 if config_visualizer_low_fps else (1.0 / max(1.0, visualizer_effective_fps))
                     visualizer_due = (now >= next_visualizer_deadline) if strict_visualizer_pacing else (now - last_visualizer_write >= visualizer_period)
-                    if visualizer_due:
+                    if visualizer_due and not config_visualizers_paused:
                         paint_started = monotonic()
                         # Theory 33 leaves the high-rate deadline/scheduler fully
                         # active but does not call show_status() at all. Slow HUD
@@ -22508,7 +26810,29 @@ def play_audio_file(
                     else:
                         render_metadata_rows(displayed_position)
                     last_metadata_animation_write = now
-                if action is None and not all_audio_tags_active and album_art_visualizer_enabled and now - last_sixel_refresh >= 0.5:
+                if action is None and not config_visualizers_paused and not all_audio_tags_active and layered_art_visualizer_enabled and now - last_sixel_refresh >= layered_art_restore_period(visualizer_columns, drcs_rows + LYRIC_ROWS):
+                    active_now = lyric_at(lyrics, displayed_position)
+                    expand_now = bool(
+                        karaoke_visualizer_expansion_enabled and LYRIC_ROWS
+                        and active_now is None and not karaoke_visualizer_overlay
+                    )
+                    layer_row = LYRIC_ROW if expand_now else DRCS_ROW
+                    layer_rows = max(1, drcs_rows + (LYRIC_ROWS if expand_now else 0))
+                    layer = render_sixel_album_art_layer(
+                        audio_path, visualizer_columns, layer_rows
+                    )
+                    if layer:
+                        # Windows Terminal erases SIXEL fragments touched by
+                        # subsequent text. Restore the retained cover first,
+                        # then immediately repaint the ordinary DRCS/Unicode
+                        # spectrum above it. Repeating at 2 fps makes vacated
+                        # visualizer cells reveal the cover again.
+                        write_console(move_to(layer_row))
+                        write_console_bytes(layer)
+                        write_console("\033[?25l")
+                        show_status(displayed_position, indicator, visualizer_only=True)
+                    last_sixel_refresh = now
+                if action is None and not config_visualizers_paused and not all_audio_tags_active and album_art_visualizer_enabled and not layered_art_visualizer_enabled and now - last_sixel_refresh >= 0.5:
                     active_now = lyric_at(lyrics, displayed_position)
                     expand_now = bool(
                         karaoke_visualizer_expansion_enabled and LYRIC_ROWS
@@ -22524,7 +26848,7 @@ def play_audio_file(
                         write_console_bytes(frame)
                         write_console("\033[?25l")
                     last_sixel_refresh = now
-                if action is None and not all_audio_tags_active and sixel_enabled and not album_art_visualizer_enabled and now - last_sixel_refresh >= 0.5:
+                if action is None and not config_visualizers_paused and not all_audio_tags_active and sixel_enabled and not album_art_visualizer_enabled and not layered_art_visualizer_enabled and now - last_sixel_refresh >= 0.5:
                     frame = render_sixel_visualizer(
                         audio_path, displayed_position, visualizer_columns,
                         album_art_visualizer_enabled,
@@ -22536,6 +26860,24 @@ def play_audio_file(
                     last_sixel_refresh = now
                 if action == DISMISS_OVERLAY:
                     # Escape is non-destructive during normal playback; it only closes modals/help.
+                    continue
+                if action == HUD_SMART_ALIGNMENT_TOGGLE:
+                    last_play_alignment_enabled = not last_play_alignment_enabled
+                    if inline_last_play_alignment_state is not None:
+                        inline_last_play_alignment_state[0] = last_play_alignment_enabled
+                    refresh_inline_last_play_alignment()
+                    set_transient_notice(
+                        f"Smart HUD alignment {'on' if last_play_alignment_enabled else 'off'}",
+                        (
+                            "\033[1;38;2;145;220;255mSmart HUD alignment on\033[0m"
+                            if last_play_alignment_enabled else
+                            "\033[1;38;2;155;155;155mSmart HUD alignment off\033[0m"
+                        ),
+                        3.0,
+                    )
+                    render_static_header(displayed_position)
+                    render_controls(playback_fraction(displayed_position))
+                    show_status(displayed_position, indicator)
                     continue
                 if action == HUD_DETAILS_TOGGLE:
                     set_hud_details_visible(not hud_details_visible)
@@ -22684,24 +27026,12 @@ def play_audio_file(
                     break
                 if action in {STOP, QUIT_Q}:
                     record_segment(displayed_position)
-                    stop_process(process)
+                    hard_stop_process(process)
                     return finish_playback("stopped")
                 if action in NAVIGATION_ACTIONS:
                     record_segment(displayed_position)
                     stop_process(process)
                     return finish_playback(action)
-                if action == PLAYLIST_QUEUE_SEARCH:
-                    queue_result = queue_existing_playlist_tracks()
-                    if queue_result == "jump":
-                        record_segment(displayed_position)
-                        stop_process(process)
-                        return finish_playback(PLAYLIST_JUMP_RESULT)
-                    redraw_entire_player_ui(
-                        displayed_position,
-                        indicator,
-                        clear_art=False,
-                    )
-                    continue
                 if action == LOOP_TOGGLE:
                     looping = not looping
                     if looping_state is not None:
@@ -22733,8 +27063,15 @@ def play_audio_file(
                         set_transient_warning("⚠ Track not found in playlist ⚠", seconds=5.0)
                     render_controls(playback_fraction(displayed_position))
                     continue
-                if action in {PLAYLIST_ADD_SEARCH, PLAYLIST_ADD_PICKER}:
-                    speed_changed = add_track_via_insert(action == PLAYLIST_ADD_PICKER)
+                if action in {PLAYLIST_ADD_SEARCH, PLAYLIST_ADD_SEARCH_Q, PLAYLIST_ADD_PICKER}:
+                    speed_changed = add_track_via_insert(
+                        action == PLAYLIST_ADD_PICKER,
+                        initial_quit_q_presses=(1 if action == PLAYLIST_ADD_SEARCH_Q else 0),
+                    )
+                    if abort_requested.is_set():
+                        record_segment(current_prompt_position())
+                        stop_process(process)
+                        return finish_playback("stopped")
                     if speed_changed:
                         insert_position = current_prompt_position()
                         record_segment(insert_position)
@@ -22986,6 +27323,20 @@ def play_audio_file(
                     render_controls()
                     show_status(displayed_position, indicator)
                     continue
+                if action == LAYERED_ART_VISUALIZER_TOGGLE:
+                    layered_art_visualizer_enabled = not layered_art_visualizer_enabled
+                    if layered_art_visualizer_state is not None:
+                        layered_art_visualizer_state[0] = layered_art_visualizer_enabled
+                    if layered_art_visualizer_enabled:
+                        album_art_visualizer_enabled = False
+                        if album_art_visualizer_state is not None:
+                            album_art_visualizer_state[0] = False
+                    clear_region(LYRIC_ROW, LYRIC_ROWS + drcs_rows)
+                    last_sixel_refresh = -10.0
+                    render_static_header(displayed_position)
+                    render_controls(playback_fraction(displayed_position))
+                    show_status(displayed_position, indicator)
+                    continue
                 if action == FREQUENCY_WARP_TOGGLE:
                     frequency_warp_enabled = not frequency_warp_enabled
                     if frequency_warp_state is not None:
@@ -23040,23 +27391,9 @@ def play_audio_file(
                     sixel_enabled = not sixel_enabled
                     if sixel_enabled_state is not None:
                         sixel_enabled_state[0] = sixel_enabled
-                    if not sixel_enabled:
-                        clear_region(SIXEL_ROW, SIXEL_VISUALIZER_ROWS)
-                        if sixel_has_space:
-                            write_console(move_to(SIXEL_ROW) + f"\033[{SIXEL_VISUALIZER_ROWS}M")
-                            if LYRIC_ROW > SIXEL_ROW:
-                                LYRIC_ROW -= SIXEL_VISUALIZER_ROWS
-                            UI_ROWS -= SIXEL_VISUALIZER_ROWS
-                            sixel_has_space = False
-                    elif not sixel_has_space:
-                        # Karaoke remains above the visualizer when SIXEL is
-                        # enabled dynamically; append only the new image rows.
-                        SIXEL_ROW = UI_ROWS
-                        added_rows = SIXEL_VISUALIZER_ROWS
-                        write_console(move_to(UI_ROWS) + "\n" * added_rows)
-                        UI_ROWS += added_rows
-                        sixel_has_space = True
-                        last_lyric_index = None
+                    reflow_rows_for_terminal()
+                    sixel_has_space = sixel_enabled
+                    last_lyric_index = None
                     render_controls()
                     show_status(displayed_position, indicator)
                     continue
@@ -23079,34 +27416,10 @@ def play_audio_file(
                     drcs_enabled = not drcs_enabled
                     if drcs_enabled_state is not None:
                         drcs_enabled_state[0] = drcs_enabled
-                    if not drcs_enabled:
-                        clear_region(DRCS_ROW, drcs_rows)
-                        if drcs_has_space:
-                            write_console(move_to(DRCS_ROW) + f"\033[{drcs_rows}M")
-                            if SIXEL_ROW > DRCS_ROW:
-                                SIXEL_ROW -= drcs_rows
-                            if LYRIC_ROW > DRCS_ROW:
-                                LYRIC_ROW -= drcs_rows
-                            UI_ROWS -= drcs_rows
-                            drcs_has_space = False
-                    else:
-                        if not drcs_has_space:
-                            if LYRIC_ROWS:
-                                clear_region(LYRIC_ROW, LYRIC_ROWS)
-                                write_console(move_to(LYRIC_ROW) + f"\033[{LYRIC_ROWS}M")
-                                UI_ROWS -= LYRIC_ROWS
-                            DRCS_ROW = UI_ROWS
-                            terminal_lines = shutil.get_terminal_size((120, 30)).lines
-                            drcs_rows = min(
-                                max(1, DRCS_VISUALIZER_ROWS - truncate_top_visualizer_lines),
-                                max(1, terminal_lines - (DRCS_ROW + (SIXEL_VISUALIZER_ROWS if sixel_enabled else 0) + LYRIC_ROWS + TERMINAL_BOTTOM_RESERVE_TRIM_ROWS)),
-                            )
-                            LYRIC_ROW = DRCS_ROW + drcs_rows
-                            added_rows = drcs_rows + LYRIC_ROWS
-                            write_console(move_to(UI_ROWS) + "\n" * added_rows)
-                            UI_ROWS += added_rows
-                            drcs_has_space = True
-                            last_lyric_index = None
+                    reflow_rows_for_terminal()
+                    drcs_has_space = drcs_enabled and drcs_rows > 0
+                    last_lyric_index = None
+                    if drcs_enabled:
                         if (
                             not disable_spectrum_analyzer
                             and (spectrum_thread is None or (not spectrum_thread.is_alive() and not drcs_timeline[0]))
@@ -23235,10 +27548,20 @@ def play_audio_file(
                     stop_process(process)
                     header_paused = True
                     prompt_paused_state[0] = True
+                    if paused_state is not None:
+                        paused_state[0] = True
                     render_static_header(position)
                     show_status(position, "⏸️")
                     while True:
                         paused_now = monotonic()
+                        config_visualizers_paused = bool(
+                            external_album_art_window is not None
+                            and external_album_art_window.color_configurator_active
+                        )
+                        if config_visualizers_paused != color_config_visualizers_paused:
+                            color_config_visualizers_paused = config_visualizers_paused
+                            if web_server is not None:
+                                web_server.set_visualizer_paused(config_visualizers_paused)
                         if apply_finished_last_play_lookup():
                             reflow_rows_for_terminal()
                             if not all_audio_tags_active:
@@ -23274,7 +27597,11 @@ def play_audio_file(
                                 lyric_title_text_at(
                                     lyrics,
                                     playback_ui_position(position),
-                                ) or ""
+                                ) or "",
+                                lyric_emphasis_progress_at(
+                                    lyrics,
+                                    playback_ui_position(position),
+                                ),
                             )
                             last_external_lyric_publish = paused_now
                         if web_server is not None and paused_now - last_web_publish >= 0.10:
@@ -23335,7 +27662,6 @@ def play_audio_file(
                                     lyrics,
                                     playback_ui_position(position),
                                 ) or "",
-                                spectrum=paused_web_spectrum,
                             )
                             last_web_publish = paused_now
                         if now_playing_targets and paused_now - last_now_playing_write >= 1.0:
@@ -23449,21 +27775,8 @@ def play_audio_file(
                                 show_status(position, "⏸️")
                             continue
 
-                        if paused_action == REPLAYGAIN_BAKE:
-                            if confirm_replaygain_bake():
-                                perform_replaygain_bake(position)
-                                redraw_entire_player_ui(
-                                    position,
-                                    "⏸️",
-                                    clear_art=False,
-                                )
-                            else:
-                                render_controls(playback_fraction(position))
-                                show_status(position, "⏸️")
-                            continue
-
                         if all_audio_tags_active:
-                            if paused_action in {ALL_AUDIO_TAGS_OVERLAY, DISMISS_OVERLAY, QUIT_Q} or paused_action == PLAYLIST_QUEUE_SEARCH:
+                            if paused_action in {ALL_AUDIO_TAGS_OVERLAY, DISMISS_OVERLAY, QUIT_Q}:
                                 set_live_audio_tags(False)
                                 redraw_entire_player_ui(position, "⏸️")
                                 continue
@@ -23489,11 +27802,7 @@ def play_audio_file(
                         if help_overlay_until and _windows_question_mark_down():
                             help_overlay_until = max(help_overlay_until, paused_now + 1.0)
                         if help_overlay_until:
-                            if paused_action == EDIT_CHANGES_DONE:
-                                help_directory_visible = not help_directory_visible
-                                render_help_overlay()
-                                continue
-                            if paused_action in {DISMISS_OVERLAY, QUIT_Q} or paused_action == PLAYLIST_QUEUE_SEARCH:
+                            if paused_action in {DISMISS_OVERLAY, QUIT_Q}:
                                 help_overlay_until = 0.0
                                 clear_region(HEADER_ROW, max(UI_ROWS, help_overlay_rows))
                                 render_static_header(position)
@@ -23690,6 +27999,24 @@ def play_audio_file(
                             render_controls(playback_fraction(position))
                             show_status(position, "⏸️")
                             continue
+                        if paused_action == HUD_SMART_ALIGNMENT_TOGGLE:
+                            last_play_alignment_enabled = not last_play_alignment_enabled
+                            if inline_last_play_alignment_state is not None:
+                                inline_last_play_alignment_state[0] = last_play_alignment_enabled
+                            refresh_inline_last_play_alignment()
+                            set_transient_notice(
+                                f"Smart HUD alignment {'on' if last_play_alignment_enabled else 'off'}",
+                                (
+                                    "\033[1;38;2;145;220;255mSmart HUD alignment on\033[0m"
+                                    if last_play_alignment_enabled else
+                                    "\033[1;38;2;155;155;155mSmart HUD alignment off\033[0m"
+                                ),
+                                3.0,
+                            )
+                            render_static_header(position)
+                            render_controls(playback_fraction(position))
+                            show_status(position, "⏸️")
+                            continue
                         if paused_action == EXTERNAL_ALBUM_ART_IDLE_START:
                             if external_album_art_window is not None and external_album_art_window.start_idle_routine():
                                 set_transient_notice(
@@ -23755,6 +28082,35 @@ def play_audio_file(
                                     write_console(move_to(art_row))
                                     write_console_bytes(frame)
                                     write_console("\033[?25l")
+                            continue
+                        if paused_action == LAYERED_ART_VISUALIZER_TOGGLE:
+                            layered_art_visualizer_enabled = not layered_art_visualizer_enabled
+                            if layered_art_visualizer_state is not None:
+                                layered_art_visualizer_state[0] = layered_art_visualizer_enabled
+                            if layered_art_visualizer_enabled:
+                                album_art_visualizer_enabled = False
+                                if album_art_visualizer_state is not None:
+                                    album_art_visualizer_state[0] = False
+                            clear_region(LYRIC_ROW, LYRIC_ROWS + drcs_rows)
+                            last_sixel_refresh = -10.0
+                            render_static_header(position)
+                            render_controls(playback_fraction(position))
+                            show_status(position, "⏸️")
+                            if layered_art_visualizer_enabled:
+                                active_now = lyric_at(lyrics, position)
+                                expand_now = bool(
+                                    karaoke_visualizer_expansion_enabled and LYRIC_ROWS
+                                    and active_now is None and not karaoke_visualizer_overlay
+                                )
+                                layer_row = LYRIC_ROW if expand_now else DRCS_ROW
+                                layer_rows = max(1, drcs_rows + (LYRIC_ROWS if expand_now else 0))
+                                layer = render_sixel_album_art_layer(
+                                    audio_path, visualizer_columns, layer_rows
+                                )
+                                if layer:
+                                    write_console(move_to(layer_row))
+                                    write_console_bytes(layer)
+                                    show_status(position, "⏸️", visualizer_only=True)
                             continue
                         if paused_action == FREQUENCY_WARP_TOGGLE:
                             frequency_warp_enabled = not frequency_warp_enabled
@@ -23840,19 +28196,10 @@ def play_audio_file(
                             continue
                         if paused_action in NAVIGATION_ACTIONS:
                             return finish_playback(paused_action)
-                        if paused_action == PLAYLIST_QUEUE_SEARCH:
-                            queue_result = queue_existing_playlist_tracks()
-                            if queue_result == "jump":
-                                stop_process(process)
-                                return finish_playback(PLAYLIST_JUMP_RESULT)
-                            redraw_entire_player_ui(
-                                position,
-                                "⏸️",
-                                clear_art=False,
-                            )
-                            continue
                         if paused_action == PAUSE_TOGGLE:
                             indicator = "▶️"
+                            if paused_state is not None:
+                                paused_state[0] = False
                             if web_server is not None:
                                 web_server.publish(paused=False, playing=True)
                             break
@@ -23881,8 +28228,14 @@ def play_audio_file(
                                     return finish_playback(NEXT_FILE)
                             redraw_entire_player_ui(position, "⏸️")
                             continue
-                        if paused_action in {PLAYLIST_ADD_SEARCH, PLAYLIST_ADD_PICKER}:
-                            add_track_via_insert(paused_action == PLAYLIST_ADD_PICKER)
+                        if paused_action in {PLAYLIST_ADD_SEARCH, PLAYLIST_ADD_SEARCH_Q, PLAYLIST_ADD_PICKER}:
+                            add_track_via_insert(
+                                paused_action == PLAYLIST_ADD_PICKER,
+                                initial_quit_q_presses=(1 if paused_action == PLAYLIST_ADD_SEARCH_Q else 0),
+                            )
+                            if abort_requested.is_set():
+                                stop_process(process)
+                                return finish_playback("stopped")
                             redraw_entire_player_ui(position, "⏸️", clear_art=False)
                             continue
                         if paused_action in {PLAYLIST_VIEW_PREVIOUS, PLAYLIST_VIEW_NEXT}:
@@ -24214,7 +28567,11 @@ class PlayWaveFileTests(unittest.TestCase):
         for key in ("x", "X", "\x17", "\x03"):
             self.assertEqual(STOP, interpret_console_key(key))
         for key in ("q", "Q"):
-            self.assertEqual(PLAYLIST_QUEUE_SEARCH, interpret_console_key(key))
+            self.assertEqual(PLAYLIST_ADD_SEARCH_Q, interpret_console_key(key))
+        self.assertEqual(QUIT_Q, interpret_console_key("q", ctrl=True))
+        self.assertEqual(QUIT_Q, interpret_console_key("q", alt=True))
+        self.assertEqual(QUIT_Q, interpret_console_key("q", ctrl=True, alt=True))
+        self.assertEqual(QUIT_Q, interpret_console_key("\x11"))
         self.assertEqual(
             STOP,
             interpret_console_key("w", ctrl=True),
@@ -24736,7 +29093,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertEqual("2.5d", format_last_heard_age(2.5 * 86400))
         self.assertEqual("6mos", format_last_heard_age(6 * 30.4375 * 86400))
         self.assertEqual("1.1yr", format_last_heard_age(1.1 * 365.25 * 86400))
-        self.assertIn("▏", render_status(1, 8, "▶", 100, "up", False, 1, repaint=False))
+        self.assertIn("\u258f", render_status(1, 8, ">", 100, "up", False, 1, repaint=False))
         rows, _ansi = format_tag_panel({
             "Artist": "Artist", "Song": "Song", "Album": "Some Album",
             "Year": "2026", "Genre": "Punk", "Comment": "Comment",
@@ -25493,6 +29850,7 @@ class PlayWaveFileTests(unittest.TestCase):
             def __init__(self) -> None:
                 self.running = True
                 self.terminated = False
+                self.killed = False
 
             def poll(self):
                 return None if self.running else 0
@@ -25506,6 +29864,7 @@ class PlayWaveFileTests(unittest.TestCase):
                 return 0
 
             def kill(self) -> None:
+                self.killed = True
                 self.running = False
 
         processes: list[FakeProcess] = []
@@ -25546,7 +29905,8 @@ class PlayWaveFileTests(unittest.TestCase):
             "aresample=192000" in command[command.index("-af") + 1]
             for command in commands
         ))
-        self.assertTrue(all(process.terminated for process in processes))
+        self.assertTrue(all(process.terminated for process in processes[:-1]))
+        self.assertTrue(processes[-1].killed)  # final STOP is intentionally hard in V175
         boosted = ffplay_command(Path("ffplay.exe"), audio, 0, 400, 1.0)
         self.assertIn("volume=4", boosted[boosted.index("-af") + 1])
         self.assertEqual("100", boosted[boosted.index("-volume") + 1])
@@ -26309,6 +30669,51 @@ class PlayWaveFileTests(unittest.TestCase):
         import inspect
         source = inspect.getsource(main)
         self.assertIn("--display-last-played-date-for-playlist PLAYLIST", source)
+
+    def test_v198_history_regex_reports_latest_filename_or_artist_song_match(self) -> None:
+        import io
+        from contextlib import redirect_stdout
+        database = sqlite3.connect(":memory:")
+        database.execute(
+            "CREATE TABLE played_tracks_recent (filename TEXT, duration_seconds INTEGER, tag TEXT, played_at REAL)"
+        )
+        database.executemany(
+            "INSERT INTO played_tracks_recent(filename, duration_seconds, tag, played_at) VALUES (?, ?, ?, ?)",
+            [
+                ("old-song", 100, "artist\x1fsong", 100.0),
+                ("new-song", 100, "other\x1fneedle", 200.0),
+            ],
+        )
+        database.commit()
+        output = io.StringIO()
+        with mock.patch("play_audio_file.playlist_history_connection", return_value=database):
+            with redirect_stdout(output):
+                result = query_playlist_history_regex("needle")
+        self.assertEqual(0, result)
+        self.assertIn("Matching stored identities: 1", output.getvalue())
+        self.assertIn(f"Last played: {_playlist_analysis_format_played_at(200.0)}", output.getvalue())
+        self.assertIn("new-song", output.getvalue())
+
+    def test_v198_history_regex_option_is_documented_and_early_exit(self) -> None:
+        import inspect
+        source = inspect.getsource(main)
+        self.assertIn("--last-play-regex REGEX", source)
+        self.assertIn("query_playlist_history_regex(regex_value)", source)
+
+    def test_v198_idle_artwork_keeps_lyric_layer_stable_during_crossfade(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        animation_start = source.index("def animate_artwork_lyric_colors")
+        animation_end = source.index("def ensure_artwork_lyric_color_animation", animation_start)
+        animation = source[animation_start:animation_end]
+        self.assertIn('if bool(state.get("idle_promoted")):', animation)
+        render_start = source.index("def render_art")
+        render_end = source.index("def schedule_render", render_start)
+        renderer = source[render_start:render_end]
+        self.assertIn('canvas.delete("artwork-base")', renderer)
+        self.assertIn('tags=("artwork-base",)', renderer)
+        self.assertIn('canvas.tag_lower(base_item)', renderer)
+        self.assertNotIn('draw_artwork_lyric_overlay_safely(width, height)\n                    if progress < 1.0', renderer)
 
 
 
@@ -27341,13 +31746,14 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('state.get("preferred_geometry")', source)
         self.assertIn("save_external_album_art_geometry(geometry)", source)
 
-    def test_v120_q_opens_playlist_queue_and_still_dismisses_help(self) -> None:
-        """The V120 J/Q queue action remains consumable by modal Help."""
-        self.assertEqual(PLAYLIST_QUEUE_SEARCH, interpret_console_key("q"))
+    def test_v83_q_is_help_dismissal_when_overlay_open_but_quits_normally_elsewhere(self) -> None:
+        """V173 supersedes bare-Q quit: Q is INS-search, while modified Q stays quit."""
+        self.assertEqual(PLAYLIST_ADD_SEARCH_Q, interpret_console_key("q"))
+        self.assertEqual(QUIT_Q, interpret_console_key("q", ctrl=True))
         self.assertEqual(STOP, interpret_console_key("x"))
         import inspect
         source = inspect.getsource(play_audio_file)
-        self.assertIn("or action == PLAYLIST_QUEUE_SEARCH", source)
+        self.assertIn("PLAYLIST_ADD_SEARCH_Q", source)
         self.assertIn("action in {STOP, QUIT_Q}", source)
 
     def test_v83_static_header_reserves_directory_row_above_play(self) -> None:
@@ -27800,15 +32206,15 @@ class PlayWaveFileTests(unittest.TestCase):
 
 
 
-    def test_v87_ctrl_alt_i_maps_to_focus_only_idle_art_action(self) -> None:
-        """Ctrl+Alt+I should start idle art only through the focused console-input path."""
+    def test_v87_ctrl_alt_shift_i_maps_to_focus_only_idle_art_action(self) -> None:
+        """Legacy shifted I still reaches idle art; V175 also restores unshifted Ctrl+Alt+I."""
         self.assertEqual(
             EXTERNAL_ALBUM_ART_IDLE_START,
-            interpret_console_key("i", ctrl=True, alt=True),
+            interpret_console_key("i", ctrl=True, alt=True, shift=True),
         )
         self.assertEqual(
             EXTERNAL_ALBUM_ART_IDLE_START,
-            interpret_console_key("\x09", ctrl=True, alt=True),
+            interpret_console_key("\x09", ctrl=True, alt=True, shift=True),
         )
         import inspect
         source = inspect.getsource(read_windows_key_action)
@@ -27938,10 +32344,10 @@ class PlayWaveFileTests(unittest.TestCase):
         """The full usage may document art while compact ? help intentionally does not."""
         import inspect
         help_source = inspect.getsource(play_audio_file)
-        self.assertNotIn('("Ctrl+Alt+I", "start idle art/gallery")', help_source)
+        self.assertNotIn('("Ctrl+Alt+Shift+I", "start idle art/gallery")', help_source)
         source = Path(__file__).read_text(encoding="utf-8")
         self.assertIn(
-            'usage_line("Ctrl+Alt+I", "start idle artwork routine immediately; focus-only;',
+            'usage_line("Ctrl+Alt+Shift+I", "start idle artwork routine immediately; focus-only;',
             source,
         )
 
@@ -28529,7 +32935,7 @@ class PlayWaveFileTests(unittest.TestCase):
         close = source.index("web_server.close()")
         self.assertLess(start, call)
         self.assertLess(call, close)
-        self.assertIn('print(f"🌐 PAFPlayer web server OPEN on port {web_server.port}: {web_server.url}", flush=True)', source)
+        self.assertIn('PROGRAM_VERSION.casefold()} webserver OPEN on port {web_server.port}: {web_server.url}', source)
         playback_source = inspect.getsource(play_audio_file)
         self.assertIn("web_server.begin_track(", playback_source)
         self.assertIn("web_server.pop_action()", playback_source)
@@ -28965,7 +33371,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("❷   shillin", fixed)
 
     def test_v93_dense_three_field_row_uses_available_width_for_album_year_genre(self) -> None:
-        """When dense fallback has spare room, Album/Year/Genre should spread to the right edge."""
+        """V169 supersedes forced edge-filling: preserve all fields before spending slack."""
         rows, _ansi = format_tag_panel(
             {
                 "Artist": "Dethklok",
@@ -28976,10 +33382,11 @@ class PlayWaveFileTests(unittest.TestCase):
             },
             width=120,
         )
-        target = next(row for row in rows if "Album:" in row and "Year:" in row and "Genre:" in row)
-        self.assertEqual(120, terminal_cell_width(target))
-        self.assertGreater(target.index("Year:"), target.index("Album:") + 25)
-        self.assertGreater(target.index("Genre:"), target.index("Year:") + 15)
+        joined = "\n".join(rows)
+        for token in ("Act:", "Song:", "Album:", "Year:", "Genre:"):
+            self.assertIn(token, joined)
+        self.assertTrue(all(terminal_cell_width(row) <= 120 for row in rows))
+        self.assertLessEqual(len(rows), 2)
 
     def test_v93_last_play_uses_compact_age_and_never_ago(self) -> None:
         """The HUD vocabulary is Last play with minute/hour abbreviations, never prose 'ago'."""
@@ -29024,13 +33431,13 @@ class PlayWaveFileTests(unittest.TestCase):
         import inspect
         main_source = inspect.getsource(main)
         self.assertIn(
-            'print(f"🌐 PAFPlayer web server OPEN on port {web_server.port}: {web_server.url}", flush=True)',
+            'PROGRAM_VERSION.casefold()} webserver OPEN on port {web_server.port}: {web_server.url}',
             main_source,
         )
         server_source = inspect.getsource(PAFWebServer)
         self.assertIn("def claim_startup_announcement", server_source)
         playback_source = inspect.getsource(play_audio_file)
-        self.assertIn('web_plain = f"🌐 Web server: port {web_server.port}  {web_server.url}"', playback_source)
+        self.assertIn('web_plain = f"🌐 {PROGRAM_TITLE} {PROGRAM_VERSION.casefold()} webserver: port {web_server.port}  {web_server.url}"', playback_source)
 
 
 
@@ -29107,11 +33514,13 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('<canvas id="visualizer"', html)
         self.assertIn("requestAnimationFrame(drawSpectrum)", html)
         self.assertIn("spectrumTarget=Array.isArray(s.spectrum)?s.spectrum:[]", html)
+        self.assertIn("fetch('/api/spectrum'", html)
         import inspect
         source = inspect.getsource(play_audio_file)
         self.assertIn("web_raw_spectrum = spectrum_frame_interpolated_at(", source)
         self.assertIn("web_spectrum = visualizer_mode_heights(", source)
-        self.assertIn("spectrum=web_spectrum", source)
+        self.assertIn("web_server.publish_spectrum(web_spectrum)", source)
+        self.assertNotIn("spectrum=web_spectrum", source)
         self.assertIn("(drcs_enabled or web_server is not None)", source)
 
     def test_v95_web_document_title_is_exact_console_title_string(self) -> None:
@@ -29198,10 +33607,11 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('class="wawi stop"', html)
         self.assertIn("border:2px outset", html)
         self.assertIn("action('web-play')", html)
-        self.assertIn("action('web-pause')", html)
+        self.assertIn("action('pause-toggle')", html)
         self.assertIn("action('stop')", html)
+        self.assertIn('id="pauseResumeButton"', html)
         self.assertTrue(paf_web_action_is_allowed(WEB_PLAY))
-        self.assertTrue(paf_web_action_is_allowed(WEB_PAUSE))
+        self.assertTrue(paf_web_action_is_allowed(PAUSE_TOGGLE))
 
     def test_v95_web_maintenance_contract_is_in_source_and_ui(self) -> None:
         """Future control additions carry an explicit reminder to update the browser too."""
@@ -29255,7 +33665,7 @@ class PlayWaveFileTests(unittest.TestCase):
 
 
     def test_v96_hud_right_justifies_song_and_aligns_year_colon_under_song(self) -> None:
-        """Reproduce the supplied MLP screenshot layout including colons inside values."""
+        """MLP regression: preserve full long values and take free semantic colon alignment."""
         tags = {
             "Artist": "My Little Pony: Friendship Is Magic",
             "Song": "Discord Remix Compilation: part 1 of 4 (G minor) (instrumental)",
@@ -29264,24 +33674,16 @@ class PlayWaveFileTests(unittest.TestCase):
             "Genre": "Orchestral",
         }
         rows, _ansi = format_tag_panel(tags, width=145)
-        self.assertGreaterEqual(len(rows), 2)
-        self.assertIn("Act:", rows[0])
-        self.assertIn("Song:", rows[0])
-        self.assertIn("Album:", rows[1])
-        self.assertIn("Year:", rows[1])
-        self.assertIn("Genre:", rows[1])
+        self.assertEqual(2, len(rows))
+        joined = "\n".join(rows)
+        for token in ("Act:", "Song:", "Album:", "Year:", "Genre:"):
+            self.assertIn(token, joined)
+        self.assertIn("Discord Remix Compilation: part 1 of 4 (G minor) (instrumental)", joined)
+        self.assertTrue(all(terminal_cell_width(row) <= 145 for row in rows))
 
-        # Song's value is right-justified against the usable HUD edge.
-        self.assertEqual(145, terminal_cell_width(rows[0]))
-        self.assertTrue(rows[0].endswith("(instrumental)"))
-
-        song_colon = terminal_cell_width(
-            rows[0][: rows[0].index("Song:") + len("Song")]
-        )
-        year_colon = terminal_cell_width(
-            rows[1][: rows[1].index("Year:") + len("Year")]
-        )
-        self.assertEqual(song_colon, year_colon)
+        colons = dict(hud_metadata_label_colons(rows))
+        self.assertEqual(colons["Act"], colons["Year"])
+        self.assertEqual(colons["Song"], colons["Genre"])
 
     def test_v96_hud_alignment_ignores_colons_inside_artist_and_song_values(self) -> None:
         """Value punctuation must never be collected by the remembered-colon scanner."""
@@ -29315,7 +33717,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("MOUSEEVENTF_LEFTDOWN", source)
         self.assertIn("MOUSEEVENTF_LEFTUP", source)
         self.assertIn("user32.SetCursorPos(int(old_point.x), int(old_point.y))", source)
-        self.assertIn("user32.SetForegroundWindow(wintypes.HWND(previous_hwnd))", source)
+        self.assertIn("windows_restore_foreground_window(restore_hwnd)", source)
         self.assertIn('state["attention_acknowledged"] = True', source)
         self.assertIn("root.after(", source)
         self.assertIn("acknowledge_created_window_attention_once(hwnd)", source)
@@ -29680,16 +34082,16 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("Speed 1×", catalog)
 
     def test_v102_external_art_native_size_and_safe_floating_lyrics_contract(self) -> None:
-        """V102 makes the art controls conventional and fixes 64-bit floating hit tests."""
+        """V102 art controls remain safe while V180 expands lyrics to artwork/floating/both."""
         self.assertGreaterEqual(int(PROGRAM_VERSION.removeprefix("V")), 102)
-        self.assertEqual(("off", "artwork", "floating"), EXTERNAL_ALBUM_ART_LYRICS_MODES)
+        self.assertEqual(("artwork", "floating", "both"), EXTERNAL_ALBUM_ART_LYRICS_MODES)
         self.assertEqual(5, external_album_art_scaled_border_pixels(96))
         self.assertEqual(8, external_album_art_scaled_border_pixels(144))
         self.assertEqual(10, external_album_art_scaled_border_pixels(192))
         snapped = snap_external_album_art_geometry_to_aspect_keep_origin(
             "1010x700+100+100",
             2.0,
-            [(0, 0, 3840, 2160, True, r"\\.\DISPLAY1")],
+            [(0, 0, 3840, 2160, True, r"\.\DISPLAY1")],
             preserve="width",
             inset_pixels=5,
         )
@@ -29697,9 +34099,7 @@ class PlayWaveFileTests(unittest.TestCase):
         boxes = [(10, 20, 30, 50), (40, 20, 55, 50)]
         self.assertTrue(floating_lyric_point_is_clickable(15, 25, boxes))
         self.assertFalse(floating_lyric_point_is_clickable(35, 25, boxes))
-        self.assertTrue(
-            floating_lyric_point_is_clickable(35, 25, boxes, ctrl_down=True)
-        )
+        self.assertTrue(floating_lyric_point_is_clickable(35, 25, boxes, ctrl_down=True))
 
         import inspect
         art_source = inspect.getsource(ExternalAlbumArtWindow)
@@ -29713,7 +34113,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("def snap_size_to_square", art_source)
         self.assertIn("def ensure_titlebar_lyrics_button", art_source)
         self.assertIn("def cycle_lyrics_mode", art_source)
-        self.assertIn('"Lyrics: Off"', art_source)
+        self.assertIn('"Lyrics: Both"', art_source)
         self.assertIn('relief="raised"', art_source)
         self.assertNotIn("def apply_native_art_size", art_source)
         self.assertIn('ctypes.c_void_p(original)', art_source)
@@ -29752,7 +34152,8 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('label="Always on top"', art_source)
         self.assertIn('state["track_identity"]', art_source)
         self.assertIn("ImageOps.contain", art_source)
-        self.assertIn('Image.new("RGB", (max(1, width), max(1, height)), "black")', art_source)
+        self.assertIn('Image.new("RGBA", (max(1, width), max(1, height)), (0, 0, 0, 0))', art_source)
+        self.assertIn('root.attributes("-transparentcolor", art_transparent)', art_source)
         self.assertNotIn("— play_audio_file", source)
 
     def test_v104_gui_lyric_animation_never_full_repaints_art(self) -> None:
@@ -29765,7 +34166,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("canvas.itemconfigure(", art_source)
         self.assertIn("floating_canvas.itemconfigure(", art_source)
         self.assertNotIn("root.after(180, schedule_render)", art_source)
-        self.assertIn("Waiting for lyrics…", art_source)
+        self.assertNotIn('text="Waiting for lyrics…"', art_source)
         self.assertNotIn("sys.stdout", art_source)
 
     def test_v105_gui_mode_change_uses_absolute_hud_anchor(self) -> None:
@@ -29776,7 +34177,8 @@ class PlayWaveFileTests(unittest.TestCase):
         player_source = inspect.getsource(play_audio_file)
         art_source = inspect.getsource(ExternalAlbumArtWindow)
         self.assertIn("ui_origin_viewport_row", player_source)
-        self.assertIn("console_cursor_and_viewport_top()", player_source)
+        self.assertIn("stable_viewport_ui_origin", player_source)
+        self.assertNotIn("console_cursor_and_viewport_top()", player_source)
         self.assertNotIn('\\r\\033[s\\033[?7l', player_source)
         self.assertNotIn('\\033[u', player_source)
         self.assertIn("consume_terminal_redraw_request()", player_source)
@@ -30046,11 +34448,11 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("playback/track controls stay live", renderer)
 
     def test_v110_tk_fonts_bind_with_root_not_invalid_master_option(self) -> None:
-        """Tkinter Font accepts root=; master= leaked to Tcl as invalid -master."""
+        """Tk Font construction remains root-bound; floating text may use Pillow in V180."""
         import inspect
         art = inspect.getsource(ExternalAlbumArtWindow)
-        self.assertGreaterEqual(art.count("root=window,"), 2)
         self.assertIn('tkfont.Font(root=root, family="Segoe UI"', art)
+        self.assertIn("def build_floating_lyric_mask", art)
         self.assertNotIn("tkfont.Font(\n                    master=window,", art)
         self.assertNotIn("tkfont.Font(master=root", art)
 
@@ -30161,85 +34563,1395 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('(0x28, "P", VOLUME_DOWN_5)', source)
         self.assertIn("ctrl_down and alt_down", source)
 
-    def test_v120_release_identity_preserves_v112_baseline(self) -> None:
-        self.assertEqual("V120", PROGRAM_VERSION)
+    def test_v186_release_identity(self) -> None:
+        self.assertGreaterEqual(int(PROGRAM_VERSION.removeprefix("V")), 186)
+        self.assertIn(f"v{PROGRAM_VERSION.removeprefix('V')}", PLAYER_BUILD_ID)
+
+    def test_v186_coloring_header_is_sticky_outside_scroller(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('sticky_header = tk.Frame(browser', source)
+        self.assertIn('sticky_header.grid(row=0, column=0, sticky="ew")', source)
+        self.assertIn('scroller.grid(row=1, column=0, sticky="nsew")', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('sticky_header.grid_columnconfigure(4, weight=1, minsize=240)', source)
+            self.assertIn('table.grid_columnconfigure(4, weight=1, minsize=240)', source)
+        else:
+            self.assertIn('sticky_header.grid_columnconfigure(4, weight=0, minsize=fixed_widths[4])', source)
+            self.assertIn('table.grid_columnconfigure(4, weight=0, minsize=fixed_widths[4])', source)
+            expected_controls_width = 620 if int(PROGRAM_VERSION.removeprefix("V")) >= 192 else 360
+            self.assertIn(f'sticky_header.grid_columnconfigure(5, weight=1, minsize={expected_controls_width})', source)
+        self.assertNotIn('tk.Label(\n                    table,\n                    text=heading,', source)
+
+    def test_v186_palette_popup_has_no_focusout_race_and_applies_selection(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        popup_start = source.index('def open_palette_picker')
+        popup_end = source.index('mode_count = len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS)', popup_start)
+        popup = source[popup_start:popup_end]
+        self.assertIn('popup.grab_set()', popup)
+        self.assertIn('set_karaoke_color_palette(target, mode_index, name)', popup)
+        self.assertIn('<ButtonRelease-1>', popup)
+        self.assertNotIn('<FocusOut>', popup)
+
+    def test_v186_row_samples_fit_full_single_line_and_remain_animated(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        renderer_start = source.index('def render_karaoke_color_config_preview')
+        renderer_end = source.index('def color_config_window_is_viewable', renderer_start)
+        renderer = source[renderer_start:renderer_end]
+        self.assertIn('sample_text = EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM', renderer)
+        self.assertIn('sample_text = EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM', renderer)
+        self.assertIn('layout_key = (bool(hero), width, height)', renderer)
+        self.assertIn('(width - tw) // 2 - box[0]', renderer)
+        rows_start = source.index('def animate_karaoke_color_config_rows')
+        rows_end = source.index('def show_karaoke_color_configurator', rows_start)
+        rows = source[rows_start:rows_end]
+        self.assertIn('phase = time.monotonic()', rows)
+        self.assertIn('for mode_index in visible_indices:', rows)
+        self.assertIn('render_karaoke_color_config_preview(mode_index, preview_canvas, phase)', rows)
+
+    def test_v186_name_click_previews_without_enabling(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        selector_start = source.index('def select_color_config_preview')
+        selector_end = source.index('for index, label in enumerate', selector_start)
+        selector = source[selector_start:selector_end]
+        self.assertIn('state["color_config_preview_mode"]', selector)
+        self.assertNotIn('set_karaoke_color_mode', selector)
+        self.assertIn('title_label.bind("<Button-1>"', source)
+        hero_start = source.index('def animate_karaoke_color_config_hero')
+        hero_end = source.index('def animate_karaoke_color_config_rows', hero_start)
+        hero = source[hero_start:hero_end]
+        self.assertIn('state.get("color_config_preview_mode")', hero)
+        self.assertIn('render_karaoke_color_config_preview(preview_mode', hero)
+
+    def test_v192_release_identity_and_three_layer_coloring_model(self) -> None:
+        self.assertEqual("V197", PROGRAM_VERSION)
+        self.assertIn("v197", PLAYER_BUILD_ID)
+        self.assertEqual(("pattern", "rainbow-glyphs", "solid"), EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES)
+        self.assertEqual(13, len(EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS))
+        self.assertEqual(20, len(EXTERNAL_ALBUM_ART_KARAOKE_TIMING_TYPES))
+        self.assertEqual(("none", "inverse"), EXTERNAL_ALBUM_ART_KARAOKE_TIMING_TYPES[:2])
+        self.assertEqual(3, len(normalize_external_karaoke_brightnesses(())))
+        self.assertEqual((1.0, 1.0, 1.0), normalize_external_karaoke_saturations(()))
         self.assertEqual(
-            "2026-08-11-v112-baseline-ledger-preservation-v120",
-            PLAYER_BUILD_ID,
+            (KARAOKE_SHADOW_SIZE_DEFAULT,) * 3,
+            normalize_external_karaoke_shadow_sizes(()),
         )
 
-    def test_v120_replaygain_bake_is_focused_lazy_and_shared(self) -> None:
+    def test_v192_configurator_has_destination_tabs_treatments_timing_and_readability(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('weight=4 if selected else 1', source)
+        self.assertIn('text="Pattern:"', source)
+        self.assertIn('values=EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_LABELS', source)
+        self.assertIn('text="Timing:"', source)
+        self.assertIn('values=EXTERNAL_ALBUM_ART_KARAOKE_TIMING_LABELS', source)
+        self.assertIn('text="Brightness:"', source)
+        self.assertIn('text="Saturation:"', source)
+        self.assertIn('text="Shadow size:"', source)
+        self.assertNotIn('text="Timed"', source)
+
+    def test_v192_timing_tone_and_shadow_renderer_contract(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        renderer = source[source.index('def pattern_rgba_for_mask'):source.index('def plasma_rgba_for_mask')]
+        self.assertIn('ImageEnhance.Color', renderer)
+        self.assertIn('ImageEnhance.Brightness', renderer)
+        self.assertIn('timing_type in {"inverse", "complement-trail"}', renderer)
+        self.assertIn('timing_type == "underline"', renderer)
+        self.assertIn('timing_type in {"italic", "cursive"}', renderer)
+        self.assertIn('ImageFilter.MaxFilter(filter_size)', renderer)
+        self.assertIn('ImageChops.subtract(mask.filter', renderer)
+        self.assertNotIn('shadow_alpha.paste(mask, (shadow, shadow))', renderer)
+
+    def test_v192_floating_edit_focus_border_and_unpadded_title_contract(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('def set_floating_edit_mode', source)
+        self.assertIn('window.overrideredirect(not enabled)', source)
+        self.assertIn('set_floating_edit_mode(True)', source)
+        self.assertIn('def restore_floating_transparency_if_unfocused', source)
+        self.assertIn('root.after(180, focus_chrome_watch)', source)
+        caption = source[source.index('def centered_native_caption_text'):source.index('def window_is_active')]
+        self.assertIn('str(value or "").strip()', caption)
+        self.assertIn('return str(value or "").strip()', caption)
+
+    def test_v192_floating_overlay_is_content_sized_and_drag_stable(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('def fit_floating_window_to_content', source)
+        self.assertIn('fit_floating_window_to_content(1, 1)', source)
+        self.assertIn('layout_width = max(360, min(1280', source)
+        self.assertIn('origin = (0, 0)', source)
+        self.assertIn('state.get("floating_drag") is not None', source)
+        self.assertIn('window.update_idletasks()', source)
+        self.assertIn('Set exact screen position', source)
+        self.assertIn('floating.minsize(1, 1)', source)
+
+    def test_v192_resize_preserves_floating_center_and_artwork_rectangle(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('"floating_content_center": None', source)
+        self.assertIn('state["floating_content_center"] = (', source)
+        self.assertIn('x = round(float(anchor[0]) - max(1, int(width)) / 2.0)', source)
+        compact_start = source.index('def maybe_compact_window_to_art')
+        compact_end = source.index('def render_karaoke_color_config_preview', compact_start)
+        compact = source[compact_start:compact_end]
+        self.assertIn('if bool(state.get("manual_size")):', compact)
+        self.assertIn('return False', compact)
+
+    def test_v192_configurator_throttles_visualizer_instead_of_pausing(self) -> None:
+        import inspect
+        source = inspect.getsource(play_audio_file)
+        self.assertIn('config_visualizer_low_fps = bool(', source)
+        self.assertIn('config_visualizers_paused = False', source)
+        self.assertIn('visualizer_period = 0.5 if config_visualizer_low_fps', source)
+
+    def test_v196_ctrl_alt_f6_restores_art_then_overlays_console_visualizer(self) -> None:
         import inspect
         self.assertEqual(
-            REPLAYGAIN_BAKE,
-            interpret_console_key("b", ctrl=True, alt=True),
+            LAYERED_ART_VISUALIZER_TOGGLE,
+            interpret_console_key("\x00", extended="@", ctrl=True, alt=True),
         )
-        self.assertIn("ClaireAudioProcessing", _CLAIRE_HELPERS)
-        wrapper = inspect.getsource(bake_replaygain_into_audio)
-        self.assertIn('_import_claire_helper("ClaireAudioProcessing")', wrapper)
-        self.assertIn("helper.bake_replaygain_into_audio", wrapper)
-        self.assertIn("def confirm_replaygain_bake", inspect.getsource(play_audio_file))
+        source = inspect.getsource(play_audio_file)
+        self.assertIn('layer = render_sixel_album_art_layer(', source)
+        self.assertIn('write_console_bytes(layer)', source)
+        self.assertIn('show_status(displayed_position, indicator, visualizer_only=True)', source)
+        self.assertIn('layered_art_restore_period(visualizer_columns, drcs_rows + LYRIC_ROWS)', source)
+        self.assertIn('not album_art_visualizer_enabled or layered_art_visualizer_enabled', source)
 
-    def test_v120_history_requires_exact_row_readback(self) -> None:
-        class MissingReadbackDatabase:
-            def execute(self, statement, _parameters):
-                if statement.lstrip().upper().startswith("SELECT"):
-                    return self
-                return self
+    def test_v197_floating_layout_tabs_and_animation_optimization(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('state["floating_layout_size"] = (width, height)', source)
+        self.assertIn('save_external_floating_lyrics_layout_size(width, height)', source)
+        self.assertIn('saved_layout = state.get("floating_layout_size")', source)
+        self.assertIn('(("artwork", "🎨 Artwork Lyric Coloring"), ("floating", "☁ Floating Lyric Coloring"))', source)
+        renderer = source[source.index('def pattern_rgba_for_mask'):source.index('def plasma_rgba_for_mask')]
+        self.assertIn('state["lyric_glyph_run_cache"] = (mask, runs)', renderer)
+        self.assertIn('state["lyric_shadow_alpha_cache"] = (mask, filter_size, shadow_alpha)', renderer)
+        self.assertIn('tile = ImageEnhance.Color(tile)', renderer)
+        self.assertIn('Image.Resampling.BILINEAR', renderer)
+        self.assertIn('animation_ms = 90 if pixel_area < 180_000', source)
 
-            def fetchone(self):
-                return None
+    def test_v197_layered_art_cache_avoids_reextract_and_adapts_bandwidth(self) -> None:
+        import inspect
+        source = inspect.getsource(render_sixel_album_art_layer)
+        self.assertLess(source.index('if key in cache:'), source.index('art = extract_album_art(audio_path)'))
+        self.assertIn('"--colors=64"', source)
+        self.assertEqual(0.5, layered_art_restore_period(100, 20))
+        self.assertEqual(0.75, layered_art_restore_period(140, 30))
+        self.assertEqual(1.0, layered_art_restore_period(240, 50))
 
-            def commit(self):
-                return None
+    def test_v188_coloring_table_gives_extra_width_to_style_controls(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('(0, "Mode", "center")', source)
+        self.assertIn('(2, "Fave", "center")', source)
+        self.assertIn('4: 360' if int(PROGRAM_VERSION.removeprefix("V")) >= 192 else '4: 520', source)
+        self.assertIn('table.grid_columnconfigure(4, weight=0, minsize=fixed_widths[4])', source)
+        expected_controls_width = 620 if int(PROGRAM_VERSION.removeprefix("V")) >= 192 else 360
+        self.assertIn(f'table.grid_columnconfigure(5, weight=1, minsize={expected_controls_width})', source)
+        self.assertIn(f'sticky_header.grid_columnconfigure(5, weight=1, minsize={expected_controls_width})', source)
 
-            def close(self):
-                return None
+    def test_v188_row_samples_use_large_consistent_height_driven_text(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        renderer_start = source.index('def render_karaoke_color_config_preview')
+        renderer_end = source.index('def color_config_window_is_viewable', renderer_start)
+        renderer = source[renderer_start:renderer_end]
+        self.assertIn('desired_size = max(24, round(height * 0.44)) if hero else max(26, round(height * 0.58))', renderer)
+        self.assertIn('minimum_size = 22 if hero else desired_size', renderer)
+        self.assertIn('truncate_for_measure(sample_text, max_text_width, pillow_measure)', renderer)
 
-        with mock.patch(
-            __name__ + ".playlist_history_connection",
-            return_value=MissingReadbackDatabase(),
+    def test_v188_row_animation_does_not_repaint_palette_picker_every_frame(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        rows_start = source.index('def animate_karaoke_color_config_rows')
+        rows_end = source.index('def show_karaoke_color_configurator', rows_start)
+        rows = source[rows_start:rows_end]
+        self.assertIn('render_karaoke_color_config_preview(mode_index, preview_canvas, phase)', rows)
+        self.assertNotIn('paint_palette_picker_canvas(', rows)
+        self.assertEqual(80, KARAOKE_COLOR_CONFIG_ROW_BASE_TICK_MS)
+        self.assertLessEqual(KARAOKE_COLOR_CONFIG_ROW_MAX_TICK_MS, 320)
+
+    def test_v188_timed_label_is_short_with_minilyrics_tooltip(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        if int(PROGRAM_VERSION.removeprefix("V")) >= 192:
+            self.assertNotIn('text="Timed"', source)
+            self.assertIn('text="Timing:"', source)
+            self.assertIn('values=EXTERNAL_ALBUM_ART_KARAOKE_TIMING_LABELS', source)
+        else:
+            self.assertIn('text="Timed"', source)
+            self.assertIn('Highlight progressively across each lyric line as its timed duration passes, similar to MiniLyrics', source)
+
+    def test_v187_solid_palette_is_spatially_solid_but_time_animated(self) -> None:
+        self.assertEqual(
+            external_album_art_karaoke_pattern_rgb("solid", 0.0, 0.0, 1.0, 0),
+            external_album_art_karaoke_pattern_rgb("solid", 40.0, 30.0, 1.0, 0),
+        )
+        self.assertNotEqual(
+            external_album_art_karaoke_pattern_rgb("solid", 0.0, 0.0, 0.0, 0),
+            external_album_art_karaoke_pattern_rgb("solid", 0.0, 0.0, 4.0, 0),
+        )
+
+    def test_v187_release_identity(self) -> None:
+        self.assertGreaterEqual(int(PROGRAM_VERSION.removeprefix("V")), 187)
+        self.assertIn(f"v{PROGRAM_VERSION.removeprefix('V')}", PLAYER_BUILD_ID)
+
+    def test_v187_coloring_table_has_separate_sample_and_controls_columns(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('(4, "Live sample", "center")', source)
+        self.assertIn('(5, "Style controls", "center")', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('table.grid_columnconfigure(4, weight=1, minsize=240)', source)
+        else:
+            self.assertIn('table.grid_columnconfigure(4, weight=0, minsize=fixed_widths[4])', source)
+            expected_controls_width = 620 if int(PROGRAM_VERSION.removeprefix("V")) >= 192 else 360
+            self.assertIn(f'table.grid_columnconfigure(5, weight=1, minsize={expected_controls_width})', source)
+        self.assertIn('controls_cell.grid(row=grid_row, column=5', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) >= 192:
+            self.assertIn('speed_scale.grid(row=3, column=1, columnspan=3', source)
+            self.assertIn('palette_picker.grid(row=1, column=1, columnspan=3', source)
+        else:
+            self.assertIn('speed_scale.grid(row=0, column=1', source)
+            self.assertIn('palette_picker.grid(row=1, column=1, columnspan=2', source)
+
+    def test_v187_row_preview_layout_is_mode_independent_and_centered(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        renderer_start = source.index('def render_karaoke_color_config_preview')
+        renderer_end = source.index('def color_config_window_is_viewable', renderer_start)
+        renderer = source[renderer_start:renderer_end]
+        self.assertIn('layout_key = (bool(hero), width, height)', renderer)
+        self.assertNotIn('layout_key = (bool(hero), int(mode_index), width, height)', renderer)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('desired_size = max(24, round(height * 0.44)) if hero else 20', renderer)
+        else:
+            self.assertIn('desired_size = max(24, round(height * 0.44)) if hero else max(26, round(height * 0.58))', renderer)
+            self.assertIn('minimum_size = 22 if hero else desired_size', renderer)
+        self.assertIn('(width - tw) // 2 - box[0]', renderer)
+        self.assertIn('(height - th) // 2 - box[1]', renderer)
+        self.assertIn('scaled_phase = raw_phase * karaoke_speed(target, mode_index)', renderer)
+
+    def test_v187_speed_range_is_point_one_to_six_x(self) -> None:
+        self.assertEqual(0.10, KARAOKE_COLOR_SPEED_MIN)
+        self.assertEqual(6.0, KARAOKE_COLOR_SPEED_MAX)
+        self.assertLessEqual(KARAOKE_COLOR_SPEED_MIN, 0.10)
+        self.assertGreaterEqual(KARAOKE_COLOR_SPEED_MAX, 6.0)
+
+    def test_v187_coloring_type_is_bolder_and_table_uses_one_pixel_rules(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('name_font = tkfont.Font(root=config, family="Segoe UI", size=11, weight="bold")', source)
+        self.assertIn('foreground="#111111"', source)
+        self.assertIn('table.configure(background="#c8c8c8")', source)
+        self.assertIn('padx=(0, 1), pady=(0, 1)', source)
+
+    def test_v184_release_identity(self) -> None:
+        self.assertGreaterEqual(int(PROGRAM_VERSION.removeprefix("V")), 184)
+        self.assertIn(f"v{PROGRAM_VERSION.removeprefix('V')}", PLAYER_BUILD_ID)
+
+    def test_v184_coloring_rows_give_sample_all_flexible_width(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertNotIn('uniform="half"', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            for column in range(4):
+                if int(PROGRAM_VERSION.removeprefix("V")) < 186:
+                    self.assertIn(f'table.grid_columnconfigure({column}, weight=0)', source)
+                else:
+                    self.assertIn(f'table.grid_columnconfigure({column}, weight=0, minsize=fixed_widths[{column}])', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('for column in (0, 1, 2, 3, 5):', source)
+            self.assertIn('table.grid_columnconfigure(column, weight=0, minsize=fixed_widths[column])', source)
+        else:
+            for column in range(5):
+                self.assertIn(f'table.grid_columnconfigure({column}, weight=0, minsize=fixed_widths[{column}])', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            self.assertIn('table.grid_columnconfigure(4, weight=1)', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('table.grid_columnconfigure(4, weight=1, minsize=240)', source)
+            self.assertIn('controls_cell.grid(row=grid_row, column=5', source)
+        else:
+            self.assertIn('table.grid_columnconfigure(4, weight=0, minsize=fixed_widths[4])', source)
+            expected_controls_width = 620 if int(PROGRAM_VERSION.removeprefix("V")) >= 192 else 360
+            self.assertIn(f'table.grid_columnconfigure(5, weight=1, minsize={expected_controls_width})', source)
+            self.assertIn('controls_cell.grid(row=grid_row, column=5', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            self.assertIn('enabled_radio.grid(row=grid_row, column=0', source)
+            self.assertIn('default_radio.grid(row=grid_row, column=1', source)
+            self.assertIn('favorite_checkbox.grid(row=grid_row, column=2', source)
+        else:
+            self.assertIn('for column, widget in ((0, enabled_radio), (1, default_radio), (2, favorite_checkbox)):', source)
+            self.assertIn('widget.grid(row=grid_row, column=column', source)
+        self.assertIn('title_label.grid(row=grid_row, column=3', source)
+        self.assertIn('sample_cell.grid(row=grid_row, column=4', source)
+        self.assertLessEqual(KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT, 96)
+
+    def test_v184_every_visible_coloring_sample_animates_each_row_pass(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('for mode_index in visible_indices:', source)
+        self.assertNotIn('count = min(KARAOKE_COLOR_CONFIG_ROW_BATCH, len(visible_indices))', source)
+        self.assertIn('preview.after_idle(', source)
+        self.assertIn('adapt_karaoke_color_config_row_interval', source)
+
+    def test_v182_lyric_buttons_have_topmost_context_menus_and_floating_reveal(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn("EXTERNAL_ALBUM_ART_TOPMOST_VALUE", Path(__file__).read_text(encoding="utf-8"))
+        self.assertIn('art_color_button.bind("<Button-3>"', source)
+        self.assertIn('floating_color_button.bind(', source)
+        self.assertIn('label="Always on top"', source)
+        self.assertIn('label="Make floating lyrics window appear"', source)
+        self.assertIn("def reveal_floating_lyrics_window", source)
+        self.assertIn("save_external_album_art_topmost(enabled)", source)
+        self.assertIn("save_external_floating_lyrics_topmost(enabled)", source)
+
+    def test_v182_empty_floating_window_has_no_waiting_placeholder_and_lyric_click_reveals_it(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertNotIn('text="Waiting for lyrics…"', source)
+        self.assertIn("def artwork_lyric_click_reveals_floating", source)
+        self.assertIn('canvas.find_withtag("current")', source)
+        self.assertIn('"artwork-lyric-plasma"', source)
+        self.assertIn("reveal_floating_lyrics_window()", source)
+
+    def test_v182_floating_configurator_keeps_real_floating_lyrics_live(self) -> None:
+        import inspect
+        constructor = inspect.getsource(ExternalAlbumArtWindow.__init__)
+        update = inspect.getsource(ExternalAlbumArtWindow.update_lyric)
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn("self._color_configurator_target: str | None = None", constructor)
+        self.assertIn('self._color_configurator_target != "floating"', update)
+        self.assertIn('self._color_configurator_target = target', source)
+        self.assertIn('if target != "floating":', source)
+        self.assertIn(
+            'self._color_configurator_target != "floating"',
+            source,
+        )
+        self.assertIn("self._color_configurator_target = None", source)
+
+    def test_v181_visual_palette_picker_previews_style_and_preserves_arrow_cycling(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('def paint_palette_picker_canvas(', source)
+        self.assertIn('external_album_art_karaoke_pattern_rgb(', source)
+        self.assertIn('def open_palette_picker(', source)
+        self.assertIn('palette_picker = tk.Canvas(', source)
+        self.assertIn('show_arrow=False', source)
+        self.assertIn('"<Up>"', source)
+        self.assertIn('"<Down>"', source)
+        self.assertNotIn('palette_combo = ttk.Combobox(', source)
+
+    def test_v181_album_art_has_one_outer_focus_border_and_borderless_canvas(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('art_border_frame = tk.Frame(', source)
+        self.assertIn('canvas = tk.Canvas(\n            art_border_frame,', source)
+        self.assertIn('highlightthickness=0', source)
+        self.assertIn('canvas.pack(\n            fill="both", expand=True,\n            padx=initial_art_border, pady=initial_art_border,', source)
+        self.assertIn('border_frame.configure(background=border_color)', source)
+        self.assertIn('inset = 2', source)
+        self.assertNotIn('canvas.configure(\n                    highlightbackground=border_color', source)
+
+    def test_v180_three_way_external_lyric_destinations_support_both(self) -> None:
+        self.assertEqual(("artwork", "floating", "both"), EXTERNAL_ALBUM_ART_LYRICS_MODES)
+        self.assertTrue(lyrics_mode_includes_artwork(0))
+        self.assertFalse(lyrics_mode_includes_floating(0))
+        self.assertFalse(lyrics_mode_includes_artwork(1))
+        self.assertTrue(lyrics_mode_includes_floating(1))
+        self.assertTrue(lyrics_mode_includes_artwork(2))
+        self.assertTrue(lyrics_mode_includes_floating(2))
+
+    def test_v180_art_and_floating_coloring_profiles_are_independent(self) -> None:
+        self.assertNotEqual(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODE_VALUE, EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_MODE_VALUE)
+        self.assertNotEqual(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_PALETTES_VALUE, EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_PALETTES_VALUE)
+        self.assertNotEqual(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_SPEEDS_VALUE, EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_SPEEDS_VALUE)
+        self.assertNotEqual(EXTERNAL_ALBUM_ART_KARAOKE_TIMED_EMPHASIS_VALUE, EXTERNAL_FLOATING_LYRICS_KARAOKE_TIMED_EMPHASIS_VALUE)
+        self.assertEqual(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES), len(load_external_album_art_karaoke_color_speeds()))
+        self.assertEqual(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES), len(load_external_floating_karaoke_color_speeds()))
+
+    def test_v180_configurator_has_destination_buttons_enabled_default_favorite_speed_and_emphasis(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('text="🔡"', source)
+        self.assertIn('text="🔠"', source)
+        self.assertIn('sync_lyric_config_buttons_visibility', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('(0, "Enabled", "center")', source)
+            self.assertIn('(2, "Favorite", "center")', source)
+        else:
+            self.assertIn('(0, "Mode", "center")', source)
+            self.assertIn('(2, "Fave", "center")', source)
+        self.assertIn('(1, "Default", "center")', source)
+        self.assertIn('palette_picker = tk.Canvas(', source)
+        self.assertIn('paint_palette_picker_canvas', source)
+        self.assertIn('"<Up>"', source)
+        self.assertIn('"<Down>"', source)
+        self.assertIn('tk.Scale(', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) >= 192:
+            self.assertIn('text="Timing:"', source)
+            self.assertIn('values=EXTERNAL_ALBUM_ART_KARAOKE_TIMING_LABELS', source)
+            self.assertNotIn('text="Timed"', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('text="Timed emphasis"', source)
+        else:
+            self.assertIn('text="Timed"', source)
+            self.assertIn('similar to MiniLyrics', source)
+        self.assertNotIn('text="📺"', source)
+
+    def test_v180_timed_emphasis_progress_tracks_timed_and_untimed_lines(self) -> None:
+        timed = [(10.0, 14.0, "one"), (14.0, 18.0, "two")]
+        self.assertAlmostEqual(0.5, lyric_emphasis_progress_at(timed, 12.0), places=6)
+        self.assertEqual(0.0, lyric_emphasis_progress_at(timed, 9.0))
+        self.assertEqual(1.0, lyric_emphasis_progress_at(timed, 18.0))
+        untimed = [(0.0, None, "one")]
+        self.assertAlmostEqual(0.25, lyric_emphasis_progress_at(untimed, 1.0), places=6)
+
+    def test_v180_playback_publishes_emphasis_progress_to_external_lyrics(self) -> None:
+        import inspect
+        playback_source = inspect.getsource(play_audio_file)
+        gui_source = inspect.getsource(ExternalAlbumArtWindow)
+        self.assertIn('lyric_emphasis_progress_at(', playback_source)
+        self.assertIn('def update_lyric(self, lyric: str, emphasis_progress: float = 0.0)', gui_source)
+        self.assertIn('("lyric-progress", progress)', gui_source)
+        self.assertIn('emphasis_progress=', gui_source)
+
+    def test_v177_twelve_more_lettering_modes_and_independent_palettes(self) -> None:
+        expected_mode_count = 3 if int(PROGRAM_VERSION.removeprefix("V")) >= 192 else 15
+        self.assertEqual(expected_mode_count, len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES))
+        self.assertEqual(len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES), len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS))
+        if int(PROGRAM_VERSION.removeprefix("V")) >= 192:
+            self.assertEqual(("pattern", "rainbow-glyphs", "solid"), EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES)
+        else:
+            self.assertEqual(("plasma", "rainbow-glyphs", "solid"), EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES[:3])
+        expected_new = {
+            "horizontal-wave", "vertical-wave", "diagonal-wave", "radial-ripple",
+            "vortex", "checker-pulse", "neon-stripes", "lava-lamp",
+            "aurora-curtain", "electric-zigzag", "sparkle-field", "kaleidoscope",
+        }
+        self.assertEqual(
+            expected_new,
+            set(EXTERNAL_ALBUM_ART_KARAOKE_PATTERN_TREATMENTS[1:])
+            if int(PROGRAM_VERSION.removeprefix("V")) >= 192
+            else set(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES[3:]),
+        )
+        palettes = normalize_external_album_art_karaoke_color_palettes([0, 3, 999])
+        self.assertEqual(expected_mode_count, len(palettes))
+        self.assertEqual(0, palettes[0])
+        self.assertEqual(3, palettes[1])
+        self.assertEqual(len(PALETTE_NAMES) - 1, palettes[2])
+        self.assertNotEqual(
+            external_album_art_karaoke_pattern_rgb("radial-ripple", 4, 7, 1.2, 0),
+            external_album_art_karaoke_pattern_rgb("radial-ripple", 4, 7, 1.2, 2),
+        )
+
+    def test_v177_configurator_palette_dropdowns_persist_per_style(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertEqual("ExternalAlbumArtKaraokeColorPalettes", EXTERNAL_ALBUM_ART_KARAOKE_COLOR_PALETTES_VALUE)
+        self.assertIn('text="Palette:"', source)
+        self.assertIn('palette_picker = tk.Canvas(', source)
+        self.assertIn('open_palette_picker', source)
+        self.assertIn('palette_picker.bind(\n                    "<Up>"', source)
+        self.assertIn('palette_picker.bind(\n                    "<Down>"', source)
+        self.assertIn('set_karaoke_color_palette', source)
+        self.assertIn('state["color_config_palette_vars"]', source)
+
+    def test_v177_configurator_owns_animation_budget_and_pauses_other_visualizers(self) -> None:
+        import inspect
+        constructor = inspect.getsource(ExternalAlbumArtWindow.__init__)
+        art_source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        player_source = inspect.getsource(play_audio_file)
+        server_source = inspect.getsource(PAFWebServer)
+        html = _paf_web_html()
+        self.assertIn('self._color_configurator_active = threading.Event()', constructor)
+        self.assertIn('self._color_configurator_active.set()', art_source)
+        self.assertIn('self._color_configurator_active.clear()', art_source)
+        self.assertIn('and not config_visualizers_paused', player_source)
+        self.assertIn('visualizer_due and not config_visualizers_paused', player_source)
+        self.assertIn('web_server.set_visualizer_paused(config_visualizers_paused)', player_source)
+        self.assertIn('and external_album_art_window.color_configurator_active', player_source)
+        self.assertIn('def set_visualizer_paused', server_source)
+        self.assertIn('if bool(self._spectrum_state.get("paused", False)):', server_source)
+        self.assertIn('if(spectrumPaused){requestAnimationFrame(drawSpectrum);return;}', html)
+        self.assertIn('if(spectrumPaused){requestAnimationFrame(animateLyric);return;}', html)
+        self.assertIn('KARAOKE_COLOR_CONFIG_ROW_BATCH', art_source)
+        self.assertIn('viewport_top = int(scroller.winfo_rooty())', art_source)
+        self.assertIn('if visible_indices and isinstance(canvases, dict):', art_source)
+
+    def test_v185_coloring_configurator_is_one_shared_five_column_table(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        if int(PROGRAM_VERSION.removeprefix("V")) >= 197:
+            self.assertIn('"🎨 Artwork Lyric Coloring"', source)
+            self.assertIn('"☁ Floating Lyric Coloring"', source)
+        else:
+            self.assertIn('"Artwork Lyric Coloring"', source)
+            self.assertIn('"Floating Lyric Coloring"', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) >= 192:
+            self.assertIn('font=("Segoe UI", 26 if selected else 12, "bold")', source)
+            self.assertIn('weight=4 if selected else 1', source)
+        else:
+            self.assertIn('font=("Segoe UI", 30, "bold")', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            if int(PROGRAM_VERSION.removeprefix("V")) < 186:
+                self.assertIn('table.grid_columnconfigure(0, weight=0)', source)
+                self.assertIn('table.grid_columnconfigure(1, weight=0)', source)
+                self.assertIn('table.grid_columnconfigure(2, weight=0)', source)
+                self.assertIn('table.grid_columnconfigure(3, weight=0)', source)
+            else:
+                self.assertIn('table.grid_columnconfigure(0, weight=0, minsize=fixed_widths[0])', source)
+                self.assertIn('table.grid_columnconfigure(1, weight=0, minsize=fixed_widths[1])', source)
+                self.assertIn('table.grid_columnconfigure(2, weight=0, minsize=fixed_widths[2])', source)
+                self.assertIn('table.grid_columnconfigure(3, weight=0, minsize=fixed_widths[3])', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('for column in (0, 1, 2, 3, 5):', source)
+            self.assertIn('table.grid_columnconfigure(column, weight=0, minsize=fixed_widths[column])', source)
+        else:
+            for column in range(5):
+                self.assertIn(f'table.grid_columnconfigure({column}, weight=0, minsize=fixed_widths[{column}])', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            self.assertIn('table.grid_columnconfigure(4, weight=1)', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('table.grid_columnconfigure(4, weight=1, minsize=240)', source)
+            self.assertIn('controls_cell.grid(row=grid_row, column=5', source)
+        else:
+            self.assertIn('table.grid_columnconfigure(4, weight=0, minsize=fixed_widths[4])', source)
+            expected_controls_width = 620 if int(PROGRAM_VERSION.removeprefix("V")) >= 192 else 360
+            self.assertIn(f'table.grid_columnconfigure(5, weight=1, minsize={expected_controls_width})', source)
+            self.assertIn('controls_cell.grid(row=grid_row, column=5', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('(0, "Enabled", "center")', source)
+            self.assertIn('(2, "Favorite", "center")', source)
+        else:
+            self.assertIn('(0, "Mode", "center")', source)
+            self.assertIn('(2, "Fave", "center")', source)
+        self.assertIn('(1, "Default", "center")', source)
+        self.assertIn('(3, "Color mode", "e")' if int(PROGRAM_VERSION.removeprefix("V")) >= 192 else '(3, "Coloring type", "e")', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            self.assertIn('(4, "Live sample / controls", "center")', source)
+        else:
+            self.assertIn('(4, "Live sample", "center")', source)
+            self.assertIn('(5, "Style controls", "center")', source)
+        self.assertNotIn('row.grid_columnconfigure(4, weight=1)', source)
+
+    def test_v185_row_samples_are_single_line_centered_and_compact(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertLessEqual(KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT, 52)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 186:
+            self.assertIn('raw_lines = [EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM]', source)
+            self.assertIn('lines = [truncate_for_measure(raw_lines[0], max_text_width', source)
+            self.assertIn('first_y = height // 2', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            self.assertIn('sample_text = EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM', source)
+            self.assertIn('candidate.measure(sample_text) <= max_text_width', source)
+            self.assertIn('center_y = height // 2', source)
+        else:
+            self.assertIn('sample_text = EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM', source)
+            self.assertIn('(width - tw) // 2 - box[0]', source)
+            self.assertIn('(height - th) // 2 - box[1]', source)
+        self.assertNotIn('sample_text = "Sphinx of black quartz,\\njudge my vow."', source)
+        self.assertIn('width // 2', source)
+        self.assertIn('height=KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT', source)
+
+    def test_v185_interactive_coloring_controls_have_tooltips(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('def install_tooltip(widget, text: str', source)
+        for expected in (
+            'install_tooltip(button, "Cycle lyric display:',
+            'install_tooltip(art_color_button, "Configure artwork lyric coloring")',
+            'install_tooltip(floating_color_button, "Configure floating lyric coloring")',
+            'install_tooltip(enabled_radio,',
+            'install_tooltip(default_radio,',
+            'install_tooltip(favorite_checkbox,',
+            'install_tooltip(palette_picker,',
+            'install_tooltip(speed_scale,',
+            'install_tooltip(timing_combo,' if int(PROGRAM_VERSION.removeprefix("V")) >= 192 else 'install_tooltip(emphasis_checkbox,',
         ):
-            with self.assertRaisesRegex(RuntimeError, "exact-row read-back"):
-                playlist_history_mark_identity_played(
-                    "Artist - Song.flac", 180, "artist\x1fsong", played_at=1234.0
-                )
+            self.assertIn(expected, source)
 
-    def test_v120_catalog_creation_and_jq_search_are_bounded(self) -> None:
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary) / "music"
-            root.mkdir()
-            first = root / "Alpha Song.flac"
-            second = root / "Beta Tune.mp3"
-            ignored = root / "notes.txt"
-            first.write_bytes(b"flac")
-            second.write_bytes(b"mp3")
-            ignored.write_text("ignore", encoding="utf-8")
-            catalog = Path(temporary) / "lists" / "everything.m3u"
-            index = AudioCatalogIndex(
-                primary=catalog,
-                fallback=Path(temporary) / "absent.txt",
-                library_root=root,
-                create_missing=True,
-            )
-            index._create_missing_catalog_atomically()
-            self.assertTrue(catalog.is_file())
-            payload = catalog.read_text(encoding="utf-8")
-            self.assertIn(str(first.resolve()), payload)
-            self.assertIn(str(second.resolve()), payload)
-            self.assertNotIn(str(ignored.resolve()), payload)
-            matches = playlist_queue_search_matches((first, second), "alpha flac")
-            self.assertEqual([(1, first)], matches)
+    def test_v185_release_identity(self) -> None:
+        self.assertGreaterEqual(int(PROGRAM_VERSION.removeprefix("V")), 185)
+        self.assertIn(f"v{PROGRAM_VERSION.removeprefix('V')}", PLAYER_BUILD_ID)
 
-    def test_v120_default_frequency_help_and_controls_contract(self) -> None:
+    def test_v177_art_karaoke_is_static_until_spectrum_ready_and_while_config_open(self) -> None:
         import inspect
-        self.assertEqual(1, DEFAULT_FREQUENCY_WARP_ENABLED)
+        constructor = inspect.getsource(ExternalAlbumArtWindow.__init__)
+        update = inspect.getsource(ExternalAlbumArtWindow.update_lyric)
+        art_source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        player_source = inspect.getsource(play_audio_file)
+        self.assertIn('self._spectrum_ready_for_art_karaoke = threading.Event()', constructor)
+        self.assertIn('self._color_configurator_target != "floating"', update)
+        self.assertIn('if not self._spectrum_ready_for_art_karaoke.is_set():', art_source)
+        self.assertIn('root.after(120, animate_artwork_lyric_colors)', art_source)
+        self.assertIn('external_album_art_window.set_spectrum_ready_for_art_karaoke(True)', player_source)
+
+    def test_v178_row_preview_scheduler_adapts_without_changing_hero_speed(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertEqual(50, KARAOKE_COLOR_CONFIG_PREVIEW_TICK_MS)
+        self.assertEqual(110 if int(PROGRAM_VERSION.removeprefix("V")) < 187 else (90 if int(PROGRAM_VERSION.removeprefix("V")) < 188 else 80), KARAOKE_COLOR_CONFIG_ROW_BASE_TICK_MS)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertGreaterEqual(KARAOKE_COLOR_CONFIG_ROW_MAX_TICK_MS, 500)
+        else:
+            self.assertLessEqual(KARAOKE_COLOR_CONFIG_ROW_MAX_TICK_MS, 320)
+        self.assertIn('def animate_karaoke_color_config_hero()', source)
+        self.assertIn('def animate_karaoke_color_config_rows()', source)
+        self.assertIn('KARAOKE_COLOR_CONFIG_PREVIEW_TICK_MS', source)
+        self.assertIn('adapt_karaoke_color_config_row_interval', source)
+        self.assertIn('color_config_row_render_ema_ms', source)
+        self.assertIn('KARAOKE_COLOR_CONFIG_ROW_BATCH', source)
+        base = KARAOKE_COLOR_CONFIG_ROW_BASE_TICK_MS
+        self.assertGreater(adapt_karaoke_color_config_row_interval(base, 90, 6), base)
+        self.assertEqual(base, adapt_karaoke_color_config_row_interval(base, 5, 3))
+        self.assertLess(adapt_karaoke_color_config_row_interval(300, 10, 3), 300)
+
+    def test_v178_preview_rows_are_clipped_and_pattern_layouts_are_cached(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('color_config_preview_layout_cache', source)
+        self.assertIn('color_config_preview_items', source)
+        self.assertIn('preview_canvas.itemconfigure(int(existing_item), image=photo)', source)
+        self.assertNotIn('height=target_height', source)
+        self.assertIn('table.grid_rowconfigure(grid_row, weight=0)', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            self.assertIn('sample_cell.grid_rowconfigure(0, weight=0, minsize=KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT)', source)
+        else:
+            self.assertIn('sample_cell.grid_rowconfigure(0, weight=1, minsize=KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT)', source)
+
+    def test_v178_album_art_has_one_focus_border_not_border_plus_inner_gutter(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        render_start = source.index('def render_art()')
+        render_source = source[render_start:]
+        self.assertIn('art_border_frame = tk.Frame(', source)
+        self.assertIn('canvas = tk.Canvas(\n            art_border_frame,', source)
+        self.assertIn('highlightthickness=0', source)
+        self.assertIn('canvas.pack_configure(padx=border, pady=border)', source)
+        self.assertIn('drawable_width = max(1, width)', render_source)
+        self.assertIn('drawable_height = max(1, height)', render_source)
+        self.assertNotIn('drawable_width = max(1, width - border * 2)', render_source)
+        self.assertNotIn('drawable_height = max(1, height - border * 2)', render_source)
+
+    def test_v176_coloring_configurator_has_large_live_hero_and_enabled_controls(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('hero=True', source)
+        self.assertIn('color_config_hero_canvas', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('(0, "Enabled", "center")', source)
+        else:
+            self.assertIn('(0, "Mode", "center")', source)
+        self.assertIn('variable=enabled_variable', source)
+        self.assertNotIn('text="📺"', source)
+        self.assertNotIn('def show_karaoke_color_config_mode', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 186:
+            self.assertGreaterEqual(KARAOKE_COLOR_CONFIG_HERO_MIN_HEIGHT, 220)
+        else:
+            self.assertLessEqual(KARAOKE_COLOR_CONFIG_HERO_MIN_HEIGHT, 180)
+
+    def test_v178_maximized_configurator_preserves_intrinsic_row_heights_without_overlap(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 186:
+            self.assertIn('outer.grid_rowconfigure(0, weight=1, minsize=KARAOKE_COLOR_CONFIG_HERO_MIN_HEIGHT)', source)
+        else:
+            self.assertIn('outer.grid_rowconfigure(0, weight=0, minsize=KARAOKE_COLOR_CONFIG_HERO_MIN_HEIGHT)', source)
+        self.assertIn('outer.grid_rowconfigure(2, weight=3)', source)
+        self.assertIn('table.grid_rowconfigure(grid_row, weight=0)', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            self.assertIn('sample_cell.grid_rowconfigure(0, weight=0, minsize=KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT)', source)
+        else:
+            self.assertIn('sample_cell.grid_rowconfigure(0, weight=1, minsize=KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT)', source)
+        self.assertNotIn('height=target_height', source)
+        self.assertIn('width=max(1, int(event.width))', source)
+        self.assertLess(KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT, 216)
+
+    def test_v176_hero_text_is_huge_truncated_and_plasma_work_is_cropped(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 186:
+            self.assertIn('desired_ratio = 0.56 if hero else 0.54', source)
+            self.assertIn('desired_ratio = 0.54 if hero else 0.52', source)
+            self.assertIn('lines = [truncate_for_measure(raw_lines[0], max_text_width', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            self.assertIn('desired_size = max(24 if hero else 10', source)
+            self.assertIn('sample_text = EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('desired_size = max(24, round(height * 0.44)) if hero else 20', source)
+            self.assertIn('sample_text = EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM', source)
+        else:
+            self.assertIn('desired_size = max(24, round(height * 0.44)) if hero else max(26, round(height * 0.58))', source)
+            self.assertIn('sample_text = EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM', source)
+        self.assertIn('ellipsis = "…"', source)
+        self.assertIn('bbox = mask.getbbox()', source)
+        self.assertIn('mask.crop(bbox)', source)
+
+    def test_v176_release_identity(self) -> None:
+        self.assertGreaterEqual(int(PROGRAM_VERSION.removeprefix("V")), 176)
+        self.assertIn(f"v{PROGRAM_VERSION.removeprefix('V')}", PLAYER_BUILD_ID)
+
+    def test_v175_ctrl_c_and_final_stop_use_immediate_hard_kill(self) -> None:
+        class FakeProcess:
+            def __init__(self):
+                self.killed = 0
+                self.terminated = 0
+                self.waited = []
+            def poll(self):
+                return None
+            def kill(self):
+                self.killed += 1
+            def terminate(self):
+                self.terminated += 1
+            def wait(self, timeout=None):
+                self.waited.append(timeout)
+                return 0
+        proc = FakeProcess()
+        hard_stop_process(proc)
+        self.assertEqual(1, proc.killed)
+        self.assertEqual(0, proc.terminated)
+        self.assertEqual([0.25], proc.waited)
+        import inspect
+        player_source = inspect.getsource(play_audio_file)
+        self.assertIn("def request_abort", player_source)
+        self.assertIn("abort_requested.set()\n        hard_stop_process(process)", player_source)
+        self.assertIn('if action in {STOP, QUIT_Q}:\n                    record_segment(displayed_position)\n                    hard_stop_process(process)', player_source)
+
+    def test_v175_ctrl_alt_i_is_idle_art_with_three_second_grace_and_smart_hud_moves_to_numpad1(self) -> None:
+        self.assertEqual(EXTERNAL_ALBUM_ART_IDLE_START, interpret_console_key("i", ctrl=True, alt=True))
+        self.assertEqual(EXTERNAL_ALBUM_ART_IDLE_START, interpret_console_key("i", ctrl=True, alt=True, shift=True))
+        self.assertEqual(3.0, EXTERNAL_ALBUM_ART_MANUAL_IDLE_INPUT_GRACE_SECONDS)
+        import inspect
+        key_source = inspect.getsource(read_windows_key_action)
+        art_source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn("numpad1_down = bool(ctrl_down and alt_down and _windows_key_down(0x61))", key_source)
+        self.assertIn("return HUD_SMART_ALIGNMENT_TOGGLE", key_source)
+        self.assertIn("EXTERNAL_ALBUM_ART_MANUAL_IDLE_INPUT_GRACE_SECONDS", art_source)
+
+    def test_v175_unfocused_art_has_no_canvas_or_native_border(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('border_color = "#909090" if active else art_transparent', source)
+        self.assertIn('border_frame.configure(background=border_color)', source)
+        self.assertIn("inset = 2", source)
+        self.assertIn("region_key = (int(hwnd), outer_w, outer_h, inset)", source)
+        self.assertIn("schedule_native_windows_border_suppression(delay_ms=12)", source)
+
+    def test_v175_letter_color_samples_are_about_three_times_larger(self) -> None:
+        # V175 enlarged the old tiny samples; V184 deliberately compacts row previews again because the hero is now the large showcase.
+        if int(PROGRAM_VERSION.removeprefix("V")) < 184:
+            self.assertGreaterEqual(KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT, 120)
+        else:
+            self.assertLessEqual(KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT, 96)
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 186:
+            self.assertIn('raw_lines = [EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM]', source)
+        else:
+            self.assertIn('sample_text = EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM', source)
+        self.assertIn("height=KARAOKE_COLOR_CONFIG_PREVIEW_HEIGHT", source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 186:
+            self.assertIn('font_size = max(minimum_size, round(height * desired_ratio))', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 187:
+            self.assertIn('candidate.measure(sample_text) <= max_text_width', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('desired_size = max(24, round(height * 0.44)) if hero else 20', source)
+        else:
+            self.assertIn('desired_size = max(24, round(height * 0.44)) if hero else max(26, round(height * 0.58))', source)
+
+    def test_v175_release_identity(self) -> None:
+        # Historical release floor: later cumulative builds must never regress below V175.
+        self.assertGreaterEqual(int(PROGRAM_VERSION.removeprefix("V")), 175)
+        self.assertIn(f"v{PROGRAM_VERSION.removeprefix('V')}", PLAYER_BUILD_ID)
+
+    def test_v174_album_art_native_border_is_debounced_and_not_reentrant(self) -> None:
+        """Regression for the black Windows-10 ``Not Responding`` art popup."""
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        suppress_start = source.index("def suppress_native_windows_border")
+        caption_start = source.index("def centered_native_caption_text", suppress_start)
+        suppress_source = source[suppress_start:caption_start]
+        self.assertIn('state.get("native_border_region_key") == region_key', suppress_source)
+        self.assertIn('state["native_border_region_key"] = region_key', suppress_source)
+        self.assertIn('def schedule_native_windows_border_suppression', suppress_source)
+        self.assertIn('root.after(max(1, int(delay_ms)), apply_once)', suppress_source)
+        configure_start = source.index("def on_configure")
+        configure_end = source.index('root.bind("<Configure>", on_configure)', configure_start)
+        configure_source = source[configure_start:configure_end]
+        self.assertIn("schedule_native_windows_border_suppression()", configure_source)
+        self.assertNotIn("suppress_native_windows_border()", configure_source)
+        # The old V172/V173 bug called SetWindowRgn synchronously from Configure.
+        refresh_start = source.index("def refresh_monitor_scaled_chrome")
+        refresh_end = source.index('root.bind("<FocusIn>"', refresh_start)
+        refresh_source = source[refresh_start:refresh_end]
+        self.assertNotIn("suppress_native_windows_border()", refresh_source)
+
+    def test_v174_play_pause_state_persists_and_defaults_to_playing(self) -> None:
+        """A clean restart mirrors the prior play/pause state; old installs start playing."""
+        import inspect
+        self.assertEqual(0, PLAYER_SETTING_DEFAULTS["PlaybackPaused"])
+        player_source = inspect.getsource(play_audio_file)
+        main_source = inspect.getsource(main)
+        self.assertIn("initially_paused: bool = False", player_source)
+        self.assertIn("startup_pause_pending = bool(initially_paused)", player_source)
+        self.assertIn("paused_state[0] = True", player_source)
+        self.assertIn("paused_state[0] = False", player_source)
+        self.assertIn("playback_paused_state = [bool(persisted_settings.get('PlaybackPaused', 0))]", main_source)
+        self.assertIn("initially_paused=playback_paused_state[0]", main_source)
+        self.assertIn("paused_state=playback_paused_state", main_source)
+        self.assertIn("'PlaybackPaused': int(playback_paused_state[0])", main_source)
+
+    def test_v173_configurator_animation_is_incremental_and_close_cancels_it(self) -> None:
+        """Regression for the original V172 hang; hero and row clocks stay independent."""
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        hero_start = source.index("def animate_karaoke_color_config_hero")
+        rows_start = source.index("def animate_karaoke_color_config_rows", hero_start)
+        show_start = source.index("def show_karaoke_color_configurator", rows_start)
+        hero_source = source[hero_start:rows_start]
+        rows_source = source[rows_start:show_start]
+        self.assertIn("KARAOKE_COLOR_CONFIG_PREVIEW_TICK_MS", hero_source)
+        self.assertIn("visible_indices", rows_source)
+        self.assertIn("KARAOKE_COLOR_CONFIG_ROW_BATCH", rows_source)
+        self.assertIn("adapt_karaoke_color_config_row_interval", rows_source)
+        show_end = source.index("def show_artwork_karaoke_color_configurator", show_start)
+        show_source = source[show_start:show_end]
+        self.assertIn("config.withdraw()", show_source)
+        self.assertIn("config.deiconify()", show_source)
+        self.assertIn('state["color_config_hero_after"] = config.after(80, animate_karaoke_color_config_hero)', show_source)
+        self.assertIn('state["color_config_rows_after"] = config.after(120, animate_karaoke_color_config_rows)', show_source)
+        self.assertIn("config.after_cancel(after_id)", show_source)
+        self.assertNotIn("focus_force()", show_source)
+
+        cursor = 0
+        sequence = []
+        for _ in range(7):
+            index, cursor = next_karaoke_color_config_preview_index((0, 1, 2), cursor)
+            sequence.append(index)
+        self.assertEqual([0, 1, 2, 0, 1, 2, 0], sequence)
+        self.assertEqual((None, 0), next_karaoke_color_config_preview_index((), 99))
+
+    def test_v173_art_startup_restores_console_focus_after_tk_can_steal_it(self) -> None:
+        import inspect
+        constructor = inspect.getsource(ExternalAlbumArtWindow.__init__)
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn("self._player_window_hwnd = windows_foreground_window_handle()", constructor)
+        self.assertIn('"initial_console_focus_restore_pending": bool(self._player_window_hwnd)', source)
+        self.assertIn("def restore_console_focus_after_initialization", source)
+        self.assertIn("windows_restore_foreground_window(self._player_window_hwnd)", source)
+        self.assertIn("root.after(1, restore_console_focus_after_initialization)", source)
+        self.assertIn("root.after(230, restore_console_focus_after_initialization)", source)
+
+    def test_v173_bare_q_is_ins_modified_q_quits_and_three_consecutive_qs_quit(self) -> None:
+        self.assertEqual(PLAYLIST_ADD_SEARCH_Q, interpret_console_key("q"))
+        self.assertEqual(PLAYLIST_ADD_SEARCH_Q, interpret_console_key("Q"))
+        for ctrl, alt in ((True, False), (False, True), (True, True)):
+            self.assertEqual(QUIT_Q, interpret_console_key("q", ctrl=ctrl, alt=alt))
+        self.assertEqual(QUIT_Q, interpret_console_key("\x11"))
+
+        count, should_quit = catalog_picker_q_sequence_step(1, "q")
+        self.assertEqual(2, count)
+        self.assertFalse(should_quit)
+        count, should_quit = catalog_picker_q_sequence_step(count, "q")
+        self.assertEqual(3, count)
+        self.assertTrue(should_quit)
+        self.assertEqual((0, False), catalog_picker_q_sequence_step(2, "x"))
+
+        import inspect
+        picker = inspect.getsource(interactive_audio_catalog_picker)
         player = inspect.getsource(play_audio_file)
-        self.assertIn('" │ ".join', player)
-        self.assertIn(" · ", player)
-        self.assertIn("numbered_controls", player)
-        self.assertIn("help_directory_visible = not help_directory_visible", player)
-        self.assertIn("✅Learned", player)
+        self.assertIn("initial_quit_q_presses", picker)
+        self.assertIn("quit_callback", picker)
+        self.assertIn('key == "\\x11"', picker)
+        self.assertIn('key.casefold() == "q" and (ctrl or alt)', picker)
+        self.assertIn("query += key", picker)  # second Q remains valid search text
+        self.assertIn("PLAYLIST_ADD_SEARCH_Q", player)
+        self.assertIn('if key.casefold() == "q":\n                return False', player)  # delete prompt: bare Q never quits
+        self.assertIn("initial_quit_q_presses=(1 if action == PLAYLIST_ADD_SEARCH_Q else 0)", player)
+        self.assertIn("initial_quit_q_presses=(1 if paused_action == PLAYLIST_ADD_SEARCH_Q else 0)", player)
+
+    def test_v171_karaoke_color_favorite_mask_supports_multiple_modes(self) -> None:
+        mask = normalize_external_album_art_karaoke_color_favorites((1 << 0) | (1 << 2))
+        self.assertTrue(external_album_art_karaoke_color_is_favorite(mask, 0))
+        self.assertFalse(external_album_art_karaoke_color_is_favorite(mask, 1))
+        self.assertTrue(external_album_art_karaoke_color_is_favorite(mask, 2))
+        self.assertEqual((1 << len(EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES)) - 1, normalize_external_album_art_karaoke_color_favorites(0xFFFF))
+
+    def test_v172_karaoke_color_configurator_is_scrollable_live_and_persistent(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('def show_karaoke_color_configurator', source)
+        self.assertIn('scroller = tk.Canvas(', source)
+        self.assertIn('scrollbar = tk.Scrollbar(', source)
+        # V184 intentionally replaces V172's half/half row split with a compact natural-width control grammar.
+        if int(PROGRAM_VERSION.removeprefix("V")) < 184:
+            self.assertIn('uniform="half"', source)
+        else:
+            self.assertNotIn('uniform="half"', source)
+            if int(PROGRAM_VERSION.removeprefix("V")) < 187:
+                self.assertIn('table.grid_columnconfigure(4, weight=1)', source)
+            elif int(PROGRAM_VERSION.removeprefix("V")) < 188:
+                self.assertIn('table.grid_columnconfigure(4, weight=1, minsize=240)', source)
+            else:
+                self.assertIn('table.grid_columnconfigure(4, weight=0, minsize=fixed_widths[4])', source)
+                expected_controls_width = 620 if int(PROGRAM_VERSION.removeprefix("V")) >= 192 else 360
+                self.assertIn(f'table.grid_columnconfigure(5, weight=1, minsize={expected_controls_width})', source)
+        self.assertIn('EXTERNAL_ALBUM_ART_KARAOKE_CONFIG_PANGRAM', source)
+        self.assertIn('render_karaoke_color_config_preview', source)
+        self.assertIn('animate_karaoke_color_config_hero', source)
+        self.assertIn('animate_karaoke_color_config_rows', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('(0, "Enabled", "center")', source)
+            self.assertIn('(2, "Favorite", "center")', source)
+        else:
+            self.assertIn('(0, "Mode", "center")', source)
+            self.assertIn('(2, "Fave", "center")', source)
+        self.assertIn('(1, "Default", "center")', source)
+        self.assertIn('tk.Radiobutton(', source)
+        self.assertIn('palette_picker = tk.Canvas(', source)
+        self.assertIn('open_palette_picker', source)
+        if int(PROGRAM_VERSION.removeprefix("V")) >= 192:
+            self.assertIn('text="Timing:"', source)
+            self.assertIn('values=EXTERNAL_ALBUM_ART_KARAOKE_TIMING_LABELS', source)
+        elif int(PROGRAM_VERSION.removeprefix("V")) < 188:
+            self.assertIn('text="Timed emphasis"', source)
+        else:
+            self.assertIn('text="Timed"', source)
+            self.assertIn('similar to MiniLyrics', source)
+        self.assertIn('text="Speed:"', source)
+        self.assertIn('persist_karaoke_favorites', source)
+        self.assertIn('persist_karaoke_default', source)
+
+    def test_v171_default_is_one_mode_and_startup_prefers_it_when_explicit(self) -> None:
+        self.assertEqual("ExternalAlbumArtKaraokeColorFavorites", EXTERNAL_ALBUM_ART_KARAOKE_COLOR_FAVORITES_VALUE)
+        self.assertEqual("ExternalAlbumArtKaraokeColorDefaultMode", EXTERNAL_ALBUM_ART_KARAOKE_COLOR_DEFAULT_VALUE)
+        import inspect
+        default_source = inspect.getsource(load_external_album_art_karaoke_color_default_mode)
+        startup_source = inspect.getsource(load_external_album_art_karaoke_startup_color_mode)
+        self.assertIn("return fallback", default_source)
+        self.assertIn("load_external_album_art_karaoke_color_default_mode(last_used)", startup_source)
+
+    def test_v170_art_window_focus_transparency_zoom_and_plasma_contract(self) -> None:
+        """The NOFX GUI contract survives the V180 dual-destination configurator."""
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertEqual("#010203", EXTERNAL_ALBUM_ART_TRANSPARENT_KEY)
+        if int(PROGRAM_VERSION.removeprefix("V")) >= 192:
+            self.assertEqual(("pattern", "rainbow-glyphs", "solid"), EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES)
+            self.assertEqual(("Pattern fill", "Per-letter color", "Solid color"), EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS)
+        else:
+            self.assertEqual(("plasma", "rainbow-glyphs", "solid"), EXTERNAL_ALBUM_ART_KARAOKE_COLOR_MODES[:3])
+            self.assertEqual(("Plasma", "Rainbow letters", "Solid palette"), EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS[:3])
+        self.assertIn('root.attributes("-transparentcolor", art_transparent)', source)
+        self.assertIn('border_color = "#909090" if active else art_transparent', source)
+        self.assertIn('zoom_frame.pack_forget()', source)
+        self.assertIn('root.bind("<Control-MouseWheel>", artwork_zoom_mousewheel', source)
+        self.assertIn('root.bind("<Control-KeyPress>", artwork_zoom_key', source)
+        self.assertIn('{"plus", "equal", "kp_add"}', source)
+        self.assertIn('{"minus", "underscore", "kp_subtract"}', source)
+        self.assertIn('command=lambda: show_karaoke_color_configurator("artwork")', source)
+        self.assertIn('command=lambda: show_karaoke_color_configurator("floating")', source)
+        self.assertIn('EXTERNAL_ALBUM_ART_KARAOKE_COLOR_LABELS', source)
+        self.assertIn('def build_artwork_plasma_mask', source)
+        self.assertIn('def plasma_rgba_for_mask', source)
+        self.assertIn('max_top = max(min_top, height - safe_y - shadow - text_height)', source)
+        self.assertIn('origin_y = max(safe_y, min(max(safe_y, height - safe_y - crop_h), origin_y))', source)
+
+    def test_v172_web_pause_is_a_real_toggle_and_spectrum_uses_20fps_small_endpoint(self) -> None:
+        import inspect
+        html = _paf_web_html()
+        server_source = inspect.getsource(PAFWebServer)
+        player_source = inspect.getsource(play_audio_file)
+        self.assertIn('id="pauseResumeButton"', html)
+        self.assertIn("action('pause-toggle')", html)
+        self.assertIn("pauseButton.textContent=s.paused?'▶':'⏸︎'", html)
+        self.assertIn('/api/spectrum', html)
+        self.assertIn('const spectrumMs=50;', html)
+        self.assertIn('path == "/api/spectrum"', server_source)
+        self.assertIn('def publish_spectrum', server_source)
+        self.assertIn('def spectrum_snapshot', server_source)
+        if int(PROGRAM_VERSION.removeprefix("V")) >= 192:
+            self.assertIn('now - last_web_spectrum_publish >= (0.5 if config_visualizer_low_fps else 0.05)', player_source)
+        else:
+            self.assertIn('now - last_web_spectrum_publish >= 0.05', player_source)
+        self.assertIn('web_server.publish_spectrum(web_spectrum)', player_source)
+        self.assertNotIn('spectrum=web_spectrum', player_source)
+        self.assertEqual(50, WEB_SPECTRUM_POLL_MILLISECONDS)
+
+    def test_v172_art_window_suppresses_native_pixel_border_centers_titles_and_compacts_gutters(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('def suppress_native_windows_border', source)
+        self.assertIn('DwmSetWindowAttribute', source)
+        self.assertIn('CreateRectRgn(inset, inset, outer_w - inset, outer_h - inset)', source)
+        self.assertIn('SetWindowRgn', source)
+        self.assertIn('anchor="center"', source)
+        self.assertIn('justify="center"', source)
+        self.assertIn('centered_native_caption_text', source)
+        self.assertIn('def titlebar_control_min_width', source)
+        self.assertIn('def maybe_compact_window_to_art', source)
+        self.assertIn('compact_external_album_art_geometry_to_fitted_image(', source)
+
+    def test_v172_compact_geometry_shrinks_only_unused_gutter_and_respects_controls(self) -> None:
+        portrait = compact_external_album_art_geometry_to_fitted_image(
+            '1000x700+40+50',
+            source_width=600,
+            source_height=1200,
+            control_height=44,
+            control_min_width=540,
+            border_pixels=5,
+        )
+        parsed = _parse_external_album_art_geometry(portrait)
+        self.assertIsNotNone(parsed)
+        width, height, x, y = parsed
+        self.assertGreaterEqual(width, 540)
+        self.assertLess(width, 1000)
+        self.assertEqual((x, y), (40, 50))
+        self.assertLessEqual(height, 700)
+        landscape = compact_external_album_art_geometry_to_fitted_image(
+            '900x900+10+20',
+            source_width=1600,
+            source_height=900,
+            control_height=44,
+            control_min_width=520,
+            border_pixels=5,
+        )
+        lw, lh, lx, ly = _parse_external_album_art_geometry(landscape)
+        self.assertEqual(lw, 900)
+        self.assertLess(lh, 900)
+        self.assertEqual((lx, ly), (10, 20))
+
+    def test_v172_webserver_banner_includes_quick_version_peek(self) -> None:
+        import inspect
+        source = inspect.getsource(main)
+        self.assertIn('f"🌐 {PROGRAM_TITLE} {PROGRAM_VERSION.casefold()} webserver OPEN', source)
+        self.assertIn('PROGRAM_VERSION.casefold()', source)
+
+    def test_v170_plasma_field_is_spatially_varied_and_time_variant(self) -> None:
+        """Plasma is a 2-D moving field, not one flat color per glyph."""
+        samples = {external_album_art_plasma_rgb(x, y, 1.25) for x, y in ((0, 0), (8, 3), (17, 29), (41, 11))}
+        self.assertGreaterEqual(len(samples), 3)
+        self.assertNotEqual(
+            external_album_art_plasma_rgb(12, 17, 0.0),
+            external_album_art_plasma_rgb(12, 17, 2.0),
+        )
+
+    def test_v170_artwork_lyric_zoom_registry_bounds(self) -> None:
+        self.assertEqual(0.50, EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MIN)
+        self.assertEqual(2.50, EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MAX)
+        self.assertEqual(0.10, EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_STEP)
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('save_external_album_art_lyric_font_scale(next_scale)', source)
+        self.assertIn('redraw_artwork_lyric_layer()', source)
+
+    def test_v168_supplied_hud_screenshots_align_inline_last_play_when_spare_width_exists(self) -> None:
+        """Four supplied real-session layouts become executable Last-play alignment contracts."""
+        width = 168
+        cases = (
+            (
+                {
+                    "Artist": "Dead Kennedys",
+                    "Song": "Well Paid Scientist (demo)",
+                    "Album": "The Virgin Demos",
+                    "Year": "1982",
+                    "Genre": "Punk",
+                    "Comment": "http://vivalesbootlegs.blogspot.com",
+                    "Composer": "Jello Biafra",
+                },
+                r"▶ Play: T:\mp3\Dead Kennedys\1982 - Virgin Demos\10_Well Paid Scientist (demo).flac (2m28s)",
+                "16min",
+                "Composer",
+            ),
+            (
+                {
+                    "Artist": "Dethklok",
+                    "Song": "Gardener Of Vengeance",
+                    "Album": "Dethalbum IV",
+                    "Year": "2023",
+                    "Genre": "Thrash Metal",
+                    "Composer": "Brendon Small",
+                },
+                r"▶ Play: T:\new\MUSIC\changerrecent\Metalocalypse\2023 - Dethalbum IV\01_Gardener Of Vengeance.flac (3m01s)",
+                "Never",
+                "Composer",
+            ),
+            (
+                {
+                    "Artist": "Uncle Outrage",
+                    "Song": "Tourette's",
+                    "Genre": "Electronic",
+                    "Original artist": "Nirvana",
+                    "Composer": "Nirvana",
+                    "Comment": "Nirvana cover",
+                },
+                r"▶ Play: T:\mp3\TRIBUTES\MISC\changerrecent\Uncle Outrage - Tourette's (by Nirvana).mp3 (1m40s)",
+                "Never",
+                "Composer",
+            ),
+            (
+                {
+                    "Artist": "The Dreadnoughts",
+                    "Song": "Anna Maria",
+                    "Album": "Foreign Skies",
+                    "Year": "2017",
+                    "Genre": "Folk Punk/Folk Rock/Klezmer/Polka/Punk",
+                },
+                r"▶ Play: T:\mp3\Dreadnoughts, The\2017 - Foreign Skies\06_Anna Maria.flac (4m46s)",
+                "Never",
+                "Year",
+            ),
+        )
+
+        for tags, base, last_play, expected_label in cases:
+            with self.subTest(expected_label=expected_label, song=tags.get("Song")):
+                rows, _ansi = format_tag_panel(tags, width=width)
+                gap = aligned_inline_last_play_gap(
+                    base, last_play, rows, width=width, enabled=True
+                )
+                header = base + " " * gap + f"Last play: {last_play}"
+                last_colon = terminal_cell_width(
+                    header[: header.index("Last play:") + len("Last play")]
+                )
+                expected_colon = next(
+                    colon
+                    for label, colon in hud_metadata_label_colons(rows)
+                    if label == expected_label
+                )
+                self.assertEqual(expected_colon, last_colon)
+                self.assertLessEqual(terminal_cell_width(header), width)
+
+    def test_v169_smart_hud_alignment_toggle_and_source_default_contract(self) -> None:
+        self.assertTrue(HUD_SMART_ALIGNMENT_ENABLED)
+        self.assertTrue(ALIGN_INLINE_LAST_PLAY_TO_HUD_COLONS)
+        self.assertEqual(
+            EXTERNAL_ALBUM_ART_IDLE_START,
+            interpret_console_key("i", ctrl=True, alt=True),
+        )
+        self.assertEqual(
+            EXTERNAL_ALBUM_ART_IDLE_START,
+            interpret_console_key("i", ctrl=True, alt=True, shift=True),
+        )
+        self.assertEqual(
+            3,
+            aligned_inline_last_play_gap(
+                "▶ Play: x.mp3 (1m00s)",
+                "Never",
+                ("   Act: X   Composer: Y",),
+                width=120,
+                enabled=False,
+            ),
+        )
+        import inspect
+        key_source = inspect.getsource(read_windows_key_action)
+        player_source = inspect.getsource(play_audio_file)
+        help_source = inspect.getsource(main)
+        self.assertIn("HUD_SMART_ALIGNMENT_TOGGLE", key_source)
+        self.assertIn("refresh_inline_last_play_alignment()", player_source)
+        self.assertIn('usage_line("Ctrl+Alt+I", "start idle artwork routine immediately;', help_source)
+        self.assertIn('usage_line("Ctrl+Alt+Numpad1", "toggle smart HUD packing/colon alignment;', help_source)
+
+    def test_v169_bride_riot_screenshot_justifies_every_free_semantic_colon_pair(self) -> None:
+        """The fifth supplied screenshot is the canonical 'beautify after packing' case."""
+        tags = {
+            "Artist": "Bride Riot",
+            "Song": "Hot To Go! (by Chappell Roan)",
+            "Album": "Hot To Go! [single]",
+            "Comment": "Chappell Roan cover",
+            "Year": "2024",
+            "Genre": "Punk",
+            "Original artist": "Chappell Roan",
+            "Composer": "Chappell Roan",
+        }
+        rows, _ansi = format_tag_panel(tags, width=168)
+        self.assertEqual(2, len(rows))
+        self.assertTrue(all(terminal_cell_width(row) <= 168 for row in rows))
+        joined = "\n".join(rows)
+        for value in (
+            "Bride Riot", "Hot To Go! (by Chappell Roan)", "Hot To Go! [single]",
+            "Chappell Roan cover", "2024", "Punk", "Original artist: Chappell Roan",
+            "Composer: Chappell Roan",
+        ):
+            self.assertIn(value, joined)
+        colons = dict(hud_metadata_label_colons(rows))
+        for top, bottom in (
+            ("Act", "Year"),
+            ("Song", "Genre"),
+            ("Album", "Original artist"),
+            ("Comment", "Composer"),
+        ):
+            self.assertEqual(colons[top], colons[bottom], (top, bottom, rows))
+
+    def test_v169_optimizer_is_willing_to_break_alignment_to_keep_full_information(self) -> None:
+        """At 104 cells the same Bride Riot data fits only by sacrificing prettiness."""
+        tags = {
+            "Artist": "Bride Riot",
+            "Song": "Hot To Go! (by Chappell Roan)",
+            "Album": "Hot To Go! [single]",
+            "Comment": "Chappell Roan cover",
+            "Year": "2024",
+            "Genre": "Punk",
+            "Original artist": "Chappell Roan",
+            "Composer": "Chappell Roan",
+        }
+        rows, _ansi = format_tag_panel(tags, width=104)
+        self.assertEqual(2, len(rows))
+        joined = "\n".join(rows)
+        for label in ("Act", "Song", "Album", "Comment", "Year", "Genre", "Original artist", "Composer"):
+            self.assertIn(label + ":", joined)
+        self.assertTrue(all(terminal_cell_width(row) <= 104 for row in rows))
+        colons = dict(hud_metadata_label_colons(rows))
+        self.assertNotEqual(colons["Comment"], colons["Composer"])
+        self.assertIn("full-information two-row HUD geometry", optimize_hud_field_positions.__doc__)
+
+    def test_v179_black_dresses_album_and_url_use_same_colon_when_slack_exists(self) -> None:
+        """User-supplied Black Dresses HUD should spend three spare cells on Album/URL alignment."""
+        tags = {
+            "Artist": "Black Dresses",
+            "Song": "Understanding",
+            "Album": "Forever In Your Heart",
+            "Year": "2021",
+            "Genre": "Noise Pop",
+            "URL": "https://blackdresses666.neocities.org/",
+        }
+        rows, _ansi = format_tag_panel(tags, width=150)
+        self.assertEqual(2, len(rows))
+        self.assertTrue(all(terminal_cell_width(row) <= 150 for row in rows))
+        colons = dict(hud_metadata_label_colons(rows))
+        self.assertEqual(colons["Album"], colons["URL"], rows)
+        self.assertIn("Forever In Your Heart", "\n".join(rows))
+        self.assertIn("https://blackdresses666.neocities.org/", "\n".join(rows))
+
+    def test_v179_cross_lane_alignment_refuses_to_shift_when_suffix_would_overflow(self) -> None:
+        """Album/URL beauty pass must never buy alignment by losing information."""
+        specs = (
+            ("Album", 20, 2, 0, 0),
+            ("Comment", 25, 3, 0, 0),
+            ("URL", 30, 4, 1, 0),
+            ("Composer", 25, 5, 1, 0),
+        )
+        geometry = (
+            (("Album", 10), ("Comment", 32)),
+            (("URL", 20), ("Composer", 52)),
+        )
+        # URL's colon is eight cells to the right of Album's. Shifting Album's
+        # whole suffix by eight would push Comment beyond width 60, so keep it ugly.
+        aligned = opportunistically_align_hud_colons(geometry, specs, 60)
+        self.assertEqual(geometry, aligned)
+
+    def test_v179_cross_lane_alignment_is_soft_and_rejects_large_padding_jumps(self) -> None:
+        specs = (("Album", 20, 2, 0, 0), ("URL", 30, 4, 1, 0))
+        geometry = ((("Album", 0),), (("URL", 25),))
+        # 22 cells of padding would technically fit but is not a sensible beauty trade.
+        self.assertEqual(geometry, opportunistically_align_hud_colons(geometry, specs, 100))
+
+    def test_v183_grlwood_dense_row_equalizes_every_free_visible_gap(self) -> None:
+        """User-supplied GRLwood HUD: free one-row gaps should be visually even."""
+        tags = {
+            "Artist": "GRLwood",
+            "Song": "I'm Not You",
+            "Album": "Daddy",
+            "Year": "2018",
+            "Genre": "Alternative Punk",
+            "Comment": "Visit http://grlwood.bandcamp.com",
+        }
+        rows, _ansi = format_tag_panel(tags, width=150)
+        self.assertEqual(1, len(rows), rows)
+        row = rows[0]
+        labels = ("Act", "Song", "Album", "Year", "Genre", "Comment")
+        field_pattern = re.compile(
+            r"(?<=\S)(?P<gap> {2,})(?=(?:"
+            + "|".join(re.escape(label) for label in labels[1:])
+            + r"): )"
+        )
+        gaps = [len(match.group("gap")) for match in field_pattern.finditer(row)]
+        self.assertEqual(len(labels) - 1, len(gaps), (gaps, row))
+        self.assertLessEqual(max(gaps) - min(gaps), 1, (gaps, row))
+        self.assertTrue(all(gap >= 2 for gap in gaps), gaps)
+        self.assertLessEqual(terminal_cell_width(row), 150)
+
+    def test_v183_equal_spacing_preserves_existing_semantic_colon_anchors(self) -> None:
+        """Spacing polish must never break a colon relationship already chosen by the optimizer."""
+        tags = {
+            "Artist": "Bride Riot",
+            "Song": "Hot To Go! (by Chappell Roan)",
+            "Album": "Hot To Go! [single]",
+            "Comment": "Chappell Roan cover",
+            "Year": "2024",
+            "Genre": "Punk",
+            "Original artist": "Chappell Roan",
+            "Composer": "Chappell Roan",
+        }
+        rows, _ansi = format_tag_panel(tags, width=168)
+        self.assertEqual(2, len(rows))
+        colons = dict(hud_metadata_label_colons(rows))
+        for top, bottom in (
+            ("Act", "Year"),
+            ("Song", "Genre"),
+            ("Album", "Original artist"),
+            ("Comment", "Composer"),
+        ):
+            self.assertEqual(colons[top], colons[bottom], (top, bottom, rows))
+
+    def test_v167_progress_bar_glyphs_are_single_terminal_cells(self) -> None:
+        """Progress glyphs must never expand into mojibake and wrap the HUD row."""
+        for filled_char, empty_char in PROGRESS_GLYPH_PAIRS:
+            self.assertEqual(1, terminal_cell_width(filled_char), filled_char)
+            self.assertEqual(1, terminal_cell_width(empty_char), empty_char)
+        for partial in PROGRESS_PARTIAL_BLOCKS[1:]:
+            self.assertEqual(1, terminal_cell_width(partial), partial)
+        self.assertEqual(len(PROGRESS_GLYPH_PAIRS), len(PROGRESS_STYLE_NAMES))
+
+    def test_v167_source_contains_no_inherited_mojibake_markers(self) -> None:
+        """The shipped source itself must stay clean UTF-8, not pre-corrupted text."""
+        source = Path(__file__).read_text(encoding="utf-8")
+        # Common leading characters produced when UTF-8 bytes are mis-decoded as
+        # Windows-1252/Latin-1.  Build them numerically so this regression test
+        # does not itself embed the suspicious characters it is looking for.
+        for codepoint in (0x00F0, 0x00E2, 0x00C3, 0x00C2, 0x00EF, 0x00E1, 0x00E3):
+            self.assertNotIn(chr(codepoint), source)
+        self.assertFalse(any(0x80 <= ord(character) <= 0x9F for character in source))
+
+    def test_v165_hud_anchor_tracks_resize_without_scrollback_drift(self) -> None:
+        """Successive frames stay on one viewport footprint across resizes."""
+        import inspect
+
+        ui_rows = 12
+        guard = 2
+
+        def frame_targets(viewport_lines: int) -> tuple[str, ...]:
+            origin = stable_viewport_ui_origin(viewport_lines, ui_rows, guard)
+            return tuple(
+                absolute_viewport_cursor_sequence(origin, row)
+                for row in range(ui_rows)
+            )
+
+        for viewport_lines in (24, 31, 47, 19, 36):
+            first_frame = frame_targets(viewport_lines)
+            second_frame = frame_targets(viewport_lines)
+            self.assertEqual(first_frame, second_frame)
+            origin = stable_viewport_ui_origin(viewport_lines, ui_rows, guard)
+            self.assertEqual(f"\033[{origin};1H", first_frame[0])
+            self.assertLessEqual(origin + ui_rows - 1, viewport_lines - guard)
+
+        self.assertNotEqual(frame_targets(24), frame_targets(47))
+        player_source = inspect.getsource(play_audio_file)
+        self.assertIn("stable_viewport_ui_origin", player_source)
+        self.assertNotIn(
+            "ui_origin_viewport_row[0] = max(1, cursor_row - viewport_top + 1)",
+            player_source,
+        )
+        self.assertNotIn("write_console(move_to(old_ui_rows) + '\\n'", player_source)
+        self.assertNotIn("append only the new image rows", player_source)
 
     def test_v112_effective_instrumental_tag_merge(self) -> None:
         self.assertEqual(
@@ -30284,7 +35996,9 @@ class PlayWaveFileTests(unittest.TestCase):
         import inspect
         source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
         self.assertIn("ImageOps.contain", source)
-        self.assertIn('Image.new("RGB", (max(1, width), max(1, height)), "black")', source)
+        # V170 supersedes black letterbox bars with transparent RGBA gutters.
+        self.assertIn('Image.new("RGBA", (max(1, width), max(1, height)), (0, 0, 0, 0))', source)
+        self.assertIn("alpha_composite", source)
         self.assertNotIn("ImageOps.fit", source)
 
     def test_v97_album_art_attempt_database_roundtrip(self) -> None:
@@ -30355,7 +36069,8 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("open_current_art_in_default_viewer()", source)
         self.assertIn("os.startfile(str(target))", source)
         self.assertIn("ImageOps.contain", source)
-        self.assertIn('background="black"', source)
+        self.assertIn('background=art_transparent', source)
+        self.assertIn('attributes("-transparentcolor", art_transparent)', source)
 
 
 
@@ -31115,6 +36830,23 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:
             print(f"💥 ERROR: Could not display playlist history: {exc}", file=sys.stderr)
             return 1
+    regex_option = next(
+        (item for item in arguments if item == "--last-play-regex" or item.startswith("--last-play-regex=")),
+        None,
+    )
+    if regex_option is not None:
+        if regex_option == "--last-play-regex":
+            option_index = arguments.index(regex_option)
+            if option_index + 1 >= len(arguments) or arguments[option_index + 1].startswith("-"):
+                print("💥 ERROR: --last-play-regex requires a regular-expression argument.", file=sys.stderr)
+                return 2
+            regex_value = arguments[option_index + 1]
+        else:
+            regex_value = regex_option.partition("=")[2]
+            if not regex_value:
+                print("💥 ERROR: --last-play-regex requires a non-empty regular-expression argument.", file=sys.stderr)
+                return 2
+        return query_playlist_history_regex(regex_value)
     if not arguments or any(option in arguments for option in ("--help", "--usage", "-h", "-u")):
         # Reset any lingering DEC double-height mode before clearing stale UI.
         print(BIG_OFF + "\033[J", end="")
@@ -31149,6 +36881,7 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("-e, --emoji-display-test", "test emojimaxxifying of text")
         usage_line("--process-compound-subtitle-and-lyric-file [DIR]", "scan SRT/LRC/TXT collection; write emoji-code-snippet.txt and open it in TXT editor")
         usage_line("--display-last-played-date-for-playlist PLAYLIST", "paged full-path history table + unwrapped playlist-analysis.txt export", note="progress: load → history match → analysis generation")
+        usage_line("--last-play-regex REGEX", "query SQLite play history by regex over filename or normalized Artist/Song; print latest match")
         usage_line("-l, --loop / -L, --no-loop", "loop the current track", "on")
         usage_line("-k, --karaoke / -K, --no-karaoke", "display available lyrics", "on")
         usage_line("--replaygain=on|off|track|album", "playback-time ReplayGain; track/album select preference with opposite fallback", "track" if REPLAYGAIN_ENABLED else "off")
@@ -31159,7 +36892,6 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("-r, --random-file [directory]", "random file in one folder")
         usage_line("-R, --random-file-recursive [directory]", "random downward folder walk")
         usage_line("-p, --playlist FILE", "persistent history-biased shuffled queue; avoids tracks played or merely visited <3h when another candidate exists; departed tracks rotate to tail", "shuffle")
-        usage_line("--catalog-file PATH", "use this INS/J/Q audio catalog; if missing, build it atomically in the background from the configured music root")
         usage_line("--shuffle-expiration-in-hours=HOURS", "reuse the persistent shuffled queue until its original build reaches this age", f"{SHUFFLE_EXPIRATION_IN_HOURS:g}h", "rotation does not reset expiration")
         usage_line("--marqee-animation-if-longer-than=20", "animate window-title marquee above this length", str(MARQUEE_ANIMATION_IF_LONGER_THAN))
         usage_banner("⌨️", "KEYSTROKES")
@@ -31167,8 +36899,8 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("F5", "refresh/redraw display only")
         usage_line("< / >", "previous / next track; forward navigation will not intentionally replay the current file")
         usage_line("PgUp / PgDn", "browse previous visits / future playlist; arrows/pages select; Enter jumps; Esc closes")
-        usage_line("J / Q", "search existing playlist tracks; Queue selected / Enter queues, Jump to one / Shift+Enter jumps, Esc cancels")
-        usage_line("INS", "add audio to active playlist and queue it next using indexed word-any-order search + Tab completion")
+        usage_line("INS / Q", "add audio to active playlist and queue it next using indexed word-any-order search + Tab completion")
+        usage_line("Q Q Q / Ctrl+Q / Alt+Q / Ctrl+Alt+Q", "quit; bare Q otherwise behaves like INS")
         usage_line("Shift+INS", "multi-select audio in a Windows picker; add it and queue the selection next")
         usage_line("DEL", "remove current track from playlist only after Y/N confirmation; NEVER deletes audio file")
         usage_line("{ / }", "previous / next directory containing audio files")
@@ -31177,7 +36909,6 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("Ctrl+Left / Ctrl+Right", "seek backward / forward 60 seconds")
         usage_line("Space", "pause / resume playback")
         usage_line("Ctrl+Alt+S", "force local Last-heard update + Last.fm scrobble; already-scrobbled visits require a confirming second press")
-        usage_line("Ctrl+Alt+B", "confirm, stop briefly, bake ReplayGain through ClaireAudioProcessing, then resume at the same position")
         usage_line("Last.fm Now Playing", "track.updateNowPlaying is sent once at the start of each track visit; this is not a scrobble")
         usage_line("-ghfl, --generate-play-history-from-lastfm-logs", "parse Last.fm logs and write play history CSV")
         usage_line("-dh, --display-play-history", "display the generated Last.fm play-history CSV")
@@ -31185,11 +36916,16 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("D", "finish pending lyric edits: reload, update embedded tags, and verify readback")
         usage_line("Ctrl+A", "open local attrib.lst; after Already learned with no local file, open nearest parent; otherwise second press creates local")
         usage_line("Ctrl+Alt+A", "bring external album-art window to the foreground")
-        usage_line("Ctrl+Alt+I", "start idle artwork routine immediately; focus-only; related art uses safe non-overlapping dance windows")
+        usage_line("Ctrl+Alt+I", "start idle artwork routine immediately; focus-only; ignores input for the first 3 seconds so you can put the mouse/keyboard down")
+        usage_line("Ctrl+Alt+Numpad1", "toggle smart HUD packing/colon alignment; focus-only; temporary binding; information density wins")
         usage_line("Artwork window resize", "free-form by default; hold Ctrl while resizing to force a square; position and size persist")
-        usage_line("Artwork changes", "never resize the popup; complete images are fitted with black letterboxing as needed")
+        usage_line("Artwork changes", "never resize the popup; complete images are contained without cropping; unused aspect-ratio gutters are transparent")
+        usage_line("Artwork focus", "the monitor-scaled artwork border is visible only while this window is focused")
+        usage_line("Ctrl+wheel / Ctrl+- / Ctrl+=", "while the artwork window is focused, decrease/increase over-art lyric font size; choice persists")
+        usage_line("Focused art zoom −/+", "zoom buttons appear in the artwork control strip only while that window has focus")
+        usage_line("Art 🔡 / Floating 🔠", "open the independent lyric mode/treatment/timing configurator; per-mode palette, speed, tone, and shadow persist")
         usage_line("Album art rotation", "when not idle, occasionally crossfade among cover/back/related images using cover-heavy dwell weights")
-        usage_line("Art title-bar L× / L▣ / L↗", "cycle lyrics off → superimposed over artwork → independent transparent floating lyrics")
+        usage_line("Artwork Lyrics button", "three-way cycle: over artwork → floating → both; both destinations may render the same cue simultaneously")
         usage_line("Floating lyrics", "drag a visible letter to move; hold Ctrl to grab transparent space or resize from an edge/corner")
         usage_line("Ctrl+Alt+L", "mark learned; extras save ONLY on Enter; 10s untouched or 30s typing-idle/Esc/second hotkey discard extras; R removes ~16s")
         usage_line("Ctrl+O", "open another playlist with the Windows picker; current session cleans up, then relaunches in the same console")
@@ -31206,7 +36942,8 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("Ctrl+Alt+Numpad7", "cycle visualizer/karaoke compositing: legacy → expanded → under → over")
         usage_line("Alt+A / Ctrl+Alt+Numpad8", "toggle persistent external album-art GUI window", "on" if ENABLE_EXTERNAL_ALBUM_ART_WINDOW else "off")
         usage_line("Ctrl+Alt+F8", "toggle visualizer expansion into blank karaoke rows", "on")
-        usage_line("Ctrl+Alt+F9", "toggle normal frequency-axis warp for comparison", "on")
+        usage_line("Ctrl+Alt+F6", "toggle experimental console visualizer over retained SIXEL artwork", "off")
+        usage_line("Ctrl+Alt+F9", "toggle experimental frequency-axis warp", "off")
         usage_line("Shift+F10", "toggle experimental karaoke-over-visualizer overlay", "off")
         usage_line("Ctrl+Alt+D", "if art is missing: download cover (second press retries); otherwise toggle DRCS")
         usage_line("Shift+F4", "cycle visualizer granularity: Twin DRCS → Half Cells → 1× Cells")
@@ -31218,7 +36955,7 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("P / Shift+P", "next / previous progress-bar style")
         usage_line("A", "toggle autoplay; enabling autoplay also enables shuffle")
         usage_line("2 / 5 / 7", "stereo / 5.1 expansion / 7.1 expansion")
-        usage_line("X / Ctrl+W / Alt+F4 / Ctrl+C / Ctrl+Break", "stop playback immediately")
+        usage_line("X / Q / Ctrl+W / Alt+F4 / Ctrl+C / Ctrl+Break", "stop playback immediately")
         usage_banner("🌈", "COLOR / THROB ANIMATION")
         usage_line("--song-throb-seconds=SECONDS", "Song brightness-throb period", f"{SONG_RAINBOW_THROB_SECONDS:.2f}s")
         usage_line("--artist-throb-seconds=SECONDS", "Artist brightness-throb period", f"{ARTIST_RAINBOW_THROB_SECONDS:.2f}s")
@@ -31277,9 +37014,9 @@ def main(argv: list[str] | None = None) -> int:
         print("  \033[38;2;145;205;255mPython package: wcwidth (optional)\033[0m"
               "              \033[38;2;210;165;255mUnicode terminal-cell measurement\033[0m")
         print("  \033[38;2;120;225;155mMissing Claire helpers are auto-downloaded beside this script on Windows.\033[0m")
-        print(r"  Local copy: copy C:\clairecjs_utils\claire_console.py .  (repeat for claire_lastfm.py, claire_progressbar.py, claire_terminal_geometry.py, ClaireAudioProcessing.py)")
-        print("  PowerShell manual copy: $b=\'https://raw.githubusercontent.com/ClaireCJS/clairecjs_bat/main/BAT-and-UTIL-files-1/clairecjs_utils\'; \'claire_console.py\',\'claire_lastfm.py\',\'claire_progressbar.py\',\'claire_terminal_geometry.py\',\'ClaireAudioProcessing.py\' | % { iwr \"$b/$_\" -OutFile $_ }")
-        print(r"  curl.exe manual copy:  curl.exe -LO https://raw.githubusercontent.com/ClaireCJS/clairecjs_bat/main/BAT-and-UTIL-files-1/clairecjs_utils/ClaireAudioProcessing.py")
+        print(r"  Local copy: copy C:\clairecjs_utils\claire_console.py .  (repeat for claire_lastfm.py, claire_progressbar.py, claire_terminal_geometry.py)")
+        print("  PowerShell manual copy: $b=\'https://raw.githubusercontent.com/ClaireCJS/clairecjs_bat/main/BAT-and-UTIL-files-1/clairecjs_utils\'; \'claire_console.py\',\'claire_lastfm.py\',\'claire_progressbar.py\',\'claire_terminal_geometry.py\' | % { iwr \"$b/$_\" -OutFile $_ }")
+        print(r"  curl.exe manual copy:  curl.exe -LO https://raw.githubusercontent.com/ClaireCJS/clairecjs_bat/main/BAT-and-UTIL-files-1/clairecjs_utils/claire_console.py  (repeat for the other three helper filenames)")
         print("\n\033[2;90m+/-: playback speed; =: reset volume to 100% and speed to 1×; startup, playlist load, and successful INS additions also reset speed to 1×. Ctrl+Alt+Up/Down changes volume globally.\033[0m")
         print("\n\033[2;90mV/Shift+V: visualizer mode +/-; Ctrl+Alt+D: download missing art / otherwise toggle DRCS; W: toggle SIXEL.\033[0m")
         print("\033[2;90m?: show full keys; press ? again while help is open to add 15 seconds; F2/F3: karaoke style; Shift+F2/F3: treatment; F4: emojimax.\033[0m")
@@ -31303,7 +37040,6 @@ def main(argv: list[str] | None = None) -> int:
         print(r"  play_audio_file.py --shuffle-throb-seconds=1.6 --playlist C:\mp3\lists\favorites.m3u")
         print(r"  play_audio_file.py --shuffle-expiration-in-hours=5 --playlist C:\mp3\lists\favorites.m3u")
         print(r"  play_audio_file.py --playlist C:\mp3\lists\favorites.m3u")
-        print(r"  play_audio_file.py --playlist C:\mp3\lists\favorites.m3u --catalog-file C:\mp3\lists\everything.m3u")
         print(r"  play_audio_file.py C:\mp3\lists\favorites.m3u")
         print(r"  play_audio_file.py --random-file C:\mp3\PUNK")
         print(r"  play_audio_file.py --random-file-recursive C:\mp3")
@@ -31321,6 +37057,7 @@ def main(argv: list[str] | None = None) -> int:
         print(r"  play_audio_file.py --generate-play-history-from-lastfm-logs")
         print(r"  play_audio_file.py --display-play-history")
         print(r"  play_audio_file.py --display-last-played-date-for-playlist C:\mp3\lists\changer.m3u")
+        print(r"  play_audio_file.py --last-play-regex ""^artist.*song$""")
         print(r"  In playlist analysis: PgUp/PgDn/↑/↓ navigate; Home/End or Ctrl+Home/Ctrl+End jump; Space pages down; Q/Esc exits.")
         print(r"  play_audio_file.py --no-now-playing C:\mp3\song.mp3")
         print(r"  play_audio_file.py --now-playing C:\temp\paf-now-playing.txt C:\mp3\song.mp3")
@@ -31335,9 +37072,9 @@ def main(argv: list[str] | None = None) -> int:
         print(r"  While playing: Alt+A toggles the external album-art GUI; Ctrl+Alt+Numpad8 is an alias.")
         print(r"  Album-art GUI: left-click previous image; right-click next; middle-click or left+right returns to cover.")
         print(r"  Album-art GUI: resize normally to stay snapped to artwork aspect; hold Ctrl while resizing for a free ratio.")
-        print(r"  Album-art GUI: title-bar L× / L▣ / L↗ cycles lyrics off, over the art, or into a transparent floating window.")
+        print(r"  Album-art GUI: the Lyrics button cycles Over Artwork → Floating → Both; 🔡 configures over-art lettering and 🔠 independently configures floating lettering when that destination is enabled.")
         print(r"  Floating lyrics: drag a visible letter to move; hold Ctrl to grab transparent space or resize at an edge/corner.")
-        print(r"  While focused in PAFPlayer: Ctrl+Alt+I immediately starts the idle artwork dance/gallery.")
+        print(r"  While focused in PAFPlayer: Ctrl+Alt+I starts the idle artwork dance/gallery (3s input grace); Ctrl+Alt+Numpad1 toggles smart HUD packing/colon alignment.")
         print(r"  Album art: idle dance/gallery also starts once at program startup; normal active art later uses weighted crossfades among related images.")
         print(r"  play_audio_file.py --no-external-album-art C:\mp3\song.mp3")
         print(r"  play_audio_file.py --external-album-art-idle-foreground-seconds=60 C:\mp3\song.mp3")
@@ -31353,10 +37090,11 @@ def main(argv: list[str] | None = None) -> int:
         print(r"  ReplayGain is on by default in track-preference mode; --replaygain=album reverses preference and --replaygain=off disables playback normalization.")
         print(r"  ReplayGain examples: play_audio_file.py --replaygain=track song.flac   |   play_audio_file.py --replaygain=album album-track.flac")
         print(r"  While playing: F2/F3 changes karaoke style; Shift+F2/F3 changes treatment; F4 toggles Emojimaxx.")
+        print(r"  Artwork popup: transparent aspect gutters + focus-only border; Ctrl+wheel/Ctrl+-/Ctrl+= zooms over-art lyrics; color dropdown defaults to moving Plasma.")
         print(r"  While playing: * manages saved defaults; * then R then A restores all; Ctrl+Alt+F1 restores all directly; Alt+F1 undoes; F1 now opens help like ?.")
         print(r"  While playing: 2 selects stereo, 5 applies 5.1 expansion, and 7 applies 7.1 expansion.")
         print(r"  Playlist workflow: edit C:\mp3\lists\favorites.m3u while music plays, then Ctrl+R to reload it without restarting PAFPlayer.")
-        print(r"  Playlist editing: INS searches/adds/queues next; Shift+INS multi-selects in a file picker; DEL removes current after Y/N; PgUp/PgDn browses/jumps.")
+        print(r"  Playlist editing: INS or Q searches/adds/queues next; QQQ quits; Ctrl/Alt/Ctrl+Alt+Q quits immediately; Shift+INS multi-selects; DEL removes after Y/N; PgUp/PgDn browses/jumps.")
         print(r"  Last.fm workflow: a track visit sends Now Playing immediately; normal >50% listening earns the actual scrobble later.")
         return 0
     if not ensure_standard_music_collection_aliases():
@@ -31394,7 +37132,6 @@ def main(argv: list[str] | None = None) -> int:
     web_server_enabled = bool(WEB_SERVER_ENABLED)
     web_server_host = str(WEB_SERVER_HOST)
     web_server_port = int(WEB_SERVER_PORT)
-    catalog_file: Path | None = None
     suppress_attribute_management = False
     theory_modes: set[int] = set()
     filenames: list[str] = []
@@ -31481,18 +37218,6 @@ def main(argv: list[str] | None = None) -> int:
                 print("💥 ERROR: --playlist requires a playlist filename.", file=sys.stderr)
                 return 2
             playlist_argument = arguments[argument_index]
-        elif argument == "--catalog-file":
-            argument_index += 1
-            if argument_index >= len(arguments):
-                print("💥 ERROR: --catalog-file requires a pathname.", file=sys.stderr)
-                return 2
-            catalog_file = Path(arguments[argument_index]).expanduser().absolute()
-        elif argument.startswith("--catalog-file="):
-            catalog_value = argument.partition("=")[2].strip()
-            if not catalog_value:
-                print("💥 ERROR: --catalog-file requires a pathname.", file=sys.stderr)
-                return 2
-            catalog_file = Path(catalog_value).expanduser().absolute()
         elif argument == "--shuffle-expiration-in-hours":
             argument_index += 1
             if argument_index >= len(arguments):
@@ -31911,7 +37636,7 @@ def main(argv: list[str] | None = None) -> int:
             port=web_server_port,
         )
         if web_server.start():
-            print(f"🌐 PAFPlayer web server OPEN on port {web_server.port}: {web_server.url}", flush=True)
+            print(f"🌐 {PROGRAM_TITLE} {PROGRAM_VERSION.casefold()} webserver OPEN on port {web_server.port}: {web_server.url}", flush=True)
             append_pafplayer_trace(
                 "web.start",
                 enabled=True,
@@ -31932,7 +37657,7 @@ def main(argv: list[str] | None = None) -> int:
                 success=False,
             )
             print(
-                f"⚠ Could not start PAFPlayer web server on {web_server_host}:{web_server_port}; playback will continue.",
+                f"⚠ Could not start {PROGRAM_TITLE} {PROGRAM_VERSION.casefold()} webserver on {web_server_host}:{web_server_port}; playback will continue.",
                 file=sys.stderr,
             )
 
@@ -31990,6 +37715,7 @@ def main(argv: list[str] | None = None) -> int:
         output_channels_state = [persisted_settings['OutputChannels']]
         balance_state = [persisted_settings['Balance']]
         volume_state = [persisted_settings['Volume']]
+        playback_paused_state = [bool(persisted_settings.get('PlaybackPaused', 0))]
         # Playback speed is intentionally session-local.  Every fresh process,
         # including the clean self-relaunch used by Ctrl+O playlist switching,
         # starts at 1× regardless of the last registry value.
@@ -31999,8 +37725,10 @@ def main(argv: list[str] | None = None) -> int:
         drcs_enabled_state = [drcs_enabled]
         sixel_enabled_state = [sixel_enabled]
         album_art_visualizer_state = [False]
+        layered_art_visualizer_state = [False]
         all_audio_tags_state = [False]
         hud_details_state = [bool(persisted_settings.get("HudDetails", 0))]
+        inline_last_play_alignment_state = [bool(ALIGN_INLINE_LAST_PLAY_TO_HUD_COLONS)]
         karaoke_visualizer_expansion_state = [DEFAULT_KARAOKE_VISUALIZER_EXPANSION]
         karaoke_visualizer_height_mode_state = [0]
         playlist_path: Path | None = None
@@ -32032,11 +37760,7 @@ def main(argv: list[str] | None = None) -> int:
             # never earned a local play-history or Last.fm entry.
             load_recent_playlist_visits()
             playlist_cache_writer = PlaylistShuffleCacheAsyncWriter(playlist_path)
-            audio_catalog_index = (
-                AudioCatalogIndex(primary=catalog_file, create_missing=True)
-                if catalog_file is not None
-                else AudioCatalogIndex()
-            )
+            audio_catalog_index = AudioCatalogIndex()
             audio_catalog_index.start()
             shuffle_state = [True]
             playlist_background_status_state = ["reading playlist 0%"]
@@ -32214,47 +37938,6 @@ def main(argv: list[str] | None = None) -> int:
                     initial_direction=direction,
                 )
 
-
-            def active_playlist_snapshot() -> tuple[Path, ...]:
-                """Return the live playlist in its real on-disk line order."""
-                with playlist_shuffle_lock:
-                    return tuple(
-                        filter_runtime_removed(list(playlist_entries or []))
-                    )
-
-            def queue_existing_playlist_tracks_outer(selected: Iterable[Path]) -> int:
-                """Append selected existing entries to the manual-priority queue."""
-                queued: list[Path] = []
-                seen: set[str] = set()
-                with playlist_shuffle_lock:
-                    valid_entries = list(playlist_entries or [])
-                    for raw in selected:
-                        candidate = Path(raw)
-                        key = removed_runtime_key(candidate)
-                        if key in seen or key in removed_playlist_track_keys:
-                            continue
-                        canonical = next(
-                            (
-                                path
-                                for path in valid_entries
-                                if same_audio_file_identity_strict(path, candidate)
-                            ),
-                            None,
-                        )
-                        if canonical is None:
-                            continue
-                        seen.add(key)
-                        queued.append(Path(canonical))
-                    if not queued:
-                        return 0
-                    queued_keys = {removed_runtime_key(path) for path in queued}
-                    playlist_manual_next_queue[:] = [
-                        path
-                        for path in playlist_manual_next_queue
-                        if removed_runtime_key(path) not in queued_keys
-                    ]
-                    playlist_manual_next_queue.extend(queued)
-                return len(queued)
 
             # A valid persistent queue is intentionally READ synchronously so a
             # new invocation can start at the queue head. Cache WRITES are async
@@ -32648,6 +38331,7 @@ def main(argv: list[str] | None = None) -> int:
                 drcs_enabled_state=drcs_enabled_state,
                 sixel_enabled_state=sixel_enabled_state,
                 album_art_visualizer_state=album_art_visualizer_state,
+                layered_art_visualizer_state=layered_art_visualizer_state,
                 external_album_art_window=external_album_art_window,
                 web_server=web_server,
                 album_art_status_state=album_art_status_state,
@@ -32678,14 +38362,6 @@ def main(argv: list[str] | None = None) -> int:
                     browse_active_playlist
                     if playlist_path is not None else None
                 ),
-                playlist_snapshot_callback=(
-                    active_playlist_snapshot
-                    if playlist_path is not None else None
-                ),
-                playlist_queue_callback=(
-                    queue_existing_playlist_tracks_outer
-                    if playlist_path is not None else None
-                ),
                 playlist_open_callback=choose_new_playlist,
                 playlist_switch_state=playlist_switch_state,
                 playlist_jump_state=playlist_jump_state,
@@ -32696,8 +38372,11 @@ def main(argv: list[str] | None = None) -> int:
                 shuffle_rebuild_callback=force_rebuild_playlist_shuffle,
                 all_audio_tags_state=all_audio_tags_state,
                 hud_details_state=hud_details_state,
+                inline_last_play_alignment_state=inline_last_play_alignment_state,
                 initial_position=initial_resume_position,
                 playback_position_state=playback_position_state,
+                initially_paused=playback_paused_state[0],
+                paused_state=playback_paused_state,
                 initial_blank_line=initial_blank_line and not bool(preplay_cover),
                 manage_winamp=False,
                 guard_winamp=True,
@@ -32732,6 +38411,7 @@ def main(argv: list[str] | None = None) -> int:
                 'DrcsEnabled': int(drcs_enabled_state[0]),
                 'SixelEnabled': int(sixel_enabled_state[0]),
                 'HudDetails': int(hud_details_state[0]),
+                'PlaybackPaused': int(playback_paused_state[0]),
             })
             save_player_settings(persisted_settings)
             initial_resume_position = 0.0
