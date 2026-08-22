@@ -1910,8 +1910,10 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                                 echos %ansi_color_success% %check% ``
                                 echo yr | *copy /Ns "%MAYBE_LYRICS_1%" "%LYRIC_FILE%
                                 echos %ansi_color_normal%
+                                set PROCESS_MAYBE_1=0
                                 set COPIED_REPO_LYRIC=%MAYBE_LYRICS_1%
                                 set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=1
+                                set LYRICS_ACCEPTABLE=1
 
                                 iff "H" == "%SAVED_ANSWER_THESE_GOOD%" then
                                         rem gosub check_for_answer_of_E "%@UNQUOTE["%LYRIC_FILE%"]"
@@ -1919,7 +1921,8 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                                         pause "Hit any key when done editing lyric file"
                                 endiff
 
-                                goto /i :have_acceptable_lyrics_now_or_at_the_very_least_are_done
+pause "about to goto have acceptible lyrics now GOATGOAT"
+                                goto /i have_acceptable_lyrics_now_or_at_the_very_least_are_done
                         endiff
                         if "O" == "%SAVED_ANSWER_THESE_GOOD%" .or. "1" == "%goto_download_with_lyric_downloader_1%" goto download_with_lyric_downloader_init
 
@@ -2286,7 +2289,7 @@ rem                         It could be a hand-edited txt file that’s years ol
                                 endiff
                         rem Completely abort on “F”:
                                 if "%ANSWER%" == "F" .and. "1" == "%QUICK_LRC_MODE%" goto /i :end_quick_lrc_mode_fail
-                                if "%ANSWER%" == "F" goto /i :have_acceptable_lyrics_now_or_at_the_very_least_are_done
+                                if "%ANSWER%" == "F" goto /i have_acceptable_lyrics_now_or_at_the_very_least_are_done
                         rem Completely abort on “N”:
                                 iff "%HOLD_ANSWER_1681%" == "N" then
                                         unset /q ANSWER
@@ -2475,7 +2478,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                 if "P" == "%ANSWER"% goto /i reask_nextsearch
                         rem Abort/Continue on “K”:
                                 call debug "does 1 == %QUICK_LRC_MODE% {quick lrc mode} [answer=%answer%]"
-                                if "K" == "%ANSWER%" goto /i :have_acceptable_lyrics_now_or_at_the_very_least_are_done
+                                if "K" == "%ANSWER%" goto /i have_acceptable_lyrics_now_or_at_the_very_least_are_done
                         rem “N”:
                                 if "N" == "%ANSWER%" goto /i :skip_only_this_search
                         rem Cosmetic:
@@ -3665,7 +3668,8 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 :have_acceptable_lyrics_now_or_at_the_very_least_are_done
 
-rem echo 🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂 Have_acceptable_lyrics_now_or_at_the_very_least_are_done 🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂 LYRICS_ACCEPTABLE=“%LYRICS_ACCEPTABLE%” >nul
+rem 
+pause "GOAT 🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂 Have_acceptable_lyrics_now_or_at_the_very_least_are_done 🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂 LYRICS_ACCEPTABLE=“%LYRICS_ACCEPTABLE%”"
 
 
 rem Update cursor:

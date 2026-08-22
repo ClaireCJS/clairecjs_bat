@@ -485,19 +485,19 @@ SendWinampPause() {
 }
        
 ;; ⏹⏹ Stop ⏹⏹                                                 
-^!v::PostMessage(       0x111, 40047, 0, , WinampClass  )               ; Stop
-#v::PostMessage(        0x111, 40047, 0, , WinampClass  )
+;;PAFPLAYER ^!v::PostMessage(       0x111, 40047, 0, , WinampClass  )               ; Stop
+;;PAFPLAYER #v::PostMessage(        0x111, 40047, 0, , WinampClass  )
 Media_Stop::PostMessage(0x111, 40047, 0, , WinampClass  )
                    
 ;; ⏭⏭ Next ⏭⏭                                     
-^!b::PostMessage(       0x111, 40048, 0, , WinampClass  )               ; Next Track
-#b::PostMessage(        0x111, 40048, 0, , WinampClass  )
+;;PAFPLAYER ^!b::PostMessage(       0x111, 40048, 0, , WinampClass  )               ; Next Track
+;;PAFPLAYER #b::PostMessage(        0x111, 40048, 0, , WinampClass  )
 Media_Next::PostMessage(0x111, 40048, 0, , WinampClass  )
                  
 ;; ⏮⏮ Previous ⏮⏮                                       
-^!z::PostMessage(       0x111, 40044, 0, , WinampClass  )               ; Previous Track
+^!z::PostMessage(       0x111, 40044, 0, , WinampClass  )               ; ;;PAFPLAYER Previous Track
 #z::PostMessage(        0x111, 40044, 0, , WinampClass  )
-Media_Prev::PostMessage(0x111, 40044, 0, , WinampClass  )
+;;PAFPLAYER Media_Prev::PostMessage(0x111, 40044, 0, , WinampClass  )
                                                         
 
 SendRawCToWinamp() {

@@ -38,9 +38,9 @@ rem Decide if doing old/simple or new/colorful copy method:
         :default
         :the_modern_way
                 rem Make sure we have what we need:
-                        iff not defined VALIDATED_CP then                                            %+ rem speed optimization to not check value
-                                call    validate-in-path copy-move-post.py       fast_cat
-                                set     VALIDATED_CP=1
+                        iff "1" != "%VALIDATED_CP%" then                                            %+ rem speed optimization to not check value
+                                (call    validate-in-path copy-move-post.py       fast_cat) >nul
+                                 set     VALIDATED_CP=1
                         endiff
 
                 rem Prettify with our post-processor, unless it's an older computer with an older OS:
