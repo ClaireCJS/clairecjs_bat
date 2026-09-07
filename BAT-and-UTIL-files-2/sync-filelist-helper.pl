@@ -18,7 +18,7 @@ my $COPY_IF_TARGET_FILE_EXISTS         = 1;							#set to “1” to run the cop
 
 ##### CONFIGURATION: INTERNALS:
 
-my $COPY                           = "*copy /u /g /h /j /k /Nst";	#set to “copy” if you must - but for me, /u makes it an update copy, which only copies if the file is newer. Significantly saves time. /g=percentage progress. /h=copy hidden, /j=restartable, /Ns=no summary ("1 file copied" suppressed), no updating JPSTREE.IDX
+my $COPY                           = "*copy /u /g /h /j /k /Nst /[!.git *.bak *UNMERGED-VERSIONS* *ARCHIVAL-VERSIONS-NOT-FOR-PLAY* *ARCHIVAL-VERSIONS-OF-TRACKS-NOT-FOR-PLAY* *ORIGINAL-VERSIONS-BEFORE-EDITING*]";	#set to “copy” if you must - but for me, /u makes it an update copy, which only copies if the file is newer. Significantly saves time. /g=percentage progress. /h=copy hidden, /j=restartable, /Ns=no summary ("1 file copied" suppressed), no updating JPSTREE.IDX
 my $MKDIR                          = "mkdir /s /Nt";				#set to   “md” if you must - but you're gonna need to add whatver option lets you this make multiple folders inside each other at once, i.e. creating "c:\one\two\three\four" in one command, not four.  The /Nt is a TCC-specific speedup.
 my $SLASH                          = "\\";							#set to    “/” if you must [Unix folk]
 my $ALLOW_COPY_TO_SAME_DRIVE       = 0;								#set to “1" if you want to allow copy to the same harddrive, WHICH CAN BE REALLY BAD, this was set to 0 for my own protection...  HISTORY: 2025/06/21 - changed this back to original inception value of 0 after a disaster .... 2022/03/17 - changed this to 1 for testing purposes ... original pre-2022 inception value was 0

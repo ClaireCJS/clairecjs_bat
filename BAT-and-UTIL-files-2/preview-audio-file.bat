@@ -11,7 +11,7 @@ rem CONFIG:
                 set DEFAULT_PAF_PLAYER=call vlc
                 set DEFAULT_PAF_PLAYER=vlc.exe --volume 200
                 set DEFAULT_PAF_PLAYER=play_audio_file.py 
-                set DEFAULT_PAF_PLAYER=play_audio_file.py --no-album-art --no-external-album-art  --no-web-server --no-now-playing-sidecar 
+                set DEFAULT_PAF_PLAYER=play_audio_file.py --no-album-art --no-external-album-art  --no-web-server --no-now-playing-sidecar --no-visualizers
 
         rem ❶ Whether we announce our previews or not (we set this to 0 because PAFPlayer/play_audio_file.py has it’s own announce):
                 set PREVIEW_AUDIO_FILE_ANNOUNCE=0

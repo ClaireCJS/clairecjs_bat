@@ -3511,7 +3511,10 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
                         gosub check_for_answer_of_E "%@UNQUOTE["%LYRIC_FILE%"]"
                         if "E" == "%ANSWER%" goto /i END_OF_GET_LYRICS
                 rem “F”:
-                        if "F" == "%ANSWER%" goto /i end_quick_lrc_mode_fail
+                        iff "F" == "%ANSWER%" then
+                                if "1" == "%QUICK_LRC_MODE%" goto /i end_quick_lrc_mode_fail
+                                if "1" != "%QUICK_LRC_MODE%" goto /i /i end_of_get_lyrics
+                        endiff
                         rem gosub check_for_answer_of_F
                 rem “G”:
                         gosub check_for_answer_of_G
@@ -5559,6 +5562,7 @@ rem ━━━━━━━━━━━━━━ ENDINGS: BEGIN ━━━━━━
         set QUICK_LRC_FAILED=1
         set QUICK_LRC_SKIPPED=0
         set QUICK_LRC_SUCCESS=0
+        unset /q QUICK_LRC_MODE
         goto :END_OF_GET_LYRICS
 
 :end_quick_lrc_mode_skip
@@ -5570,6 +5574,7 @@ rem ━━━━━━━━━━━━━━ ENDINGS: BEGIN ━━━━━━
         set QUICK_LRC_FAILED=0
         set QUICK_LRC_SKIPPED=1
         set QUICK_LRC_SUCCESS=0
+        unset /q QUICK_LRC_MODE
         goto :END_OF_GET_LYRICS
 
 :end_quick_lrc_mode_success
@@ -5581,6 +5586,7 @@ rem ━━━━━━━━━━━━━━ ENDINGS: BEGIN ━━━━━━
         set QUICK_LRC_FAILED=0
         set QUICK_LRC_SKIPPED=0
         set QUICK_LRC_SUCCESS=1
+        unset /q QUICK_LRC_MODE
         goto :END_OF_GET_LYRICS
         
 :END_OF_GET_LYRICS          
