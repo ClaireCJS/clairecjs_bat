@@ -48,6 +48,7 @@ rem Basic initialization:
         @set temporarily_disable_status_bar=0
         @set SOME_INSTRUMENTALS_WERE_MARKED=0
         @set QUICK_LRC_MODE=0 %+ rem this happens later but doing it twice on purpose
+        if defined CREATE_PENTAGRAM echos %CREATE_PENTAGRAM%
         rem rem echo y α linish 32
 
 
@@ -3512,6 +3513,7 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
                         if "E" == "%ANSWER%" goto /i END_OF_GET_LYRICS
                 rem “F”:
                         iff "F" == "%ANSWER%" then
+                                gosub /i ask_if_want_mark_lyriclessness
                                 if "1" == "%QUICK_LRC_MODE%" goto /i end_quick_lrc_mode_fail
                                 if "1" != "%QUICK_LRC_MODE%" goto /i /i end_of_get_lyrics
                         endiff

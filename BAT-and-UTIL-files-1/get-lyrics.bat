@@ -25,6 +25,22 @@ rem Validate usage:
         iff "%1" == "" then
                 %color_advice%
                         echo.
+                        echos %blink_on%
+                        echo %BIG_TOP%%STAR% Use %italics_on%LRCget%italics_off% first!! %STAR%
+                        echo %BIG_BOT%%STAR% Use %italics_on%LRCget%italics_off% first!! %STAR%
+                        echos %blink_off%%BIG_END%
+                        pause
+                        echo.
+
+                        echo.
+                        echos %blink_on%
+                        echo %BIG_TOP%%STAR% Use %italics_on%predownload-all-lyrics-in-all-subfolders%italics_off% second!! %STAR%
+                        echo %BIG_BOT%%STAR% Use %italics_on%predownload-all-lyrics-in-all-subfolders%italics_off% second!! %STAR%
+                        echos %blink_off%%BIG_END%
+                        pause
+                        echo.
+
+                        echo.
                         echo %STAR% USAGE: %ansi_color_pink%get-lyrics %italics_on%song.flac%italics_off%    %ansi_color_advice%—— attempts to align lyrics for one audio file
                         echo %STAR% USAGE: %ansi_color_pink%get-lyrics %italics_on%playlist.m3u%italics_off% %ansi_color_advice%—— attempts to align lyrics for all audio files in a playlist
                         echo %STAR% USAGE: %ansi_color_pink%get-lyrics here         %ansi_color_advice%—— attempts to align lyrics for all audio files in the current folder

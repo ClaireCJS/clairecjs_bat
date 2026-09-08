@@ -11,7 +11,7 @@ rem CONFIG:
                 set DEFAULT_PAF_PLAYER=call vlc
                 set DEFAULT_PAF_PLAYER=vlc.exe --volume 200
                 set DEFAULT_PAF_PLAYER=play_audio_file.py 
-                set DEFAULT_PAF_PLAYER=play_audio_file.py --no-album-art --no-external-album-art  --no-web-server --no-now-playing-sidecar --no-visualizers
+                set DEFAULT_PAF_PLAYER=play_audio_file.py --no-album-art --no-external-album-art  --no-web-server --no-now-playing-sidecar --no-visualizers --no-chafa-album-art-in-console
 
         rem ❶ Whether we announce our previews or not (we set this to 0 because PAFPlayer/play_audio_file.py has it’s own announce):
                 set PREVIEW_AUDIO_FILE_ANNOUNCE=0
@@ -162,6 +162,7 @@ rem Actions to take AFTER preview (unpausing music):
 
 rem Cleanup:
         :END
+        if defined CREATE_PENTAGRAM echos %CREATE_PENTAGRAM%                                          %+ rem A very Claire-specific holistic fix Becuase previewing audio files with PAFPlayer can sometimes reset our custom ansi pentgram (and trumpet) chracters which we create with the ansi sequence defined by this environment variable
         unset /q PAF_COMMAND PAF_START PAF_WINAMP_INTEGRATION PAF_PLAYER PAF_LRC_FILE PAF_SRT_FILE    %+ rem Because this can be an env-var parameter, unset it so internally-set values don’t become env-var-parameters of future invocations
 
 

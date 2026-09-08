@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# CHAT ARTIFACT BUILD: 2026-08-28-V325-VOLUME-FEEDBACK-BOX-FIX
+# CHAT ARTIFACT BUILD: 2026-09-08-V401-BATCHED-BAR-ARTWORK-COLORS
 """Interactively preview an audio file from a Windows console.
 
 This program uses FFplay and accepts any audio format FFmpeg can decode,
@@ -39,6 +39,7 @@ from dataclasses import dataclass, asdict
 from bisect import bisect_right
 import importlib
 import importlib.util
+import inspect
 import itertools
 import colorsys
 import gc
@@ -526,10 +527,10 @@ except ImportError:  # pragma: no cover
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID                 = "2026-08-29-v361-eighteen-two-circled-digits"
+PLAYER_BUILD_ID                 = "2026-09-08-v401-batched-bar-artwork-colors"
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION                 = "V361"
-PROGRAM_RELEASE_LABEL           = "V361"
+PROGRAM_VERSION                 = "V401"
+PROGRAM_RELEASE_LABEL           = "V400"
 WRITE_NOWPLAYING_THIS_OFTEN     = 5.0
 PREVENT_WINAMP_PAUSE_WHEN_WE_ARE_PAUSED = 0
 LYRIC_FADE_SECONDS              = 6.0
@@ -542,6 +543,30 @@ LYRIC_SCROLL_ROW_STEPS          = 2
 LYRIC_SCROLL_STEP_SECONDS       = 0.08
 HIDE_EMOJI_WHEN_FADE_IS_UNDER_X_PERCENT = 25
 HIDE_PREVIOUS_EMOJI_WHEN_FADE_IS_UNDER_X_PERCENT = 50
+# V369: plural lyric nouns use a visibly plural pictogram count rather than a
+# single glyph.  The CLI can override this for the whole process with
+# --plural-emoji-count=N (alias: --number-of-emoji-to-represent-plural=N).
+NUMBER_OF_EMOJI_TO_REPRESENT_PLURAL = 3
+# V370 smooth-playback policy.  The default Windows stereo path uses the
+# already-proven FFmpeg -> buffered WaveOut/MMCSS bridge instead of letting a
+# busy Python/UI process starve FFplay/SDL.  250 ms is the new compromise:
+# enough reservoir for ordinary render spikes while cutting restart/seek latency
+# in half versus V369's 500 ms.  --audio-buffer-ms can still override it.
+SMOOTH_AUDIO_RENDERER_ENABLED = True
+SMOOTH_AUDIO_BUFFER_MS = 250
+SMOOTH_AUDIO_BUFFER_MS_MIN = 0
+SMOOTH_AUDIO_BUFFER_MS_MAX = 5000
+MP3_DURATION_DISAGREEMENT_THRESHOLD_SECONDS = 1.0
+MP3_TLEN_MAX_REASONABLE_HOURS = 24.0
+AUDIO_GIL_SWITCH_INTERVAL_SECONDS = 0.002  # Give the buffered audio pump frequent chances to refill WaveOut even while Python rendering is CPU-heavy.
+PLAYBACK_PRESENTATION_QUANTUM_SECONDS = 0.001
+EXTERNAL_KARAOKE_CLOCK_PUBLISH_SECONDS = 1.0 / 120.0  # V374: cue-deadline publication at visualizer cadence; text changes remain de-duplicated before Tk work is queued.
+ARTWORK_KARAOKE_INITIAL_RENDER_LEAD_SECONDS = 0.040  # Start the next popup cue slightly early so its *completed paint* lands on the timestamp.
+ARTWORK_KARAOKE_MAX_RENDER_LEAD_SECONDS = 0.140  # Hard ceiling for adaptive render-latency compensation.
+ARTWORK_KARAOKE_RENDER_LEAD_ALPHA = 0.32  # Small PLL-style correction from each on-time/late/early completed cue paint.
+ARTWORK_KARAOKE_CALIBRATION_OUTLIER_SECONDS = 0.250  # Ignore startup/window-creation events that are not representative cue-render latency.
+ARTWORK_GUI_ACTIVE_COMMAND_POLL_MS = 8  # V374: old 50-ms queue polling alone could visibly delay popup lyrics; active playback uses a cheap high-rate Tk queue check.
+ARTWORK_GUI_IDLE_COMMAND_POLL_MS = 40  # Back off when audio is not advancing so the faster cue path costs essentially nothing while idle.
 NEXT_SUNG_LINE_EMOJIMAXX_ON_AT_FIRST = 1  # When this is 1, the upcoming/next karaoke line uses Emojimax from the very first visible instant of its fade-in instead of waiting for the fade threshold above; when set to 0, the upcoming line follows HIDE_EMOJI_WHEN_FADE_IS_UNDER_X_PERCENT and therefore begins as ordinary stylized words before switching to emoji later in the fade.  The currently-sung line always keeps Emojimax, while only the already-sung/fading-out line is allowed to turn emoji back into words according to HIDE_PREVIOUS_EMOJI_WHEN_FADE_IS_UNDER_X_PERCENT.
 TITLE_MARQUEE_CHARS_PER_SECOND  = 6.0
 TITLE_MARQUEE_REFRESH_SECONDS   = 0.12
@@ -1114,6 +1139,7 @@ TOGGLE_LEARNED_STATE               = "toggle-learned-state"  # V310 Alt+L: fast 
 OPEN_PRIMARY_URL                = "open-primary-url"
 BROWSE_URLS                     = "browse-urls"
 EXTERNAL_ALBUM_ART_FOREGROUND   = "external-album-art-foreground"
+EXTERNAL_FLOATING_LYRICS_FOREGROUND = "external-floating-lyrics-foreground"
 EXTERNAL_ALBUM_ART_IDLE_START   = "external-album-art-idle-start"
 ALBUM_ART_DOWNLOAD_OR_DRCS      = "album-art-download-or-drcs"
 ALBUM_ART_DOWNLOAD              = "album-art-download"
@@ -1218,6 +1244,7 @@ DEFAULT_VISUALIZER_GRANULARITY  = 3  # 1=one bin/cell, 2=two Unicode half-cell b
 DEFAULT_FREQUENCY_WARP_ENABLED   = 0  # Ctrl+Alt+F9 experimental frequency-axis curve: low frequencies are smoothly compacted, while the upper range remains compressed.
 VISUALIZER_DISABLE_AUTOWRAP_DURING_PAINT = 1  # Full-width block rows can leave VT terminals in a wrap-pending state; disable DECAWM while painting and force every row back to absolute column 1.
 VISUALIZER_FORCE_ROW_COLUMN_ONE = 1  # Emit CSI 1G at every spectrum row boundary so no DRCS/half-cell/font-state transition can make a later row inherit a shifted horizontal cursor position.
+HYBRID_UNICODE_CURSOR_FENCE      = 1  # V381 EXP: after every native Unicode artwork cell, explicitly restore the cursor to the next expected terminal column. Windows Terminal occasionally advances mixed Unicode+DRCS mosaic glyphs inconsistently; this confines any bad advance to that one cell instead of shifting the remainder of the artwork row.
 # V296: Ctrl+Z runtime-setting undo history. This stores only lightweight
 # scalar mode/settings snapshots, never visualizer frame data.
 _RUNTIME_SETTINGS_UNDO_STACK: list[dict[str, int]] = []
@@ -1277,6 +1304,19 @@ EXTERNAL_FLOATING_LYRICS_POSITION_VALUE = "ExternalFloatingLyricsPositionV302"  
 EXTERNAL_FLOATING_LYRICS_LAYOUT_SIZE_VALUE = "ExternalFloatingLyricsLayoutSizeV197"
 EXTERNAL_FLOATING_LYRICS_TOPMOST_VALUE = "ExternalFloatingLyricsAlwaysOnTop"
 EXTERNAL_FLOATING_LYRICS_JUSTIFICATION_VALUE = "ExternalFloatingLyricsJustificationV301"  # left / center / right; center is the default.
+EXTERNAL_FLOATING_LYRICS_AUTOSIZE_VALUE = "ExternalFloatingLyricsAutosizeV366"
+EXTERNAL_FLOATING_LYRICS_FONT_SCALE_VALUE = "ExternalFloatingLyricsFontScalePercentV366"
+EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MIN = 0.35
+EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MAX = 3.00
+EXTERNAL_FLOATING_LYRICS_FONT_SCALE_STEP = 0.10
+# A full-color Tk PhotoImage costs four bytes per pixel before Pillow's
+# intermediate fields/timing masks.  Above this rendered-text area, keep the
+# newly selected cue visible but freeze decorative color motion so an enormous
+# floating lyric can never monopolize the GUI thread/GIL during playback.
+EXTERNAL_FLOATING_LYRICS_ANIMATION_MAX_PIXELS = 1_250_000
+EXTERNAL_FLOATING_LYRICS_ANIMATION_MAX_FRAME_MS = 100.0
+EXTERNAL_FLOATING_LYRICS_EDIT_BACKGROUND = "#090b0f"
+EXTERNAL_FLOATING_LYRICS_EDIT_BORDER_PIXELS = 10  # 96-DPI pixels; scaled per monitor while editing.
 EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_MODE_VALUE = "ExternalFloatingLyricsKaraokeColorMode"
 EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_FAVORITES_VALUE = "ExternalFloatingLyricsKaraokeColorFavorites"
 EXTERNAL_FLOATING_LYRICS_KARAOKE_COLOR_DEFAULT_VALUE = "ExternalFloatingLyricsKaraokeColorDefaultMode"
@@ -1337,6 +1377,14 @@ KARAOKE_SATURATION_MAX = 2.00
 KARAOKE_SHADOW_SIZE_MIN = 0.00
 KARAOKE_SHADOW_SIZE_MAX = 0.18  # Fraction of lyric height, therefore DPI/resolution independent.
 KARAOKE_SHADOW_SIZE_DEFAULT = 0.045
+# V372: at 4K-sized artwork windows, per-pixel Pillow lyric bitmaps can be
+# millions of pixels and briefly steal enough CPU/GIL time to make the console
+# visualizer hitch.  Above this client-area threshold, simple artwork lyric
+# treatments use lightweight Tk vector glyphs instead.  Advanced timed effects,
+# colored-emoji compositing, and the cursive-fix path retain the full bitmap
+# renderer because they genuinely need per-pixel masks.
+ARTWORK_LYRIC_NATIVE_FAST_PATH_WINDOW_PIXELS = 3_500_000
+ARTWORK_LYRIC_NATIVE_FAST_PATH_TICK_MS = 50
 KARAOKE_TIMED_EMPHASIS_BAND_FRACTION = 0.10
 EXTERNAL_ALBUM_ART_MANUAL_IDLE_INPUT_GRACE_SECONDS = 3.0  # Ctrl+Alt+I manual idle preview ignores input during this grace so the initiating mouse/keyboard can be put down.
 EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MIN = 0.50
@@ -1409,6 +1457,55 @@ ART_COLOR_VISUALIZER_BAR_BLEND_MODES = (
     "Hybrid (luma + color)",
 )
 ART_COLOR_VISUALIZER_BAR_BLEND_MODE = 1  # 0=legacy color mix, 1=luma detail, 2=hybrid
+# V382 artwork-detail selectors. Internal mode IDs intentionally remain stable
+# for V379/V380 registry compatibility; ART_MICROTILE_DETAIL_MODE_DISPLAY_ORDER
+# controls the human-facing dropdown order instead. Every label explicitly says
+# how many subcells are sampled and whether native Unicode mosaic glyphs may be
+# emitted. Modes 10..12 are "exact-only adaptive" experiments: they use an
+# exact high-resolution DRCS glyph when the requested mask is present in the
+# mode-specific bank, otherwise they fall back to an exact 2×4 Unicode octant.
+# They therefore never substitute the nearest *wrong* mask, while still exposing
+# >8-subcell detail wherever the current high-resolution mask is representable.
+ART_MICROTILE_DETAIL_MODE_GEOMETRIES = (
+    (1, 1),  # 0: single-character color only; no within-cell mask
+    (2, 2),  # 1: quadrant / DRCS
+    (2, 3),  # 2: sextant / DRCS
+    (2, 4),  # 3: octant / DRCS approximation bank
+    (3, 3),  # 4: 9-subcell DRCS approximation bank
+    (2, 5),  # 5: 10-subcell DRCS approximation bank
+    (3, 4),  # 6: 12-subcell DRCS approximation bank
+    (2, 2),  # 7: Unicode + DRCS quadrant
+    (2, 3),  # 8: Unicode + DRCS sextant
+    (2, 4),  # 9: Unicode + DRCS octant
+    (3, 3),  # 10: adaptive exact 3×3, exact 2×4 fallback
+    (2, 5),  # 11: adaptive exact 2×5, exact 2×4 fallback
+    (3, 4),  # 12: adaptive exact 3×4, exact 2×4 fallback
+    (2, 4),  # 13: artwork-adaptive seamless 2×4 hybrid
+)
+ART_MICROTILE_DETAIL_HYBRID_BASE_MODE = {7: 1, 8: 2, 9: 3}
+ART_MICROTILE_DETAIL_ADAPTIVE_EXACT_BASE_MODE = {10: 4, 11: 5, 12: 6}
+ART_MICROTILE_DETAIL_SEAMLESS_BASE_MODE = {13: 3}
+ART_MICROTILE_DETAIL_MODE_NAMES = (
+    "Single-character detail (1 subcell — 100% exact output — Unicode mosaics OFF; color cell only)",
+    "2×2 quadrant detail (4 subcells — 100% exact — Unicode mosaics OFF; DRCS only)",
+    "2×3 sextant detail (6 subcells — 100% exact — Unicode mosaics OFF; DRCS only)",
+    "2×4 octant detail (8 subcells — 43% exact masks — Unicode mosaics OFF; DRCS only)",
+    "3×3 mosaic detail (9 subcells — 21% exact masks — Unicode mosaics OFF; DRCS only)",
+    "2×5 mosaic detail (10 subcells — 11% exact masks — Unicode mosaics OFF; DRCS only)",
+    "3×4 mosaic detail (12 subcells — 2.7% exact masks — Unicode mosaics OFF; DRCS only)",
+    "2×2 quadrant hybrid (4 subcells — 100% exact — Unicode mosaics ON; Unicode+DRCS)",
+    "2×3 sextant hybrid (6 subcells — 100% exact — Unicode mosaics ON; Unicode+DRCS)",
+    "2×4 octant hybrid (8 subcells — 100% exact — Unicode mosaics ON; Unicode+DRCS)",
+    "3×3 adaptive exact hybrid (up to 9 subcells — 100% exact output — Unicode mosaics ON; exact DRCS or exact 2×4 fallback)",
+    "2×5 adaptive exact hybrid (up to 10 subcells — 100% exact output — Unicode mosaics ON; exact DRCS or exact 2×4 fallback)",
+    "3×4 adaptive exact hybrid (up to 12 subcells — 100% exact output — Unicode mosaics ON; exact DRCS or exact 2×4 fallback)",
+    "2×4 adaptive seamless hybrid (8 subcells — 100% exact — Unicode mosaics ON; used only when needed after artwork-adaptive DRCS)",
+)
+ART_MICROTILE_DETAIL_MODE_EXACT = frozenset({0, 1, 2, 7, 8, 9, 10, 11, 12, 13})
+# Human-facing order: all 100%-exact-output modes first, then approximate
+# modes in increasing subcell count. The web UI renders these as optgroups.
+ART_MICROTILE_DETAIL_MODE_DISPLAY_ORDER = (0, 1, 7, 2, 8, 9, 13, 10, 11, 12, 3, 4, 5, 6)
+ART_MICROTILE_DETAIL_MODE_DEFAULT = 9  # 2×4 octant hybrid, 100% exact
 # V251: web autoslides configure a local runtime oscillator once; the console
 # visualizer samples it directly on each already-scheduled paint.  The browser
 # no longer sends dozens of strength updates per second, and long cycles remain
@@ -1824,7 +1921,7 @@ semantic = {'address': '📍',
          'devil': '😈',
          'diamond': '🔷',
          'dice': '🎲',
-         'die': '⚰️',
+         'die': '☠️',
          'dinosaur': '🦖',
          'disk': '💾',
          'divide': '➗',
@@ -2205,7 +2302,6 @@ semantic = {'address': '📍',
          'ring': '💍',
          'rings': '💍💍',
          'rise': '📈',
-         'rising': '📈',
          'river': '🏞️',
          'road': '🛣️',
          'robot': '🤖',
@@ -2318,7 +2414,7 @@ semantic = {'address': '📍',
          'surprised': '😮',
          'sushi': '🍣',
          'sweaty': '💦',
-         'moist': '💦',                
+         'moist': '💦',
          'sweet': '🍭',
          'sweets': '🍭',
          'sword': '⚔️',
@@ -2437,7 +2533,7 @@ semantic.update({
     "go": "🟢", "wet": "💧", "umbrella": "☔️", "enterprise": "🏢",
     "life": "🌱", "mind": "🧠", "head": "🗣️", "day": "📆", "end": "🔚",
     "way": "🛣️", "bad": "👎", "good": "👍", "no": "🚫", "right": "👉",
-    "left": "👈", "up": "⬆️", "down": "⬇️", "away": "👋", 
+    "left": "👈", "up": "⬆️", "down": "⬇️", "away": "👋",
     "think": "💭", "know": "💡", "say": "🗣️", "tell": "📣", "make": "🛠️",
     "die": "💀", "lost": "🧭", "scissor": "✂", "cut": "✂",
     "one": "❶", "two": "❷", "three": "❸", "four": "❹", "five": "❺",
@@ -2488,26 +2584,11 @@ semantic["on"] = "🔛"
 # Existing curated mappings win; known filler/placeholder glyphs are not allowed to overwrite them.
 EMOJIMAX_CANDIDATE_SYNC_V252 = {
     '9/11': '🛩🏢🛩🏢🔥',
-    'aa': '🫧',
-    'abandon': '🗅',
-    'abandoned': '🗅',
-    'abandoning': '🗅',
-    'abated': '🌀',
-    'abbey': '🛐',
-    'abdomen': '🫀',
-    'abducted': '🤌',
-    'abide': '🧸',
-    'aboard': '🔤',
-    'abolish': '🫱',
-    'abolished': '🫱',
-    'abort': '🌀',
-    'absinthe': '🌿',
     'absorb': '🤌',
     'absorbed': '🤌',
     'absorbing': '🤌',
     'abused': '🫱',
     'abusing': '🫱',
-    'ac': '🫧',
     'academy': '🪢',
     'accelerate': '🚄',
     'accelerated': '🚄',
@@ -2534,7 +2615,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'achieved': '🫱',
     'achieving': '🫱',
     'aching': '💴',
-    'acids': '🫧',
     'acknowledge': '🧾',
     'acknowledged': '🧾',
     'acknowledging': '🧾',
@@ -2604,11 +2684,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'afterlife': '🕰️',
     'aftermath': '🌀',
     'afternoons': '🌆',
-    'ag': '🫧',
-    'agencies': '🏣',
-    'agency': '🏣',
-    'aggravated': '🌀',
-    'aggravation': '🫶',
     'agitated': '🫱',
     'agree': '🫱\u200d🫲',
     'agreed': '🫱\u200d🫲',
@@ -2626,7 +2701,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'airplanes': '✈️',
     'airports': '🛫',
     'airs': '🫁',
-    "al's": '🫧',
     'alarmed': '⏰',
     'alarms': '⏰',
     'album': '💿',
@@ -2643,12 +2717,10 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'aligned': '🌀',
     'alignment': '☌',
     'alimony': '🗃️',
-    'aller': '🫧',
     'alleviate': '🫀',
     'alley': '🛣️',
     'allied': '🫱',
     'allies': '🪢',
-    'alligator': '🫧',
     'allow': '🫱',
     'allowance': '🗃️',
     'allowed': '🫱',
@@ -2663,8 +2735,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'altered': '🌀',
     'altering': '🌀',
     'alternate': '⛕',
-    'aluminium': '🫧',
-    'aluminum': '🫧',
     'amazement': '🫶',
     'amazing': '🥇',
     'ambition': '🫶',
@@ -2673,9 +2743,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'amends': '🗃️',
     "america's": '🗺️',
     'americanized': '🌀',
-    'amethyst': '🫧',
     'amid': '🔤',
-    'ammonia': '🫧',
     'amoeba': '🐾',
     'amoebas': '🐾',
     'amongst': '🔤',
@@ -2708,7 +2776,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'angles': '∠',
     'angst': '🫶',
     'anguish': '🫶',
-    'anime': '🫧',
     'animosity': '🫶',
     'ankle': '🫀',
     'ankles': '🫀',
@@ -2734,7 +2801,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'anxiously': '😰',
     "anybody's": '🧑\u200d🤝\u200d🧑',
     "anyone's": '🧑\u200d🤝\u200d🧑',
-    "anything's": '🫧',
     'anyways': '🤷',
     'apartments': '🛋️',
     'apathy': '🫶',
@@ -2764,7 +2830,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'apprehension': '🫶',
     'apricot': '🌿',
     'april': '🕰️',
-    'ar': '🫧',
     'arab': '🐎',
     'arabian': '🐎',
     'arabs': '🐎',
@@ -2800,14 +2865,12 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'arrows': '🗘',
     'arse': '🍑',
     'arsehole': '🫀',
-    'arsenic': '🫧',
     'arteries': '🫀',
     'artery': '🫀',
     'articulated': '🚛',
     'articulating': '🫴',
     'artists': '🧑\u200d🎨',
     'arts': '🎨',
-    'asbestos': '🫧',
     'ascending': '🎜',
     'ascent': '🎜',
     'ascertain': '🙈',
@@ -2816,7 +2879,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'aslan': '🦁',
     'asleep': '🛌',
     'aspen': '🌿',
-    'asphalt': '🫧',
     'assailed': '🥇',
     'assassinate': '🫱',
     'assassinated': '🫱',
@@ -2949,7 +3011,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'balloons': '🎈',
     'ballot': '🗴',
     'balls': '⚽⚽⚽',
-    'balm': '🫧',
     'bamboo': '🌿',
     'bananas': '🍌🍌🍌',
     "band's": '🎙️',
@@ -3087,11 +3148,9 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'benefit': '➕',
     'benefits': '🗃️',
     'benevolence': '🫶',
-    'benjamin': '🫧',
     'benny': '🌿',
     'berlin': '🐻',
     'berth': '🧘',
-    'beryl': '🫧',
     'beset': '🫶',
     'beside': '🔤',
     'besides': '🔤',
@@ -3104,7 +3163,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'bevy': '🪢',
     'bewitched': '🫶',
     'beyond': '↗️',
-    'bh': '🫧',
     'bi': '🔤',
     'bias': '🫤',
     'biased': '🥇',
@@ -3118,7 +3176,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'bikes': '🚲',
     'bikinis': '👙',
     'bile': '🫀',
-    'bilge': '🫧',
     "bill's": '🧾',
     'billing': '🧾',
     'billion': '🔢',
@@ -3143,7 +3200,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'biting': '👅',
     'bitterness': '🫶',
     'biz': '🎲',
-    'bk': '🫧',
     'blackbird': '🐾',
     'blacked': '⚫',
     'blackened': '🌀',
@@ -3212,7 +3268,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'blowing': '🌬',
     'blown': '🫀',
     'blowout': '🎟️',
-    'blubber': '🫧',
     'bludgeon': '♣',
     'bluebell': '🌿',
     'bluebird': '🐾',
@@ -3224,7 +3279,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'blurred': '🦻',
     'blushed': '🫀',
     'blushing': '🫀',
-    'bm': '🫧',
     'boa': '🧣',
     'boar': '🐗',
     'boarded': '🙾',
@@ -3288,7 +3342,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'boredom': '🫶',
     'boring': '⛚',
     'born': '🐣',
-    'boron': '🫧',
     'borrow': '🫴',
     'borrowed': '🫴',
     "boss's": '🧑\u200d💼',
@@ -3323,7 +3376,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'boys': '👦👦',
     'bozo': '🪿',
     'bozos': '🪿',
-    'br': '🫧',
     'braced': '🫶',
     'bracing': '🫶',
     'brag': '🙵',
@@ -3340,21 +3392,8 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'branching': '🍴',
     'branded': '🏷',
     'brandishing': '🤌',
-    'brass': '🫧',
-    'brat': '👿',
-    'brats': '👿',
-    'brave': '🤩',
-    'bravely': '🤩',
     'brawl': '🎟️',
     'breached': '🫱',
-    'break': '🪓',
-    'breaker': '🪓',
-    'breakers': '🎟️',
-    'breakin': '🪓',
-    'breaking': '🪓',
-    'breast': '🍒',
-    'breasted': '🤱',
-    'breasts': '🍒',
     'breath': '😤',
     'breathe': '🫁',
     'breathed': '🫁',
@@ -3372,21 +3411,8 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'bribes': '🗃️',
     'bricks': '🧱',
     'bride': '👰',
-    'brides': '👰',
-    'bridges': '🌉',
-    'bridget': '👰',
-    'bridle': '🗸',
-    'brigade': '🪢',
-    'brightened': '🌀',
-    'brightens': '🌀',
-    'brighter': '🔆',
-    'brightly': '🔆',
-    'brightness': '🔆',
-    'brilliant': '🥇',
-    'brilliantly': '🤩',
-    'brim': '🫦',
-    'brimstone': '🫧',
-    'brine': '🫧',
+    'brides': '👰👰👰',
+    'bridges': '🌉🌉🌉',
     'bringer': '🫴',
     'bringing': '🫴',
     'brings': '🫴',
@@ -3401,7 +3427,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'broke': '🪓',
     'bronco': '🐾',
     'brontosaurus': '🦕',
-    'bronze': '🫧',
     'brood': '🪢',
     'broom': '🧹',
     'broth': '🗠',
@@ -3413,17 +3438,13 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'brownie': '🧝',
     'browning': '🟤',
     'browns': '🟤',
-    'brows': '🫀',
-    'bruised': '🤌',
     'brush': '🖌️',
     'brushed': '🤌',
     'brushing': '🤌',
     'brutal': '🫠',
     'brutalize': '🫱',
     'brutally': '🫠',
-    'bubble': '🫧',
     'bubbled': '🗰',
-    'bubbles': '🫧',
     'bubbling': '🗰',
     'buck': '💲',
     "buck's": '💲',
@@ -3522,13 +3543,11 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'cackle': '🎟️',
     'cacophony': '🎟️',
     'cactus': '🌵',
-    'caffeine': '🫧',
     'caged': '🫱',
     'cain': '🔤',
     'caked': '🎂',
     'cakes': '🎂',
     'calamity': '🎟️',
-    'calcium': '🫧',
     'calculator': '🖩',
     'calendars': '📅',
     'calf': '🐾',
@@ -3578,9 +3597,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'caramel': '🍬',
     'caravan': '🚄',
     'carbine': '🥆',
-    'carbon': '🫧',
     'carcass': '🐾',
-    'cardboard': '🫧',
     'cards': '🃏🃏🃏',
     'cared': '🚗',
     'cares': '🚗',
@@ -3620,7 +3637,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'cataclysm': '🌀',
     'catalog': '🕮',
     'catalogue': '🕮',
-    'catalyst': '🫧',
     'catapult': '🤌',
     'catastrophe': '🎟️',
     'categories': '🪢',
@@ -3640,7 +3656,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'caw': '🎟️',
     'cd': '💿',
     'cds': '💿💿💿',
-    'ce': '🫧',
     'cease': '🚏',
     'ceased': '🚏',
     'ceases': '🚏',
@@ -3650,7 +3665,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'celebrations': '🎊',
     'cells': '🧫',
     'celluloid': '🎞',
-    'cement': '🫧',
     'cemetery': '⛼',
     'censor': '🫱',
     'censored': '🫱',
@@ -3666,9 +3680,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'certain': '🎯',
     'certificate': '🗎',
     'certificates': '🗎',
-    'cf': '🫧',
     'ch': '🗣️',
-    'chad': '🫧',
     'chained': '⛓️',
     'chains': '⛓️',
     'chairs': '🪑🪑🪑',
@@ -3681,7 +3693,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'chapel': '🛐',
     'chapters': '📚',
     'char': '🌦️',
-    'charcoal': '🫧',
     'charged': '🥇',
     'charging': '🥇',
     'chariot': '🩤',
@@ -3712,7 +3723,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'cheering': '🫶',
     'cheetah': '🐈',
     'chemical': '⚗️',
-    'chemicals': '🫧',
     'chen': '🐾',
     'cheque': '🗸',
     'cherish': '🫶',
@@ -3758,7 +3768,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'choke': '🫀',
     'choked': '🫀',
     'choking': '🫀',
-    'cholesterol': '🫧',
     'choose': '🧭',
     'chooses': '🧭',
     'choosing': '🧭',
@@ -3775,7 +3784,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'christians': '✝️✝️✝️',
     'christmas': '🎄',
     'christmastime': '🎄',
-    'chrome': '🫧',
     'chromosomes': '🫀',
     'chucked': '🤌',
     'chuckled': '🫀',
@@ -3804,7 +3812,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'citizens': '👥',
     "city's": '🏙️',
     'civilizations': '🪢',
-    'cl': '🫧',
     'clack': '🎟️',
     'claimed': '🛄',
     'claiming': '🛄',
@@ -3827,8 +3834,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'clattering': '🦻',
     'claw': '🤈',
     'claws': '🐾',
-    'clay': '🫧',
-    'clays': '🫧',
     'cleaned': '🧹',
     'cleaner': '🧹',
     'cleaning': '🧹',
@@ -3897,14 +3902,12 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'clutching': '🤌',
     'coach': '🚃',
     'coalition': '🪢',
-    'coals': '🫧',
     'coaster': '🎢',
     'coated': '🧥',
     'coates': '🧥',
     'coating': '🧥',
     'coats': '🧥',
     'cob': '🐎',
-    'cobalt': '🫧',
     'cobra': '🐾',
     'cobwebs': '🕸',
     'coca': '🌿',
@@ -4157,30 +4160,8 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'cosmos': '🗺',
     'cost': '💲',
     'costa': '🫀',
-    'costing': '🧾',
-    'costs': '🧾',
-    'cot': '🛏',
     'couch': '🛋️',
-    'cough': '😷',
-    'coughed': '🫀',
-    'coughing': '🫀',
-    "could've": '🔤',
-    'countries': '🌍🌎🌏',
-    'country': '🗺️',
-    "country's": '🗺️',
-    'coupled': '💑',
-    'couples': '💑',
-    'coupon': '🗎',
-    'coupons': '🗎',
-    'courage': '🦁',
-    'courses': '🧭',
-    'coursing': '🧭',
-    'courts': '📜',
-    'coven': '🪢',
-    'coverage': '🗃️',
-    'covered': '📔',
-    'covering': '📔',
-    'covers': '📔',
+    'couples': '💑💑',
     'covet': '🫶',
     'coveted': '🫶',
     'covets': '🫶',
@@ -4190,9 +4171,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'cowboys': '🤠',
     'cower': '🐄',
     'cows': '🐄',
-    'cox': '🫧',
     'coyote': '🐾',
-    'cr': '🫧',
     'crabs': '🦀',
     'cracked': '🪓',
     'cracker': '🪓',
@@ -4200,7 +4179,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'cracking': '🪓',
     'crackle': '🎟️',
     'crackled': '🦻',
-    'crackling': '🫧',
     'crackpot': '🔩',
     'crackpots': '🔩',
     'cracks': '💥',
@@ -4250,7 +4228,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'critter': '🐾',
     'critters': '🐾',
     'croaked': '🎲',
-    'crock': '🫧',
     'crocodile': '🐊',
     'crocodiles': '🐊',
     'croissant': '🥐',
@@ -4294,9 +4271,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'crystal': '🔮',
     'crystallized': '🌀',
     'crystals': '🔮',
-    'cs': '🫧',
     'ct': '🐈',
-    'cu': '🫧',
     'cube': '🧊',
     'cubes': '🧊',
     'cuckoo': '🪿',
@@ -4345,7 +4320,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'cute': '🪷',
     'cutting': '🤌',
     'cuz': '🔤',
-    'cyanide': '🫧',
     'cycle': '🔄',
     'cycles': '🕰️',
     'cyclone': '🌀',
@@ -4409,8 +4383,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'dazzle': '🦻',
     'dazzled': '🦻',
     'dazzling': '🤩',
-    'db': '🫧',
-    'ddt': '🫧',
     'de': '🔤',
     'dea': '🪢',
     'deadline': '🕰️',
@@ -4424,7 +4396,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     "death's": '⚰️',
     'deathbed': '🛏',
     'deaths': '⚰️',
-    'debris': '🫧',
     'debut': '🚫',
     'decade': '🔟',
     'decades': '🔟',
@@ -4511,7 +4482,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'depression': '😞',
     'deprived': '🫴',
     'derelict': '🏚',
-    'des': '🫧',
     'descendants': '🪢',
     'descending': '🎝',
     'descent': '🎟️',
@@ -4545,7 +4515,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'dethroned': '🫱',
     'detonate': '🌀',
     'detonation': '🎟️',
-    'detritus': '🫧',
     'deuce': '💕',
     'devalue': '🌀',
     'devastate': '🌀',
@@ -4566,7 +4535,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'devour': '🤌',
     'devoured': '🤌',
     'devouring': '🤌',
-    'dew': '🫧',
     'dia': '🪢',
     'dial': '☎️',
     'dialogue': '🕮',
@@ -4602,7 +4570,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'diminished': '🗛',
     'diminishing': '🗛',
     'dimmed': '🦻',
-    'dimples': '🫧',
     'din': '🎟️',
     'dined': '🦻',
     'diner': '🚃',
@@ -4611,7 +4578,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'dink': '🪢',
     'dinner': '🍽',
     'dinosaurs': '🦖🦖🦖',
-    'dioxide': '🫧',
     'dip': '◇',
     'diploma': '🗎',
     'dipped': '🤌',
@@ -4740,7 +4706,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'doggy': '🐕',
     'dois': '🪢',
     'dolls': '🎎',
-    'dolomite': '🫧',
     'dolphins': '🐬',
     'domain': '🌐',
     'dome': '🏟️',
@@ -4833,7 +4798,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'drifted': '🧻',
     'drifting': '🧻',
     'drifts': '🧻',
-    'driftwood': '🫧',
     'drilled': '🤌',
     'drinker': '🥤',
     'drinkers': '🥤',
@@ -4856,7 +4820,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'droop': '🏳',
     'drooping': '🏳',
     'droplets': '🌢',
-    'droppings': '🫧',
     'drove': '🏎️',
     'droves': '🏎️',
     'drown': '🤌',
@@ -4873,7 +4836,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'drunkenness': '🍹',
     'drunks': '🥴',
     'drying': '🌀',
-    'ds': '🫧',
     'duality': '🪢',
     'dubbed': '🨄',
     'ducked': '🦆',
@@ -4889,7 +4851,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'dumping': '🫴',
     'dumps': '🫴',
     'dun': '🐎',
-    'dung': '🫧',
     'duplicate': '🧬',
     'duration': '🕰️',
     'during': '🔤',
@@ -4898,8 +4859,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'dusty': '😓',
     'dvd': '📀',
     'dvds': '📀',
-    'dy': '🫧',
-    'dye': '🫧',
     'dynasty': '🪢',
     "e's": '🙒',
     'eagerness': '🫶',
@@ -4926,7 +4885,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'economy': '💹',
     'ecosystem': '🪢',
     'ecstasy': '🤩',
-    'ectoplasm': '🫧',
     'eden': '☰',
     'edifice': '🏗',
     'edinburgh': '🏰',
@@ -4974,7 +4932,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'eliminated': '🌀',
     'eliminating': '🌀',
     'elite': '🪢',
-    'elixir': '🫧',
     'elm': '🌿',
     'elmer': '🌿',
     'elongated': '🌀',
@@ -4997,7 +4954,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'emergency': '🚨',
     'emerges': '🌀',
     'emerging': '🌀',
-    'emery': '🫧',
     'eminence': '🗈',
     'emitted': '🫀',
     'emotional': '🫀',
@@ -5093,8 +5049,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'envision': '🙈',
     'envisioned': '🙈',
     'envy': '🫶',
-    'enzyme': '🫧',
-    'enzymes': '🫧',
     'eons': '🕰️',
     'epidemic': '🎟️',
     'episodes': '📚',
@@ -5140,11 +5094,8 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'etched': '🪡',
     'eternal': '♾️',
     'eternity': '♾️',
-    'ether': '🫧',
     'ethics': '🧭',
-    'eu': '🫧',
     'euphoria': '🫶',
-    'eureka': '🫧',
     'euro': '💶',
     'europeans': '🇪🇺',
     'evaporate': '🌀',
@@ -5179,7 +5130,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'excitement': '🤩',
     'exciting': '🥳',
     'exclamation': '❕',
-    'excrement': '🫧',
     'excrete': '🫀',
     'excuses': '🗈',
     'execute': '🫱',
@@ -5187,7 +5137,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'exercise': '🏋️',
     'exertion': '💦',
     'exhaled': '🫀',
-    'exhaust': '🫧',
     'exhausted': '🫀',
     'exhausting': '🫀',
     'exiled': '🫱',
@@ -5284,7 +5233,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'falcon': '🐾',
     'fallen': '🍂',
     'falling': '📉',
-    'fallout': '🫧',
     'falls': '📉',
     'falsely': '❌',
     'falter': '🧇',
@@ -5319,7 +5267,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'fates': '🥠',
     'fathered': '👨',
     'fathers': '👨',
-    'fats': '🫧',
     'fauna': '🪢',
     'favored': '🫱',
     'favors': '🫱',
@@ -5330,7 +5277,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'fbi': '🪢',
     'fcc': '🪢',
     'fda': '🪢',
-    'fe': '🫧',
     'feared': '😨',
     'fearful': '🫠',
     'fearfully': '🫠',
@@ -5341,7 +5287,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'feathers': '🪶',
     'feature': '⭐',
     'february': '🕰️',
-    'feces': '🫧',
     'federation': '🪢',
     'fee': '🗃️',
     "feeling's": '🫀',
@@ -5370,7 +5315,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'fetus': '🐾',
     "fever's": '🤒',
     'fezzik': '💪',
-    'fiber': '🫧',
     'fiddle': '🎻',
     'fiddled': '🫱',
     'fiddling': '🎻',
@@ -5392,7 +5336,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'fill': '🫗',
     'filled': '🫗',
     'filler': '🫗',
-    'fillin': '🫧',
     'filling': '🫗',
     'fills': '🫗',
     'filly': '📁',
@@ -5424,7 +5367,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'fired': '🔥',
     'firelight': '🌀',
     'fires': '��🔥',
-    'firewood': '🫧',
     'fireworks': '🎆',
     'firing': '🔥',
     'firmly': '🖴',
@@ -5474,7 +5416,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'flea': '🐾',
     'fleas': '🐾',
     'flecked': '🤌',
-    'fleece': '🫧',
     'fleet': '🪢',
     'fleets': '🪢',
     "flick's": '🎥',
@@ -5485,8 +5426,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'flicks': '🎥',
     'flights': '✈️',
     'flinging': '🤌',
-    'flint': '🫧',
-    'flintstones': '🫧',
     'flipped': '🍁',
     'flipping': '🍁',
     'flips': '🍁',
@@ -5506,9 +5445,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'flourished': '🌀',
     'flowering': '🌸',
     'flows': '🌊',
-    'fluff': '🫧',
-    'fluid': '🫧',
-    'fluids': '🫧',
     'flushed': '😳',
     'flushing': '⚘',
     'flustered': '🫶',
@@ -5598,8 +5534,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'fourteen': '🔢',
     'fowl': '🍗',
     'foxes': '🦊',
-    'fr': '🫧',
-    'fraction': '🫧',
     'fractured': '🌀',
     'fragile': '🞨',
     'fragrance': '💐',
@@ -5635,7 +5569,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'frogs': '🐸',
     'fronting': '⏩',
     'fronts': '⏩',
-    'frost': '🫧',
     'frosted': '🍧',
     'frown': '🖉',
     'frowned': '🖉',
@@ -5665,7 +5598,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'fully': '🫗',
     'fumbled': '🤌',
     'fumbling': '🤌',
-    'fumes': '🫧',
     'fun': '🥳',
     'functioning': '🤌',
     'functions': '🗺',
@@ -5679,7 +5611,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'fur': '🧥',
     'furiously': '🤬',
     'furnished': '🫴',
-    'furs': '🫧',
     'further': '📏',
     'fury': '😡',
     'fused': '🌀',
@@ -5689,7 +5620,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'futures': '⏭️',
     'fuzz': '🪮',
     'fuzzy': '🌁',
-    'ga': '🫧',
     'gadget': '🏪',
     'gadgets': '🏪',
     'gagged': '🦻',
@@ -5717,9 +5647,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'gardener': '🪴',
     'gardeners': '🪴',
     'gardens': '🪴',
-    'gargle': '🫧',
     'gases': '⛽',
-    'gasoline': '🫧',
     'gasped': '🫀',
     'gasping': '🫀',
     'gather': '🤌',
@@ -5731,13 +5659,9 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'gazed': '👓',
     'gazes': '👓',
     'gazing': '👓',
-    'gb': '🫧',
     'gc': '🕰️',
-    'gd': '🫧',
-    'ge': '🫧',
     'geared': '⚙️',
     'gears': '⚙️',
-    'gel': '🫧',
     'gem': '💎',
     'gems': '💎',
     'gene': '🫀',
@@ -5854,7 +5778,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'gonads': '🫀',
     'gondola': '🏎',
     'gong': '🎐',
-    'goo': '🫧',
     'goodbye': '👋',
     'goodbyes': '🫡',
     'goodnight': '🌙',
@@ -5886,7 +5809,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     "grandfather's": '👴',
     "grandma's": '👵',
     "grandmother's": '👵',
-    'granite': '🫧',
     "grant's": '🗃️',
     'granted': '🫴',
     'grants': '🗃️',
@@ -5899,7 +5821,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'grasses': '🌿',
     'gratified': '🫶',
     'gratitude': '🫶',
-    'gravel': '🫧',
     'gravely': '🪦',
     'graves': '🪦',
     'graveyard': '⛼',
@@ -5911,7 +5832,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'graze': '🤌',
     'grazed': '🤌',
     'grazing': '🤌',
-    'grease': '🫧',
     'greased': '🤌',
     'greatest': '🥇',
     'greatly': '🤩',
@@ -5940,7 +5860,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'gripped': '🤌',
     'gripping': '🤌',
     'grips': '🤌',
-    'grit': '🫧',
     'gritted': '🤌',
     'grizzly': '🐾',
     'groin': '🫀',
@@ -5980,11 +5899,8 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'guilt': '😔',
     'guinea': '🗃️',
     'guitars': '🎸',
-    'gum': '🫧',
-    'gumbo': '🫧',
     'gunned': '🥇',
     'gunning': '🥇',
-    'gunpowder': '🫧',
     'guns': '🔫🔫🔫',
     'gurgle': '🎟️',
     'gurgling': '🗰',
@@ -6061,7 +5977,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'harder': '🔩',
     'hardest': '🔩',
     'harding': '🔩',
-    'hardwood': '🫧',
     'hare': '🐇',
     'hark': '🦻',
     'harmed': '🩹',
@@ -6093,7 +6008,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'hazard': '🥠',
     'haze': '🌫️',
     'hazy': '🌁',
-    'hb': '🫧',
     "head's": '🗣️',
     'headed': '🗣️',
     'heading': '🗣️',
@@ -6133,7 +6047,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'heightened': '🌀',
     'held': '🗃️',
     'helicopters': '🚁',
-    'helium': '🫧',
     'helmet': '⛑️',
     'helped': '🆘',
     'helper': '🆘',
@@ -6141,7 +6054,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'helping': '🆘',
     'helpless': '🪫',
     'helps': '🆘',
-    'hemp': '🫧',
     'hen': '🐾',
     'hens': '🐾',
     'herbs': '🌿',
@@ -6154,13 +6066,11 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'hesitates': '🧇',
     'hesitating': '🧇',
     'hexagram': '◇',
-    'hf': '🫧',
     'hg': '☿',
     'hi': '🫡',
     'hickory': '🌿',
     'hidden': '🔐',
     'hide': '🦻',
-    'hides': '🫧',
     'hiding': '🦻',
     'hierarchy': '🪢',
     'higher': '🔆',
@@ -6198,7 +6108,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'hmmmm': '🤔',
     'hmmmmm': '🤔',
     'hmmmmmm': '🤔',
-    'hn': '🫧',
     'hoard': '🗃️',
     'hockey': '🏑',
     'hog': '🐖',
@@ -6280,7 +6189,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'howe': '🔤',
     'howl': '🐺',
     'hr': '🕰️',
-    'hs': '🫧',
     'hub': '⛭',
     'hud': '🪢',
     'huge': '🦣',
@@ -6327,7 +6235,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'hut': '🛖',
     'huts': '🛖',
     'hybrids': '🕂',
-    'hydrogen': '🫧',
     'hyena': '🐾',
     'hyenas': '🐾',
     'hypnotize': '🫀',
@@ -6339,7 +6246,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     "i'ma": '🔤',
     'ibis': '🐾',
     'ic': '🪢',
-    'icicles': '🫧',
     'icing': '🍧',
     'icon': '🖶',
     'icons': '🖶',
@@ -6347,7 +6253,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'idiot': '🥴',
     'idiots': '🥴',
     'idling': '🤌',
-    'ig': '🫧',
     'ignite': '🌦️',
     'ignited': '🌦️',
     'ignorance': '🙈',
@@ -6397,7 +6302,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'impulse': '🧭',
     'impulses': '🧭',
     'inc': '🪢',
-    'incense': '🫧',
     'inches': '📏',
     'incident': '🎟️',
     'incidents': '🎟️',
@@ -6416,7 +6320,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'indie': '🪢',
     'indifference': '🫶',
     'indignation': '🫶',
-    'indigo': '🫧',
     'induce': '🪡',
     'induced': '🪡',
     'induction': '🎟️',
@@ -6540,11 +6443,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'invoke': '🪡',
     'invoked': '🪡',
     'invoking': '🪡',
-    'iodine': '🫧',
-    'iq': '🖇️',
-    'ir': '🫧',
-    'ira': '💢',
-    'iris': '🏳',
     'irons': '🧲',
     'irritate': '🫶',
     'irritated': '🫶',
@@ -6578,7 +6476,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'jackpot': '🍯',
     'jacks': '🎘',
     'jackson': '👨',
-    'jade': '🫧',
     'jagged': '🤉',
     'jaguar': '🐈',
     'jammed': '💩',
@@ -6667,7 +6564,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'keeps': '🗃️',
     'keine': '🔤',
     'kept': '🗃️',
-    'kerosene': '🫧',
     'kettle': '🕳',
     'keyboards': '⌨️',
     'keyed': '🔑',
@@ -6698,7 +6594,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'kindled': '🚒',
     "king's": '🤴',
     'kings': '🤴🤴🤴',
-    'kino': '🫧',
     'kip': '🕰️',
     'kirk': '🛐',
     'kissed': '💋',
@@ -6714,7 +6609,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'kkk': '🪢',
     'klan': '🪢',
     'klaus': '👨',
-    'kleenex': '🫧',
     'knee': '🦵',
     'kneel': '🤌',
     'kneeling': '🧎',
@@ -6737,9 +6631,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'knowing': '💡',
     'knuckle': '🫀',
     'kong': '🦍',
-    'kr': '🫧',
-    'kraft': '🫧',
-    'krypton': '🫧',
     'lab coat': '🥼',
     'labeled': '🏷️',
     'labelled': '🏷',
@@ -6786,7 +6677,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'lasting': '🏁',
     'lasts': '🏁',
     'lately': '🕰️',
-    'latex': '🫧',
     'latrine': '🚻',
     'latter': '🖇️',
     'laughed': '😂',
@@ -6795,7 +6685,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'launch': '🫱',
     'launched': '🫱',
     'launching': '🫱',
-    'lava': '🫧',
     "law's": '📜',
     'lawyers': '⚖️⚖️⚖️',
     'lay': '🧍',
@@ -6857,7 +6746,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'leverage': '🌀',
     'levy': '🗃️',
     'lex': '🔤',
-    'lh': '🫧',
     'li': '👤',
     "liar's": '🤥',
     'liars': '🤥',
@@ -6877,17 +6765,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'licorice': '🍬',
     'lid': '🧢',
     'lids': '👒',
-    'lieutenant': '🪖',
-    'lifeblood': '🫀',
-    'lifetimes': '🕰️',
-    "light's": '💡',
-    'lighted': '💡',
-    'lighten': '🫶',
-    'lightened': '🫶',
-    'lightening': '🫶',
-    'lighthouse': '⛯',
-    'lighting': '💡',
-    'lightly': '💡',
+    "light's": '💡’s',
     'lights': '💡💡',
     'liked': '🫶',
     'likely': '🎲',
@@ -6898,22 +6776,8 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'lily': '🌿',
     'limb': '🫀',
     'limbs': '🦵🦾',
-    'lime': '🫧',
-    'limestone': '🫧',
-    'limit': '🚧',
-    'limiting': '🌀',
     'limp': '🥀',
     'lincoln': '🐑',
-    'lined': '―',
-    'liner': '―',
-    'liners': '―',
-    'lining': '―',
-    'linked': '🔗',
-    'linking': '🔗',
-    'links': '🔗🔗',
-    'lino': '🫧',
-    'linoleum': '🫧',
-    'lint': '🫧',
     "lion's": '🦁',
     'lions': '🦁🦁🦁',
     'lipstick': '💄',
@@ -6959,7 +6823,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'lodge': '♣',
     'lodged': '🧀',
     'lodges': '♣',
-    'logs': '🫧',
     'loins': '🫀',
     'lollipop': '🍬',
     'lollipops': '🍬',
@@ -7012,17 +6875,13 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'lowers': '🔅',
     'lowest': '🛝',
     'lows': '🔅',
-    'lr': '🫧',
     'lsd': '🌈🫠',
-    'lu': '🫧',
-    'lube': '🫧',
     "luck's": '🍀',
     "lucy's": '🐾',
     'lug': '🤌',
     'lull': '🕰️',
     'lulled': '🫶',
     'lulu': '🧫',
-    'lumber': '🫧',
     'lumbered': '💷',
     'lump': '🪢',
     'lumps': '🪢',
@@ -7038,7 +6897,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'ma': '🔤',
     "ma'am": '🔤',
     "ma's": '🔤',
-    'mace': '🫧',
     "machine's": '⚙️',
     'madam': '🐞',
     'maddened': '🫶',
@@ -7049,7 +6907,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'mafia': '🪢',
     'maggot': '🐾',
     'maggots': '🐾',
-    'magma': '🫧',
     'magnets': '🧲',
     'magnificent': '🤩',
     'magnified': '🌀',
@@ -7110,14 +6967,12 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'manufactured': '🪡',
     'manufacturer': '🪢',
     'manufacturers': '🪢',
-    'manure': '🫧',
     'man’s': '👨’s',
     'mao': '👲',
     'maple': '🍁',
     'mapped': '🗺',
     'maps': '🗺️',
     'mar': '🌀',
-    'marble': '🫧',
     "march's": '🕰️',
     'mare': '🐎',
     'margin': '◇',
@@ -7141,7 +6996,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'martian': '👽',
     'marvelous': '🤩',
     'marxist': '🟥',
-    'mash': '🫧',
     'mashed': '🤌',
     'mask': '😷',
     'masked': '🤿',
@@ -7163,14 +7017,12 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'materialized': '🌀',
     'mates': '🧑\u200d🤝\u200d🧑',
     'matrix': '🪢',
-    'matte': '🫧',
     'matted': '🌀',
     'mattered': '⚛️',
     'matty': '👨',
     'maturity': '🕰️',
     'maw': '🪤',
     "mc's": '🕰️',
-    'md': '🫧',
     'meal': '🍽',
     'meandering': '🎐',
     'meantime': '⏳',
@@ -7222,7 +7074,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'meter': '🫱\u200d🫲',
     'meth': '🍷',
     'methamphetamine': '🍷',
-    'methane': '🫧',
     'metro': '🚇',
     'mi': '🎵',
     'mic': '🎤',
@@ -7250,13 +7101,10 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'minded': '🧠',
     'minding': '🧠',
     'minds': '🧠🧠🧠',
-    'mineral': '🫧',
-    'minerals': '🫧',
     'mingle': '🤌',
     'mingled': '🤌',
     'mingling': '🤌',
     'ministries': '🪢',
-    'mink': '🫧',
     'minorities': '🪢',
     'minority': '🪢',
     'mint': '🝴',
@@ -7284,11 +7132,8 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'mitt': '🐾',
     'mixed': '🌀',
     'mixing': '🌀',
-    'mixture': '🫧',
     'mmm': '😋',
-    'mn': '🫧',
     'mobs': '🪢',
-    'mocha': '🫧',
     'mockingbird': '🐾',
     'mode': '📳',
     'modem': '🖀',
@@ -7320,7 +7165,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     "monkey's": '🐒',
     'monkeys': '🐒🐒🐒',
     'monorail': '🚝',
-    'monoxide': '🫧',
     'monster': '👹',
     "monster's": '👾',
     'monstrosity': '👾',
@@ -7385,8 +7229,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'movements': '↔️↕️',
     'movies': '🎞🎞🎞',
     'mow': '🤌',
-    'mt': '🫧',
-    'muck': '🫧',
     'mucking': '🌀',
     'mucus': '🫀',
     'muddled': '🤌',
@@ -7433,7 +7275,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'nails': '💅',
     'naked': '🧥',
     'nap': '💩',
-    'napalm': '🫧',
     'napping': '🫀',
     'narnia': '🦁🚪❄️',
     'narration': '🧶',
@@ -7464,11 +7305,9 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'nearer': '🤏',
     'nearest': '🤏',
     'nearing': '🤏',
-    'nebula': '🫧',
     'necked': '🤌',
     'necks': '🫀',
     'necktie': '👔',
-    'nectar': '🫧',
     'needle': '🪡',
     'needles': '🪡🪡🪡',
     "needn't": '⛔',
@@ -7479,7 +7318,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'neighbors': '🏘️',
     'neil': '👨',
     'nein': '🔤',
-    'neon': '🫧',
     'neptune': '♆',
     'nerds': '🤓',
     'nervously': '😬',
@@ -7501,7 +7339,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'nicht': '🌃',
     'nicked': '🤌',
     'nickel': '🗈',
-    'nicotine': '🫧',
     'niggas': '♠',
     'nigger': '♠',
     'niggers': '♠',
@@ -7519,7 +7356,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'nipple': '🫀',
     'nipples': '🫀',
     'nirvana': '☰',
-    'nitrogen': '🫧',
     'nobility': '🪢',
     'nobodies': '🫥',
     'noel': '🎄',
@@ -7544,7 +7380,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'notebook': '📓',
     'notebooks': '📓',
     'noted': '📝',
-    'notepad': '🫧',
     'nothingness': '🎐',
     'nothings': '🫥',
     'noticed': '🫵',
@@ -7554,7 +7389,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'novel': '📖',
     'novels': '🕮',
     'nozzle': '🐽',
-    'np': '🫧',
     'nro': '🪢',
     'nsa': '🪢',
     'nt': '🪢',
@@ -7572,7 +7406,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'nuts': '🔩🔩',
     'nutshell': '🌿',
     'nw': '🖇️',
-    'nylon': '🫧',
     "o'brien": '🔤',
     "o'clock": '🔤',
     'oak': '🌿',
@@ -7599,7 +7432,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'obsessed': '🫶',
     'obsession': '🧭',
     'obsessions': '🧭',
-    'obsidian': '🫧',
     'obtain': '🫴',
     'obtained': '🫴',
     'obvious': '🎯',
@@ -7647,7 +7479,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'onset': '🚍',
     'onslaught': '🎟️',
     'ooo': '😮',
-    'ooze': '🫧',
     'opened': '📂',
     'opener': '📂',
     'openers': '📂',
@@ -7684,7 +7515,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'ordered': '📜',
     'ordering': '📜',
     'ordinary': '◽',
-    'ore': '🫧',
     'org': '🌐',
     'organisation': '🪢',
     'organizations': '🪢',
@@ -7744,7 +7574,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'oxen': '🐾',
     'oxygen': '🫁',
     'oyster': '🦪',
-    'ozone': '🫧',
     'pac': '🪢',
     'paces': '🕰️',
     'pacify': '🫶',
@@ -7754,7 +7583,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'packed': '🤌',
     'packet': '🪢',
     'packets': '🪢',
-    'packin': '🫧',
     'packing': '🤌',
     'pad': '🗊',
     'paddle': '🏓',
@@ -7806,7 +7634,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'parasite': '🧽',
     'parasites': '🧽',
     'parched': '🌀',
-    'parchment': '🫧',
     'parents': '🎅🤶',
     'paris': '🗼',
     'parish': '🪢',
@@ -7839,7 +7666,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'passions': '🫶',
     'passport': '🛂',
     'passports': '🛂',
-    'paste': '🫧',
     'patch': '🩹',
     'patched': '🤌',
     'patchouli': '🌿',
@@ -7871,9 +7697,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'payments': '🗃️',
     'payroll': '🗃️',
     'pays': '🧾',
-    'pb': '🫧',
     'pc': '🖳',
-    'pd': '🫧',
     'pea': '🫛',
     'peaches': '🍑',
     'peacock': '🦚',
@@ -7905,7 +7729,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'pegged': '💅',
     'pelican': '🐾',
     'pellets': '◇',
-    'pelt': '🫧',
     'pelted': '🌶',
     'pelvis': '🫀',
     'penance': '🫶',
@@ -7954,7 +7777,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'personal': '🖳',
     'personnel': '🪢',
     'persons': '🧑',
-    'perspex': '🫧',
     'perspiration': '💦',
     'persuade': '🫱',
     'persuaded': '🫱',
@@ -7966,7 +7788,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'pete': '👨',
     'peter': '🤌',
     'petition': '📿',
-    'petrol': '🫧',
     'petroleum': '🛢',
     'pets': '🐾',
     'petting': '😗',
@@ -7978,7 +7799,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'phase': '🌒',
     'phases': '🕰️',
     'phenomenon': '✨',
-    'pheromones': '🫧',
     "phone's": '📱',
     'phoned': '📱',
     'phones': '📱',
@@ -8066,11 +7886,9 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'plants': '🌱🌱🌱',
     'plaque': '🫀',
     'plasma': '🫀',
-    'plaster': '🫧',
     'plastered': '🤌',
     'plate': '🍽',
     'platform': '🚉',
-    'platinum': '🫧',
     'platoon': '🪢',
     'played': '▶️',
     'players': '▶️',
@@ -8086,7 +7904,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'pleasures': '🥳',
     'pledged': '🍹',
     'pledges': '🗃️',
-    'plexiglass': '🫧',
     'plexus': '🫀',
     'plop': '🎟️',
     'plot': '📖',
@@ -8104,8 +7921,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'plunger': '🪠',
     'plunging': '🤌',
     'pluto': '♇',
-    'plutonium': '🫧',
-    'po': '🫧',
     'pocketed': '🖩',
     'pod': '🫛',
     "pod's": '🫛',
@@ -8115,7 +7930,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'pointed': '📍',
     'pointing': '📍',
     'poisoned': '🫱',
-    'poisons': '🫧',
     'poke': '🌿',
     'poked': '🐽',
     'poking': '🐽',
@@ -8132,7 +7946,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'polling': '🫅',
     'polluting': '🌀',
     'polo': '🤽',
-    'polyester': '🫧',
     'pond': '🐸',
     'ponies': '🐎🐎🐎',
     'pony': '🐎',
@@ -8183,7 +7996,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     "power's": '🦾',
     'powered': '🦾',
     'powerful': '🦾',
-    "pr's": '🫧',
     'practiced': '🫱',
     'practicing': '🫱',
     'practising': '🪡',
@@ -8199,7 +8011,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'preaching': '📣',
     'precaution': '☡',
     'precautions': '☡',
-    'precursor': '🫧',
     'predict': '🤙',
     'predicted': '🤙',
     'predicting': '🤙',
@@ -8217,84 +8028,20 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'prepared': '🫡',
     'prepares': '🫡',
     'preparing': '🫡',
-    'presented': '🎁',
-    'presenting': '🎁',
-    'presently': '🎁',
-    'presents': '🎁',
-    'presidency': '🕰️',
-    "president's": '🏛️',
-    'presidents': '🏛️',
-    'pressed': '🤌',
-    'pressing': '🤌',
-    'pressures': '🌀',
-    'pretend': '🥸',
-    'pretended': '🥸',
-    'pretending': '🥸',
-    'pretends': '🥸',
-    'pretzels': '🥨',
-    'prevent': '🫱',
-    'prevented': '🫱',
-    'preventing': '🫱',
-    'prevention': '🧼',
-    'prevents': '🫱',
-    'previously': '⏮️',
+    'pretzels': '🥨🥨🥨',
     'price': '💲',
-    'priced': '🧾',
-    'prices': '🧾',
     'pricked': '🤌',
     'pride': '🏳\u200d🌈',
-    'pried': '🐽',
-    'priesthood': '🪢',
-    'priests': '🛐',
     'primates': '🐾',
     'primed': '🌀',
     "prince's": '🤴',
     'princes': '🤴',
     'princesses': '👸',
-    'principles': '📜',
-    'print': '🖨️',
-    'printed': '🪡',
-    'prints': '🐾',
-    'prisoners': '⛓️⛓️',
-    'private': '🔐',
-    'prize': '🏆',
-    'prized': '🫴',
-    'prizes': '🗃️',
-    'pro': '🔤',
-    'probation': '🕰️',
-    'probing': '🦯',
-    'proceeds': '🗃️',
-    'processed': '🌀',
-    'procession': '🎟️',
-    'processor': '🪢',
-    'procreate': '🫀',
-    'prod': '🤌',
-    'prodded': '🤌',
-    'prodding': '🤌',
-    'produce': '🪡',
-    'produced': '🪡',
-    'produces': '🪡',
-    'producing': '🪡',
-    'products': '∏',
-    'profession': '🪢',
+    'printer': '🖨️',
     'professor': '👩\u200d🏫',
-    "professor's": '📚',
-    'professors': '📚',
-    'profit': '🗃️',
-    'profits': '🗃️',
-    'profoundly': '🙇',
-    'programmed': '🧬',
-    'programming': '🧬',
-    'programs': '🧬',
-    'progressed': '🌀',
-    'progressing': '🌀',
-    'progression': '🪢',
     'prohibited': '🛇',
-    'projected': '📋',
-    'projectile': '🙬',
-    'projecting': '📋',
+    'projecting': '📽️ing',
     'projector': '📽',
-    'projects': '📋',
     'prolonged': '🌀',
     'prom': '🎟️',
     'promenade': '🎟️',
@@ -8308,7 +8055,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'pronounce': '🏷',
     'pronounced': '🏷',
     'prop': '🤌',
-    'propane': '🫧',
     'propelled': '🤌',
     'properties': '👬',
     'proportion': '🖇️',
@@ -8322,8 +8068,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'protecting': '🛟',
     'protection': '🛡️',
     'protects': '🛟',
-    'protein': '🫧',
-    'proteins': '🫧',
     'protested': '🦢',
     'protesting': '🦢',
     'protruding': '👝',
@@ -8343,8 +8087,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'prow': '🏹',
     'pry': '🐽',
     'ps': '🗈',
-    'pt': '🫧',
-    'pu': '🫧',
     'puberty': '🕰️',
     'public': '📢',
     'publish': '🪡',
@@ -8352,8 +8094,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'publisher': '🪢',
     'publishers': '🪢',
     'puck': '🏒',
-    'puddle': '🫧',
-    'puddles': '🫧',
     'puff': '🌀',
     'puffer': '🐡',
     'puffin': '🐾',
@@ -8408,7 +8148,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'pussies': '🫦',
     'pussy': '🐈',
     'pussycat': '🐈',
-    'putty': '🫧',
     'puzzling': '🫠',
     'pyramid': '◇',
     'pyramids': '◇',
@@ -8443,7 +8182,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'quitting': '🛑',
     'quiver': '🫨',
     'quotation': '🙷',
-    'ra': '🫧',
     'rabbits': '🐰',
     'rabble': '🪢',
     'raced': '🏁',
@@ -8527,11 +8265,9 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'ravens': '🐾',
     'raving': '🫱',
     'raw': '♮',
-    'rawhide': '🫧',
     "ray's": '🩻',
     'razor': '🪒',
     'razors': '🪒',
-    'rb': '🫧',
     'reach': '🎯',
     'reached': '🎯',
     'reaching': '🎯',
@@ -8831,9 +8567,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'rewarded': '🫱',
     'rewards': '🎟️',
     'rex': '🨀',
-    'rf': '🫧',
-    'rg': '🫧',
-    'rh': '🫧',
     'rhino': '🦏',
     'rhinoceros': '🦏',
     'rhinos': '🦏',
@@ -8864,7 +8597,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'ringer': '💍',
     'ringin': '🕭',
     'ringing': '💍',
-    'rinse': '🫧',
     'rip': '🤌',
     'ripped': '🤌',
     'ripping': '🤌',
@@ -8882,7 +8614,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     "river's": '🏞️',
     'rivers': '🏞️🏞️',
     'riveted': '✛',
-    'rn': '🫧',
     'roach': '🫀',
     'roadkill': '🐾',
     'roadrunner': '🐾',
@@ -8945,11 +8676,8 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'rows': '🪢',
     'royalties': '🗃️',
     'royalty': '🗃️',
-    'ru': '🫧',
     'rubbed': '🤌',
     'rubbing': '🤌',
-    'rubbish': '🫧',
-    'rubble': '🫧',
     'ruby': '🗃️',
     'ruck': '🪢',
     'rue': '🌿',
@@ -8972,7 +8700,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'ruptured': '🥲',
     'rushed': '🏎️',
     'rushing': '🏎️',
-    'rust': '🫧',
     'rustle': '🎟️',
     'rut': '◇',
     'ruthless': '🫠',
@@ -9001,7 +8728,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'saliva': '🫀',
     'salmon': '🐾',
     'saloon': '🧼',
-    'saltwater': '🫧',
     'salvage': '🫱',
     'salvation': '🛟',
     'samba': '🌿',
@@ -9014,9 +8740,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'santa': '🎅',
     "santa's": '🎅',
     'sap': '🫴',
-    'sapphire': '🫧',
     'sash': '🎽',
-    'sat': '🧍',
     'satan': '😈',
     "satan's": '😈’s',
     'satchel': '🎒',
@@ -9039,8 +8763,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     "say's": '🗣️',
     'saying': '🗣️',
     'says': '🗣️',
-    'sb': '🫧',
-    'sc': '🫧',
     'scaled': '⚖️',
     'scales': '⚖️',
     'scalp': '🫀',
@@ -9081,7 +8803,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'scrape': '🎟️',
     'scraped': '🫴',
     'scraping': '🫴',
-    'scraps': '🫧',
     'scratched': '🤌',
     'scratching': '🤌',
     'scrawled': '🪡',
@@ -9128,7 +8849,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'seated': '💺',
     'seating': '💺',
     'seats': '💺💺💺',
-    'seawater': '🫧',
     'seaweed': '🐾',
     'sec': '🕰️',
     'secluded': '🌀',
@@ -9155,7 +8875,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'seize': '🤌',
     'seized': '🤌',
     'seizing': '🤌',
-    'selenium': '🫧',
     'sell': '🛒',
     'seller': '🛒',
     'selling': '🧾',
@@ -9195,12 +8914,10 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'severely': '🖴',
     'severing': '🤌',
     'sew': '🤌',
-    'sewage': '🫧',
     'sewed': '🤌',
     'sewing': '🪡',
     'sexual': '🫦',
     'sexy': '🪷',
-    'sg': '🫧',
     'sha': '🔤',
     'shack': '🛖',
     'shackled': '🤌',
@@ -9254,7 +8971,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'shindig': '🪢',
     'shined': '🌞',
     'shines': '🌞',
-    'shingle': '🫧',
     'shinin': '🌞',
     'shining': '🌞',
     "ship's": '🚢’s',
@@ -9319,7 +9035,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'shutters': '🖵',
     'shutting': '🤌',
     'shuttle': '🏸',
-    'si': '🫧',
     'sickened': '🫶',
     'sickening': '🫠',
     'sickeningly': '🫠',
@@ -9345,8 +9060,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'silhouette': '🗾',
     'silhouetted': '🗾',
     'silhouettes': '🗾',
-    'silicon': '🫧',
-    'silicone': '🫧',
     'silly': '🥴',
     'silurian': '🕰️',
     'silver': '🥈',
@@ -9379,7 +9092,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'sizes': '🗚',
     'sizzle': '🎟️',
     'skag': '☳',
-    'skank': '🫧',
     'skate': '🛼',
     'skates': '🛼',
     'skating': '🛼',
@@ -9398,7 +9110,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     "sky's": '🌌',
     'slacked': '🫱',
     'slacking': '🫱',
-    'slag': '🫧',
     'slam': '🎟️',
     'slammed': '🤌',
     'slamming': '🤌',
@@ -9439,7 +9150,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'slight': '🤏',
     'slightest': '🤏',
     'slightly': '🤏',
-    'slime': '🫧',
     'slip': '🛝',
     'slipped': '🛝',
     'slippers': '🎚',
@@ -9460,13 +9170,10 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'slowing': '🐌',
     'slowly': '🐌',
     'slows': '🐌',
-    'sludge': '🫧',
     'slumbering': '🫀',
     'slurred': '🪡',
-    'slush': '🫧',
     'slut': '🐖',
     'sluts': '🐖',
-    'sm': '🫧',
     'smack': '🔩',
     'smacked': '🤌',
     'smacking': '🤌',
@@ -9549,8 +9256,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     "society's": '🪢',
     'socket': '🫀',
     'sockets': '🫀',
-    'soda': '🫧',
-    'sodium': '🫧',
     'sofa': '🛋️',
     'soft': '🧘',
     'soften': '🦻',
@@ -9559,7 +9264,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'softly': '🧘',
     'soil': '🪴',
     'soiled': '🤌',
-    'sol': '🫧',
     'solace': '🫶',
     'solar': '🪐',
     'sold': '🧾',
@@ -9567,17 +9271,14 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'solid': '🙪',
     'solos': '🚶\u200d➡️',
     'solstice': '🕰️',
-    'solutions': '🫧',
     'soma': '🖼',
     'somebodies': '🧑\u200d🤝\u200d🧑',
-    'somethings': '🫧',
     'somewhat': '🙁',
     'son': '\u200d🧒',
     "son's": '🧑\u200d🧑\u200d🧒',
     "song's": '🎵',
     'sons': '🧑\u200d🧑\u200d🧒',
     'sooner': '🔜',
-    'soot': '🫧',
     'soothe': '🫶',
     'soothed': '🫶',
     'soothing': '🫶',
@@ -9611,7 +9312,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'spangled': '🦻',
     'spanned': '🕂',
     'spans': '🕂',
-    'spar': '🫧',
     'spared': '🫴',
     'spark': '❇',
     'sparked': '❇',
@@ -9654,18 +9354,14 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'spewed': '🐈',
     'spewing': '🐈',
     'sphincter': '🫀',
-    'spice': '🫧',
-    'spices': '🫧',
     "spider's": '🕷️',
     'spiders': '🕷️🕷️🕷️',
     'spied': '🕵',
     'spies': '🕵',
     'spike': '🦻',
     'spikes': '🦻',
-    'spill': '🫧',
     'spilled': '🤌',
     'spilling': '🤌',
-    'spills': '🫧',
     'spinach': '🌿',
     'spindle': '🫀',
     'spines': '🫀',
@@ -9691,7 +9387,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'splattering': '🙵',
     'spleen': '🫀',
     'splendid': '🤩',
-    'splinters': '🫧',
     'spoil': '🫱',
     'spoiled': '🫱',
     'spoiling': '🫱',
@@ -9709,7 +9404,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'sprawling': '🤌',
     'spray': '💦',
     'sprayed': '🤌',
-    'sprays': '🫧',
     'spreading': '🤌',
     'spreads': '🤌',
     'springing': '🌡️',
@@ -9760,7 +9454,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'squirrels': '🐾',
     'squirted': '🤌',
     'squirting': '🤌',
-    'sr': '🫧',
     'ss': '🪢',
     'stab': '🫶',
     'stabbed': '🗡',
@@ -9776,7 +9469,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'stained': '🌀',
     'stakes': '🗃️',
     'stale': '😓',
-    'stalks': '🫧',
     'stallion': '🐎',
     'stamp': '◇',
     'stamped': '🖃',
@@ -9835,7 +9527,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'stereo': '📾',
     'sterilize': '🫀',
     'sterling': '🗃️',
-    'steroids': '🫧',
     'stew': '💦',
     'stick': '🥍',
     'sticker': '🏷',
@@ -9894,9 +9585,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'strangulation': '🗜',
     'strap': '🤌',
     'strapped': '🤌',
-    'straw': '🫧',
     'strawberries': '🍓',
-    'straws': '🫧',
     'strayed': '🧻',
     'streak': '🧼',
     'streaks': '🧼',
@@ -9912,8 +9601,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'stripe': '⛿',
     'stripes': '❆',
     'stripped': '🫴',
-    'stripper': '🫧',
-    'strippers': '🫧',
     'stripping': '🫴',
     'strive': '🫱',
     'striving': '🫱',
@@ -9927,7 +9614,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'structures': '◇',
     'struggled': '🫱',
     'struggling': '🫱',
-    'strychnine': '🫧',
     'stub': '🧾',
     'stubbed': '🤌',
     'stubs': '🧾',
@@ -9947,7 +9633,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'stupor': '🫶',
     'styled': '🏷',
     'styles': '📳',
-    'styrofoam': '🫧',
     'subdue': '🫱',
     'subdued': '🫱',
     'subgenus': '🪢',
@@ -9972,7 +9657,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'sucker': '🍭',
     'suction': '🌀',
     'sue': '🫱',
-    'suede': '🫧',
     'suffer': '🩹',
     'suffered': '🩹',
     'suffering': '🩹',
@@ -9982,8 +9666,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'suit': '🧥',
     'suitcases': '🧳',
     'suited': '🧥',
-    'sulfur': '🫧',
-    'sulphur': '🫧',
     "summer's": '🌡️',
     'summers': '🌡️',
     'summertime': '🕰️',
@@ -10123,11 +9805,9 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'taping': '💿',
     'tapped': '🤌',
     'tapping': '🤌',
-    'tar': '🫧',
     'target': '🎯',
     'targeted': '🞋',
     'targets': '🞋',
-    'tarmac': '🫧',
     'tarnished': '🤌',
     'tartar': '🐲',
     'taste': '👅',
@@ -10140,9 +9820,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'tax': '💸',
     'taxed': '🫴',
     'taxis': '🚕',
-    'tb': '🫧',
-    'tc': '🫧',
-    'te': '🫧',
     "teacher's": '🧑\u200d🏫',
     'teachers': '🧑\u200d🏫',
     'teaching': '👩\u200d🏫',
@@ -10202,7 +9879,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'testicle': '🔩',
     'testicles': '🔩',
     'testing': '🧪',
-    'testosterone': '🫧',
     'tests': '🧪',
     'tethered': '🤌',
     'textbook': '🖹',
@@ -10289,7 +9965,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'thunderstorm': '☈',
     'thunk': '🎟️',
     'thyroid': '🫀',
-    'ti': '🫧',
     'tick': '🦻',
     'ticked': '🦻',
     'ticker': '💓',
@@ -10317,8 +9992,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'tiller': '🌿',
     'tilt': '🎟️',
     'tilted': '🢨',
-    'timber': '🫧',
-    'timbers': '🫧',
     "time's": '⏳',
     'timed': '⏳',
     'timer': '⏳',
@@ -10326,7 +9999,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'timing': '⏳',
     'timothy': '🌿',
     'tin': '🥫',
-    'tinder': '🫧',
     'ting': '🦻',
     'tingle': '🫶',
     'tingling': '🦻',
@@ -10341,13 +10013,10 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'tissues': '🫀',
     'tit': '🤱',
     'titania': '🧚',
-    'titanium': '🫧',
     'titled': '🏷',
     'tits': '🍈🍈',
     'titties': '🤱',
     'titty': '🤱',
-    'tl': '🫧',
-    'tm': '🫧',
     'toad': '🐾',
     'toads': '🐾',
     'toast': '🍞',
@@ -10416,8 +10085,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'towers': '🗼',
     "town's": '🏘️',
     'towns': '🏘️',
-    'toxin': '🫧',
-    'toxins': '🫧',
     'toyed': '🫱',
     'tracked': '🛤️',
     'tracking': '🛤️',
@@ -10534,17 +10201,13 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'tunic': '🫀',
     'tuning': '🎙️',
     'tunnels': '🕳',
-    'turd': '🫧',
-    'turds': '🫧',
     'turkeys': '🦃',
     'turner': '🔃',
     'turnin': '🔃',
     'turning': '🔃',
     'turnover': '🖇️',
     'turns': '🔃',
-    'turpentine': '🫧',
     'turtles': '🐢',
-    'tusks': '🫧',
     'tuxedo': '🤵',
     "tv's": '📺',
     'twat': '🪿',
@@ -10646,7 +10309,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'upside': '🙃',
     'upward': '🙭',
     'upwards': '🙭',
-    'uranium': '🫧',
     'uranus': '♅',
     'urinate': '🫀',
     'urine': '🐃',
@@ -10678,9 +10340,7 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'vanity': '🫶',
     'vanquished': '🐚',
     'vans': '🚃',
-    'vapor': '🫧',
     'vaporized': '🤌',
-    'vapour': '🫧',
     'variation': '🎟️',
     'variations': '🎟️',
     'varied': '🌀',
@@ -10703,7 +10363,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'velvet': '🧵',
     'veneer': '🤈',
     'veneration': '🫶',
-    'venom': '🫧',
     'vent': '🕳',
     'venters': '🔈',
     'vents': '🕳',
@@ -10745,7 +10404,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'vine': '🙘',
     'vines': '🌿',
     'vino': '🍷',
-    'vinyl': '🫧',
     'violent': '⚔️',
     'violently': '🫠',
     'violet': '🟣',
@@ -10762,8 +10420,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'visual': '💿',
     'visualize': '🙈',
     'visualizing': '🙈',
-    'vitamin': '🫧',
-    'vitamins': '🫧',
     'voiced': '🗣️',
     'voices': '🗣️🗣️🗣',
     'volcanoes': '🌋',
@@ -10793,16 +10449,8 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'waited': '⏱️',
     'waiter': '⏱️',
     'waitin': '⏱️',
-    'waiting': '⏱️',
-    'waits': '⏱️',
-    'wakened': '🫀',
-    'wakes': '🛌',
-    'waking': '🛌',
-    'walked': '🚶',
-    'walker': '🚶',
     'walks': '🚶',
     'wallet': '👛',
-    'wallpaper': '🫧',
     'walrus': '🐾',
     'walsh': '👤',
     'waltz': '🎟️',
@@ -10858,7 +10506,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'waves': '🌊🌊🌊',
     'wavin': '🏳',
     'waving': '🌊',
-    'wax': '🫧',
     'waxed': '🗻',
     'waxing': '🌒',
     "way's": '🛣️',
@@ -10903,7 +10550,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     "weren't": '⛔',
     'wesley': '👨',
     'wetness': '💧',
-    'wetter': '🫧',
     'wetting': '🌀',
     'whack': '🤌',
     'whacked': '🤌',
@@ -10955,7 +10601,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'whores': '🫦',
     "why'd": '🔤',
     'wickedness': '🙈',
-    'wicker': '🫧',
     'wicket': '🏀',
     'wide': '↔️',
     'widen': '🌀',
@@ -11080,7 +10725,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'wrote': '📖',
     'wto': '🪢',
     "x's": '🔟',
-    'xe': '🫧',
     'xi': '🕚',
     'xt': '🎟️',
     'xxx': '🕜',
@@ -11094,12 +10738,10 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'yawned': '🫀',
     'yawning': '🥱',
     'yawns': '🥱',
-    'yb': '🫧',
     'ye': '🔤',
     "year's": '📅’s',
     'yearn': '🪘',
     'yearning': '🫶',
-    'yeast': '🫧',
     'yell': '📢',
     'yelled': '🤙',
     'yelling': '🤙',
@@ -11139,7 +10781,6 @@ EMOJIMAX_CANDIDATE_SYNC_V252 = {
     'zoo': '🦁🐒🦓',
     'zoomed': '🔎',
     'zooming': '🔎',
-    'zr': '🫧',
     'zu': '🔤',
     '😵': 'drunk',
 }
@@ -11361,12 +11002,7 @@ EMOJIMAX_V319_REMOVALS_BY_UNDO_CODE: dict[str, tuple[str, str]] = {
     "EMX319-012": ("afro", "🫀"),
     "EMX319-013": ("algae", "🐾"),
     "EMX319-014": ("alimony", "🗃️"),
-    "EMX319-015": ("alligator", "🫧"),
     "EMX319-016": ("allowance", "🗃️"),
-    "EMX319-017": ("aluminium", "🫧"),
-    "EMX319-018": ("aluminum", "🫧"),
-    "EMX319-019": ("amethyst", "🫧"),
-    "EMX319-020": ("ammonia", "🫧"),
     "EMX319-021": ("amoeba", "🐾"),
     "EMX319-022": ("amounts", "🗃️"),
     "EMX319-023": ("amputated", "🤌"),
@@ -11379,9 +11015,6 @@ EMOJIMAX_V319_REMOVALS_BY_UNDO_CODE: dict[str, tuple[str, str]] = {
     "EMX319-030": ("april", "🕰️"),
     "EMX319-031": ("armpit", "🫀"),
     "EMX319-032": ("armpits", "🫀"),
-    "EMX319-033": ("arsenic", "🫧"),
-    "EMX319-034": ("asbestos", "🫧"),
-    "EMX319-035": ("asphalt", "🫧"),
     "EMX319-036": ("assassinate", "🫱"),
     "EMX319-037": ("assassinated", "🫱"),
 }
@@ -11436,7 +11069,6 @@ for _v322_update_code, (_v322_updated_word, _v322_old_glyph, _v322_new_glyph) in
 # intentionally the one allowed 🌀 mapping.
 _V324_SYMBOL_PREFERENCES: dict[str, tuple[str, ...]] = {
     "🤌": ("pinch", "pinched", "pinching", "gesture", "gestures"),
-    "🫧": ("bubble", "bubbles", "bubbling", "foam", "foaming"),
     "🫀": ("heart", "hearts", "heartbeat", "heartbeats", "cardiac"),
     "🪢": ("knot", "knots", "tangle", "tangled", "tie"),
     "🫶": ("love", "loved", "loving", "affection", "adore"),
@@ -11481,11 +11113,75 @@ for _v327_code, (_v327_word, _v327_old, _v327_new) in EMOJIMAX_V327_UPDATES_BY_U
     else:
         semantic[_v327_word] = _v327_new
 
+# V385 requested cumulative Emojimaxx curation. Keep the historical V327 undo
+# ledger intact, then apply the newer player-facing behavior here.
+EMOJIMAX_V385_UPDATES_BY_UNDO_CODE = {
+    "EMX385-U001": ("shovel", semantic.get("shovel"), None),
+    "EMX385-U002": ("daylight", semantic.get("daylight"), "🌅"),
+}
+for _v385_code, (_v385_word, _v385_old, _v385_new) in EMOJIMAX_V385_UPDATES_BY_UNDO_CODE.items():
+    if _v385_new is None:
+        semantic.pop(_v385_word, None)
+    else:
+        semantic[_v385_word] = _v385_new
+
+# V390: the Unicode Chess Symbols / Xiangqi block (U+1FA00-U+1FA6F) is not
+# reliably available in the user's Windows Terminal font stack.  Earlier bulk
+# semantic matching accidentally chose several of those glyphs simply because
+# their Unicode names contain number words such as FORTY-FIVE and NINETY.
+# Replace every surviving Emojimaxx use of that block with broadly renderable
+# symbols (or remove the association) so an unsupported tofu box can never leak
+# into karaoke.  Number compounds deliberately use adjacent enclosed digits;
+# Windows-Terminal-only spacing is added *after the whole run*, never between
+# the digits, by windows_terminal_emojimax_replacement().
+EMOJIMAX_V390_UPDATES_BY_UNDO_CODE: dict[str, tuple[str, str | None, str | None]] = {
+    "EMX390-U001": ("baron", semantic.get("baron"), "👑"),
+    "EMX390-U002": ("bishop", semantic.get("bishop"), "♝"),
+    "EMX390-U003": ("cannon", semantic.get("cannon"), "💣"),
+    "EMX390-U004": ("cannons", semantic.get("cannons"), "💣"),
+    "EMX390-U005": ("chariot", semantic.get("chariot"), "🛞"),
+    "EMX390-U006": ("chariots", semantic.get("chariots"), "🛞"),
+    "EMX390-U007": ("dubbed", semantic.get("dubbed"), None),
+    "EMX390-U008": ("fifteen", semantic.get("fifteen"), "①⑤"),
+    "EMX390-U009": ("forty", semantic.get("forty"), "❹⓿"),
+    "EMX390-U010": ("general", semantic.get("general"), "🎖️"),
+    "EMX390-U011": ("generals", semantic.get("generals"), "🎖️"),
+    "EMX390-U012": ("instrument", semantic.get("instrument"), "🎼"),
+    "EMX390-U013": ("instruments", semantic.get("instruments"), "🎼"),
+    "EMX390-U014": ("knight", semantic.get("knight"), "♞"),
+    "EMX390-U015": ("knights", semantic.get("knights"), "♞"),
+    "EMX390-U016": ("ninety", semantic.get("ninety"), "❾⓿"),
+    "EMX390-U017": ("pawn", semantic.get("pawn"), "♟"),
+    "EMX390-U018": ("pawns", semantic.get("pawns"), "♟"),
+    "EMX390-U019": ("rex", semantic.get("rex"), None),
+    "EMX390-U020": ("rotated", semantic.get("rotated"), "🔄"),
+    "EMX390-U021": ("seventy", semantic.get("seventy"), "❼⓿"),
+    "EMX390-U022": ("twenty", semantic.get("twenty"), "❷⓿"),
+    "EMX390-U023": ("victimized", semantic.get("victimized"), "🎯"),
+    "EMX390-U024": ("worldwide", semantic.get("worldwide"), "🌐"),
+}
+for _v390_code, (_v390_word, _v390_old, _v390_new) in EMOJIMAX_V390_UPDATES_BY_UNDO_CODE.items():
+    if _v390_new is None:
+        semantic.pop(_v390_word, None)
+    else:
+        semantic[_v390_word] = _v390_new
+
+# V399: use Claire's requested heavy directional arrows. Keep an undo ledger so
+# each of these narrowly scoped substitutions can be restored independently.
+EMOJIMAX_V399_UPDATES_BY_UNDO_CODE: dict[str, tuple[str, str | None, str]] = {
+    "EMX399-U001": ("up", semantic.get("up"), "🠉"),
+    "EMX399-U002": ("down", semantic.get("down"), "🠋"),
+    "EMX399-U003": ("left", semantic.get("left"), "🠈"),
+    "EMX399-U004": ("right", semantic.get("right"), "🠊"),
+}
+for _v399_code, (_v399_word, _v399_old, _v399_new) in EMOJIMAX_V399_UPDATES_BY_UNDO_CODE.items():
+    semantic[_v399_word] = _v399_new
+
 SEMANTIC_PHRASES = {
     "hot dog": "🌭",
     "!!!!": "‼‼", "fuck you": "🖕",
     "beach umbrella": "🏖️", "love": "💞", "my heart": "💗", "no one": "🚫👤",
-     "goodbye": "👋", 
+     "goodbye": "👋",
     "i'm sorry": "🙏", "thank you": "🙏", "don't know": "🤷",
     "so many": "🔢", "too dead": "💀", "lost mind": "🧠", "one of": "❶ of", "one more": "➕ ❶",
     "forever young": "♾️👶", "on fire": "🔥", "fall in love": "💘",
@@ -11542,6 +11238,143 @@ SEMANTIC_PHRASES.pop("eighteen", None)
 SEMANTIC_PHRASES.pop("18", None)
 semantic["eighteen"] = "①⑧"
 semantic["18"] = "①⑧"
+
+# V364: survey entries #001–#015 were deliberately reduced to literal lyric
+# meanings. Remove every old association for those glyph classes first, then
+# add only the user-reviewed vocabulary below.
+EMOJIMAX_V364_PRUNED_OUTPUTS = frozenset({
+    "🏷", "👨", "🗈", "🏎️", "🗣️", "🛐", "🐕", "👅", "🔩", "🧥",
+    "🫱‍🫲", "⚔️", "🕮", "🎢", "🔢",
+})
+for _v364_mapping in (semantic, SEMANTIC_PHRASES):
+    for _v364_word, _v364_replacement in tuple(_v364_mapping.items()):
+        if str(_v364_replacement) in EMOJIMAX_V364_PRUNED_OUTPUTS:
+            _v364_mapping.pop(_v364_word, None)
+
+EMOJIMAX_V364_REVIEWED_WORDS = {
+    "tag": "🏷", "tags": "🏷", "man": "👨",
+    "say": "🗣️", "says": "🗣️s", "speak": "🗣️", "speaking": "🗣️ing",
+    "speaks": "🗣️s", "talk": "🗣️", "talks": "🗣️s", "talking": "🗣️ing",
+    "sacred": "🛐", "revered": "🛐", "worships": "🛐s",
+    "worshipping": "🛐ping", "worshipped": "🛐ped",
+    "doggy": "🐕", "hound": "🐕", "hounds": "🐕🐕",
+    "lick": "👅", "licked": "👅ed", "licking": "👅ing", "licks": "👅s",
+    "tongue": "👅", "tongue's": "👅's", "tongues": "👅s",
+    "bolt": "🔩", "coat": "🧥",
+    "agree": "🫱‍🫲", "agreed": "🫱‍🫲", "agreement": "🫱‍🫲",
+    "swords": "⚔️", "battle": "⚔️", "battles": "⚔️", "battling": "⚔️",
+    "paperback": "🕮", "roller coaster": "🎢", "rollercoaster": "🎢",
+    "racing": "🏎️", "racecar": "🏎️", "race car": "🏎️",
+    "handshake": "🫱‍🫲", "hand shake": "🫱‍🫲",
+    "sword fight": "⚔️", "swordfight": "⚔️", "fencing": "⚔️",
+}
+for _v364_word, _v364_replacement in EMOJIMAX_V364_REVIEWED_WORDS.items():
+    semantic[_v364_word] = _v364_replacement
+for _v364_count_phrase in (
+    "1 2 3 4", "1,2,3,4", "1, 2, 3, 4", "1-2-3-4", "1 - 2 - 3 - 4",
+    "one two three four", "one, two, three, four", "one-two-three-four",
+):
+    SEMANTIC_PHRASES[_v364_count_phrase] = "🔢"
+
+# V367: user-curated lyric semantics.  Keep this after every bulk/survey pass so
+# stale generated candidates cannot resurrect the removed mappings.
+for _v367_removed_word in ("dying", "mars", "venus"):
+    semantic.pop(_v367_removed_word, None)
+    SEMANTIC_PHRASES.pop(_v367_removed_word, None)
+semantic["shine"] = "🌞"
+
+# V369 plural normalization.  The imported/curated dictionary historically
+# mixes one-glyph plurals (dogs -> 🐶), fixed triples, and occasional doubles.
+# When an existing plural key has a recognizable singular key whose replacement
+# is pictographic, derive the plural dynamically from the singular so one global
+# count controls the entire family.  This intentionally does NOT infer a new
+# substitution for an unmapped word; it only repairs plural entries PAFPlayer
+# already chose to Emojimaxx.
+EMOJIMAX_IRREGULAR_PLURAL_SINGULAR = {
+    "children": "child", "people": "person", "men": "man", "women": "woman",
+    "feet": "foot", "teeth": "tooth", "mice": "mouse", "geese": "goose",
+    "leaves": "leaf", "wolves": "wolf", "knives": "knife", "wives": "wife",
+}
+
+def _emojimax_plural_singular_key(key: str) -> str | None:
+    value = str(key or "").strip().casefold()
+    if not value or " " in value or value.endswith("'s") or value.endswith("’s"):
+        return None
+    irregular = EMOJIMAX_IRREGULAR_PLURAL_SINGULAR.get(value)
+    if irregular in semantic:
+        return irregular
+    candidates: list[str] = []
+    # Remove a plain terminal s first: shoes -> shoe, roses -> rose, dogs -> dog.
+    if len(value) > 2 and value.endswith("s") and not value.endswith("ss"):
+        candidates.append(value[:-1])
+    if len(value) > 4 and value.endswith("ies"):
+        candidates.append(value[:-3] + "y")
+    if len(value) > 3 and value.endswith("es"):
+        candidates.append(value[:-2])
+    for candidate in candidates:
+        if candidate != value and candidate in semantic:
+            return candidate
+    return None
+
+# Curated plural nouns from the original high-quality semantic table whose
+# plural entry historically reused one singular glyph.  These are deliberately
+# explicit rather than inferred from every trailing ``s`` in the much larger
+# candidate-sync table, because lyric tokens such as calls/helps/lies can be
+# verbs.  Existing entries that already repeat a glyph are detected separately.
+EMOJIMAX_EXPLICIT_PLURAL_REPEAT_KEYS = frozenset({
+    "arms", "bones", "cherries", "children", "clouds", "dollars", "drums",
+    "friends", "games", "grapes", "keys", "lips", "noodles", "notes",
+    "socks", "sparkles", "sweets", "tears", "teeth", "tools",
+})
+
+
+def _emojimax_existing_plural_repeat_count(plural_replacement: object, singular_replacement: object) -> int:
+    """Return the already-curated repeated-glyph count, or zero.
+
+    This is deliberately conservative.  A trailing ``s`` does *not* by itself
+    prove a lyric token is a plural noun (``news``, ``calls``, ``lies``...).
+    We only make the global plural count dynamic when the semantic table already
+    expressed plurality by repeating the singular output two or more times.
+    Special plural pictograms such as eyes=👀, people=👥 and flowers=💐 therefore
+    retain their hand-curated meaning instead of being expanded incorrectly.
+    """
+    plural_text = str(plural_replacement or "")
+    singular_text = str(singular_replacement or "")
+    if not plural_text or not singular_text or plural_text == singular_text:
+        return 0
+    for repeat_count in range(2, 13):
+        if plural_text == singular_text * repeat_count:
+            return repeat_count
+    return 0
+
+def emojimax_replacement_for_key(key: str) -> str | None:
+    """Resolve one Emojimaxx word, applying the configurable plural count safely."""
+    folded = str(key or "").casefold()
+    replacement = semantic.get(folded)
+    if replacement is None:
+        return None
+    singular = _emojimax_plural_singular_key(folded)
+    if singular is None:
+        return str(replacement)
+    singular_replacement = semantic.get(singular)
+    existing_repeat = _emojimax_existing_plural_repeat_count(replacement, singular_replacement)
+    explicitly_plural = folded in EMOJIMAX_EXPLICIT_PLURAL_REPEAT_KEYS and str(replacement) == str(singular_replacement)
+    if existing_repeat <= 0 and not explicitly_plural:
+        return str(replacement)
+    count = max(1, int(NUMBER_OF_EMOJI_TO_REPRESENT_PLURAL))
+    return str(singular_replacement) * count
+
+def set_number_of_emoji_to_represent_plural(value: int) -> int:
+    global NUMBER_OF_EMOJI_TO_REPRESENT_PLURAL
+    count = int(value)
+    if not 1 <= count <= 12:
+        raise ValueError("plural emoji count must be an integer from 1 through 12")
+    NUMBER_OF_EMOJI_TO_REPRESENT_PLURAL = count
+    # Karaoke output is cached by text/style; a runtime override must not reuse
+    # a result rendered under the prior count.
+    with contextlib.suppress(Exception):
+        _stylize_karaoke_with_emojimax_uncached.cache_clear()
+    return count
 
 
 @lru_cache(maxsize=1)
@@ -11618,7 +11451,7 @@ def _legacy_karaoke_text(text: str, style: int) -> str:
         "ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ",
         "𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃",
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-    )        
+    )
     family %= 10
     if family < len(targets):
         result = text.translate(str.maketrans(upper + lower, targets[family]))
@@ -11799,7 +11632,7 @@ def emojimax_plain_with_solutions(
         emit_literal(protected[cursor:match.start()])
         word = match.group(0)
         key = word.casefold()
-        replacement = semantic.get(key)
+        replacement = emojimax_replacement_for_key(key)
         if monochrome_safe and replacement is not None and not emojimax_monochrome_safe_replacement(key, replacement):
             replacement = None
         if key == "wind":
@@ -11869,7 +11702,7 @@ def _stylize_karaoke_with_emojimax_uncached(
         suffix = r"(?!\w)" if phrase and (phrase[-1].isalnum() or phrase[-1] == "_") else ""
         replaced = re.sub(prefix + escaped + suffix, token, protected, flags=re.IGNORECASE)
         if replaced != protected:
-            phrase_tokens[token] = windows_terminal_emojimax_replacement(replacement) if windows_terminal_compat else replacement
+            phrase_tokens[token] = windows_terminal_emojimax_replacement(replacement, phrase) if windows_terminal_compat else replacement
             protected = replaced
     wind_nonsubstitution_followers = {
         "up", "down", "left", "right", "clockwise", "counterclockwise",
@@ -11882,7 +11715,7 @@ def _stylize_karaoke_with_emojimax_uncached(
     cursor = 0
     for match in re.finditer(r"\b[\w’']+\b", protected):
         pieces.append(stylize_karaoke_text(protected[cursor:match.start()], style))
-        word = match.group(0); key = word.casefold(); replacement = semantic.get(key)
+        word = match.group(0); key = word.casefold(); replacement = emojimax_replacement_for_key(key)
         if monochrome_safe and replacement is not None and not emojimax_monochrome_safe_replacement(key, replacement):
             replacement = None
         if key == "wind":
@@ -11892,7 +11725,7 @@ def _stylize_karaoke_with_emojimax_uncached(
         if replacement is None:
             pieces.append(stylize_karaoke_text(word, style))
         else:
-            pieces.append(windows_terminal_emojimax_replacement(replacement) if windows_terminal_compat else replacement)
+            pieces.append(windows_terminal_emojimax_replacement(replacement, key) if windows_terminal_compat else replacement)
         cursor = match.end()
     pieces.append(stylize_karaoke_text(protected[cursor:], style))
     result = "".join(pieces)
@@ -11981,6 +11814,7 @@ PLAYER_SETTING_DEFAULTS: dict[str, int] = {
     "DecensorArtworkLyrics": 0,
     "DecensorFloatingLyrics": 0,
     "ConsoleKaraokeEnabled": 1,
+    "ConsoleAlertsEnabled": 1,
     # V310 Console Alerts. ReplayGain is intentionally continuous; the rest are
     # one-shot per track and remain inspectable in the ? overlay.
     "AlertNoReplayGain": 1,
@@ -11998,8 +11832,10 @@ PLAYER_SETTING_DEFAULTS: dict[str, int] = {
     "ProgressBeatDetector": 1,
     "ProgressBeatTreatment": 3,
     "CursiveFix": 0,
-    "DrcsArtMicrotiles": 0,
-    "DrcsArtBarMicrotiles": 0,
+    "DrcsArtMicrotiles": 0,  # legacy boolean migration only
+    "DrcsArtBarMicrotiles": 0,  # legacy boolean migration only
+    "DrcsArtMicrotileDetailModeV370": ART_MICROTILE_DETAIL_MODE_DEFAULT,
+    "DrcsArtBarMicrotileDetailModeV370": ART_MICROTILE_DETAIL_MODE_DEFAULT,
     "BarFadeStyle": 1,
     "OutputChannels": 2,
     "OutputRate": HDMI_PCM_OUTPUT_RATE,
@@ -12014,6 +11850,9 @@ PLAYER_SETTING_DEFAULTS: dict[str, int] = {
     "Shuffle": 1,
     "Autoplay": 0,
     "DrcsEnabled": int(bool(ENABLE_DRCS_VISUALIZER)),
+    "VisualizerBarsEnabled": 1,
+    "VisualizerBackgroundArtworkEnabled": 1,
+    "ConsoleVisualizerOverlayMessagesEnabled": 1,
     "SixelEnabled": int(bool(ENABLE_SIXEL_VISUALIZER)),
     "HudDetails": 0,
     "PlaybackPaused": 0,  # V174: restore the actual play/pause state from the previous clean exit.
@@ -12057,6 +11896,7 @@ def load_player_settings() -> dict[str, int]:
     settings["DecensorArtworkLyrics"] = int(bool(settings.get("DecensorArtworkLyrics", 0)))
     settings["DecensorFloatingLyrics"] = int(bool(settings.get("DecensorFloatingLyrics", 0)))
     settings["ConsoleKaraokeEnabled"] = int(bool(settings.get("ConsoleKaraokeEnabled", 1)))
+    settings["ConsoleAlertsEnabled"] = int(bool(settings.get("ConsoleAlertsEnabled", 1)))
     for _alert_setting, _default in (
         ("AlertNoReplayGain", 1), ("AlertMissingArtist", 1),
         ("AlertMissingTitle", 1), ("AlertMissingKaraoke", 0),
@@ -12073,6 +11913,8 @@ def load_player_settings() -> dict[str, int]:
     settings["CursiveFix"] = int(bool(settings.get("CursiveFix", 0)))
     settings["DrcsArtMicrotiles"] = int(bool(settings.get("DrcsArtMicrotiles", 0)))
     settings["DrcsArtBarMicrotiles"] = int(bool(settings.get("DrcsArtBarMicrotiles", 0)))
+    settings["DrcsArtMicrotileDetailModeV370"] = max(0, min(len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1, int(settings.get("DrcsArtMicrotileDetailModeV370", ART_MICROTILE_DETAIL_MODE_DEFAULT))))
+    settings["DrcsArtBarMicrotileDetailModeV370"] = max(0, min(len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1, int(settings.get("DrcsArtBarMicrotileDetailModeV370", ART_MICROTILE_DETAIL_MODE_DEFAULT))))
     settings["BarFadeStyle"] = min(len(FADE_STYLE_NAMES), max(1, settings.get("BarFadeStyle", 1)))
     settings["OutputChannels"] = settings["OutputChannels"] if settings["OutputChannels"] in {2, 5, 7, 12} else 2
     settings["OutputRate"] = settings.get("OutputRate", HDMI_PCM_OUTPUT_RATE) if settings.get("OutputRate", HDMI_PCM_OUTPUT_RATE) in OUTPUT_SAMPLE_RATES else HDMI_PCM_OUTPUT_RATE
@@ -12084,6 +11926,9 @@ def load_player_settings() -> dict[str, int]:
     settings["Volume"] = min(400, max(0, settings["Volume"]))
     settings["SpeedIndex"] = min(len(PLAYBACK_SPEEDS) - 1, max(0, settings["SpeedIndex"]))
     settings["HudDetails"] = int(bool(settings.get("HudDetails", 0)))
+    settings["VisualizerBarsEnabled"] = int(bool(settings.get("VisualizerBarsEnabled", 1)))
+    settings["VisualizerBackgroundArtworkEnabled"] = int(bool(settings.get("VisualizerBackgroundArtworkEnabled", 1)))
+    settings["ConsoleVisualizerOverlayMessagesEnabled"] = int(bool(settings.get("ConsoleVisualizerOverlayMessagesEnabled", 1)))
     settings["PlaybackPaused"] = int(bool(settings.get("PlaybackPaused", 0)))
     settings["KaraokeVisualizerExpansion"] = int(bool(settings.get("KaraokeVisualizerExpansion", 0)))
     settings["VisualizerRows"] = min(48, max(4, settings.get("VisualizerRows", DRCS_VISUALIZER_ROWS)))
@@ -12099,6 +11944,17 @@ def save_player_settings(settings: dict[str, int]) -> None:
         for name, value in settings.items():
             _safe_winreg_set_value(key, name, 0, winreg.REG_DWORD, int(value))
 
+
+def save_player_setting_value(name: str, value: int) -> None:
+    """Persist one live player setting without overwriting unrelated runtime choices."""
+    if os.name != "nt":
+        return
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            _safe_winreg_set_value(key, str(name), 0, winreg.REG_DWORD, int(value))
+    except Exception:
+        pass
 
 
 USER_DEFAULT_PREFIX = "UserDefault_"
@@ -12172,6 +12028,8 @@ def effective_player_defaults() -> dict[str, int]:
     result["ProcessingStyle"] = min(len(PROCESSING_STYLE_NAMES), max(1, int(result["ProcessingStyle"])))
     result["ColorStyle"] = min(len(PALETTE_NAMES), max(1, int(result["ColorStyle"])))
     result["BarFadeStyle"] = min(len(FADE_STYLE_NAMES), max(1, int(result.get("BarFadeStyle", 1))))
+    result["DrcsArtMicrotileDetailModeV370"] = max(0, min(len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1, int(result.get("DrcsArtMicrotileDetailModeV370", ART_MICROTILE_DETAIL_MODE_DEFAULT))))
+    result["DrcsArtBarMicrotileDetailModeV370"] = max(0, min(len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1, int(result.get("DrcsArtBarMicrotileDetailModeV370", ART_MICROTILE_DETAIL_MODE_DEFAULT))))
     result["ColorReverse"] = int(bool(result.get("ColorReverse", 0)))
     result["FrequencyWarp"] = int(bool(result.get("FrequencyWarp", 0)))
     result["HudDetails"] = int(bool(result.get("HudDetails", 0)))
@@ -17306,6 +17164,62 @@ def first_audio_tag_value(
     return ""
 
 
+def _mutagen_duration_seconds(audio_path: Path) -> float | None:
+    """Return Mutagen's frame-derived duration without making it a hard dependency.
+
+    FFmpeg/ffprobe can trust a damaged MP3 seek header and report a duration that
+    is shorter than the decodable audio.  Mutagen's MP3 parser is already an
+    optional dependency elsewhere in PAFPlayer and is cheap enough to use only
+    when the MP3's TLEN tag disagrees materially with ffprobe.
+    """
+    try:
+        mutagen = importlib.import_module("mutagen")
+        audio = mutagen.File(str(audio_path), easy=False)
+        raw = float(getattr(getattr(audio, "info", None), "length", 0.0) or 0.0)
+        if math.isfinite(raw) and raw > 0.0:
+            return raw
+    except Exception:
+        pass
+    return None
+
+
+def _reconcile_mp3_duration(
+    audio_path: Path,
+    ffprobe_duration: float | None,
+    merged_tags: dict[str, str],
+) -> float | None:
+    """Prefer a corroborated MP3 frame/TLEN duration over a bad seek-header estimate.
+
+    TLEN is milliseconds.  We only intervene when it differs from ffprobe by at
+    least one second, avoiding churn for ordinary encoder rounding.  If Mutagen
+    is available, its frame-derived duration wins; otherwise the explicit TLEN
+    value is safer than the contradicted ffprobe container estimate.
+    """
+    if Path(audio_path).suffix.casefold() != ".mp3":
+        return ffprobe_duration
+    raw_tlen = str(merged_tags.get("tlen", "") or "").strip()
+    try:
+        tlen_seconds = float(raw_tlen) / 1000.0
+    except (TypeError, ValueError):
+        return ffprobe_duration
+    if (
+        not math.isfinite(tlen_seconds)
+        or tlen_seconds <= 0.0
+        or tlen_seconds > MP3_TLEN_MAX_REASONABLE_HOURS * 3600.0
+    ):
+        return ffprobe_duration
+    if (
+        ffprobe_duration is not None
+        and math.isfinite(float(ffprobe_duration))
+        and abs(float(ffprobe_duration) - tlen_seconds) < MP3_DURATION_DISAGREEMENT_THRESHOLD_SECONDS
+    ):
+        return ffprobe_duration
+    mutagen_duration = _mutagen_duration_seconds(audio_path)
+    if mutagen_duration is not None:
+        return mutagen_duration
+    return tlen_seconds
+
+
 def probe_audio_metadata(
     audio_path: Path,
     *,
@@ -17373,6 +17287,11 @@ def probe_audio_metadata(
         for key in REPLAYGAIN_TAG_KEYS
         if key in merged and str(merged[key]).strip()
     }
+
+    # V370: malformed/stale MP3 seek headers can make ffprobe's container
+    # duration shorter than the audio that actually decodes.  A materially
+    # disagreeing TLEN triggers the cheap frame-derived Mutagen check.
+    duration = _reconcile_mp3_duration(audio_path, duration, merged)
 
     year = merged.get("year", "") or merged.get("date", "")[:4]
     bitrate_text = ""
@@ -18053,6 +17972,11 @@ class KaraokeFrame:
     next_index: int | None
     next_text: str
     next_brightness: float
+    # V374: source-playback timestamps for presentation-deadline scheduling.
+    # These are already adjusted for the live karaoke offset, so renderers can
+    # compare them directly with frame.position / the canonical playback clock.
+    active_start_position: float | None = None
+    next_start_position: float | None = None
 
     @property
     def active(self) -> tuple[int, str, float] | None:
@@ -18103,6 +18027,16 @@ def karaoke_frame_at(
                 next_index, next_text = candidate, text
                 break
             candidate += 1
+    active_start_position: float | None = None
+    next_start_position: float | None = None
+    if active_index is not None:
+        timed = _lyrics_are_timed(entries)
+        active_start_raw = float(entries[active_index][0]) if timed else float(active_index) * 4.0
+        active_start_position = max(0.0, active_start_raw - float(KARAOKE_DISPLAY_OFFSET_SECONDS))
+    if next_index is not None:
+        timed = _lyrics_are_timed(entries)
+        next_start_raw = float(entries[next_index][0]) if timed else float(next_index) * 4.0
+        next_start_position = max(0.0, next_start_raw - float(KARAOKE_DISPLAY_OFFSET_SECONDS))
     return KaraokeFrame(
         position=source_position,
         active_index=active_index,
@@ -18116,6 +18050,8 @@ def karaoke_frame_at(
         next_index=next_index,
         next_text=next_text,
         next_brightness=float(next_brightness),
+        active_start_position=active_start_position,
+        next_start_position=next_start_position,
     )
 
 
@@ -18230,6 +18166,7 @@ ANSI_CSI_RE = re.compile(
 # (❶–❿) is a separate Unicode series and stops at ten.
 CIRCLED_NUMBER_GLYPHS = "⓿①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿❶❷❸❹❺❻❼❽❾❿"
 WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS = "❶❷❸❹❺❻❼❽❾"
+WINDOWS_TERMINAL_SINGLE_SPACE_EMOJIMAX_KEYS = frozenset({"write"})
 
 
 def windows_terminal_emojimax_spacing_enabled() -> bool:
@@ -18242,26 +18179,40 @@ def windows_terminal_emojimax_spacing_enabled() -> bool:
     return os.name == "nt" and bool(os.environ.get("WT_SESSION")) and bool(getattr(sys.stdout, "isatty", lambda: False)())
 
 
-def windows_terminal_emojimax_replacement(replacement: str) -> str:
-    """Add one terminal-only safety cell after generated ❶-❾ substitutions."""
-    return re.sub(
-        rf"([{re.escape(WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS)}])",
-        lambda match: match.group(1) + " ",
-        str(replacement),
+def windows_terminal_emojimax_replacement(replacement: str, semantic_key: str = "") -> str:
+    """Add terminal-only safety cells after generated enclosed-number forms.
+
+    Windows Terminal's DECDHL renderer can visually consume the first safety
+    cell after a negative circled digit.  Existing one-digit behavior remains
+    unchanged.  V390 additionally recognizes a tens compound such as ``❹⓿``
+    as one visual number, keeps those two digits adjacent, and appends the two
+    safety cells only after the pair.  Web/Tk/other-terminal surfaces never
+    call this compatibility helper, so they keep the exact replacement with no
+    artificial trailing cells. V398 also gives the ``write`` substitution one
+    terminal-only safety cell: Windows Terminal can paint ✍ beyond the advance
+    it reports, despite the following source-space cell being present.
+    """
+    pattern = re.compile(
+        rf"(?:[{re.escape(WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS)}]⓿|"
+        rf"[{re.escape(WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS)}])"
     )
+    result = pattern.sub(lambda match: match.group(0) + "  ", str(replacement))
+    if str(semantic_key).casefold() in WINDOWS_TERMINAL_SINGLE_SPACE_EMOJIMAX_KEYS:
+        result += " "
+    return result
 
 
 def compensate_current_circled_number_spacing(text: str) -> str:
     """Keep a sung double-height circled number visibly separated from its word.
 
-    Windows Terminal's DECDHL rendering can consume the ordinary two logical
-    Emojimaxx spaces after a circled digit, making ``❶word`` look glued together.
-    The current/sung line alone gets one additional logical space; neighboring
-    lyric lines retain their cursor-based compensation and normal geometry.
+    Windows Terminal's DECDHL rendering can visually consume multiple logical
+    cells after a circled digit, making ``❶ word`` look glued together.  V367
+    normalizes the current/sung line to four safety cells; neighboring lyric
+    lines retain their cursor-based compensation and normal geometry.
     """
     return re.sub(
         rf"([{re.escape(CIRCLED_NUMBER_GLYPHS)}])\s+(?=\S)",
-        lambda match: match.group(1) + "   ",
+        lambda match: match.group(1) + "    ",
         str(text),
     )
 
@@ -19337,6 +19288,8 @@ def decensor_karaoke_frame(frame: "KaraokeFrame", enabled: bool) -> "KaraokeFram
         next_index=frame.next_index,
         next_text=decensor_lyric_line(frame.next_text),
         next_brightness=frame.next_brightness,
+        active_start_position=frame.active_start_position,
+        next_start_position=frame.next_start_position,
     )
 
 def _normalize_lyrics_for_tag(text: str) -> str:
@@ -20464,6 +20417,17 @@ def lower_current_thread_priority() -> None:
     except (AttributeError, OSError):
         pass
 
+def compact_url_display_text(url: str) -> str:
+    """Hide an implied HTTP(S) scheme and leading www. in HUD URL text only.
+
+    The full original URL remains the OSC-8 hyperlink target.  This is purely a
+    display-space optimization: ``https://www.rammstein.com/`` becomes
+    ``rammstein.com/`` without changing what Ctrl/click opens.
+    """
+    text = str(url or "").strip()
+    return re.sub(r"(?i)^https?://(?:www\.)?", "", text)
+
+
 def osc8_hyperlink(url: str, label: str | None = None) -> str:
     """Return a Windows-Terminal-friendly OSC 8 hyperlink around visible text."""
     target = str(url or "").replace("\x1b", "").replace("\x07", "")
@@ -20876,6 +20840,7 @@ def format_tag_panel(
     genre_emoji_enabled: bool = ENABLE_GENRE_EMOJI,
     width: int | None = None,
     smart_alignment_enabled: bool = HUD_SMART_ALIGNMENT_ENABLED,
+    last_play_as_top_tail: bool = False,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Render metadata with stable semantic column stops.
 
@@ -20912,14 +20877,15 @@ def format_tag_panel(
     album = str(tags.get("Album", "") or "")
     year = str(tags.get("Year", "") or "")
     genre = str(tags.get("Genre", "") or "")
-    url = str(tags.get("URL", "") or "")
+    url_target = str(tags.get("URL", "") or "")
+    url = compact_url_display_text(url_target)
     comment = str(tags.get("Comment", "") or "")
     original_artist = str(tags.get("Original artist", "") or "")
     composer = str(tags.get("Composer", "") or "")
     last_heard = str(tags.get("Last play", "") or tags.get("Last heard", "") or "")
     if comment.strip().casefold() == "cover (front)":
         comment = ""
-    primary_urls = {item.casefold() for item in extract_urls(url)}
+    primary_urls = {item.casefold() for item in extract_urls(url_target)}
     comment_urls = extract_urls(comment)
     comment_remainder = _URL_PATTERN.sub("", comment).strip(" \t\r\n.,;:()[]{}<>")
     if comment_urls and not comment_remainder and all(item.casefold() in primary_urls for item in comment_urls):
@@ -20949,6 +20915,11 @@ def format_tag_panel(
         tails.append(("Original artist", original_artist, "normal"))
     if composer:
         tails.append(("Composer", composer, "normal"))
+    if last_play_as_top_tail and last_heard:
+        # V367 swap mode: Last play temporarily takes the rightmost-tail role of
+        # the field moved up to the Play row.  It is deliberately appended last
+        # so the final anchoring pass can make it the right edge of metadata row 1.
+        tails.append(("Last play", last_heard, "lastplay"))
 
     grid: list[list[Field | None]] = [
         [
@@ -20959,7 +20930,7 @@ def format_tag_panel(
         [
             ("Year", year, "normal") if year else None,
             ("Genre", genre_display, "genre") if genre_display else None,
-            ("Last play", last_heard, "lastplay") if last_heard else None,
+            ("Last play", last_heard, "lastplay") if (last_heard and not last_play_as_top_tail) else None,
         ],
     ]
 
@@ -20997,6 +20968,8 @@ def format_tag_panel(
         sequence.append(("Original artist", original_artist, "normal"))
     if composer:
         sequence.append(("Composer", composer, "normal"))
+    if last_play_as_top_tail and last_heard:
+        sequence.append(("Last play", last_heard, "lastplay"))
 
     def render_smart_two_row_layout() -> list[tuple[str, str]] | None:
         """Optimize complete two-row metadata before falling back to wrapping.
@@ -21023,7 +20996,10 @@ def format_tag_panel(
             "Album": (2, 0, 0),
             "Comment": (2, 1, 1),  # Share Album lane; keep Comment before attribution/composer tails.
             "Original artist": (2, 1, 2),
-            "Last play": (2, 1, 3),
+            # Normal Last play belongs on metadata row 2.  In V367 swap mode it
+            # becomes a far-right tail with a strong row-1 preference so its
+            # Album alignment is on contiguous lines instead of skipping a row.
+            "Last play": ((5, 0, 99) if last_play_as_top_tail else (2, 1, 3)),
             "Composer": (3, 1, 1),
             "URL": (4, 1, 0),
         }
@@ -21096,7 +21072,7 @@ def format_tag_panel(
                 ansi += label_ansi + ansi_value(
                     kind,
                     value,
-                    hyperlink_target=value if kind == "url" else None,
+                    hyperlink_target=url_target if kind == "url" else None,
                 )
                 visible = int(start) + terminal_cell_width(label_plain) + terminal_cell_width(value)
             if terminal_cell_width(plain) > width:
@@ -21337,6 +21313,60 @@ def format_tag_panel(
         align_label_to_reference("Genre", ("Song",))
         align_label_to_reference("Comment", ("Album", "Last play"))
 
+        def align_label_to_reference_if_close(
+            label: str,
+            references: tuple[str, ...],
+            max_shift: int,
+        ) -> None:
+            """Take a nearby colon alignment when it costs only spare whitespace.
+
+            This is deliberately a final polish rather than another semantic lane:
+            it must not reorder fields, truncate values, or create a new row.
+            V390 uses it for the user-captured case where Comment was one cell to
+            the right of Song, and for a rightmost Composer that can give up a few
+            trailing blank cells to share Album/Last-play's much cleaner column.
+            """
+            max_shift = max(0, int(max_shift))
+            reference_stops = [
+                int(start) + len(candidate)
+                for fields in positioned
+                for candidate, start in fields
+                if candidate in references
+            ]
+            if not reference_stops:
+                return
+            for fields in positioned:
+                labels = [candidate for candidate, _start in fields]
+                if label not in labels:
+                    continue
+                index = labels.index(label)
+                _candidate, current_start = fields[index]
+                current_colon = int(current_start) + len(label)
+                minimum = 0
+                if index:
+                    previous_label, previous_start = fields[index - 1]
+                    minimum = int(previous_start) + field_cells(previous_label) + HUD_LAYOUT_GAP_CELLS
+                maximum = width - field_cells(label)
+                if index + 1 < len(fields):
+                    _next_label, next_start = fields[index + 1]
+                    maximum = int(next_start) - field_cells(label) - HUD_LAYOUT_GAP_CELLS
+                viable: list[tuple[int, int]] = []
+                for stop in reference_stops:
+                    desired = int(stop) - len(label)
+                    delta = abs(int(stop) - current_colon)
+                    if delta <= max_shift and minimum <= desired <= maximum:
+                        viable.append((delta, desired))
+                if viable:
+                    _delta, desired = min(viable, key=lambda item: (item[0], item[1]))
+                    fields[index] = (label, desired)
+
+        # V390 screenshot polish: Comment was visibly one cell off the Song
+        # column, while Composer had four spare cells and could share the
+        # Album/inline-Last-play right column.  Keep both rules soft: they apply
+        # only when the needed movement fits completely inside existing slack.
+        align_label_to_reference_if_close("Comment", ("Song",), 1)
+        align_label_to_reference_if_close("Composer", ("Album", "Last play"), 12)
+
         def colon_locations() -> dict[str, list[tuple[int, int]]]:
             found: dict[str, list[tuple[int, int]]] = {}
             for row_index, fields in enumerate(positioned):
@@ -21394,8 +21424,43 @@ def format_tag_panel(
                 desired_start = min(viable, key=lambda value: (abs(value - current_start), value))
                 fields[field_index] = (label, desired_start)
 
+        # V366 one-cell Album/Comment exception: when Album's colon is exactly
+        # one cell to the right of Comment's, move only the Album label left by
+        # one and put that cell after ``Album:``.  The album value therefore
+        # begins at the exact same column and remains just as right-justified.
+        # Do not generalize this into a multi-cell padding rule.
+        post_colon_extra: dict[tuple[int, str], int] = {}
+        locations = colon_locations()
+        album_locations = locations.get("Album", ())
+        comment_locations = locations.get("Comment", ())
+        if len(album_locations) == 1 and len(comment_locations) == 1:
+            album_row, album_colon = album_locations[0]
+            comment_row, comment_colon = comment_locations[0]
+            if album_row != comment_row and int(album_colon) == int(comment_colon) + 1:
+                album_fields = positioned[album_row]
+                try:
+                    album_index = next(
+                        index for index, (candidate, _start) in enumerate(album_fields)
+                        if candidate == "Album"
+                    )
+                except StopIteration:
+                    album_index = -1
+                if album_index >= 0:
+                    album_start = int(album_fields[album_index][1])
+                    minimum = 0
+                    if album_index:
+                        previous_label, previous_start = album_fields[album_index - 1]
+                        minimum = (
+                            int(previous_start)
+                            + field_cells(previous_label)
+                            + HUD_LAYOUT_GAP_CELLS
+                        )
+                    if album_start - 1 >= minimum:
+                        album_fields[album_index] = ("Album", album_start - 1)
+                        post_colon_extra[(album_row, "Album")] = 1
+
         output: list[tuple[str, str]] = []
-        for (plain, ansi), fields, good in zip(rendered_rows, positioned, eligible):
+        for row_index, ((plain, ansi), fields, good) in enumerate(zip(rendered_rows, positioned, eligible)):
             if not good:
                 output.append((plain, ansi))
                 continue
@@ -21409,21 +21474,194 @@ def format_tag_panel(
                     break
                 _label, value, kind = field_map[label]
                 padding = " " * (start - visible)
-                label_plain = f"{label}: "
-                label_ansi = f"\033[2;90m{label}:\033[0m "
+                extra_after_colon = int(post_colon_extra.get((row_index, label), 0))
+                label_plain = f"{label}: " + (" " * extra_after_colon)
+                label_ansi = f"\033[2;90m{label}:\033[0m " + (" " * extra_after_colon)
                 rebuilt_plain += padding + label_plain + value
                 rebuilt_ansi += padding + label_ansi + ansi_value(
                     kind, value,
-                    hyperlink_target=value if kind == "url" else None,
+                    hyperlink_target=url_target if kind == "url" else None,
                 )
                 visible = start + terminal_cell_width(label_plain) + terminal_cell_width(value)
             if not valid or visible > width:
                 output.append((plain, ansi))
             else:
                 output.append((rebuilt_plain.rstrip(), rebuilt_ansi.rstrip()))
-        return output
+        # V370: one final right-edge pass after every beautification rule.  Some
+        # dense fallback geometries could still leave the final field (notably
+        # Album) several cells short of the terminal edge even though moving that
+        # field alone was legal.  The rightmost field owns otherwise-unused
+        # trailing whitespace; earlier fields stay exactly where they were.
+        tightened: list[tuple[str, str]] = []
+        label_pattern = "|".join(
+            re.escape(label) for label in sorted(field_map, key=len, reverse=True)
+        )
+        rightmost_re = re.compile(
+            r"(?:^ *| {2,})(?P<label>" + label_pattern + r"): "
+        ) if label_pattern else None
+        for plain, ansi in output:
+            trailing = max(0, width - terminal_cell_width(plain.rstrip()))
+            if trailing <= 0 or rightmost_re is None:
+                tightened.append((plain, ansi))
+                continue
+            matches = list(rightmost_re.finditer(plain))
+            if not matches:
+                tightened.append((plain, ansi))
+                continue
+            last = matches[-1]
+            # V390: an explicitly aligned rightmost Composer is more useful than
+            # spending a handful of otherwise-empty cells forcing it back to the
+            # physical edge.  Preserve the Album/Last-play colon relationship
+            # selected above; ordinary rightmost fields still own trailing slack.
+            last_label_name = last.group("label")
+            if last_label_name == "Composer":
+                current_positions = metadata_field_positions(plain)
+                composer_stops = [colon for label, _start, colon in current_positions if label == "Composer"]
+                reference_stops = [
+                    colon
+                    for other_plain, _other_ansi in output
+                    for label, _start, colon in metadata_field_positions(other_plain)
+                    if label in {"Album", "Last play"}
+                ]
+                if composer_stops and composer_stops[0] in reference_stops:
+                    tightened.append((plain, ansi))
+                    continue
+            insert_at = last.start("label")
+            shifted_plain = plain[:insert_at] + (" " * trailing) + plain[insert_at:]
+            shifted_ansi = _insert_spaces_at_visible_index(ansi, insert_at, trailing)
+            if terminal_cell_width(shifted_plain.rstrip()) <= width:
+                tightened.append((shifted_plain.rstrip(), shifted_ansi.rstrip()))
+            else:
+                tightened.append((plain, ansi))
+        return tightened
+
+    def compact_hud_whitespace(
+        rendered_rows: list[tuple[str, str]],
+    ) -> list[tuple[str, str]]:
+        """Use conspicuous whole-field gaps before accepting an extra HUD row.
+
+        V370 deliberately keeps this conservative.  It does two high-value moves
+        seen in real captures:
+
+        * when a lone Song is pushed right far enough to leave an Album-sized
+          hole on its left, move Album into that hole;
+        * when URL is stranded on a row by itself, merge it into an earlier row
+          if the fields fit at their natural two-cell gaps (placing URL before
+          Last play so Last play can remain the visual right anchor).
+
+        No value is truncated and no continuation line is touched.
+        """
+        rows = list(rendered_rows)
+        if not rows:
+            return rows
+        field_map_local: dict[str, Field] = {
+            label: (label, value.rstrip(), kind)
+            for label, value, kind in sequence
+        }
+        if not field_map_local:
+            return rows
+
+        def field_cells_local(label: str) -> int:
+            _label, value, _kind = field_map_local[label]
+            return len(label) + 2 + terminal_cell_width(value)
+
+        def rebuild(labels: list[str], starts: list[int]) -> tuple[str, str]:
+            plain = ""
+            ansi = ""
+            visible = 0
+            for label, start in zip(labels, starts):
+                _label, value, kind = field_map_local[label]
+                if start < visible:
+                    raise ValueError("overlapping HUD compaction fields")
+                padding = " " * (start - visible)
+                label_plain = f"{label}: "
+                label_ansi = f"\033[2;90m{label}:\033[0m "
+                plain += padding + label_plain + value
+                ansi += padding + label_ansi + ansi_value(
+                    kind, value,
+                    hyperlink_target=url_target if kind == "url" else None,
+                )
+                visible = start + terminal_cell_width(label_plain) + terminal_cell_width(value)
+            return plain.rstrip(), ansi.rstrip()
+
+        def positions_for(index: int) -> list[tuple[str, int, int]]:
+            return metadata_field_positions(rows[index][0])
+
+        # Fill a real left-side hole before a lone Song with a whole field from
+        # a later row. Album is the prettiest choice, but if it misses by a cell
+        # (the supplied 84-column Rammstein case), Year is still vastly better
+        # than leaving the hole empty and spending another physical row later.
+        song_row = None
+        for index in range(len(rows)):
+            labels = [item[0] for item in positions_for(index)]
+            if labels == ["Song"]:
+                song_row = index
+                break
+        if song_row is not None:
+            song_positions = positions_for(song_row)
+            song_start = int(song_positions[0][1])
+            moved = False
+            for wanted in ("Album", "Year", "Genre", "URL", "Last play"):
+                if moved or wanted not in field_map_local:
+                    break
+                for source_row in range(song_row + 1, len(rows)):
+                    source_positions = positions_for(source_row)
+                    source_labels_all = [item[0] for item in source_positions]
+                    if wanted not in source_labels_all:
+                        continue
+                    wanted_start = max(0, play_colon_stop - len(wanted))
+                    if wanted_start + field_cells_local(wanted) + HUD_LAYOUT_GAP_CELLS > song_start:
+                        continue
+                    source_labels = [label for label, _start, _colon in source_positions if label != wanted]
+                    source_starts = [int(start) for label, start, _colon in source_positions if label != wanted]
+                    rows[song_row] = rebuild([wanted, "Song"], [wanted_start, song_start])
+                    if source_labels:
+                        rows[source_row] = rebuild(source_labels, source_starts)
+                    else:
+                        rows.pop(source_row)
+                    moved = True
+                    break
+
+        # A short URL should never burn a whole physical row when an earlier row
+        # can hold it with dense two-cell gaps.
+        url_row = None
+        for index in range(len(rows)):
+            labels = [item[0] for item in positions_for(index)]
+            if labels == ["URL"]:
+                url_row = index
+                break
+        if url_row is not None:
+            best: tuple[int, int, list[str], list[int]] | None = None
+            for target in range(url_row):
+                target_positions = positions_for(target)
+                labels = [item[0] for item in target_positions]
+                if not labels or "URL" in labels:
+                    continue
+                insert_at = labels.index("Last play") if "Last play" in labels else len(labels)
+                merged_labels = labels[:insert_at] + ["URL"] + labels[insert_at:]
+                first_start = int(target_positions[0][1])
+                starts = [first_start]
+                cursor = first_start + field_cells_local(merged_labels[0])
+                for label in merged_labels[1:]:
+                    start = cursor + HUD_LAYOUT_GAP_CELLS
+                    starts.append(start)
+                    cursor = start + field_cells_local(label)
+                if cursor > width:
+                    continue
+                slack = width - cursor
+                candidate = (slack, target, merged_labels, starts)
+                if best is None or candidate[:2] < best[:2]:
+                    best = candidate
+            if best is not None:
+                _slack, target, merged_labels, starts = best
+                rows[target] = rebuild(merged_labels, starts)
+                rows.pop(url_row)
+
+        return rows
 
     if smart_rows is not None:
+        smart_rows = finalize_hud_layout_rows(smart_rows)
+        smart_rows = compact_hud_whitespace(smart_rows)
         smart_rows = finalize_hud_layout_rows(smart_rows)
         return tuple(item[0] for item in smart_rows), tuple(item[1] for item in smart_rows)
 
@@ -21569,7 +21807,7 @@ def format_tag_panel(
                 rebuilt_ansi += label_ansi + ansi_value(
                     kind,
                     value,
-                    hyperlink_target=value if kind == "url" else None,
+                    hyperlink_target=url_target if kind == "url" else None,
                 )
                 if field_index < len(new_gaps):
                     spacer = " " * max(2, int(new_gaps[field_index]))
@@ -21631,7 +21869,7 @@ def format_tag_panel(
             chunk_plain = label_plain + value
             chunk_ansi = (
                 label_ansi
-                + ansi_value(kind, value, hyperlink_target=value if kind == "url" else None)
+                + ansi_value(kind, value, hyperlink_target=url_target if kind == "url" else None)
             )
 
             # A fresh greedy row must still honor the first semantic colon stop.
@@ -21695,7 +21933,7 @@ def format_tag_panel(
             rows_ansi.append(
                 (label_ansi + ansi_value(
                     kind, first,
-                    hyperlink_target=value if kind == "url" else None
+                    hyperlink_target=url_target if kind == "url" else None
                 )).rstrip()
             )
             continuation_indent = " " * terminal_cell_width(label_plain)
@@ -21705,7 +21943,7 @@ def format_tag_panel(
                     continuation_indent
                     + ansi_value(
                         kind, continuation,
-                        hyperlink_target=value if kind == "url" else None,
+                        hyperlink_target=url_target if kind == "url" else None,
                     )
                 )
 
@@ -21850,7 +22088,7 @@ def format_tag_panel(
                 ansi += label_ansi + ansi_value(
                     kind,
                     value,
-                    hyperlink_target=value if kind == "url" else None,
+                    hyperlink_target=url_target if kind == "url" else None,
                 )
                 visible = start + terminal_cell_width(label_plain) + terminal_cell_width(value)
             return plain.rstrip(), ansi.rstrip()
@@ -21867,6 +22105,8 @@ def format_tag_panel(
     )
     if sequence and dense_one_row_cells <= width:
         greedy_rows = dedupe_metadata_rows(rebalance_greedy_rows(render_greedy()))
+        greedy_rows = finalize_hud_layout_rows(greedy_rows)
+        greedy_rows = compact_hud_whitespace(greedy_rows)
         greedy_rows = finalize_hud_layout_rows(greedy_rows)
         return tuple(item[0] for item in greedy_rows), tuple(item[1] for item in greedy_rows)
 
@@ -21914,7 +22154,7 @@ def format_tag_panel(
             label_plain = f"{label:>{label_widths[column]}}: "
             label_ansi = f"\033[2;90m{label:>{label_widths[column]}}:\033[0m "
             plain += label_plain + value
-            ansi += label_ansi + ansi_value(kind, value, hyperlink_target=value if kind == "url" else None)
+            ansi += label_ansi + ansi_value(kind, value, hyperlink_target=url_target if kind == "url" else None)
             visible = target + terminal_cell_width(label_plain) + terminal_cell_width(value)
         return plain.rstrip(), ansi.rstrip()
 
@@ -21952,13 +22192,13 @@ def format_tag_panel(
         first = wrapped[0]
         result.append((
             " " * leading + label_plain + first,
-            " " * leading + label_ansi + ansi_value(kind, first, hyperlink_target=value if kind == "url" else None),
+            " " * leading + label_ansi + ansi_value(kind, first, hyperlink_target=url_target if kind == "url" else None),
         ))
         continuation_indent = " " * (leading + terminal_cell_width(label_plain))
         for continuation in wrapped[1:]:
             result.append((
                 continuation_indent + continuation,
-                continuation_indent + ansi_value(kind, continuation, hyperlink_target=value if kind == "url" else None),
+                continuation_indent + ansi_value(kind, continuation, hyperlink_target=url_target if kind == "url" else None),
             ))
         return result
 
@@ -21969,6 +22209,8 @@ def format_tag_panel(
                 rows.append(render_grid_row(row))
     else:
         greedy_rows = dedupe_metadata_rows(rebalance_greedy_rows(render_greedy()))
+        greedy_rows = finalize_hud_layout_rows(greedy_rows)
+        greedy_rows = compact_hud_whitespace(greedy_rows)
         greedy_rows = finalize_hud_layout_rows(greedy_rows)
         return tuple(item[0] for item in greedy_rows), tuple(item[1] for item in greedy_rows)
 
@@ -22004,13 +22246,15 @@ def format_tag_panel(
             rows[row_index] = (
                 plain + gap + label_plain + value,
                 ansi + gap + f"\033[2;90m{label}:\033[0m "
-                + ansi_value(kind, value, hyperlink_target=value if kind == "url" else None),
+                + ansi_value(kind, value, hyperlink_target=url_target if kind == "url" else None),
             )
             appended = True
         if not appended:
             rows.extend(render_single(field, prior_rows=rows))
 
     rows = dedupe_metadata_rows(rows)
+    rows = finalize_hud_layout_rows(rows)
+    rows = compact_hud_whitespace(rows)
     rows = finalize_hud_layout_rows(rows)
     return tuple(item[0] for item in rows), tuple(item[1] for item in rows)
 
@@ -22023,26 +22267,80 @@ INLINE_LAST_PLAY_PREFERRED_ALIGNMENT_LABELS = frozenset({"Album", "Comment"})
 INLINE_LAST_PLAY_SECONDARY_ALIGNMENT_LABELS = frozenset({"Genre"})
 
 
-def hud_metadata_label_colons(rows: tuple[str, ...] | list[str]) -> list[tuple[str, int]]:
-    """Return real metadata-label colon cells from already-rendered plain HUD rows.
-
-    Values can contain colons (URLs, titles, timestamps), so this recognizes only
-    known HUD labels that begin a field at the start of a row or after a 2+ space
-    inter-field gap.  It is deliberately independent of ``format_tag_panel``'s
-    internal packing strategy so it can be used as a true second pass.
-    """
+def hud_metadata_label_colons_by_row(rows: tuple[str, ...] | list[str]) -> list[tuple[int, str, int]]:
+    """Return ``(row, label, colon-cell)`` triples for real HUD metadata fields."""
     label_pattern = "|".join(
         re.escape(label)
         for label in sorted(INLINE_LAST_PLAY_ALIGNMENT_LABELS, key=len, reverse=True)
     )
     pattern = re.compile(r"(?:^ *| {2,})(?P<label>" + label_pattern + r"): ")
-    found: list[tuple[str, int]] = []
-    for row in rows:
-        for match in pattern.finditer(str(row)):
+    found: list[tuple[int, str, int]] = []
+    for row_index, row in enumerate(rows):
+        row_text = str(row)
+        for match in pattern.finditer(row_text):
             label = match.group("label")
             colon_char = match.start("label") + len(label)
-            found.append((label, terminal_cell_width(str(row)[:colon_char])))
+            found.append((row_index, label, terminal_cell_width(row_text[:colon_char])))
     return found
+
+
+def hud_metadata_label_colons(rows: tuple[str, ...] | list[str]) -> list[tuple[str, int]]:
+    """Backward-compatible label/colon view of :func:`hud_metadata_label_colons_by_row`."""
+    return [(label, colon) for _row, label, colon in hud_metadata_label_colons_by_row(rows)]
+
+
+def hud_metadata_row_labels(row: str) -> list[str]:
+    """Return semantic HUD labels in visible left-to-right order for one row.
+
+    ``Last play`` is included here even though it is not an alignment *target*.
+    V367's swap trial needs to verify that moving Last play into metadata really
+    made it the new rightmost field on row 0.
+    """
+    labels = tuple(INLINE_LAST_PLAY_ALIGNMENT_LABELS) + ("Last play",)
+    label_pattern = "|".join(
+        re.escape(label) for label in sorted(labels, key=len, reverse=True)
+    )
+    pattern = re.compile(r"(?:^ *| {2,})(?P<label>" + label_pattern + r"): ")
+    return [match.group("label") for match in pattern.finditer(str(row))]
+
+
+def inline_last_play_alignment_target(
+    base_play_plain: str,
+    last_play_value: str,
+    metadata_rows: tuple[str, ...] | list[str],
+    *,
+    width: int,
+    minimum_gap: int = 3,
+    adjacent_row_only: bool = True,
+) -> tuple[int, str, int] | None:
+    """Return the best real metadata colon for an inline Last play label.
+
+    V367 considers only metadata row 0 by default.  A Play-row field aligned to
+    metadata row 1 has an entire intervening line, so the alignment reads as an
+    accident rather than a visual column.  The caller may still inspect the full
+    row-aware result with ``adjacent_row_only=False`` when deciding whether to
+    perform the new rightmost-field swap.
+    """
+    base_cells = terminal_cell_width(base_play_plain)
+    label_cells = terminal_cell_width("Last play")
+    value_cells = terminal_cell_width(last_play_value)
+    minimum_colon = base_cells + max(0, int(minimum_gap)) + label_cells
+    candidates: list[tuple[int, int, int, str]] = []
+    for row_index, label, colon in hud_metadata_label_colons_by_row(metadata_rows):
+        if adjacent_row_only and row_index != 0:
+            continue
+        if label not in INLINE_LAST_PLAY_PREFERRED_ALIGNMENT_LABELS and label not in INLINE_LAST_PLAY_SECONDARY_ALIGNMENT_LABELS:
+            continue
+        if colon < minimum_colon or colon + 2 + value_cells > width:
+            continue
+        preferred_rank = 0 if label in INLINE_LAST_PLAY_PREFERRED_ALIGNMENT_LABELS else 1
+        candidates.append((preferred_rank, row_index, colon, label))
+    if not candidates:
+        return None
+    preferred_rank = min(item[0] for item in candidates)
+    eligible = [item for item in candidates if item[0] == preferred_rank]
+    _rank, row_index, colon, label = min(eligible, key=lambda item: (item[1], item[2]))
+    return row_index, label, colon
 
 
 def aligned_inline_last_play_gap(
@@ -22072,27 +22370,22 @@ def aligned_inline_last_play_gap(
     value_cells = terminal_cell_width(last_play_value)
     minimum_colon = base_cells + minimum_gap + label_cells
 
-    candidates: list[tuple[int, int, str]] = []
-    for label, colon in hud_metadata_label_colons(metadata_rows):
-        if label not in INLINE_LAST_PLAY_PREFERRED_ALIGNMENT_LABELS and label not in INLINE_LAST_PLAY_SECONDARY_ALIGNMENT_LABELS:
-            continue
-        if colon < minimum_colon:
-            continue
-        # Colon cell + ': ' + value must remain inside the terminal width.
-        if colon + 2 + value_cells > width:
-            continue
-        preferred_rank = 0 if label in INLINE_LAST_PLAY_PREFERRED_ALIGNMENT_LABELS else 1
-        candidates.append((preferred_rank, colon, label))
-
-    if not candidates:
-        # V263: absent a usable Album/Comment colon, spend all available
-        # slack placing Last play at the far-right edge of the Play row.
+    target = inline_last_play_alignment_target(
+        base_play_plain,
+        last_play_value,
+        metadata_rows,
+        width=width,
+        minimum_gap=minimum_gap,
+        adjacent_row_only=True,
+    )
+    if target is None:
+        # V367: if the only pretty colon lives two lines below Play, do not align
+        # to it.  The swap pass gets first refusal; otherwise the inline field
+        # simply owns the far-right edge of the Play row.
         right_gap = width - base_cells - label_cells - 2 - value_cells
         return max(minimum_gap, right_gap)
 
-    preferred_rank = min(item[0] for item in candidates)
-    eligible = [item for item in candidates if item[0] == preferred_rank]
-    _rank, target_colon, _label = min(eligible, key=lambda item: item[1])
+    _row_index, _label, target_colon = target
     return max(minimum_gap, target_colon - base_cells - label_cells)
 
 def interpret_console_key(
@@ -23455,6 +23748,7 @@ def _stereo_copy_pan_filter(layout: str, matrix: tuple[tuple[str, float, float],
 
 
 _MATRIXMIXER_LAYOUT_CHANNEL_ORDER: dict[str, tuple[str, ...]] = {
+    "stereo": ("FL", "FR"),
     # These are FFmpeg/WAVEFORMATEXTENSIBLE *PCM positions*, not the editable
     # matrix-row presentation order.  In particular, standard 7.1 places BL/BR
     # before SL/SR.  The editor historically presents side surrounds first.
@@ -23588,9 +23882,9 @@ MM_INSPIRED_BITS_PER_SAMPLE = 16  # legacy/default alias; per-session depth is s
 # That creates far more prepare/write/unprepare calls and can starve real-time
 # playback.  Use comfortably-sized blocks plus a deeper queue; stop/seek remains
 # responsive because waveOutReset discards queued audio immediately.
-MM_INSPIRED_BUFFER_FRAMES = 8192
+MM_INSPIRED_BUFFER_FRAMES = 4096
 MM_INSPIRED_PENDING_BUFFERS = 8
-MM_INSPIRED_PREROLL_BUFFERS = 4  # Queue ~0.68s at 48 kHz before WaveOut starts; FFmpeg normally fills this much faster than real time.
+MM_INSPIRED_PREROLL_BUFFERS = 6  # Compatibility/default at 48 kHz; V369 computes the exact count from SMOOTH_AUDIO_BUFFER_MS.
 MM_CALLBACK_EVENT = 0x00050000
 MM_WAIT_OBJECT_0 = 0x00000000
 MM_WAIT_TIMEOUT = 0x00000102
@@ -23600,18 +23894,20 @@ MM_WAVE_FORMAT_QUERY = 0x0001
 MM_MMSYSERR_NOERROR = 0
 MM_WHDR_DONE = 0x00000001
 MM_SPEAKER_MASKS = {
+    2: 0x00000003,  # FL|FR stereo.
     5: 0x0000060F,  # FL|FR|FC|LFE|SL|SR — PAFPlayer 5.1 is explicitly side-surround.
     7: 0x0000063F,  # FL|FR|FC|LFE|BL|BR|SL|SR
     12: 0x0002D63F, # 7.1.4: base 7.1 plus TFL/TFR/TBL/TBR.
 }
 MM_SPEAKER_MASK_CANDIDATES = {
+    2: (0x00000003,),
     # Prefer the user's explicit side-surround 5.1 mapping. The back-channel mask
     # remains a compatibility fallback for older HDMI endpoints.
     5: (0x0000060F, 0x0000003F),
     7: (0x0000063F,),
     12: (0x0002D63F,),
 }
-MM_CHANNEL_COUNTS = {5: 6, 7: 8, 12: 12}
+MM_CHANNEL_COUNTS = {2: 2, 5: 6, 7: 8, 12: 12}
 
 # V301 live MatrixMixer output meters.  These sample the *final interleaved PCM*
 # that is actually handed to WaveOut, so the display includes the matrix, mutes,
@@ -23674,7 +23970,7 @@ def matrix_output_levels_snapshot() -> dict[str, object]:
         return {"active":False,"output_channels":0,"levels":{},"age_ms":None}
     newest_channels,newest_at,_newest_peaks=max(rows,key=lambda row:row[1])
     relevant=[row for row in rows if row[0]==newest_channels and now-row[1]<=1.0]
-    layout={5:"5.1(side)",7:"7.1",12:"7.1.4"}.get(int(newest_channels))
+    layout={2:"stereo",5:"5.1(side)",7:"7.1",12:"7.1.4"}.get(int(newest_channels))
     order=_MATRIXMIXER_LAYOUT_CHANNEL_ORDER.get(str(layout),())
     combined=[0.0]*len(order); newest=max((row[1] for row in relevant),default=newest_at)
     for _channels,_updated,peaks in relevant:
@@ -23817,6 +24113,238 @@ def output_device_identity(index: int) -> str:
     return label or ("System default" if int(index) < 0 else f"WaveOut device {int(index)}")
 
 
+@lru_cache(maxsize=1)
+def windows_default_render_device_name() -> str:
+    """Resolve Windows' multimedia default to its current friendly endpoint name.
+
+    WaveOut reports device ``-1`` merely as ``Microsoft Sound Mapper``.  Ask the
+    modern MMDevice API for the underlying endpoint ID, then read that endpoint's
+    user-visible friendly name.  The optional COM dependency is already present
+    in PAFPlayer's normal Windows environment; failure remains non-fatal.
+    """
+    if os.name != "nt":
+        return ""
+    try:
+        import winreg
+        from comtypes import COMMETHOD, GUID, HRESULT, IUnknown
+        from comtypes.client import CreateObject
+
+        class _IMMDevice(IUnknown):
+            _iid_ = GUID("{D666063F-1587-4E43-81F1-B948E807363F}")
+            _methods_ = [
+                COMMETHOD(
+                    [], HRESULT, "Activate",
+                    (["in"], ctypes.POINTER(GUID), "iid"),
+                    (["in"], ctypes.c_ulong, "dwClsCtx"),
+                    (["in"], ctypes.c_void_p, "pActivationParams"),
+                    (["out"], ctypes.POINTER(ctypes.c_void_p), "ppInterface"),
+                ),
+                COMMETHOD(
+                    [], HRESULT, "OpenPropertyStore",
+                    (["in"], ctypes.c_ulong, "stgmAccess"),
+                    (["out"], ctypes.POINTER(ctypes.c_void_p), "ppProperties"),
+                ),
+                COMMETHOD(
+                    [], HRESULT, "GetId",
+                    (["out"], ctypes.POINTER(ctypes.c_wchar_p), "ppstrId"),
+                ),
+                COMMETHOD(
+                    [], HRESULT, "GetState",
+                    (["out"], ctypes.POINTER(ctypes.c_ulong), "pdwState"),
+                ),
+            ]
+
+        class _IMMDeviceEnumerator(IUnknown):
+            _iid_ = GUID("{A95664D2-9614-4F35-A746-DE8DB63617E6}")
+            _methods_ = [
+                COMMETHOD(
+                    [], HRESULT, "EnumAudioEndpoints",
+                    (["in"], ctypes.c_int, "dataFlow"),
+                    (["in"], ctypes.c_ulong, "stateMask"),
+                    (["out"], ctypes.POINTER(ctypes.c_void_p), "ppDevices"),
+                ),
+                COMMETHOD(
+                    [], HRESULT, "GetDefaultAudioEndpoint",
+                    (["in"], ctypes.c_int, "dataFlow"),
+                    (["in"], ctypes.c_int, "role"),
+                    (["out"], ctypes.POINTER(ctypes.POINTER(_IMMDevice)), "ppEndpoint"),
+                ),
+            ]
+
+        enumerator = CreateObject(
+            GUID("{BCDE0395-E52F-467C-8E3D-C4579291692E}"),
+            interface=_IMMDeviceEnumerator,
+        )
+        endpoint = enumerator.GetDefaultAudioEndpoint(0, 1)  # eRender, eMultimedia
+        endpoint_id = str(endpoint.GetId() or "").strip()
+        match = re.search(r"(\{[0-9a-fA-F-]{36}\})$", endpoint_id)
+        if not match:
+            return ""
+        properties_path = (
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render"
+            + "\\"
+            + match.group(1)
+            + r"\Properties"
+        )
+        access = winreg.KEY_READ | getattr(winreg, "KEY_WOW64_64KEY", 0)
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, properties_path, 0, access) as key:
+            value, _kind = winreg.QueryValueEx(
+                key, "{a45c254e-df1c-4efd-8020-67d146a850e0},2"
+            )
+        return str(value or "").strip()
+    except Exception:
+        return ""
+
+
+@lru_cache(maxsize=1)
+def windows_render_endpoint_names() -> tuple[tuple[str, str], ...]:
+    """Return MMDevice friendly/interface names used to expand WaveOut labels."""
+    if os.name != "nt":
+        return tuple()
+    try:
+        import winreg
+
+        root_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render"
+        access = winreg.KEY_READ | getattr(winreg, "KEY_WOW64_64KEY", 0)
+        found: list[tuple[str, str]] = []
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, root_path, 0, access) as root:
+            subkey_count = winreg.QueryInfoKey(root)[0]
+            for index in range(subkey_count):
+                endpoint_key = winreg.EnumKey(root, index)
+                properties_path = root_path + "\\" + endpoint_key + r"\Properties"
+                try:
+                    with winreg.OpenKey(
+                        winreg.HKEY_LOCAL_MACHINE, properties_path, 0, access
+                    ) as properties:
+                        friendly, _kind = winreg.QueryValueEx(
+                            properties, "{a45c254e-df1c-4efd-8020-67d146a850e0},2"
+                        )
+                        try:
+                            interface, _kind = winreg.QueryValueEx(
+                                properties, "{b3f8fa53-0004-438e-9003-51a46e139bfc},6"
+                            )
+                        except OSError:
+                            interface = ""
+                except OSError:
+                    continue
+                pair = (str(friendly or "").strip(), str(interface or "").strip())
+                if pair[0] and pair not in found:
+                    found.append(pair)
+        return tuple(found)
+    except Exception:
+        return tuple()
+
+
+def expand_waveout_device_name(
+    waveout_name: str,
+    render_endpoints: tuple[tuple[str, str], ...] | None = None,
+) -> str:
+    """Map WaveOut's 31-character caps label back to its MMDevice friendly name."""
+    raw = re.sub(r"^\d+\s*:\s*", "", str(waveout_name or "")).strip()
+    if not raw:
+        return raw
+    endpoints = windows_render_endpoint_names() if render_endpoints is None else render_endpoints
+    folded = raw.casefold()
+    candidates: list[tuple[int, str]] = []
+    for friendly, interface in endpoints:
+        friendly = str(friendly or "").strip()
+        interface = str(interface or "").strip()
+        if not friendly:
+            continue
+        forms = [friendly]
+        if interface:
+            forms.insert(0, f"{friendly} ({interface})")
+        for form in forms:
+            form_folded = form.casefold()
+            if form_folded.startswith(folded) or folded.startswith(form_folded):
+                candidates.append((min(len(form_folded), len(folded)), friendly))
+                break
+    return max(candidates, default=(0, raw), key=lambda item: item[0])[1]
+
+
+def selected_output_device_names(
+    indexes,
+    *,
+    default_device_name: str | None = None,
+    known_devices: tuple[dict[str, object], ...] | None = None,
+    render_endpoints: tuple[tuple[str, str], ...] | None = None,
+) -> list[str]:
+    """Return friendly configured endpoint names, resolving and deduplicating default."""
+    selected = [int(value) for value in (indexes or [DEFAULT_OUTPUT_DEVICE_INDEX])]
+    device_rows = waveout_output_devices() if known_devices is None else known_devices
+    labels = {
+        int(item.get("value", DEFAULT_OUTPUT_DEVICE_INDEX)): re.sub(
+            r"^\d+\s*:\s*", "", str(item.get("label", "")).strip()
+        )
+        for item in device_rows
+    }
+    resolved_default = (
+        windows_default_render_device_name()
+        if default_device_name is None
+        else str(default_device_name).strip()
+    )
+    names: list[str] = []
+    seen: set[str] = set()
+    for index in selected:
+        name = (
+            resolved_default or labels.get(index, "") or "System default"
+            if index < 0
+            else expand_waveout_device_name(
+                labels.get(index, "") or output_device_identity(index), render_endpoints
+            )
+        )
+        folded = name.casefold()
+        if folded not in seen:
+            names.append(name)
+            seen.add(folded)
+    return names or [resolved_default or "System default"]
+
+
+def output_help_summary_text(
+    sample_rate: int,
+    source_bitrate: str,
+    bit_depth: int,
+    device_names,
+) -> str:
+    """Format the complete output description used by the modal ``?`` screen."""
+    pieces = [f"{float(sample_rate) / 1000.0:g}kHz"]
+    bitrate = str(source_bitrate or "").strip()
+    if bitrate:
+        pieces.append(bitrate)
+    pieces.append(f"{max(1, int(bit_depth))}-bit")
+    names = [str(name).strip() for name in (device_names or ()) if str(name).strip()]
+    pieces.append("+".join(names) or "Unknown output")
+    return "  •  ".join(pieces)
+
+
+def pack_help_diagnostic_segments(
+    segments,
+    available: int,
+    separator_ansi: str = "\033[2;38;2;105;125;145m  ║  \033[0m",
+) -> tuple[str, ...]:
+    """Pack whole help diagnostics left-to-right, wrapping before a segment."""
+    width = max(12, int(available))
+
+    def visible_cells(value: str) -> int:
+        return terminal_cell_width(ANSI_CSI_RE.sub("", str(value)))
+
+    rows: list[str] = []
+    current = ""
+    for raw_segment in segments or ():
+        segment = str(raw_segment or "")
+        if not segment:
+            continue
+        candidate = current + (separator_ansi if current else "") + segment
+        if current and visible_cells(candidate) > width:
+            rows.append(truncate_ansi_to_cells(current, width))
+            current = segment
+        else:
+            current = candidate
+    if current:
+        rows.append(truncate_ansi_to_cells(current, width))
+    return tuple(rows)
+
+
 def normalize_multi_output_latency_ms(value) -> int:
     try:
         number = int(round(float(value)))
@@ -23922,7 +24450,7 @@ def matrixmixer_inspired_wave_format(
 ) -> _MMWaveFormatExtensible:
     """Build the explicit Windows speaker-mask format used by V228-MMInspo."""
     if output_channels not in MM_CHANNEL_COUNTS:
-        raise ValueError(f"MMInspo renderer supports PAFPlayer 5.1/7.1/Atmos modes, got {output_channels!r}")
+        raise ValueError(f"Buffered WaveOut renderer supports stereo/5.1/7.1/Atmos modes, got {output_channels!r}")
     channels = MM_CHANNEL_COUNTS[output_channels]
     requested = int(bit_depth) if int(bit_depth) in OUTPUT_BIT_DEPTHS else DEFAULT_OUTPUT_BIT_DEPTH
     # 12/8/4 are intentionally quantized fun modes carried in a driver-friendly
@@ -23961,8 +24489,8 @@ def matrixmixer_inspired_ffmpeg_command(
     replaygain_info: ReplayGainInfo | None = None,
 ) -> list[str]:
     """Decode/matrix to raw interleaved PCM; Windows rendering happens elsewhere."""
-    if output_channels not in {5, 7, 12}:
-        raise ValueError("MMInspo PCM command is intentionally multichannel-only")
+    if output_channels not in {2, 5, 7, 12}:
+        raise ValueError("Buffered WaveOut PCM command supports stereo/5.1/7.1/Atmos")
     rate = output_rate if output_rate in OUTPUT_SAMPLE_RATES else HDMI_PCM_OUTPUT_RATE
     command = [
         str(executable), "-nostdin", "-hide_banner", "-loglevel", "error",
@@ -23988,7 +24516,10 @@ def matrixmixer_inspired_ffmpeg_command(
             filters.append(_native_multichannel_balance_filter(normalized_source_layout, left_gain, right_gain))
         else:
             filters.append(f"pan=stereo|c0={left_gain:.3f}*c0|c1={right_gain:.3f}*c1")
-    filters.append(output_expansion_filter(output_channels, source_channels=source_channels, source_layout=source_layout))
+    if output_channels == 2:
+        filters.append("aformat=channel_layouts=stereo")
+    else:
+        filters.append(output_expansion_filter(output_channels, source_channels=source_channels, source_layout=source_layout))
     filters.append(f"aresample={rate}")
     depth = int(output_bit_depth) if int(output_bit_depth) in OUTPUT_BIT_DEPTHS else DEFAULT_OUTPUT_BIT_DEPTH
     if depth in {12, 8, 4}:
@@ -24031,11 +24562,11 @@ class MatrixMixerInspiredWaveOutProcess:
     playback controller instead of creating a second controller.
     """
 
-    def __init__(self, command: list[str], output_channels: int, sample_rate: int, output_device_index: int = DEFAULT_OUTPUT_DEVICE_INDEX, output_bit_depth: int = DEFAULT_OUTPUT_BIT_DEPTH, initial_delay_ms: int = 0, start_barrier: threading.Barrier | None = None) -> None:
+    def __init__(self, command: list[str], output_channels: int, sample_rate: int, output_device_index: int = DEFAULT_OUTPUT_DEVICE_INDEX, output_bit_depth: int = DEFAULT_OUTPUT_BIT_DEPTH, initial_delay_ms: int = 0, start_barrier: threading.Barrier | None = None, target_buffer_ms: int = SMOOTH_AUDIO_BUFFER_MS) -> None:
         if os.name != "nt":
             raise RuntimeError("MMInspo renderer is Windows-only")
         if output_channels not in MM_CHANNEL_COUNTS:
-            raise ValueError("MMInspo renderer requires 5.1, 7.1, or Atmos 7.1.4")
+            raise ValueError("Buffered WaveOut renderer requires stereo, 5.1, 7.1, or Atmos 7.1.4")
         self.output_channels = int(output_channels)
         self.channels = MM_CHANNEL_COUNTS[self.output_channels]
         self.sample_rate = int(sample_rate)
@@ -24044,6 +24575,13 @@ class MatrixMixerInspiredWaveOutProcess:
         self.output_device_index = int(output_device_index)
         self.initial_delay_ms = max(0, int(initial_delay_ms))
         self.start_barrier = start_barrier
+        self.target_buffer_ms = max(SMOOTH_AUDIO_BUFFER_MS_MIN, min(SMOOTH_AUDIO_BUFFER_MS_MAX, int(target_buffer_ms)))
+        self.preroll_buffers = max(1, min(
+            MM_INSPIRED_PENDING_BUFFERS - 1,
+            math.ceil((self.sample_rate * (self.target_buffer_ms / 1000.0)) / MM_INSPIRED_BUFFER_FRAMES)
+            if self.target_buffer_ms > 0 else 1,
+        ))
+        self._playback_started_at: float | None = None
         self._meter_source_id = id(self)
         self._last_meter_update = 0.0
         self.wave_device_id = MM_WAVE_MAPPER if self.output_device_index < 0 else self.output_device_index
@@ -24244,7 +24782,7 @@ class MatrixMixerInspiredWaveOutProcess:
                             self._meter_source_id, self.output_channels,
                             matrixmixer_pcm_channel_peaks(data,self.channels,self.container_bits,frame_stride=16),
                         )
-                if not waveout_started and len(pending) >= min(MM_INSPIRED_PREROLL_BUFFERS, MM_INSPIRED_PENDING_BUFFERS):
+                if not waveout_started and len(pending) >= self.preroll_buffers:
                     if self.start_barrier is not None:
                         try:
                             self.start_barrier.wait(timeout=3.0)
@@ -24254,6 +24792,7 @@ class MatrixMixerInspiredWaveOutProcess:
                     restarted = self._winmm.waveOutRestart(self._wave_handle)
                     if restarted != MM_MMSYSERR_NOERROR:
                         raise RuntimeError(self._wave_error("waveOutRestart", restarted))
+                    self._playback_started_at = time.monotonic()
                     waveout_started = True
                 if len(pending) >= MM_INSPIRED_PENDING_BUFFERS:
                     _buffer, old = pending.pop(0)
@@ -24269,6 +24808,7 @@ class MatrixMixerInspiredWaveOutProcess:
                 restarted = self._winmm.waveOutRestart(self._wave_handle)
                 if restarted != MM_MMSYSERR_NOERROR:
                     raise RuntimeError(self._wave_error("waveOutRestart", restarted))
+                self._playback_started_at = time.monotonic()
                 waveout_started = True
             for _buffer, header in pending:
                 self._release_header(header)
@@ -24280,8 +24820,8 @@ class MatrixMixerInspiredWaveOutProcess:
             self._returncode = 1
             with contextlib.suppress(Exception):
                 record_pafplayer_runtime_warning(
-                    "Experimental 5.1/7.1 renderer stopped",
-                    f"V231 MMInspo buffered/prerolled WaveOut/WAVEFORMATEXTENSIBLE: {exc}",
+                    "Buffered WaveOut renderer stopped",
+                    f"V369 buffered/prerolled WaveOut/WAVEFORMATEXTENSIBLE: {exc}",
                 )
             with contextlib.suppress(Exception):
                 self._ffmpeg.kill()
@@ -24304,6 +24844,10 @@ class MatrixMixerInspiredWaveOutProcess:
                 self._returncode = self._ffmpeg.poll()
                 if self._returncode is None:
                     self._returncode = 0
+
+    @property
+    def playback_started_at(self) -> float | None:
+        return self._playback_started_at
 
     def poll(self):
         return None if self._thread.is_alive() else self._returncode
@@ -24343,6 +24887,13 @@ class MultiOutputWaveOutProcess:
             raise ValueError("at least one output process is required")
         self.pid = getattr(self.processes[0], "pid", None)
 
+    @property
+    def playback_started_at(self) -> float | None:
+        starts = [getattr(process, "playback_started_at", None) for process in self.processes]
+        if not starts or any(value is None for value in starts):
+            return None
+        return max(float(value) for value in starts if value is not None)
+
     def poll(self):
         codes = [process.poll() for process in self.processes]
         return None if any(code is None for code in codes) else (codes[0] if codes else 0)
@@ -24379,6 +24930,7 @@ def launch_matrixmixer_inspired_renderer(
     output_device_indexes: list[int] | tuple[int, ...] | None = None,
     *,
     end_seconds: float | None,
+    target_buffer_ms: int = SMOOTH_AUDIO_BUFFER_MS,
     replaygain_info: ReplayGainInfo | None,
 ):
     """Launch the opt-in WaveOut/WAVEFORMATEXTENSIBLE backend."""
@@ -24411,6 +24963,7 @@ def launch_matrixmixer_inspired_renderer(
             processes.append(MatrixMixerInspiredWaveOutProcess(
                 command, output_channels, output_rate, index, output_bit_depth,
                 initial_delay_ms=effective_delays.get(index, 0), start_barrier=start_barrier,
+                target_buffer_ms=target_buffer_ms,
             ))
     except Exception:
         for process in processes:
@@ -24954,13 +25507,21 @@ def twin_drcs_char(left_level: int, right_level: int) -> str:
     return _TWIN_DRCS_CHAR_TABLE[left][right]
 
 
-def define_twin_visualizer_drcs_patterns() -> list[str]:
-    """Return all 9×9 left/right half-width block combinations for granularity mode 3."""
+def define_twin_visualizer_drcs_patterns(level_count: int = 9) -> list[str]:
+    """Return left/right half-width DRCS combinations for granularity mode 3.
+
+    The historical player font uses 9 levels per half (81 glyphs). Dense-art
+    mode deliberately uses 8 levels per half (64 glyphs), freeing enough of the
+    same 94-character DRCS set for cell-safe 2×4 artwork masks.  The visual bar
+    loses only one intermediate height while avoiding Unicode font fallback.
+    """
+    levels = max(2, min(9, int(level_count)))
+    denominator = levels - 1
     patterns: list[str] = []
-    for left in range(9):
-        left_rows = round(left * 20 / 8)
-        for right in range(9):
-            right_rows = round(right * 20 / 8)
+    for left in range(levels):
+        left_rows = round(left * 20 / denominator)
+        for right in range(levels):
+            right_rows = round(right * 20 / denominator)
             rows = []
             for row in range(20):
                 left_fill = "#####" if row >= 20 - left_rows else "....."
@@ -24968,6 +25529,372 @@ def define_twin_visualizer_drcs_patterns() -> list[str]:
                 rows.append(left_fill + right_fill)
             patterns.append(_drcs_pattern(tuple(rows)))
     return patterns
+
+
+# V379 mode-specific DRCS packing. Windows Terminal exposes 94 downloadable
+# characters in the active 94-character soft font. Three are permanently kept
+# for the volume icon. 2×3 can therefore be geometrically exact while still
+# retaining seven height levels per visualizer half. Denser modes use six bar
+# levels and spend the resulting 55 slots on artwork masks.
+ART_DETAIL_DRCS_TWIN_LEVELS_BY_MODE = {
+    2: 7,  # 49 twin bars + 32 exact sextant masks + 10 spare + 3 volume
+    3: 6,  # 36 twin bars + 55 octant masks + 3 volume
+    4: 6,
+    5: 6,
+    6: 6,
+}
+ART_DETAIL_DRCS_ART_SLOTS_BY_MODE = {
+    mode: 94 - 3 - levels * levels
+    for mode, levels in ART_DETAIL_DRCS_TWIN_LEVELS_BY_MODE.items()
+}
+
+
+def art_detail_is_hybrid(mode: int) -> bool:
+    """Return whether a selector is one of the universal exact Unicode+DRCS hybrids."""
+    return int(mode) in ART_MICROTILE_DETAIL_HYBRID_BASE_MODE
+
+
+def art_detail_is_adaptive_exact(mode: int) -> bool:
+    """Return whether a selector uses exact high-res DRCS with exact 2×4 fallback."""
+    return int(mode) in ART_MICROTILE_DETAIL_ADAPTIVE_EXACT_BASE_MODE
+
+
+def art_detail_is_seamless_adaptive(mode: int) -> bool:
+    """Return whether a selector dynamically spends DRCS slots on this artwork."""
+    return int(mode) in ART_MICROTILE_DETAIL_SEAMLESS_BASE_MODE
+
+
+def art_detail_uses_unicode_glyphs(mode: int) -> bool:
+    """Return whether a selector is allowed to emit native Unicode mosaic glyphs."""
+    return art_detail_is_hybrid(mode) or art_detail_is_adaptive_exact(mode) or art_detail_is_seamless_adaptive(mode)
+
+
+def art_detail_base_mode(mode: int) -> int:
+    """Return the underlying geometry mode for hybrid/adaptive selectors."""
+    value = int(mode)
+    if value in ART_MICROTILE_DETAIL_HYBRID_BASE_MODE:
+        return ART_MICROTILE_DETAIL_HYBRID_BASE_MODE[value]
+    if value in ART_MICROTILE_DETAIL_ADAPTIVE_EXACT_BASE_MODE:
+        return ART_MICROTILE_DETAIL_ADAPTIVE_EXACT_BASE_MODE[value]
+    return ART_MICROTILE_DETAIL_SEAMLESS_BASE_MODE.get(value, value)
+
+
+def art_detail_drcs_layout_mode(mode: int) -> int:
+    """Return which downloadable bank a selector needs, if any."""
+    base = art_detail_base_mode(mode)
+    return base if base >= 2 else 0
+
+
+def choose_art_detail_drcs_layout(*modes: int) -> int:
+    """Pick the densest required DRCS bank without confusing hybrid IDs with density."""
+    candidates = [art_detail_drcs_layout_mode(mode) for mode in modes]
+    return max(candidates, default=0)
+
+
+def _normalize_art_detail_layout_mode(value: int | bool) -> int:
+    """Normalize a requested DRCS bank mode.
+
+    ``True`` is retained as a compatibility spelling for the old V378 dense
+    layout and maps to 2×4 (mode 3); ``False`` means the legacy/2×2 bank.
+    Hybrid selector IDs normalize to their underlying DRCS geometry.
+    """
+    if isinstance(value, bool):
+        return 3 if value else 0
+    mode = art_detail_base_mode(int(value))
+    if mode < 2:
+        return 0
+    return max(2, min(6, mode))
+
+
+def art_detail_geometry(mode: int) -> tuple[int, int]:
+    index = max(0, min(len(ART_MICROTILE_DETAIL_MODE_GEOMETRIES) - 1, int(mode)))
+    return ART_MICROTILE_DETAIL_MODE_GEOMETRIES[index]
+
+
+def art_detail_horizontal_subcells(mode: int) -> int:
+    return art_detail_geometry(mode)[0]
+
+
+def art_detail_vertical_subcells(mode: int) -> int:
+    return art_detail_geometry(mode)[1]
+
+
+def art_detail_subcell_count(mode: int) -> int:
+    columns, rows = art_detail_geometry(mode)
+    return columns * rows
+
+
+def art_detail_exact_mask_fraction(mode: int) -> float:
+    """Theoretical exact-mask coverage of the selected drawing vocabulary."""
+    mode = max(0, min(len(ART_MICROTILE_DETAIL_MODE_GEOMETRIES) - 1, int(mode)))
+    if mode <= 0 or art_detail_uses_unicode_glyphs(mode):
+        return 1.0
+    bits = art_detail_subcell_count(mode)
+    unique_complement_masks = 1 << max(0, bits - 1)
+    if mode == 1:
+        exact_slots = 8
+    elif mode == 2:
+        exact_slots = 32
+    else:
+        exact_slots = ART_DETAIL_DRCS_ART_SLOTS_BY_MODE.get(mode, 0)
+    return min(1.0, exact_slots / max(1, unique_complement_masks))
+
+
+def _canonical_art_detail_mask(mask: int, bits: int) -> tuple[int, bool]:
+    full = (1 << max(1, int(bits))) - 1
+    value = int(mask) & full
+    complement = value ^ full
+    if complement < value:
+        return complement, True
+    return value, False
+
+
+def _art_detail_mask_edge_complexity(mask: int, columns: int, rows: int) -> int:
+    """Count neighboring subcell transitions; lower values resemble real edges."""
+    score = 0
+    for row in range(rows):
+        for column in range(columns):
+            bit = bool(mask & (1 << (row * columns + column)))
+            if column + 1 < columns:
+                score += bit != bool(mask & (1 << (row * columns + column + 1)))
+            if row + 1 < rows:
+                score += bit != bool(mask & (1 << ((row + 1) * columns + column)))
+    return int(score)
+
+
+@lru_cache(maxsize=None)
+def art_detail_drcs_codebook(layout_mode: int) -> tuple[int, ...]:
+    """Return the geometry-specific canonical masks downloaded for one mode.
+
+    2×3 stores every possible foreground/background-equivalent mask exactly.
+    Larger rasters cannot fit every theoretical shape in a 94-character DRCS
+    font, so V379 uses an edge-aware k-center codebook: seed it with a few of
+    the spatially smoothest masks, then greedily add masks farthest in Hamming
+    distance from those already selected. This protects common continuous image
+    edges while still covering pathological masks reasonably well.
+    """
+    mode = _normalize_art_detail_layout_mode(layout_mode)
+    if mode <= 1:
+        return tuple(range(8))
+    columns, rows = art_detail_geometry(mode)
+    bits = columns * rows
+    slots = ART_DETAIL_DRCS_ART_SLOTS_BY_MODE[mode]
+    full = (1 << bits) - 1
+    canonical_masks = tuple(sorted({min(mask, mask ^ full) for mask in range(1 << bits)}))
+    if len(canonical_masks) <= slots:
+        return canonical_masks
+
+    smooth = sorted(
+        canonical_masks,
+        key=lambda mask: (
+            _art_detail_mask_edge_complexity(mask, columns, rows),
+            abs(mask.bit_count() - bits / 2.0),
+            mask,
+        ),
+    )
+    seed_count = 8 if bits >= 12 else 4
+    selected = list(smooth[: min(seed_count, slots)])
+    selected_set = set(selected)
+    while len(selected) < slots:
+        best_mask = None
+        best_key = None
+        for mask in canonical_masks:
+            if mask in selected_set:
+                continue
+            distance = min((mask ^ chosen).bit_count() for chosen in selected)
+            key = (
+                distance,
+                -_art_detail_mask_edge_complexity(mask, columns, rows),
+                -abs(mask.bit_count() - bits / 2.0),
+                -mask,
+            )
+            if best_key is None or key > best_key:
+                best_key = key
+                best_mask = mask
+        if best_mask is None:
+            break
+        selected.append(best_mask)
+        selected_set.add(best_mask)
+    return tuple(selected)
+
+
+_ART_DETAIL_DRCS_CODEBOOK_OVERRIDES: dict[int, tuple[int, ...]] = {}
+_ART_DETAIL_DRCS_CHAR_MAP_OVERRIDES: dict[int, dict[int, str]] = {}
+_ART_DETAIL_DRCS_OVERRIDE_GENERATION = 0
+_ADAPTIVE_SEAMLESS_CODEBOOK_CACHE: dict[
+    tuple[int, int, int], tuple[object, tuple[int, ...]]
+] = {}
+
+
+def art_detail_active_drcs_codebook(layout_mode: int) -> tuple[int, ...]:
+    """Return the currently downloaded mask vocabulary for one DRCS geometry."""
+    mode = _normalize_art_detail_layout_mode(layout_mode)
+    return _ART_DETAIL_DRCS_CODEBOOK_OVERRIDES.get(mode, art_detail_drcs_codebook(mode))
+
+
+@lru_cache(maxsize=None)
+def _art_detail_fixed_drcs_char_by_mask(layout_mode: int) -> dict[int, str]:
+    mode = _normalize_art_detail_layout_mode(layout_mode)
+    levels = ART_DETAIL_DRCS_TWIN_LEVELS_BY_MODE[mode]
+    first = 33 + levels * levels
+    return {
+        mask: chr(first + index)
+        for index, mask in enumerate(art_detail_drcs_codebook(mode))
+    }
+
+
+def _art_detail_drcs_char_by_mask(layout_mode: int) -> dict[int, str]:
+    mode = _normalize_art_detail_layout_mode(layout_mode)
+    override = _ART_DETAIL_DRCS_CHAR_MAP_OVERRIDES.get(mode)
+    return override if override is not None else _art_detail_fixed_drcs_char_by_mask(mode)
+
+
+def _clear_art_detail_render_caches() -> None:
+    _art_detail_quantize_hybrid_cached.cache_clear()
+    _art_detail_quantize_adaptive_exact_cached.cache_clear()
+    _art_detail_quantize_seamless_cached.cache_clear()
+    _art_detail_quantize_drcs_cached.cache_clear()
+    dense_art_drcs_char.cache_clear()
+    _VISUALIZER_ART_DETAIL_GRID_CACHE.clear()
+    _VISUALIZER_ART_CELL_STYLE_CACHE.clear()
+
+
+def set_art_detail_drcs_codebook_override(layout_mode: int, codebook: tuple[int, ...] | None) -> bool:
+    """Install/remove an artwork-specific DRCS vocabulary; return whether it changed."""
+    global _ART_DETAIL_DRCS_OVERRIDE_GENERATION
+    mode = _normalize_art_detail_layout_mode(layout_mode)
+    if mode <= 0:
+        return False
+    if codebook is None:
+        wanted = None
+    else:
+        bits = art_detail_subcell_count(mode)
+        slots = ART_DETAIL_DRCS_ART_SLOTS_BY_MODE[mode]
+        unique: list[int] = []
+        seen: set[int] = set()
+        for mask in codebook:
+            canonical, _invert = _canonical_art_detail_mask(int(mask), bits)
+            if canonical in seen:
+                continue
+            seen.add(canonical)
+            unique.append(canonical)
+            if len(unique) >= slots:
+                break
+        # Do not waste spare downloadable slots. Fill with the stable bank after
+        # every artwork-observed shape, preserving exactness while giving later
+        # frames/fallback users some useful coverage too.
+        for mask in art_detail_drcs_codebook(mode):
+            if len(unique) >= slots:
+                break
+            if mask not in seen:
+                seen.add(mask)
+                unique.append(mask)
+        wanted = tuple(unique)
+    current = _ART_DETAIL_DRCS_CODEBOOK_OVERRIDES.get(mode)
+    if wanted is None:
+        if current is None:
+            return False
+        _ART_DETAIL_DRCS_CODEBOOK_OVERRIDES.pop(mode, None)
+        _ART_DETAIL_DRCS_CHAR_MAP_OVERRIDES.pop(mode, None)
+    else:
+        if current == wanted:
+            return False
+        _ART_DETAIL_DRCS_CODEBOOK_OVERRIDES[mode] = wanted
+        levels = ART_DETAIL_DRCS_TWIN_LEVELS_BY_MODE[mode]
+        first = 33 + levels * levels
+        _ART_DETAIL_DRCS_CHAR_MAP_OVERRIDES[mode] = {
+            mask: chr(first + index) for index, mask in enumerate(wanted)
+        }
+    _ART_DETAIL_DRCS_OVERRIDE_GENERATION += 1
+    _clear_art_detail_render_caches()
+    return True
+
+
+def twin_drcs_char_for_layout(left_level: int, right_level: int, dense_art_layout: int | bool = False) -> str:
+    """Return a twin-bar soft glyph from the currently downloaded DRCS bank."""
+    layout_mode = _normalize_art_detail_layout_mode(dense_art_layout)
+    if layout_mode == 0:
+        return twin_drcs_char(left_level, right_level)
+    levels = ART_DETAIL_DRCS_TWIN_LEVELS_BY_MODE[layout_mode]
+    left = min(8, max(0, int(left_level)))
+    right = min(8, max(0, int(right_level)))
+    # Preserve exact empty/full endpoints; quantize only intermediate heights.
+    left_dense = min(levels - 1, max(0, round(left * (levels - 1) / 8)))
+    right_dense = min(levels - 1, max(0, round(right * (levels - 1) / 8)))
+    return chr(33 + left_dense * levels + right_dense)
+
+
+def _resample_art_detail_mask(mask: int, source_mode: int, target_mode: int) -> int:
+    """Nearest-neighbor-resample one binary subcell raster into another geometry."""
+    source_columns, source_rows = art_detail_geometry(source_mode)
+    target_columns, target_rows = art_detail_geometry(target_mode)
+    if (source_columns, source_rows) == (target_columns, target_rows):
+        return int(mask) & ((1 << (source_columns * source_rows)) - 1)
+    result = 0
+    for target_row in range(target_rows):
+        source_row = min(
+            source_rows - 1,
+            max(0, int((target_row + 0.5) * source_rows / target_rows)),
+        )
+        for target_column in range(target_columns):
+            source_column = min(
+                source_columns - 1,
+                max(0, int((target_column + 0.5) * source_columns / target_columns)),
+            )
+            source_bit = source_row * source_columns + source_column
+            if int(mask) & (1 << source_bit):
+                result |= 1 << (target_row * target_columns + target_column)
+    return result
+
+
+@lru_cache(maxsize=32768)
+def dense_art_drcs_char(mask: int, source_mode: int = 3, layout_mode: int = 3) -> tuple[str, bool]:
+    """Return the nearest fixed-cell DRCS mosaic plus whether FG/BG must swap."""
+    layout = _normalize_art_detail_layout_mode(layout_mode)
+    if layout == 0:
+        # Compatibility fallback; callers should use the exact 2×2 helper.
+        canonical = min(int(mask) & 0xF, (int(mask) & 0xF) ^ 0xF)
+        return art_microtile_drcs_char(canonical), canonical != (int(mask) & 0xF)
+    target_mask = _resample_art_detail_mask(int(mask), int(source_mode), layout)
+    bits = art_detail_subcell_count(layout)
+    canonical, invert = _canonical_art_detail_mask(target_mask, bits)
+    codebook = art_detail_active_drcs_codebook(layout)
+    representative = min(
+        codebook,
+        key=lambda candidate: (
+            (canonical ^ candidate).bit_count(),
+            _art_detail_mask_edge_complexity(candidate, *art_detail_geometry(layout)),
+            abs(canonical.bit_count() - candidate.bit_count()),
+            candidate,
+        ),
+    )
+    return _art_detail_drcs_char_by_mask(layout)[representative], invert
+
+
+def define_dense_art_drcs_patterns(layout_mode: int = 3) -> list[str]:
+    """Build geometry-specific fixed-cell artwork glyphs for one DRCS bank."""
+    mode = _normalize_art_detail_layout_mode(layout_mode)
+    columns, rows = art_detail_geometry(mode)
+    x_edges = [round(index * 10 / columns) for index in range(columns + 1)]
+    y_edges = [round(index * 20 / rows) for index in range(rows + 1)]
+    patterns: list[str] = []
+    for mask in art_detail_active_drcs_codebook(mode):
+        bitmap = [["." for _column in range(10)] for _row in range(20)]
+        for subrow in range(rows):
+            for subcolumn in range(columns):
+                if not (mask & (1 << (subrow * columns + subcolumn))):
+                    continue
+                for pixel_row in range(y_edges[subrow], y_edges[subrow + 1]):
+                    for pixel_column in range(x_edges[subcolumn], x_edges[subcolumn + 1]):
+                        bitmap[pixel_row][pixel_column] = "#"
+        patterns.append(_drcs_pattern(tuple("".join(row) for row in bitmap)))
+    return patterns
+
+
+# Backward-compatible diagnostic aliases now describe the V379 2×4 bank.
+DENSE_ART_DRCS_TWIN_LEVELS = ART_DETAIL_DRCS_TWIN_LEVELS_BY_MODE[3]
+DENSE_ART_DRCS_MASK_CODEBOOK = art_detail_drcs_codebook(3)
+DENSE_ART_DRCS_FIRST_CHAR = 33 + DENSE_ART_DRCS_TWIN_LEVELS ** 2
 
 
 def art_microtile_drcs_char(mask: int) -> str:
@@ -24994,17 +25921,685 @@ def define_art_microtile_drcs_patterns() -> list[str]:
     return patterns
 
 
-def define_all_player_drcs() -> str:
-    """Download twin bars, art microtiles, and speaker glyphs in one soft font."""
-    twin_patterns = define_twin_visualizer_drcs_patterns()
-    microtiles = define_art_microtile_drcs_patterns()
+_SEXTANT_MASK_ORDER = tuple(
+    [mask for mask in range(1, 63) if mask not in {21, 42}]
+)
+_SEXTANT_CHAR_BY_MASK = {
+    mask: chr(0x1FB00 + index)
+    for index, mask in enumerate(_SEXTANT_MASK_ORDER)
+}
+_SEXTANT_CHAR_BY_MASK.update({0: " ", 21: "▌", 42: "▐", 63: "█"})
+
+
+def art_detail_vertical_subcells(mode: int) -> int:
+    """Return vertical sample count for one artwork-detail mode."""
+    return art_detail_geometry(mode)[1]
+
+
+_QUADRANT_UNICODE_BY_MASK = {
+    0x0: " ", 0x1: "▘", 0x2: "▝", 0x3: "▀",
+    0x4: "▖", 0x5: "▌", 0x6: "▞", 0x7: "▛",
+    0x8: "▗", 0x9: "▚", 0xA: "▐", 0xB: "▜",
+    0xC: "▄", 0xD: "▙", 0xE: "▟", 0xF: "█",
+}
+
+
+def art_quadrant_unicode_char(mask: int) -> tuple[str, bool]:
+    """Return the exact native Unicode 2×2 block glyph for one row-major mask."""
+    return _QUADRANT_UNICODE_BY_MASK[int(mask) & 0xF], False
+
+
+def art_detail_cell_uses_unicode_glyph(mode: int, glyph: str) -> bool:
+    """Unicode+DRCS rows can mix native Unicode cells and printable DRCS bytes."""
+    if not art_detail_uses_unicode_glyphs(mode) or not glyph:
+        return False
+    # DRCS occupies printable 94-set bytes ! through ~. Space is not a DRCS
+    # character and is harmless in either charset, so it need not trigger a
+    # charset transition.
+    if len(glyph) == 1 and 0x21 <= ord(glyph) <= 0x7E:
+        return False
+    return glyph != " "
+
+
+def art_sextant_char(mask: int) -> str:
+    """Map a row-major 2×3 binary mask to one Unicode sextant glyph."""
+    return _SEXTANT_CHAR_BY_MASK.get(int(mask) & 0x3F, " ")
+
+
+# Unicode 16's Symbols for Legacy Computing Supplement adds 230 solid 2×4
+# "block octant" mosaics in U+1CD00..U+1CDE5. The code points are assigned in
+# ascending row-major mask order, omitting shapes that already existed in older
+# block-element ranges. Those omissions are kept here explicitly so the mapping
+# is deterministic and does not depend on Python's Unicode database version.
+_OCTANT_SUPPLEMENT_OMITTED_MASKS = frozenset({
+    1, 2, 3, 5, 10, 15, 20, 40, 63, 64, 80, 85, 90, 95,
+    128, 160, 165, 170, 175, 192, 240, 245, 250, 252,
+})
+_OCTANT_SUPPLEMENT_MASK_ORDER = tuple(
+    mask for mask in range(1, 255) if mask not in _OCTANT_SUPPLEMENT_OMITTED_MASKS
+)
+_OCTANT_SUPPLEMENT_CHAR_BY_MASK = {
+    mask: chr(0x1CD00 + index)
+    for index, mask in enumerate(_OCTANT_SUPPLEMENT_MASK_ORDER)
+}
+# Nine omitted complement-pairs already have crisp solid block glyphs. The bool
+# says the glyph is the complement of the requested mask, in which case ANSI
+# foreground/background colors are swapped. This gives all 256 masks without
+# ever falling back to Braille dots.
+_OCTANT_EXISTING_GLYPH_BY_MASK: dict[int, tuple[str, bool]] = {
+    0: (" ", False),
+    255: ("█", False),
+    3: ("🮂", False),   # upper one quarter block
+    252: ("🮂", True),
+    5: ("▘", False),             # quadrant upper left
+    250: ("▘", True),
+    10: ("▝", False),            # quadrant upper right
+    245: ("▝", True),
+    15: ("▀", False),             # upper half
+    240: ("▀", True),
+    63: ("🮅", False),  # upper three quarters block
+    192: ("🮅", True),
+    80: ("▖", False),            # quadrant lower left
+    175: ("▖", True),
+    85: ("▌", False),            # left half
+    170: ("▌", True),
+    90: ("▐", False),            # right half
+    165: ("▐", True),
+    160: ("▗", False),           # quadrant lower right
+    95: ("▗", True),
+}
+
+
+def art_octant_char(mask: int) -> tuple[str, bool]:
+    """Return (solid 2×4 mosaic glyph, invert-colors) for a row-major mask."""
+    row_major = int(mask) & 0xFF
+    existing = _OCTANT_EXISTING_GLYPH_BY_MASK.get(row_major)
+    if existing is not None:
+        return existing
+    direct = _OCTANT_SUPPLEMENT_CHAR_BY_MASK.get(row_major)
+    if direct is not None:
+        return direct, False
+    # Six historical omissions have complements in the Unicode-16 supplement.
+    complement = row_major ^ 0xFF
+    inverse = _OCTANT_SUPPLEMENT_CHAR_BY_MASK.get(complement)
+    if inverse is not None:
+        return inverse, True
+    # Defensive fallback should be unreachable; degrade to the already-good
+    # sextant geometry rather than ever resurrecting Braille.
+    collapsed = 0
+    # Merge the middle two 2×4 rows into one 2×3 row by majority/OR presence.
+    collapsed |= row_major & 0b00000011
+    middle_left = bool(row_major & (1 << 2)) or bool(row_major & (1 << 4))
+    middle_right = bool(row_major & (1 << 3)) or bool(row_major & (1 << 5))
+    if middle_left:
+        collapsed |= 1 << 2
+    if middle_right:
+        collapsed |= 1 << 3
+    if row_major & (1 << 6):
+        collapsed |= 1 << 4
+    if row_major & (1 << 7):
+        collapsed |= 1 << 5
+    return art_sextant_char(collapsed), False
+
+
+
+def _native_art_detail_char(base_mode: int, mask: int) -> tuple[str, bool]:
+    """Return an exact native Unicode glyph for the three hybrid geometries."""
+    base = art_detail_base_mode(base_mode)
+    if base == 1:
+        return art_quadrant_unicode_char(mask)
+    if base == 2:
+        return art_sextant_char(mask), False
+    if base == 3:
+        return art_octant_char(mask)
+    raise ValueError(f"No native exact artwork mosaic for mode {base_mode}")
+
+
+def _dense_art_drcs_exact_char(mask: int, source_mode: int, layout_mode: int) -> tuple[str, bool] | None:
+    """Return a DRCS glyph only when it represents the source mask exactly."""
+    source = art_detail_base_mode(source_mode)
+    layout = _normalize_art_detail_layout_mode(layout_mode)
+    if source == 1 and layout == 0:
+        value = int(mask) & 0xF
+        canonical, invert = _canonical_art_detail_mask(value, 4)
+        return art_microtile_drcs_char(canonical), invert
+    if layout != source or layout < 2:
+        return None
+    bits = art_detail_subcell_count(source)
+    canonical, invert = _canonical_art_detail_mask(int(mask), bits)
+    glyph = _art_detail_drcs_char_by_mask(layout).get(canonical)
+    return (glyph, invert) if glyph is not None else None
+
+
+def _hybrid_prefers_native(base_mode: int, mask: int) -> bool:
+    """Use native glyphs for simple/common shapes so the EXP mode truly mixes both pools."""
+    base = art_detail_base_mode(base_mode)
+    columns, rows = art_detail_geometry(base)
+    bits = columns * rows
+    value = int(mask) & ((1 << bits) - 1)
+    # Blank/full and low-complexity contiguous blocks are the safest native
+    # terminal glyphs and make a useful test population. More irregular masks
+    # prefer exact DRCS when the currently loaded bank contains them.
+    return value in {0, (1 << bits) - 1} or _art_detail_mask_edge_complexity(value, columns, rows) <= 2
+
+
+def _art_detail_bright_mask(samples: tuple[tuple[int, int, int], ...]) -> int | None:
+    """Return the same brighter-cluster binary mask used by artwork quantizers."""
+    if len(samples) < 2:
+        return None
+    best_pair = (0, 1)
+    best_distance = -1
+    for a in range(len(samples)):
+        for b in range(a + 1, len(samples)):
+            distance = sum((samples[a][channel] - samples[b][channel]) ** 2 for channel in range(3))
+            if distance > best_distance:
+                best_distance = distance
+                best_pair = (a, b)
+    if best_distance <= 0:
+        return None
+    seed_fg, seed_bg = samples[best_pair[0]], samples[best_pair[1]]
+    assigned_fg: list[bool] = []
+    for sample in samples:
+        fg_distance = sum((sample[channel] - seed_fg[channel]) ** 2 for channel in range(3))
+        bg_distance = sum((sample[channel] - seed_bg[channel]) ** 2 for channel in range(3))
+        assigned_fg.append(fg_distance <= bg_distance)
+    def center(want_fg: bool, fallback: tuple[int, int, int]) -> tuple[int, int, int]:
+        chosen = [sample for sample, is_fg in zip(samples, assigned_fg) if is_fg == want_fg]
+        if not chosen:
+            return fallback
+        return tuple(round(sum(sample[channel] for sample in chosen) / len(chosen)) for channel in range(3))
+    fg, bg = center(True, seed_fg), center(False, seed_bg)
+    mask = sum(1 << index for index, is_fg in enumerate(assigned_fg) if is_fg)
+    fg_luma = fg[0] * 299 + fg[1] * 587 + fg[2] * 114
+    bg_luma = bg[0] * 299 + bg[1] * 587 + bg[2] * 114
+    if fg_luma < bg_luma:
+        mask ^= (1 << len(samples)) - 1
+    return mask
+
+
+def adaptive_seamless_drcs_codebook_for_grid(
+    grid: tuple[tuple[tuple[int, int, int], ...], ...] | None,
+    source_rows: int, terminal_width: int,
+) -> tuple[int, ...]:
+    """Spend the 55 2×4 artwork slots on masks this cover actually uses most.
+
+    Native Unicode remains an exact fallback, but every observed mask that fits
+    in the current artwork-specific bank is rendered by our edge-to-edge DRCS
+    bitmap instead. Frequency is the dominant score; masks whose bright shape
+    touches more left/right subcells get an extra seam-risk weight because font
+    side bearings are most visible at terminal-cell boundaries.
+    """
+    if not grid or source_rows <= 0 or terminal_width <= 0:
+        return art_detail_drcs_codebook(3)
+    key = (id(grid), int(source_rows), int(terminal_width))
+    cached = _ADAPTIVE_SEAMLESS_CODEBOOK_CACHE.get(key)
+    if cached is not None and cached[0] is grid:
+        return cached[1]
+    source_vertical = len(grid) // int(source_rows)
+    minimum_row_width = min((len(row) for row in grid[: int(source_rows) * max(1, source_vertical)]), default=0)
+    source_horizontal = minimum_row_width // int(terminal_width) if terminal_width else 0
+    if source_vertical < 4 or source_horizontal < 2:
+        return art_detail_drcs_codebook(3)
+    row_offsets = [max(0, min(source_vertical - 1, round(((r + 0.5) * source_vertical / 4) - 0.5))) for r in range(4)]
+    column_offsets = [max(0, min(source_horizontal - 1, round(((c + 0.5) * source_horizontal / 2) - 0.5))) for c in range(2)]
+    counts: dict[int, int] = {}
+    seam_risk: dict[int, int] = {}
+    for row in range(int(source_rows)):
+        for column in range(int(terminal_width)):
+            base_column = column * source_horizontal
+            samples: list[tuple[int, int, int]] = []
+            for row_offset in row_offsets:
+                source_row = grid[row * source_vertical + row_offset]
+                for column_offset in column_offsets:
+                    samples.append(source_row[base_column + column_offset])
+            mask = _art_detail_bright_mask(tuple(samples))
+            if mask is None:
+                continue
+            canonical, _invert = _canonical_art_detail_mask(mask, 8)
+            counts[canonical] = counts.get(canonical, 0) + 1
+            edge_bits = sum(1 for r in range(4) for bit in (r * 2, r * 2 + 1) if mask & (1 << bit))
+            seam_risk[canonical] = max(seam_risk.get(canonical, 0), edge_bits)
+    slots = ART_DETAIL_DRCS_ART_SLOTS_BY_MODE[3]
+    ranked = sorted(
+        counts,
+        key=lambda mask: (
+            counts[mask] * (8 + seam_risk.get(mask, 0)),
+            counts[mask],
+            seam_risk.get(mask, 0),
+            -_art_detail_mask_edge_complexity(mask, 2, 4),
+            -mask,
+        ),
+        reverse=True,
+    )
+    selected = ranked[:slots]
+    seen = set(selected)
+    for mask in art_detail_drcs_codebook(3):
+        if len(selected) >= slots:
+            break
+        if mask not in seen:
+            seen.add(mask)
+            selected.append(mask)
+    result = tuple(selected)
+    if len(_ADAPTIVE_SEAMLESS_CODEBOOK_CACHE) >= 8:
+        _ADAPTIVE_SEAMLESS_CODEBOOK_CACHE.pop(next(iter(_ADAPTIVE_SEAMLESS_CODEBOOK_CACHE)))
+    _ADAPTIVE_SEAMLESS_CODEBOOK_CACHE[key] = (grid, result)
+    return result
+
+
+@lru_cache(maxsize=262144)
+def _art_detail_quantize_hybrid_cached(
+    selector_mode: int, layout_mode: int, flattened_samples: tuple[int, ...],
+) -> tuple[tuple[int, int, int], tuple[int, int, int], str]:
+    """Exact Unicode+DRCS artwork cell for hybrid 2×2/2×3/2×4 modes."""
+    base = art_detail_base_mode(selector_mode)
+    samples = tuple(
+        tuple(int(flattened_samples[index + channel]) for channel in range(3))
+        for index in range(0, len(flattened_samples), 3)
+    )
+    expected = art_detail_subcell_count(base)
+    if len(samples) != expected:
+        color = samples[0] if samples else (0, 0, 0)
+        return color, color, " "
+
+    best_pair = (0, 1)
+    best_distance = -1
+    for a in range(len(samples)):
+        for b in range(a + 1, len(samples)):
+            distance = sum((samples[a][channel] - samples[b][channel]) ** 2 for channel in range(3))
+            if distance > best_distance:
+                best_distance = distance
+                best_pair = (a, b)
+    if best_distance <= 0:
+        color = samples[0]
+        return color, color, " "
+
+    seed_fg, seed_bg = samples[best_pair[0]], samples[best_pair[1]]
+    assigned_fg: list[bool] = []
+    for sample in samples:
+        fg_distance = sum((sample[channel] - seed_fg[channel]) ** 2 for channel in range(3))
+        bg_distance = sum((sample[channel] - seed_bg[channel]) ** 2 for channel in range(3))
+        assigned_fg.append(fg_distance <= bg_distance)
+
+    def center(want_fg: bool, fallback: tuple[int, int, int]) -> tuple[int, int, int]:
+        chosen = [sample for sample, is_fg in zip(samples, assigned_fg) if is_fg == want_fg]
+        if not chosen:
+            return fallback
+        return tuple(round(sum(sample[channel] for sample in chosen) / len(chosen)) for channel in range(3))
+
+    fg, bg = center(True, seed_fg), center(False, seed_bg)
+    mask = sum(1 << index for index, is_fg in enumerate(assigned_fg) if is_fg)
+    fg_luma = fg[0] * 299 + fg[1] * 587 + fg[2] * 114
+    bg_luma = bg[0] * 299 + bg[1] * 587 + bg[2] * 114
+    full_mask = (1 << expected) - 1
+    if fg_luma < bg_luma:
+        fg, bg = bg, fg
+        mask ^= full_mask
+
+    exact_drcs = _dense_art_drcs_exact_char(mask, base, layout_mode)
+    if exact_drcs is not None and not _hybrid_prefers_native(base, mask):
+        glyph, invert = exact_drcs
+    else:
+        glyph, invert = _native_art_detail_char(base, mask)
+    if invert:
+        fg, bg = bg, fg
+    return fg, bg, glyph
+
+
+@lru_cache(maxsize=262144)
+def _art_detail_quantize_seamless_cached(
+    selector_mode: int, layout_mode: int, codebook_generation: int, flattened_samples: tuple[int, ...],
+) -> tuple[tuple[int, int, int], tuple[int, int, int], str]:
+    """Exact 2×4 hybrid that uses artwork-adaptive DRCS before Unicode fallback."""
+    del codebook_generation  # part of the cache key; active mapping is global
+    base = art_detail_base_mode(selector_mode)
+    samples = tuple(
+        tuple(int(flattened_samples[index + channel]) for channel in range(3))
+        for index in range(0, len(flattened_samples), 3)
+    )
+    expected = art_detail_subcell_count(base)
+    if len(samples) != expected:
+        color = samples[0] if samples else (0, 0, 0)
+        return color, color, " "
+    best_pair = (0, 1)
+    best_distance = -1
+    for a in range(len(samples)):
+        for b in range(a + 1, len(samples)):
+            distance = sum((samples[a][channel] - samples[b][channel]) ** 2 for channel in range(3))
+            if distance > best_distance:
+                best_distance = distance
+                best_pair = (a, b)
+    if best_distance <= 0:
+        color = samples[0]
+        return color, color, " "
+    seed_fg, seed_bg = samples[best_pair[0]], samples[best_pair[1]]
+    assigned_fg: list[bool] = []
+    for sample in samples:
+        fg_distance = sum((sample[channel] - seed_fg[channel]) ** 2 for channel in range(3))
+        bg_distance = sum((sample[channel] - seed_bg[channel]) ** 2 for channel in range(3))
+        assigned_fg.append(fg_distance <= bg_distance)
+    def center(want_fg: bool, fallback: tuple[int, int, int]) -> tuple[int, int, int]:
+        chosen = [sample for sample, is_fg in zip(samples, assigned_fg) if is_fg == want_fg]
+        if not chosen:
+            return fallback
+        return tuple(round(sum(sample[channel] for sample in chosen) / len(chosen)) for channel in range(3))
+    fg, bg = center(True, seed_fg), center(False, seed_bg)
+    mask = sum(1 << index for index, is_fg in enumerate(assigned_fg) if is_fg)
+    fg_luma = fg[0] * 299 + fg[1] * 587 + fg[2] * 114
+    bg_luma = bg[0] * 299 + bg[1] * 587 + bg[2] * 114
+    if fg_luma < bg_luma:
+        fg, bg = bg, fg
+        mask ^= (1 << expected) - 1
+    exact_drcs = _dense_art_drcs_exact_char(mask, base, layout_mode)
+    if exact_drcs is not None:
+        glyph, invert = exact_drcs
+    else:
+        glyph, invert = _native_art_detail_char(base, mask)
+    if invert:
+        fg, bg = bg, fg
+    return fg, bg, glyph
+
+
+def _resample_art_detail_samples(
+    samples: tuple[tuple[int, int, int], ...], source_mode: int, target_mode: int,
+) -> tuple[tuple[int, int, int], ...]:
+    """Nearest-neighbor resample RGB subcells between artwork-detail geometries."""
+    source = art_detail_base_mode(source_mode)
+    target = art_detail_base_mode(target_mode)
+    source_columns, source_rows = art_detail_geometry(source)
+    target_columns, target_rows = art_detail_geometry(target)
+    if len(samples) != source_columns * source_rows:
+        return tuple()
+    result: list[tuple[int, int, int]] = []
+    for target_row in range(target_rows):
+        source_row = min(source_rows - 1, max(0, int((target_row + 0.5) * source_rows / target_rows)))
+        for target_column in range(target_columns):
+            source_column = min(source_columns - 1, max(0, int((target_column + 0.5) * source_columns / target_columns)))
+            result.append(samples[source_row * source_columns + source_column])
+    return tuple(result)
+
+
+@lru_cache(maxsize=262144)
+def _art_detail_quantize_adaptive_exact_cached(
+    selector_mode: int, layout_mode: int, flattened_samples: tuple[int, ...],
+) -> tuple[tuple[int, int, int], tuple[int, int, int], str]:
+    """Never approximate a high-density mask: exact DRCS or exact 2×4 fallback.
+
+    The 3×3/2×5/3×4 adaptive modes expose more detail when the requested mask
+    happens to be one of the 55 exact shapes in the active DRCS bank. A miss is
+    deliberately *not* mapped to the nearest high-density shape; instead the RGB
+    samples are resampled to 2×4 and rendered with the universal exact octant
+    Unicode+DRCS vocabulary. Thus every displayed glyph is geometrically exact
+    for the resolution actually used in that cell.
+    """
+    base = art_detail_base_mode(selector_mode)
+    samples = tuple(
+        tuple(int(flattened_samples[index + channel]) for channel in range(3))
+        for index in range(0, len(flattened_samples), 3)
+    )
+    expected = art_detail_subcell_count(base)
+    if len(samples) != expected:
+        color = samples[0] if samples else (0, 0, 0)
+        return color, color, " "
+
+    best_pair = (0, 1)
+    best_distance = -1
+    for a in range(len(samples)):
+        for b in range(a + 1, len(samples)):
+            distance = sum((samples[a][channel] - samples[b][channel]) ** 2 for channel in range(3))
+            if distance > best_distance:
+                best_distance = distance
+                best_pair = (a, b)
+    if best_distance <= 0:
+        color = samples[0]
+        return color, color, " "
+
+    seed_fg, seed_bg = samples[best_pair[0]], samples[best_pair[1]]
+    assigned_fg: list[bool] = []
+    for sample in samples:
+        fg_distance = sum((sample[channel] - seed_fg[channel]) ** 2 for channel in range(3))
+        bg_distance = sum((sample[channel] - seed_bg[channel]) ** 2 for channel in range(3))
+        assigned_fg.append(fg_distance <= bg_distance)
+
+    def center(want_fg: bool, fallback: tuple[int, int, int]) -> tuple[int, int, int]:
+        chosen = [sample for sample, is_fg in zip(samples, assigned_fg) if is_fg == want_fg]
+        if not chosen:
+            return fallback
+        return tuple(round(sum(sample[channel] for sample in chosen) / len(chosen)) for channel in range(3))
+
+    fg, bg = center(True, seed_fg), center(False, seed_bg)
+    mask = sum(1 << index for index, is_fg in enumerate(assigned_fg) if is_fg)
+    fg_luma = fg[0] * 299 + fg[1] * 587 + fg[2] * 114
+    bg_luma = bg[0] * 299 + bg[1] * 587 + bg[2] * 114
+    if fg_luma < bg_luma:
+        fg, bg = bg, fg
+        mask ^= (1 << expected) - 1
+
+    exact_drcs = _dense_art_drcs_exact_char(mask, base, layout_mode)
+    if exact_drcs is not None:
+        glyph, invert = exact_drcs
+        if invert:
+            fg, bg = bg, fg
+        return fg, bg, glyph
+
+    # Exact high-density miss: intentionally reduce spatial resolution rather
+    # than inventing an incorrect subcell. Mode 9's 2×4 hybrid is universal.
+    fallback_samples = _resample_art_detail_samples(samples, base, 3)
+    fallback_flat = tuple(channel for rgb in fallback_samples for channel in rgb)
+    return _art_detail_quantize_hybrid_cached(9, layout_mode, fallback_flat)
+
+
+@lru_cache(maxsize=131072)
+def _art_detail_quantize_cached(
+    mode: int, flattened_samples: tuple[int, ...],
+) -> tuple[tuple[int, int, int], tuple[int, int, int], str]:
+    """Cluster 4/6/8 artwork samples to FG/BG plus a matching detail glyph."""
+    mode = max(1, min(3, int(mode)))
+    samples = tuple(
+        tuple(int(flattened_samples[index + channel]) for channel in range(3))
+        for index in range(0, len(flattened_samples), 3)
+    )
+    expected = {1: 4, 2: 6, 3: 8}[mode]
+    if len(samples) != expected:
+        color = samples[0] if samples else (0, 0, 0)
+        return color, color, " "
+    best_pair = (0, 1)
+    best_distance = -1
+    for a in range(len(samples)):
+        for b in range(a + 1, len(samples)):
+            distance = sum((samples[a][i] - samples[b][i]) ** 2 for i in range(3))
+            if distance > best_distance:
+                best_distance = distance
+                best_pair = (a, b)
+    if best_distance <= 0:
+        color = samples[0]
+        if mode == 1:
+            glyph = art_microtile_drcs_char(0)
+        elif mode == 2:
+            glyph = art_sextant_char(0)
+        else:
+            glyph, _invert = art_octant_char(0)
+        return color, color, glyph
+    seed_fg, seed_bg = samples[best_pair[0]], samples[best_pair[1]]
+    assigned_fg: list[bool] = []
+    for sample in samples:
+        fg_distance = sum((sample[i] - seed_fg[i]) ** 2 for i in range(3))
+        bg_distance = sum((sample[i] - seed_bg[i]) ** 2 for i in range(3))
+        assigned_fg.append(fg_distance <= bg_distance)
+
+    def center(want_fg: bool, fallback: tuple[int, int, int]) -> tuple[int, int, int]:
+        chosen = [sample for sample, is_fg in zip(samples, assigned_fg) if is_fg == want_fg]
+        if not chosen:
+            return fallback
+        return tuple(round(sum(sample[i] for sample in chosen) / len(chosen)) for i in range(3))
+
+    fg, bg = center(True, seed_fg), center(False, seed_bg)
+    mask = sum(1 << index for index, is_fg in enumerate(assigned_fg) if is_fg)
+    if mode == 1:
+        canonical = min(mask, mask ^ 0xF)
+        if canonical != mask:
+            fg, bg = bg, fg
+        glyph = art_microtile_drcs_char(canonical)
+    else:
+        # V373 anti-banding: dense glyph modes previously let whichever extreme
+        # sample happened to be encountered first become ANSI foreground. Across
+        # smooth art that role could flip from cell to cell/row to row, exposing
+        # font-edge/fallback seams as visible bands. Keep the brighter cluster as
+        # foreground and complement the shape when necessary; pixels are the same,
+        # but FG/BG semantics stay spatially stable and SGR churn drops.
+        fg_luma = fg[0] * 299 + fg[1] * 587 + fg[2] * 114
+        bg_luma = bg[0] * 299 + bg[1] * 587 + bg[2] * 114
+        full_mask = 0x3F if mode == 2 else 0xFF
+        if fg_luma < bg_luma:
+            fg, bg = bg, fg
+            mask ^= full_mask
+        if mode == 2:
+            glyph = art_sextant_char(mask)
+        else:
+            glyph, invert = art_octant_char(mask)
+            if invert:
+                fg, bg = bg, fg
+    return fg, bg, glyph
+
+
+def _expand_art_detail_mask_to_octant(mode: int, mask: int) -> int:
+    """Expand 2×2/2×3 detail geometry onto the dense font's 2×4 raster."""
+    mode = max(1, min(3, int(mode)))
+    value = int(mask)
+    if mode == 3:
+        return value & 0xFF
+    if mode == 2:
+        # 3 source rows -> 4 raster rows: preserve top/bottom and duplicate the
+        # center row. This keeps the sextant look while using our own soft font.
+        out = value & 0b11
+        if value & (1 << 2):
+            out |= (1 << 2) | (1 << 4)
+        if value & (1 << 3):
+            out |= (1 << 3) | (1 << 5)
+        if value & (1 << 4):
+            out |= 1 << 6
+        if value & (1 << 5):
+            out |= 1 << 7
+        return out
+    # 2 source rows -> 4 raster rows: duplicate each source row twice.
+    out = 0
+    if value & (1 << 0): out |= (1 << 0) | (1 << 2)
+    if value & (1 << 1): out |= (1 << 1) | (1 << 3)
+    if value & (1 << 2): out |= (1 << 4) | (1 << 6)
+    if value & (1 << 3): out |= (1 << 5) | (1 << 7)
+    return out
+
+
+@lru_cache(maxsize=262144)
+def _art_detail_quantize_drcs_cached(
+    mode: int, layout_mode: int, flattened_samples: tuple[int, ...],
+) -> tuple[tuple[int, int, int], tuple[int, int, int], str]:
+    """Cluster artwork samples to two colors and one fixed-cell DRCS mosaic."""
+    mode = max(1, min(len(ART_MICROTILE_DETAIL_MODE_GEOMETRIES) - 1, int(mode)))
+    layout = _normalize_art_detail_layout_mode(layout_mode)
+    samples = tuple(
+        tuple(int(flattened_samples[index + channel]) for channel in range(3))
+        for index in range(0, len(flattened_samples), 3)
+    )
+    expected = art_detail_subcell_count(mode)
+    if len(samples) != expected:
+        color = samples[0] if samples else (0, 0, 0)
+        glyph, _invert = dense_art_drcs_char(0, mode, layout)
+        return color, color, glyph
+
+    best_pair = (0, 1)
+    best_distance = -1
+    for a in range(len(samples)):
+        for b in range(a + 1, len(samples)):
+            distance = sum((samples[a][channel] - samples[b][channel]) ** 2 for channel in range(3))
+            if distance > best_distance:
+                best_distance = distance
+                best_pair = (a, b)
+    if best_distance <= 0:
+        color = samples[0]
+        glyph, _invert = dense_art_drcs_char(0, mode, layout)
+        return color, color, glyph
+
+    seed_fg, seed_bg = samples[best_pair[0]], samples[best_pair[1]]
+    assigned_fg: list[bool] = []
+    for sample in samples:
+        fg_distance = sum((sample[channel] - seed_fg[channel]) ** 2 for channel in range(3))
+        bg_distance = sum((sample[channel] - seed_bg[channel]) ** 2 for channel in range(3))
+        assigned_fg.append(fg_distance <= bg_distance)
+
+    def center(want_fg: bool, fallback: tuple[int, int, int]) -> tuple[int, int, int]:
+        chosen = [sample for sample, is_fg in zip(samples, assigned_fg) if is_fg == want_fg]
+        if not chosen:
+            return fallback
+        return tuple(round(sum(sample[channel] for sample in chosen) / len(chosen)) for channel in range(3))
+
+    fg, bg = center(True, seed_fg), center(False, seed_bg)
+    mask = sum(1 << index for index, is_fg in enumerate(assigned_fg) if is_fg)
+
+    # Keep the brighter color as foreground. This reduces SGR role-flipping and
+    # lets complementary masks share one downloaded glyph without changing the
+    # actual two-color pixels.
+    fg_luma = fg[0] * 299 + fg[1] * 587 + fg[2] * 114
+    bg_luma = bg[0] * 299 + bg[1] * 587 + bg[2] * 114
+    full_mask = (1 << art_detail_subcell_count(mode)) - 1
+    if fg_luma < bg_luma:
+        fg, bg = bg, fg
+        mask ^= full_mask
+
+    glyph, invert = dense_art_drcs_char(mask, mode, layout)
+    if invert:
+        fg, bg = bg, fg
+    return fg, bg, glyph
+
+
+def define_all_player_drcs(dense_art_layout: int | bool = False) -> str:
+    """Download the mode-specific fixed-cell soft font used by the visualizer.
+
+    Legacy/2×2 keeps the historical 9×9 twin bars and eight exact quadrant
+    masks. 2×3 uses a 7×7 bar bank plus all 32 exact sextant masks. 2×4, 3×3,
+    2×5 and 3×4 use 6×6 bars plus 55 geometry-specific artwork masks. The
+    remaining slots, if any, are blank fillers so | } ~ stay the volume glyphs.
+    """
+    layout_mode = _normalize_art_detail_layout_mode(dense_art_layout)
     volume_payload = define_volume_drcs().split("{ @", 1)[1][:-2]
     blank = _drcs_pattern(tuple(".........." for _row in range(20)))
-    # !..q = 81 twin bars; r..y = eight V234 art microtiles; z/{ remain blank;
-    # |/}/~ retain the three speaker pieces.
-    filler_count = 92 - (1 + len(twin_patterns) + len(microtiles))
-    payload = ";".join((*twin_patterns, *microtiles, *([blank] * filler_count), volume_payload))
+    if layout_mode:
+        twin_levels = ART_DETAIL_DRCS_TWIN_LEVELS_BY_MODE[layout_mode]
+        twin_patterns = define_twin_visualizer_drcs_patterns(twin_levels)
+        art_patterns = define_dense_art_drcs_patterns(layout_mode)
+        filler_count = 94 - 3 - len(twin_patterns) - len(art_patterns)
+        if filler_count < 0:
+            raise AssertionError("DRCS bank overflow")
+        payload = ";".join((*twin_patterns, *art_patterns, *([blank] * filler_count), volume_payload))
+        assert len(twin_patterns) + len(art_patterns) + filler_count + 3 == 94
+    else:
+        twin_patterns = define_twin_visualizer_drcs_patterns()
+        microtiles = define_art_microtile_drcs_patterns()
+        # !..q = 81 twin bars; r..y = eight exact 2×2 masks; z/{ blank;
+        # |/}/~ retain the three speaker pieces.
+        filler_count = 92 - (1 + len(twin_patterns) + len(microtiles))
+        payload = ";".join((*twin_patterns, *microtiles, *([blank] * filler_count), volume_payload))
     return "\033P0;1;1;10;0;2;20;0{ @" + payload + "\033\\"
+
+
+def atomic_drcs_frame_transition_payload(
+    drcs_definition: str,
+    frame_origin: str,
+    rendered_visualizer: str,
+) -> str:
+    """Atomically replace the active DRCS bank and its first complete frame.
+
+    Windows Terminal has one live downloadable soft-font bank. Redefining it
+    immediately changes the appearance of bytes already present on screen, so a
+    bank swap must stay inside DEC synchronized-output until the matching frame
+    has also been repainted. This helper deliberately owns both operations.
+    """
+    return (
+        "\033[?2026h"
+        + drcs_definition
+        + frame_origin
+        + rendered_visualizer
+        + "\033[?25l\033[?2026l"
+    )
 
 
 def spectrum_timeline_cache_path(audio_path: Path, columns: int) -> Path | None:
@@ -25104,7 +26699,7 @@ def build_audio_spectrum_timeline(
     try:
         spectrum_creationflags = 0
         if os.name == "nt":
-            below_normal = getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0)
+            below_normal = getattr(subprocess, "IDLE_PRIORITY_CLASS", getattr(subprocess, "BELOW_NORMAL_PRIORITY_CLASS", 0))
             no_window = getattr(subprocess, "CREATE_NO_WINDOW", 0)
             # V51 deliberately contains no SW_HIDE, DETACHED_PROCESS,
             # CREATE_SUSPENDED, or hidden-window STARTUPINFO.
@@ -26356,6 +27951,15 @@ def _visualizer_ansi_fg_bg_cached(
 _VISUALIZER_ART_SCALE_CACHE: dict[tuple[int, int, int], tuple[object, tuple[tuple[tuple[int, int, int], ...], ...]]] = {}
 
 
+@lru_cache(maxsize=16384)
+def _visualizer_packed_art_sgr(rgb: bytes) -> str:
+    """Format a batched FG/BG cell without allocating two RGB tuples and a key."""
+    return (
+        f"\033[38;2;{rgb[0]};{rgb[1]};{rgb[2]};"
+        f"48;2;{rgb[3]};{rgb[4]};{rgb[5]}m"
+    )
+
+
 def _visualizer_scaled_art_grid(
     grid: tuple[tuple[tuple[int, int, int], ...], ...] | None,
     strength: float,
@@ -26506,26 +28110,227 @@ def _visualizer_blend_bar_art_cached(
     return mixed
 
 
+@lru_cache(maxsize=1)
+def _visualizer_numpy():
+    """Reuse the optional FFT dependency; retain scalar rendering without it."""
+    try:
+        import numpy as np
+    except ImportError:
+        return None
+    return np
+
+
+_VISUALIZER_BAR_ART_ARRAY_CACHE: dict = {}
+
+
+def _visualizer_bar_art_arrays(np, grid, feedback_brightness: float, microtiles: bool):
+    """Cache static artwork coefficients, retaining each identity key's source."""
+    key = (id(grid), feedback_brightness, microtiles)
+    cached = _VISUALIZER_BAR_ART_ARRAY_CACHE.get(key)
+    if cached is not None and cached[0] is grid:
+        return cached[1:]
+    if microtiles:
+        art = np.array([[(fg, bg) for fg, bg, _glyph in row] for row in grid], dtype=np.float64)
+    else:
+        art = np.asarray(grid, dtype=np.float64).reshape(len(grid), -1, 2, 3)
+    if abs(feedback_brightness - 1.0) >= 0.0001:
+        art = np.clip(np.rint(art * feedback_brightness), 0, 255)
+    luma = (2126 * art[..., 0] + 7152 * art[..., 1] + 722 * art[..., 2]) / (255.0 * 10000.0)
+    light = (luma >= 0.5)[..., None]
+    light_amount = np.minimum(1.0, (luma - 0.5) * 2.0 * 0.82)[..., None]
+    dark_factor = (1.0 - 0.78 * np.minimum(1.0, (0.5 - luma) * 2.0 * 0.88))[..., None]
+    if len(_VISUALIZER_BAR_ART_ARRAY_CACHE) >= 4:
+        _VISUALIZER_BAR_ART_ARRAY_CACHE.pop(next(iter(_VISUALIZER_BAR_ART_ARRAY_CACHE)))
+    _VISUALIZER_BAR_ART_ARRAY_CACHE[key] = (grid, art, light, light_amount, dark_factor)
+    return art, light, light_amount, dark_factor
+
+
+def _visualizer_blend_bar_art_array(np, base, arrays, strength_step: int, blend_mode: int):
+    """Native-array equivalent of _visualizer_blend_bar_art_cached for RGB bytes."""
+    art, light, light_amount, dark_factor = arrays
+    if blend_mode == 0:
+        result = np.clip(np.rint((base * (1000 - strength_step) + art * strength_step) / 1000.0), 0, 255)
+    else:
+        peak = base.max(axis=-1, keepdims=True)
+        target = np.where(
+            light,
+            np.rint(base + (255 - base) * light_amount),
+            np.where(base == peak, base, np.rint(base * dark_factor)),
+        )
+        result = np.clip(np.rint(base + (target - base) * math.sqrt(strength_step / 1000.0)), 0, 255)
+        if blend_mode == 2:
+            weight = min(0.34, (strength_step / 1000.0) * 0.34)
+            result = np.clip(np.rint(result * (1.0 - weight) + art * weight), 0, 255)
+            mixed_peak = result.max(axis=-1, keepdims=True)
+            scale = np.where((peak > 0) & (mixed_peak < peak), peak / np.maximum(1, mixed_peak), 1.0)
+            result = np.clip(np.rint(result * scale), 0, 255)
+    return result
+
+
+def _visualizer_pack_art_colors(np, result, row_bytes: int):
+    # A nested tolist() creates three container objects per terminal cell on
+    # every frame, provoking cyclic-GC pauses although RGB bytes cannot cycle.
+    # Pack each row once; the renderer unpacks only cells that are visible.
+    packed = result.astype(np.uint8).tobytes()
+    return [packed[start:start + row_bytes] for start in range(0, len(packed), row_bytes)]
+
+
+def _visualizer_bar_art_colors(
+    grid, base_colors: list[tuple[int, int, int]], strength_step: int,
+    blend_mode: int, feedback_brightness: float,
+):
+    """Batch changing full-cell RGB blends without losing color precision.
+
+    The scalar cache misses thousands of times per moving frame. Use the
+    optional FFT dependency to do the same arithmetic in native code, leaving
+    row-dependent processors and installations without NumPy on the scalar path.
+    """
+    np = _visualizer_numpy()
+    if np is None:
+        return None
+    arrays = _visualizer_bar_art_arrays(np, grid, feedback_brightness, True)
+    base = np.asarray(base_colors, dtype=np.float64)[None, :, None, :]
+    result = _visualizer_blend_bar_art_array(np, base, arrays, strength_step, blend_mode)
+    return _visualizer_pack_art_colors(np, result, len(base_colors) * 6)
+
+
+def _visualizer_bar_half_colors(
+    grid, base_colors: list[tuple[int, int, int]], strength: float,
+    blend_mode: int, feedback_brightness: float, source_rows: int,
+):
+    """Batch edge/non-microtile colors in their legacy blend/quantize/flash order."""
+    np = _visualizer_numpy()
+    if np is None:
+        return None
+    arrays = _visualizer_bar_art_arrays(np, grid, 1.0, False)
+    base = np.asarray(base_colors, dtype=np.float64).reshape(1, -1, 2, 3)
+    step = round(strength * 1000)
+    if blend_mode == 0:
+        # Legacy half-cell RGB mixing rounds the weighted artwork separately,
+        # and uses the unrounded requested strength for the base weight.
+        weighted_art = np.clip(np.rint(arrays[0] * (step / 1000.0)), 0, 255)
+        result = np.clip(np.rint(base * (1.0 - strength)) + weighted_art, 0, 255)
+    else:
+        result = _visualizer_blend_bar_art_array(np, base, arrays, step, blend_mode)
+    if source_rows >= 24:
+        result = np.minimum(255, np.rint(result / 32) * 32)
+    if abs(feedback_brightness - 1.0) >= 0.0001:
+        result = np.clip(np.rint(result * feedback_brightness), 0, 255)
+    return _visualizer_pack_art_colors(np, result, len(base_colors) * 3)
+
+
+_VISUALIZER_ART_DETAIL_GRID_CACHE: dict[
+    tuple[int, int, int, int, int, int],
+    tuple[object, tuple[tuple[tuple[tuple[int, int, int], tuple[int, int, int], str], ...], ...]],
+] = {}
+
+
 def _visualizer_art_microtiles(
     grid: tuple[tuple[tuple[int, int, int], ...], ...] | None,
     source_rows: int, terminal_width: int, strength: float,
+    detail_mode: int = ART_MICROTILE_DETAIL_MODE_DEFAULT,
+    dense_drcs_layout: int | bool = False,
 ) -> tuple[tuple[tuple[tuple[int, int, int], tuple[int, int, int], str], ...], ...]:
-    """Convert a 2×-vertical artwork grid to cached two-color DRCS cells."""
+    """Convert cached artwork samples into two-color within-cell DRCS mosaics.
+
+    The source grid is generated at the maximum horizontal/vertical subcell
+    resolution required by the two artwork layers. Each layer then samples the
+    centers of its own geometry (2×2, 2×3, 2×4, 3×3, 2×5 or 3×4). This lets a
+    3-wide mode coexist with a 2-wide mode without rebuilding the album strip.
+    """
+    mode = max(0, min(len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1, int(detail_mode)))
+    if mode <= 0 or not grid or source_rows <= 0 or terminal_width <= 0:
+        return tuple()
+    layout_mode = _normalize_art_detail_layout_mode(dense_drcs_layout)
+    strength_step = max(0, min(1000, round(float(strength) * 1000.0)))
+    cache_key = (id(grid), int(source_rows), int(terminal_width), strength_step, mode, layout_mode)
+    cached = _VISUALIZER_ART_DETAIL_GRID_CACHE.get(cache_key)
+    if cached is not None and cached[0] is grid:
+        return cached[1]
+
     scaled = _visualizer_scaled_art_grid(grid, strength, 1)
-    logical_width = terminal_width * 2
-    if not scaled or len(scaled) < source_rows * 2:
+    if not scaled:
         return tuple()
-    if any(len(row) < logical_width for row in scaled[:source_rows * 2]):
+    source_vertical = len(scaled) // source_rows
+    if source_vertical <= 0:
         return tuple()
+    minimum_row_width = min((len(row) for row in scaled[: source_rows * source_vertical]), default=0)
+    source_horizontal = minimum_row_width // terminal_width
+    wanted_horizontal = art_detail_horizontal_subcells(mode)
+    wanted_vertical = art_detail_vertical_subcells(mode)
+    if source_horizontal < wanted_horizontal or source_vertical < wanted_vertical:
+        return tuple()
+
+    sampled_row_offsets = []
+    for subrow in range(wanted_vertical):
+        relative = round(((subrow + 0.5) * source_vertical / wanted_vertical) - 0.5)
+        sampled_row_offsets.append(max(0, min(source_vertical - 1, relative)))
+    sampled_column_offsets = []
+    for subcolumn in range(wanted_horizontal):
+        relative = round(((subcolumn + 0.5) * source_horizontal / wanted_horizontal) - 0.5)
+        sampled_column_offsets.append(max(0, min(source_horizontal - 1, relative)))
+
     output = []
     for row in range(source_rows):
-        top, bottom = scaled[row * 2], scaled[row * 2 + 1]
         cells = []
         for column in range(terminal_width):
-            left, right = column * 2, column * 2 + 1
-            cells.append(_art_microtile_quantize_cached(*top[left], *top[right], *bottom[left], *bottom[right]))
+            base_column = column * source_horizontal
+            samples: list[tuple[int, int, int]] = []
+            for row_offset in sampled_row_offsets:
+                source_row = scaled[row * source_vertical + row_offset]
+                for column_offset in sampled_column_offsets:
+                    samples.append(source_row[base_column + column_offset])
+            flattened = tuple(channel for rgb in samples for channel in rgb)
+            if art_detail_is_seamless_adaptive(mode):
+                cells.append(_art_detail_quantize_seamless_cached(mode, layout_mode, _ART_DETAIL_DRCS_OVERRIDE_GENERATION, flattened))
+            elif art_detail_is_adaptive_exact(mode):
+                cells.append(_art_detail_quantize_adaptive_exact_cached(mode, layout_mode, flattened))
+            elif art_detail_is_hybrid(mode):
+                cells.append(_art_detail_quantize_hybrid_cached(mode, layout_mode, flattened))
+            elif layout_mode:
+                cells.append(_art_detail_quantize_drcs_cached(mode, layout_mode, flattened))
+            elif mode == 1 and len(samples) == 4:
+                cells.append(_art_microtile_quantize_cached(*flattened))
+            else:
+                # Defensive fallback for an unexpected bank transition.
+                cells.append(_art_detail_quantize_cached(min(3, art_detail_base_mode(mode)), flattened))
         output.append(tuple(cells))
-    return tuple(output)
+    result = tuple(output)
+    if len(_VISUALIZER_ART_DETAIL_GRID_CACHE) >= 12:
+        _VISUALIZER_ART_DETAIL_GRID_CACHE.pop(next(iter(_VISUALIZER_ART_DETAIL_GRID_CACHE)))
+    _VISUALIZER_ART_DETAIL_GRID_CACHE[cache_key] = (grid, result)
+    return result
+
+
+_VISUALIZER_ART_CELL_STYLE_CACHE: dict = {}
+
+
+def _visualizer_art_cell_styles(grid, detail_mode: int, terminal_width: int):
+    """Cache immutable background cells' SGR, charset and cursor fences.
+
+    Keep a source reference alongside each identity key to prevent id reuse.
+    New artwork, strength, dimensions or a DRCS bank swap yields a new grid;
+    the Unicode mode and fence setting are also part of this bounded cache.
+    """
+    key = (id(grid), detail_mode, terminal_width, bool(HYBRID_UNICODE_CURSOR_FENCE))
+    cached = _VISUALIZER_ART_CELL_STYLE_CACHE.get(key)
+    if cached is not None and cached[0] is grid:
+        return cached[1]
+    result = []
+    for row in grid:
+        cells = []
+        for column, (color, background, glyph) in enumerate(row):
+            unicode_art = art_detail_cell_uses_unicode_glyph(detail_mode, glyph)
+            sgr = _visualizer_ansi_fg_bg_cached(*color, *background)
+            if HYBRID_UNICODE_CURSOR_FENCE and unicode_art and column + 1 < terminal_width:
+                glyph += f"\033[{column + 2}G"
+            cells.append((color, background, sgr, glyph, unicode_art))
+        result.append(tuple(cells))
+    result = tuple(result)
+    if len(_VISUALIZER_ART_CELL_STYLE_CACHE) >= 4:
+        _VISUALIZER_ART_CELL_STYLE_CACHE.pop(next(iter(_VISUALIZER_ART_CELL_STYLE_CACHE)))
+    _VISUALIZER_ART_CELL_STYLE_CACHE[key] = (grid, result)
+    return result
 
 
 # These signal processors do not depend on the terminal *row*.  Their phase/color
@@ -26553,6 +28358,37 @@ def _visualizer_scale_rgb_cached(
     elif fade_style == 4:
         brightness *= 0.62 + 0.38 * energy
     return tuple(max(0, min(255, round(component * brightness))) for component in base_color)
+
+
+_ART_DETAIL_BAYER_4X4 = (
+    (0, 8, 2, 10),
+    (12, 4, 14, 6),
+    (3, 11, 1, 9),
+    (15, 7, 13, 5),
+)
+
+
+def _art_detail_dither_quantize_rgb(
+    color: tuple[int, int, int], row: int, column: int, step: int = 32,
+) -> tuple[int, int, int]:
+    """Ordered-dither tall artwork colors instead of producing flat RGB bands."""
+    quantum = max(1, int(step))
+    if quantum <= 1:
+        return tuple(max(0, min(255, int(v))) for v in color)
+    out: list[int] = []
+    # Offset each channel's matrix phase so chroma boundaries do not form one
+    # conspicuous shared checkerboard while still remaining deterministic/static.
+    for channel_index, value in enumerate(color):
+        v = max(0, min(255, int(value)))
+        low = (v // quantum) * quantum
+        high = min(255, low + quantum)
+        if high <= low:
+            out.append(low)
+            continue
+        fraction = (v - low) / float(high - low)
+        threshold = (_ART_DETAIL_BAYER_4X4[(row + channel_index) & 3][(column + channel_index * 2) & 3] + 0.5) / 16.0
+        out.append(high if fraction > threshold else low)
+    return tuple(out)
 
 
 @lru_cache(maxsize=65536)
@@ -26777,6 +28613,8 @@ def render_drcs_visualizer(
     artwork_background_strength: float = 0.0,
     artwork_microtiles_enabled: bool = False,
     artwork_bar_microtiles_enabled: bool = False,
+    artwork_microtile_detail_mode: int = ART_MICROTILE_DETAIL_MODE_DEFAULT,
+    artwork_bar_microtile_detail_mode: int = ART_MICROTILE_DETAIL_MODE_DEFAULT,
     color_heights_override: list[float] | None = None,
     color_energy_override: list[float] | None = None,
     cell_rows_out: list[list[tuple[tuple[int, int, int], str]]] | None = None,
@@ -26882,11 +28720,19 @@ def render_drcs_visualizer(
     background_art_grid = _visualizer_scaled_art_grid(
         artwork_color_grid, artwork_background_strength, 16 if visible_rows >= 24 else 1
     ) if artwork_background_strength > 0 else tuple()
+    # V379: the densest selected artwork geometry owns the one downloadable
+    # DRCS bank for this frame. Crossing between 2×3/2×4/3×3/2×5/3×4 therefore
+    # changes the actual soft-font codebook, not merely a boolean dense state.
+    _highest_art_detail_mode = max(
+        int(artwork_microtile_detail_mode), int(artwork_bar_microtile_detail_mode)
+    )
+    dense_art_drcs_layout = _highest_art_detail_mode if _highest_art_detail_mode >= 2 else 0
     microtile_art_grid = (
         _visualizer_art_microtiles(
-            artwork_microtile_color_grid, visible_rows, terminal_width, artwork_background_strength
+            artwork_microtile_color_grid, visible_rows, terminal_width, artwork_background_strength,
+            artwork_microtile_detail_mode, dense_art_drcs_layout,
         )
-        if artwork_microtiles_enabled and granularity == 3 and artwork_background_strength > 0
+        if artwork_microtiles_enabled and int(artwork_microtile_detail_mode) > 0 and granularity == 3 and artwork_background_strength > 0
         else tuple()
     )
     # V245: quantize the *unscaled* artwork into a 2×2 mask first.  The two
@@ -26895,14 +28741,34 @@ def render_drcs_visualizer(
     # do not replace the bar palette with artwork-only colors.
     bar_microtile_art_grid = (
         _visualizer_art_microtiles(
-            artwork_microtile_color_grid, visible_rows, terminal_width, 1.0
+            artwork_microtile_color_grid, visible_rows, terminal_width, 1.0,
+            artwork_bar_microtile_detail_mode, dense_art_drcs_layout,
         )
-        if artwork_bar_microtiles_enabled and granularity == 3 and artwork_bar_strength > 0
+        if artwork_bar_microtiles_enabled and int(artwork_bar_microtile_detail_mode) > 0 and granularity == 3 and artwork_bar_strength > 0
         else tuple()
     )
     artwork_bar_strength_step = max(0, min(1000, round(artwork_bar_strength * 1000.0)))
     artwork_bar_base_weight = 1.0 - artwork_bar_strength
     feedback_brightness = max(0.75, min(1.25, float(feedback_brightness)))
+
+    # V393: build the selected DRCS twin glyph table once per frame.  The
+    # previous path normalized the same layout and quantized the same 0..8
+    # levels for every cell, which is a large cost at tall artwork resolutions.
+    dense_art_layout_mode = _normalize_art_detail_layout_mode(dense_art_drcs_layout)
+    if dense_art_layout_mode:
+        dense_twin_levels = ART_DETAIL_DRCS_TWIN_LEVELS_BY_MODE[dense_art_layout_mode]
+        dense_twin_level_map = tuple(
+            min(dense_twin_levels - 1, max(0, round(level * (dense_twin_levels - 1) / 8)))
+            for level in range(9)
+        )
+        dense_twin_glyph_table = tuple(
+            tuple(chr(33 + left * dense_twin_levels + right) for right in range(dense_twin_levels))
+            for left in range(dense_twin_levels)
+        )
+    else:
+        dense_twin_level_map = tuple(range(9))
+        dense_twin_glyph_table = _TWIN_DRCS_CHAR_TABLE
+    feedback_is_identity = abs(feedback_brightness - 1.0) < 0.0001
 
     def feedback_rgb(color: tuple[int, int, int]) -> tuple[int, int, int]:
         if abs(feedback_brightness - 1.0) < 0.0001:
@@ -26950,6 +28816,50 @@ def render_drcs_visualizer(
                 *base_color, energy_step, fade_style, treatment_is_energy_rainbow
             ))
 
+    batched_half_art_colors = None
+    if (
+        granularity == 3 and row_independent_colors is not None and not force_monochrome
+        and (weighted_art_grid or bar_detail_art_grid)
+        and len(artwork_color_grid) == visible_rows
+        and all(len(art_row) == logical_width for art_row in artwork_color_grid)
+    ):
+        batched_half_art_colors = _visualizer_bar_half_colors(
+            artwork_color_grid, row_independent_colors, artwork_bar_strength,
+            artwork_bar_blend_mode, feedback_brightness, source_rows,
+        )
+
+    def artwork_bar_color(
+        logical_column: int, row: int, base_rendered: tuple[int, int, int],
+    ) -> tuple[int, int, int]:
+        """Blend one covered bar sample, preserving V396's exact operation order."""
+        if batched_half_art_colors is not None:
+            offset = logical_column * 3
+            return tuple(batched_half_art_colors[row - truncate_top_lines][offset:offset + 3])
+        art_row_index = max(0, row - truncate_top_lines)
+        active_art_grid = weighted_art_grid if artwork_bar_blend_mode == 0 else bar_detail_art_grid
+        if art_grid_exact:
+            art = active_art_grid[art_row_index][logical_column]
+        else:
+            art_row = active_art_grid[min(len(active_art_grid) - 1, art_row_index)]
+            art = art_row[min(len(art_row) - 1, max(0, logical_column))]
+        if artwork_bar_blend_mode == 0:
+            rendered = (
+                max(0, min(255, round(base_rendered[0] * artwork_bar_base_weight) + art[0])),
+                max(0, min(255, round(base_rendered[1] * artwork_bar_base_weight) + art[1])),
+                max(0, min(255, round(base_rendered[2] * artwork_bar_base_weight) + art[2])),
+            )
+        else:
+            rendered = _visualizer_blend_bar_art_cached(
+                *base_rendered, *art, artwork_bar_strength_step, artwork_bar_blend_mode
+            )
+        if source_rows >= 24:
+            rendered = (
+                min(255, round(rendered[0] / 32) * 32),
+                min(255, round(rendered[1] / 32) * 32),
+                min(255, round(rendered[2] / 32) * 32),
+            )
+        return feedback_rgb(rendered)
+
     def colored_cell(logical_column: int, row: int) -> tuple[tuple[int, int, int], int, tuple[int, int, int]]:
         height = max(0.0, min(1.0, heights[logical_column]))
         # Scale-to-text mode supplies a six-row top blank only for logical
@@ -26989,23 +28899,7 @@ def render_drcs_visualizer(
             )
         base_rendered = rendered
         if (weighted_art_grid or bar_detail_art_grid) and level:
-            art_row_index = max(0, row - truncate_top_lines)
-            active_art_grid = weighted_art_grid if artwork_bar_blend_mode == 0 else bar_detail_art_grid
-            if art_grid_exact:
-                art = active_art_grid[art_row_index][logical_column]
-            else:
-                art_row = active_art_grid[min(len(active_art_grid) - 1, art_row_index)]
-                art = art_row[min(len(art_row) - 1, max(0, logical_column))]
-            if artwork_bar_blend_mode == 0:
-                rendered = (
-                    max(0, min(255, round(rendered[0] * artwork_bar_base_weight) + art[0])),
-                    max(0, min(255, round(rendered[1] * artwork_bar_base_weight) + art[1])),
-                    max(0, min(255, round(rendered[2] * artwork_bar_base_weight) + art[2])),
-                )
-            else:
-                rendered = _visualizer_blend_bar_art_cached(
-                    *rendered, *art, artwork_bar_strength_step, artwork_bar_blend_mode
-                )
+            return artwork_bar_color(logical_column, row, rendered), level, feedback_rgb(base_rendered)
         if source_rows >= 24:
             rendered = (
                 min(255, round(rendered[0] / 32) * 32),
@@ -27066,6 +28960,106 @@ def render_drcs_visualizer(
             ]
         else:
             fast_twin_colors = [feedback_rgb(color) for color in row_independent_colors]
+    # V394: artwork formerly disabled the column-color fast path completely.
+    # Background mosaics do not change bar colors. Compute those colors and
+    # each column's single partial-fill row once, preserving the generic
+    # renderer's arithmetic at that boundary (including round-to-even ties).
+    # Rows above/below that boundary are exactly empty/full; their geometry
+    # needs no floating-point work, clamps, or repeated color quantization.
+    artwork_column_fills = None
+    artwork_column_colors = None
+    artwork_column_base_colors = None
+    if (
+        granularity == 3
+        and fast_twin_scaled_heights is None
+        and row_independent_colors is not None
+        and not force_monochrome
+    ):
+        artwork_column_fills = []
+        for height, blank_top in zip(heights, top_blanks):
+            height = max(0.0, min(1.0, height))
+            blank_top = min(blank_top, source_rows - 1)
+            local_rows = source_rows - blank_top
+            boundary_row = blank_top + int((1.0 - height) * local_rows)
+            threshold = 1 - (boundary_row - blank_top + 1) / local_rows
+            boundary_level = min(8, max(0, round((height - threshold) * local_rows * 8)))
+            artwork_column_fills.append((boundary_row, boundary_level))
+        if source_rows >= 24:
+            artwork_column_colors = [
+                (
+                    min(255, round(color[0] / 32) * 32),
+                    min(255, round(color[1] / 32) * 32),
+                    min(255, round(color[2] / 32) * 32),
+                ) for color in row_independent_colors
+            ]
+        else:
+            artwork_column_colors = row_independent_colors
+        if not feedback_is_identity:
+            artwork_column_colors = [feedback_rgb(color) for color in artwork_column_colors]
+        # Bar microtiles need the unquantized live palette color beneath their
+        # two static artwork colors. Compute that once per logical column rather
+        # than once per filled terminal cell. Partial cells still use the exact
+        # V396 blend-then-quantize order through artwork_bar_color().
+        artwork_column_base_colors = (
+            row_independent_colors
+            if feedback_is_identity
+            else [feedback_rgb(color) for color in row_independent_colors]
+        )
+
+    full_artwork_bar_styles = None
+    if (
+        artwork_column_colors is not None
+        and not bar_microtile_art_grid
+        and not weighted_art_grid
+        and not bar_detail_art_grid
+    ):
+        full_artwork_bar_styles = []
+        for column in range(terminal_width):
+            color = _visualizer_twin_blend_cached(
+                *artwork_column_colors[column * 2], *artwork_column_colors[column * 2 + 1], 8, 8
+            )
+            full_artwork_bar_styles.append((color, _visualizer_ansi_fg_bg_cached(*color, -1, -1, -1)))
+    full_twin_glyph = dense_twin_glyph_table[dense_twin_level_map[8]][dense_twin_level_map[8]]
+    static_artwork_styles = (
+        _visualizer_art_cell_styles(microtile_art_grid, artwork_microtile_detail_mode, terminal_width)
+        if microtile_art_grid and feedback_is_identity else None
+    )
+    # The bar artwork's RGB must still be blended against changing live colors,
+    # but its glyph and Unicode/DRCS classification are track-static. Reuse the
+    # immutable metadata instead of reclassifying every fully filled cell.
+    static_bar_artwork_styles = (
+        _visualizer_art_cell_styles(
+            bar_microtile_art_grid, artwork_bar_microtile_detail_mode, terminal_width
+        )
+        if bar_microtile_art_grid else None
+    )
+
+    batched_bar_art_colors = None
+    full_bar_start_rows = None
+    empty_bar_end_rows = None
+    if bar_microtile_art_grid and artwork_column_base_colors is not None:
+        base_bar_colors = [
+            _visualizer_twin_blend_cached(
+                *artwork_column_base_colors[column * 2],
+                *artwork_column_base_colors[column * 2 + 1], 8, 8,
+            )
+            for column in range(terminal_width)
+        ]
+        batched_bar_art_colors = _visualizer_bar_art_colors(
+            bar_microtile_art_grid, base_bar_colors, artwork_bar_strength_step,
+            artwork_bar_blend_mode, feedback_brightness,
+        )
+        if batched_bar_art_colors is not None:
+            # Most cells are entirely full or empty. Classify each terminal
+            # column once, bypassing the two half-cell setup paths on those rows.
+            full_bar_start_rows = []
+            empty_bar_end_rows = []
+            for column in range(terminal_width):
+                left_edge, left_partial = artwork_column_fills[column * 2]
+                right_edge, right_partial = artwork_column_fills[column * 2 + 1]
+                full_bar_start_rows.append(max(left_edge + (left_partial < 8), right_edge + (right_partial < 8)))
+                empty_bar_end_rows.append(min(left_edge + (left_partial == 0), right_edge + (right_partial == 0)))
+
     semantic_cells_only_fast_path = bool(semantic_cells_only and fast_twin_scaled_heights is not None and cell_rows_out is not None)
     for row in range(truncate_top_lines, source_rows):
         glyphs: list[str] = []
@@ -27086,7 +29080,9 @@ def render_drcs_visualizer(
                 color = _visualizer_twin_blend_cached(
                     *left_color, *right_color, left_level, right_level
                 )
-                glyph = _TWIN_DRCS_CHAR_TABLE[left_level][right_level]
+                glyph = dense_twin_glyph_table[
+                    dense_twin_level_map[left_level]
+                ][dense_twin_level_map[right_level]]
                 if not semantic_cells_only_fast_path:
                     if color != last_color:
                         glyphs.append(_visualizer_ansi_fg_bg_cached(*color, -1, -1, -1))
@@ -27103,13 +29099,118 @@ def render_drcs_visualizer(
         if granularity == 3:
             last_color: tuple[int, int, int] | None = None
             last_background: tuple[int, int, int] | None = None
+            last_bar_color: bytes | None = None
+            static_artwork_row = static_artwork_styles[row - truncate_top_lines] if static_artwork_styles else None
+            static_bar_artwork_row = static_bar_artwork_styles[row - truncate_top_lines] if static_bar_artwork_styles else None
+            batched_bar_art_row = batched_bar_art_colors[row - truncate_top_lines] if batched_bar_art_colors is not None else None
+
+            # V380: normal detail modes remain pure fixed-cell DRCS. Hybrid
+            # selectors intentionally mix native Unicode mosaics with DRCS cells.
+            # Switch G0 only at run boundaries so the experiment never leaves a
+            # Unicode glyph interpreted through the downloadable 94-set.
+            drcs_charset_active = True  # caller prefixes the completed row with ESC ( @
+
+            def append_cell_glyph(
+                glyph: str, *, unicode_art: bool = False, terminal_column: int | None = None,
+            ) -> None:
+                """Append one cell while keeping EXP Unicode/DRCS rows column-locked.
+
+                V380 proved the hybrid alphabet can look better, especially at 2×4,
+                but reintroduced the old one-cell horizontal slice displacement.
+                Row-level CUP/DECAWM protection cannot fix a bad cursor advance that
+                happens *inside* a row.  For native Unicode artwork cells only, V381
+                therefore fences the cursor immediately afterward at the absolute
+                column where the next cell belongs.  DRCS-only modes stay byte-for-byte
+                on their cheaper path.
+                """
+                nonlocal drcs_charset_active
+                want_drcs = not bool(unicode_art)
+                if want_drcs != drcs_charset_active:
+                    glyphs.append("\033( @" if want_drcs else "\033(B")
+                    drcs_charset_active = want_drcs
+                glyphs.append(glyph)
+                if (
+                    HYBRID_UNICODE_CURSOR_FENCE
+                    and unicode_art
+                    and terminal_column is not None
+                    and int(terminal_column) + 1 < terminal_width
+                ):
+                    # CHA is 1-based. After zero-based column N, the following
+                    # cell belongs at CHA N+2. This is deliberately an absolute
+                    # horizontal checkpoint, not CUB/BS, so it is correct whether
+                    # the terminal advanced the Unicode glyph by one or two cells.
+                    glyphs.append(f"\033[{int(terminal_column) + 2}G")
+
             for terminal_column in range(terminal_width):
+                if batched_bar_art_row is not None and row >= full_bar_start_rows[terminal_column]:
+                    color_offset = terminal_column * 6
+                    packed_color = batched_bar_art_row[color_offset:color_offset + 6]
+                    if last_bar_color is None and last_color is not None and last_background is not None:
+                        last_bar_color = bytes((*last_color, *last_background))
+                    if packed_color != last_bar_color:
+                        glyphs.append(_visualizer_packed_art_sgr(packed_color))
+                    last_bar_color = packed_color
+                    _fg, _bg, _sgr, glyph, unicode_art = static_bar_artwork_row[terminal_column]
+                    if drcs_charset_active == unicode_art:
+                        glyphs.append("\033(B" if unicode_art else "\033( @")
+                        drcs_charset_active = not unicode_art
+                    glyphs.append(glyph)
+                    row_rgb is not None and row_rgb.append(None)
+                    continue
+                if last_bar_color is not None:
+                    # Reify colors only when leaving a full-bar run, preserving
+                    # exact SGR suppression at its boundary with artwork/partials.
+                    last_color = tuple(last_bar_color[:3])
+                    last_background = tuple(last_bar_color[3:])
+                    last_bar_color = None
+                if static_artwork_row is not None and empty_bar_end_rows is not None and row < empty_bar_end_rows[terminal_column]:
+                    color, background, sgr, glyph, unicode_art = static_artwork_row[terminal_column]
+                    if color != last_color or background != last_background:
+                        glyphs.append(sgr)
+                        last_color, last_background = color, background
+                    if drcs_charset_active == unicode_art:
+                        glyphs.append("\033(B" if unicode_art else "\033( @")
+                        drcs_charset_active = not unicode_art
+                    glyphs.append(glyph)
+                    row_rgb is not None and row_rgb.append(None)
+                    continue
                 left_index = terminal_column * 2
                 right_index = left_index + 1
-                left_color, left_level, left_base_color = colored_cell(left_index, row)
-                right_color, right_level, right_base_color = colored_cell(right_index, row)
-                left_background = artwork_background(left_index, row)
-                right_background = artwork_background(right_index, row)
+                if artwork_column_fills is not None:
+                    left_edge, left_partial = artwork_column_fills[left_index]
+                    right_edge, right_partial = artwork_column_fills[right_index]
+                    left_level = 8 if row > left_edge else 0 if row < left_edge else left_partial
+                    right_level = 8 if row > right_edge else 0 if row < right_edge else right_partial
+                    if weighted_art_grid or bar_detail_art_grid:
+                        # Defer the row-varying artwork blend until after the
+                        # full-cell microtile branch. V396 calculated two blended
+                        # half colors here and immediately discarded both.
+                        left_color = right_color = (0, 0, 0)
+                    else:
+                        left_color = artwork_column_colors[left_index] if left_level else (0, 0, 0)
+                        right_color = artwork_column_colors[right_index] if right_level else (0, 0, 0)
+                    left_base_color = artwork_column_base_colors[left_index] if left_level else (0, 0, 0)
+                    right_base_color = artwork_column_base_colors[right_index] if right_level else (0, 0, 0)
+                else:
+                    left_color, left_level, left_base_color = colored_cell(left_index, row)
+                    right_color, right_level, right_base_color = colored_cell(right_index, row)
+                # Background-art samples are only needed for uncovered/partial
+                # cells. Avoid two lookups before the dense microtile branches.
+                left_background = None
+                right_background = None
+
+                if left_level == 8 and right_level == 8 and full_artwork_bar_styles is not None:
+                    color, sgr = full_artwork_bar_styles[terminal_column]
+                    if color != last_color or last_background is not None:
+                        glyphs.append(sgr)
+                        last_color = color
+                        last_background = None
+                    if not drcs_charset_active:
+                        glyphs.append("\033( @")
+                        drcs_charset_active = True
+                    glyphs.append(full_twin_glyph)
+                    row_rgb is not None and row_rgb.append(color)
+                    continue
 
                 # V245 EXP: fully-filled Twin-DRCS cells keep their normal live
                 # visualizer bar color.  The 2×2 artwork mask contributes only
@@ -27118,10 +29219,17 @@ def render_drcs_visualizer(
                 # a 5% setting look like a dominant tiled cover image.
                 if left_level == 8 and right_level == 8 and bar_microtile_art_grid:
                     row_rgb is not None and row_rgb.append(None)
-                    art_row_index = max(0, row - truncate_top_lines)
-                    art_fg, art_bg, microtile = bar_microtile_art_grid[art_row_index][terminal_column]
-                    art_fg = feedback_rgb(art_fg)
-                    art_bg = feedback_rgb(art_bg)
+                    if static_bar_artwork_row is not None:
+                        art_fg, art_bg, _art_sgr, microtile, microtile_is_unicode = static_bar_artwork_row[terminal_column]
+                    else:
+                        art_row_index = max(0, row - truncate_top_lines)
+                        art_fg, art_bg, microtile = bar_microtile_art_grid[art_row_index][terminal_column]
+                        microtile_is_unicode = art_detail_cell_uses_unicode_glyph(
+                            artwork_bar_microtile_detail_mode, microtile
+                        )
+                    if not feedback_is_identity:
+                        art_fg = feedback_rgb(art_fg)
+                        art_bg = feedback_rgb(art_bg)
                     base_bar = _visualizer_twin_blend_cached(
                         *left_base_color, *right_base_color, left_level, right_level
                     )
@@ -27131,15 +29239,40 @@ def render_drcs_visualizer(
                     background = _visualizer_blend_bar_art_cached(
                         *base_bar, *art_bg, artwork_bar_strength_step, artwork_bar_blend_mode
                     )
-                    if source_rows >= 24:
-                        color = tuple(min(255, round(channel / 32) * 32) for channel in color)
-                        background = tuple(min(255, round(channel / 32) * 32) for channel in background)
+                    # V376: V373's ordered RGB dither was aimed at the wrong
+                    # artifact and added per-cell work.  Keep the richer artwork
+                    # detail itself, but do not dither its colors on the hot path.
                     if color != last_color or background != last_background:
                         glyphs.append(_visualizer_ansi_fg_bg_cached(*color, *background))
                         last_color = color
                         last_background = background
-                    glyphs.append(microtile)
+                    if static_bar_artwork_row is not None:
+                        if drcs_charset_active == microtile_is_unicode:
+                            glyphs.append("\033(B" if microtile_is_unicode else "\033( @")
+                            drcs_charset_active = not microtile_is_unicode
+                        glyphs.append(microtile)
+                    else:
+                        append_cell_glyph(
+                            microtile,
+                            unicode_art=microtile_is_unicode,
+                            terminal_column=terminal_column,
+                        )
                     continue
+
+                # Bar colors carry row-varying artwork, so unlike background-only
+                # frames they cannot be one color per frequency bin. Geometry and
+                # base colors are nevertheless column-invariant; after handling
+                # fully filled microtiles above, blend only the visible partial or
+                # non-microtile halves that will actually reach the terminal.
+                if artwork_column_fills is not None and (weighted_art_grid or bar_detail_art_grid):
+                    left_color = (
+                        artwork_bar_color(left_index, row, row_independent_colors[left_index])
+                        if left_level else (0, 0, 0)
+                    )
+                    right_color = (
+                        artwork_bar_color(right_index, row, row_independent_colors[right_index])
+                        if right_level else (0, 0, 0)
+                    )
 
                 # V234 EXP: an uncovered Twin-DRCS cell can spend FG/BG on a
                 # 2×2 artwork approximation.  The four sampled quadrants are
@@ -27147,15 +29280,31 @@ def render_drcs_visualizer(
                 # adding vertical detail while preserving v229 as the fallback.
                 if not left_level and not right_level and microtile_art_grid:
                     row_rgb is not None and row_rgb.append(None)
+                    if static_artwork_row is not None:
+                        color, background, sgr, glyph, unicode_art = static_artwork_row[terminal_column]
+                        if color != last_color or background != last_background:
+                            glyphs.append(sgr)
+                            last_color = color
+                            last_background = background
+                        if drcs_charset_active == unicode_art:
+                            glyphs.append("\033(B" if unicode_art else "\033( @")
+                            drcs_charset_active = not unicode_art
+                        glyphs.append(glyph)
+                        continue
                     art_row_index = max(0, row - truncate_top_lines)
                     color, background, microtile = microtile_art_grid[art_row_index][terminal_column]
-                    color = feedback_rgb(color)
-                    background = feedback_rgb(background)
+                    if not feedback_is_identity:
+                        color = feedback_rgb(color)
+                        background = feedback_rgb(background)
                     if color != last_color or background != last_background:
                         glyphs.append(_visualizer_ansi_fg_bg_cached(*color, *background))
                         last_color = color
                         last_background = background
-                    glyphs.append(microtile)
+                    append_cell_glyph(
+                        microtile,
+                        unicode_art=art_detail_cell_uses_unicode_glyph(artwork_microtile_detail_mode, microtile),
+                        terminal_column=terminal_column,
+                    )
                     continue
 
                 # V229: Twin DRCS has two *geometric* half-cells but ANSI gives one
@@ -27164,6 +29313,9 @@ def render_drcs_visualizer(
                 # an all-left-half DRCS mask makes FG=left-art and BG=right-art,
                 # preserving the already-cached 2× artwork samples instead of
                 # averaging them back to character-cell resolution.
+                if not left_level and not right_level and not microtile_art_grid:
+                    left_background = artwork_background(left_index, row)
+                    right_background = artwork_background(right_index, row)
                 if not left_level and not right_level and left_background and right_background:
                     row_rgb is not None and row_rgb.append(None)
                     color = left_background
@@ -27172,7 +29324,9 @@ def render_drcs_visualizer(
                         glyphs.append(_visualizer_ansi_fg_bg_cached(*color, *background))
                         last_color = color
                         last_background = background
-                    glyphs.append(twin_drcs_char(8, 0))
+                    append_cell_glyph(
+                        dense_twin_glyph_table[dense_twin_level_map[8]][dense_twin_level_map[0]]
+                    )
                     continue
 
                 color = _visualizer_twin_blend_cached(
@@ -27183,6 +29337,9 @@ def render_drcs_visualizer(
                 # only one BG color for all exposed pixels.  Preserve an entirely
                 # empty half exactly when possible; otherwise weight the two art
                 # samples by how much black/background area is actually visible.
+                if background_art_grid and (left_level < 8 or right_level < 8):
+                    left_background = artwork_background(left_index, row)
+                    right_background = artwork_background(right_index, row)
                 background = left_background or right_background
                 if left_background and right_background:
                     if left_level == 0 < right_level:
@@ -27203,7 +29360,9 @@ def render_drcs_visualizer(
                     glyphs.append(_visualizer_ansi_fg_bg_cached(*color, *bg))
                     last_color = color
                     last_background = background
-                glyphs.append(twin_drcs_char(left_level, right_level))
+                append_cell_glyph(
+                    dense_twin_glyph_table[dense_twin_level_map[left_level]][dense_twin_level_map[right_level]]
+                )
             lines.append("\033( @" + "".join(glyphs) + "\033(B" + row_suffix)
             rgb_rows is not None and rgb_rows.append(row_rgb or [])
             continue
@@ -27258,7 +29417,9 @@ def render_drcs_visualizer(
                 last_color = color
                 last_background = background
             if visualizer_type in {0, 1}:
-                glyphs.append(twin_drcs_char(level, level))
+                glyphs.append(
+                    dense_twin_glyph_table[dense_twin_level_map[level]][dense_twin_level_map[level]]
+                )
             else:
                 glyphs.append(palette[level])
         if visualizer_type in {0, 1}:
@@ -27712,21 +29873,89 @@ def set_console_title(title: str) -> None:
         pass
 
 
-def _album_art_priority(path: Path) -> tuple[int, tuple[object, ...]]:
-    """Sort nearby artwork as cover > back > cd > inlay* > other > matrix."""
-    stem = path.stem.casefold()
-    if "matrix" in stem:
-        priority = 5
-    elif stem.startswith("cover"):
-        priority = 0
-    elif stem.startswith("back"):
-        priority = 1
-    elif stem == "cd":
-        priority = 2
-    elif stem.startswith("inlay"):
-        priority = 3
+def floating_lyrics_animation_interval_ms(
+    pixel_area: int,
+    render_cost_ms: float = 0.0,
+    *,
+    playback_running: bool = True,
+    edit_mode: bool = False,
+) -> int:
+    """Return an audio-safe cadence for floating-lyric color animation.
+
+    Floating lyrics use a transparent ImageTk bitmap. Re-coloring and uploading a
+    large mask too frequently can monopolize the Python GUI thread/GIL long enough
+    to starve the audio pump even though the GUI thread itself has low OS priority.
+    During active playback, target roughly <=3% renderer duty cycle and let a
+    measured expensive frame push the next update farther away. Paused/edit use
+    can run more eagerly because there is no audio-underrun risk.
+    """
+    area = max(1, int(pixel_area))
+    cost = max(0.0, float(render_cost_ms or 0.0))
+    if area < 180_000:
+        area_floor = 180
+    elif area < 500_000:
+        area_floor = 280
     else:
-        priority = 4
+        area_floor = 440
+    if edit_mode:
+        area_floor += 120
+    if playback_running:
+        # interval >= cost / 0.03 keeps the expensive recolor+Tk upload around
+        # a three-percent duty cycle.  The previous 1.5-second ceiling meant a
+        # 500-ms fullscreen frame could still consume one third of the GUI
+        # thread forever; the wider ceiling makes the budget real.
+        cost_floor = int(round(cost / 0.03)) if cost > 0.0 else 0
+        return max(220, min(5000, max(area_floor, cost_floor)))
+    return max(120, min(900, int(round(area_floor * 0.70))))
+
+
+def floating_lyrics_animation_is_safe(
+    pixel_area: int,
+    render_cost_ms: float = 0.0,
+    *,
+    playback_running: bool = True,
+) -> bool:
+    """Return whether another decorative floating-lyric frame is affordable.
+
+    Cue changes always render once.  This gate applies only to subsequent color
+    animation, which is expendable when a very large bitmap or a measured slow
+    Tk upload would interfere with playback and console input.
+    """
+    # Pausing playback permits a faster cadence for affordable frames, but it
+    # must not re-enable a multi-megapixel allocation loop that makes the rest
+    # of PAFPlayer unresponsive while the user is trying to edit settings.
+    return (
+        max(1, int(pixel_area)) <= EXTERNAL_FLOATING_LYRICS_ANIMATION_MAX_PIXELS
+        and max(0.0, float(render_cost_ms or 0.0))
+        < EXTERNAL_FLOATING_LYRICS_ANIMATION_MAX_FRAME_MS
+    )
+
+
+def floating_lyrics_render_debounce_ms(pixel_area: int) -> int:
+    """Wait for large resize bursts to settle before rebuilding their bitmap."""
+    area = max(1, int(pixel_area))
+    if area >= 3_000_000:
+        return 220
+    if area >= 1_000_000:
+        return 120
+    return 40
+
+
+def _album_art_priority(path: Path) -> tuple[int, tuple[object, ...]]:
+    """Sort local fallback artwork as cover.* > folder.* > disc.* > band.* > other.
+
+    Embedded/attached artwork is still authoritative and is resolved before these
+    sidecars.  This ordering controls the first local image used when a track has
+    no embedded cover while preserving all remaining images as related-art
+    variants for tiling/rotation.
+    """
+    stem = path.stem.casefold()
+    priority = {
+        "cover": 0,
+        "folder": 1,
+        "disc": 2,
+        "band": 3,
+    }.get(stem, 4)
     return priority, natural_path_key(path)
 
 
@@ -28009,8 +30238,9 @@ def vlc_cached_album_art(
 def extract_album_art(audio_path: Path) -> bytes | None:
     """Resolve cover art from authoritative sources, then VLC's local cache as a fallback.
 
-    Motivation: embedded/front-cover and explicit per-track/local artwork are the
-    player's canonical sources.  VLC may nevertheless display art for an MP3 that
+    Motivation: embedded/front-cover artwork is authoritative.  If absent, local
+    images are tried in cover.* > folder.* > disc.* > band.* > other-image order
+    (with exact-stem isolation retained for MISC/loose-song folders). VLC may nevertheless display art for an MP3 that
     contains no picture because VLC cached a prior/downloaded artist+album cover.
     V93 therefore consults that cache only after file/local extraction has failed.
     """
@@ -29545,6 +31775,71 @@ def save_external_floating_lyrics_justification(value: str) -> None:
         pass
 
 
+def load_external_floating_lyrics_autosize() -> bool:
+    """Return whether each floating cue should choose the largest font that fits."""
+    if os.name != "nt":
+        return True
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_FLOATING_LYRICS_AUTOSIZE_VALUE)
+        return bool(int(value))
+    except (OSError, TypeError, ValueError):
+        # V365 already auto-fit every floating cue, so True preserves the
+        # established behavior until the user explicitly chooses manual sizing.
+        return True
+
+
+def save_external_floating_lyrics_autosize(enabled: bool) -> None:
+    if os.name != "nt":
+        return
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            _safe_winreg_set_value(
+                key, EXTERNAL_FLOATING_LYRICS_AUTOSIZE_VALUE, 0,
+                winreg.REG_DWORD, int(bool(enabled)),
+            )
+    except OSError:
+        pass
+
+
+def load_external_floating_lyrics_font_scale() -> float:
+    """Load the manual floating-lyric font scale used when Autosize is off."""
+    if os.name != "nt":
+        return 1.0
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value, _kind = winreg.QueryValueEx(key, EXTERNAL_FLOATING_LYRICS_FONT_SCALE_VALUE)
+        scale = float(value) / 100.0
+    except (OSError, TypeError, ValueError):
+        scale = 1.0
+    return max(
+        EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MIN,
+        min(EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MAX, scale),
+    )
+
+
+def save_external_floating_lyrics_font_scale(scale: float) -> None:
+    """Persist manual floating lyric zoom as an integer percent."""
+    if os.name != "nt":
+        return
+    value = max(
+        EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MIN,
+        min(EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MAX, float(scale)),
+    )
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            _safe_winreg_set_value(
+                key, EXTERNAL_FLOATING_LYRICS_FONT_SCALE_VALUE, 0,
+                winreg.REG_DWORD, int(round(value * 100.0)),
+            )
+    except OSError:
+        pass
+
+
 def external_album_art_scaled_border_pixels(dpi: int | float | None) -> int:
     """Scale the requested five 96-DPI border pixels for the active monitor."""
     try:
@@ -30417,6 +32712,8 @@ WEB_CHOICE_MARK_SPECS: dict[str, tuple[str, str]] = {
     "progress_beat_treatment": ("ProgressBeatTreatmentFavorites", "ProgressBeatTreatment"),
     "output_device": ("OutputDeviceFavorites", "OutputDevice"),
     "fade_style": ("BarFadeStyleFavorites", "BarFadeStyle"),
+    "drcs_art_bar_microtile_mode": ("DrcsArtBarMicrotileModeFavorites", "DrcsArtBarMicrotileDetailModeV370"),
+    "drcs_art_microtile_mode": ("DrcsArtMicrotileModeFavorites", "DrcsArtMicrotileDetailModeV370"),
 }
 
 WEB_UI_PREFERENCES_REGISTRY_VALUE = "WebUiPreferencesV241"
@@ -30498,6 +32795,8 @@ def paf_web_choice_value_is_valid(key: str, value: int) -> bool:
         "fade_style": len(FADE_STYLE_NAMES),
     }
     key = str(key)
+    if key in {"drcs_art_bar_microtile_mode", "drcs_art_microtile_mode"}:
+        return 0 <= int(value) < len(ART_MICROTILE_DETAIL_MODE_NAMES)
     if key == "output_device":
         return int(value) in {int(item.get("value", -1)) for item in waveout_output_devices()}
     maximum = maxima.get(key)
@@ -30588,8 +32887,24 @@ def paf_web_control_schema() -> dict[str, object]:
             {"key": "processing_style", "label": "Processing", "options": options(PROCESSING_STYLE_NAMES)},
             {"key": "persistence_mode", "label": "Persistence", "options": options(PERSISTENCE_MODE_NAMES)},
             {"key": "visualizer_granularity", "label": "Granularity", "options": options(VISUALIZER_GRANULARITY_NAMES), "experimental": True, "theme": "visualizer"},
+            {
+                "key": "drcs_art_bar_microtile_mode",
+                "label": "Artwork cell detail for visualizer bars:",
+                "options": [{"value": mode, "label": ART_MICROTILE_DETAIL_MODE_NAMES[mode], "group": ("100% exact output" if mode in ART_MICROTILE_DETAIL_MODE_EXACT else "Approximate masks")} for mode in ART_MICROTILE_DETAIL_MODE_DISPLAY_ORDER],
+                "custom_microtile": True,
+                "theme": "visualizer",
+                "tooltip": "Artwork subcell geometry for filled visualizer bars. Favorites/default are saved independently from Blackness.",
+            },
+            {
+                "key": "drcs_art_microtile_mode",
+                "label": "Artwork cell detail for visualizer background:",
+                "options": [{"value": mode, "label": ART_MICROTILE_DETAIL_MODE_NAMES[mode], "group": ("100% exact output" if mode in ART_MICROTILE_DETAIL_MODE_EXACT else "Approximate masks")} for mode in ART_MICROTILE_DETAIL_MODE_DISPLAY_ORDER],
+                "custom_microtile": True,
+                "theme": "visualizer",
+                "tooltip": "Artwork subcell geometry for visualizer blackness. Favorites/default are saved independently from Bars.",
+            },
             {"key": "art_color_bar_blend_mode", "label": "Bar artwork blend", "options": options(ART_COLOR_VISUALIZER_BAR_BLEND_MODES, start=0), "experimental": True, "theme": "visualizer", "tooltip": "EXP: Color mix is legacy RGB blending; Luma detail preserves bar peak brightness while carrying cover structure; Hybrid adds a smaller amount of cover hue."},
-            {"key": "visualizer_input_source", "label": "Visualizer input", "options": options(LIVE_VISUALIZER_INPUT_NAMES), "theme": "visualizer", "tooltip": "Choose the spectrum input. Auto uses the current PAFPlayer track while playing, then switches to Windows WASAPI What You Hear + the default microphone while paused."},
+            {"key": "visualizer_input_source", "label": "Visualizer input", "options": options(LIVE_VISUALIZER_INPUT_NAMES), "theme": "playback", "tooltip": "Choose the spectrum input. Auto uses the current PAFPlayer track while playing, then switches to Windows WASAPI What You Hear + the default microphone while paused."},
             {"key": "truncate_visualizer_rows", "label": "Rows truncated\nfrom top", "options": [{"value": value, "label": str(value)} for value in range(0, 9)]},
             {"key": "karaoke_style", "label": "Karaoke style", "options": options(KARAOKE_STYLE_NAMES)},
             {"key": "karaoke_treatment", "label": "Karaoke treatment", "options": options(KARAOKE_TREATMENT_NAMES)},
@@ -30659,9 +32974,12 @@ def paf_web_control_schema() -> dict[str, object]:
             {"key": "art_color_black_strength", "label": "Cover art saturation in blackness", "min": 0, "max": 100, "step": 5, "suffix": "%"},
         ],
         "toggles": [
-            {"key": "console_visualizer_volume_feedback_enabled", "label": "Interaction feedback overlay", "web_key": "console_visualizer_volume_feedback_enabled", "theme": "visualizer", "tooltip": "Show console-control feedback centered over the visualizer: two seconds solid, then a two-second fade. Volume changes also throb the visualizer."},
+            {"key": "visualizer_bars_enabled", "label": "Visualizer bars", "web_key": "visualizer_bars_enabled", "theme": "visualizer", "tooltip": "Turn the moving console spectrum bars on/off while leaving background artwork independently available."},
+            {"key": "visualizer_background_artwork_enabled", "label": "Background artwork", "web_key": "visualizer_background_artwork_enabled", "theme": "visualizer", "tooltip": "Turn the ANSI artwork drawn in visualizer background/blackness on/off without changing bar artwork settings."},
+            {"key": "console_alerts_enabled", "label": "Console Alerts", "web_key": "console_alerts_enabled", "theme": "alerts", "tooltip": "Master switch for all Console Alerts. Individual alert choices are preserved while this is off."},
+            {"key": "console_visualizer_volume_feedback_enabled", "label": "Visualizer Overlay Messages", "web_key": "console_visualizer_volume_feedback_enabled", "theme": "visualizer", "default": True, "tooltip": "Show console-control feedback messages centered over the visualizer: two seconds solid, then a two-second fade. Volume changes also throb the visualizer."},
             {"key": "art_color_blackness", "label": "Album art onto blackness", "web_key": "art_color_blackness"},
-            {"key": "art_color_bars", "label": "Album art onto bars", "web_key": "art_color_bars", "theme": "visualizer"},
+            {"key": "art_color_bars", "label": "Visualizer bar artwork", "web_key": "art_color_bars", "theme": "visualizer"},
             {"key": "progress_beat_reactive", "label": "Beat-reactive illumination", "web_key": "progress_beat_reactive", "theme": "progress", "tooltip": "Pulse or throb the console progress bar from detected musical onsets; use Beat detection and Beat treatment to choose the behavior."},
             {"key": "art_color_karaoke_sides", "label": "Album art onto karaoke sides", "web_key": "art_color_karaoke_sides", "experimental": True},
             {"key": "art_color_karaoke", "label": "Album art onto karaoke", "web_key": "art_color_karaoke", "experimental": True},
@@ -30688,7 +33006,7 @@ def paf_web_control_schema() -> dict[str, object]:
             {"key": "album_art_visualizer_enabled", "label": "Album art in visualizer", "action": ALBUM_ART_VISUALIZER_TOGGLE, "experimental": True},
             {"key": "external_album_art_enabled", "label": "Floating Art", "action": EXTERNAL_ALBUM_ART_TOGGLE},
             {"key": "floating_lyrics_enabled", "label": "Floating Lyrics", "action": FLOATING_LYRICS_TOGGLE},
-            {"key": "karaoke_visualizer_expansion_enabled", "label": "Visualizer expands through karaoke", "action": KARAOKE_VISUALIZER_EXPAND_TOGGLE, "experimental": True},
+            {"key": "karaoke_visualizer_expansion_enabled", "label": "Extend visualizer through karaoke space when there is no karaoke", "action": KARAOKE_VISUALIZER_EXPAND_TOGGLE, "theme": "visualizer"},
             {
                 "key": "frequency_warp_enabled",
                 "label": "Frequency warp",
@@ -30728,7 +33046,7 @@ def paf_web_allowed_actions() -> frozenset[str]:
     actions.update({WEB_PLAY, WEB_PAUSE, WEB_OPEN_TRACK_FOLDER, WEB_EDIT_LYR, WEB_EDIT_KAR, WEB_RESTART_AUDIO, WEB_MATRIX_APPLY})
     # These popup/floating controls have first-class web UI but intentionally
     # do not appear in the generic bottom action catalog.
-    actions.update({ARTWORK_KARAOKE_TOGGLE, ARTWORK_KARAOKE_CONFIG, FLOATING_KARAOKE_CONFIG})
+    actions.update({ARTWORK_KARAOKE_TOGGLE, ARTWORK_KARAOKE_CONFIG, FLOATING_KARAOKE_CONFIG, EXTERNAL_ALBUM_ART_FOREGROUND, EXTERNAL_FLOATING_LYRICS_FOREGROUND})
     actions.update(
         str(item["action"])
         for item in paf_web_control_schema()["toggles"] if "action" in item
@@ -30814,6 +33132,11 @@ def paf_web_action_is_allowed(action: str) -> bool:
         "visualizer_input_source": (1, len(LIVE_VISUALIZER_INPUT_NAMES)),
         "visualizer_rows": (4, 48),
         "console_visualizer_volume_feedback_enabled": (0, 1),
+        "visualizer_bars_enabled": (0, 1),
+        "visualizer_background_artwork_enabled": (0, 1),
+        "art_topmost": (0, 1),
+        "floating_topmost": (0, 1),
+        "console_alerts_enabled": (0, 1),
         "truncate_visualizer_rows": (0, 8),
         "karaoke_style": (1, len(KARAOKE_STYLE_NAMES)),
         "karaoke_treatment": (1, len(KARAOKE_TREATMENT_NAMES)),
@@ -30836,8 +33159,10 @@ def paf_web_action_is_allowed(action: str) -> bool:
         "progress_beat_detector": (1, len(PROGRESS_BEAT_DETECTOR_NAMES)),
         "progress_beat_treatment": (1, len(PROGRESS_BEAT_TREATMENT_NAMES)),
         "cursive_fix": (0, 1),
-        "drcs_art_microtiles": (0, 1),
-        "drcs_art_bar_microtiles": (0, 1),
+        "drcs_art_microtiles": (0, 1),  # legacy boolean action
+        "drcs_art_bar_microtiles": (0, 1),  # legacy boolean action
+        "drcs_art_microtile_mode": (0, len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1),
+        "drcs_art_bar_microtile_mode": (0, len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1),
         "fade_style": (1, len(FADE_STYLE_NAMES)),
         "speed_index": (0, len(PLAYBACK_SPEEDS) - 1),
         "output_rate": (min(OUTPUT_SAMPLE_RATES), max(OUTPUT_SAMPLE_RATES)),
@@ -31018,18 +33343,20 @@ button,select,input{font:inherit}
 .visualizer-master-track::before{content:"";position:absolute;width:17px;height:17px;left:2px;top:2px;border-radius:50%;background:#d4dae2;transition:.12s}
 .visualizer-master-switch input:checked + .visualizer-master-track{background:#176ba1;border-color:#47aee9}
 .visualizer-master-switch input:checked + .visualizer-master-track::before{transform:translateX(20px);background:#eef9ff}
-.section-visualizer.visualizer-disabled #visualizerControls,.section-karaoke.section-disabled #karaokeControls,.section-web-karaoke.section-disabled #webKaraokeControls,.section-progress.section-disabled #progressControls{filter:grayscale(1) brightness(.5);opacity:.82}
-.section-visualizer.visualizer-disabled #visualizerControls .control-item,.section-visualizer.visualizer-disabled #visualizerControls .toggle,.section-karaoke.section-disabled #karaokeControls .control-item,.section-karaoke.section-disabled #karaokeControls .toggle,.section-web-karaoke.section-disabled #webKaraokeControls .control-item,.section-web-karaoke.section-disabled #webKaraokeControls .toggle,.section-progress.section-disabled #progressControls .control-item,.section-progress.section-disabled #progressControls .toggle{border-color:#59616a;background:#282c31}
+.section-visualizer.visualizer-disabled #visualizerControls,.section-visualizer.visualizer-disabled #visualizerArtworkDetailControls,.section-visualizer.visualizer-disabled #visualizerLayerSwitches,.section-karaoke.section-disabled #karaokeControls,.section-web-karaoke.section-disabled #webKaraokeControls,.section-progress.section-disabled #progressControls,.section-console-alerts.section-disabled #consoleAlertsControls{filter:grayscale(1) brightness(.5);opacity:.82}
+.section-visualizer.visualizer-disabled #visualizerControls .control-item,.section-visualizer.visualizer-disabled #visualizerControls .toggle,.section-visualizer.visualizer-disabled #visualizerArtworkDetailControls .control-item,.section-visualizer.visualizer-disabled #visualizerLayerSwitches .control-item,.section-karaoke.section-disabled #karaokeControls .control-item,.section-karaoke.section-disabled #karaokeControls .toggle,.section-web-karaoke.section-disabled #webKaraokeControls .control-item,.section-web-karaoke.section-disabled #webKaraokeControls .toggle,.section-progress.section-disabled #progressControls .control-item,.section-progress.section-disabled #progressControls .toggle,.section-console-alerts.section-disabled #consoleAlertsControls .toggle{border-color:#59616a;background:#282c31}
+.visualizer-layer-switches{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 9px}.layer-switch-card{display:flex;align-items:center;gap:9px;grid-template-columns:none!important}.layer-switch-card .layer-switch-name{font-weight:800;color:#cfeeff}.layer-switch-card .layer-switch-state{min-width:28px;font-size:.72rem;font-weight:900;color:#8ce0ff}.visualizer-artwork-detail-controls{display:flex;flex-direction:column;align-items:flex-start;gap:7px;margin-bottom:8px}.visualizer-artwork-detail-controls .microtile-mode-row{width:max-content;max-width:100%;justify-content:flex-start;align-self:flex-start}.section-console-alerts.section-disabled .note{filter:grayscale(1);opacity:.5}
 .secondary-button.active-toggle{box-shadow:0 0 0 1px #64d99b inset;background:#183a2b;border-color:#54bf86}
 .visualizer-height-control{grid-template-columns:max-content max-content auto}.visualizer-height-default{white-space:nowrap}.control-inapplicable{filter:grayscale(1)!important;opacity:.42!important}.control-inapplicable select,.control-inapplicable input{cursor:not-allowed}.two-line-label{white-space:pre-line;line-height:1.05}
 .section-karaoke .control-item,.section-karaoke .toggle,.section-web-karaoke .control-item,.section-web-karaoke .toggle{background:#291844;border-color:#8e52d5}.section-karaoke h3,.section-web-karaoke h3{color:#d1a1ff}
+.section-web-karaoke .toggle.experimental[data-control-key="cursive_fix"]{background:#3c3312;border-color:#b69a30}.section-web-karaoke .toggle.experimental[data-control-key="cursive_fix"] span{color:#ffe47a}
 .section-web-karaoke .web-karaoke-actions{display:flex;flex-wrap:wrap;gap:7px;align-items:stretch;justify-content:flex-start;margin-top:8px;width:100%;clear:both}.section-web-karaoke .web-karaoke-local-note{font-size:.75rem;color:#aa95c6}.section-web-karaoke .tiny-toggle,.section-web-karaoke .web-karaoke-glow{display:flex;align-items:center;gap:7px;background:#291844;border:1px solid #8e52d5;border-radius:5px;padding:8px}.section-web-karaoke .lyric-option-button{font-size:.9rem;padding:8px 10px;font-weight:700}
 .section-playback .control-item,.section-playback .toggle{background:#163529;border-color:#348e69}.section-playback h3{color:#82ebba}
 .section-progress .control-item,.section-progress .toggle{background:#3a2b13;border-color:#ad7c27}.section-progress h3{color:#ffd27a}
 .experimental-area .control-item,.experimental-area .toggle{background:#3c3312;border-color:#b69a30}.experimental-area h3{color:#ffe47a}
 .experimental-area .control-theme-karaoke{background:#291844;border-color:#8e52d5}.experimental-area .control-theme-karaoke label,.experimental-area .control-theme-karaoke span{color:#d1a1ff}
 .experimental-area .control-theme-visualizer{background:#10283b;border-color:#287cb6}.experimental-area .control-theme-visualizer label,.experimental-area .control-theme-visualizer span{color:#6bc8ff}
-.broken-area .toggle{background:#411a20;border-color:#b6404e}.broken-area h3{color:#ff8b96}.microtile-disable-card{margin-top:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}.microtile-disable-card>label{font-weight:800}.microtile-disable-options{display:flex;gap:12px;align-items:center}.microtile-disable-options label{display:flex;align-items:center;gap:5px;cursor:pointer}
+.broken-area .toggle{background:#411a20;border-color:#b6404e}.broken-area h3{color:#ff8b96}.microtile-disable-card{margin-top:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}.microtile-disable-card>label{font-weight:800}.microtile-disable-options{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.microtile-mode-row{display:flex;align-items:center;gap:7px;min-width:0}.microtile-mode-row>label{display:flex;align-items:center;gap:5px;cursor:pointer;min-width:0}.microtile-mode-row select{max-width:min(760px,58vw)}.microtile-mode-tools{display:flex;align-items:center;gap:6px}.favorite-cycle-button{position:relative;min-width:38px;padding:5px 8px;cursor:pointer}.favorite-cycle-button::after{content:attr(data-tip);display:none;position:absolute;z-index:9999;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%);width:max-content;max-width:min(620px,70vw);padding:7px 9px;border:1px solid #60728a;border-radius:5px;background:#080d14;color:#eef6ff;font-size:.78rem;line-height:1.25;white-space:normal;box-shadow:0 5px 18px rgba(0,0,0,.5);pointer-events:none}.favorite-cycle-button:hover::after,.favorite-cycle-button:focus-visible::after{display:block}
 .control-theme-mmexp{background:#183821!important;border-color:#9bb83d!important}.control-theme-mmexp span,.control-theme-mmexp label{color:#cbe96b!important}.control-theme-mmexp::after{color:#cbe96b!important}
 .section-webserver-config h3{color:#75e5ec}.web-config-subhead{margin:.8em 0 .45em;color:#f0a9ff;font-weight:800}
 .section-webserver-config .web-config-box{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:end;background:#2d1833;border:1px solid #a45bb5;border-radius:7px;padding:12px;width:100%;max-width:100%;overflow-x:auto}.web-config-field{display:flex;flex-direction:column;gap:4px}.web-config-field select,.web-config-field input[type=range]{max-width:280px}.web-config-field label{font-size:.82rem;color:#e9c7ef}.web-bg-wide-range{width:270px!important}.web-tiling-radio{display:flex;gap:8px;flex-wrap:wrap}.web-tiling-radio label{display:flex;align-items:center;gap:4px;background:#22162a;border:1px solid #70447d;border-radius:5px;padding:5px 7px}.web-only-button{background:#2c2040!important;border-color:#8959b3!important}.lyric-option-button{font-size:.78rem;padding:3px 7px}
@@ -31044,6 +33371,7 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
 #urls a{background:#101d2a;border:1px solid #29445d;border-radius:5px;padding:4px 7px}
 .note{font-size:.86rem;color:#748297;margin-top:6px}
 .web-visualizer-shell{position:relative}.web-visualizer-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 4px;font-size:.78rem;color:#8ca4ba}.web-visualizer-toolbar label{display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:750;color:#b7dcff}.web-visualizer-toolbar input{accent-color:#53b8ff}.web-visualizer-off-message{display:none;position:absolute;left:0;right:0;bottom:0;top:26px;align-items:center;justify-content:center;background:#030609;color:#8394a8;border:1px solid #1b2a39;border-radius:4px;font:700 .82rem Consolas,monospace;pointer-events:none}.web-visualizer-shell.off .web-visualizer-off-message{display:flex}.web-visualizer-shell.off canvas{visibility:hidden}
+.session-notice{display:none;margin:7px 0;padding:8px 11px;border:1px solid #d5aa2f;border-radius:6px;background:#33280b;color:#ffe477;font:800 .9rem Consolas,monospace;overflow-wrap:anywhere}.session-notice.visible{display:block}.session-notice.error{border-color:#e35862;background:#3b171b;color:#ff9ca4}
 .web-karaoke-glow{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.emojimax-solution{cursor:help}.emojimax-tooltip{position:fixed;z-index:80;display:none;pointer-events:none;white-space:nowrap;padding:.08em .24em;border-radius:.24em;background:rgba(8,10,15,.88);border:1px solid rgba(255,255,255,.28);font-weight:700;line-height:1.12;box-shadow:0 3px 14px rgba(0,0,0,.5)}.web-karaoke-glow input[type=color]{width:38px;height:28px;padding:2px;border:1px solid #68457f;background:#161b24}.web-karaoke-glow input[type=range]{width:180px}
 .playlist-queue-exp{border:1px solid #746128;background:#221d10;border-radius:6px;padding:8px;min-width:min(680px,95vw)}.playlist-queue-list{max-height:220px;overflow:auto;font:13px Consolas,monospace;background:#090d12;border:1px solid #394353;padding:5px}.playlist-queue-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:6px;align-items:center;padding:3px}.playlist-queue-row.current{background:#182d42}.playlist-queue-row.queued{color:#ffd56d}.playlist-queue-page{display:flex;gap:6px;align-items:center;justify-content:center;padding:4px 2px 8px}.playlist-queue-page span{color:#cad5df}
 
@@ -31065,6 +33393,7 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
 <div class="path-url-row"><div class="path" id="path" title="Click filename/path to open this track’s folder in Explorer"></div><div id="urls"></div></div>
 
 <div class="chips" id="chips"></div>
+<div id="sessionNotice" class="session-notice" role="status" aria-live="assertive"></div>
 
 <div class="web-visualizer-shell" id="webVisualizerShell">
   <div class="web-visualizer-toolbar"><label title="Turn only the browser spectrum renderer on/off. OFF leaves the web controls open while PAFPlayer stops publishing browser spectrum frames, which makes console-FPS A/B testing easy."><input type="checkbox" id="webVisualizerToggle" checked> Web visualizer</label><span id="webVisualizerModeNote">browser-owned raw spectrum</span></div>
@@ -31106,29 +33435,35 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
 </div>
 <div class="group section-artwork-popup" id="artworkPopupSection">
   <div class="section-heading-row"><label class="visualizer-master-switch" title="Show or hide the album artwork popup"><input type="checkbox" id="artworkPopupMasterToggle"><span class="visualizer-master-track"></span></label><h3>Artwork Pop-Up + Karaoke</h3></div>
-  <div class="toggle-grid" id="artworkPopupControls"><label class="toggle" title="Enable karaoke text in the album artwork popup"><input type="checkbox" id="artworkPopupKaraokeToggle"><span>Popup Karaoke</span></label><button id="artworkPopupConfigButton" class="secondary-button web-only-button" title="Configure artwork lyric coloring">🎨 Configure artwork karaoke</button></div>
+  <div class="toggle-grid" id="artworkPopupControls"><button id="artworkPopupBringTopButton" class="secondary-button web-only-button" title="Bring the artwork pop-up to the top without changing its saved always-on-top setting">⬆ Bring to top</button><button id="artworkPopupTopmostButton" class="secondary-button web-only-button" aria-pressed="false" title="Keep the artwork pop-up above other windows">📌 Always on top</button><button id="artworkPopupConfigButton" class="secondary-button web-only-button" title="Configure artwork lyric coloring">🎨 Configure artwork karaoke</button><button id="artworkPopupDecensorButton" class="secondary-button web-only-button" aria-pressed="false" title="Display-only: restore recognized asterisk-masked profanity in artwork karaoke">De-censor profanity</button><label class="toggle" title="Enable karaoke text in the album artwork popup"><input type="checkbox" id="artworkPopupKaraokeToggle"><span>Popup Karaoke</span></label></div>
 </div>
 <div class="group section-floating-lyrics" id="floatingLyricsSection">
   <div class="section-heading-row"><label class="visualizer-master-switch" title="Show or hide floating lyrics"><input type="checkbox" id="floatingLyricsMasterToggle"><span class="visualizer-master-track"></span></label><h3>Floating Lyrics</h3></div>
-  <div class="toggle-grid" id="floatingLyricsControls"><button id="floatingLyricsConfigButton" class="secondary-button web-only-button" title="Configure floating lyric coloring">💬 Configure floating lyrics</button></div>
+  <div class="toggle-grid" id="floatingLyricsControls"><button id="floatingLyricsBringTopButton" class="secondary-button web-only-button" title="Bring the floating lyrics window to the top without changing its saved always-on-top setting">⬆ Bring to top</button><button id="floatingLyricsTopmostButton" class="secondary-button web-only-button" aria-pressed="false" title="Keep the floating lyrics window above other windows">📌 Always on top</button><button id="floatingLyricsConfigButton" class="secondary-button web-only-button" title="Configure floating lyric coloring">💬 Configure floating lyrics</button><button id="floatingLyricsDecensorButton" class="secondary-button web-only-button" aria-pressed="false" title="Display-only: restore recognized asterisk-masked profanity in floating lyrics">De-censor profanity</button></div>
 </div>
 <div class="group section-karaoke" id="karaokeSection">
   <div class="section-heading-row"><label class="visualizer-master-switch" title="Turn Console Karaoke on/off"><input type="checkbox" id="karaokeMasterToggle"><span class="visualizer-master-track"></span></label><h3>Console Karaoke</h3></div><div class="control-grid" id="karaokeControls"></div>
 </div>
+<div class="group section-visualizer" id="visualizerSection">
+  <div class="section-heading-row"><label class="visualizer-master-switch" title="Turn Console Visualizer on/off"><input type="checkbox" id="visualizerMasterToggle"><span class="visualizer-master-track"></span></label><h3>Console Visualizer</h3></div>
+  <div class="visualizer-layer-switches" id="visualizerLayerSwitches">
+    <div class="control-item layer-switch-card control-theme-visualizer" data-control-key="visualizer_bars_enabled" title="Turn the moving spectrum bars on/off independently of background artwork"><span class="layer-switch-name">Visualizer bars</span><label class="visualizer-master-switch" title="Visualizer bars on/off"><input type="checkbox" id="ctl-visualizer_bars_enabled" checked><span class="visualizer-master-track"></span></label><span class="layer-switch-state" id="visualizerBarsState">ON</span></div>
+    <div class="control-item layer-switch-card control-theme-visualizer" data-control-key="art_color_bars" title="Turn cover-art coloring/detail inside the visualizer bars on/off while keeping the bars themselves"><span class="layer-switch-name">Visualizer bar artwork</span><label class="visualizer-master-switch" title="Visualizer bar artwork on/off"><input type="checkbox" id="ctl-art_color_bars"><span class="visualizer-master-track"></span></label><span class="layer-switch-state" id="visualizerBarArtworkState">OFF</span></div>
+    <div class="control-item layer-switch-card control-theme-visualizer" data-control-key="visualizer_background_artwork_enabled" title="Turn ANSI background artwork on/off independently of visualizer bars"><span class="layer-switch-name">Background artwork</span><label class="visualizer-master-switch" title="Background artwork on/off"><input type="checkbox" id="ctl-visualizer_background_artwork_enabled" checked><span class="visualizer-master-track"></span></label><span class="layer-switch-state" id="visualizerBackgroundArtworkState">ON</span></div>
+  </div>
+  <div class="visualizer-artwork-detail-controls" id="visualizerArtworkDetailControls">
+    <div class="control-item microtile-mode-row control-theme-visualizer" data-control-key="drcs_art_bar_microtile_mode" title="Artwork subcell geometry for filled visualizer bars"><label>Artwork cell detail for visualizer bars: <select id="microtileBarsMode"></select></label><span class="microtile-mode-tools" id="microtileBarsTools"></span></div>
+    <div class="control-item microtile-mode-row control-theme-visualizer" data-control-key="drcs_art_microtile_mode" title="Artwork subcell geometry for the visualizer background"><label>Artwork cell detail for visualizer background: <select id="microtileBlacknessMode"></select></label><span class="microtile-mode-tools" id="microtileBlacknessTools"></span></div>
+  </div>
+  <div class="control-grid" id="visualizerControls"></div>
+</div>
 <div class="group section-console-alerts" id="consoleAlertsSection">
-  <h3 title="Metadata/maintenance conditions surfaced on the console HUD">⚠️ Console Alerts</h3>
+  <div class="section-heading-row"><label class="visualizer-master-switch" title="Turn all Console Alerts on/off"><input type="checkbox" id="ctl-console_alerts_enabled" checked><span class="visualizer-master-track"></span></label><h3 title="Metadata/maintenance conditions surfaced on the console HUD">⚠️ Console Alerts</h3></div>
   <div class="toggle-grid" id="consoleAlertsControls"></div>
   <div class="note">ReplayGain missing is continuous for the whole track. Other enabled conditions alert once per track and remain listed under ? details.</div>
 </div>
-<div class="group section-visualizer" id="visualizerSection">
-  <div class="section-heading-row"><label class="visualizer-master-switch" title="Turn Console Visualizer on/off"><input type="checkbox" id="visualizerMasterToggle"><span class="visualizer-master-track"></span></label><h3>Console Visualizer</h3></div><div class="control-grid" id="visualizerControls"></div>
-</div>
 <div class="group section-progress" id="progressSection">
   <div class="section-heading-row"><label class="visualizer-master-switch" title="Turn the console progress bar on/off"><input type="checkbox" id="progressMasterToggle"><span class="visualizer-master-track"></span></label><h3>Progress Bar</h3></div><div class="control-grid" id="progressControls"></div>
-</div>
-<div class="group">
-  <h3>Playback and display toggles</h3>
-  <div class="toggle-grid" id="toggleControls"></div>
 </div>
 <div class="group section-playlist" id="playlistSection">
   <h3 title="Active playlist membership and explicit play-next queue">📜 Playlist Control</h3>
@@ -31160,13 +33495,9 @@ background</span></label>
   <h3>Experimental</h3>
   <div class="control-grid" id="experimentalSelectControls"></div>
   <div class="toggle-grid" id="experimentalControls"></div>
-  <div class="microtile-disable-card control-item experimental control-theme-visualizer" title="EXP: selectively disable 2×2 artwork micro-tile detail for bars and/or blackness for this PAFPlayer run. These opt-out boxes always start unchecked.">
-    <label>Turn off micro-tile detail for visualizer</label>
-    <div class="microtile-disable-options"><label><input type="checkbox" id="microtileDisableBars">Bars</label><label><input type="checkbox" id="microtileDisableBlackness">Blackness</label></div>
-  </div>
 </div>
-<div class="group broken-area"><h3 title="Known broken experimental controls">Broken experimental</h3><div class="toggle-grid" id="brokenControls"></div></div>
 <div id="controls"></div>
+<div class="group broken-area"><h3 title="Known broken experimental controls">Broken experimental</h3><div class="toggle-grid" id="brokenControls"></div></div>
 </section>
 </main>
 <div id="matrixModal" role="dialog" aria-modal="true" aria-label="Speaker Expansion Matrix"><div class="matrix-dialog">
@@ -31567,6 +33898,38 @@ function makeSelect(item){
   select._pafSyncMarks=syncMarks;wrap.append(label,row);syncMarks();return wrap;
 }
 
+function setupMicrotileModeControl(selectId,toolsId,key,channel){
+  const select=document.getElementById(selectId),tools=document.getElementById(toolsId);if(!select||!tools)return;
+  const item=(controlSchema.selects||[]).find(x=>x.key===key);if(!item)return;
+  const favorites=new Set((item.favorite_values||[]).map(v=>String(v)));
+  select.textContent='';
+  const optionGroups=new Map();
+  for(const opt of item.options||[]){let host=select;const group=String(opt.group||'');if(group){if(!optionGroups.has(group)){const og=document.createElement('optgroup');og.label=group;optionGroups.set(group,og);select.appendChild(og)}host=optionGroups.get(group)}const option=document.createElement('option');option.value=String(opt.value);option.dataset.rawLabel=String(opt.label);option.textContent=String(opt.label);host.appendChild(option)}
+  const favLabel=document.createElement('label');favLabel.className='choice-mark';favLabel.title='Save/remove the selected artwork-detail mode as a favorite';
+  const fav=document.createElement('input');fav.type='checkbox';const favText=document.createElement('span');favText.textContent='Fav';favLabel.append(fav,favText);
+  const defLabel=document.createElement('label');defLabel.className='choice-mark';defLabel.title='Make the selected artwork-detail mode the persistent default';
+  const def=document.createElement('input');def.type='radio';def.name='default-'+key;const defText=document.createElement('span');defText.textContent='Def';defLabel.append(def,defText);
+  const marks=document.createElement('div');marks.className='choice-marks-stack';marks.append(favLabel,defLabel);
+  const cycle=document.createElement('button');cycle.type='button';cycle.className='secondary-button favorite-cycle-button';cycle.textContent='♻️';
+  tools.replaceChildren(marks,cycle);
+  function rawLabelFor(value){const option=[...select.options].find(o=>String(o.value)===String(value));return option?(option.dataset.rawLabel||option.textContent||String(value)):String(value)}
+  function defaultLabel(){return rawLabelFor(item.default_value)}
+  function updateCycleTip(){const tip='Click to cycle forward through saved favorite '+channel+' artwork-detail modes. Right-click to cycle backward. Triple-click to restore to default mode of '+defaultLabel();cycle.dataset.tip=tip;cycle.setAttribute('aria-label',tip)}
+  function decorate(){for(const option of select.options){const raw=option.dataset.rawLabel||option.textContent||'';const isFav=favorites.has(String(option.value)),isDef=String(item.default_value??'')===String(option.value);option.textContent=(isFav?'⭐ ':'')+(isDef?'✨ ':'')+raw;option.style.fontWeight=isDef?'800':'400'}updateCycleTip()}
+  function sync(){fav.checked=favorites.has(String(select.value));def.checked=String(item.default_value??'')===String(select.value);decorate()}
+  async function saveMark(kind,value,enabled){const r=await fetch('/api/choice-mark',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind,key,value:Number(value),enabled})});if(!r.ok)throw new Error('save failed');return await r.json()}
+  function commit(value){select.value=String(value);action('web-set:'+key+':'+select.value);sync()}
+  select.onchange=()=>{action('web-set:'+key+':'+select.value);sync()};
+  fav.onchange=async()=>{const value=String(select.value),wanted=fav.checked;try{const data=await saveMark('favorite',value,wanted);favorites.clear();(data.favorite_values||[]).forEach(v=>favorites.add(String(v)));sync()}catch(e){fav.checked=!wanted;sync()}};
+  def.onclick=async event=>{const value=String(select.value);if(String(item.default_value??'')===value){def.checked=true;return}event.preventDefault();const raw=rawLabelFor(value);if(!confirm('Are you sure you want “'+raw+'” to be the default for '+channel+' artwork detail?')){sync();return}try{const data=await saveMark('default',value,true);item.default_value=Number(data.default_value);sync()}catch(e){sync()}};
+  function cycleFavorites(steps){const ordered=[...select.options].map(o=>String(o.value)).filter(v=>favorites.has(v));if(!ordered.length)return;const delta=Number(steps)||1,direction=delta<0?-1:1,count=Math.max(1,Math.abs(Math.trunc(delta)));let index=ordered.indexOf(String(select.value));if(index<0)index=direction>0?-1:0;for(let i=0;i<count;i++)index=(index+direction+ordered.length)%ordered.length;commit(ordered[index])}
+  function restoreDefault(){if(item.default_value===undefined||item.default_value===null)return;commit(item.default_value)}
+  let clickCount=0,clickTimer=null;
+  cycle.addEventListener('click',event=>{event.preventDefault();clickCount++;if(clickCount>=3){clearTimeout(clickTimer);clickTimer=null;clickCount=0;restoreDefault();return}clearTimeout(clickTimer);clickTimer=setTimeout(()=>{const count=clickCount;clickCount=0;cycleFavorites(count)},330)});
+  cycle.addEventListener('contextmenu',event=>{event.preventDefault();clearTimeout(clickTimer);clickTimer=null;clickCount=0;cycleFavorites(-1)});
+  select._pafSyncMarks=sync;cycle._pafRestoreDefault=restoreDefault;sync();
+}
+
 function sliderDisplayLabel(item,value){
   if(item.key==='visualizer_rows')return 'Visualizer Rows\n('+value+' rows)';
   if(item.key==='balance')return Number(value)===0?'Balance: Center':'Balance: '+Math.abs(Number(value))+'% '+(Number(value)<0?'Left':'Right');
@@ -31587,10 +33950,37 @@ function makeSlider(item){
 
 function makeToggle(item){
   const wrap=document.createElement('label');wrap.dataset.controlKey=item.key;wrap.className='toggle'+(item.experimental?' experimental':'')+(item.theme?' control-theme-'+item.theme:'');wrap.title=item.tooltip||item.label;
-  const input=document.createElement('input');input.type='checkbox';input.id='ctl-'+item.key;input.dataset.key=item.key;
+  const input=document.createElement('input');input.type='checkbox';input.id='ctl-'+item.key;input.dataset.key=item.key;if(item.default!==undefined)input.checked=!!item.default;
   input.onchange=()=>{const desired=item.invert?!input.checked:input.checked;item.web_key?action('web-set:'+item.web_key+':'+(desired?'1':'0')):action(item.action)};
   const text=document.createElement('span');text.textContent=item.label;
   wrap.append(input,text);return wrap;
+}
+
+function setControlApplicability(key,enabled){
+  const wrap=document.querySelector('[data-control-key="'+key+'"]');if(!wrap)return;
+  wrap.classList.toggle('control-inapplicable',!enabled);
+  for(const el of wrap.querySelectorAll('input,select,button'))el.disabled=!enabled;
+}
+function updateLayerSwitchText(id,enabled){const el=document.getElementById(id);if(el)el.textContent=enabled?'ON':'OFF'}
+function applyVisualizerLayerEnablement(){
+  const section=document.getElementById('visualizerSection'),master=document.getElementById('visualizerMasterToggle');
+  const bars=document.getElementById('ctl-visualizer_bars_enabled'),barArtwork=document.getElementById('ctl-art_color_bars'),background=document.getElementById('ctl-visualizer_background_artwork_enabled');
+  if(!section||!bars||!barArtwork||!background)return;
+  const masterOn=!master||!!master.checked,barsOn=masterOn&&!!bars.checked,barArtworkOn=barsOn&&!!barArtwork.checked,backgroundOn=masterOn&&!!background.checked,anyLayer=barsOn||backgroundOn;
+  updateLayerSwitchText('visualizerBarsState',!!bars.checked);updateLayerSwitchText('visualizerBarArtworkState',!!barArtwork.checked);updateLayerSwitchText('visualizerBackgroundArtworkState',!!background.checked);
+  const barArtworkCard=document.querySelector('[data-control-key="art_color_bars"]');barArtwork.disabled=!barsOn;if(barArtworkCard)barArtworkCard.classList.toggle('control-inapplicable',!barsOn);
+  const barKeys=['visualizer_type','visualizer_treatment','color_style','processing_style','persistence_mode','fade_style','color_reverse','frequency_warp_enabled'];
+  const barArtworkKeys=['art_color_bar_strength','art_color_bar_blend_mode','drcs_art_bar_microtile_mode'];
+  const backgroundKeys=['art_color_black_strength','drcs_art_microtile_mode'];
+  const commonKeys=['visualizer_granularity','visualizer_rows','truncate_visualizer_rows'];
+  for(const key of barKeys)setControlApplicability(key,barsOn);
+  for(const key of barArtworkKeys)setControlApplicability(key,barArtworkOn);
+  for(const key of backgroundKeys)setControlApplicability(key,backgroundOn);
+  for(const key of commonKeys)setControlApplicability(key,anyLayer);
+}
+function applyConsoleAlertsEnablement(){
+  const master=document.getElementById('ctl-console_alerts_enabled'),section=document.getElementById('consoleAlertsSection'),host=document.getElementById('consoleAlertsControls');if(!master||!section||!host)return;
+  const enabled=!!master.checked;section.classList.toggle('section-disabled',!enabled);for(const el of host.querySelectorAll('input,select,button'))el.disabled=!enabled;
 }
 
 function syncControls(s){
@@ -31613,24 +34003,35 @@ function syncControls(s){
   for(const item of controlSchema.toggles||[]){
     const el=document.getElementById('ctl-'+item.key);if(el && s[item.key]!==undefined){const wanted=item.invert?!s[item.key]:!!s[item.key];if(el.checked!==wanted)el.checked=wanted;}
   }
-  const microtileDisableBars=document.getElementById('microtileDisableBars'),microtileDisableBlackness=document.getElementById('microtileDisableBlackness');
-  if(microtileDisableBars && s.drcs_art_bar_microtiles!==undefined) microtileDisableBars.checked=!s.drcs_art_bar_microtiles;
-  if(microtileDisableBlackness && s.drcs_art_microtiles!==undefined) microtileDisableBlackness.checked=!s.drcs_art_microtiles;
+  for(const key of ['art_color_bars','art_color_blackness']){const mirror=document.getElementById('art-saturation-enabled-'+key);if(mirror&&s[key]!==undefined&&typeof mirror._pafSyncFromServer==='function')mirror._pafSyncFromServer(s[key]);}
+  const microtileBarsMode=document.getElementById('microtileBarsMode'),microtileBlacknessMode=document.getElementById('microtileBlacknessMode');
+  if(microtileBarsMode){const v=(s.drcs_art_bar_microtile_mode!==undefined)?s.drcs_art_bar_microtile_mode:(s.drcs_art_bar_microtiles?1:0);microtileBarsMode.value=String(v);if(typeof microtileBarsMode._pafSyncMarks==='function')microtileBarsMode._pafSyncMarks();}
+  if(microtileBlacknessMode){const v=(s.drcs_art_microtile_mode!==undefined)?s.drcs_art_microtile_mode:(s.drcs_art_microtiles?1:0);microtileBlacknessMode.value=String(v);if(typeof microtileBlacknessMode._pafSyncMarks==='function')microtileBlacknessMode._pafSyncMarks();}
   const visualizerMaster=document.getElementById('visualizerMasterToggle');
   const visualizerSection=document.getElementById('visualizerSection');
   if(visualizerMaster && s.drcs_enabled!==undefined) visualizerMaster.checked=!!s.drcs_enabled;
   if(visualizerSection && s.drcs_enabled!==undefined) visualizerSection.classList.toggle('visualizer-disabled',!s.drcs_enabled);
+  applyVisualizerLayerEnablement();
+  applyConsoleAlertsEnablement();
   const karaokeMaster=document.getElementById('karaokeMasterToggle'), karaokeSection=document.getElementById('karaokeSection');
   if(karaokeMaster && s.console_karaoke_enabled!==undefined) karaokeMaster.checked=!!s.console_karaoke_enabled;
   if(karaokeSection && s.console_karaoke_enabled!==undefined) karaokeSection.classList.toggle('section-disabled',!s.console_karaoke_enabled);
-  const popupMaster=document.getElementById('artworkPopupMasterToggle'),popupKaraoke=document.getElementById('artworkPopupKaraokeToggle'),popupConfig=document.getElementById('artworkPopupConfigButton');
+  const popupMaster=document.getElementById('artworkPopupMasterToggle'),popupKaraoke=document.getElementById('artworkPopupKaraokeToggle'),popupConfig=document.getElementById('artworkPopupConfigButton'),popupBringTop=document.getElementById('artworkPopupBringTopButton'),popupTopmost=document.getElementById('artworkPopupTopmostButton'),popupDecensor=document.getElementById('artworkPopupDecensorButton');
   if(popupMaster && s.external_album_art_enabled!==undefined) popupMaster.checked=!!s.external_album_art_enabled;
   const lyricMode=Number(s.lyrics_mode??0), artworkKaraoke=s.artwork_karaoke_enabled!==undefined ? !!s.artwork_karaoke_enabled : (lyricMode===0||lyricMode===2);
   if(popupKaraoke) { popupKaraoke.checked=artworkKaraoke; popupKaraoke.disabled=!!(popupMaster&&!popupMaster.checked); }
-  if(popupConfig) popupConfig.disabled=!!(popupMaster&&!popupMaster.checked);
-  const floatingMaster=document.getElementById('floatingLyricsMasterToggle'),floatingConfig=document.getElementById('floatingLyricsConfigButton');
+  const popupDisabled=!!(popupMaster&&!popupMaster.checked);
+  if(popupConfig) popupConfig.disabled=popupDisabled;
+  if(popupTopmost){const on=!!s.art_topmost;popupTopmost.classList.toggle('active-toggle',on);popupTopmost.setAttribute('aria-pressed',on?'true':'false');popupTopmost.disabled=popupDisabled;}
+  if(popupDecensor){const on=!!s.decensor_artwork_lyrics;popupDecensor.classList.toggle('active-toggle',on);popupDecensor.setAttribute('aria-pressed',on?'true':'false');popupDecensor.disabled=popupDisabled;}
+  if(popupBringTop) popupBringTop.disabled=false;
+  const floatingMaster=document.getElementById('floatingLyricsMasterToggle'),floatingConfig=document.getElementById('floatingLyricsConfigButton'),floatingBringTop=document.getElementById('floatingLyricsBringTopButton'),floatingTopmost=document.getElementById('floatingLyricsTopmostButton'),floatingDecensor=document.getElementById('floatingLyricsDecensorButton');
   if(floatingMaster && s.floating_lyrics_enabled!==undefined) floatingMaster.checked=!!s.floating_lyrics_enabled;
-  if(floatingConfig) floatingConfig.disabled=!!(floatingMaster&&!floatingMaster.checked);
+  const floatingDisabled=!!(floatingMaster&&!floatingMaster.checked);
+  if(floatingTopmost){const on=!!s.floating_topmost;floatingTopmost.classList.toggle('active-toggle',on);floatingTopmost.setAttribute('aria-pressed',on?'true':'false');floatingTopmost.disabled=floatingDisabled;}
+  if(floatingDecensor){const on=!!s.decensor_floating_lyrics;floatingDecensor.classList.toggle('active-toggle',on);floatingDecensor.setAttribute('aria-pressed',on?'true':'false');floatingDecensor.disabled=floatingDisabled;}
+  if(floatingConfig) floatingConfig.disabled=floatingDisabled;
+  if(floatingBringTop) floatingBringTop.disabled=false;
   const progressMaster=document.getElementById('progressMasterToggle'), progressSection=document.getElementById('progressSection');
   if(progressMaster && s.progress_bar_enabled!==undefined) progressMaster.checked=!!s.progress_bar_enabled;
   if(progressSection && s.progress_bar_enabled!==undefined) progressSection.classList.toggle('section-disabled',!s.progress_bar_enabled);
@@ -31714,7 +34115,7 @@ function slideControlFromInterval(seconds){
 function formatSlideSeconds(seconds){return (seconds<.1?seconds.toFixed(2):seconds<1?seconds.toFixed(2):seconds<10?seconds.toFixed(1):seconds.toFixed(0))+'s'}
 function setupOneArtSaturation(key,toggleKey,storagePrefix){
   const control=document.querySelector('[data-control-key="'+key+'"]');if(!control)return null;control.classList.add('art-saturation-card','control-theme-visualizer');
-  const main=document.getElementById('ctl-'+key);const enable=document.createElement('label');enable.className='art-saturation-enable';const enabled=document.createElement('input');enabled.type='checkbox';enabled.title='Turn album-art coloring for this region on/off';const toggleState=document.getElementById('ctl-'+toggleKey);enabled.checked=toggleState?toggleState.checked:true;enable.append(enabled,document.createTextNode('Art on'));
+  const main=document.getElementById('ctl-'+key);const enable=document.createElement('label');enable.className='art-saturation-enable';const enabled=document.createElement('input');enabled.type='checkbox';enabled.id='art-saturation-enabled-'+toggleKey;enabled.dataset.toggleKey=toggleKey;enabled.title='Turn album-art coloring for this region on/off';const toggleState=document.getElementById('ctl-'+toggleKey);enabled.checked=toggleState?toggleState.checked:true;enable.append(enabled,document.createTextNode('Art on'));
   const box=document.createElement('div');box.className='autoslide-box';box.title='Automatically sweep saturation smoothly inside PAFPlayer; the browser sends configuration only';const auto=document.createElement('input');auto.type='checkbox';auto.checked=webPrefBool(storagePrefix+'-enabled',false);box.append(auto,document.createTextNode('autoslide'));
   const range=document.createElement('div');range.className='autoslide-range';const dual=makeDualRange(range,storagePrefix,'0','100');const intervalLabel=document.createElement('span');intervalLabel.textContent='Slide interval';intervalLabel.title='Time for one complete min → max → min saturation cycle';const interval=document.createElement('input');interval.className='slide-interval';interval.type='range';interval.min='0';interval.max='1000';interval.step='1';let independentInterval=Math.max(.05,Math.min(60,Number(webPrefGet(storagePrefix+'-interval',4))));interval.value=String(slideControlFromInterval(independentInterval));const intervalValue=document.createElement('span');intervalValue.className='slide-value';range.append(intervalLabel,interval,intervalValue);box.append(range);control.append(enable,box);
   let sharedIntervalCallback=null,locked=false,sendTimer=null;
@@ -31724,8 +34125,9 @@ function setupOneArtSaturation(key,toggleKey,storagePrefix){
   function scheduleSend(immediate=false){if(sendTimer!==null)clearTimeout(sendTimer);if(immediate){sendConfig();return}sendTimer=setTimeout(sendConfig,90)}
   function syncInterval(){const seconds=slideIntervalFromControl(interval.value);if(locked&&sharedIntervalCallback){sharedIntervalCallback(seconds);return}showInterval(seconds);webPrefSet(storagePrefix+'-interval',independentInterval);scheduleSend()}
   interval.oninput=syncInterval;dual.onChange(()=>scheduleSend());showInterval(independentInterval);
-  function apply(){box.classList.toggle('enabled',auto.checked);main.style.display=auto.checked?'none':'';webPrefSet(storagePrefix+'-enabled',auto.checked?1:0);control.classList.toggle('art-saturation-disabled',!enabled.checked);action('web-set:'+toggleKey+':'+(enabled.checked?'1':'0'));scheduleSend(true)}
-  auto.onchange=apply;enabled.onchange=apply;apply();
+  function apply(sendToggle=true){box.classList.toggle('enabled',auto.checked);main.style.display=auto.checked?'none':'';webPrefSet(storagePrefix+'-enabled',auto.checked?1:0);control.classList.toggle('art-saturation-disabled',!enabled.checked);if(sendToggle)action('web-set:'+toggleKey+':'+(enabled.checked?'1':'0'));scheduleSend(true)}
+  enabled._pafSyncFromServer=value=>{const wanted=!!value;if(enabled.checked!==wanted)enabled.checked=wanted;control.classList.toggle('art-saturation-disabled',!enabled.checked)};
+  auto.onchange=()=>apply(true);enabled.onchange=()=>apply(true);apply(false);
   return {box,auto,independentInterval(){return independentInterval},setLocked(value){locked=!!value},setSharedInterval(seconds){showInterval(seconds);webPrefSet(storagePrefix+'-interval',independentInterval);scheduleSend()},setSharedIntervalCallback(fn){sharedIntervalCallback=fn},send(){scheduleSend(true)}};
 }
 function setupArtSaturationAutoslide(){
@@ -31928,17 +34330,23 @@ async function build(){
   const webKaraokeControls=document.getElementById('webKaraokeControls');for(const k of ['karaoke_style','karaoke_treatment']){const item=(controlSchema.selects||[]).find(x=>x.key===k);if(item)webKaraokeControls.appendChild(makeWebKaraokeSelect(k==='karaoke_style'?'style':'treatment',item))}
   const visualizer=document.getElementById('visualizerControls'), karaoke=document.getElementById('karaokeControls'), progress=document.getElementById('progressControls'), playback=document.getElementById('playbackControls'), consoleAlerts=document.getElementById('consoleAlertsControls'), experimentalSelects=document.getElementById('experimentalSelectControls');
   const visualizerMaster=document.getElementById('visualizerMasterToggle');
-  visualizerMaster.onchange=()=>action('drcs-visualizer-toggle');
+  visualizerMaster.onchange=()=>{action('drcs-visualizer-toggle');setTimeout(applyVisualizerLayerEnablement,0)};
+  const visualizerBarsSwitch=document.getElementById('ctl-visualizer_bars_enabled'),visualizerBarArtworkSwitch=document.getElementById('ctl-art_color_bars'),visualizerBackgroundArtworkSwitch=document.getElementById('ctl-visualizer_background_artwork_enabled');
+  visualizerBarsSwitch.onchange=()=>{applyVisualizerLayerEnablement();action('web-set:visualizer_bars_enabled:'+(visualizerBarsSwitch.checked?'1':'0'))};
+  visualizerBarArtworkSwitch.onchange=()=>{applyVisualizerLayerEnablement();const mirror=document.getElementById('art-saturation-enabled-art_color_bars');if(mirror&&typeof mirror._pafSyncFromServer==='function')mirror._pafSyncFromServer(visualizerBarArtworkSwitch.checked);action('web-set:art_color_bars:'+(visualizerBarArtworkSwitch.checked?'1':'0'))};
+  visualizerBackgroundArtworkSwitch.onchange=()=>{applyVisualizerLayerEnablement();action('web-set:visualizer_background_artwork_enabled:'+(visualizerBackgroundArtworkSwitch.checked?'1':'0'))};
+  const consoleAlertsMaster=document.getElementById('ctl-console_alerts_enabled');consoleAlertsMaster.onchange=()=>{applyConsoleAlertsEnablement();action('web-set:console_alerts_enabled:'+(consoleAlertsMaster.checked?'1':'0'))};
   const karaokeMaster=document.getElementById('karaokeMasterToggle');
   karaokeMaster.onchange=()=>action('web-set:console_karaoke_enabled:'+(karaokeMaster.checked?'1':'0'));
   const progressMaster=document.getElementById('progressMasterToggle');
   progressMaster.onchange=()=>action('web-set:progress_bar_enabled:'+(progressMaster.checked?'1':'0'));
   for(const item of [...(controlSchema.selects||[]),...(controlSchema.sliders||[])]){
+    if(item.custom_microtile)continue;
     let host=visualizer;
     if(item.key==='art_color_bar_blend_mode') host=visualizer;
     else if(item.key==='visualizer_granularity') host=experimentalSelects;
     else if(item.experimental) host=experimentalSelects;
-    else if(['output_device','output_rate','output_bit_depth','speed_index','output_channels','balance'].includes(item.key)) host=playback;
+    else if(['output_device','output_rate','output_bit_depth','speed_index','output_channels','balance','visualizer_input_source'].includes(item.key)) host=playback;
     else if(item.key.startsWith('karaoke')) host=karaoke;
     else if(item.key.includes('progress')) host=progress;
     const control=item.key==='output_device'?makeMultiOutputDeviceControl(item):(item.min===undefined?makeSelect(item):makeSlider(item));
@@ -31948,23 +34356,21 @@ async function build(){
       const rowsDefault=document.createElement('button');rowsDefault.className='secondary-button visualizer-height-default';rowsDefault.textContent='Default visualizer height';rowsDefault.onclick=()=>action('web-set:visualizer_rows:16');control.appendChild(rowsDefault);
     }
   }
-  const toggles=document.getElementById('toggleControls'), playbackToggles=document.getElementById('playbackToggles');
+  const playbackToggles=document.getElementById('playbackToggles');
   const experimental=document.getElementById('experimentalControls');
   (controlSchema.toggles||[]).forEach(item=>{
-    if(item.key==='drcs_enabled' || item.key==='art_color_blackness' || item.key==='art_color_bars' || item.key==='shuffle' || item.key==='loop') return;
+    if(['drcs_enabled','visualizer_bars_enabled','visualizer_background_artwork_enabled','console_alerts_enabled','art_color_blackness','art_color_bars','shuffle','loop'].includes(item.key)) return;
     const playbackKeys=['shuffle','loop','autoplay'];
     const karaokeKeys=['karaoke_emojimax','decensor_console_karaoke'];
     const webKaraokeKeys=['cursive_fix'];
-    const visualizerKeys=['color_reverse','frequency_warp_enabled'];
+    const visualizerKeys=['color_reverse','frequency_warp_enabled','karaoke_visualizer_expansion_enabled','console_visualizer_volume_feedback_enabled'];
     const progressKeys=['progress_beat_reactive'];
     const alertKeys=['alert_no_replaygain','alert_missing_artist','alert_missing_title','alert_missing_karaoke','alert_missing_lyrics','alert_missing_artwork','alert_unknown_year','alert_unknown_genre','alert_embedded_lyrics_mismatch'];
-    const brokenKeys=['sixel_enabled','album_art_visualizer_enabled','karaoke_visualizer_expansion_enabled'];
-    let target=toggles;
-    if(['external_album_art_enabled','floating_lyrics_enabled'].includes(item.key)) return;
+    const brokenKeys=['sixel_enabled','album_art_visualizer_enabled'];
+    let target=visualizer;
+    if(['external_album_art_enabled','floating_lyrics_enabled','decensor_artwork_lyrics','decensor_floating_lyrics'].includes(item.key)) return;
     if(brokenKeys.includes(item.key)) target=document.getElementById('brokenControls');
     else if(webKaraokeKeys.includes(item.key)) target=webKaraokeControls;
-    else if(item.key==='decensor_artwork_lyrics') target=document.getElementById('artworkPopupControls');
-    else if(item.key==='decensor_floating_lyrics') target=document.getElementById('floatingLyricsControls');
     else if(visualizerKeys.includes(item.key)) target=visualizer;
     else if(item.experimental) target=experimental;
     else if(item.key.startsWith('art_color_') || item.key==='drcs_enabled') target=visualizer;
@@ -31974,14 +34380,22 @@ async function build(){
     else if(karaokeKeys.includes(item.key)) target=karaoke;
     target.appendChild(makeToggle(item));
   });
-  const microtileDisableBars=document.getElementById('microtileDisableBars'),microtileDisableBlackness=document.getElementById('microtileDisableBlackness');
-  if(microtileDisableBars)microtileDisableBars.onchange=()=>action('web-set:drcs_art_bar_microtiles:'+(microtileDisableBars.checked?'0':'1'));
-  if(microtileDisableBlackness)microtileDisableBlackness.onchange=()=>action('web-set:drcs_art_microtiles:'+(microtileDisableBlackness.checked?'0':'1'));
+  setupMicrotileModeControl('microtileBarsMode','microtileBarsTools','drcs_art_bar_microtile_mode','Bars');
+  setupMicrotileModeControl('microtileBlacknessMode','microtileBlacknessTools','drcs_art_microtile_mode','Blackness');
   const popupMaster=document.getElementById('artworkPopupMasterToggle'),popupKaraoke=document.getElementById('artworkPopupKaraokeToggle'),floatingMaster=document.getElementById('floatingLyricsMasterToggle');
+  const popupBringTop=document.getElementById('artworkPopupBringTopButton'),popupTopmost=document.getElementById('artworkPopupTopmostButton'),popupConfig=document.getElementById('artworkPopupConfigButton'),popupDecensor=document.getElementById('artworkPopupDecensorButton');
+  const floatingBringTop=document.getElementById('floatingLyricsBringTopButton'),floatingTopmost=document.getElementById('floatingLyricsTopmostButton'),floatingConfig=document.getElementById('floatingLyricsConfigButton'),floatingDecensor=document.getElementById('floatingLyricsDecensorButton');
+  const pressed=button=>button&&button.getAttribute('aria-pressed')==='true';
+  const setPressed=(button,on)=>{if(!button)return;button.classList.toggle('active-toggle',!!on);button.setAttribute('aria-pressed',on?'true':'false')};
   if(popupMaster)popupMaster.onchange=()=>action('external-album-art-toggle');
   if(floatingMaster)floatingMaster.onchange=()=>action('floating-lyrics-toggle');
+  if(popupBringTop)popupBringTop.onclick=()=>action('external-album-art-foreground');
+  if(floatingBringTop)floatingBringTop.onclick=()=>action('external-floating-lyrics-foreground');
+  if(popupTopmost)popupTopmost.onclick=()=>{const on=!pressed(popupTopmost);setPressed(popupTopmost,on);action('web-set:art_topmost:'+(on?'1':'0'))};
+  if(floatingTopmost)floatingTopmost.onclick=()=>{const on=!pressed(floatingTopmost);setPressed(floatingTopmost,on);action('web-set:floating_topmost:'+(on?'1':'0'))};
+  if(popupDecensor)popupDecensor.onclick=()=>{const on=!pressed(popupDecensor);setPressed(popupDecensor,on);action('web-set:decensor_artwork_lyrics:'+(on?'1':'0'))};
+  if(floatingDecensor)floatingDecensor.onclick=()=>{const on=!pressed(floatingDecensor);setPressed(floatingDecensor,on);action('web-set:decensor_floating_lyrics:'+(on?'1':'0'))};
   if(popupKaraoke)popupKaraoke.onchange=()=>action('artwork-karaoke-toggle');
-  const popupConfig=document.getElementById('artworkPopupConfigButton'),floatingConfig=document.getElementById('floatingLyricsConfigButton');
   if(popupConfig)popupConfig.onclick=()=>action('artwork-karaoke-config');
   if(floatingConfig)floatingConfig.onclick=()=>action('floating-karaoke-config');
   // V247 progress layout: style/type is the leftmost control; the illumination
@@ -32001,7 +34415,7 @@ async function build(){
   if(progressTreatmentControl)progressTreatmentControl.after(progressDemo);else progress.appendChild(progressDemo);
   // Exact Playback layout: first-row toggles are already in playbackToggles;
   // second row is device, Output (kHz + bit depth), channels/Matrix, EXP, balance, speed.
-  for(const key of ['output_device','output_rate','output_bit_depth','output_channels']){
+  for(const key of ['output_device','output_rate','output_bit_depth','output_channels','visualizer_input_source']){
     const node=playback.querySelector('[data-control-key="'+key+'"]');if(node)playback.appendChild(node);
   }
   const rateControl=playback.querySelector('[data-control-key="output_rate"]'),depthControl=playback.querySelector('[data-control-key="output_bit_depth"]');
@@ -32011,6 +34425,7 @@ async function build(){
   for(const key of ['balance','speed_index']){const node=playback.querySelector('[data-control-key="'+key+'"]');if(node)playbackToggles.appendChild(node)}
   const rowsControl=visualizer.querySelector('[data-control-key="visualizer_rows"]'),truncateControl=visualizer.querySelector('[data-control-key="truncate_visualizer_rows"]');if(rowsControl&&truncateControl)rowsControl.after(truncateControl);
   setupArtSaturationAutoslide();
+  applyVisualizerLayerEnablement();applyConsoleAlertsEnablement();
   const transport=document.querySelector('.transport');
   for(const [index,[label,name,title]] of [['−','speed-down','Slower'],['1×','speed-reset','Normal speed'],['+','speed-up','Faster']].entries()){
     const button=document.createElement('button');button.className='wawi';button.textContent=label;button.title=title;
@@ -32072,6 +34487,9 @@ async function tick(){
   const pathText=t.path||'';
   if(pathHost.textContent!==pathText) pathHost.textContent=pathText;
   pathHost.onclick=pathText?()=>action('web-open-track-folder'):null;pathHost.style.cursor=pathText?'pointer':'default';
+  const notice=s.session_notice||{},noticeHost=document.getElementById('sessionNotice');
+  const noticeVisible=Boolean(notice.message)&&Number(notice.expires_at_epoch||0)>Date.now()/1000;
+  if(noticeHost){noticeHost.textContent=noticeVisible?String(notice.message):'';noticeHost.classList.toggle('visible',noticeVisible);noticeHost.classList.toggle('error',noticeVisible&&String(notice.level||'warning')==='error');}
   renderDetectedUrls(s.urls||[]);
   webClockSample={position:Number(s.position_seconds||0),duration:Number(s.duration_seconds||0),progress:Number(s.progress||0),speed:Number(s.speed||1),paused:!!s.paused,playing:!!s.playing,karaokeOffset:Number(s.karaoke_offset_seconds||0),at:performance.now()};
   if(!spectrumPaused) renderWebLyric(s.lyric||'');
@@ -32255,13 +34673,18 @@ class PAFWebServer:
             "output_device_label": "System default",
             "mm_inspired_renderer_enabled": False,
             "floating_lyrics_enabled": lyrics_mode_includes_floating(load_external_album_art_lyrics_mode()),
+            "art_topmost": load_external_album_art_topmost(),
+            "floating_topmost": load_external_floating_lyrics_topmost(),
             "art_color_demo": False,
             "drcs_enabled": True,
+            "visualizer_bars_enabled": True,
+            "visualizer_background_artwork_enabled": True,
             "console_visualizer_volume_feedback_enabled": True,
             "visualizer_input_source": DEFAULT_VISUALIZER_INPUT_SOURCE,
             "visualizer_input_status": "PAFPlayer audio",
             "web_visualizer_enabled": True,
             "console_karaoke_enabled": True,
+            "console_alerts_enabled": True,
             "decensor_console_karaoke": False,
             "decensor_artwork_lyrics": False,
             "decensor_floating_lyrics": False,
@@ -32281,12 +34704,15 @@ class PAFWebServer:
             "cursive_fix": False,
             "drcs_art_microtiles": True,
             "drcs_art_bar_microtiles": True,
+            "drcs_art_microtile_mode": ART_MICROTILE_DETAIL_MODE_DEFAULT,
+            "drcs_art_bar_microtile_mode": ART_MICROTILE_DETAIL_MODE_DEFAULT,
             "shuffle": False,
             "loop": False,
             "autoplay": False,
             "art_generation": 0,
             "art_count": 0,
             "art_popup_variant_index": 0,
+            "session_notice": {},
             "lastfm_profile_url": "",
             "server": {"host": self.host, "port": self.port},
             "sequence": 0,
@@ -33104,6 +35530,16 @@ class PAFWebServer:
             self._state["sequence"] = int(self._state.get("sequence", 0) or 0) + 1
             self._refresh_status_json_locked()
 
+    def publish_notice(
+        self, message: str, *, level: str = "warning", seconds: float = 5.0
+    ) -> None:
+        """Publish one expiring browser notice without adding work to spectrum polling."""
+        self.publish(session_notice={
+            "message": str(message).strip(),
+            "level": str(level or "warning"),
+            "expires_at_epoch": time.time() + max(0.0, float(seconds)),
+        })
+
     def finish_track(self, result: str) -> None:
         with self._lock:
             self._state["playing"] = False
@@ -33147,7 +35583,15 @@ class ExternalAlbumArtWindow:
         self._current_lyric_upstream_emojimax = False
         self._popup_emojimax_enabled = load_external_album_art_popup_emojimax()
         self._popup_color_emoji_enabled = load_external_album_art_popup_color_emoji()
+        self._floating_decensor_enabled = bool(load_player_settings().get("DecensorFloatingLyrics", 0))
+        self._runtime_setting_requests: queue.Queue[tuple[str, int]] = queue.Queue()
         self._current_lyric_progress = 0.0
+        self._current_lyric_progress_artwork = 0.0
+        # V374: the popup learns its own queue+layout+paint latency and advances
+        # only cue *selection* by that amount. Color/treatment animation still
+        # samples the unmodified canonical playback clock, so there is no phase drift.
+        self._artwork_karaoke_render_lead_seconds = ARTWORK_KARAOKE_INITIAL_RENDER_LEAD_SECONDS
+        self._artwork_karaoke_last_presentation_error_seconds = 0.0
         self._terminal_redraw_requested = threading.Event()
         self._color_configurator_active = threading.Event()
         self._color_configurator_target: str | None = None
@@ -33161,6 +35605,7 @@ class ExternalAlbumArtWindow:
         self._outer_rect_snapshot: tuple[int, int, int, int] | None = None
         self._native_rect_transient = False  # True only while idle/dance animation temporarily moves the HWND.
         self._playback_running = False  # V304: idle artwork may dance only while PAFPlayer audio is actually playing.
+        self._playback_position = 0.0  # V369 shared millisecond presentation clock for all GUI lyric color phases.
         # Capture the console/terminal while the playback owner still has focus.
         # Tk() itself can momentarily activate a new top-level before it is
         # withdrawn; using this pre-Tk HWND lets V173 restore the console after
@@ -33202,6 +35647,9 @@ class ExternalAlbumArtWindow:
 
     def _gui_thread_entry(self) -> None:
         """Contain every GUI-thread failure before Python can print to stderr."""
+        # Artwork/lyrics are presentation work; if CPU is saturated they should
+        # drop frames before the audio pump ever loses scheduling time.
+        lower_current_thread_priority()
         append_pafplayer_trace("art.gui.thread-start")
         try:
             self._gui_main()
@@ -33354,6 +35802,34 @@ class ExternalAlbumArtWindow:
         """Return the shared artwork/floating lyric destination mode."""
         return max(0, min(2, int(load_external_album_art_lyrics_mode() or 0)))
 
+    @property
+    def art_topmost(self) -> bool:
+        """Return the persistent artwork-window always-on-top choice."""
+        return bool(load_external_album_art_topmost())
+
+    def set_art_topmost(self, enabled: bool) -> bool:
+        """Persist/apply artwork topmost state from the web or other owners."""
+        value = bool(enabled)
+        save_external_album_art_topmost(value)
+        self._ensure_started()
+        self._commands.put(("set-art-topmost", value))
+        append_pafplayer_trace("lyrics.artwork.topmost-request", enabled=value)
+        return value
+
+    @property
+    def floating_topmost(self) -> bool:
+        """Return the persistent floating-lyrics always-on-top choice."""
+        return bool(load_external_floating_lyrics_topmost())
+
+    def set_floating_topmost(self, enabled: bool) -> bool:
+        """Persist/apply floating lyric topmost state from the web or other owners."""
+        value = bool(enabled)
+        save_external_floating_lyrics_topmost(value)
+        self._ensure_started()
+        self._commands.put(("set-floating-topmost", value))
+        append_pafplayer_trace("lyrics.floating.topmost-request", enabled=value)
+        return value
+
     def toggle_floating_lyrics(self) -> bool:
         """Toggle floating lyrics independently of artwork and return the expected new state."""
         with self._lock:
@@ -33388,16 +35864,85 @@ class ExternalAlbumArtWindow:
     def artwork_karaoke_enabled(self) -> bool:
         return load_external_album_art_karaoke_enabled()
 
+    def artwork_karaoke_render_lead_seconds(self) -> float:
+        """Return the learned cue-render lead used only by the artwork popup."""
+        with self._lock:
+            return float(self._artwork_karaoke_render_lead_seconds)
+
+    def _calibrate_artwork_karaoke_render_lead(self, target_position: float | None) -> None:
+        """Phase-lock popup cue completion to the canonical playback timestamp.
+
+        ``target_position`` is the source-playback instant at which the newly
+        painted lyric is supposed to become visible.  A positive error means Tk
+        finished late, so the next cue is submitted earlier; a negative error
+        means it finished early, so the lead shrinks.  Large startup/window-show
+        delays are ignored because they are not representative of steady-state
+        lyric painting.
+        """
+        if target_position is None:
+            return
+        try:
+            error = float(self.playback_position()) - float(target_position)
+        except (TypeError, ValueError):
+            return
+        if not math.isfinite(error) or abs(error) > ARTWORK_KARAOKE_CALIBRATION_OUTLIER_SECONDS:
+            return
+        with self._lock:
+            current = float(self._artwork_karaoke_render_lead_seconds)
+            corrected = current + float(ARTWORK_KARAOKE_RENDER_LEAD_ALPHA) * error
+            self._artwork_karaoke_render_lead_seconds = max(
+                0.0,
+                min(float(ARTWORK_KARAOKE_MAX_RENDER_LEAD_SECONDS), corrected),
+            )
+            self._artwork_karaoke_last_presentation_error_seconds = error
+        append_pafplayer_trace(
+            "lyrics.artwork.phase-lock",
+            target_position=round(float(target_position), 4),
+            playback_position=round(float(self.playback_position()), 4),
+            presentation_error_ms=round(error * 1000.0, 2),
+            learned_lead_ms=round(self.artwork_karaoke_render_lead_seconds() * 1000.0, 2),
+        )
+
     def update_lyric(
         self, lyric: str, emphasis_progress: float = 0.0, *, emojimax: bool = False,
         decensor_artwork: bool = False, decensor_floating: bool = False,
+        artwork_lyric_override: str | None = None,
+        artwork_progress_override: float | None = None,
+        artwork_target_position: float | None = None,
     ) -> None:
-        """Publish one cue to artwork/floating renderers with independent display-only de-censoring."""
+        """Publish one cue to artwork/floating renderers with independent display timing.
+
+        V374 lets the artwork surface receive the *next* cue a few milliseconds
+        before its timestamp, while floating/web/console continue consuming the
+        canonical current cue.  Only cue preparation is led; all animation phase
+        is still read from the shared playback clock.
+        """
         raw_source = str(lyric or "").strip()
-        artwork_source = decensor_lyric_line(raw_source, decensor_artwork)
-        floating_source = decensor_lyric_line(raw_source, decensor_floating)
+        artwork_raw_source = (
+            str(artwork_lyric_override or "").strip()
+            if artwork_lyric_override is not None
+            else raw_source
+        )
+        with self._lock:
+            # The owner-thread setting remains authoritative, while the floating
+            # title-bar checkbox is synchronized through the runtime request queue.
+            self._floating_decensor_enabled = bool(decensor_floating)
+            floating_decensor = bool(self._floating_decensor_enabled)
+        artwork_source = decensor_lyric_line(artwork_raw_source, decensor_artwork)
+        floating_source = decensor_lyric_line(raw_source, floating_decensor)
         upstream = bool(emojimax)
-        progress = max(0.0, min(1.0, float(emphasis_progress)))
+        floating_progress = max(0.0, min(1.0, float(emphasis_progress)))
+        artwork_progress = max(
+            0.0,
+            min(
+                1.0,
+                float(
+                    floating_progress
+                    if artwork_progress_override is None
+                    else artwork_progress_override
+                ),
+            ),
+        )
         with self._lock:
             if self._closed:
                 return
@@ -33405,14 +35950,26 @@ class ExternalAlbumArtWindow:
             popup_color = bool(self._popup_color_emoji_enabled)
             artwork_enabled = load_external_album_art_karaoke_enabled()
             use_emoji = bool(upstream and popup_emojimax)
-            text_inputs_changed = bool(
-                artwork_source != self._current_lyric_source_artwork
-                or floating_source != self._current_lyric_source_floating
-                or use_emoji != self._current_lyric_emojimax
+            transform_changed = bool(
+                use_emoji != self._current_lyric_emojimax
                 or upstream != self._current_lyric_upstream_emojimax
+            )
+            artwork_text_inputs_changed = bool(
+                artwork_source != self._current_lyric_source_artwork
+                or transform_changed
                 or (not artwork_enabled and bool(self._current_lyric_artwork))
             )
-            progress_changed = abs(progress - self._current_lyric_progress) >= 0.005
+            floating_text_inputs_changed = bool(
+                floating_source != self._current_lyric_source_floating
+                or transform_changed
+            )
+            text_inputs_changed = bool(
+                artwork_text_inputs_changed or floating_text_inputs_changed
+            )
+            progress_changed = bool(
+                abs(floating_progress - self._current_lyric_progress) >= 0.005
+                or abs(artwork_progress - self._current_lyric_progress_artwork) >= 0.005
+            )
             if not text_inputs_changed and not progress_changed:
                 return
             artwork_value = self._current_lyric_artwork
@@ -33427,12 +35984,18 @@ class ExternalAlbumArtWindow:
         artwork_solutions = floating_solutions = None
         if text_inputs_changed:
             monochrome_safe = not popup_color
+
             def styled(source: str) -> tuple[str, list[dict[str, str]]]:
                 value = stylize_karaoke_with_emojimax(
-                    source, 1, use_emoji, 1.0, force_emoji_when_enabled=True, monochrome_safe=monochrome_safe,
+                    source, 1, use_emoji, 1.0,
+                    force_emoji_when_enabled=True,
+                    monochrome_safe=monochrome_safe,
                 ) if source else ""
-                _plain, solutions = emojimax_plain_with_solutions(source, use_emoji, monochrome_safe=monochrome_safe)
+                _plain, solutions = emojimax_plain_with_solutions(
+                    source, use_emoji, monochrome_safe=monochrome_safe
+                )
                 return value, list(solutions or [])
+
             artwork_value, artwork_solutions = styled(artwork_source)
             if floating_source == artwork_source:
                 floating_value, floating_solutions = artwork_value, list(artwork_solutions)
@@ -33451,24 +36014,65 @@ class ExternalAlbumArtWindow:
                 self._current_lyric_source_floating = floating_source
                 self._current_lyric_emojimax = use_emoji
                 self._current_lyric_upstream_emojimax = upstream
-            self._current_lyric_progress = progress
+            self._current_lyric_progress = floating_progress
+            self._current_lyric_progress_artwork = artwork_progress
         if self._color_configurator_active.is_set() and self._color_configurator_target != "floating":
             return
         if self._thread is not None and self._thread.is_alive():
             if text_inputs_changed:
-                self._commands.put(("lyric", artwork_value, floating_value, progress, list(artwork_solutions or []), list(floating_solutions or [])))
-                append_pafplayer_trace("lyrics.cue", text=artwork_value[:500], length=len(artwork_value), emojimax=use_emoji)
+                self._commands.put((
+                    "lyric",
+                    artwork_value,
+                    floating_value,
+                    artwork_progress,
+                    floating_progress,
+                    list(artwork_solutions or []),
+                    list(floating_solutions or []),
+                    bool(artwork_text_inputs_changed),
+                    bool(floating_text_inputs_changed),
+                    artwork_target_position,
+                ))
+                append_pafplayer_trace(
+                    "lyrics.cue",
+                    text=artwork_value[:500],
+                    length=len(artwork_value),
+                    emojimax=use_emoji,
+                    artwork_target_position=artwork_target_position,
+                    artwork_render_lead_ms=round(self.artwork_karaoke_render_lead_seconds() * 1000.0, 2),
+                )
             else:
-                self._commands.put(("lyric-progress", progress))
+                self._commands.put(("lyric-progress", artwork_progress, floating_progress))
 
     def update_karaoke_frame(
         self, frame: KaraokeFrame, *, emojimax: bool = False,
         decensor_artwork: bool = False, decensor_floating: bool = False,
     ) -> None:
-        """Consume shared timing while allowing each Tk lyric surface its own text transform."""
+        """Phase-lock artwork cue completion while all surfaces share one song clock."""
+        artwork_text = frame.title_text
+        artwork_progress = frame.emphasis_progress
+        artwork_target_position = frame.active_start_position
+
+        # Rendering into a large Tk window has non-zero queue/layout/paint time.
+        # Predict the next cue only for the artwork popup so that the *completed*
+        # paint, rather than the request enqueue, lands on its canonical timestamp.
+        # The learned lead is continuously corrected from actual completion error.
+        next_start = frame.next_start_position
+        if frame.next_text and next_start is not None:
+            until_next = float(next_start) - float(frame.position)
+            if 0.0 < until_next <= self.artwork_karaoke_render_lead_seconds():
+                artwork_text = frame.next_text
+                artwork_progress = 0.0
+                artwork_target_position = float(next_start)
+
         self.update_lyric(
-            frame.title_text, frame.emphasis_progress, emojimax=emojimax,
-            decensor_artwork=decensor_artwork, decensor_floating=decensor_floating,
+            frame.title_text,
+            frame.emphasis_progress,
+            emojimax=emojimax,
+            decensor_artwork=decensor_artwork,
+            decensor_floating=decensor_floating,
+            artwork_lyric_override=artwork_text,
+            artwork_progress_override=artwork_progress,
+            artwork_target_position=artwork_target_position,
         )
 
     def consume_terminal_redraw_request(self) -> bool:
@@ -33478,10 +36082,34 @@ class ExternalAlbumArtWindow:
         self._terminal_redraw_requested.clear()
         return True
 
+    def pop_runtime_setting_request(self) -> tuple[str, int] | None:
+        """Return one floating-window setting change for the playback owner thread."""
+        try:
+            return self._runtime_setting_requests.get_nowait()
+        except queue.Empty:
+            return None
+
+    def set_floating_decensor_enabled(self, enabled: bool) -> None:
+        """Synchronize the floating-window de-censor checkbox from owner-thread settings."""
+        value = bool(enabled)
+        with self._lock:
+            self._floating_decensor_enabled = value
+        if self._thread is not None and self._thread.is_alive():
+            self._commands.put(("set-floating-decensor", value))
+
     def set_playback_running(self, running: bool) -> None:
         """Tell the artwork GUI whether music is actively advancing right now."""
         with self._lock:
             self._playback_running = bool(running)
+
+    def set_playback_position(self, position: float) -> None:
+        """Publish the owner's canonical millisecond song clock without queuing GUI work."""
+        with self._lock:
+            self._playback_position = max(0.0, float(position))
+
+    def playback_position(self) -> float:
+        with self._lock:
+            return float(self._playback_position)
 
     def start_idle_routine(self) -> bool:
         """Immediately start the idle-art dance from a focus-only player command.
@@ -33512,6 +36140,15 @@ class ExternalAlbumArtWindow:
             hwnd = int(self._native_hwnd or 0)
         origin_outer = windows_window_rect(hwnd)
         self._commands.put(("start-idle", avoid_rect, origin_outer))
+        return True
+
+    def bring_floating_to_foreground(self) -> bool:
+        """Show and raise floating lyrics without changing their saved topmost state."""
+        with self._lock:
+            if self._closed:
+                return False
+        self._ensure_started()
+        self._commands.put(("foreground-floating",))
         return True
 
     def bring_to_foreground(self) -> bool:
@@ -33673,8 +36310,15 @@ class ExternalAlbumArtWindow:
             "lyric_solutions_artwork": [],
             "lyric_solutions_floating": [],
             "lyric_progress": self._current_lyric_progress,
+            "lyric_progress_artwork": self._current_lyric_progress_artwork,
             "popup_emojimax_enabled": self._popup_emojimax_enabled,
             "popup_color_emoji_enabled": self._popup_color_emoji_enabled,
+            "floating_decensor_enabled": self._floating_decensor_enabled,
+            "floating_emojimax_var": None,
+            "floating_decensor_var": None,
+            "floating_titlebar": None,
+            "floating_title_label": None,
+            "floating_title_drag": None,
             "popup_emojimax_button": None,
             "popup_emoji_font_button": None,
             "lyrics_mode": load_external_album_art_lyrics_mode(),
@@ -33763,6 +36407,7 @@ class ExternalAlbumArtWindow:
             "art_fit_key": None,
             "window_active": False,
             "floating_window": None,
+            "floating_border_frame": None,
             "floating_canvas": None,
             "floating_glyph_boxes": [],
             "floating_solution_boxes": [],
@@ -33773,8 +36418,14 @@ class ExternalAlbumArtWindow:
             "floating_content_center": None,
             "floating_layout_size": load_external_floating_lyrics_layout_size(),
             "floating_justification": load_external_floating_lyrics_justification(),
+            "floating_autosize": load_external_floating_lyrics_autosize(),
+            "floating_font_scale": load_external_floating_lyrics_font_scale(),
+            "floating_last_font_size": None,
+            "floating_autosize_var": None,
+            "floating_autosize_check": None,
             "floating_resize_after": None,
             "floating_color_after": None,
+            "floating_animation_cost_ema_ms": 0.0,
             "floating_save_after": None,
             "floating_color_items": [],
             "floating_lyric_mask": None,
@@ -33787,10 +36438,14 @@ class ExternalAlbumArtWindow:
             "floating_hwnd": 0,
             "floating_edit_mode": False,
             "floating_focus_after": None,
+            "floating_focus_watch_after": None,
+            "floating_last_edit_focus_hwnd": 0,
             "art_topmost": load_external_album_art_topmost(),
             "floating_topmost": load_external_floating_lyrics_topmost(),
             "artwork_lyric_color_after": None,
             "artwork_lyric_color_items": [],
+            "artwork_lyric_native_items": [],
+            "artwork_lyric_native_mode": None,
             "artwork_lyric_plasma_item": None,
             "artwork_lyric_plasma_photo": None,
             "artwork_lyric_plasma_mask": None,
@@ -34222,65 +36877,117 @@ class ExternalAlbumArtWindow:
             )
 
         def build_floating_lyric_mask(width: int, height: int, lyric: str):
-            """Build one compact lyric image positioned inside a stable transparent window.
+            """Render one floating cue using either true fit-to-box or manual zoom.
 
-            V301 keeps the runtime window at the user's saved edit size instead of
-            resizing it around every cue.  Transparent pixels are already click-through,
-            so this removes DWM geometry flashes and makes left/center/right justification
-            mean the same thing while moving the window and while lyrics are live.
+            V366 exposes the old implicit auto-fit behavior as an explicit Autosize
+            checkbox.  Autosize now searches for the *largest* font that fits the
+            current cue, so short and long sung lines may legitimately use different
+            sizes.  When Autosize is off, Ctrl+wheel / Ctrl− / Ctrl+ adjust the
+            independently persisted manual scale.
             """
             from PIL import Image, ImageDraw  # type: ignore
-            width=max(1,int(width));height=max(1,int(height))
-            justification=str(state.get("floating_justification") or "center").casefold()
-            if justification not in {"left","center","right"}: justification="center"
-            horizontal_margin=max(8,round(width*0.025)); vertical_margin=max(6,round(height*0.04))
-            max_width=max(60,width-horizontal_margin*2); max_height=max(36,height-vertical_margin*2)
-            scratch=Image.new("L",(8,8),0); draw=ImageDraw.Draw(scratch); desired=max(18,min(160,round(height*0.36)))
-            chosen=None
-            for pixel_size in range(desired,15,-1):
-                font=resolve_artwork_pillow_font(pixel_size); emoji_font=resolve_artwork_pillow_emoji_font(pixel_size)
-                def measure(value: str) -> int: return max(0,int(round(_pillow_mixed_text_width(draw,value,font,emoji_font))))
-                lines=[]; current=""
+            width = max(1, int(width))
+            height = max(1, int(height))
+            justification = str(state.get("floating_justification") or "center").casefold()
+            if justification not in {"left", "center", "right"}:
+                justification = "center"
+            horizontal_margin = max(8, round(width * 0.025))
+            vertical_margin = max(6, round(height * 0.04))
+            max_width = max(60, width - horizontal_margin * 2)
+            max_height = max(36, height - vertical_margin * 2)
+            scratch = Image.new("L", (8, 8), 0)
+            draw = ImageDraw.Draw(scratch)
+
+            def layout_for_pixel_size(pixel_size: int):
+                pixel_size = max(8, min(360, int(pixel_size)))
+                font = resolve_artwork_pillow_font(pixel_size)
+                emoji_font = resolve_artwork_pillow_emoji_font(pixel_size)
+
+                def measure(value: str) -> int:
+                    return max(0, int(round(_pillow_mixed_text_width(draw, value, font, emoji_font))))
+
+                lines: list[str] = []
+                current = ""
                 for word in lyric.split():
-                    candidate=word if not current else current+" "+word
-                    if current and measure(candidate)>max_width: lines.append(current); current=word
-                    else: current=candidate
-                if current: lines.append(current)
-                if not lines: lines=[lyric]
-                widths=[measure(line) for line in lines]
-                _asc,_desc,mixed_height=_pillow_mixed_line_metrics(font,emoji_font)
-                line_height=max(mixed_height+2,max(1,int(round(pixel_size*1.22))))
-                tw=max(widths,default=1); th=line_height*len(lines)
-                shadow=max(0,round(pixel_size*karaoke_shadow_size("floating"))); pad=shadow+4
-                if tw+pad*2<=max_width and th+pad*2<=max_height:
-                    chosen=(font,emoji_font,lines,widths,line_height,shadow,pad,mixed_height); break
-            if chosen is None:
-                pixel_size=16; font=resolve_artwork_pillow_font(pixel_size); emoji_font=resolve_artwork_pillow_emoji_font(pixel_size)
-                lines=[lyric]; widths=[max(1,int(round(_pillow_mixed_text_width(draw,lyric,font,emoji_font))))]
-                _asc,_desc,mixed_height=_pillow_mixed_line_metrics(font,emoji_font)
-                chosen=(font,emoji_font,lines,widths,max(mixed_height+2,int(round(pixel_size*1.22))),max(0,round(pixel_size*karaoke_shadow_size("floating"))),5,mixed_height)
-            font,emoji_font,lines,widths,line_height,shadow,pad,mixed_height=chosen
-            crop_w=max(1,max(widths,default=1)+pad*2); crop_h=max(1,line_height*len(lines)+pad*2)
-            mask=Image.new("L",(crop_w,crop_h),0); mask_draw=ImageDraw.Draw(mask)
-            colored=bool(state.get("popup_color_emoji_enabled",False))
-            overlay=Image.new("RGBA",(crop_w,crop_h),(0,0,0,0)) if colored and emoji_font is not None else None
-            overlay_draw=ImageDraw.Draw(overlay) if overlay is not None else None
-            for line_index,line in enumerate(lines):
-                line_width=widths[line_index]
-                if justification=="left": x=float(pad)
-                elif justification=="right": x=float(crop_w-pad-line_width)
-                else: x=(crop_w-line_width)/2.0
-                y=pad+line_index*line_height+max(0,(line_height-mixed_height)//2)
-                _pillow_draw_mixed_line(mask_draw,(x,y),line,font,emoji_font,fill=255,draw_emoji=not colored)
+                    candidate = word if not current else current + " " + word
+                    if current and measure(candidate) > max_width:
+                        lines.append(current)
+                        current = word
+                    else:
+                        current = candidate
+                if current:
+                    lines.append(current)
+                if not lines:
+                    lines = [lyric]
+                widths = [measure(line) for line in lines]
+                _asc, _desc, mixed_height = _pillow_mixed_line_metrics(font, emoji_font)
+                line_height = max(mixed_height + 2, max(1, int(round(pixel_size * 1.22))))
+                text_width = max(widths, default=1)
+                text_height = line_height * len(lines)
+                shadow = max(0, round(pixel_size * karaoke_shadow_size("floating")))
+                pad = shadow + 4
+                fits = text_width + pad * 2 <= max_width and text_height + pad * 2 <= max_height
+                return (font, emoji_font, lines, widths, line_height, shadow, pad, mixed_height), fits
+
+            if bool(state.get("floating_autosize", True)):
+                # Fit is monotonic enough for a binary search and avoids loading
+                # hundreds of fonts on every cue/resize.  The upper bound is tied
+                # to the actual box height rather than V365's 160px cap.
+                low = 8
+                high = max(low, min(360, max_height))
+                chosen = None
+                while low <= high:
+                    candidate_size = (low + high) // 2
+                    candidate, fits = layout_for_pixel_size(candidate_size)
+                    if fits:
+                        chosen = candidate
+                        low = candidate_size + 1
+                    else:
+                        high = candidate_size - 1
+                if chosen is None:
+                    chosen, _fits = layout_for_pixel_size(8)
+            else:
+                scale = max(
+                    EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MIN,
+                    min(
+                        EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MAX,
+                        float(state.get("floating_font_scale", 1.0) or 1.0),
+                    ),
+                )
+                base_size = max(18, min(180, round(height * 0.36)))
+                chosen, _fits = layout_for_pixel_size(round(base_size * scale))
+
+            font, emoji_font, lines, widths, line_height, shadow, pad, mixed_height = chosen
+            state["floating_last_font_size"] = max(8, int(getattr(font, "size", line_height)))
+            crop_w = max(1, max(widths, default=1) + pad * 2)
+            crop_h = max(1, line_height * len(lines) + pad * 2)
+            mask = Image.new("L", (crop_w, crop_h), 0)
+            mask_draw = ImageDraw.Draw(mask)
+            colored = bool(state.get("popup_color_emoji_enabled", False))
+            overlay = Image.new("RGBA", (crop_w, crop_h), (0, 0, 0, 0)) if colored and emoji_font is not None else None
+            overlay_draw = ImageDraw.Draw(overlay) if overlay is not None else None
+            for line_index, line in enumerate(lines):
+                line_width = widths[line_index]
+                if justification == "left":
+                    x = float(pad)
+                elif justification == "right":
+                    x = float(crop_w - pad - line_width)
+                else:
+                    x = (crop_w - line_width) / 2.0
+                y = pad + line_index * line_height + max(0, (line_height - mixed_height) // 2)
+                _pillow_draw_mixed_line(mask_draw, (x, y), line, font, emoji_font, fill=255, draw_emoji=not colored)
                 if overlay_draw is not None:
-                    _pillow_draw_colored_emoji_runs(overlay_draw,(x,y),line,font,emoji_font)
-            text="\n".join(lines)
-            if justification=="left": origin_x=horizontal_margin
-            elif justification=="right": origin_x=max(horizontal_margin,width-horizontal_margin-crop_w)
-            else: origin_x=max(0,(width-crop_w)//2)
-            origin_y=max(0,(height-crop_h)//2)
-            origin=(int(origin_x),int(origin_y))
-            return mask,origin,int(shadow),text,font,overlay
+                    _pillow_draw_colored_emoji_runs(overlay_draw, (x, y), line, font, emoji_font)
+            text = "\n".join(lines)
+            if justification == "left":
+                origin_x = horizontal_margin
+            elif justification == "right":
+                origin_x = max(horizontal_margin, width - horizontal_margin - crop_w)
+            else:
+                origin_x = max(0, (width - crop_w) // 2)
+            origin_y = max(0, (height - crop_h) // 2)
+            origin = (int(origin_x), int(origin_y))
+            return mask, origin, int(shadow), text, font, overlay
 
         def ensure_floating_runtime_geometry(*, preserve_center: bool = True) -> None:
             """Keep the transparent runtime window at the saved typography size.
@@ -34362,6 +37069,7 @@ class ExternalAlbumArtWindow:
                 return
             if not bool(state.get("floating_edit_mode")):
                 ensure_floating_runtime_geometry()
+            render_started = time.perf_counter()
             try:
                 window.update_idletasks()
                 width = max(1, int(floating_canvas.winfo_width()))
@@ -34406,7 +37114,7 @@ class ExternalAlbumArtWindow:
                     fitted_text, fitted_font, origin, mask.size, state.get("lyric_solutions_floating") or state.get("lyric_solutions") or [],
                     justification=str(state.get("floating_justification") or "center"),
                 )
-                phase = (time.monotonic() / 2.7) * speed
+                phase = (self.playback_position() / 2.7) * speed
                 rgba = pattern_rgba_for_mask(
                     mask, shadow, phase, mode, palette_index,
                     emphasis_progress=emphasis_progress,
@@ -34436,11 +37144,28 @@ class ExternalAlbumArtWindow:
                 state["floating_glyph_boxes"] = [
                     (int(origin[0]), int(origin[1]), int(origin[0] + mask.size[0]), int(origin[1] + mask.size[1]))
                 ]
+                render_cost_ms = max(0.0, (time.perf_counter() - render_started) * 1000.0)
+                previous_cost = float(state.get("floating_animation_cost_ema_ms", 0.0) or 0.0)
+                state["floating_animation_cost_ema_ms"] = (
+                    render_cost_ms
+                    if previous_cost <= 0.0
+                    else previous_cost * 0.72 + render_cost_ms * 0.28
+                )
                 if reveal_after:
                     with contextlib.suppress(Exception):
                         window.attributes("-transparentcolor", EXTERNAL_ALBUM_ART_TRANSPARENT_KEY)
                         window.deiconify(); window.lift()
-                ensure_floating_color_animation()
+                # The cue has just been fully colored and uploaded.  Older builds
+                # immediately scheduled another full-size recolor at after(0),
+                # effectively doing the most expensive work twice at every cue.
+                ensure_floating_color_animation(
+                    delay_ms=floating_lyrics_animation_interval_ms(
+                        int(mask.size[0]) * int(mask.size[1]),
+                        float(state.get("floating_animation_cost_ema_ms", 0.0) or 0.0),
+                        playback_running=bool(self._playback_running),
+                        edit_mode=bool(state.get("floating_edit_mode")),
+                    )
+                )
             except Exception as exc:
                 record_pafplayer_runtime_warning(
                     f"Floating lyric renderer failed: {type(exc).__name__}: {exc}",
@@ -34448,7 +37173,7 @@ class ExternalAlbumArtWindow:
                 )
 
         def animate_floating_lyric_colors() -> None:
-            """Animate the floating lyric ImageTk layer using its independent saved style."""
+            """Animate floating lyric colors within a strict audio-safe CPU budget."""
             state["floating_color_after"] = None
             window = state.get("floating_window")
             floating_canvas = state.get("floating_canvas")
@@ -34462,9 +37187,27 @@ class ExternalAlbumArtWindow:
                 or floating_canvas is None
             ):
                 return
+            # Keep the already-rendered cue static while playback/analyzer startup
+            # is doing its heaviest work.  This mirrors the artwork-lyric policy
+            # and prevents floating animation from competing with audio startup.
+            if bool(self._playback_running) and not self._spectrum_ready_for_art_karaoke.is_set():
+                with contextlib.suppress(Exception):
+                    state["floating_color_after"] = window.after(260, animate_floating_lyric_colors)
+                return
             mask = state.get("floating_lyric_mask")
             item = state.get("floating_lyric_item")
             if mask is None or item is None:
+                return
+            pixel_area = int(mask.size[0]) * int(mask.size[1])
+            learned_cost_before_frame = float(state.get("floating_animation_cost_ema_ms", 0.0) or 0.0)
+            if not floating_lyrics_animation_is_safe(
+                pixel_area,
+                learned_cost_before_frame,
+                playback_running=bool(self._playback_running),
+            ):
+                # The cue itself remains fully rendered.  Only additional
+                # decorative recolors stop, releasing the GUI thread for
+                # playback, input, and track-transition work.
                 return
             if state.get("floating_drag") is not None:
                 # Preserve a stable client coordinate system while the pointer
@@ -34472,6 +37215,7 @@ class ExternalAlbumArtWindow:
                 with contextlib.suppress(Exception):
                     state["floating_color_after"] = window.after(100, animate_floating_lyric_colors)
                 return
+            animation_started = time.perf_counter()
             try:
                 from PIL import Image, ImageTk  # type: ignore
                 mode_index = karaoke_color_mode_index("floating")
@@ -34484,7 +37228,7 @@ class ExternalAlbumArtWindow:
                     if karaoke_timed_emphasis_enabled("floating", mode_index)
                     else None
                 )
-                phase = (time.monotonic() / 2.7) * speed
+                phase = (self.playback_position() / 2.7) * speed
                 shadow = max(0, int(state.get("floating_lyric_shadow", 0) or 0))
                 rgba = pattern_rgba_for_mask(
                     mask, shadow, phase, mode, palette_index,
@@ -34505,8 +37249,26 @@ class ExternalAlbumArtWindow:
                     "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
                 )
                 return
-            pixel_area = int(mask.size[0]) * int(mask.size[1])
-            animation_ms = 90 if pixel_area < 180_000 else (140 if pixel_area < 500_000 else 220)
+            render_cost_ms = max(0.0, (time.perf_counter() - animation_started) * 1000.0)
+            previous_cost = float(state.get("floating_animation_cost_ema_ms", 0.0) or 0.0)
+            learned_cost = render_cost_ms if previous_cost <= 0.0 else previous_cost * 0.72 + render_cost_ms * 0.28
+            state["floating_animation_cost_ema_ms"] = learned_cost
+            editor_active = False
+            if bool(state.get("floating_edit_mode")):
+                # Keep the historical editor backoff explicit: the opaque,
+                # resizable editor may do geometry/paint work of its own.
+                editor_active = True
+                animation_ms = 200
+            else:
+                animation_ms = 110
+            animation_ms = max(
+                animation_ms,
+                floating_lyrics_animation_interval_ms(
+                    pixel_area, learned_cost,
+                    playback_running=bool(self._playback_running),
+                    edit_mode=editor_active,
+                ),
+            )
             with contextlib.suppress(Exception):
                 state["floating_color_after"] = window.after(animation_ms, animate_floating_lyric_colors)
 
@@ -34518,16 +37280,38 @@ class ExternalAlbumArtWindow:
             if prior is not None:
                 with contextlib.suppress(Exception):
                     window.after_cancel(prior)
-            state["floating_resize_after"] = window.after(40, render_floating_lyric)
+            pixel_area = 1
+            with contextlib.suppress(Exception):
+                pixel_area = max(1, int(window.winfo_width())) * max(1, int(window.winfo_height()))
+            state["floating_resize_after"] = window.after(
+                floating_lyrics_render_debounce_ms(pixel_area),
+                render_floating_lyric,
+            )
 
-        def ensure_floating_color_animation() -> None:
+        def ensure_floating_color_animation(*, delay_ms: int | None = None) -> None:
             window = state.get("floating_window")
             if window is None or state.get("floating_color_after") is not None:
                 return
             if karaoke_color_mode_name("floating") == "solid" and not karaoke_timed_emphasis_enabled("floating"):
                 return
+            mask = state.get("floating_lyric_mask")
+            pixel_area = (int(mask.size[0]) * int(mask.size[1])) if mask is not None else 1
+            learned_cost = float(state.get("floating_animation_cost_ema_ms", 0.0) or 0.0)
+            if not floating_lyrics_animation_is_safe(
+                pixel_area,
+                learned_cost,
+                playback_running=bool(self._playback_running),
+            ):
+                return
+            if delay_ms is None:
+                delay_ms = floating_lyrics_animation_interval_ms(
+                    pixel_area,
+                    learned_cost,
+                    playback_running=bool(self._playback_running),
+                    edit_mode=bool(state.get("floating_edit_mode")),
+                )
             with contextlib.suppress(Exception):
-                state["floating_color_after"] = window.after(0, animate_floating_lyric_colors)
+                state["floating_color_after"] = window.after(max(40, int(delay_ms)), animate_floating_lyric_colors)
 
         def install_floating_hit_test(window) -> None:
             """Make transparent pixels mouse-transparent without losing glyph dragging.
@@ -34692,67 +37476,161 @@ class ExternalAlbumArtWindow:
                 window.geometry(f"{width}x{height}{new_x:+d}{new_y:+d}")
 
         def set_floating_edit_mode(enabled: bool) -> None:
-            """Expose ordinary window chrome while a floating lyric is being manipulated."""
+            """Show focus-only edit chrome without moving or resizing the lyric window.
+
+            V368 preserves the exact outer rectangle while focus chrome is added
+            or removed.  V367 could expand around the center as focus arrived,
+            so a bottom-edge grab could make the top edge jump upward before the
+            drag started.  Also never force focus from this generic FocusIn path:
+            child controls can otherwise create a focus/render feedback loop.
+            """
             window = state.get("floating_window")
             floating_canvas = state.get("floating_canvas")
+            border_frame = state.get("floating_border_frame")
+            titlebar = state.get("floating_titlebar")
             if window is None or floating_canvas is None:
                 return
             enabled = bool(enabled)
-            if enabled == bool(state.get("floating_edit_mode")):
+            was_enabled = bool(state.get("floating_edit_mode"))
+
+            # Child FocusIn events are common while using title-bar controls.
+            # If the mode already matches, do no geometry work and no rerender.
+            if enabled == was_enabled:
+                if enabled:
+                    schedule_floating_focus_watch()
                 return
-            if not enabled:
-                # Native caption/frame resizing does not emit our canvas's
-                # ButtonRelease event. Capture the final client rectangle here,
-                # before overrideredirect collapses it, so both font fitting and
-                # compact-window placement honor what the user just drew.
+
+            if not enabled and was_enabled:
                 geometry = _parse_external_album_art_geometry(floating_current_geometry())
                 if geometry is not None:
                     width, height, x, y = geometry
                     state["floating_layout_size"] = (width, height)
                     save_external_floating_lyrics_layout_size(width, height)
-                    state["floating_content_center"] = (
-                        x + width / 2.0,
-                        y + height / 2.0,
-                    )
-            if not enabled:
-                # Hide for the tiny native-chrome transition rather than letting DWM
-                # expose an un-keyed black client rectangle for a frame.
-                with contextlib.suppress(Exception): window.withdraw()
-            state["floating_edit_mode"] = enabled
-            if enabled:
-                expand_floating_window_for_edit()
-            with contextlib.suppress(Exception):
-                window.overrideredirect(not enabled)
-            with contextlib.suppress(Exception):
-                floating_canvas.configure(
-                    background=EXTERNAL_ALBUM_ART_TRANSPARENT_KEY,
-                    highlightthickness=2 if enabled else 0,
-                    highlightbackground="#73b8ff",
-                )
-                window.attributes("-transparentcolor", EXTERNAL_ALBUM_ART_TRANSPARENT_KEY)
-            if enabled:
+                    state["floating_content_center"] = (x + width / 2.0, y + height / 2.0)
+                # Hide during the chroma-key switch so no opaque stale pixels
+                # can survive the transition back to lyric-only runtime mode.
                 with contextlib.suppress(Exception):
-                    window.deiconify(); window.lift(); window.focus_force()
+                    window.withdraw()
+
+            state["floating_edit_mode"] = enabled
+            with contextlib.suppress(Exception):
+                window.overrideredirect(True)
+
+            if enabled:
+                dpi = widget_dpi(window)
+                border = max(
+                    6,
+                    round(
+                        EXTERNAL_FLOATING_LYRICS_EDIT_BORDER_PIXELS
+                        * float(dpi) / EXTERNAL_ALBUM_ART_BASE_DPI
+                    ),
+                )
+                with contextlib.suppress(Exception):
+                    window.attributes("-transparentcolor", "")
+                    window.attributes("-alpha", 1.0)
+                    window.configure(background=EXTERNAL_FLOATING_LYRICS_EDIT_BACKGROUND)
+                    if border_frame is not None:
+                        border_frame.configure(
+                            background=EXTERNAL_FLOATING_LYRICS_EDIT_BACKGROUND,
+                            highlightthickness=border,
+                            highlightbackground="#73b8ff",
+                            highlightcolor="#b9dcff",
+                            borderwidth=0,
+                        )
+                    floating_canvas.configure(
+                        background=EXTERNAL_FLOATING_LYRICS_EDIT_BACKGROUND,
+                        highlightthickness=0,
+                        borderwidth=0,
+                    )
+                if titlebar is not None:
+                    with contextlib.suppress(Exception):
+                        if not titlebar.winfo_manager():
+                            titlebar.pack(side="top", fill="x", before=floating_canvas)
+                        titlebar.lift()
+                for key, value in (
+                    ("floating_autosize_var", bool(state.get("floating_autosize", True))),
+                    ("floating_emojimax_var", bool(state.get("popup_emojimax_enabled", True))),
+                    ("floating_decensor_var", bool(state.get("floating_decensor_enabled", False))),
+                ):
+                    variable = state.get(key)
+                    if variable is not None:
+                        with contextlib.suppress(Exception):
+                            variable.set(value)
+                with contextlib.suppress(Exception):
+                    window.deiconify()
+                    window.lift()
                 schedule_floating_render()
+                schedule_floating_focus_watch()
             else:
-                # Render while hidden, then reveal the completed transparent frame.
+                cancel_floating_focus_watch()
+                if titlebar is not None:
+                    with contextlib.suppress(Exception):
+                        titlebar.pack_forget()
+                with contextlib.suppress(Exception):
+                    window.configure(background=EXTERNAL_ALBUM_ART_TRANSPARENT_KEY)
+                    if border_frame is not None:
+                        border_frame.configure(
+                            background=EXTERNAL_ALBUM_ART_TRANSPARENT_KEY,
+                            highlightthickness=0,
+                            borderwidth=0,
+                        )
+                    floating_canvas.configure(
+                        background=EXTERNAL_ALBUM_ART_TRANSPARENT_KEY,
+                        highlightthickness=0,
+                        borderwidth=0,
+                    )
+                    window.attributes("-transparentcolor", EXTERNAL_ALBUM_ART_TRANSPARENT_KEY)
+                # Repaint hidden, then reveal only the non-keyed lyric pixels.
                 render_floating_lyric(reveal_after=True)
 
-        def restore_floating_transparency_if_unfocused() -> None:
-            state["floating_focus_after"] = None
+        def floating_window_is_foreground() -> bool:
             window = state.get("floating_window")
-            if window is None or not bool(state.get("floating_edit_mode")):
-                return
-            active = False
+            if window is None:
+                return False
             if os.name == "nt":
                 with contextlib.suppress(Exception):
                     import ctypes
                     hwnd = widget_root_hwnd(window)
-                    active = bool(hwnd and int(ctypes.windll.user32.GetForegroundWindow() or 0) == int(hwnd))
-            else:
+                    state["floating_last_edit_focus_hwnd"] = int(hwnd or 0)
+                    return bool(hwnd and int(ctypes.windll.user32.GetForegroundWindow() or 0) == int(hwnd))
+            with contextlib.suppress(Exception):
+                return window.focus_displayof() is not None
+            return False
+
+        def cancel_floating_focus_watch() -> None:
+            window = state.get("floating_window")
+            after_id = state.get("floating_focus_watch_after")
+            if window is not None and after_id is not None:
                 with contextlib.suppress(Exception):
-                    active = window.focus_displayof() is not None
-            if not active:
+                    window.after_cancel(after_id)
+            state["floating_focus_watch_after"] = None
+
+        def floating_focus_watch() -> None:
+            """Fail-safe focus watcher active only while opaque edit chrome is shown."""
+            state["floating_focus_watch_after"] = None
+            window = state.get("floating_window")
+            if window is None or not bool(state.get("floating_edit_mode")):
+                return
+            if not floating_window_is_foreground():
+                set_floating_edit_mode(False)
+                return
+            with contextlib.suppress(Exception):
+                state["floating_focus_watch_after"] = window.after(120, floating_focus_watch)
+
+        def schedule_floating_focus_watch(delay_ms: int = 120) -> None:
+            window = state.get("floating_window")
+            if window is None or not bool(state.get("floating_edit_mode")):
+                return
+            if state.get("floating_focus_watch_after") is not None:
+                return
+            with contextlib.suppress(Exception):
+                state["floating_focus_watch_after"] = window.after(max(20, int(delay_ms)), floating_focus_watch)
+
+        def restore_floating_transparency_if_unfocused() -> None:
+            state["floating_focus_after"] = None
+            if not bool(state.get("floating_edit_mode")):
+                return
+            if not floating_window_is_foreground():
                 set_floating_edit_mode(False)
 
         def floating_focus_out(_event=None) -> None:
@@ -34763,13 +37641,15 @@ class ExternalAlbumArtWindow:
             if prior is not None:
                 with contextlib.suppress(Exception):
                     window.after_cancel(prior)
+            # Let focus move between controls in this same toplevel, then verify.
+            # The independent foreground watcher catches missed Tk FocusOut events.
             with contextlib.suppress(Exception):
-                state["floating_focus_after"] = window.after(100, restore_floating_transparency_if_unfocused)
+                state["floating_focus_after"] = window.after(35, restore_floating_transparency_if_unfocused)
 
         def floating_mouse_press(event) -> None:
             set_floating_edit_mode(True)
-            # Toggling native chrome changes Tk's client origin.  Rebase after
-            # that transition so dx/dy always describes the physical mouse.
+            # Rebase after edit chrome becomes visible so dx/dy always describes
+            # the physical mouse against the current outer rectangle.
             window = state.get("floating_window")
             if window is not None:
                 with contextlib.suppress(Exception):
@@ -34781,14 +37661,19 @@ class ExternalAlbumArtWindow:
             dpi = widget_dpi(state.get("floating_window"))
             edge = max(12, round(18 * dpi / EXTERNAL_ALBUM_ART_BASE_DPI))
             edges = ""
-            if ctrl_is_down():
-                if int(event.x) <= edge:
+            # V366: the thick opaque edit border is itself a resize target.
+            # Ctrl remains accepted for the old transparent-window workflow,
+            # but is no longer required once edit chrome is visible.
+            if ctrl_is_down() or bool(state.get("floating_edit_mode")):
+                local_x = int(event.x_root) - int(x)
+                local_y = int(event.y_root) - int(y)
+                if local_x <= edge:
                     edges += "l"
-                elif int(event.x) >= width - edge:
+                elif local_x >= width - edge:
                     edges += "r"
-                if int(event.y) <= edge:
+                if local_y <= edge:
                     edges += "t"
-                elif int(event.y) >= height - edge:
+                elif local_y >= height - edge:
                     edges += "b"
             state["floating_drag"] = {
                 "edges": edges,
@@ -34864,6 +37749,86 @@ class ExternalAlbumArtWindow:
                     if enabled:
                         window.lift()
 
+        def capture_floating_font_as_manual_scale() -> float:
+            """Translate the currently fitted font into the manual-scale coordinate system."""
+            current = float(state.get("floating_font_scale", 1.0) or 1.0)
+            canvas_widget = state.get("floating_canvas")
+            if canvas_widget is None:
+                return current
+            try:
+                height = max(1, int(canvas_widget.winfo_height()))
+            except Exception:
+                return current
+            base_size = max(18, min(180, round(height * 0.36)))
+            last_size = state.get("floating_last_font_size")
+            try:
+                if last_size is not None and base_size > 0:
+                    current = float(last_size) / float(base_size)
+            except (TypeError, ValueError, ZeroDivisionError):
+                pass
+            return max(
+                EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MIN,
+                min(EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MAX, current),
+            )
+
+        def apply_floating_autosize_setting(enabled: bool) -> None:
+            enabled = bool(enabled)
+            if not enabled and bool(state.get("floating_autosize", True)):
+                # Turning Autosize off should start from the exact size the user
+                # was already looking at, not jump back to an arbitrary default.
+                state["floating_font_scale"] = capture_floating_font_as_manual_scale()
+                save_external_floating_lyrics_font_scale(float(state["floating_font_scale"]))
+            state["floating_autosize"] = enabled
+            save_external_floating_lyrics_autosize(enabled)
+            variable = state.get("floating_autosize_var")
+            if variable is not None:
+                with contextlib.suppress(Exception):
+                    variable.set(enabled)
+            schedule_floating_render()
+
+        def adjust_floating_lyric_zoom(direction: int, *, disable_autosize: bool = False) -> str:
+            """Adjust manual floating text size without fighting Autosize.
+
+            Ctrl+wheel / Ctrl− / Ctrl+ are active only while Autosize is off, as
+            requested.  The explicit title-bar −/+ buttons may take manual control
+            by switching Autosize off first.
+            """
+            if bool(state.get("floating_autosize", True)):
+                if not disable_autosize:
+                    return "break"
+                state["floating_font_scale"] = capture_floating_font_as_manual_scale()
+                state["floating_autosize"] = False
+                save_external_floating_lyrics_autosize(False)
+                variable = state.get("floating_autosize_var")
+                if variable is not None:
+                    with contextlib.suppress(Exception):
+                        variable.set(False)
+            current = float(state.get("floating_font_scale", 1.0) or 1.0)
+            next_scale = current + (
+                EXTERNAL_FLOATING_LYRICS_FONT_SCALE_STEP * (1 if direction > 0 else -1)
+            )
+            next_scale = max(
+                EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MIN,
+                min(EXTERNAL_FLOATING_LYRICS_FONT_SCALE_MAX, next_scale),
+            )
+            if not math.isclose(next_scale, current, abs_tol=1e-9):
+                state["floating_font_scale"] = next_scale
+                save_external_floating_lyrics_font_scale(next_scale)
+            set_floating_edit_mode(True)
+            schedule_floating_render()
+            return "break"
+
+        def floating_zoom_mousewheel(event) -> str | None:
+            delta = int(getattr(event, "delta", 0) or 0)
+            if delta == 0:
+                return None
+            return adjust_floating_lyric_zoom(1 if delta > 0 else -1)
+
+        def floating_zoom_key(direction: int):
+            def handler(_event=None) -> str:
+                return adjust_floating_lyric_zoom(direction)
+            return handler
+
         def reveal_floating_lyrics_window() -> None:
             """Make the enabled floating lyric window visible and raise it."""
             if not lyrics_mode_includes_floating(int(state.get("lyrics_mode", 0) or 0)):
@@ -34882,8 +37847,35 @@ class ExternalAlbumArtWindow:
                     )
                 # An explicit “make appear” request should produce a visible, selectable
                 # editing window even when the current lyric is empty or compact.
+                # Focus once here, never from the generic FocusIn path.
                 set_floating_edit_mode(True)
+                with contextlib.suppress(Exception):
+                    window.focus_force()
             schedule_floating_render()
+        def raise_floating_without_permanent_topmost() -> None:
+            """Bring floating lyrics to the top without stealing focus or changing the saved pin."""
+            current_mode = max(0, min(2, int(state.get("lyrics_mode", 0) or 0)))
+            if not lyrics_mode_includes_floating(current_mode):
+                new_mode = 2 if lyrics_mode_includes_artwork(current_mode) else 1
+                state["lyrics_mode"] = new_mode
+                save_external_album_art_lyrics_mode(new_mode)
+                apply_lyrics_mode()
+            ensure_floating_lyrics_window()
+            window = state.get("floating_window")
+            if window is not None:
+                with contextlib.suppress(Exception):
+                    window.deiconify()
+                    window.lift()
+                    window.attributes("-topmost", True)
+                    window.after(
+                        120,
+                        lambda: window.attributes(
+                            "-topmost", bool(state.get("floating_topmost", True))
+                        ),
+                    )
+            schedule_floating_render()
+            ensure_floating_color_animation()
+
             ensure_floating_color_animation()
 
         lyric_tip={"window":None,"label":None,"owner":None,"answer":None}
@@ -34943,17 +37935,102 @@ class ExternalAlbumArtWindow:
             floating.withdraw()
             floating.title("PAFPlayer Floating Lyrics")
             floating.overrideredirect(True)
-            transparent = "#010203"
+            transparent = EXTERNAL_ALBUM_ART_TRANSPARENT_KEY
             floating.configure(background=transparent)
             with contextlib.suppress(Exception):
                 floating.attributes("-transparentcolor", transparent)
             with contextlib.suppress(Exception):
                 floating.attributes("-topmost", bool(state.get("floating_topmost", True)))
-            # Borderless operation is content-sized (down to one transparent
-            # pixel); Ctrl-resizing is available only while edit chrome is up.
             floating.minsize(1, 1)
-            floating_canvas = tk.Canvas(
+
+            # One outer frame owns the edit border.  Both the custom title strip
+            # and lyric canvas live inside it, so all four edges are thick/grabbable.
+            floating_border_frame = tk.Frame(
                 floating,
+                background=transparent,
+                highlightthickness=0,
+                borderwidth=0,
+            )
+            floating_border_frame.pack(fill="both", expand=True)
+
+            floating_titlebar = tk.Frame(
+                floating_border_frame,
+                background=EXTERNAL_FLOATING_LYRICS_EDIT_BACKGROUND,
+                borderwidth=0,
+                highlightthickness=0,
+            )
+            floating_title_label = tk.Label(
+                floating_titlebar,
+                text="Floating Lyrics",
+                background=EXTERNAL_FLOATING_LYRICS_EDIT_BACKGROUND,
+                foreground="#d8ebff",
+                font=("Segoe UI", 9, "bold"),
+                padx=6,
+                pady=2,
+                takefocus=False,
+            )
+            floating_title_label.pack(side="left", padx=(2, 5))
+
+            floating_autosize_var = tk.BooleanVar(value=bool(state.get("floating_autosize", True)))
+            floating_emojimax_var = tk.BooleanVar(value=bool(state.get("popup_emojimax_enabled", True)))
+            floating_decensor_var = tk.BooleanVar(value=bool(state.get("floating_decensor_enabled", False)))
+
+            def title_checkbutton(text: str, variable, command):
+                control = tk.Checkbutton(
+                    floating_titlebar,
+                    text=text,
+                    variable=variable,
+                    command=command,
+                    background=EXTERNAL_FLOATING_LYRICS_EDIT_BACKGROUND,
+                    foreground="#f4f8ff",
+                    activebackground=EXTERNAL_FLOATING_LYRICS_EDIT_BACKGROUND,
+                    activeforeground="#ffffff",
+                    selectcolor="#1c3650",
+                    highlightthickness=0,
+                    borderwidth=0,
+                    padx=3,
+                    pady=1,
+                    takefocus=True,
+                )
+                control.pack(side="right", padx=1, pady=2)
+                return control
+
+            configure_button = tk.Button(
+                floating_titlebar, text="Configure", padx=5, pady=1, relief="raised",
+                borderwidth=1, font=("Segoe UI", 8), takefocus=False,
+                command=lambda: show_floating_karaoke_color_configurator(),
+            )
+            configure_button.pack(side="right", padx=(3, 4), pady=2)
+            floating_autosize_check = title_checkbutton(
+                "Autosize",
+                floating_autosize_var,
+                lambda: apply_floating_autosize_setting(bool(floating_autosize_var.get())),
+            )
+            floating_decensor_check = title_checkbutton(
+                "De-censor",
+                floating_decensor_var,
+                lambda: apply_floating_decensor_setting(bool(floating_decensor_var.get())),
+            )
+            floating_emojimax_check = title_checkbutton(
+                "EmojiMaxx",
+                floating_emojimax_var,
+                lambda: apply_popup_emojimax_setting(bool(floating_emojimax_var.get())),
+            )
+            zoom_plus_button = tk.Button(
+                floating_titlebar, text="+", width=2, padx=1, pady=0, relief="raised",
+                borderwidth=1, font=("Segoe UI", 9, "bold"), takefocus=False,
+                command=lambda: adjust_floating_lyric_zoom(1, disable_autosize=True),
+            )
+            zoom_plus_button.pack(side="right", padx=(2, 0), pady=2)
+            zoom_minus_button = tk.Button(
+                floating_titlebar, text="−", width=2, padx=1, pady=0, relief="raised",
+                borderwidth=1, font=("Segoe UI", 9, "bold"), takefocus=False,
+                command=lambda: adjust_floating_lyric_zoom(-1, disable_autosize=True),
+            )
+            zoom_minus_button.pack(side="right", padx=(3, 0), pady=2)
+
+            floating_canvas = tk.Canvas(
+                floating_border_frame,
                 background=transparent,
                 highlightthickness=0,
                 borderwidth=0,
@@ -34967,11 +38044,61 @@ class ExternalAlbumArtWindow:
                 geometry = f"{saved_width}x{saved_height}{saved_position[0]:+d}{saved_position[1]:+d}"
             floating.geometry(geometry)
             state["floating_window"] = floating
+            state["floating_border_frame"] = floating_border_frame
             state["floating_canvas"] = floating_canvas
+            state["floating_titlebar"] = floating_titlebar
+            state["floating_title_label"] = floating_title_label
+            state["floating_autosize_var"] = floating_autosize_var
+            state["floating_autosize_check"] = floating_autosize_check
+            state["floating_emojimax_var"] = floating_emojimax_var
+            state["floating_decensor_var"] = floating_decensor_var
 
+            def floating_title_press(event) -> None:
+                geometry_now = _parse_external_album_art_geometry(floating_current_geometry())
+                if geometry_now is None:
+                    return
+                state["floating_title_drag"] = {
+                    "geometry": geometry_now,
+                    "screen": (int(event.x_root), int(event.y_root)),
+                }
+
+            def floating_title_drag(event) -> None:
+                drag = state.get("floating_title_drag")
+                if not isinstance(drag, dict):
+                    return
+                geometry_now = drag.get("geometry")
+                start_screen = drag.get("screen")
+                if not isinstance(geometry_now, tuple) or not isinstance(start_screen, tuple):
+                    return
+                width, height, x, y = (int(value) for value in geometry_now)
+                x += int(event.x_root) - int(start_screen[0])
+                y += int(event.y_root) - int(start_screen[1])
+                with contextlib.suppress(Exception):
+                    floating.geometry(f"{width}x{height}{x:+d}{y:+d}")
+
+            def floating_title_release(_event=None) -> None:
+                state["floating_title_drag"] = None
+                save_floating_geometry_now()
+
+            for drag_widget in (floating_titlebar, floating_title_label):
+                drag_widget.bind("<ButtonPress-1>", floating_title_press)
+                drag_widget.bind("<B1-Motion>", floating_title_drag)
+                drag_widget.bind("<ButtonRelease-1>", floating_title_release)
+
+            # Clicking the lyric makes the full editor visible; the outer highlight
+            # itself receives the same resize gesture so every border is grabbable.
             floating_canvas.bind("<ButtonPress-1>", floating_mouse_press)
             floating_canvas.bind("<B1-Motion>", floating_mouse_drag)
             floating_canvas.bind("<ButtonRelease-1>", floating_mouse_release)
+            floating_border_frame.bind("<ButtonPress-1>", floating_mouse_press)
+            floating_border_frame.bind("<B1-Motion>", floating_mouse_drag)
+            floating_border_frame.bind("<ButtonRelease-1>", floating_mouse_release)
+            floating_canvas.bind("<Control-MouseWheel>", floating_zoom_mousewheel, add="+")
+            floating.bind("<Control-MouseWheel>", floating_zoom_mousewheel, add="+")
+            for sequence in ("<Control-minus>", "<Control-KP_Subtract>"):
+                floating.bind(sequence, floating_zoom_key(-1), add="+")
+            for sequence in ("<Control-plus>", "<Control-equal>", "<Control-KP_Add>"):
+                floating.bind(sequence, floating_zoom_key(1), add="+")
             floating_canvas.bind("<Motion>", lambda event: lyric_solution_motion(floating_canvas,state.get("floating_solution_boxes"),event), add="+")
             floating_canvas.bind("<Leave>", hide_lyric_solution_tooltip, add="+")
 
@@ -34985,6 +38112,11 @@ class ExternalAlbumArtWindow:
                 label="Always on top",
                 variable=topmost_choice,
                 command=apply_floating_topmost,
+            )
+            floating_menu.add_checkbutton(
+                label="Autosize",
+                variable=floating_autosize_var,
+                command=lambda: apply_floating_autosize_setting(bool(floating_autosize_var.get())),
             )
 
             def set_exact_floating_position() -> None:
@@ -35028,6 +38160,7 @@ class ExternalAlbumArtWindow:
                     schedule_floating_render()
 
             floating.bind("<Configure>", floating_configure)
+            floating.bind("<FocusIn>", lambda _event=None: set_floating_edit_mode(True), add="+")
             floating.bind("<FocusOut>", floating_focus_out, add="+")
             floating.update_idletasks()
             ensure_floating_runtime_geometry()
@@ -35104,6 +38237,8 @@ class ExternalAlbumArtWindow:
                         root.after_cancel(art_after)
                 state["artwork_lyric_color_after"] = None
                 state["artwork_lyric_color_items"] = []
+                state["artwork_lyric_native_items"] = []
+                state["artwork_lyric_native_mode"] = None
                 state["artwork_lyric_plasma_item"] = None
                 state["artwork_lyric_plasma_photo"] = None
                 state["artwork_lyric_plasma_mask"] = None
@@ -35117,6 +38252,8 @@ class ExternalAlbumArtWindow:
             state["lyrics_mode"] = (max(0, min(2, int(state.get("lyrics_mode", 0) or 0))) + 1) % 3
             save_external_album_art_lyrics_mode(int(state["lyrics_mode"]))
             apply_lyrics_mode()
+            if lyrics_mode_includes_floating(int(state.get("lyrics_mode", 0) or 0)):
+                set_floating_edit_mode(True)
 
         def normalize_karaoke_target(target: str) -> str:
             return "floating" if str(target).casefold().startswith("float") else "artwork"
@@ -35621,27 +38758,54 @@ class ExternalAlbumArtWindow:
             with contextlib.suppress(Exception): redraw_artwork_lyric_layer()
 
         def sync_popup_emoji_buttons() -> None:
+            enabled = bool(state.get("popup_emojimax_enabled", True))
             button = state.get("popup_emojimax_button")
             if button is not None:
                 with contextlib.suppress(Exception):
-                    button.configure(text="EMX✓" if state.get("popup_emojimax_enabled", True) else "EMX×")
+                    button.configure(text="EMX✓" if enabled else "EMX×")
+            variable = state.get("floating_emojimax_var")
+            if variable is not None:
+                with contextlib.suppress(Exception):
+                    variable.set(enabled)
             button = state.get("popup_emoji_font_button")
             if button is not None:
                 with contextlib.suppress(Exception):
                     button.configure(text="🙂C" if state.get("popup_color_emoji_enabled", False) else "🙂M")
 
-        def toggle_popup_emojimax() -> None:
-            enabled = not bool(state.get("popup_emojimax_enabled", True))
+        def apply_popup_emojimax_setting(enabled: bool) -> None:
+            """Set EmojiMaxx explicitly so popup buttons and floating checkbox agree."""
+            enabled = bool(enabled)
             state["popup_emojimax_enabled"] = enabled
             save_external_album_art_popup_emojimax(enabled)
             sync_popup_emoji_buttons()
             _restyle_popup_current_lyric()
+
+        def toggle_popup_emojimax() -> None:
+            apply_popup_emojimax_setting(not bool(state.get("popup_emojimax_enabled", True)))
 
         def toggle_popup_emoji_font() -> None:
             enabled = not bool(state.get("popup_color_emoji_enabled", False))
             state["popup_color_emoji_enabled"] = enabled
             save_external_album_art_popup_color_emoji(enabled)
             sync_popup_emoji_buttons()
+            _restyle_popup_current_lyric()
+
+        def apply_floating_decensor_setting(enabled: bool, *, request_owner: bool = True) -> None:
+            """Apply floating-only de-censoring immediately and synchronize the owner thread."""
+            enabled = bool(enabled)
+            state["floating_decensor_enabled"] = enabled
+            with self._lock:
+                self._floating_decensor_enabled = enabled
+                raw_source = self._current_lyric_source
+                self._current_lyric_source_floating = decensor_lyric_line(raw_source, enabled)
+            save_player_setting_value("DecensorFloatingLyrics", int(enabled))
+            variable = state.get("floating_decensor_var")
+            if variable is not None:
+                with contextlib.suppress(Exception):
+                    variable.set(enabled)
+            if request_owner:
+                with contextlib.suppress(Exception):
+                    self._runtime_setting_requests.put_nowait(("decensor_floating_lyrics", int(enabled)))
             _restyle_popup_current_lyric()
 
         def ensure_titlebar_lyrics_button() -> None:
@@ -35997,7 +39161,13 @@ class ExternalAlbumArtWindow:
             return karaoke_color_mode_label("artwork")
 
         def fit_artwork_lyric_tk_layout(width: int, height: int, lyric: str):
-            """Return a never-clipped Tk lyric layout honoring the user's zoom preference."""
+            """Return a never-clipped Tk lyric layout with logarithmic font fitting.
+
+            V371 walked every font size downward.  On a 4K popup that can mean
+            hundreds of Tk font creations/measure passes exactly when a new cue
+            arrives.  Fit is monotonic enough for a largest-fitting binary search,
+            cutting the hot path to roughly log2(N) candidate sizes.
+            """
             import tkinter.font as tkfont
             border = int(state.get("border_pixels", 5) or 5)
             scale = float(state.get("lyric_font_scale", 1.0) or 1.0)
@@ -36009,9 +39179,8 @@ class ExternalAlbumArtWindow:
             desired_size = max(12, min(260, round(min(width, height) * 0.085 * scale)))
             words = lyric.split()
 
-            chosen = None
-            for font_size in range(desired_size, 9, -1):
-                font = tkfont.Font(root=root, family="Segoe UI", size=font_size, weight="bold")
+            def candidate(font_size: int):
+                font = tkfont.Font(root=root, family="Segoe UI", size=int(font_size), weight="bold")
                 lines: list[str] = []
                 current = ""
                 for word in words:
@@ -36025,14 +39194,28 @@ class ExternalAlbumArtWindow:
                     lines.append(current)
                 if not lines:
                     lines = [lyric]
-                if max((font.measure(line) for line in lines), default=0) > max_width:
-                    continue
+                widths = [font.measure(line) for line in lines]
+                if max(widths, default=0) > max_width:
+                    return None
                 line_height = max(1, int(font.metrics("linespace")))
                 shadow = max(1, round(font_size / 20))
                 total_height = line_height * len(lines) + shadow * 2 + 4
-                if total_height <= max_height or font_size <= 10:
-                    chosen = (font, font_size, lines, line_height, shadow, safe_x, safe_y)
-                    break
+                if total_height > max_height and font_size > 10:
+                    return None
+                return font, int(font_size), lines, line_height, shadow, safe_x, safe_y
+
+            low, high = 10, desired_size
+            chosen = None
+            while low <= high:
+                mid = (low + high) // 2
+                attempt = candidate(mid)
+                if attempt is not None:
+                    chosen = attempt
+                    low = mid + 1
+                else:
+                    high = mid - 1
+            if chosen is None:
+                chosen = candidate(10)
             if chosen is None:
                 font = tkfont.Font(root=root, family="Segoe UI", size=10, weight="bold")
                 chosen = (font, 10, [lyric], max(1, int(font.metrics("linespace"))), 1, safe_x, safe_y)
@@ -36057,6 +39240,7 @@ class ExternalAlbumArtWindow:
                 "safe_y": safe_y,
             }
 
+        @lru_cache(maxsize=384)
         def resolve_artwork_pillow_font(pixel_size: int):
             """Resolve a bold UI font for per-pixel plasma text, with portable fallbacks."""
             from PIL import ImageFont  # type: ignore
@@ -37342,10 +40526,12 @@ class ExternalAlbumArtWindow:
                     latest_artwork_lyric = self._current_lyric_artwork
                     latest_floating_lyric = self._current_lyric_floating
                     latest_progress = self._current_lyric_progress
+                    latest_artwork_progress = self._current_lyric_progress_artwork
                 state["lyric"] = latest_lyric
                 state["lyric_artwork"] = latest_artwork_lyric
                 state["lyric_floating"] = latest_floating_lyric
                 state["lyric_progress"] = latest_progress
+                state["lyric_progress_artwork"] = latest_artwork_progress
                 with contextlib.suppress(Exception):
                     config.destroy()
                 mode = int(state.get("lyrics_mode", 0) or 0)
@@ -37373,44 +40559,103 @@ class ExternalAlbumArtWindow:
             show_karaoke_color_configurator("floating")
 
         def build_artwork_plasma_mask(width: int, height: int, lyric: str):
-            """Create fitted over-art mask with explicit emoji font/color overlay."""
+            """Create a fitted over-art mask with logarithmic fitting and cached fonts."""
             from PIL import Image, ImageDraw  # type: ignore
-            scale=max(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MIN,min(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MAX,float(state.get("lyric_font_scale",1.0) or 1.0)))
-            dpi=max(72,widget_dpi(root)); border=int(state.get("border_pixels",5) or 5); safe_x=max(12,border*3); safe_y=max(10,border*2)
-            max_width=max(40,width-safe_x*2); max_height=max(24,height-safe_y*2)
-            desired_points=max(12,min(260,round(min(width,height)*0.085*scale))); desired_pixels=max(12,round(desired_points*dpi/72.0))
-            scratch=Image.new("L",(8,8),0); draw=ImageDraw.Draw(scratch); chosen=None
-            for pixel_size in range(desired_pixels,9,-1):
-                font=resolve_artwork_pillow_font(pixel_size); emoji_font=resolve_artwork_pillow_emoji_font(pixel_size)
-                def measure(value: str) -> int: return max(0,int(round(_pillow_mixed_text_width(draw,value,font,emoji_font))))
-                lines=[]; current=""
-                for word in lyric.split():
-                    proposed=word if not current else current+" "+word
-                    if current and measure(proposed)>max_width: lines.append(current); current=word
-                    else: current=proposed
-                if current: lines.append(current)
-                if not lines: lines=[lyric]
-                widths=[measure(line) for line in lines]; line_height=max(1,int(round(pixel_size*1.22)))
-                text_w=max(widths,default=1); text_h=line_height*len(lines); shadow=max(0,round(pixel_size*karaoke_shadow_size("artwork"))); padding=shadow+4
-                if text_w+padding*2<=max_width and text_h+padding*2<=max_height:
-                    chosen=(font,emoji_font,lines,widths,line_height,shadow,padding); break
+            scale = max(
+                EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MIN,
+                min(EXTERNAL_ALBUM_ART_LYRIC_FONT_SCALE_MAX, float(state.get("lyric_font_scale", 1.0) or 1.0)),
+            )
+            dpi = max(72, widget_dpi(root))
+            border = int(state.get("border_pixels", 5) or 5)
+            safe_x = max(12, border * 3)
+            safe_y = max(10, border * 2)
+            max_width = max(40, width - safe_x * 2)
+            max_height = max(24, height - safe_y * 2)
+            desired_points = max(12, min(260, round(min(width, height) * 0.085 * scale)))
+            desired_pixels = max(12, round(desired_points * dpi / 72.0))
+            scratch = Image.new("L", (8, 8), 0)
+            draw = ImageDraw.Draw(scratch)
+            words = lyric.split()
+
+            def candidate(pixel_size: int):
+                font = resolve_artwork_pillow_font(pixel_size)
+                emoji_font = resolve_artwork_pillow_emoji_font(pixel_size)
+
+                def measure(value: str) -> int:
+                    return max(0, int(round(_pillow_mixed_text_width(draw, value, font, emoji_font))))
+
+                lines: list[str] = []
+                current = ""
+                for word in words:
+                    proposed = word if not current else current + " " + word
+                    if current and measure(proposed) > max_width:
+                        lines.append(current)
+                        current = word
+                    else:
+                        current = proposed
+                if current:
+                    lines.append(current)
+                if not lines:
+                    lines = [lyric]
+                widths = [measure(line) for line in lines]
+                line_height = max(1, int(round(pixel_size * 1.22)))
+                text_w = max(widths, default=1)
+                text_h = line_height * len(lines)
+                shadow = max(0, round(pixel_size * karaoke_shadow_size("artwork")))
+                padding = shadow + 4
+                if text_w + padding * 2 > max_width or text_h + padding * 2 > max_height:
+                    return None
+                return font, emoji_font, lines, widths, line_height, shadow, padding
+
+            # V372: a 4K window can produce a 300+ px desired font.  Walking
+            # every size downward repeatedly opened/measured fonts and was the
+            # largest cue-change spike.  Search for the largest fitting size in
+            # O(log N) candidates instead.
+            low, high = 10, desired_pixels
+            chosen = None
+            while low <= high:
+                mid = (low + high) // 2
+                attempt = candidate(mid)
+                if attempt is not None:
+                    chosen = attempt
+                    low = mid + 1
+                else:
+                    high = mid - 1
             if chosen is None:
-                pixel_size=10; font=resolve_artwork_pillow_font(pixel_size); emoji_font=resolve_artwork_pillow_emoji_font(pixel_size); lines=[lyric]
-                widths=[max(1,int(round(_pillow_mixed_text_width(draw,lyric,font,emoji_font))))]
-                chosen=(font,emoji_font,lines,widths,max(1,int(round(pixel_size*1.22))),max(0,round(pixel_size*karaoke_shadow_size("artwork"))),5)
-            font,emoji_font,lines,widths,line_height,shadow,padding=chosen
-            crop_w=max(1,max(widths,default=1)+padding*2); crop_h=max(1,line_height*len(lines)+padding*2)
-            mask=Image.new("L",(crop_w,crop_h),0); mask_draw=ImageDraw.Draw(mask); colored=bool(state.get("popup_color_emoji_enabled",False))
-            overlay=Image.new("RGBA",(crop_w,crop_h),(0,0,0,0)) if colored and emoji_font is not None else None; overlay_draw=ImageDraw.Draw(overlay) if overlay is not None else None
-            for line_index,line in enumerate(lines):
-                x=(crop_w-widths[line_index])/2.0; y=padding+line_index*line_height
-                _pillow_draw_mixed_line(mask_draw,(x,y),line,font,emoji_font,fill=255,draw_emoji=not colored)
+                pixel_size = 10
+                font = resolve_artwork_pillow_font(pixel_size)
+                emoji_font = resolve_artwork_pillow_emoji_font(pixel_size)
+                lines = [lyric]
+                widths = [max(1, int(round(_pillow_mixed_text_width(draw, lyric, font, emoji_font))))]
+                chosen = (
+                    font,
+                    emoji_font,
+                    lines,
+                    widths,
+                    max(1, int(round(pixel_size * 1.22))),
+                    max(0, round(pixel_size * karaoke_shadow_size("artwork"))),
+                    5,
+                )
+            font, emoji_font, lines, widths, line_height, shadow, padding = chosen
+            crop_w = max(1, max(widths, default=1) + padding * 2)
+            crop_h = max(1, line_height * len(lines) + padding * 2)
+            mask = Image.new("L", (crop_w, crop_h), 0)
+            mask_draw = ImageDraw.Draw(mask)
+            colored = bool(state.get("popup_color_emoji_enabled", False))
+            overlay = Image.new("RGBA", (crop_w, crop_h), (0, 0, 0, 0)) if colored and emoji_font is not None else None
+            overlay_draw = ImageDraw.Draw(overlay) if overlay is not None else None
+            for line_index, line in enumerate(lines):
+                x = (crop_w - widths[line_index]) / 2.0
+                y = padding + line_index * line_height
+                _pillow_draw_mixed_line(mask_draw, (x, y), line, font, emoji_font, fill=255, draw_emoji=not colored)
                 if overlay_draw is not None:
-                    _pillow_draw_colored_emoji_runs(overlay_draw,(x,y),line,font,emoji_font)
-            preferred_center_y=round(height*0.78); origin_x=max(safe_x,min(width-safe_x-crop_w,width//2-crop_w//2))
-            if width-safe_x-crop_w<safe_x: origin_x=max(0,(width-crop_w)//2)
-            origin_y=max(safe_y,min(max(safe_y,height-safe_y-crop_h),preferred_center_y-crop_h//2))
-            return mask,(int(origin_x),int(origin_y)),int(shadow),"\\n".join(lines),font,overlay
+                    _pillow_draw_colored_emoji_runs(overlay_draw, (x, y), line, font, emoji_font)
+            preferred_center_y = round(height * 0.78)
+            origin_x = max(safe_x, min(width - safe_x - crop_w, width // 2 - crop_w // 2))
+            if width - safe_x - crop_w < safe_x:
+                origin_x = max(0, (width - crop_w) // 2)
+            origin_y = max(safe_y, min(max(safe_y, height - safe_y - crop_h), preferred_center_y - crop_h // 2))
+            return mask, (int(origin_x), int(origin_y)), int(shadow), "\n".join(lines), font, overlay
 
         def pattern_rgba_for_mask(
             mask,
@@ -37449,11 +40694,12 @@ class ExternalAlbumArtWindow:
                     if isinstance(cached_runs, tuple) and len(cached_runs) == 2 and cached_runs[0] is mask:
                         runs = cached_runs[1]
                     else:
-                        bbox = mask.getbbox()
-                        active_columns = []
-                        for x in range(width):
-                            column_box = (x, bbox[1], x + 1, bbox[3]) if bbox else (x, 0, x + 1, height)
-                            active_columns.append(bool(mask.crop(column_box).getbbox()))
+                        # Pillow computes this projection in native code.  The
+                        # former Python loop created and scanned one cropped
+                        # image per column, which became punishing at large
+                        # floating-lyric scales.
+                        horizontal_projection, _vertical_projection = mask.getprojection()
+                        active_columns = [bool(value) for value in horizontal_projection]
                         runs = []
                         start: int | None = None
                         for x, active in enumerate(active_columns + [False]):
@@ -37638,9 +40884,149 @@ class ExternalAlbumArtWindow:
             """Compatibility wrapper retained for older regression contracts."""
             return pattern_rgba_for_mask(mask, shadow, phase, "plasma", artwork_karaoke_palette_index())
 
+        def _tone_native_artwork_rgb(
+            rgb: tuple[int, int, int], brightness: float, saturation: float,
+        ) -> tuple[int, int, int]:
+            """Cheap per-glyph approximation of Pillow Color+Brightness transforms."""
+            red, green, blue = (float(value) for value in rgb)
+            gray = 0.299 * red + 0.587 * green + 0.114 * blue
+            sat = max(KARAOKE_SATURATION_MIN, min(KARAOKE_SATURATION_MAX, float(saturation)))
+            bright = max(KARAOKE_BRIGHTNESS_MIN, min(KARAOKE_BRIGHTNESS_MAX, float(brightness)))
+            values = (
+                (gray + (red - gray) * sat) * bright,
+                (gray + (green - gray) * sat) * bright,
+                (gray + (blue - gray) * sat) * bright,
+            )
+            return tuple(max(0, min(255, int(round(value)))) for value in values)  # type: ignore[return-value]
+
+        def _artwork_native_fast_path_allowed(
+            width: int, height: int, mode: str, timing_type: str, lyric: str,
+        ) -> bool:
+            """Use vector glyphs when a huge bitmap would be pure overhead.
+
+            Colored emoji, cursive shaping, and timed pixel treatments still use
+            Pillow.  Plain solid/rainbow text always benefits from native Tk; the
+            pattern family switches only once the popup is roughly 1440p+ / 4K
+            territory where a lyric bitmap can become millions of pixels.
+            """
+            if bool(state.get("popup_color_emoji_enabled", False)):
+                value = str(lyric or "")
+                if any(_pillow_char_is_emojiish(ch, value[index + 1] if index + 1 < len(value) else "") for index, ch in enumerate(value)):
+                    return False
+            if CURSIVE_FIX_RUNTIME or str(timing_type or "none") != "none":
+                return False
+            if mode in {"solid", "rainbow-glyphs"}:
+                return True
+            return int(width) * int(height) >= int(ARTWORK_LYRIC_NATIVE_FAST_PATH_WINDOW_PIXELS)
+
+        def _draw_native_artwork_lyric(
+            width: int,
+            height: int,
+            lyric: str,
+            mode: str,
+            palette_index: int,
+            mode_index: int,
+            speed: float,
+        ) -> None:
+            """Draw large karaoke as vector text instead of uploading a giant RGBA bitmap."""
+            layout = fit_artwork_lyric_tk_layout(width, height, lyric)
+            font = layout["font"]
+            lines = list(layout["lines"])
+            line_height = int(layout["line_height"])
+            shadow = int(layout["shadow"])
+            center_x = int(layout["center_x"])
+            top = int(layout["top"])
+            state["artwork_solution_boxes"] = _solution_boxes_for_lines(
+                lines,
+                state.get("lyric_solutions_artwork") or state.get("lyric_solutions") or [],
+                font.measure,
+                center_x,
+                top,
+                line_height,
+                int(layout["font_size"]),
+            )
+            state["artwork_lyric_native_items"] = []
+            state["artwork_lyric_native_mode"] = mode
+            brightness = karaoke_brightness("artwork", mode_index)
+            saturation = karaoke_saturation("artwork", mode_index)
+            phase = (self.playback_position() / (3.0 if mode == "rainbow-glyphs" else 2.7)) * speed
+
+            if mode == "solid":
+                rgb = _tone_native_artwork_rgb(
+                    external_album_art_karaoke_pattern_rgb("solid", 0.0, 0.0, phase, palette_index),
+                    brightness,
+                    saturation,
+                )
+                fill = f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}"
+                y = top
+                for line in lines:
+                    canvas.create_text(
+                        center_x + shadow, y + shadow, text=line, fill="#050505",
+                        font=font, anchor="n", tags=("artwork-lyric-shadow",),
+                    )
+                    canvas.create_text(
+                        center_x, y, text=line, fill=fill, font=font, anchor="n",
+                        tags=("artwork-lyric-color",),
+                    )
+                    y += line_height
+                return
+
+            visible_count = max(1, sum(not char.isspace() for line in lines for char in line))
+            glyph_index = 0
+            text_height = max(1, line_height * len(lines))
+            native_items: list[tuple[int, float, float, int, int]] = []
+            y = top
+            for line in lines:
+                line_width = max(1, int(font.measure(line)))
+                line_left = center_x - line_width // 2
+                # One shadow item per complete line instead of one shadow bitmap
+                # or one shadow item per glyph.  This is both cheaper and smoother.
+                canvas.create_text(
+                    line_left + shadow,
+                    y + shadow,
+                    text=line,
+                    fill="#050505",
+                    font=font,
+                    anchor="nw",
+                    tags=("artwork-lyric-shadow",),
+                )
+                x = line_left
+                for character in line:
+                    advance = max(1, int(font.measure(character)))
+                    if not character.isspace():
+                        sample_x = max(0.0, min(47.0, ((x + advance * 0.5 - line_left) / max(1.0, float(line_width))) * 47.0))
+                        sample_y = max(0.0, min(47.0, ((y + line_height * 0.5 - top) / float(text_height)) * 47.0))
+                        if mode == "rainbow-glyphs":
+                            rgb = _palette_rgb(
+                                PALETTE_STOPS[palette_index],
+                                ((glyph_index / visible_count) + phase) % 1.0,
+                            )
+                        else:
+                            rgb = external_album_art_karaoke_pattern_rgb(
+                                mode, sample_x, sample_y, phase, palette_index,
+                            )
+                        rgb = _tone_native_artwork_rgb(rgb, brightness, saturation)
+                        item = canvas.create_text(
+                            x,
+                            y,
+                            text=character,
+                            fill=f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}",
+                            font=font,
+                            anchor="nw",
+                            tags=("artwork-lyric-color",),
+                        )
+                        native_items.append((int(item), float(sample_x), float(sample_y), glyph_index, visible_count))
+                        glyph_index += 1
+                    x += advance
+                y += line_height
+            state["artwork_lyric_native_items"] = native_items
+            ensure_artwork_lyric_color_animation()
+
         def draw_artwork_lyric_overlay(width: int, height: int) -> None:
-            """Build a fitted over-art lyric layer; text is never allowed to clip."""
+            """Build a fitted over-art lyric layer; use vectors for huge simple cues."""
             state["artwork_lyric_color_items"] = []
+            state["artwork_lyric_native_items"] = []
+            state["artwork_lyric_native_mode"] = None
             state["artwork_lyric_plasma_item"] = None
             state["artwork_lyric_plasma_photo"] = None
             state["artwork_lyric_plasma_mask"] = None
@@ -37658,18 +41044,38 @@ class ExternalAlbumArtWindow:
             speed = karaoke_speed("artwork", mode_index)
             timing_type = karaoke_timing_type("artwork", mode_index)
             emphasis_progress = (
-                float(state.get("lyric_progress", 0.0) or 0.0)
+                float(state.get("lyric_progress_artwork", state.get("lyric_progress", 0.0)) or 0.0)
                 if karaoke_timed_emphasis_enabled("artwork", mode_index)
                 else None
             )
+
+            # V372 high-resolution fast path.  At 3840x2160 the old Pillow
+            # route could allocate/filter/upload a multi-megapixel lyric image
+            # at every cue and animation tick.  Native Tk text keeps the same
+            # shared playback-clock phase but turns the expensive work into a
+            # few dozen vector glyph color updates.
+            if _artwork_native_fast_path_allowed(width, height, mode, timing_type, lyric):
+                _draw_native_artwork_lyric(width, height, lyric, mode, palette_index, mode_index, speed)
+                return
+
             if mode:
                 try:
                     from PIL import Image, ImageTk  # type: ignore
                     mask, origin, shadow, fitted_text, fitted_font, emoji_overlay = build_artwork_plasma_mask(width, height, lyric)
-                    state["artwork_solution_boxes"] = _pillow_solution_boxes(fitted_text, fitted_font, origin, mask.size, state.get("lyric_solutions_artwork") or state.get("lyric_solutions") or [])
-                    phase = (time.monotonic() / 2.7) * speed
+                    state["artwork_solution_boxes"] = _pillow_solution_boxes(
+                        fitted_text,
+                        fitted_font,
+                        origin,
+                        mask.size,
+                        state.get("lyric_solutions_artwork") or state.get("lyric_solutions") or [],
+                    )
+                    phase = (self.playback_position() / 2.7) * speed
                     rgba = pattern_rgba_for_mask(
-                        mask, shadow, phase, mode, palette_index,
+                        mask,
+                        shadow,
+                        phase,
+                        mode,
+                        palette_index,
                         emphasis_progress=emphasis_progress,
                         timing_type=timing_type,
                         brightness=karaoke_brightness("artwork", mode_index),
@@ -37695,64 +41101,11 @@ class ExternalAlbumArtWindow:
                     return
                 except Exception as exc:
                     record_pafplayer_runtime_warning(
-                        f"Artwork patterned lyric renderer failed; using rainbow glyphs: {type(exc).__name__}: {exc}",
+                        f"Artwork patterned lyric renderer failed; using native rainbow glyphs: {type(exc).__name__}: {exc}",
                         "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
                     )
-                    mode = "rainbow-glyphs"
-
-            layout = fit_artwork_lyric_tk_layout(width, height, lyric)
-            font = layout["font"]
-            lines = list(layout["lines"])
-            line_height = int(layout["line_height"])
-            shadow = int(layout["shadow"])
-            center_x = int(layout["center_x"])
-            y = int(layout["top"])
-            state["artwork_solution_boxes"] = _solution_boxes_for_lines(
-                lines, state.get("lyric_solutions") or [], font.measure, center_x, y, line_height, int(layout["font_size"])
-            )
-
-            if mode == "solid":
-                red, green, blue = external_album_art_karaoke_pattern_rgb(
-                    "solid", 0.0, 0.0, time.monotonic(), palette_index
-                )
-                fill = f"#{red:02x}{green:02x}{blue:02x}"
-                for line in lines:
-                    canvas.create_text(
-                        center_x + shadow, y + shadow, text=line, fill="#050505",
-                        font=font, anchor="n", tags=("artwork-lyric-shadow",),
-                    )
-                    canvas.create_text(
-                        center_x, y, text=line, fill=fill, font=font, anchor="n",
-                        tags=("artwork-lyric-color",),
-                    )
-                    y += line_height
-                return
-
-            visible_count = max(1, sum(not char.isspace() for line in lines for char in line))
-            glyph_index = 0
-            phase = (time.monotonic() / 3.0) * speed
-            color_items: list[tuple[int, int, int]] = []
-            for line in lines:
-                x = center_x - font.measure(line) // 2
-                for character in line:
-                    advance = max(1, int(font.measure(character)))
-                    if not character.isspace():
-                        canvas.create_text(
-                            x + shadow, y + shadow, text=character, fill="#050505",
-                            font=font, anchor="nw", tags=("artwork-lyric-shadow",),
-                        )
-                        position = (glyph_index / visible_count + phase) % 1.0
-                        red, green, blue = _palette_rgb(PALETTE_STOPS[palette_index], position)
-                        item = canvas.create_text(
-                            x, y, text=character, fill=f"#{red:02x}{green:02x}{blue:02x}",
-                            font=font, anchor="nw", tags=("artwork-lyric-color",),
-                        )
-                        color_items.append((int(item), glyph_index, visible_count))
-                        glyph_index += 1
-                    x += advance
-                y += line_height
-            state["artwork_lyric_color_items"] = color_items
-            ensure_artwork_lyric_color_animation()
+                    _draw_native_artwork_lyric(width, height, lyric, "rainbow-glyphs", palette_index, mode_index, speed)
+                    return
 
         def draw_artwork_lyric_overlay_safely(width: int, height: int) -> bool:
             """Draw GUI lyrics without ever invalidating an already-decoded cover."""
@@ -37765,6 +41118,8 @@ class ExternalAlbumArtWindow:
                     canvas.delete("artwork-lyric-color")
                     canvas.delete("artwork-lyric-plasma")
                 state["artwork_lyric_color_items"] = []
+                state["artwork_lyric_native_items"] = []
+                state["artwork_lyric_native_mode"] = None
                 state["artwork_lyric_plasma_item"] = None
                 state["artwork_lyric_plasma_photo"] = None
                 state["artwork_lyric_plasma_mask"] = None
@@ -37784,6 +41139,8 @@ class ExternalAlbumArtWindow:
                 canvas.delete("artwork-lyric-color")
                 canvas.delete("artwork-lyric-plasma")
             state["artwork_lyric_color_items"] = []
+            state["artwork_lyric_native_items"] = []
+            state["artwork_lyric_native_mode"] = None
             state["artwork_lyric_plasma_item"] = None
             state["artwork_lyric_plasma_photo"] = None
             state["artwork_lyric_plasma_mask"] = None
@@ -37829,17 +41186,49 @@ class ExternalAlbumArtWindow:
             speed = karaoke_speed("artwork", mode_index)
             timing_type = karaoke_timing_type("artwork", mode_index)
             emphasis_progress = (
-                float(state.get("lyric_progress", 0.0) or 0.0)
+                float(state.get("lyric_progress_artwork", state.get("lyric_progress", 0.0)) or 0.0)
                 if karaoke_timed_emphasis_enabled("artwork", mode_index)
                 else None
             )
+            native_items = list(state.get("artwork_lyric_native_items") or [])
+            native_mode = str(state.get("artwork_lyric_native_mode") or "")
+            if native_items and native_mode:
+                try:
+                    brightness = karaoke_brightness("artwork", mode_index)
+                    saturation = karaoke_saturation("artwork", mode_index)
+                    phase = (self.playback_position() / (3.0 if native_mode == "rainbow-glyphs" else 2.7)) * speed
+                    for item, sample_x, sample_y, glyph_index, visible_count in native_items:
+                        if native_mode == "rainbow-glyphs":
+                            rgb = _palette_rgb(
+                                PALETTE_STOPS[palette_index],
+                                ((glyph_index / max(1, visible_count)) + phase) % 1.0,
+                            )
+                        else:
+                            rgb = external_album_art_karaoke_pattern_rgb(
+                                native_mode, sample_x, sample_y, phase, palette_index,
+                            )
+                        rgb = _tone_native_artwork_rgb(rgb, brightness, saturation)
+                        canvas.itemconfigure(int(item), fill=f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}")
+                except Exception as exc:
+                    record_pafplayer_runtime_warning(
+                        f"Artwork native lyric animation failed: {type(exc).__name__}: {exc}",
+                        "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
+                    )
+                    return
+                with contextlib.suppress(Exception):
+                    state["artwork_lyric_color_after"] = root.after(
+                        ARTWORK_LYRIC_NATIVE_FAST_PATH_TICK_MS,
+                        animate_artwork_lyric_colors,
+                    )
+                return
+
             mask = state.get("artwork_lyric_plasma_mask")
             if mask is not None:
                 item = state.get("artwork_lyric_plasma_item")
                 if mask is not None and item is not None:
                     try:
                         from PIL import Image, ImageTk  # type: ignore
-                        phase = (time.monotonic() / 2.7) * speed
+                        phase = (self.playback_position() / 2.7) * speed
                         shadow = max(0, int(state.get("artwork_lyric_plasma_shadow", 0) or 0))
                         rgba = pattern_rgba_for_mask(
                             mask, shadow, phase, mode, palette_index,
@@ -37866,7 +41255,7 @@ class ExternalAlbumArtWindow:
                     state["artwork_lyric_color_after"] = root.after(animation_ms, animate_artwork_lyric_colors)
                 return
             if mode == "rainbow-glyphs":
-                phase = (time.monotonic() / 3.0) * speed
+                phase = (self.playback_position() / 3.0) * speed
                 for item, glyph_index, visible_count in list(state.get("artwork_lyric_color_items") or []):
                     position = (glyph_index / max(1, visible_count) + phase) % 1.0
                     red, green, blue = _palette_rgb(PALETTE_STOPS[palette_index], position)
@@ -39342,6 +42731,17 @@ class ExternalAlbumArtWindow:
                                 fitter = state.get("fit_identity_label")
                                 if callable(fitter): root.after_idle(fitter)
                         continue
+                    if kind == "set-art-topmost":
+                        _kind, enabled = command
+                        apply_art_topmost_setting(bool(enabled))
+                        continue
+                    if kind == "set-floating-topmost":
+                        _kind, enabled = command
+                        apply_floating_topmost_setting(bool(enabled))
+                        continue
+                    if kind == "foreground-floating":
+                        raise_floating_without_permanent_topmost()
+                        continue
                     if kind == "toggle-floating-lyrics":
                         current_mode = max(0, min(2, int(state.get("lyrics_mode", 0) or 0)))
                         # V257 keeps Ctrl+Alt+Shift+F and adds focused-console Alt+F
@@ -39351,6 +42751,8 @@ class ExternalAlbumArtWindow:
                         state["lyrics_mode"] = new_mode
                         save_external_album_art_lyrics_mode(new_mode)
                         apply_lyrics_mode()
+                        if lyrics_mode_includes_floating(new_mode):
+                            set_floating_edit_mode(True)
                         continue
                     if kind == "show-karaoke-color-configurator":
                         _kind, target = command
@@ -39364,6 +42766,8 @@ class ExternalAlbumArtWindow:
                         state["lyrics_mode"] = max(0, min(2, int(requested_mode)))
                         save_external_album_art_lyrics_mode(state["lyrics_mode"])
                         apply_lyrics_mode()
+                        if lyrics_mode_includes_floating(int(state["lyrics_mode"])):
+                            set_floating_edit_mode(True)
                         continue
                     if kind == "set-artwork-karaoke-enabled":
                         _kind, enabled = command
@@ -39375,33 +42779,55 @@ class ExternalAlbumArtWindow:
                             state["artwork_lyric_plasma_item"] = None
                         redraw_artwork_lyric_layer()
                         continue
+                    if kind == "set-floating-decensor":
+                        _kind, enabled = command
+                        apply_floating_decensor_setting(bool(enabled), request_owner=False)
+                        continue
                     if kind == "lyric":
-                        _kind, artwork_lyric, floating_lyric, progress, *solution_payload = command
+                        (
+                            _kind,
+                            artwork_lyric,
+                            floating_lyric,
+                            artwork_progress,
+                            floating_progress,
+                            artwork_solutions,
+                            floating_solutions,
+                            artwork_text_changed,
+                            floating_text_changed,
+                            artwork_target_position,
+                        ) = command
                         state["lyric"] = str(artwork_lyric or "").strip()
                         state["lyric_artwork"] = str(artwork_lyric or "").strip()
                         state["lyric_floating"] = str(floating_lyric or "").strip()
-                        state["lyric_solutions_artwork"] = list(solution_payload[0]) if len(solution_payload) > 0 and isinstance(solution_payload[0], list) else []
-                        state["lyric_solutions_floating"] = list(solution_payload[1]) if len(solution_payload) > 1 and isinstance(solution_payload[1], list) else []
+                        state["lyric_solutions_artwork"] = list(artwork_solutions) if isinstance(artwork_solutions, list) else []
+                        state["lyric_solutions_floating"] = list(floating_solutions) if isinstance(floating_solutions, list) else []
                         state["lyric_solutions"] = state["lyric_solutions_artwork"]
-                        state["lyric_progress"] = max(0.0, min(1.0, float(progress)))
+                        state["lyric_progress_artwork"] = max(0.0, min(1.0, float(artwork_progress)))
+                        state["lyric_progress"] = max(0.0, min(1.0, float(floating_progress)))
                         lyric_mode = int(state.get("lyrics_mode", 0) or 0)
                         if (
-                            lyrics_mode_includes_artwork(lyric_mode)
+                            bool(artwork_text_changed)
+                            and lyrics_mode_includes_artwork(lyric_mode)
                             and bool(state.get("artwork_karaoke_enabled", True))
                             and not self._color_configurator_active.is_set()
                         ):
                             redraw_artwork_lyric_layer()
-                        if lyrics_mode_includes_floating(lyric_mode):
+                            # Flush Tk's queued geometry/canvas work before measuring
+                            # completion. This happens only on cue changes, not at
+                            # animation FPS, and makes the learned lead track actual
+                            # large-window paint cost instead of mere enqueue time.
+                            with contextlib.suppress(Exception):
+                                root.update_idletasks()
+                            self._calibrate_artwork_karaoke_render_lead(artwork_target_position)
+                        if bool(floating_text_changed) and lyrics_mode_includes_floating(lyric_mode):
                             ensure_floating_lyrics_window()
-                            # Commit the same cue immediately as the popup layer;
-                            # the deferred 40 ms resize render made floating lyrics
-                            # visibly switch one frame after artwork karaoke.
                             render_floating_lyric()
                             ensure_floating_color_animation()
                         continue
                     if kind == "lyric-progress":
-                        _kind, progress = command
-                        state["lyric_progress"] = max(0.0, min(1.0, float(progress)))
+                        _kind, artwork_progress, floating_progress = command
+                        state["lyric_progress_artwork"] = max(0.0, min(1.0, float(artwork_progress)))
+                        state["lyric_progress"] = max(0.0, min(1.0, float(floating_progress)))
                         continue
                     if kind == "start-idle":
                         _kind, avoid_rect, origin_outer_rect = command
@@ -39495,8 +42921,18 @@ class ExternalAlbumArtWindow:
                                 root.after(220, rebuild_idle_gallery_after_track)
             except queue.Empty:
                 pass
+            # V374: 50-ms polling was itself a visible karaoke delay. Keep the
+            # callback tiny and poll quickly only while playback is advancing;
+            # adaptive render lead handles the remaining layout/paint latency.
+            with self._lock:
+                playback_active = bool(self._playback_running)
+            command_poll_ms = (
+                ARTWORK_GUI_ACTIVE_COMMAND_POLL_MS
+                if playback_active
+                else ARTWORK_GUI_IDLE_COMMAND_POLL_MS
+            )
             with contextlib.suppress(Exception):
-                root.after(50, process_commands)
+                root.after(command_poll_ms, process_commands)
 
         def aspect_modifier_watch() -> None:
             ctrl_down = ctrl_is_down()
@@ -39583,7 +43019,10 @@ class ExternalAlbumArtWindow:
 
             floating = state.get("floating_window")
             if floating is not None:
-                for after_key in ("floating_resize_after", "floating_save_after"):
+                for after_key in (
+                    "floating_resize_after", "floating_save_after",
+                    "floating_focus_after", "floating_focus_watch_after",
+                ):
                     after_id = state.get(after_key)
                     if after_id is not None:
                         with contextlib.suppress(Exception):
@@ -40515,6 +43954,7 @@ def play_audio_file(
     decensor_artwork_lyrics_state: list[bool] | None = None,
     decensor_floating_lyrics_state: list[bool] | None = None,
     console_karaoke_enabled_state: list[bool] | None = None,
+    console_alerts_enabled_state: list[bool] | None = None,
     alert_no_replaygain_state: list[bool] | None = None,
     alert_missing_artist_state: list[bool] | None = None,
     alert_missing_title_state: list[bool] | None = None,
@@ -40530,8 +43970,8 @@ def play_audio_file(
     progress_beat_detector_state: list[int] | None = None,
     progress_beat_treatment_state: list[int] | None = None,
     cursive_fix_state: list[bool] | None = None,
-    drcs_art_microtiles_state: list[bool] | None = None,
-    drcs_art_bar_microtiles_state: list[bool] | None = None,
+    drcs_art_microtiles_state: list[int] | None = None,
+    drcs_art_bar_microtiles_state: list[int] | None = None,
     autoplay_state: list[bool] | None = None,
     output_channels_state: list[int] | None = None,
     output_rate_state: list[int] | None = None,
@@ -40544,6 +43984,8 @@ def play_audio_file(
     speed_index_state: list[int] | None = None,
     speed_adjusted_state: list[bool] | None = None,
     drcs_enabled_state: list[bool] | None = None,
+    visualizer_bars_enabled_state: list[bool] | None = None,
+    visualizer_background_artwork_enabled_state: list[bool] | None = None,
     sixel_enabled_state: list[bool] | None = None,
     album_art_visualizer_state: list[bool] | None = None,
     layered_art_visualizer_state: list[bool] | None = None,
@@ -40569,6 +44011,8 @@ def play_audio_file(
     trim_silence_keep: float = TRIM_EDGE_SILENCE_KEEP_SECONDS,
     replaygain_mode: str = ("track" if REPLAYGAIN_ENABLED else "off"),
     replaygain_probe=replaygain_info_for_audio,
+    smooth_audio_renderer_enabled: bool = bool(SMOOTH_AUDIO_RENDERER_ENABLED),
+    audio_buffer_ms: int = SMOOTH_AUDIO_BUFFER_MS,
     playlist_remove_callback=None,
     playlist_add_callback=None,
     playlist_browser_callback=None,
@@ -40588,6 +44032,7 @@ def play_audio_file(
     playback_position_state: list[float] | None = None,
     initially_paused: bool = False,
     paused_state: list[bool] | None = None,
+    initial_warning: str | None = None,
     initial_blank_line: bool = True,
     manage_winamp: bool = True,
     guard_winamp: bool | None = None,
@@ -40608,6 +44053,8 @@ def play_audio_file(
     applied twice during one song.
     """
     global _CURSOR_SUPPRESSION_ACTIVE, _CURSOR_HIDE_APPEND_ENABLED, _DISABLE_USER32_ACTIVITY, _VISUALIZER_TRANSPORT_AUTOTUNE_WINNER, _RUNTIME_SETTINGS_LAST_SNAPSHOT
+    smooth_audio_renderer_enabled = bool(smooth_audio_renderer_enabled)
+    audio_buffer_ms = max(SMOOTH_AUDIO_BUFFER_MS_MIN, min(SMOOTH_AUDIO_BUFFER_MS_MAX, int(audio_buffer_ms)))
     active_theories = frozenset(theory_modes or ())
     terminal_safe_mode = 6 in active_theories
     renderer_safe_mode = 12 in active_theories
@@ -40967,6 +44414,9 @@ def play_audio_file(
     console_karaoke_enabled = (
         bool(console_karaoke_enabled_state[0]) if console_karaoke_enabled_state is not None else True
     )
+    console_alerts_enabled = bool(console_alerts_enabled_state[0]) if console_alerts_enabled_state is not None else True
+    visualizer_bars_enabled = bool(visualizer_bars_enabled_state[0]) if visualizer_bars_enabled_state is not None else True
+    visualizer_background_artwork_enabled = bool(visualizer_background_artwork_enabled_state[0]) if visualizer_background_artwork_enabled_state is not None else True
     alert_no_replaygain = bool(alert_no_replaygain_state[0]) if alert_no_replaygain_state is not None else True
     alert_missing_artist = bool(alert_missing_artist_state[0]) if alert_missing_artist_state is not None else True
     alert_missing_title = bool(alert_missing_title_state[0]) if alert_missing_title_state is not None else True
@@ -40989,10 +44439,24 @@ def play_audio_file(
     cursive_fix = bool(cursive_fix_state[0]) if cursive_fix_state is not None else False
     global CURSIVE_FIX_RUNTIME
     CURSIVE_FIX_RUNTIME = cursive_fix
-    drcs_art_microtiles = bool(drcs_art_microtiles_state[0]) if drcs_art_microtiles_state is not None else False
-    drcs_art_bar_microtiles = bool(drcs_art_bar_microtiles_state[0]) if drcs_art_bar_microtiles_state is not None else False
+    drcs_art_microtile_mode = max(0, min(len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1, int(drcs_art_microtiles_state[0]))) if drcs_art_microtiles_state is not None else ART_MICROTILE_DETAIL_MODE_DEFAULT
+    drcs_art_bar_microtile_mode = max(0, min(len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1, int(drcs_art_bar_microtiles_state[0]))) if drcs_art_bar_microtiles_state is not None else ART_MICROTILE_DETAIL_MODE_DEFAULT
+    drcs_art_microtiles = drcs_art_microtile_mode > 0
+    drcs_art_bar_microtiles = drcs_art_bar_microtile_mode > 0
+    _initial_art_layout_mode = choose_art_detail_drcs_layout(
+        drcs_art_microtile_mode if visualizer_background_artwork_enabled else 0,
+        drcs_art_bar_microtile_mode if visualizer_bars_enabled else 0,
+    )
+    dense_art_drcs_layout_active = _initial_art_layout_mode
+    # V389: never redefine the one live Windows Terminal DRCS bank immediately
+    # when artwork detail changes. Existing visualizer cells would instantly be
+    # reinterpreted through the new glyph bank before their replacement frame is
+    # painted, producing the brief "wrong detail" flash. Stage the bank change
+    # and commit the new soft font plus the first complete new frame inside one
+    # synchronized-output transaction on the next visualizer paint.
+    drcs_bank_swap_pending = False
     progress_beat_state: dict[str, object] = {"baseline": 0.0, "pulse": 0.0}
-    progress_beat_last_time = monotonic()
+    progress_beat_last_time = -1.0
     if disable_live_visualizers:
         sixel_enabled = False
         drcs_enabled = False
@@ -41033,7 +44497,11 @@ def play_audio_file(
     )
     _initial_header_available = max(12, shutil.get_terminal_size((120, 30)).columns - 1)
     _last_play_value = str(audio_tags.get("Last play", "") or "")
-    _last_play_suffix_plain = f"   Last play: {_last_play_value}" if _last_play_value else ""
+    _last_play_suffix_plain = ""
+    _inline_right_label = "Last play"
+    _inline_right_value = _last_play_value
+    _inline_right_kind = "lastplay"
+    _inline_right_swapped = False
     last_play_alignment_enabled = (
         bool(inline_last_play_alignment_state[0])
         if inline_last_play_alignment_state is not None
@@ -41042,85 +44510,150 @@ def play_audio_file(
     _duration_label = format_duration_label(duration)
     _full_play_plain = f"▶ Play: {audio_path} ({_duration_label})"
     _short_play_plain = f"▶ Play: {audio_path.name} ({_duration_label})"
-    last_play_inline = bool(
-        _last_play_suffix_plain
-        and (
-            terminal_cell_width(_full_play_plain + _last_play_suffix_plain) <= _initial_header_available
-            or terminal_cell_width(_short_play_plain + _last_play_suffix_plain) <= _initial_header_available
-        )
-    )
-    inline_play_display_path = (
-        str(audio_path)
-        if terminal_cell_width(_full_play_plain + _last_play_suffix_plain) <= _initial_header_available
-        else audio_path.name
-    )
-    metadata_tags = dict(audio_tags)
-    if last_play_inline:
-        metadata_tags.pop("Last play", None)
-    # V92: establish the metadata-row geometry from the *same exact flags*
-    # used by every later animated repaint.  Older builds calculated
-    # tag_plain_rows before these state variables existed, so a mode marker could
-    # alter wrapping after row coordinates had already been reserved.
-    tag_plain_rows, tag_ansi_rows = format_tag_panel(
-        metadata_tags,
-        album_art_visualizer_enabled=album_art_visualizer_enabled,
-        karaoke_visualizer_expansion_enabled=karaoke_visualizer_expansion_enabled,
-        genre_emoji_enabled=genre_emoji_enabled,
-        smart_alignment_enabled=last_play_alignment_enabled,
-    )
+    last_play_inline = False
+    inline_play_display_path = audio_path.name
+    metadata_tags: dict[str, str] = {}
+    tag_plain_rows: tuple[str, ...] = ()
+    tag_ansi_rows: tuple[str, ...] = ()
 
-    def refresh_inline_last_play_alignment() -> None:
-        """Second-pass the Play row after metadata packing has established real colon stops."""
-        nonlocal _last_play_suffix_plain
-        if not _last_play_value:
+    def _inline_hud_kind(label: str) -> str:
+        if label == "Last play":
+            return "lastplay"
+        if label == "URL":
+            return "url"
+        if label == "Comment":
+            return "comment"
+        if label == "Song":
+            return "song"
+        if label == "Act":
+            return "artist"
+        if label == "Genre":
+            return "genre"
+        return "normal"
+
+    def _inline_field_path_choice(label: str, value: str) -> str | None:
+        suffix = f"   {label}: {value}"
+        if terminal_cell_width(_full_play_plain + suffix) <= _initial_header_available:
+            return str(audio_path)
+        if terminal_cell_width(_short_play_plain + suffix) <= _initial_header_available:
+            return audio_path.name
+        return None
+
+    def _format_current_metadata(
+        tags: dict[str, str],
+        *,
+        last_play_as_top_tail: bool = False,
+    ) -> tuple[tuple[str, ...], tuple[str, ...]]:
+        return format_tag_panel(
+            tags,
+            album_art_visualizer_enabled=album_art_visualizer_enabled,
+            karaoke_visualizer_expansion_enabled=karaoke_visualizer_expansion_enabled,
+            genre_emoji_enabled=genre_emoji_enabled,
+            smart_alignment_enabled=last_play_alignment_enabled,
+            last_play_as_top_tail=last_play_as_top_tail,
+        )
+
+    def rebuild_inline_header_metadata_layout() -> None:
+        """Pack metadata, then swap a noncontiguous Last-play alignment when useful.
+
+        V367 refuses the visually meaningless case where Play-row ``Last play:``
+        aligns to Album two physical lines below.  First refusal goes to the
+        rightmost field on metadata row 1: if that field fits on the Play row,
+        the two fields trade places and Last play becomes a top-right metadata
+        tail.  If the swap cannot fit, the Play-row field is simply right-justified.
+        """
+        nonlocal last_play_inline, inline_play_display_path, metadata_tags
+        nonlocal tag_plain_rows, tag_ansi_rows, _last_play_suffix_plain
+        nonlocal _inline_right_label, _inline_right_value, _inline_right_kind
+        nonlocal _inline_right_swapped
+
+        _inline_right_label = "Last play"
+        _inline_right_value = _last_play_value
+        _inline_right_kind = "lastplay"
+        _inline_right_swapped = False
+        chosen_path = _inline_field_path_choice("Last play", _last_play_value) if _last_play_value else None
+        last_play_inline = bool(chosen_path)
+        inline_play_display_path = chosen_path or (
+            str(audio_path) if terminal_cell_width(_full_play_plain) <= _initial_header_available else audio_path.name
+        )
+
+        metadata_tags = dict(audio_tags)
+        if last_play_inline:
+            metadata_tags.pop("Last play", None)
+        tag_plain_rows, tag_ansi_rows = _format_current_metadata(metadata_tags)
+
+        if last_play_inline and len(tag_plain_rows) >= 2 and _last_play_value:
+            base_plain = f"▶ Play: {inline_play_display_path} ({_duration_label})"
+            all_rows_target = inline_last_play_alignment_target(
+                base_plain,
+                _last_play_value,
+                tag_plain_rows,
+                width=_initial_header_available,
+                minimum_gap=3,
+                adjacent_row_only=False,
+            )
+            # Only a target below row 0 creates the "aligned across a missing
+            # line" problem.  A row-0 Album/Comment remains a useful anchor.
+            if all_rows_target is not None and all_rows_target[0] > 0:
+                row0_labels = hud_metadata_row_labels(tag_plain_rows[0])
+                candidate = row0_labels[-1] if row0_labels else ""
+                candidate_value = str(metadata_tags.get(candidate, audio_tags.get(candidate, "")) or "").rstrip()
+                candidate_path = _inline_field_path_choice(candidate, candidate_value) if candidate and candidate_value else None
+                if candidate_path and candidate != "Last play":
+                    trial_tags = dict(audio_tags)
+                    trial_tags.pop(candidate, None)
+                    trial_plain, trial_ansi = _format_current_metadata(
+                        trial_tags,
+                        last_play_as_top_tail=True,
+                    )
+                    trial_row0_labels = hud_metadata_row_labels(trial_plain[0]) if trial_plain else []
+                    if trial_row0_labels and trial_row0_labels[-1] == "Last play":
+                        metadata_tags = trial_tags
+                        tag_plain_rows, tag_ansi_rows = trial_plain, trial_ansi
+                        _inline_right_label = candidate
+                        _inline_right_value = candidate_value
+                        _inline_right_kind = _inline_hud_kind(candidate)
+                        _inline_right_swapped = True
+                        inline_play_display_path = candidate_path
+
+        if not last_play_inline:
             _last_play_suffix_plain = ""
             return
-        base_plain = f"▶ Play: {inline_play_display_path} ({_duration_label})"
-        gap = aligned_inline_last_play_gap(
-            base_plain,
-            _last_play_value,
-            tag_plain_rows,
-            width=_initial_header_available,
-            enabled=bool(last_play_alignment_enabled and last_play_inline),
-        )
-        _last_play_suffix_plain = " " * gap + f"Last play: {_last_play_value}"
 
-    refresh_inline_last_play_alignment()
+        base_plain = f"▶ Play: {inline_play_display_path} ({_duration_label})"
+        if _inline_right_swapped:
+            label_cells = terminal_cell_width(_inline_right_label)
+            value_cells = terminal_cell_width(_inline_right_value)
+            right_gap = (
+                _initial_header_available
+                - terminal_cell_width(base_plain)
+                - label_cells - 2 - value_cells
+            )
+            gap = max(3, right_gap)
+        else:
+            gap = aligned_inline_last_play_gap(
+                base_plain,
+                _last_play_value,
+                tag_plain_rows,
+                width=_initial_header_available,
+                enabled=bool(last_play_alignment_enabled),
+            )
+        _last_play_suffix_plain = " " * gap + f"{_inline_right_label}: {_inline_right_value}"
+
+    rebuild_inline_header_metadata_layout()
 
     last_play_lookup_applied = previous_played_at is not None
 
     def rebuild_last_play_display(played_at: float) -> None:
         """Apply one definitive history result and rebuild HUD packing in place."""
-        nonlocal previous_played_at, _last_play_value, _last_play_suffix_plain
-        nonlocal last_play_inline, inline_play_display_path, metadata_tags
-        nonlocal tag_plain_rows, tag_ansi_rows, last_play_lookup_applied
+        nonlocal previous_played_at, _last_play_value, last_play_lookup_applied
         previous_played_at = float(played_at)
         _last_play_value = (
             format_last_heard_calendar(previous_played_at)
             if previous_played_at > 0.0 else "Never"
         )
         audio_tags["Last play"] = _last_play_value
-        _last_play_suffix_plain = f"   Last play: {_last_play_value}"
-        last_play_inline = bool(
-            terminal_cell_width(_full_play_plain + _last_play_suffix_plain) <= _initial_header_available
-            or terminal_cell_width(_short_play_plain + _last_play_suffix_plain) <= _initial_header_available
-        )
-        inline_play_display_path = (
-            str(audio_path)
-            if terminal_cell_width(_full_play_plain + _last_play_suffix_plain) <= _initial_header_available
-            else audio_path.name
-        )
-        metadata_tags = dict(audio_tags)
-        if last_play_inline:
-            metadata_tags.pop("Last play", None)
-        tag_plain_rows, tag_ansi_rows = format_tag_panel(
-            metadata_tags,
-            album_art_visualizer_enabled=album_art_visualizer_enabled,
-            karaoke_visualizer_expansion_enabled=karaoke_visualizer_expansion_enabled,
-            genre_emoji_enabled=genre_emoji_enabled,
-            smart_alignment_enabled=last_play_alignment_enabled,
-        )
-        refresh_inline_last_play_alignment()
+        rebuild_inline_header_metadata_layout()
         last_play_lookup_applied = True
         if web_server is not None:
             web_server.publish(metadata=dict(audio_tags))
@@ -41776,8 +45309,12 @@ def play_audio_file(
     volume_feedback_box_started = 0.0
     volume_feedback_box_until = 0.0
     volume_feedback_box_text = ""
+    interaction_feedback_terminal_width = 0
     volume_feedback_box_was_visible = False
     volume_feedback_box_last_fade_step = -1
+    interaction_feedback_forced = False
+    interaction_feedback_hold_seconds = VOLUME_VISUALIZER_BOX_SECONDS
+    interaction_feedback_fade_seconds = INTERACTION_VISUALIZER_BOX_FADE_SECONDS
     interaction_feedback_ready_at = monotonic() + 4.0
 
     # V32 editor + attribute state. Attribute discovery deliberately starts last
@@ -41886,6 +45423,17 @@ def play_audio_file(
         plain = f"Shuffle: {'On' if enabled else 'Off'}"
         rgb = "90;235;125" if enabled else "255;95;95"
         set_transient_notice(plain, f"\033[1;38;2;{rgb}m{plain}\033[0m", seconds=4.0)
+
+
+    def announce_art_detail_mode(channel: str, mode: int) -> None:
+        """Use the HUD controls row—not the visualizer popup—for detail changes."""
+        index = max(0, min(len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1, int(mode)))
+        plain = f"{channel} artwork detail: {ART_MICROTILE_DETAIL_MODE_NAMES[index]}"
+        set_transient_notice(
+            plain,
+            f"\033[1;38;2;135;220;255m{plain}\033[0m",
+            seconds=4.0,
+        )
     if web_server is not None and web_server.claim_startup_announcement():
         web_plain = f"🌐 {PROGRAM_TITLE} {PROGRAM_VERSION.casefold()} webserver: port {web_server.port}  {web_server.url}"
         set_transient_notice(
@@ -42432,18 +45980,32 @@ def play_audio_file(
         # Playing path/filename is informational and stays static; Artist/Song metadata throbs.
         path_ansi += "\033[3m" + ansi_rgb(PLAYING_PATH_RGB) + filename_text + "\033[0m"
         playback_icon = "⏸" if header_paused else "▶"
+        inline_ansi = ""
+        if last_play_inline:
+            inline_plain_core = f"{_inline_right_label}: {_inline_right_value}"
+            inline_gap = " " * max(
+                0,
+                terminal_cell_width(_last_play_suffix_plain)
+                - terminal_cell_width(inline_plain_core),
+            )
+            if _inline_right_kind == "lastplay":
+                value_ansi = (
+                    ("\033[3;38;2;185;180;184m" if _inline_right_value.casefold() == "never" else "\033[38;2;175;195;215m")
+                    + _inline_right_value + "\033[0m"
+                )
+            elif _inline_right_kind == "url":
+                value_ansi = "\033[4;38;2;100;205;255m" + osc8_hyperlink(_inline_right_value, _inline_right_value) + "\033[0m"
+            elif _inline_right_kind == "comment":
+                value_ansi = style_text_with_clickable_urls(_inline_right_value, "\033[3;38;2;175;195;215m")
+            else:
+                value_ansi = "\033[38;2;175;195;215m" + _inline_right_value + "\033[0m"
+            inline_ansi = inline_gap + f"\033[2;90m{_inline_right_label}:\033[0m " + value_ansi
         return (
             f"\033[1;38;2;115;245;155m{playback_icon}\033[0m "
             + "\033[32mPlay:\033[0m "
             + path_ansi
             + f" \033[2;38;2;165;175;185m({duration_label})\033[0m"
-            + (
-                " " * max(0, terminal_cell_width(_last_play_suffix_plain) - terminal_cell_width(f"Last play: {_last_play_value}"))
-                + "\033[2;90mLast play:\033[0m "
-                + ("\033[3;38;2;185;180;184m" if _last_play_value.casefold() == "never" else "\033[38;2;175;195;215m")
-                + _last_play_value + "\033[0m"
-                if last_play_inline else ""
-            )
+            + inline_ansi
             + background_marker
         )
 
@@ -42552,14 +46114,18 @@ def play_audio_file(
         last_play_ansi = (
             "\033[38;2;145;170;195m📅 Last play: " + heard_text + "\033[0m"
         )
-        output_rate_text = f"{float(output_rate) / 1000.0:g}kHz"
         source_bitrate = str(audio_tags.get("Bitrate", "") or "").strip()
-        if source_bitrate:
-            output_rate_text += "  •  " + source_bitrate
-        diagnostics_ansi = (
-            "\033[38;2;145;170;195m🎚️ ReplayGain: \033[0m" + replaygain_ansi
-            + "\033[38;2;145;170;195m  ║  🔊 Out: " + output_rate_text + "\033[0m"
-            + "\033[38;2;145;170;195m  ║  📂 Playlist: " + playlist_text + "\033[0m"
+        output_names = selected_output_device_names(output_device_indexes)
+        output_rate_text = output_help_summary_text(
+            output_rate, source_bitrate, output_bit_depth, output_names
+        )
+        diagnostic_rows_ansi = pack_help_diagnostic_segments(
+            (
+                "\033[38;2;145;170;195m🎚️ ReplayGain: \033[0m" + replaygain_ansi,
+                "\033[38;2;145;170;195m🔊 Out: " + output_rate_text + "\033[0m",
+                "\033[38;2;145;170;195m📂 Playlist: " + playlist_text + "\033[0m",
+            ),
+            available,
         )
         track_alert_help_rows: list[str] = []
         if replaygain_missing_continuous:
@@ -42718,7 +46284,7 @@ def play_audio_file(
         rendered: list[str] = [
             "\033[1;38;2;215;235;255m" + title_plain + "\033[0m",
             last_play_ansi,
-            diagnostics_ansi,
+            *diagnostic_rows_ansi,
             attribute_tags_ansi(available),
             *["\033[38;2;220;175;105m" + row + "\033[0m" for row in track_alert_help_rows],
             "\033[38;2;85;195;185m" + divider_plain + "\033[0m",
@@ -42822,18 +46388,36 @@ def play_audio_file(
             for index, line in enumerate(paginated[:overlay_rows])
         ) + "\033[?25l")
 
-    def start_interaction_visual_feedback(text: str, now_value: float) -> None:
+    def start_interaction_visual_feedback(
+        text: str,
+        now_value: float,
+        *,
+        force: bool = False,
+        hold_seconds: float = VOLUME_VISUALIZER_BOX_SECONDS,
+        fade_seconds: float = INTERACTION_VISUALIZER_BOX_FADE_SECONDS,
+    ) -> None:
         """Arm the shared console-interaction overlay."""
         nonlocal volume_feedback_box_started, volume_feedback_box_until, volume_feedback_box_text
+        nonlocal interaction_feedback_terminal_width
+        nonlocal interaction_feedback_forced, interaction_feedback_hold_seconds
+        nonlocal interaction_feedback_fade_seconds
         # Suppress startup churn (initial settings/track reconstruction is not
         # user feedback and used to produce competing PUOV boxes).
-        if now_value < interaction_feedback_ready_at:
+        if not force and now_value < interaction_feedback_ready_at:
             return
         volume_feedback_box_text = str(text).strip()
+        # This query happens only when the user invokes a control, never at the
+        # 120-Hz visualizer cadence.  Freeze the real terminal width here so a
+        # stale high-rate geometry cache cannot pin the Pause/volume box near
+        # the left edge after a resize.
+        interaction_feedback_terminal_width = max(12, shutil.get_terminal_size((120, 30)).columns - 1)
+        interaction_feedback_forced = bool(force)
+        interaction_feedback_hold_seconds = max(0.0, float(hold_seconds))
+        interaction_feedback_fade_seconds = max(0.0, float(fade_seconds))
         volume_feedback_box_started = now_value
         volume_feedback_box_until = (
-            now_value + VOLUME_VISUALIZER_BOX_SECONDS
-            + INTERACTION_VISUALIZER_BOX_FADE_SECONDS
+            now_value + interaction_feedback_hold_seconds
+            + interaction_feedback_fade_seconds
         )
 
     def start_volume_visual_feedback(
@@ -42854,16 +46438,30 @@ def play_audio_file(
     def interaction_feedback_label(action: str) -> str:
         """Turn every user control action into a compact overlay label."""
         raw = str(action or "").strip()
-        if raw == DISMISS_OVERLAY:
+        if raw in {DISMISS_OVERLAY, HELP_OVERLAY}:
+            # The help screen is itself the feedback. In particular, pressing ?
+            # to leave it must not leave a redundant "Help Overlay" visualizer box.
+            return ""
+        if raw in {ALL_AUDIO_TAGS_FIRST_PAGE, ALL_AUDIO_TAGS_LAST_PAGE}:
+            # Home/End (including Ctrl+Home/Ctrl+End scan codes) are modal tag
+            # navigation when Alt+3 owns the screen, and otherwise should retain
+            # normal terminal/scrollback behavior without flashing an overlay.
             return ""
         if raw == PAUSE_TOGGLE:
             return "Pause"
+        if raw in {SPEED_UP, SPEED_DOWN, SPEED_RESET}:
+            # Speed feedback is armed *after* the change so it can say the
+            # actual resulting multiplier rather than the generic action name.
+            return ""
         if raw in {"web-set:art_color_autoslides_locked:0", "web-set:art_color_autoslides_locked:1"}:
             return ""
         if raw.startswith(WEB_SET_PREFIX):
             payload = raw[len(WEB_SET_PREFIX):]
             key, separator, value = payload.partition(":")
             if separator:
+                if key in {"drcs_art_microtile_mode", "drcs_art_bar_microtile_mode", "speed_index"}:
+                    # These have richer post-change HUD/overlay feedback below.
+                    return ""
                 return f"{key.replace('_', ' ').title()}: {value}"
         if raw.startswith(WEB_FAVORITE_PREFIX):
             return f"Favorite: {raw[len(WEB_FAVORITE_PREFIX):].replace('_', ' ').title()}"
@@ -42875,6 +46473,23 @@ def play_audio_file(
             except ValueError:
                 pass
         return raw.replace("-", " ").replace("_", " ").strip().title()
+
+    if initial_warning:
+        # A missing playlist slot is discovered by the session coordinator
+        # before this valid successor starts. Carry that warning into the
+        # successor's live UI: the visualizer gets a forced centered overlay,
+        # while non-visualizer sessions use the ordinary HUD notice row.
+        warning_text = str(initial_warning).strip()
+        if drcs_enabled:
+            start_interaction_visual_feedback(
+                f"⚠ {warning_text} ⚠",
+                monotonic(),
+                force=True,
+                hold_seconds=3.0,
+                fade_seconds=2.0,
+            )
+        else:
+            set_transient_warning(warning_text, seconds=5.0)
 
     def change_volume(action: str, now: float) -> None:
         """Apply held-key acceleration while keeping volume within 0–400%."""
@@ -42919,6 +46534,7 @@ def play_audio_file(
         unchanged text every 8.3 ms just to make the bars smoother.
         """
         nonlocal status_rendered, last_drcs_position, last_lyric_index, last_visualizer_payload
+        nonlocal drcs_bank_swap_pending
         nonlocal lyric_rows_known_blank
         nonlocal static_visualizer_payload
         nonlocal last_visualizer_rows, last_visualizer_cells, visualizer_cursor_known_bottom, last_visualizer_row_count
@@ -43171,12 +46787,68 @@ def play_audio_file(
                     or artwork_karaoke_static_rows
                     or (
                         not static_visualizer_repaint
+                        and visualizer_background_artwork_enabled
                         and track_artwork_allowed
                         and ART_COLOR_VISUALIZER_REPRESENTATION in {"blackness", "both"}
                         and ART_COLOR_VISUALIZER_BLACK_STRENGTH > 0
                     )
                 )
-                effective_art_bar_strength, effective_art_black_strength = art_color_visualizer_effective_strengths(monotonic())
+                effective_art_bar_strength, effective_art_black_strength = art_color_visualizer_effective_strengths(current_position)
+                # V379: 3×N detail needs a wider static artwork sample grid than
+                # the twin-bar analyzer's fixed 2× logical width. Build one grid
+                # at the maximum geometry required by Bars/Blackness and let each
+                # layer sample its own subcell centers from that cached source.
+                _effective_background_detail_mode = drcs_art_microtile_mode if visualizer_background_artwork_enabled else 0
+                _effective_bar_detail_mode = drcs_art_bar_microtile_mode if visualizer_bars_enabled else 0
+                _art_sample_horizontal = max(
+                    art_detail_horizontal_subcells(_effective_background_detail_mode),
+                    art_detail_horizontal_subcells(_effective_bar_detail_mode),
+                )
+                _art_sample_vertical = max(
+                    art_detail_vertical_subcells(_effective_background_detail_mode),
+                    art_detail_vertical_subcells(_effective_bar_detail_mode),
+                )
+                _artwork_microtile_color_grid = (
+                    album_art_visualizer_color_grid(
+                        str(audio_path), visualizer_width * _art_sample_horizontal,
+                        visualizer_art_rows * _art_sample_vertical,
+                        _art_sample_horizontal, _art_sample_vertical,
+                    )
+                    if track_artwork_allowed
+                    and render_granularity == 3
+                    and (
+                        (visualizer_bars_enabled and drcs_art_bar_microtiles and ART_COLOR_VISUALIZER_REPRESENTATION in {"bars", "both"})
+                        or (visualizer_background_artwork_enabled and drcs_art_microtiles and ART_COLOR_VISUALIZER_REPRESENTATION in {"blackness", "both"})
+                    )
+                    else None
+                )
+                # V383 seam-optimized 2×4: spend the active 55 artwork DRCS
+                # slots on the exact octant masks this cover actually uses. A
+                # mask that misses the adaptive bank still renders exactly via
+                # Unicode, but the common/boundary-sensitive cells no longer
+                # expose the font renderer's tiny inter-cell side bearings.
+                _seamless_requested = (
+                    (visualizer_background_artwork_enabled and art_detail_is_seamless_adaptive(drcs_art_microtile_mode))
+                    or (visualizer_bars_enabled and art_detail_is_seamless_adaptive(drcs_art_bar_microtile_mode))
+                )
+                if _seamless_requested and dense_art_drcs_layout_active == 3 and _artwork_microtile_color_grid:
+                    _seamless_codebook = adaptive_seamless_drcs_codebook_for_grid(
+                        _artwork_microtile_color_grid, visualizer_art_rows, visualizer_width,
+                    )
+                    if set_art_detail_drcs_codebook_override(3, _seamless_codebook):
+                        drcs_bank_swap_pending = True
+                        last_visualizer_rows = None
+                        last_visualizer_cells = None
+                        last_drcs_position = None
+                        last_visualizer_payload = None
+                elif 3 in _ART_DETAIL_DRCS_CODEBOOK_OVERRIDES:
+                    if set_art_detail_drcs_codebook_override(3, None):
+                        if dense_art_drcs_layout_active == 3:
+                            drcs_bank_swap_pending = True
+                        last_visualizer_rows = None
+                        last_visualizer_cells = None
+                        last_drcs_position = None
+                        last_visualizer_payload = None
                 perf_render_started = time.perf_counter() if performance_stats_overlay_enabled else 0.0
                 rendered_visualizer = render_drcs_visualizer(
                     visualizer_width, levels, drcs_recent_energy,
@@ -43188,7 +46860,7 @@ def play_audio_file(
                     rows=visualizer_source_rows,
                     fade_style=fade_style,
                     truncate_top_lines=truncate_top_visualizer_lines,
-                    height_override=persisted_heights,
+                    height_override=(persisted_heights if visualizer_bars_enabled else [0.0] * logical_visualizer_width),
                     granularity=render_granularity,
                     disable_autowrap_during_paint=not disable_visualizer_autowrap_toggle,
                     force_row_column_one=not disable_visualizer_force_column_one,
@@ -43205,24 +46877,21 @@ def play_audio_file(
                             2 if render_granularity in {2, 3} else 1,
                         )
                         if track_artwork_allowed
-                        and ART_COLOR_VISUALIZER_REPRESENTATION in {"bars", "blackness", "both"}
-                        else None
-                    ),
-                    artwork_microtile_color_grid=(
-                        album_art_visualizer_color_grid(
-                            str(audio_path), logical_visualizer_width, visualizer_art_rows * 2, 2, 2
+                        and (
+                            (visualizer_bars_enabled and ART_COLOR_VISUALIZER_REPRESENTATION in {"bars", "both"})
+                            or (visualizer_background_artwork_enabled and ART_COLOR_VISUALIZER_REPRESENTATION in {"blackness", "both"})
                         )
-                        if track_artwork_allowed
-                        and (drcs_art_microtiles or drcs_art_bar_microtiles)
-                        and render_granularity == 3
-                        and ART_COLOR_VISUALIZER_REPRESENTATION in {"bars", "blackness", "both"}
                         else None
                     ),
-                    artwork_microtiles_enabled=bool(track_artwork_allowed and drcs_art_microtiles),
-                    artwork_bar_microtiles_enabled=bool(track_artwork_allowed and drcs_art_bar_microtiles),
+                    artwork_microtile_color_grid=_artwork_microtile_color_grid,
+                    artwork_microtiles_enabled=bool(track_artwork_allowed and visualizer_background_artwork_enabled and drcs_art_microtiles),
+                    artwork_bar_microtiles_enabled=bool(track_artwork_allowed and visualizer_bars_enabled and drcs_art_bar_microtiles),
+                    artwork_microtile_detail_mode=_effective_background_detail_mode,
+                    artwork_bar_microtile_detail_mode=_effective_bar_detail_mode,
                     artwork_bar_strength=(
                         effective_art_bar_strength
                         if track_artwork_allowed
+                        and visualizer_bars_enabled
                         and ART_COLOR_VISUALIZER_REPRESENTATION in {"bars", "both"}
                         else 0.0
                     ),
@@ -43230,6 +46899,7 @@ def play_audio_file(
                     artwork_background_strength=(
                         effective_art_black_strength
                         if track_artwork_allowed
+                        and visualizer_background_artwork_enabled
                         and ART_COLOR_VISUALIZER_REPRESENTATION in {"blackness", "both"}
                         else 0.0
                     ),
@@ -43239,12 +46909,14 @@ def play_audio_file(
                     semantic_cells_only=bool(
                         visualizer_transport_mode == "semantic-cell"
                         and last_visualizer_cells is not None
+                        and not drcs_bank_swap_pending
                         and not visualizer_force_full_frame
                         and not static_visualizer_repaint
                         and karaoke_visualizer_height_mode != 3
                     ),
                     rows_only=bool(
                         visualizer_transport_mode == "row-delta"
+                        and not drcs_bank_swap_pending
                         and not visualizer_force_full_frame
                         and not static_visualizer_repaint
                         and karaoke_visualizer_height_mode != 3
@@ -43256,6 +46928,29 @@ def play_audio_file(
                 )
                 if perf_render_started:
                     performance_profile_add("render", time.perf_counter() - perf_render_started)
+
+                # V389 seamless microtile transitions. Replacing a DRCS soft font
+                # mutates how *already visible* bytes are painted. Previously the
+                # bank was downloaded immediately when the dropdown changed, so
+                # the old frame briefly turned into nonsense/new-bank glyphs and
+                # only then got repainted at the requested detail. Commit both
+                # operations under DEC synchronized-output instead: old frame +
+                # old bank remain visible until the new bank and the complete new
+                # frame are ready, then Windows Terminal presents the result as
+                # one visual transition. We intentionally force mode 2026 here
+                # even if a diagnostic transport mode disabled it for normal
+                # animation; unsupported terminals simply ignore the private mode.
+                drcs_transition_committed = False
+                if drcs_bank_swap_pending and rendered_visualizer:
+                    transition_payload = atomic_drcs_frame_transition_payload(
+                        define_all_player_drcs(dense_art_drcs_layout_active),
+                        visualizer_origin(visualizer_row),
+                        rendered_visualizer,
+                    )
+                    write_visualizer_console(transition_payload)
+                    drcs_bank_swap_pending = False
+                    drcs_transition_committed = True
+
                 if karaoke_visualizer_height_mode == 3:
                     # "Over karaoke" is an explicit paint-order mode, not an
                     # accident of the visualizer running at a higher frame rate.
@@ -43283,7 +46978,24 @@ def play_audio_file(
                     and len(rendered_cells) == len(last_visualizer_cells)
                     and all(len(a) == len(b) for a, b in zip(rendered_cells, last_visualizer_cells))
                 )
-                if visualizer_transport_mode == "semantic-cell" and rendered_cells and semantic_shape_matches and not visualizer_force_full_frame and not static_visualizer_repaint:
+                if drcs_transition_committed:
+                    # The transition payload above already painted this complete
+                    # frame. Seed the active delta cache from the exact content we
+                    # just committed so the following 120-Hz frame resumes normal
+                    # incremental transport instead of redundantly repainting it.
+                    if visualizer_transport_mode == "semantic-cell" and rendered_cells:
+                        last_visualizer_cells = rendered_cells
+                        last_visualizer_rows = None
+                    elif rendered_rows and (visualizer_transport_mode == "row-delta" or use_delta_visualizer_rows):
+                        last_visualizer_rows = rendered_rows
+                        last_visualizer_cells = None
+                    else:
+                        last_visualizer_cells = None
+                        last_visualizer_rows = None
+                    last_visualizer_payload = None
+                    visualizer_cursor_known_bottom = False
+                    last_visualizer_row_count = visible_row_count
+                elif visualizer_transport_mode == "semantic-cell" and rendered_cells and semantic_shape_matches and not visualizer_force_full_frame and not static_visualizer_repaint:
                     pieces = [("\033[?2026h" if synchronized_output_enabled else "")]
                     if not disable_visualizer_autowrap_toggle:
                         pieces.append("\033[?7l")
@@ -43384,10 +47096,28 @@ def play_audio_file(
                         or row_text != last_visualizer_rows[index]
                     ]
                     if changed:
+                        # V376/V377: artwork detail frequently selects row-delta transport.
+                        # Every rendered row is terminal-width, so leaving DECAWM on
+                        # can put Windows Terminal into wrap-pending state after the
+                        # final glyph.  The next charset/SGR/CUP sequence can then
+                        # expose the old one-cell horizontal row offset seen as
+                        # broken artwork slices.  Do not use the minimal/relative
+                        # origin here either: each independent row gets an absolute
+                        # CUP plus DEC #5 single-width reset before any printable
+                        # glyphs.  That makes row deltas obey the same invariants as
+                        # a complete visualizer frame.
                         pieces = [("\033[?2026h" if synchronized_output_enabled else "")]
+                        if not disable_visualizer_autowrap_toggle:
+                            pieces.append("\033[?7l")
                         for index in changed:
-                            pieces.append(visualizer_origin(visualizer_row + index))
+                            pieces.append(move_to(
+                                visualizer_row + index,
+                                line_rendition=not omit_visualizer_big_off,
+                            ))
+                            pieces.append("\033[1G")
                             pieces.append(rendered_rows[index])
+                        if not disable_visualizer_autowrap_toggle:
+                            pieces.append("\033[?7h")
                         pieces.append("\033[?2026l" if synchronized_output_enabled else "")
                         write_visualizer_console("".join(pieces), run_count=len(changed))
                     last_visualizer_rows = rendered_rows
@@ -43430,7 +47160,7 @@ def play_audio_file(
             nonlocal visualizer_cursor_known_bottom
             feedback_rows = max(3, int(last_visualizer_row_count or configured_visualizer_rows))
             active = bool(
-                CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED
+                (CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED or interaction_feedback_forced)
                 and drcs_enabled
                 and volume_feedback_box_text
                 and now_value < volume_feedback_box_until
@@ -43445,18 +47175,19 @@ def play_audio_file(
                     volume_feedback_box_was_visible = False
                     volume_feedback_box_last_fade_step = -1
                 return
-            rows = interaction_feedback_box_rows(volume_feedback_box_text, visualizer_width)
+            feedback_width = max(12, int(interaction_feedback_terminal_width or visualizer_width))
+            rows = interaction_feedback_box_rows(volume_feedback_box_text, feedback_width)
             inner_width = terminal_cell_width(rows[0]) - 2
-            left = max(1, (visualizer_width - inner_width - 2) // 2 + 1)
+            left = max(1, (feedback_width - inner_width - 2) // 2 + 1)
             visible_rows = max(3, feedback_rows - truncate_top_visualizer_lines)
             # Derive the anchor directly; the renderer's local visualizer_row is
             # intentionally not initialized on every lightweight status path.
             feedback_row = LYRIC_ROW if expand_visualizer_into_lyrics else DRCS_ROW
             top_row = feedback_row + max(0, (visible_rows - 3) // 2)
-            fade_started = volume_feedback_box_started + VOLUME_VISUALIZER_BOX_SECONDS
+            fade_started = volume_feedback_box_started + interaction_feedback_hold_seconds
             fade_fraction = max(0.0, min(
                 1.0,
-                (now_value - fade_started) / max(0.001, INTERACTION_VISUALIZER_BOX_FADE_SECONDS),
+                (now_value - fade_started) / max(0.001, interaction_feedback_fade_seconds),
             ))
             if fade_fraction <= 0.0:
                 box = (
@@ -43516,10 +47247,18 @@ def play_audio_file(
             # the rendered payload was identical and intentionally suppressed.
             return
         visualizer_cursor_known_bottom = False
-        beat_now = monotonic()
-        beat_delta = max(0.0, beat_now - progress_beat_last_time)
+        beat_now = max(0.0, float(current_position))
+        if progress_beat_last_time < 0.0 or beat_now < progress_beat_last_time or beat_now - progress_beat_last_time > 1.0:
+            beat_delta = 1.0 / max(1, SPECTRUM_ANALYSIS_FPS)
+        else:
+            beat_delta = max(0.0, beat_now - progress_beat_last_time)
         progress_beat_last_time = beat_now
-        progress_levels = levels if levels else progress_visualizer_levels
+        desired_live_mode = live_visualizer_capture_mode(visualizer_input_source, bool(prompt_paused_state[0]))
+        progress_levels = levels if levels else (
+            progress_visualizer_levels
+            if desired_live_mode
+            else (spectrum_frame_interpolated_at(drcs_timeline, current_position) or progress_visualizer_levels)
+        )
         progress_beat_value = (
             progress_beat_pulse(progress_levels, progress_beat_state, beat_delta, progress_beat_detector)
             if progress_beat_reactive
@@ -44699,6 +48438,9 @@ def play_audio_file(
             "KaraokeEmojimax": int(karaoke_emojimax),
             "KaraokeOffsetTenths": int(round(KARAOKE_DISPLAY_OFFSET_SECONDS * 10.0)),
             "ConsoleKaraokeEnabled": int(console_karaoke_enabled),
+            "ConsoleAlertsEnabled": int(console_alerts_enabled),
+            "VisualizerBarsEnabled": int(visualizer_bars_enabled),
+            "VisualizerBackgroundArtworkEnabled": int(visualizer_background_artwork_enabled),
             "AlertNoReplayGain": int(alert_no_replaygain),
             "AlertMissingArtist": int(alert_missing_artist),
             "AlertMissingTitle": int(alert_missing_title),
@@ -44733,8 +48475,8 @@ def play_audio_file(
 
     def apply_mode_settings(settings: dict[str, int]) -> None:
         nonlocal visualizer_mode, persistence_mode, visualizer_granularity, visualizer_input_source, processing_style, color_style, color_reverse, fade_style, frequency_warp_enabled, karaoke_style, karaoke_treatment
-        nonlocal karaoke_emojimax, console_karaoke_enabled, progress_style, progress_bar_enabled, progress_beat_reactive, progress_beat_detector, progress_beat_treatment, cursive_fix, output_channels, output_rate, output_bit_depth, output_device_index, output_devices_mask_value, output_device_indexes, mm_inspired_renderer_enabled, balance
-        nonlocal alert_no_replaygain, alert_missing_artist, alert_missing_title, alert_missing_karaoke, alert_missing_lyrics, alert_missing_artwork, alert_unknown_year, alert_unknown_genre, alert_embedded_lyrics_mismatch, replaygain_missing_continuous
+        nonlocal karaoke_emojimax, console_karaoke_enabled, console_alerts_enabled, visualizer_bars_enabled, visualizer_background_artwork_enabled, progress_style, progress_bar_enabled, progress_beat_reactive, progress_beat_detector, progress_beat_treatment, cursive_fix, output_channels, output_rate, output_bit_depth, output_device_index, output_devices_mask_value, output_device_indexes, mm_inspired_renderer_enabled, balance
+        nonlocal alert_no_replaygain, alert_missing_artist, alert_missing_title, alert_missing_karaoke, alert_missing_lyrics, alert_missing_artwork, alert_unknown_year, alert_unknown_genre, alert_embedded_lyrics_mismatch, replaygain_missing_continuous, track_alert_details, track_alerts_announced
         nonlocal volume, speed_index, looping, drcs_enabled, sixel_enabled
         visualizer_mode = settings["VisualizerMode"]
         persistence_mode = settings.get("PersistenceMode", DEFAULT_PERSISTENCE_MODE)
@@ -44751,6 +48493,9 @@ def play_audio_file(
         karaoke_emojimax = bool(settings["KaraokeEmojimax"])
         set_karaoke_display_offset_tenths(int(settings.get("KaraokeOffsetTenths", 0)))
         console_karaoke_enabled = bool(settings.get("ConsoleKaraokeEnabled", 1))
+        console_alerts_enabled = bool(settings.get("ConsoleAlertsEnabled", 1))
+        visualizer_bars_enabled = bool(settings.get("VisualizerBarsEnabled", 1))
+        visualizer_background_artwork_enabled = bool(settings.get("VisualizerBackgroundArtworkEnabled", 1))
         alert_no_replaygain = bool(settings.get("AlertNoReplayGain", 1))
         alert_missing_artist = bool(settings.get("AlertMissingArtist", 1))
         alert_missing_title = bool(settings.get("AlertMissingTitle", 1))
@@ -44761,7 +48506,12 @@ def play_audio_file(
         alert_unknown_genre = bool(settings.get("AlertUnknownGenre", 0))
         alert_embedded_lyrics_mismatch = bool(settings.get("AlertEmbeddedLyricsMismatch", 1))
         health = audio_health_result[0]
-        replaygain_missing_continuous = bool(alert_no_replaygain and health is not None and not getattr(health, "replaygain_valid", False))
+        replaygain_missing_continuous = bool(console_alerts_enabled and alert_no_replaygain and health is not None and not getattr(health, "replaygain_valid", False))
+        if not console_alerts_enabled:
+            track_alert_details = []
+            track_alerts_announced = True
+        else:
+            track_alerts_announced = False
         progress_style = settings["ProgressStyle"]
         progress_bar_enabled = bool(settings.get("ProgressBarEnabled", 1))
         progress_beat_reactive = bool(settings.get("ProgressBeatReactive", 1))
@@ -44802,6 +48552,9 @@ def play_audio_file(
             (karaoke_style_state, karaoke_style),
             (karaoke_treatment_state, karaoke_treatment),
             (console_karaoke_enabled_state, console_karaoke_enabled),
+            (console_alerts_enabled_state, console_alerts_enabled),
+            (visualizer_bars_enabled_state, visualizer_bars_enabled),
+            (visualizer_background_artwork_enabled_state, visualizer_background_artwork_enabled),
             (alert_no_replaygain_state, alert_no_replaygain),
             (alert_missing_artist_state, alert_missing_artist),
             (alert_missing_title_state, alert_missing_title),
@@ -44949,13 +48702,14 @@ def play_audio_file(
         nonlocal visualizer_granularity, visualizer_input_source, karaoke_style, karaoke_treatment, console_karaoke_enabled
         nonlocal decensor_console_karaoke, decensor_artwork_lyrics, decensor_floating_lyrics
         nonlocal alert_no_replaygain, alert_missing_artist, alert_missing_title, alert_missing_karaoke, alert_missing_lyrics, alert_missing_artwork, alert_unknown_year, alert_unknown_genre, alert_embedded_lyrics_mismatch, replaygain_missing_continuous
+        nonlocal console_alerts_enabled, visualizer_bars_enabled, visualizer_background_artwork_enabled, track_alert_details, track_alerts_announced
         nonlocal karaoke_visualizer_height_mode
         nonlocal progress_style, progress_bar_enabled, progress_beat_reactive, progress_beat_detector, progress_beat_treatment
-        nonlocal drcs_art_microtiles, drcs_art_bar_microtiles, fade_style, speed_index, output_channels, output_rate, output_bit_depth, output_device_index, output_devices_mask_value, output_device_indexes, mm_inspired_renderer_enabled
+        nonlocal drcs_art_microtiles, drcs_art_bar_microtiles, drcs_art_microtile_mode, drcs_art_bar_microtile_mode, dense_art_drcs_layout_active, drcs_bank_swap_pending, fade_style, speed_index, output_channels, output_rate, output_bit_depth, output_device_index, output_devices_mask_value, output_device_indexes, mm_inspired_renderer_enabled
         nonlocal volume, balance, color_notice_until, processing_notice_until
         nonlocal volume_feedback_box_until, volume_blink_rearm_on_playback_start
         nonlocal persistence_notice_until, granularity_notice_until
-        nonlocal last_drcs_position, last_visualizer_payload, last_lyric_index
+        nonlocal last_drcs_position, last_visualizer_payload, last_visualizer_rows, last_visualizer_cells, last_lyric_index
         nonlocal configured_visualizer_rows, truncate_top_visualizer_lines
 
         parsed = parse_web_set_action(action)
@@ -45130,7 +48884,23 @@ def play_audio_file(
         elif key == "decensor_floating_lyrics":
             decensor_floating_lyrics = bool(value)
             if decensor_floating_lyrics_state is not None: decensor_floating_lyrics_state[0] = decensor_floating_lyrics
+            if external_album_art_window is not None:
+                external_album_art_window.set_floating_decensor_enabled(decensor_floating_lyrics)
             last_lyric_index = None
+        elif key == "art_topmost":
+            art_topmost = bool(value)
+            save_external_album_art_topmost(art_topmost)
+            if external_album_art_window is not None:
+                external_album_art_window.set_art_topmost(art_topmost)
+            if web_server is not None:
+                web_server.publish(art_topmost=art_topmost)
+        elif key == "floating_topmost":
+            floating_topmost = bool(value)
+            save_external_floating_lyrics_topmost(floating_topmost)
+            if external_album_art_window is not None:
+                external_album_art_window.set_floating_topmost(floating_topmost)
+            if web_server is not None:
+                web_server.publish(floating_topmost=floating_topmost)
         elif key == "console_karaoke_enabled":
             console_karaoke_enabled = bool(value)
             if console_karaoke_enabled_state is not None:
@@ -45139,8 +48909,46 @@ def play_audio_file(
             last_visualizer_payload = None
             if not console_karaoke_enabled:
                 clear_region(LYRIC_ROW, LYRIC_ROWS)
+        elif key == "visualizer_bars_enabled":
+            visualizer_bars_enabled = bool(value)
+            if visualizer_bars_enabled_state is not None: visualizer_bars_enabled_state[0] = visualizer_bars_enabled
+            save_player_setting_value("VisualizerBarsEnabled", int(visualizer_bars_enabled))
+            new_dense_layout = choose_art_detail_drcs_layout(
+                drcs_art_microtile_mode if visualizer_background_artwork_enabled else 0,
+                drcs_art_bar_microtile_mode if visualizer_bars_enabled else 0,
+            )
+            if new_dense_layout != dense_art_drcs_layout_active:
+                dense_art_drcs_layout_active = new_dense_layout
+                drcs_bank_swap_pending = True
+                last_drcs_position = None
+            last_visualizer_payload = None; last_visualizer_rows = None; last_visualizer_cells = None
+            if web_server is not None: web_server.publish(visualizer_bars_enabled=visualizer_bars_enabled)
+        elif key == "visualizer_background_artwork_enabled":
+            visualizer_background_artwork_enabled = bool(value)
+            if visualizer_background_artwork_enabled_state is not None: visualizer_background_artwork_enabled_state[0] = visualizer_background_artwork_enabled
+            save_player_setting_value("VisualizerBackgroundArtworkEnabled", int(visualizer_background_artwork_enabled))
+            new_dense_layout = choose_art_detail_drcs_layout(
+                drcs_art_microtile_mode if visualizer_background_artwork_enabled else 0,
+                drcs_art_bar_microtile_mode if visualizer_bars_enabled else 0,
+            )
+            if new_dense_layout != dense_art_drcs_layout_active:
+                dense_art_drcs_layout_active = new_dense_layout
+                drcs_bank_swap_pending = True
+                last_drcs_position = None
+            last_visualizer_payload = None; last_visualizer_rows = None; last_visualizer_cells = None
+            if web_server is not None: web_server.publish(visualizer_background_artwork_enabled=visualizer_background_artwork_enabled)
+        elif key == "console_alerts_enabled":
+            console_alerts_enabled = bool(value)
+            if console_alerts_enabled_state is not None: console_alerts_enabled_state[0] = console_alerts_enabled
+            save_player_setting_value("ConsoleAlertsEnabled", int(console_alerts_enabled))
+            replaygain_missing_continuous = False
+            track_alert_details = []
+            if console_alerts_enabled:
+                track_alerts_announced = False
+            if web_server is not None: web_server.publish(console_alerts_enabled=console_alerts_enabled)
         elif key == "console_visualizer_volume_feedback_enabled":
             CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED = bool(value)
+            save_player_setting_value("ConsoleVisualizerOverlayMessagesEnabled", int(CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED))
             if not CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED:
                 volume_feedback_box_until = 0.0
             reset_visualizer_transport_cache()
@@ -45166,7 +48974,7 @@ def play_audio_file(
             if key == "alert_no_replaygain":
                 alert_no_replaygain = enabled
                 health = audio_health_result[0]
-                replaygain_missing_continuous = bool(enabled and health is not None and not getattr(health, "replaygain_valid", False))
+                replaygain_missing_continuous = bool(console_alerts_enabled and enabled and health is not None and not getattr(health, "replaygain_valid", False))
             elif key == "alert_missing_artist": alert_missing_artist = enabled
             elif key == "alert_missing_title": alert_missing_title = enabled
             elif key == "alert_missing_karaoke": alert_missing_karaoke = enabled
@@ -45204,16 +49012,58 @@ def play_audio_file(
                 cursive_fix_state[0] = cursive_fix
             CURSIVE_FIX_RUNTIME = cursive_fix
             last_lyric_index = None
-        elif key == "drcs_art_microtiles":
-            drcs_art_microtiles = bool(value)
+        elif key in {"drcs_art_microtile_mode", "drcs_art_microtiles"}:
+            # Old boolean web actions remain valid: 0 = single-character,
+            # 1 = the historical 2×2 quadrant mode. New UI sends 0..6.
+            drcs_art_microtile_mode = max(0, min(len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1, int(value)))
+            drcs_art_microtiles = drcs_art_microtile_mode > 0
             if drcs_art_microtiles_state is not None:
-                drcs_art_microtiles_state[0] = drcs_art_microtiles
+                drcs_art_microtiles_state[0] = drcs_art_microtile_mode
+            save_player_setting_value("DrcsArtMicrotileDetailModeV370", drcs_art_microtile_mode)
+            if web_server is not None:
+                web_server.publish(
+                    drcs_art_microtile_mode=drcs_art_microtile_mode,
+                    drcs_art_microtiles=drcs_art_microtiles,
+                )
+            new_dense_layout = choose_art_detail_drcs_layout(
+                drcs_art_microtile_mode if visualizer_background_artwork_enabled else 0,
+                drcs_art_bar_microtile_mode if visualizer_bars_enabled else 0,
+            )
+            if new_dense_layout != dense_art_drcs_layout_active:
+                dense_art_drcs_layout_active = new_dense_layout
+                # V389: keep the currently displayed frame paired with its old
+                # soft-font bank until the next complete target frame is ready.
+                # That frame will atomically redefine DRCS and repaint, so there
+                # is no intermediate reinterpretation flash.
+                drcs_bank_swap_pending = True
+                last_visualizer_rows = None
+                last_visualizer_cells = None
+                last_drcs_position = None
             last_visualizer_payload = None
-        elif key == "drcs_art_bar_microtiles":
-            drcs_art_bar_microtiles = bool(value)
+            announce_art_detail_mode("Blackness", drcs_art_microtile_mode)
+        elif key in {"drcs_art_bar_microtile_mode", "drcs_art_bar_microtiles"}:
+            drcs_art_bar_microtile_mode = max(0, min(len(ART_MICROTILE_DETAIL_MODE_NAMES) - 1, int(value)))
+            drcs_art_bar_microtiles = drcs_art_bar_microtile_mode > 0
             if drcs_art_bar_microtiles_state is not None:
-                drcs_art_bar_microtiles_state[0] = drcs_art_bar_microtiles
+                drcs_art_bar_microtiles_state[0] = drcs_art_bar_microtile_mode
+            save_player_setting_value("DrcsArtBarMicrotileDetailModeV370", drcs_art_bar_microtile_mode)
+            if web_server is not None:
+                web_server.publish(
+                    drcs_art_bar_microtile_mode=drcs_art_bar_microtile_mode,
+                    drcs_art_bar_microtiles=drcs_art_bar_microtiles,
+                )
+            new_dense_layout = choose_art_detail_drcs_layout(
+                drcs_art_microtile_mode if visualizer_background_artwork_enabled else 0,
+                drcs_art_bar_microtile_mode if visualizer_bars_enabled else 0,
+            )
+            if new_dense_layout != dense_art_drcs_layout_active:
+                dense_art_drcs_layout_active = new_dense_layout
+                drcs_bank_swap_pending = True
+                last_visualizer_rows = None
+                last_visualizer_cells = None
+                last_drcs_position = None
             last_visualizer_payload = None
+            announce_art_detail_mode("Bars", drcs_art_bar_microtile_mode)
         elif key == "fade_style":
             fade_style = min(len(FADE_STYLE_NAMES), max(1, value))
         elif key == "speed_index":
@@ -45224,6 +49074,10 @@ def play_audio_file(
                 speed_index_state[0] = speed_index
             if speed_adjusted_state is not None:
                 speed_adjusted_state[0] = True
+            if restart_required:
+                start_interaction_visual_feedback(
+                    f"Speed: {format_speed(PLAYBACK_SPEEDS[speed_index])}", now_value,
+                )
         elif key == "output_channels":
             new_channels = value if value in {2, 5, 7, 12} else 2
             restart_required = new_channels != output_channels
@@ -46125,7 +49979,7 @@ def play_audio_file(
             TERMINAL_BOTTOM_RESERVE_TRIM_ROWS,
         )
         clear_region(0, UI_ROWS)
-        write_console(define_all_player_drcs() + "\033[?25l")
+        write_console(define_all_player_drcs(dense_art_drcs_layout_active) + "\033[?25l")
         render_static_header(position)
         render_controls(0.0)
         if all_audio_tags_active:
@@ -46163,6 +50017,9 @@ def play_audio_file(
 
         def analyze_spectrum() -> None:
             nonlocal drcs_timeline
+            # Audio presentation wins every CPU contest.  This thread and its
+            # FFmpeg child are background-only and may lag rather than make music stutter.
+            lower_current_thread_priority()
             # Spectrum work is deliberately PACED.  Older builds decoded the
             # whole track as fast as FFmpeg could run, competing with FFplay,
             # playlist/history work and terminal painting for the first ~15s.
@@ -46301,6 +50158,10 @@ def play_audio_file(
             health = audio_health_result[0]
             if health is None:
                 return False
+            if not console_alerts_enabled:
+                replaygain_missing_continuous = False
+                track_alert_details = []
+                return True
             replaygain_missing_continuous = bool(alert_no_replaygain and not getattr(health, "replaygain_valid", False))
             expects_lyrics = not any(
                 marker in str(audio_path).casefold()
@@ -46341,14 +50202,20 @@ def play_audio_file(
         last_runtime_warning_serial = pafplayer_runtime_warning_serial()
         while True:
             speed = PLAYBACK_SPEEDS[speed_index]
-            mm_renderer_active = bool(mm_inspired_renderer_enabled and output_channels in {5, 7, 12} and os.name == "nt")
+            buffered_waveout_active = bool(
+                os.name == "nt" and process_factory is subprocess.Popen and (
+                    (smooth_audio_renderer_enabled and output_channels == 2)
+                    or (mm_inspired_renderer_enabled and output_channels in {5, 7, 12})
+                )
+            )
             process = None
             command: list[str]
-            if mm_renderer_active and process_factory is subprocess.Popen:
+            if buffered_waveout_active:
                 try:
                     process, command = launch_matrixmixer_inspired_renderer(
                         audio_path, position, volume, speed, output_channels, balance, output_rate, output_device_index, output_bit_depth, output_device_indexes=output_device_indexes,
                         end_seconds=playback_end, replaygain_info=replaygain_info,
+                        target_buffer_ms=audio_buffer_ms,
                     )
                     append_pafplayer_trace(
                         "mm-inspo.started", track=audio_path, position_seconds=position,
@@ -46359,7 +50226,7 @@ def play_audio_file(
                     )
                 except Exception as exc:
                     record_pafplayer_runtime_warning(
-                        "Experimental 5.1/7.1 renderer unavailable — using legacy renderer",
+                        "Buffered WaveOut renderer unavailable — using legacy FFplay",
                         f"V231 MMInspo: {exc}",
                     )
                     append_pafplayer_trace("mm-inspo.fallback", track=audio_path, error=str(exc))
@@ -46389,12 +50256,22 @@ def play_audio_file(
                     balance=balance,
                     command=command,
                 )
-                process = process_factory(
-                    command,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
+                process_kwargs = {
+                    "stdin": subprocess.DEVNULL,
+                    "stdout": subprocess.DEVNULL,
+                    "stderr": subprocess.DEVNULL,
+                }
+                if process_factory is subprocess.Popen and os.name == "nt":
+                    # Even the fallback decoder gets a scheduling preference.
+                    # SDL builds that understand SDL_AUDIO_DEVICE_SAMPLE_FRAMES
+                    # also receive the requested reservoir size; older builds
+                    # simply ignore the hint.
+                    process_kwargs["creationflags"] = getattr(subprocess, "ABOVE_NORMAL_PRIORITY_CLASS", 0)
+                    ffplay_env = os.environ.copy()
+                    if smooth_audio_renderer_enabled and audio_buffer_ms > 0:
+                        ffplay_env["SDL_AUDIO_DEVICE_SAMPLE_FRAMES"] = str(max(256, round(output_rate * audio_buffer_ms / 1000.0)))
+                    process_kwargs["env"] = ffplay_env
+                process = process_factory(command, **process_kwargs)
                 append_pafplayer_trace(
                     "ffplay.started",
                     track=audio_path,
@@ -46413,6 +50290,11 @@ def play_audio_file(
                     completion_event=lastfm_now_playing_finished,
                 )
             segment_started = monotonic()
+            process_started_at = getattr(process, "playback_started_at", None)
+            buffered_backend_in_use = hasattr(process, "playback_started_at")
+            buffered_clock_waiting = bool(buffered_backend_in_use and process_started_at is None)
+            if process_started_at is not None:
+                segment_started = float(process_started_at)
             if volume_blink_rearm_on_playback_start:
                 # Volume changes rebuild FFplay. Start the timed phase sequence
                 # after that restart so process startup cannot swallow flash #2.
@@ -46483,10 +50365,24 @@ def play_audio_file(
                         "\033[1;38;2;235;205;120m🖼 No album art — Ctrl+Alt+D to download\033[0m",
                         seconds=10.0,
                     )
-                elapsed = max(0.0, now - segment_started) * speed
+                if buffered_clock_waiting:
+                    process_started_at = getattr(process, "playback_started_at", None)
+                    if process_started_at is not None:
+                        segment_started = float(process_started_at)
+                        buffered_clock_waiting = False
+                        next_visualizer_deadline = now
+                elapsed = 0.0 if buffered_clock_waiting else max(0.0, now - segment_started) * speed
                 displayed_position = position + elapsed
                 if playback_end is not None:
                     displayed_position = min(playback_end, displayed_position)
+                # One canonical millisecond presentation timestamp feeds every
+                # lyric/spectrum/progress animation surface for this iteration.
+                displayed_position = (
+                    math.floor((displayed_position + 1e-12) / PLAYBACK_PRESENTATION_QUANTUM_SECONDS)
+                    * PLAYBACK_PRESENTATION_QUANTUM_SECONDS
+                )
+                if external_album_art_window is not None:
+                    external_album_art_window.set_playback_position(displayed_position)
                 if apply_finished_last_play_lookup():
                     # The lookup worker owns SQLite only. Reflow/repaint remains
                     # on the playback owner thread so terminal output stays atomic.
@@ -46513,6 +50409,20 @@ def play_audio_file(
                         last_visualizer_payload = None
                         last_visualizer_rows = None
                         next_visualizer_deadline = now
+
+                if external_album_art_window is not None:
+                    # Floating title-bar controls live on Tk's GUI thread.  Funnel
+                    # persistent player-setting changes through the playback owner
+                    # so web/settings cells and subsequent karaoke frames agree.
+                    for _gui_setting_index in range(8):
+                        runtime_request = external_album_art_window.pop_runtime_setting_request()
+                        if runtime_request is None:
+                            break
+                        runtime_key, runtime_value = runtime_request
+                        apply_web_direct_setting(
+                            f"{WEB_SET_PREFIX}{runtime_key}:{int(runtime_value)}",
+                            now,
+                        )
 
                 if (
                     external_album_art_window is not None
@@ -46541,7 +50451,7 @@ def play_audio_file(
                         show_status(displayed_position, indicator, skip_visualizer=config_visualizers_paused)
                 if (
                     external_album_art_window is not None
-                    and now - last_external_lyric_publish >= 0.10
+                    and now - last_external_lyric_publish >= EXTERNAL_KARAOKE_CLOCK_PUBLISH_SECONDS
                 ):
                     perf_art_started = time.perf_counter() if performance_stats_overlay_enabled else 0.0
                     external_album_art_window.update_karaoke_frame(
@@ -46623,6 +50533,7 @@ def play_audio_file(
                         decensor_artwork_lyrics=decensor_artwork_lyrics,
                         decensor_floating_lyrics=decensor_floating_lyrics,
                         console_karaoke_enabled=console_karaoke_enabled,
+                        console_alerts_enabled=console_alerts_enabled,
                         alert_no_replaygain=alert_no_replaygain,
                         alert_missing_artist=alert_missing_artist,
                         alert_missing_title=alert_missing_title,
@@ -46641,9 +50552,13 @@ def play_audio_file(
                         cursive_fix=cursive_fix,
                         drcs_art_microtiles=drcs_art_microtiles,
                         drcs_art_bar_microtiles=drcs_art_bar_microtiles,
+                        drcs_art_microtile_mode=drcs_art_microtile_mode,
+                        drcs_art_bar_microtile_mode=drcs_art_bar_microtile_mode,
                         fade_style=fade_style,
                         frequency_warp_enabled=frequency_warp_enabled,
                         drcs_enabled=drcs_enabled,
+                        visualizer_bars_enabled=visualizer_bars_enabled,
+                        visualizer_background_artwork_enabled=visualizer_background_artwork_enabled,
                         console_visualizer_volume_feedback_enabled=CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED,
                         sixel_enabled=sixel_enabled,
                         album_art_visualizer_enabled=album_art_visualizer_enabled,
@@ -46658,6 +50573,16 @@ def play_audio_file(
                             external_album_art_window.floating_lyrics_enabled
                             if external_album_art_window is not None
                             else False
+                        ),
+                        art_topmost=(
+                            external_album_art_window.art_topmost
+                            if external_album_art_window is not None
+                            else load_external_album_art_topmost()
+                        ),
+                        floating_topmost=(
+                            external_album_art_window.floating_topmost
+                            if external_album_art_window is not None
+                            else load_external_floating_lyrics_topmost()
                         ),
                         karaoke_visualizer_expansion_enabled=karaoke_visualizer_expansion_enabled,
                         karaoke_visualizer_overlay=karaoke_visualizer_overlay,
@@ -46928,6 +50853,12 @@ def play_audio_file(
                         # suppressed while the full-screen tag view owns display.
                         sleeper(0.02)
                         continue
+                # Home/End scan codes are meaningful only while Alt+3 owns the
+                # screen.  Outside that view, do not turn Ctrl+End into a
+                # visualizer overlay/status action; leave normal terminal
+                # scrollback behavior visually unobstructed.
+                if action in {ALL_AUDIO_TAGS_FIRST_PAGE, ALL_AUDIO_TAGS_LAST_PAGE}:
+                    action = None
                 if help_overlay_until and _windows_question_mark_down():
                     help_overlay_until = max(help_overlay_until, now + 1.0)
                 if help_overlay_until:
@@ -47648,6 +51579,13 @@ def play_audio_file(
                     render_controls(playback_fraction(displayed_position))
                     show_status(displayed_position, indicator)
                     continue
+                if action == EXTERNAL_FLOATING_LYRICS_FOREGROUND:
+                    if external_album_art_window is not None and external_album_art_window.bring_floating_to_foreground():
+                        if web_server is not None:
+                            web_server.publish(floating_lyrics_enabled=True)
+                    else:
+                        set_transient_error("💥 Floating lyrics unavailable 💥", seconds=5.0)
+                    continue
                 if action == EXTERNAL_ALBUM_ART_TOGGLE:
                     enabled = (
                         external_album_art_window.toggle()
@@ -47833,6 +51771,9 @@ def play_audio_file(
                         speed_index = new_index
                         if speed_index_state is not None:
                             speed_index_state[0] = speed_index
+                        start_interaction_visual_feedback(
+                            f"Speed: {format_speed(PLAYBACK_SPEEDS[speed_index])}", now,
+                        )
                         indicator = "⏩" if delta > 0 else ("⏪" if delta < 0 else "⏱️")
                         loop_indicator_until = now + 4.0
                         render_controls(playback_fraction(position + elapsed))
@@ -48503,6 +52444,13 @@ def play_audio_file(
                             render_controls(playback_fraction(position))
                             show_status(position, "⏸️")
                             continue
+                        if paused_action == EXTERNAL_FLOATING_LYRICS_FOREGROUND:
+                            if external_album_art_window is not None and external_album_art_window.bring_floating_to_foreground():
+                                if web_server is not None:
+                                    web_server.publish(floating_lyrics_enabled=True)
+                            else:
+                                set_transient_error("💥 Floating lyrics unavailable 💥", seconds=5.0)
+                            continue
                         if paused_action == EXTERNAL_ALBUM_ART_TOGGLE:
                             enabled = (
                                 external_album_art_window.toggle()
@@ -48938,6 +52886,7 @@ def play_audio_file(
                         if paused_action in {SPEED_UP, SPEED_DOWN, SPEED_RESET}:
                             if speed_adjusted_state is not None:
                                 speed_adjusted_state[0] = True
+                            previous_speed_index = speed_index
                             if paused_action == SPEED_RESET:
                                 speed_index = PLAYBACK_SPEEDS.index(1.0)
                             elif paused_action == SPEED_UP:
@@ -48946,6 +52895,10 @@ def play_audio_file(
                                 speed_index = max(0, speed_index - 1)
                             if speed_index_state is not None:
                                 speed_index_state[0] = speed_index
+                            if speed_index != previous_speed_index:
+                                start_interaction_visual_feedback(
+                                    f"Speed: {format_speed(PLAYBACK_SPEEDS[speed_index])}", paused_now,
+                                )
                             render_controls(playback_fraction(position))
                             show_status(position, "⏸️")
                         if paused_action in VOLUME_STEPS or paused_action == VOLUME_RESET:
@@ -49078,6 +53031,255 @@ class PlayWaveFileTests(unittest.TestCase):
         with contextlib.redirect_stderr(stderr):
             self.assertEqual(2, main(["--emojimaxx"]))
         self.assertIn("requires exactly one quoted text argument", stderr.getvalue())
+
+    def test_v366_emojimaxx_cli_preview_has_three_stages_and_resets_every_normal_row(self) -> None:
+        stdout = io.StringIO()
+        with mock.patch.object(shutil, "get_terminal_size", return_value=os.terminal_size((100, 30))):
+            with mock.patch(__name__ + ".load_player_settings", return_value={"KaraokeStyle": 1, "KaraokeTreatment": 2}):
+                with contextlib.redirect_stdout(stdout):
+                    self.assertEqual(0, run_emojimaxx_cli_preview("hello one world"))
+        value = stdout.getvalue()
+        self.assertTrue(value.startswith(BIG_OFF + "\n"), repr(value[:40]))
+        self.assertIn("\033#3", value)
+        self.assertIn("\033#4", value)
+        self.assertIn("\033[48;2;0;22;26m", value)
+        self.assertGreaterEqual(value.count(BIG_OFF + "\n"), 5)
+        self.assertTrue(value.endswith(BIG_OFF), repr(value[-40:]))
+        self.assertNotIn("1. EmojiMaxx text:", value)
+
+    def test_v366_freezepop_one_cell_album_comment_alignment_keeps_album_value_right_edge(self) -> None:
+        tags = {
+            "Artist": "Freezepop",
+            "Song": "Hauntology",
+            "Album": "Memory Disappears (The Maxi-Single)",
+            "Year": "2020",
+            "Genre": "Synthpop",
+            "Comment": "Visit https://freezepop.bandcamp.com",
+        }
+        rows, _ansi = format_tag_panel(tags, width=150)
+        self.assertEqual(2, len(rows), rows)
+        colons = dict(hud_metadata_label_colons(rows))
+        self.assertEqual(colons["Album"], colons["Comment"], rows)
+        album_row = next(row for row in rows if "Album:" in row)
+        comment_row = next(row for row in rows if "Comment:" in row)
+        self.assertIn("Album:  Memory Disappears", album_row)
+        self.assertEqual(150, terminal_cell_width(album_row), album_row)
+        self.assertEqual(150, terminal_cell_width(comment_row), comment_row)
+
+    def test_v366_floating_lyrics_editor_contract_is_opaque_thick_autosize_and_ctrl_wheel(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('"Autosize"', source)
+        self.assertIn('floating.bind("<Control-MouseWheel>"', source)
+        self.assertIn('floating_canvas.bind("<Control-MouseWheel>"', source)
+        self.assertIn('window.attributes("-transparentcolor", "")', source)
+        self.assertIn('EXTERNAL_FLOATING_LYRICS_EDIT_BACKGROUND', source)
+        self.assertIn('EXTERNAL_FLOATING_LYRICS_EDIT_BORDER_PIXELS', source)
+        self.assertIn('state["floating_autosize"] = False', source)
+        self.assertIn('save_external_floating_lyrics_font_scale(next_scale)', source)
+        self.assertIn('if bool(state.get("floating_autosize", True)):', source)
+        self.assertIn('candidate_size = (low + high) // 2', source)
+
+    def test_v367_emojimaxx_curated_remove_planets_and_add_shine(self) -> None:
+        self.assertNotIn("dying", semantic)
+        self.assertNotIn("mars", semantic)
+        self.assertNotIn("venus", semantic)
+        self.assertEqual("🌞", semantic.get("shine"))
+
+    def test_v398_write_emojimaxx_gets_one_windows_terminal_safety_cell(self) -> None:
+        self.assertEqual("✍ ", windows_terminal_emojimax_replacement("✍", "write"))
+        self.assertEqual("✍", windows_terminal_emojimax_replacement("✍", "writer"))
+        terminal = stylize_karaoke_with_emojimax(
+            "write words", 1, True, 1.0,
+            force_emoji_when_enabled=True,
+            windows_terminal_compat=True,
+        )
+        non_terminal = stylize_karaoke_with_emojimax(
+            "write words", 1, True, 1.0,
+            force_emoji_when_enabled=True,
+            windows_terminal_compat=False,
+        )
+        self.assertIn("✍  words", ANSI_CSI_RE.sub("", terminal))
+        self.assertIn("✍ words", ANSI_CSI_RE.sub("", non_terminal))
+        self.assertNotIn("✍  words", ANSI_CSI_RE.sub("", non_terminal))
+
+    def test_v399_emojimaxx_uses_requested_heavy_directional_arrows(self) -> None:
+        expected = {"up": "🠉", "down": "🠋", "left": "🠈", "right": "🠊"}
+        self.assertEqual(expected, {word: semantic.get(word) for word in expected})
+        rendered = stylize_karaoke_with_emojimax(
+            "up down left right", 1, True, 1.0,
+            force_emoji_when_enabled=True,
+        )
+        self.assertEqual("🠉 🠋 🠈 🠊", ANSI_CSI_RE.sub("", rendered))
+        self.assertEqual(
+            ["EMX399-U001", "EMX399-U002", "EMX399-U003", "EMX399-U004"],
+            list(EMOJIMAX_V399_UPDATES_BY_UNDO_CODE),
+        )
+
+    def test_v400_help_output_resolves_devices_depth_multioutput_and_wraps_playlist(self) -> None:
+        known = (
+            {"value": -1, "label": "System default"},
+            {"value": 0, "label": "0: HDMI SPLITTER (NVIDIA High Defi"},
+            {"value": 1, "label": "1: QUEST HEADPHONE (USB Audio Devi"},
+        )
+        endpoints = (
+            ("HDMI SPLITTER", "NVIDIA High Definition Audio"),
+            ("QUEST HEADPHONE", "USB Audio Device"),
+        )
+        names = selected_output_device_names(
+            [-1, 1], default_device_name="HDMI SPLITTER", known_devices=known,
+            render_endpoints=endpoints,
+        )
+        self.assertEqual(["HDMI SPLITTER", "QUEST HEADPHONE"], names)
+        self.assertEqual(
+            ["HDMI SPLITTER"],
+            selected_output_device_names(
+                [-1, 0], default_device_name="HDMI SPLITTER", known_devices=known,
+                render_endpoints=endpoints,
+            ),
+        )
+        summary = output_help_summary_text(96000, "327kbps", 24, names)
+        self.assertEqual(
+            "96kHz  •  327kbps  •  24-bit  •  HDMI SPLITTER+QUEST HEADPHONE",
+            summary,
+        )
+        rows = pack_help_diagnostic_segments(
+            (
+                "🎚 ReplayGain: -7.0 dB",
+                "🔊 Out: " + summary,
+                "📂 Playlist: Halloween rotation (6,666 tracks)",
+            ),
+            110,
+        )
+        self.assertGreaterEqual(len(rows), 2)
+        self.assertTrue(ANSI_CSI_RE.sub("", rows[-1]).startswith("📂 Playlist:"), rows)
+
+    def test_v367_circled_number_terminal_spacing_has_two_generated_safety_cells(self) -> None:
+        self.assertEqual("❶  ", windows_terminal_emojimax_replacement("❶"))
+        self.assertEqual("❶  ❽  ", windows_terminal_emojimax_replacement("❶❽"))
+        self.assertEqual("❶    word", compensate_current_circled_number_spacing("❶ word"))
+        terminal = stylize_karaoke_with_emojimax(
+            "1 8 qzv", 1, True, 1.0,
+            force_emoji_when_enabled=True,
+            windows_terminal_compat=True,
+        )
+        self.assertIn("❶   ❽   qzv", ANSI_CSI_RE.sub("", terminal))
+
+    def test_v367_inline_last_play_ignores_nonadjacent_album_and_right_justifies(self) -> None:
+        base = "▶ Play: 11_Dying_Planet.flac (6m52s)"
+        rows = (
+            "  Act: Kreator  Song: Dying Planet  Composer: Fred",
+            "  Year: 2022  Genre: Metal" + " " * 34 + "Album: Hate Uber Alles",
+        )
+        full_target = inline_last_play_alignment_target(
+            base, "Aug 13", rows, width=120, adjacent_row_only=False,
+        )
+        self.assertIsNotNone(full_target)
+        self.assertEqual(1, full_target[0])
+        self.assertIsNone(inline_last_play_alignment_target(
+            base, "Aug 13", rows, width=120, adjacent_row_only=True,
+        ))
+        gap = aligned_inline_last_play_gap(base, "Aug 13", rows, width=120)
+        self.assertEqual(
+            120,
+            terminal_cell_width(base) + gap
+            + terminal_cell_width("Last play") + 2 + terminal_cell_width("Aug 13"),
+        )
+
+    def test_v367_nonadjacent_album_case_can_swap_composer_with_last_play(self) -> None:
+        width = 79
+        base = "▶ Play: f.flac (3m)"
+        tags = {
+            "Artist": "Kreator",
+            "Song": "Dying Planet",
+            "Composer": "Frederic Leclercq/Mille Petrozza",
+            "Album": "Hate Uber Alles",
+            "Year": "2022",
+            "Genre": "Metal Speedmetal",
+        }
+        rows, _ansi = format_tag_panel(tags, width=width)
+        target = inline_last_play_alignment_target(
+            base, "Aug 13", rows, width=width, adjacent_row_only=False,
+        )
+        self.assertIsNotNone(target)
+        self.assertEqual((1, "Album"), target[:2])
+        self.assertEqual("Composer", hud_metadata_row_labels(rows[0])[-1])
+        trial_tags = dict(tags)
+        trial_tags.pop("Composer")
+        trial_tags["Last play"] = "Aug 13"
+        trial_rows, _trial_ansi = format_tag_panel(
+            trial_tags, width=width, last_play_as_top_tail=True,
+        )
+        self.assertEqual("Last play", hud_metadata_row_labels(trial_rows[0])[-1])
+        self.assertLessEqual(
+            terminal_cell_width(base + "   Composer: " + tags["Composer"]),
+            width,
+        )
+
+    def test_v367_nonadjacent_last_play_alignment_has_swap_first_contract(self) -> None:
+        import inspect
+        source = inspect.getsource(play_audio_file)
+        self.assertIn("all_rows_target[0] > 0", source)
+        self.assertIn("candidate = row0_labels[-1]", source)
+        self.assertIn("_inline_right_label = candidate", source)
+        self.assertIn("last_play_as_top_tail=True", source)
+        self.assertIn("right_gap =", source)
+
+    def test_v367_floating_titlebar_has_requested_controls_and_manual_shortcuts(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('text="Floating Lyrics"', source)
+        self.assertIn('"EmojiMaxx"', source)
+        self.assertIn('"De-censor"', source)
+        self.assertIn('"Autosize"', source)
+        self.assertIn('text="Configure"', source)
+        self.assertIn('show_floating_karaoke_color_configurator()', source)
+        self.assertIn('text="−"', source)
+        self.assertIn('text="+"', source)
+        self.assertIn('disable_autosize=True', source)
+        self.assertIn('"<Control-minus>"', source)
+        self.assertIn('"<Control-plus>"', source)
+        self.assertIn('"<Control-equal>"', source)
+        self.assertIn('floating_border_frame.bind("<ButtonPress-1>"', source)
+        self.assertIn('window.overrideredirect(True)', source)
+        self.assertNotIn('window.overrideredirect(not enabled)', source)
+        self.assertIn('apply_floating_decensor_setting(bool(floating_decensor_var.get()))', source)
+        self.assertIn('apply_popup_emojimax_setting(bool(floating_emojimax_var.get()))', source)
+        self.assertIn('floating.bind("<FocusIn>"', source)
+        owner_source = inspect.getsource(play_audio_file)
+        self.assertIn('pop_runtime_setting_request()', owner_source)
+        self.assertIn('set_floating_decensor_enabled(decensor_floating_lyrics)', owner_source)
+
+    def test_v368_floating_edit_mode_preserves_outer_geometry_and_avoids_focus_loop(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        start = source.index('def set_floating_edit_mode')
+        end = source.index('def floating_window_is_foreground', start)
+        edit_source = source[start:end]
+        self.assertNotIn('expand_floating_window_for_edit()', edit_source)
+        self.assertIn('if enabled == was_enabled:', edit_source)
+        self.assertNotIn('focus_force()', edit_source)
+        self.assertIn('window.withdraw()', edit_source)
+        self.assertIn('window.attributes("-transparentcolor", EXTERNAL_ALBUM_ART_TRANSPARENT_KEY)', edit_source)
+
+    def test_v368_floating_focus_loss_has_foreground_fail_safe(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertIn('def floating_focus_watch()', source)
+        self.assertIn('GetForegroundWindow()', source)
+        self.assertIn('window.after(120, floating_focus_watch)', source)
+        self.assertIn('window.after(35, restore_floating_transparency_if_unfocused)', source)
+        self.assertIn('"floating_focus_watch_after": None', source)
+
+    def test_v368_floating_animation_backs_off_while_editor_is_opaque(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        start = source.index('def animate_floating_lyric_colors')
+        end = source.index('def schedule_floating_render', start)
+        animation = source[start:end]
+        self.assertIn('if bool(state.get("floating_edit_mode")):', animation)
+        self.assertIn('animation_ms = 200', animation)
+        self.assertIn('animation_ms = 110', animation)
 
     @unittest.skipUnless(os.name == "nt", "Winamp messaging is Windows-only")
     def test_winamp_is_paused_and_resumed_without_stop(self) -> None:
@@ -50797,6 +54999,7 @@ class PlayWaveFileTests(unittest.TestCase):
             12, bytes([0] * 64), [0.0] * 24, rows=1, granularity=3,
             height_override=[0.0] * 24, artwork_color_grid=art,
             artwork_background_strength=1.0, truncate_top_lines=0,
+            artwork_microtile_detail_mode=1, artwork_bar_microtile_detail_mode=1,
         )
         # Empty Twin-DRCS cells use left art as FG and right art as BG with the
         # full-left-half splitter glyph instead of averaging them to one RGB.
@@ -50819,7 +55022,7 @@ class PlayWaveFileTests(unittest.TestCase):
         reader = ShortReader(b"abcdefghijklmnop")
         self.assertEqual(b"abcdefghij", matrixmixer_read_pcm_block(reader, 10))
         self.assertEqual(b"klmnop", matrixmixer_read_pcm_block(reader, 10))
-        self.assertEqual(8192, MM_INSPIRED_BUFFER_FRAMES)
+        self.assertEqual(4096, MM_INSPIRED_BUFFER_FRAMES)
         self.assertEqual(8, MM_INSPIRED_PENDING_BUFFERS)
 
     def test_v230_web_console_karaoke_and_progress_have_master_switches(self) -> None:
@@ -50828,7 +55031,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('id="progressMasterToggle"', html)
         self.assertIn("web-set:console_karaoke_enabled:", html)
         self.assertIn("web-set:progress_bar_enabled:", html)
-        self.assertIn("item.key==='art_color_bars'", html)
+        self.assertIn("'art_color_bars'", html)
 
     def test_v230_progress_bar_can_be_hidden_without_hiding_clock(self) -> None:
         rendered = ANSI_CSI_RE.sub("", render_status(30, 60, "▶", 100, "up", False, 20, repaint=False, progress_enabled=False))
@@ -50842,7 +55045,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("progress_beat_reactive", toggles)
         self.assertFalse(toggles["progress_beat_reactive"].get("experimental", False))
         self.assertNotIn("drcs_art_microtiles", toggles)
-        self.assertIn('id="microtileDisableBlackness"', _paf_web_html())
+        self.assertIn('id="microtileBlacknessMode"', _paf_web_html())
         self.assertTrue(paf_web_action_is_allowed("web-set:progress_beat_reactive:1"))
         self.assertTrue(paf_web_action_is_allowed("web-set:drcs_art_microtiles:1"))
 
@@ -51145,7 +55348,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertEqual("Frequency warp", toggles["frequency_warp_enabled"]["label"])
         self.assertEqual("visualizer", toggles["frequency_warp_enabled"].get("theme"))
         self.assertNotIn("drcs_art_microtiles", toggles)
-        self.assertIn("Turn off micro-tile detail for visualizer", _paf_web_html())
+        self.assertIn("Artwork cell detail", _paf_web_html())
         self.assertEqual("Disable experimental 5.1/7.1 mixer", toggles["mm_inspired_renderer_enabled"]["label"])
         self.assertTrue(toggles["mm_inspired_renderer_enabled"].get("invert"))
         self.assertTrue(toggles["cursive_fix"].get("experimental", False))
@@ -54540,24 +58743,26 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertGreater(rendered[0], 9.9)
 
     def test_v92_metadata_layout_is_calculated_once_after_real_visualizer_flags_exist(self) -> None:
-        """Prevent V91's early/default metadata layout from disagreeing with later animated repaint flags."""
+        """Metadata geometry is first built only after the real visualizer flags exist."""
         import inspect
         source = inspect.getsource(play_audio_file)
-        marker = "# V92: establish the metadata-row geometry from the *same exact flags*"
-        self.assertIn(marker, source)
-        before_marker = source[:source.index(marker)]
-        self.assertNotIn(
-            "tag_plain_rows, tag_ansi_rows = format_tag_panel(",
-            before_marker,
-        )
-        after_marker = source[source.index(marker):]
+        album_flag = source.index("album_art_visualizer_enabled = (")
+        helper = source.index("def _format_current_metadata", album_flag)
+        first_build = source.index("rebuild_inline_header_metadata_layout()", helper)
+        self.assertLess(album_flag, helper)
+        self.assertLess(helper, first_build)
+        helper_source = source[helper:first_build]
         self.assertIn(
             "album_art_visualizer_enabled=album_art_visualizer_enabled",
-            after_marker,
+            helper_source,
         )
         self.assertIn(
             "karaoke_visualizer_expansion_enabled=karaoke_visualizer_expansion_enabled",
-            after_marker,
+            helper_source,
+        )
+        self.assertNotIn(
+            "tag_plain_rows, tag_ansi_rows = format_tag_panel(",
+            source[:album_flag],
         )
 
     def test_v92_format_tag_panel_never_returns_adjacent_duplicate_visible_rows(self) -> None:
@@ -54682,7 +58887,7 @@ class PlayWaveFileTests(unittest.TestCase):
             force_emoji_when_enabled=True,
             windows_terminal_compat=True,
         )
-        self.assertIn("❷  shillin", terminal)
+        self.assertIn("❷   shillin", terminal)
         literal = stylize_karaoke_with_emojimax(
             "literal ❷ qzv", 1, True, 1.0,
             force_emoji_when_enabled=True,
@@ -55494,7 +59699,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertNotIn("def apply_native_art_size", art_source)
         self.assertIn('ctypes.c_void_p(original)', art_source)
         self.assertIn("call_proc.argtypes", art_source)
-        self.assertIn("time.monotonic() / 3.0", art_source)
+        self.assertIn("self.playback_position() / 3.0", art_source)
         self.assertIn('attributes("-transparentcolor", transparent)', art_source)
         self.assertIn("WM_NCHITTEST", art_source)
         self.assertIn("HTTRANSPARENT", art_source)
@@ -56226,7 +60431,11 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('def floating_readable_layout_size', source)
         self.assertIn('saved_width >= 360 and saved_height >= 100', source)
         self.assertIn('def expand_floating_window_for_edit', source)
-        self.assertIn('expand_floating_window_for_edit()', source)
+        # V368 supersedes V254 center expansion: edit chrome preserves the exact
+        # outer rectangle so bottom-edge resize never moves the top edge first.
+        edit_start = source.index('def set_floating_edit_mode')
+        edit_end = source.index('def floating_window_is_foreground', edit_start)
+        self.assertNotIn('expand_floating_window_for_edit()', source[edit_start:edit_end])
         self.assertIn('set_floating_edit_mode(True)', source)
         self.assertIn('An explicit “make appear” request should produce a visible, selectable', source)
 
@@ -56387,7 +60596,7 @@ class PlayWaveFileTests(unittest.TestCase):
         schema = paf_web_control_schema()
         toggles = {item["key"]: item for item in schema["toggles"]}
         self.assertNotIn("drcs_art_bar_microtiles", toggles)
-        self.assertIn('id="microtileDisableBars"', _paf_web_html())
+        self.assertIn('id="microtileBarsMode"', _paf_web_html())
         renderer = inspect.getsource(render_drcs_visualizer)
         self.assertIn("artwork_bar_microtiles_enabled", renderer)
         html = _paf_web_html()
@@ -56463,7 +60672,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertGreater(max(values[-60:]) - min(values[-60:]), 0.05)
         source = inspect.getsource(play_audio_file)
         self.assertIn("progress_visualizer_levels", source)
-        self.assertIn("progress_levels = levels if levels else progress_visualizer_levels", source)
+        self.assertIn("spectrum_frame_interpolated_at(drcs_timeline, current_position)", source)
         html = _paf_web_html()
         self.assertIn("🎛 Demo", html)
         self.assertIn("web-set:progress_beat_detector:5", html)
@@ -56487,8 +60696,8 @@ class PlayWaveFileTests(unittest.TestCase):
         schema = paf_web_control_schema()
         toggles = {item["key"]: item for item in schema["toggles"]}
         self.assertNotIn("drcs_art_bar_microtiles", toggles)
-        self.assertIn("Turn off micro-tile detail for visualizer", _paf_web_html())
-        self.assertIn('id="microtileDisableBars"', _paf_web_html())
+        self.assertIn("Artwork cell detail", _paf_web_html())
+        self.assertIn('id="microtileBarsMode"', _paf_web_html())
         renderer = inspect.getsource(render_drcs_visualizer)
         self.assertIn("bar_microtile_art_grid", renderer)
         self.assertIn("left_level == 8 and right_level == 8", renderer)
@@ -56606,7 +60815,12 @@ class PlayWaveFileTests(unittest.TestCase):
         import inspect
         source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
         self.assertIn('def set_floating_edit_mode', source)
-        self.assertIn('window.overrideredirect(not enabled)', source)
+        # V367 supersedes the native floating caption with a custom title strip
+        # so the requested controls can live in the title bar without a geometry jump.
+        self.assertIn('window.overrideredirect(True)', source)
+        self.assertNotIn('window.overrideredirect(not enabled)', source)
+        self.assertIn('floating_titlebar', source)
+        self.assertIn('floating_border_frame', source)
         self.assertIn('set_floating_edit_mode(True)', source)
         self.assertIn('def restore_floating_transparency_if_unfocused', source)
         self.assertIn('root.after(180, focus_chrome_watch)', source)
@@ -58098,7 +62312,7 @@ class PlayWaveFileTests(unittest.TestCase):
         broken_at = html.index('>Broken experimental</h3>')
         controls_at = html.index('id="controls"')
         self.assertGreater(broken_at, experimental_at)
-        self.assertGreater(controls_at, broken_at)
+        self.assertGreater(broken_at, controls_at)
         self.assertNotIn('>Other actions</h3>', html)
         self.assertIn("else if(webKaraokeKeys.includes(item.key)) target=webKaraokeControls;", html)
         self.assertIn("else if(visualizerKeys.includes(item.key)) target=visualizer;", html)
@@ -58204,9 +62418,9 @@ class PlayWaveFileTests(unittest.TestCase):
         toggles = {item["key"]: item for item in schema["toggles"]}
         self.assertNotIn("drcs_art_microtiles", toggles)
         self.assertNotIn("drcs_art_bar_microtiles", toggles)
-        self.assertIn("Turn off micro-tile detail for visualizer", _paf_web_html())
-        self.assertIn('id="microtileDisableBars"', _paf_web_html())
-        self.assertIn('id="microtileDisableBlackness"', _paf_web_html())
+        self.assertIn("Artwork cell detail", _paf_web_html())
+        self.assertIn('id="microtileBarsMode"', _paf_web_html())
+        self.assertIn('id="microtileBlacknessMode"', _paf_web_html())
         source = inspect.getsource(main)
         self.assertIn('--no-microtile-detail-for-bars', source)
         self.assertIn('--no-microtile-detail-for-black', source)
@@ -58224,9 +62438,9 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertNotIn('class="web-config-subhead">Server', html)
         self.assertNotIn('id="webServerBox"', html)
         self.assertNotIn('>Other actions</h3>', html)
-        self.assertGreater(html.index('id="controls"'), html.index('>Broken experimental</h3>'))
+        self.assertGreater(html.index('>Broken experimental</h3>'), html.index('id="controls"'))
         js = html[html.index('<script>'):html.rindex('</script>')]
-        self.assertIn("const visualizerKeys=['color_reverse','frequency_warp_enabled'];", js)
+        self.assertIn("const visualizerKeys=['color_reverse','frequency_warp_enabled','karaoke_visualizer_expansion_enabled','console_visualizer_volume_feedback_enabled'];", js)
         self.assertIn("else if(webKaraokeKeys.includes(item.key)) target=webKaraokeControls;", js)
 
     def test_v248_cursive_fix_is_in_web_karaoke_not_experimental_bottom(self) -> None:
@@ -58236,6 +62450,16 @@ class PlayWaveFileTests(unittest.TestCase):
         html = _paf_web_html()
         self.assertIn("const webKaraokeKeys=['cursive_fix'];", html)
         self.assertIn("else if(webKaraokeKeys.includes(item.key)) target=webKaraokeControls;", html)
+        self.assertIn(
+            '.section-web-karaoke .toggle.experimental[data-control-key="cursive_fix"]'
+            '{background:#3c3312;border-color:#b69a30}',
+            html,
+        )
+        self.assertIn(
+            '.section-web-karaoke .toggle.experimental[data-control-key="cursive_fix"] span'
+            '{color:#ffe47a}',
+            html,
+        )
 
 
     def test_v252_combined_web_title_multi_output_art_profiles_and_hotkeys(self) -> None:
@@ -58688,7 +62912,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertEqual("√", semantic.get("square"))
         self.assertEqual(["square"], sorted(key for key, glyph in semantic.items() if glyph == "√"))
         self.assertEqual("🪉", semantic.get("harp"))
-        self.assertEqual("🪏", semantic.get("shovel"))
+        self.assertNotIn("shovel", semantic)
         self.assertEqual("🪏", semantic.get("dig"))
         self.assertEqual("🪏ing", semantic.get("shoveling"))
         self.assertEqual("🫆", semantic.get("fingerprint"))
@@ -58772,8 +62996,9 @@ class PlayWaveFileTests(unittest.TestCase):
         import inspect
         source = inspect.getsource(play_audio_file)
         self.assertIn("or not track_artwork_allowed", source)
-        self.assertIn("artwork_microtiles_enabled=bool(track_artwork_allowed", source)
-        self.assertIn("if track_artwork_allowed\n                        and ART_COLOR_VISUALIZER_REPRESENTATION", source)
+        self.assertIn("artwork_microtiles_enabled=bool(track_artwork_allowed and visualizer_background_artwork_enabled", source)
+        self.assertIn("if track_artwork_allowed\n                        and (", source)
+        self.assertIn("visualizer_background_artwork_enabled and ART_COLOR_VISUALIZER_REPRESENTATION", source)
         self.assertGreaterEqual(
             source.count("visualizer_track_artwork_allowed(visualizer_input_source, False)"),
             2,
@@ -58811,8 +63036,12 @@ class PlayWaveFileTests(unittest.TestCase):
         source = inspect.getsource(_paf_web_html)
         self.assertIn("const karaokeKeys=['karaoke_emojimax','decensor_console_karaoke'];", source)
         self.assertIn("const webKaraokeKeys=['cursive_fix'];", source)
-        self.assertIn("item.key==='decensor_artwork_lyrics'", source)
-        self.assertIn("item.key==='decensor_floating_lyrics'", source)
+        # V388 promotes artwork/floating decensor controls to explicit ordered
+        # destination buttons rather than generic generated checkboxes.
+        self.assertIn("'decensor_artwork_lyrics','decensor_floating_lyrics'].includes(item.key)", source)
+        html = _paf_web_html()
+        self.assertIn('id="artworkPopupDecensorButton"', html)
+        self.assertIn('id="floatingLyricsDecensorButton"', html)
 
     def test_v334_missing_playlist_is_a_warning_and_clean_return(self) -> None:
         self.assertGreaterEqual(int(PROGRAM_VERSION.removeprefix("V")), 334)
@@ -58837,12 +63066,781 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("lyrics_mode=(external_album_art_window.lyrics_mode", inspect.getsource(play_audio_file))
 
 
+    def test_v370_url_display_hides_implied_scheme_and_www_but_keeps_link_target(self) -> None:
+        self.assertEqual("rammstein.com/", compact_url_display_text("http://www.rammstein.com/"))
+        self.assertEqual("example.com/a", compact_url_display_text("https://example.com/a"))
+        rows, ansi = format_tag_panel({"URL": "https://www.example.com/a"}, width=60)
+        self.assertIn("URL: example.com/a", "\n".join(rows))
+        self.assertNotIn("https://", "\n".join(rows))
+        self.assertIn("\033]8;;https://www.example.com/a\033\\", "\n".join(ansi))
+
+    def test_v370_rammstein_hud_uses_spare_space_instead_of_a_separate_url_row(self) -> None:
+        tags = {
+            "Artist": "Rammstein",
+            "Song": "Mein Herz Brennt (live) (20120306-07) (France Paris Bercy Arena)",
+            "Album": "Paris",
+            "Year": "2012",
+            "Genre": "Industrial",
+            "URL": "http://www.rammstein.com/",
+            "Composer": "Richard Z. Kruspe/Paul Landers/Till Lindemann/Christian Lorenz/Oliver Riedel/Christoph Schneider",
+        }
+        rows, _ansi = format_tag_panel(tags, width=84)
+        self.assertLessEqual(len(rows), 5, rows)
+        url_row = next(row for row in rows if "URL:" in row)
+        self.assertTrue("Album:" in url_row or "Genre:" in url_row, rows)
+        self.assertNotIn("http://", "\n".join(rows))
+        self.assertTrue(all(terminal_cell_width(row) <= 84 for row in rows), rows)
+
+    def test_v370_slutever_album_right_edge_drives_adjacent_last_play_alignment(self) -> None:
+        width = 80
+        rows, _ansi = format_tag_panel({
+            "Artist": "Slutever",
+            "Song": "So Prone",
+            "Genre": "Punk",
+            "Album": "Pretend To Be Nice",
+            "Year": "2011",
+            "Comment": "Philadelphia, Pennsylvania; Self-Release (Bandcamp)",
+        }, width=width)
+        album_row = next(row for row in rows if "Album:" in row)
+        self.assertEqual(width, terminal_cell_width(album_row), album_row)
+        album_colon = dict(hud_metadata_label_colons(rows))["Album"]
+        base = "▶ Play: 3_So Prone.flac (2m19s)"
+        gap = aligned_inline_last_play_gap(base, "Aug 13", rows, width=width)
+        play_colon = terminal_cell_width(base) + gap + terminal_cell_width("Last play")
+        self.assertEqual(album_colon, play_colon, rows)
+
+    def test_v370_mp3_duration_reconciles_bad_ffprobe_header_with_frame_duration(self) -> None:
+        with mock.patch(__name__ + "._mutagen_duration_seconds", return_value=124.245351):
+            chosen = _reconcile_mp3_duration(Path("Du Hast.mp3"), 110.620547, {"tlen": "124245"})
+        self.assertAlmostEqual(124.245351, float(chosen), places=5)
+        with mock.patch(__name__ + "._mutagen_duration_seconds", return_value=None):
+            chosen = _reconcile_mp3_duration(Path("Du Hast.mp3"), 110.620547, {"tlen": "124245"})
+        self.assertAlmostEqual(124.245, float(chosen), places=3)
+
+    def test_v380_hybrid_art_detail_modes_are_exposed_and_exact(self) -> None:
+        self.assertGreaterEqual(len(ART_MICROTILE_DETAIL_MODE_NAMES), 10)
+        for mode in (7, 8, 9):
+            self.assertTrue(art_detail_is_hybrid(mode))
+            self.assertEqual(1.0, art_detail_exact_mask_fraction(mode))
+            self.assertIn("Unicode mosaics ON", ART_MICROTILE_DETAIL_MODE_NAMES[mode])
+        schema = paf_web_control_schema()
+        options = {item["key"]: item for item in schema["selects"]}
+        labels = [opt["label"] for opt in options["drcs_art_microtile_mode"]["options"]]
+        self.assertTrue(any("2×2 quadrant hybrid" in label for label in labels))
+        self.assertTrue(any("2×3 sextant hybrid" in label for label in labels))
+        self.assertTrue(any("2×4 octant hybrid" in label for label in labels))
+        self.assertTrue(paf_web_action_is_allowed("web-set:drcs_art_microtile_mode:9"))
+
+    def test_v380_hybrid_pool_can_emit_both_unicode_and_drcs(self) -> None:
+        # Simple sextant shapes prefer native Unicode; more complex exact masks
+        # use DRCS when the exact 2×3 bank is loaded.
+        native_glyph, native_invert = _native_art_detail_char(2, 1)
+        self.assertFalse(native_invert)
+        self.assertTrue(art_detail_cell_uses_unicode_glyph(8, native_glyph))
+        complex_mask = next(
+            mask for mask in range(64)
+            if not _hybrid_prefers_native(2, mask)
+            and _dense_art_drcs_exact_char(mask, 2, 2) is not None
+        )
+        drcs_glyph, _invert = _dense_art_drcs_exact_char(complex_mask, 2, 2)
+        self.assertFalse(art_detail_cell_uses_unicode_glyph(8, drcs_glyph))
+        # 2×4 has exact Unicode fallback even for masks absent from its 55-shape
+        # DRCS bank, which is the key experiment beyond the 94 custom slots.
+        absent = next(
+            mask for mask in range(256)
+            if _dense_art_drcs_exact_char(mask, 3, 3) is None
+        )
+        glyph, _invert = _native_art_detail_char(3, absent)
+        self.assertTrue(glyph)
+        self.assertTrue(art_detail_cell_uses_unicode_glyph(9, glyph))
+
+    def test_v380_speed_and_art_detail_feedback_contract(self) -> None:
+        import inspect
+        source = inspect.getsource(play_audio_file)
+        self.assertIn('f"Speed: {format_speed(PLAYBACK_SPEEDS[speed_index])}"', source)
+        self.assertIn('announce_art_detail_mode("Blackness", drcs_art_microtile_mode)', source)
+        self.assertIn('announce_art_detail_mode("Bars", drcs_art_bar_microtile_mode)', source)
+        self.assertIn('seconds=4.0', source)
+        self.assertIn('if raw in {SPEED_UP, SPEED_DOWN, SPEED_RESET}:', source)
+
+    def test_v381_hybrid_unicode_cells_get_absolute_next_column_fences(self) -> None:
+        import inspect
+        source = inspect.getsource(render_drcs_visualizer)
+        self.assertIn("HYBRID_UNICODE_CURSOR_FENCE", source)
+        self.assertIn('glyphs.append(f"\\033[{int(terminal_column) + 2}G")', source)
+        self.assertIn("terminal_column=terminal_column", source)
+
+    def test_v381_help_overlay_has_no_interaction_feedback_box(self) -> None:
+        import inspect
+        source = inspect.getsource(play_audio_file)
+        self.assertIn("if raw in {DISMISS_OVERLAY, HELP_OVERLAY}:", source)
+
+    def test_v382_microtile_dropdown_order_labels_default_and_marks(self) -> None:
+        self.assertEqual(9, ART_MICROTILE_DETAIL_MODE_DEFAULT)
+        self.assertIn("2×4 octant hybrid", ART_MICROTILE_DETAIL_MODE_NAMES[ART_MICROTILE_DETAIL_MODE_DEFAULT])
+        self.assertIn("100% exact", ART_MICROTILE_DETAIL_MODE_NAMES[ART_MICROTILE_DETAIL_MODE_DEFAULT])
+        self.assertEqual((0, 1, 7, 2, 8, 9, 13, 10, 11, 12, 3, 4, 5, 6), ART_MICROTILE_DETAIL_MODE_DISPLAY_ORDER)
+        for mode, label in enumerate(ART_MICROTILE_DETAIL_MODE_NAMES):
+            self.assertIn("subcell", label.casefold(), (mode, label))
+            self.assertRegex(label, r"Unicode mosaics (?:ON|OFF)")
+            self.assertNotIn("EXP", label)
+        schema = paf_web_control_schema()
+        by_key = {item["key"]: item for item in schema["selects"]}
+        for key in ("drcs_art_bar_microtile_mode", "drcs_art_microtile_mode"):
+            item = by_key[key]
+            self.assertTrue(item.get("choice_marks"))
+            self.assertTrue(item.get("custom_microtile"))
+            self.assertEqual(list(ART_MICROTILE_DETAIL_MODE_DISPLAY_ORDER), [opt["value"] for opt in item["options"]])
+            self.assertEqual(9, item["default_value"])
+        self.assertTrue(paf_web_choice_value_is_valid("drcs_art_microtile_mode", 0))
+        self.assertTrue(paf_web_choice_value_is_valid("drcs_art_microtile_mode", 13))
+
+    def test_v382_adaptive_exact_modes_never_use_nearest_wrong_mask(self) -> None:
+        for selector, base in ART_MICROTILE_DETAIL_ADAPTIVE_EXACT_BASE_MODE.items():
+            self.assertTrue(art_detail_is_adaptive_exact(selector))
+            self.assertTrue(art_detail_uses_unicode_glyphs(selector))
+            self.assertEqual(1.0, art_detail_exact_mask_fraction(selector))
+            self.assertGreater(art_detail_subcell_count(selector), 8)
+            codebook = set(art_detail_drcs_codebook(base))
+            bits = art_detail_subcell_count(base)
+            full = (1 << bits) - 1
+            absent = next(mask for mask in range(1, full) if _canonical_art_detail_mask(mask, bits)[0] not in codebook)
+            samples = tuple((255, 255, 255) if absent & (1 << i) else (0, 0, 0) for i in range(bits))
+            flat = tuple(channel for rgb in samples for channel in rgb)
+            actual = _art_detail_quantize_adaptive_exact_cached(selector, base, flat)
+            # A high-resolution miss must fall back to the universal exact 2×4
+            # hybrid result verbatim.  That result may itself be a native
+            # Unicode glyph, an exact DRCS glyph, or a blank/full block; what
+            # matters is that we never substitute a merely-nearest high-res
+            # mask.
+            fallback_samples = _resample_art_detail_samples(samples, base, 3)
+            fallback_flat = tuple(channel for rgb in fallback_samples for channel in rgb)
+            expected = _art_detail_quantize_hybrid_cached(9, base, fallback_flat)
+            self.assertEqual(expected, actual, (selector, absent, actual, expected))
+        # A representable high-resolution 2×5 mask really does use its exact
+        # 10-subcell DRCS glyph, so the mode can exceed 2×4 detail without error.
+        base = 5; selector = 11; mask = next(m for m in art_detail_drcs_codebook(base) if 0 < m < (1 << 10) - 1)
+        samples = tuple((255, 255, 255) if mask & (1 << i) else (0, 0, 0) for i in range(10))
+        flat = tuple(channel for rgb in samples for channel in rgb)
+        _fg, _bg, glyph = _art_detail_quantize_adaptive_exact_cached(selector, base, flat)
+        self.assertFalse(art_detail_cell_uses_unicode_glyph(selector, glyph))
+
+    def test_v382_microtile_favorite_cycle_and_persistent_tooltip_contract(self) -> None:
+        html = _paf_web_html()
+        self.assertIn("setupMicrotileModeControl", html)
+        self.assertIn("favorite-cycle-button", html)
+        self.assertIn("Triple-click to restore to default mode of", html)
+        self.assertIn("favorite-cycle-button:hover::after", html)
+        self.assertIn("/api/choice-mark", html)
+        self.assertIn("clickCount>=3", html)
+        self.assertIn("DrcsArtBarMicrotileModeFavorites", repr(WEB_CHOICE_MARK_SPECS))
+        self.assertIn("DrcsArtMicrotileModeFavorites", repr(WEB_CHOICE_MARK_SPECS))
+
+    def test_v379_microtile_detail_keeps_original_seven_density_modes(self) -> None:
+        self.assertGreaterEqual(len(ART_MICROTILE_DETAIL_MODE_NAMES), 7)
+        self.assertTrue(ART_MICROTILE_DETAIL_MODE_NAMES[0].startswith("Single-character detail"))
+        for index, token in ((1, "2×2"), (2, "2×3"), (3, "2×4"), (4, "3×3"), (5, "2×5"), (6, "3×4")):
+            self.assertIn(token, ART_MICROTILE_DETAIL_MODE_NAMES[index])
+            self.assertIn("exact", ART_MICROTILE_DETAIL_MODE_NAMES[index].casefold())
+        self.assertNotIn("braille", " ".join(ART_MICROTILE_DETAIL_MODE_NAMES).casefold())
+        self.assertEqual((1, 2, 3, 4, 3, 5, 4), tuple(art_detail_vertical_subcells(i) for i in range(7)))
+        self.assertEqual((1, 2, 2, 2, 3, 2, 3), tuple(art_detail_horizontal_subcells(i) for i in range(7)))
+        html = _paf_web_html()
+        self.assertIn('id="microtileBarsMode"', html)
+        self.assertIn('id="microtileBlacknessMode"', html)
+        schema = paf_web_control_schema()
+        microtile = next(item for item in schema["selects"] if item["key"] == "drcs_art_microtile_mode")
+        self.assertTrue(any("3×4 mosaic detail" in option["label"] for option in microtile["options"]))
+        self.assertTrue(paf_web_action_is_allowed("web-set:drcs_art_microtile_mode:6"))
+        self.assertTrue(paf_web_action_is_allowed("web-set:drcs_art_bar_microtile_mode:5"))
+
+    def test_v373_octant_mode_is_solid_not_braille_and_maps_all_masks(self) -> None:
+        self.assertEqual(230, len(_OCTANT_SUPPLEMENT_CHAR_BY_MASK))
+        self.assertEqual((" ", False), art_octant_char(0))
+        self.assertEqual(("█", False), art_octant_char(255))
+        # A direct Unicode-16 supplement shape and an older exact block shape.
+        direct, direct_invert = art_octant_char(4)  # octant 3 = U+1CD00
+        self.assertEqual(0x1CD00, ord(direct))
+        self.assertFalse(direct_invert)
+        upper_quarter, upper_quarter_invert = art_octant_char(3)
+        self.assertEqual("🮂", upper_quarter)
+        self.assertFalse(upper_quarter_invert)
+        for mask in range(256):
+            glyph, invert = art_octant_char(mask)
+            self.assertTrue(glyph)
+            self.assertFalse(any(0x2800 <= ord(ch) <= 0x28FF for ch in glyph))
+            self.assertIsInstance(invert, bool)
+
+    def test_v379_original_art_detail_modes_use_fixed_cell_drcs(self) -> None:
+        for mode in range(7):
+            self.assertFalse(art_detail_uses_unicode_glyphs(mode))
+
+    def test_v380_renderer_switches_charset_per_hybrid_cell_only(self) -> None:
+        source = inspect.getsource(render_drcs_visualizer)
+        self.assertIn('def append_cell_glyph', source)
+        self.assertIn('drcs_charset_active = True', source)
+        self.assertIn('art_detail_cell_uses_unicode_glyph(artwork_bar_microtile_detail_mode, microtile)', source)
+        self.assertFalse(art_detail_uses_unicode_glyphs(6))
+        self.assertTrue(art_detail_uses_unicode_glyphs(8))
+
+    def test_v376_row_delta_artwork_repaint_is_wrap_safe_and_absolute(self) -> None:
+        import inspect
+        source = inspect.getsource(play_audio_file)
+        marker = 'elif (visualizer_transport_mode == "row-delta" or use_delta_visualizer_rows) and rendered_rows:'
+        self.assertIn(marker, source)
+        branch = source.split(marker, 1)[1].split('else:', 1)[0]
+        self.assertIn('pieces.append("\\033[?7l")', branch)
+        self.assertIn('pieces.append("\\033[?7h")', branch)
+        self.assertIn('pieces.append(move_to(', branch)
+        self.assertIn('line_rendition=not omit_visualizer_big_off', branch)
+        self.assertIn('pieces.append("\\033[1G")', branch)
+        self.assertNotIn('pieces.append(visualizer_origin(', branch)
+
+    def test_v376_keeps_multi_art_strip_tiling_and_removes_hotpath_dither(self) -> None:
+        import inspect
+        art_source = inspect.getsource(album_art_visualizer_color_grid)
+        self.assertIn('extract_album_art_variants(Path(audio_name), 4)', art_source)
+        self.assertIn('fitted_variants', art_source)
+        self.assertIn('repetitions =', art_source)
+        render_source = inspect.getsource(render_drcs_visualizer)
+        self.assertNotIn('_art_detail_dither_quantize_rgb(color, art_row_index', render_source)
+
+    def test_v376_art_detail_dither_helper_is_not_on_hot_render_path(self) -> None:
+        import inspect
+        color = (95, 95, 95)
+        samples = {
+            _art_detail_dither_quantize_rgb(color, row, column, 32)
+            for row in range(4) for column in range(4)
+        }
+        # Keep the helper available for diagnostics/experiments, but V376 no
+        # longer spends CPU applying it to every artwork-detail cell.
+        self.assertGreater(len(samples), 1)
+        for rgb in samples:
+            self.assertTrue(all(0 <= channel <= 255 for channel in rgb))
+        source = inspect.getsource(render_drcs_visualizer)
+        self.assertNotIn("_art_detail_dither_quantize_rgb(color, art_row_index", source)
+
+    def test_v370_pause_feedback_freezes_real_terminal_width_and_audio_buffer_is_250ms(self) -> None:
+        import inspect
+        source = inspect.getsource(play_audio_file)
+        self.assertIn("interaction_feedback_terminal_width", source)
+        self.assertIn("shutil.get_terminal_size((120, 30)).columns - 1", source)
+        self.assertEqual(250, SMOOTH_AUDIO_BUFFER_MS)
+
+    def test_v371_play_audio_file_owns_smooth_audio_settings(self) -> None:
+        import inspect
+        signature = inspect.signature(play_audio_file)
+        self.assertIn("smooth_audio_renderer_enabled", signature.parameters)
+        self.assertIn("audio_buffer_ms", signature.parameters)
+        self.assertEqual(bool(SMOOTH_AUDIO_RENDERER_ENABLED), signature.parameters["smooth_audio_renderer_enabled"].default)
+        self.assertEqual(SMOOTH_AUDIO_BUFFER_MS, signature.parameters["audio_buffer_ms"].default)
+
+    def test_v371_main_dispatch_passes_smooth_audio_settings(self) -> None:
+        source = Path(__file__).read_text(encoding="utf-8")
+        dispatch_start = source.rfind("result = play_audio_file(")
+        self.assertGreaterEqual(dispatch_start, 0)
+        dispatch = source[dispatch_start:dispatch_start + 12000]
+        self.assertIn("smooth_audio_renderer_enabled=smooth_audio_renderer_enabled", dispatch)
+        self.assertIn("audio_buffer_ms=audio_buffer_ms", dispatch)
+
+
+
+    def test_v383_exact_art_detail_modes_are_grouped_before_approximate_modes(self) -> None:
+        exact_prefix = ART_MICROTILE_DETAIL_MODE_DISPLAY_ORDER[:10]
+        approximate_suffix = ART_MICROTILE_DETAIL_MODE_DISPLAY_ORDER[10:]
+        self.assertTrue(all(mode in ART_MICROTILE_DETAIL_MODE_EXACT for mode in exact_prefix))
+        self.assertTrue(all(mode not in ART_MICROTILE_DETAIL_MODE_EXACT for mode in approximate_suffix))
+        self.assertIn(13, exact_prefix)
+        self.assertIn("adaptive seamless hybrid", ART_MICROTILE_DETAIL_MODE_NAMES[13])
+        schema = paf_web_control_schema()
+        item = next(choice for choice in schema["selects"] if choice["key"] == "drcs_art_microtile_mode")
+        groups = [option.get("group") for option in item["options"]]
+        self.assertEqual(["100% exact output"] * 10 + ["Approximate masks"] * 4, groups)
+        self.assertIn("document.createElement('optgroup')", _paf_web_html())
+
+    def test_v383_adaptive_seamless_2x4_spends_drcs_slots_on_current_artwork(self) -> None:
+        fixed = set(art_detail_drcs_codebook(3))
+        absent = next(mask for mask in range(1, 128) if mask not in fixed)
+        terminal_width = 6
+        grid_rows = []
+        for subrow in range(4):
+            row = []
+            for _column in range(terminal_width):
+                for subcolumn in range(2):
+                    bit = subrow * 2 + subcolumn
+                    row.append((255, 255, 255) if absent & (1 << bit) else (0, 0, 0))
+            grid_rows.append(tuple(row))
+        grid = tuple(grid_rows)
+        codebook = adaptive_seamless_drcs_codebook_for_grid(grid, 1, terminal_width)
+        self.assertIn(absent, codebook)
+        self.assertEqual(ART_DETAIL_DRCS_ART_SLOTS_BY_MODE[3], len(codebook))
+        try:
+            self.assertTrue(set_art_detail_drcs_codebook_override(3, codebook))
+            payload = define_all_player_drcs(3).split('{ @', 1)[1][:-2]
+            self.assertEqual(94, len(payload.split(';')))
+            samples = tuple((255, 255, 255) if absent & (1 << bit) else (0, 0, 0) for bit in range(8))
+            flat = tuple(channel for rgb in samples for channel in rgb)
+            _fg, _bg, glyph = _art_detail_quantize_seamless_cached(13, 3, _ART_DETAIL_DRCS_OVERRIDE_GENERATION, flat)
+            self.assertFalse(art_detail_cell_uses_unicode_glyph(13, glyph))
+            self.assertEqual(1, terminal_cell_width(glyph))
+            self.assertEqual(1.0, art_detail_exact_mask_fraction(13))
+        finally:
+            set_art_detail_drcs_codebook_override(3, None)
+
+    def test_v383_art_saturation_toggle_persists_server_state_and_karaoke_label_is_clearer(self) -> None:
+        html = _paf_web_html()
+        self.assertIn("enabled._pafSyncFromServer", html)
+        self.assertIn("apply(false)", html)
+        self.assertIn("art-saturation-enabled-", html)
+        schema = paf_web_control_schema()
+        toggle = next(item for item in schema["toggles"] if item["key"] == "karaoke_visualizer_expansion_enabled")
+        self.assertEqual("Extend visualizer through karaoke space when there is no karaoke", toggle["label"])
+
+    def test_v372_large_artwork_lyrics_have_native_vector_fast_path(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow)
+        self.assertGreaterEqual(int(PROGRAM_VERSION.removeprefix("V")), 372)
+        self.assertEqual(3_500_000, ARTWORK_LYRIC_NATIVE_FAST_PATH_WINDOW_PIXELS)
+        self.assertIn("def _artwork_native_fast_path_allowed", source)
+        self.assertIn("int(width) * int(height) >= int(ARTWORK_LYRIC_NATIVE_FAST_PATH_WINDOW_PIXELS)", source)
+        self.assertIn("def _draw_native_artwork_lyric", source)
+        self.assertIn('tags=("artwork-lyric-color",)', source)
+        self.assertIn('state["artwork_lyric_native_items"] = native_items', source)
+
+    def test_v372_font_fitting_is_logarithmic_and_pillow_fonts_are_cached(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow)
+        self.assertIn("while low <= high:", source)
+        self.assertGreaterEqual(source.count("while low <= high:"), 2)
+        self.assertIn("@lru_cache(maxsize=384)", source)
+        self.assertIn("def resolve_artwork_pillow_font", source)
+
+    def test_v372_native_animation_uses_shared_playback_clock(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow)
+        self.assertIn('self.playback_position() / (3.0 if native_mode == "rainbow-glyphs" else 2.7)', source)
+        self.assertIn("ARTWORK_LYRIC_NATIVE_FAST_PATH_TICK_MS", source)
+
+    def test_v374_karaoke_frame_exposes_offset_adjusted_cue_deadlines(self) -> None:
+        entries = [(1.0, None, "one"), (2.0, None, "two")]
+        with mock.patch(__name__ + ".KARAOKE_DISPLAY_OFFSET_SECONDS", 0.20):
+            frame = karaoke_frame_at(entries, 1.75)
+        self.assertEqual("one", frame.title_text)
+        self.assertEqual("two", frame.next_text)
+        self.assertAlmostEqual(0.80, float(frame.active_start_position), places=6)
+        self.assertAlmostEqual(1.80, float(frame.next_start_position), places=6)
+
+    def test_v374_artwork_prepares_next_cue_without_advancing_other_surfaces(self) -> None:
+        window = ExternalAlbumArtWindow(enabled=False)
+        window._artwork_karaoke_render_lead_seconds = 0.080
+        frame = KaraokeFrame(
+            position=9.95,
+            active_index=0,
+            active_text="current",
+            active_opacity=1.0,
+            emphasis_progress=0.75,
+            title_text="current",
+            previous_index=None,
+            previous_text="",
+            previous_brightness=0.0,
+            next_index=1,
+            next_text="next",
+            next_brightness=0.5,
+            active_start_position=5.0,
+            next_start_position=10.0,
+        )
+        with mock.patch.object(window, "update_lyric") as publish:
+            window.update_karaoke_frame(frame, emojimax=True)
+        args, kwargs = publish.call_args
+        self.assertEqual("current", args[0])
+        self.assertAlmostEqual(0.75, float(args[1]), places=6)
+        self.assertEqual("next", kwargs["artwork_lyric_override"])
+        self.assertEqual(0.0, kwargs["artwork_progress_override"])
+        self.assertAlmostEqual(10.0, kwargs["artwork_target_position"], places=6)
+
+    def test_v374_artwork_render_lead_self_corrects_early_and_late(self) -> None:
+        window = ExternalAlbumArtWindow(enabled=False)
+        window._artwork_karaoke_render_lead_seconds = 0.040
+        window.set_playback_position(10.030)
+        window._calibrate_artwork_karaoke_render_lead(10.000)
+        late_lead = window.artwork_karaoke_render_lead_seconds()
+        self.assertGreater(late_lead, 0.040)
+        window.set_playback_position(9.980)
+        window._calibrate_artwork_karaoke_render_lead(10.000)
+        self.assertLess(window.artwork_karaoke_render_lead_seconds(), late_lead)
+        self.assertLessEqual(window.artwork_karaoke_render_lead_seconds(), ARTWORK_KARAOKE_MAX_RENDER_LEAD_SECONDS)
+
+    def test_v374_artwork_command_queue_no_longer_has_50ms_karaoke_floor(self) -> None:
+        import inspect
+        source = inspect.getsource(ExternalAlbumArtWindow._gui_main)
+        self.assertEqual(8, ARTWORK_GUI_ACTIVE_COMMAND_POLL_MS)
+        self.assertEqual(40, ARTWORK_GUI_IDLE_COMMAND_POLL_MS)
+        self.assertIn("ARTWORK_GUI_ACTIVE_COMMAND_POLL_MS", source)
+        self.assertIn("ARTWORK_GUI_IDLE_COMMAND_POLL_MS", source)
+        self.assertEqual(1.0 / 120.0, EXTERNAL_KARAOKE_CLOCK_PUBLISH_SECONDS)
+
+
+    def test_v379_mode_specific_dense_art_fonts_fit_the_94_character_bank(self) -> None:
+        self.assertEqual(7, ART_DETAIL_DRCS_TWIN_LEVELS_BY_MODE[2])
+        self.assertEqual(32, len(art_detail_drcs_codebook(2)))
+        self.assertEqual(6, ART_DETAIL_DRCS_TWIN_LEVELS_BY_MODE[3])
+        self.assertEqual(55, len(art_detail_drcs_codebook(3)))
+        for mode in range(2, 7):
+            payload = define_all_player_drcs(mode).split('{ @', 1)[1][:-2]
+            self.assertEqual(94, len(payload.split(';')), mode)
+            self.assertEqual(len(art_detail_drcs_codebook(mode)), len(define_dense_art_drcs_patterns(mode)))
+
+    def test_v379_accuracy_labels_match_theoretical_exact_mask_coverage(self) -> None:
+        expected = {1: 1.0, 2: 1.0, 3: 55/128, 4: 55/256, 5: 55/512, 6: 55/2048}
+        for mode, fraction in expected.items():
+            self.assertAlmostEqual(fraction, art_detail_exact_mask_fraction(mode), places=8)
+        self.assertIn("43%", ART_MICROTILE_DETAIL_MODE_NAMES[3])
+        self.assertIn("21%", ART_MICROTILE_DETAIL_MODE_NAMES[4])
+        self.assertIn("11%", ART_MICROTILE_DETAIL_MODE_NAMES[5])
+        self.assertIn("2.7%", ART_MICROTILE_DETAIL_MODE_NAMES[6])
+
+    def test_v379_2x4_codebook_remains_radius_one(self) -> None:
+        codebook = art_detail_drcs_codebook(3)
+        worst = 0
+        for mask in range(256):
+            canonical, _invert = _canonical_art_detail_mask(mask, 8)
+            distance = min((canonical ^ representative).bit_count() for representative in codebook)
+            worst = max(worst, distance)
+        self.assertLessEqual(worst, 1)
+
+    def test_v379_new_3x3_2x5_3x4_patterns_use_requested_geometry(self) -> None:
+        for mode, geometry in ((4, (3, 3)), (5, (2, 5)), (6, (3, 4))):
+            self.assertEqual(geometry, art_detail_geometry(mode))
+            patterns = define_dense_art_drcs_patterns(mode)
+            self.assertEqual(55, len(patterns))
+            glyph, invert = dense_art_drcs_char((1 << art_detail_subcell_count(mode)) - 1, mode, mode)
+            self.assertEqual(1, terminal_cell_width(glyph))
+            self.assertIsInstance(invert, bool)
+
+    def test_v378_2x4_render_emits_no_unicode_mosaic_glyphs(self) -> None:
+        columns = 12
+        visible_rows = 4
+        # Four vertical artwork samples per visualizer row, 2 logical pixels per
+        # terminal column. Alternate colors so the dense mosaic path is active.
+        logical_width = columns * 2
+        grid_rows = []
+        for y in range(visible_rows * 4):
+            row = []
+            for x in range(logical_width):
+                row.append((240, 40, 40) if ((x + y) & 1) else (20, 180, 230))
+            grid_rows.append(tuple(row))
+        rows_out: list[str] = []
+        rendered = render_drcs_visualizer(
+            columns,
+            bytes([180] * logical_width),
+            [0.7] * logical_width,
+            rows=visible_rows,
+            truncate_top_lines=0,
+            granularity=3,
+            artwork_microtile_color_grid=tuple(grid_rows),
+            artwork_background_strength=1.0,
+            artwork_microtiles_enabled=True,
+            artwork_microtile_detail_mode=3,
+            rows_out=rows_out,
+            rows_only=True,
+        )
+        self.assertEqual('', rendered)
+        self.assertEqual(visible_rows, len(rows_out))
+        # Strip control sequences/SGR. Every printable geometry byte in dense
+        # mode must come from our ASCII-addressed DRCS bank, never Unicode
+        # sextant/octet/font-fallback glyphs.
+        for row in rows_out:
+            plain = ANSI_CSI_RE.sub('', row)
+            plain = re.sub(r'\x1b[()][ -~]*', '', plain)
+            self.assertFalse(any(ord(ch) > 127 for ch in plain))
+
+    def test_v384_console_visualizer_layer_switches_and_alert_master_contract(self) -> None:
+        html = _paf_web_html()
+        schema = paf_web_control_schema()
+        toggles = {item["key"]: item for item in schema["toggles"]}
+        for key in ("visualizer_bars_enabled", "visualizer_background_artwork_enabled", "console_alerts_enabled"):
+            self.assertIn(key, toggles)
+            self.assertTrue(paf_web_action_is_allowed(f"web-set:{key}:0"))
+            self.assertTrue(paf_web_action_is_allowed(f"web-set:{key}:1"))
+        self.assertIn('id="ctl-visualizer_bars_enabled"', html)
+        self.assertIn('id="ctl-visualizer_background_artwork_enabled"', html)
+        self.assertIn('id="ctl-console_alerts_enabled"', html)
+        self.assertLess(html.index('>Console Visualizer</h3>'), html.index('>⚠️ Console Alerts</h3>'))
+        self.assertIn("applyVisualizerLayerEnablement", html)
+        self.assertIn("applyConsoleAlertsEnablement", html)
+
+    def test_v384_visualizer_art_detail_split_and_broken_section_bottom_contract(self) -> None:
+        html = _paf_web_html()
+        self.assertIn("Artwork cell detail for visualizer bars:", html)
+        self.assertIn("Artwork cell detail for visualizer background:", html)
+        self.assertNotIn("<label>Artwork cell detail</label>", html)
+        self.assertGreater(html.index('>Broken experimental</h3>'), html.index('id="controls"'))
+        schema = paf_web_control_schema()
+        expansion = next(item for item in schema["toggles"] if item["key"] == "karaoke_visualizer_expansion_enabled")
+        self.assertFalse(bool(expansion.get("experimental", False)))
+        self.assertEqual("visualizer", expansion.get("theme"))
+
+    def test_v384_persisted_master_layer_defaults_and_sat_emojimax_removed(self) -> None:
+        self.assertEqual(1, PLAYER_SETTING_DEFAULTS["ConsoleAlertsEnabled"])
+        self.assertEqual(1, PLAYER_SETTING_DEFAULTS["VisualizerBarsEnabled"])
+        self.assertEqual(1, PLAYER_SETTING_DEFAULTS["VisualizerBackgroundArtworkEnabled"])
+        self.assertNotIn("sat", semantic)
+        source = inspect.getsource(play_audio_file)
+        self.assertIn("height_override=(persisted_heights if visualizer_bars_enabled else [0.0] * logical_visualizer_width)", source)
+        self.assertIn("visualizer_background_artwork_enabled and drcs_art_microtiles", source)
+        self.assertIn("if not console_alerts_enabled:", source)
+        self.assertIn("nonlocal console_alerts_enabled, visualizer_bars_enabled, visualizer_background_artwork_enabled", source)
+        self.assertIn("_effective_background_detail_mode = drcs_art_microtile_mode if visualizer_background_artwork_enabled else 0", source)
+        self.assertIn("_effective_bar_detail_mode = drcs_art_bar_microtile_mode if visualizer_bars_enabled else 0", source)
+
+
+    def test_v385_visualizer_overlay_messages_is_visualizer_control_default_on_and_persisted(self) -> None:
+        html = _paf_web_html()
+        schema = paf_web_control_schema()
+        control = next(item for item in schema["toggles"] if item["key"] == "console_visualizer_volume_feedback_enabled")
+        self.assertEqual("Visualizer Overlay Messages", control["label"])
+        self.assertEqual("visualizer", control.get("theme"))
+        self.assertTrue(control.get("default"))
+        self.assertNotIn("Playback and display toggles", html)
+        self.assertIn("'console_visualizer_volume_feedback_enabled'", html)
+        self.assertEqual(1, PLAYER_SETTING_DEFAULTS["ConsoleVisualizerOverlayMessagesEnabled"])
+        source = inspect.getsource(play_audio_file)
+        self.assertIn('save_player_setting_value("ConsoleVisualizerOverlayMessagesEnabled"', source)
+
+    def test_v385_emojimaxx_removes_shovel_and_uses_sunrise_for_daylight(self) -> None:
+        self.assertNotIn("shovel", semantic)
+        self.assertEqual("🌅", semantic.get("daylight"))
+        self.assertEqual(
+            {
+                "EMX385-U001": ("shovel", "🪏", None),
+                "EMX385-U002": ("daylight", "☀️", "🌅"),
+            },
+            EMOJIMAX_V385_UPDATES_BY_UNDO_CODE,
+        )
+
+
+    def test_v386_floating_lyrics_web_topmost_control_contract(self) -> None:
+        html = _paf_web_html()
+        self.assertIn('id="floatingLyricsTopmostButton"', html)
+        self.assertIn('📌 Always on top</button>', html)
+        self.assertTrue(paf_web_action_is_allowed("web-set:floating_topmost:0"))
+        self.assertTrue(paf_web_action_is_allowed("web-set:floating_topmost:1"))
+        self.assertIn("floating_topmost", PAFWebServer(enabled=False)._state)
+        source = inspect.getsource(ExternalAlbumArtWindow)
+        self.assertIn('self._commands.put(("set-floating-topmost", value))', source)
+        self.assertIn('if kind == "set-floating-topmost"', source)
+
+    def test_v386_visualizer_bar_artwork_is_dedicated_switch_and_dependency(self) -> None:
+        html = _paf_web_html()
+        self.assertIn('id="ctl-art_color_bars"', html)
+        self.assertIn('>Visualizer bar artwork</span>', html)
+        self.assertIn("barArtworkOn=barsOn&&!!barArtwork.checked", html)
+        self.assertIn("const barArtworkKeys=['art_color_bar_strength','art_color_bar_blend_mode','drcs_art_bar_microtile_mode']", html)
+        self.assertIn("visualizerBarArtworkSwitch.onchange", html)
+
+    def test_v386_microtile_cards_hug_content_and_recycle_right_clicks_backwards(self) -> None:
+        html = _paf_web_html()
+        self.assertIn('.visualizer-artwork-detail-controls .microtile-mode-row{width:max-content;max-width:100%', html)
+        self.assertIn("cycle.addEventListener('contextmenu'", html)
+        self.assertIn("cycleFavorites(-1)", html)
+        self.assertIn("Right-click to cycle backward", html)
+
+    def test_v386_visualizer_input_is_in_playback_and_not_bar_gated(self) -> None:
+        html = _paf_web_html()
+        schema = paf_web_control_schema()
+        item = next(item for item in schema["selects"] if item["key"] == "visualizer_input_source")
+        self.assertEqual("playback", item.get("theme"))
+        self.assertIn("'visualizer_input_source'].includes(item.key)) host=playback", html)
+        apply_start = html.index('function applyVisualizerLayerEnablement()')
+        apply_end = html.index('function applyConsoleAlertsEnablement()', apply_start)
+        self.assertNotIn("'visualizer_input_source'", html[apply_start:apply_end])
+
+
+
+    def test_v387_local_art_fallback_priority_matches_cover_folder_disc_band_other(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            audio = root / "song.mp3"
+            audio.write_bytes(b"audio")
+            for name in ("z-other.png", "band.jpg", "disc.webp", "folder.jpeg", "cover.png", "a-other.jpg"):
+                (root / name).write_bytes(b"image")
+            names = [item.name for item in _album_art_candidates(audio)]
+            self.assertEqual(["cover.png", "folder.jpeg", "disc.webp", "band.jpg"], names[:4])
+            self.assertEqual(["a-other.jpg", "z-other.png"], names[4:])
+
+    def test_v387_ctrl_end_and_home_do_not_arm_visualizer_overlay(self) -> None:
+        source = Path(__file__).read_text(encoding="utf-8")
+        segment = source[source.index("def interaction_feedback_label"):source.index("def reset_or_undo_modes")]
+        self.assertIn("ALL_AUDIO_TAGS_FIRST_PAGE, ALL_AUDIO_TAGS_LAST_PAGE", segment)
+        self.assertEqual(ALL_AUDIO_TAGS_LAST_PAGE, interpret_console_key("\xe0", extended="O", ctrl=True))
+        self.assertEqual(ALL_AUDIO_TAGS_FIRST_PAGE, interpret_console_key("\xe0", extended="G", ctrl=True))
+
+    def test_v387_floating_lyrics_animation_is_audio_budgeted_and_not_immediately_repainted(self) -> None:
+        self.assertGreaterEqual(floating_lyrics_animation_interval_ms(600_000, 30.0, playback_running=True), 500)
+        self.assertGreater(
+            floating_lyrics_animation_interval_ms(600_000, 60.0, playback_running=True),
+            floating_lyrics_animation_interval_ms(100_000, 5.0, playback_running=True),
+        )
+        source = Path(__file__).read_text(encoding="utf-8")
+        start = source.index("def animate_floating_lyric_colors")
+        end = source.index("def schedule_floating_render", start)
+        animation = source[start:end]
+        self.assertIn('floating_animation_cost_ema_ms', animation)
+        self.assertIn('floating_lyrics_animation_interval_ms(', animation)
+        ensure_start = source.index("def ensure_floating_color_animation", end)
+        ensure_end = source.index("def install_floating_hit_test", ensure_start)
+        ensure = source[ensure_start:ensure_end]
+        self.assertNotIn("window.after(0, animate_floating_lyric_colors)", ensure)
+
+
+
+    def test_v388_web_lyric_window_controls_are_four_buttons_in_requested_order(self) -> None:
+        html = _paf_web_html()
+        for prefix in ("artworkPopup", "floatingLyrics"):
+            ids = [
+                f'id="{prefix}BringTopButton"',
+                f'id="{prefix}TopmostButton"',
+                f'id="{prefix}ConfigButton"',
+                f'id="{prefix}DecensorButton"',
+            ]
+            positions = [html.index(token) for token in ids]
+            self.assertEqual(positions, sorted(positions))
+        self.assertNotIn('id="floatingLyricsTopmostToggle"', html)
+        self.assertIn("external-floating-lyrics-foreground", html)
+
+    def test_v388_art_and_floating_topmost_web_contract(self) -> None:
+        self.assertTrue(paf_web_action_is_allowed("web-set:art_topmost:0"))
+        self.assertTrue(paf_web_action_is_allowed("web-set:art_topmost:1"))
+        self.assertTrue(paf_web_action_is_allowed(EXTERNAL_ALBUM_ART_FOREGROUND))
+        self.assertTrue(paf_web_action_is_allowed(EXTERNAL_FLOATING_LYRICS_FOREGROUND))
+        state = PAFWebServer(enabled=False)._state
+        self.assertIn("art_topmost", state)
+        self.assertIn("floating_topmost", state)
+        source = inspect.getsource(ExternalAlbumArtWindow)
+        self.assertIn('self._commands.put(("set-art-topmost", value))', source)
+        self.assertIn('self._commands.put(("foreground-floating",))', source)
+        self.assertIn('if kind == "foreground-floating"', source)
+
+    def test_v388_explicit_decensor_buttons_replace_generic_duplicate_controls(self) -> None:
+        html = _paf_web_html()
+        self.assertIn('id="artworkPopupDecensorButton"', html)
+        self.assertIn('id="floatingLyricsDecensorButton"', html)
+        self.assertIn("web-set:decensor_artwork_lyrics:", html)
+        self.assertIn("web-set:decensor_floating_lyrics:", html)
+        self.assertIn("'decensor_artwork_lyrics','decensor_floating_lyrics'].includes(item.key)", html)
+
+
+    def test_v390_emojimax_numbers_avoid_unsupported_chess_symbol_block_and_keep_compound_spacing(self) -> None:
+        self.assertEqual("❹⓿", semantic.get("forty"))
+        self.assertEqual("❷⓿", semantic.get("twenty"))
+        self.assertEqual("❼⓿", semantic.get("seventy"))
+        self.assertEqual("❾⓿", semantic.get("ninety"))
+        self.assertEqual("①⑤", semantic.get("fifteen"))
+        self.assertEqual("❹⓿  ", windows_terminal_emojimax_replacement("❹⓿"))
+        self.assertEqual("❶  ❽  ", windows_terminal_emojimax_replacement("❶❽"))
+        # The user specifically reported U+1FA06 as tofu.  Remove the entire
+        # Chess Symbols/Xiangqi range from all final Emojimaxx mappings.
+        offenders = {
+            key: value for key, value in semantic.items()
+            if any(0x1FA00 <= ord(ch) <= 0x1FA6F for ch in str(value))
+        }
+        self.assertEqual({}, offenders)
+
+    def test_v390_dead_kennedys_hud_uses_spare_cells_for_obvious_colon_alignment(self) -> None:
+        tags = {
+            "Artist": "Dead Kennedys",
+            "Song": "Forest Fire (demo)",
+            "Album": "The Virgin Demos",
+            "Year": "1982",
+            "Genre": "Punk",
+            "Comment": "http://vivalesbootlegs.blogspot.com",
+            "Composer": "Jello Biafra",
+        }
+        rows, _ansi = format_tag_panel(tags, width=150)
+        self.assertEqual(2, len(rows), rows)
+        colons = dict(hud_metadata_label_colons(rows))
+        self.assertEqual(colons["Song"], colons["Comment"], rows)
+        self.assertEqual(colons["Album"], colons["Composer"], rows)
+        self.assertTrue(all(terminal_cell_width(row) <= 150 for row in rows))
+
+    def test_v389_drcs_bank_and_first_target_frame_commit_atomically(self) -> None:
+        payload = atomic_drcs_frame_transition_payload("<BANK>", "<ORIGIN>", "<FRAME>")
+        self.assertTrue(payload.startswith("\033[?2026h"))
+        self.assertTrue(payload.endswith("\033[?25l\033[?2026l"))
+        self.assertLess(payload.index("<BANK>"), payload.index("<ORIGIN>"))
+        self.assertLess(payload.index("<ORIGIN>"), payload.index("<FRAME>"))
+        self.assertLess(payload.index("<FRAME>"), payload.rindex("\033[?2026l"))
+
+    def test_v389_microtile_detail_changes_stage_drcs_instead_of_redefining_visible_cells(self) -> None:
+        source = Path(__file__).read_text(encoding="utf-8")
+        start = source.index("    def apply_web_direct_setting")
+        end = source.index("    def record_local_history_if_eligible", start)
+        apply_source = source[start:end]
+        self.assertIn("drcs_bank_swap_pending = True", apply_source)
+        self.assertNotIn("write_console(define_all_player_drcs", apply_source)
+        self.assertIn("atomic_drcs_frame_transition_payload(", source)
+
+    def test_v389_pending_bank_swap_forces_complete_frame_before_delta_transport(self) -> None:
+        source = inspect.getsource(play_audio_file)
+        self.assertIn("and not drcs_bank_swap_pending", source)
+        self.assertIn("if drcs_bank_swap_pending and rendered_visualizer:", source)
+        self.assertIn("if drcs_transition_committed:", source)
+        self.assertIn("last_visualizer_cells = rendered_cells", source)
+        self.assertIn("last_visualizer_rows = rendered_rows", source)
+
+
 def run_unit_tests() -> int:
     """Run this script's embedded tests with normal unittest reporting."""
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(
         PlayWaveFileTests
     )
     return 0 if unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful() else 1
+
+
+class TestV369SmoothAudioPluralSync(unittest.TestCase):
+    def test_v369_plural_emojimax_uses_global_count(self) -> None:
+        global NUMBER_OF_EMOJI_TO_REPRESENT_PLURAL
+        old = NUMBER_OF_EMOJI_TO_REPRESENT_PLURAL
+        try:
+            set_number_of_emoji_to_represent_plural(3)
+            self.assertEqual("🐶🐶🐶", emojimax_replacement_for_key("dogs"))
+            self.assertEqual("🐱🐱🐱", emojimax_replacement_for_key("cats"))
+            self.assertEqual("🚗🚗🚗", emojimax_replacement_for_key("cars"))
+            self.assertEqual("🥾🥾🥾", emojimax_replacement_for_key("boots"))
+            self.assertEqual("💪💪💪", emojimax_replacement_for_key("arms"))
+            self.assertEqual("🦴🦴🦴", emojimax_replacement_for_key("bones"))
+            self.assertEqual("🫂🫂🫂", emojimax_replacement_for_key("friends"))
+            # Do not confuse a trailing-s token with a plural noun, and preserve
+            # hand-curated collective/special plural pictograms.
+            self.assertEqual(semantic["news"], emojimax_replacement_for_key("news"))
+            self.assertEqual("👀", emojimax_replacement_for_key("eyes"))
+            self.assertEqual("💐", emojimax_replacement_for_key("flowers"))
+            set_number_of_emoji_to_represent_plural(2)
+            self.assertEqual("🐶🐶", emojimax_plain_with_solutions("dogs", True)[0])
+            self.assertEqual("🐱🐱", emojimax_plain_with_solutions("cats", True)[0])
+        finally:
+            set_number_of_emoji_to_represent_plural(old)
+
+    def test_v369_stereo_waveout_format_and_command(self) -> None:
+        fmt = matrixmixer_inspired_wave_format(2, 48000)
+        self.assertEqual(2, fmt.Format.nChannels)
+        self.assertEqual(0x3, int(fmt.dwChannelMask))
+        command = matrixmixer_inspired_ffmpeg_command(
+            Path("ffmpeg.exe"), Path("song.flac"), 0.0, 100, 1.0, 2, 0, 48000,
+            end_seconds=None, replaygain_info=None,
+        )
+        self.assertIn("aformat=channel_layouts=stereo", " ".join(command))
+
+    def test_v369_gui_lyric_animation_uses_playback_clock(self) -> None:
+        source = Path(__file__).read_text(encoding="utf-8")
+        self.assertIn("self.playback_position() / 2.7", source)
+        self.assertIn("progress_beat_last_time = -1.0", source)
+        self.assertIn("external_album_art_window.set_playback_position(displayed_position)", source)
+        self.assertIn("EXTERNAL_KARAOKE_CLOCK_PUBLISH_SECONDS", source)
+        self.assertIn("playback_started_at", source)
+        self.assertIn("math.floor((displayed_position + 1e-12)", source)
+        self.assertEqual(0.002, AUDIO_GIL_SWITCH_INTERVAL_SECONDS)
+        self.assertEqual(250, SMOOTH_AUDIO_BUFFER_MS)
 
 
 def run_emoji_display_test() -> int:
@@ -59963,9 +64961,149 @@ def run_multichannel_speaker_test(which: str = "suite") -> int:
     return 0
 
 
+def _emojimaxx_cli_normal_line(text: str = "") -> None:
+    """Write one ordinary-height preview row with an explicit DEC #5 reset."""
+    sys.stdout.write(BIG_OFF + str(text) + "\n")
+
+
+def _emojimaxx_cli_double_height_line(text: str) -> None:
+    """Write one logical line as the paired DEC double-height top/bottom rows."""
+    rendered = str(text)
+    sys.stdout.write("\033#3" + rendered + "\n")
+    sys.stdout.write("\033#4" + rendered + "\n")
+
+
+def _emojimaxx_cli_current_line_payload(
+    text: str,
+    *,
+    treatment: int,
+    seed: int,
+    brightness: float,
+    capacity: int,
+) -> str:
+    """Mirror the legacy-mode payload of a fully current/sung console lyric line."""
+    readable = ((255, 220, 120), (150, 235, 255), (210, 180, 255), (170, 255, 185))
+    brightness = min(1.0, max(0.0, float(brightness)))
+    payload_capacity = max(1, int(capacity))
+    clean = str(text).strip()
+    text_width = min(payload_capacity, terminal_cell_width(clean))
+    remaining = max(0, payload_capacity - text_width)
+    left_padding = remaining // 2
+    right_padding = remaining - left_padding
+    attributes = ansi_rgb(tuple(
+        round(component * brightness)
+        for component in readable[int(seed) % len(readable)]
+    ))
+    colored_text = colorize_karaoke_text(
+        clean, int(treatment), int(seed), brightness
+    )
+
+    # Same current-line highlight geometry used by live console karaoke when
+    # the spectrum is not composited through the lyric cells.
+    outer_left = left_padding // 2
+    outer_right = right_padding // 2
+    inner_left = left_padding - outer_left
+    inner_right = right_padding - outer_right
+    return (
+        " " * outer_left
+        + "\033[48;2;0;22;26m" + attributes
+        + " " * inner_left + colored_text + " " * inner_right
+        + "\033[0m"
+        + " " * outer_right
+    )
+
+
+def run_emojimaxx_cli_preview(text: str) -> int:
+    """Print plain, raw DECDHL, and live-current-karaoke Emojimaxx previews."""
+    source = str(text)
+    solution = stylize_karaoke_with_emojimax(
+        source, 1, True, 1.0,
+        force_emoji_when_enabled=True,
+        windows_terminal_compat=True,
+    )
+    terminal_columns = shutil.get_terminal_size((120, 30)).columns
+    available_width = max(12, terminal_columns - 1)
+    line_capacity = max(10, available_width // 2)
+
+    # 1) One blank row, then the ordinary Emojimaxx solution.
+    _emojimaxx_cli_normal_line()
+    for line in solution.split("\n"):
+        _emojimaxx_cli_normal_line(line)
+
+    # 2) Two blank rows, then literal DEC double-height top/bottom pairs. Every
+    # non-big row explicitly resets to #5 because Windows Terminal may inherit
+    # a prior row's DECDHL state otherwise.
+    _emojimaxx_cli_normal_line()
+    _emojimaxx_cli_normal_line()
+    for logical_line in solution.split("\n"):
+        wrapped = wrap_to_cells(
+            compensate_double_height_cells(logical_line), line_capacity
+        )
+        for line in wrapped:
+            _emojimaxx_cli_double_height_line(line)
+
+    # 3) Two more #5 rows, then the first live current-cue page using saved
+    # karaoke style/treatment, Emojimaxx forced on, half-width wrapping,
+    # current-line highlight, and correctly paired #3/#4 physical rows.
+    _emojimaxx_cli_normal_line()
+    _emojimaxx_cli_normal_line()
+    settings = load_player_settings()
+    karaoke_style = int(settings.get("KaraokeStyle", 1))
+    karaoke_treatment = int(settings.get("KaraokeTreatment", 2))
+    styled_current = compensate_double_height_cells(
+        stylize_karaoke_with_emojimax(
+            source,
+            karaoke_style,
+            True,
+            1.0,
+            force_emoji_when_enabled=True,
+            windows_terminal_compat=True,
+        )
+    )
+    current_lines = wrap_to_cells(styled_current, line_capacity)[:2]
+    for line_index, line in enumerate(current_lines):
+        payload = _emojimaxx_cli_current_line_payload(
+            line,
+            treatment=karaoke_treatment,
+            seed=line_index,
+            brightness=1.0,
+            capacity=line_capacity,
+        )
+        _emojimaxx_cli_double_height_line(payload)
+
+    # Never leave the shell prompt inheriting #4/double-height mode.
+    sys.stdout.write(BIG_OFF)
+    sys.stdout.flush()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run unit tests or preview the single supplied audio filename."""
     arguments = list(sys.argv[1:] if argv is None else argv)
+    # V369 plural-count override is process-wide and is consumed before special
+    # one-shot modes such as --emojimaxx so preview and playback behave identically.
+    cleaned_arguments: list[str] = []
+    index = 0
+    plural_option_names = {"--plural-emoji-count", "--number-of-emoji-to-represent-plural"}
+    while index < len(arguments):
+        argument = arguments[index]
+        option_name, has_equals, raw_value = argument.partition("=")
+        if option_name in plural_option_names:
+            if not has_equals:
+                index += 1
+                if index >= len(arguments):
+                    print(f"💥 ERROR: {option_name} requires an integer 1..12.", file=sys.stderr)
+                    return 2
+                raw_value = arguments[index]
+            try:
+                set_number_of_emoji_to_represent_plural(int(raw_value))
+            except (TypeError, ValueError):
+                print(f"💥 ERROR: {option_name} requires an integer 1..12.", file=sys.stderr)
+                return 2
+        else:
+            cleaned_arguments.append(argument)
+        index += 1
+    arguments = cleaned_arguments
     # Survey switches accept natural singular/plural spellings in either order.
     # Keep this normalization local to the survey dispatch so an audio filename
     # containing "emojis" is never rewritten.
@@ -59985,15 +65123,8 @@ def main(argv: list[str] | None = None) -> int:
         if len(arguments) != 2:
             print('💥 ERROR: --emojimaxx requires exactly one quoted text argument.', file=sys.stderr)
             return 2
-        # This is deliberately a preview-only path: it has no player, window,
-        # history, or web-server side effects.  Match the console renderer so
-        # Windows Terminal-only glyph spacing workarounds are visible here.
-        print(stylize_karaoke_with_emojimax(
-            arguments[1], 1, True, 1.0,
-            force_emoji_when_enabled=True,
-            windows_terminal_compat=True,
-        ))
-        return 0
+        # Preview-only path: no player/history/artwork/web side effects.
+        return run_emojimaxx_cli_preview(arguments[1])
     if survey_argument in {
         "--emoji-symbol-survey", "--emoji-survey", "--survey-emoji",
     }:
@@ -60075,6 +65206,7 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("-t, --unit-tests", "run embedded tests")
         usage_line("-e, --emoji-display-test", "test emojimaxxifying of text")
         usage_line('--emojimaxx "text"', "preview Emojimaxx substitutions and exit", note="alias: --emojimax")
+        usage_line("--plural-emoji-count=N", "emoji copies used for an existing plural Emojimaxx word", str(NUMBER_OF_EMOJI_TO_REPRESENT_PLURAL), note="long alias: --number-of-emoji-to-represent-plural")
         usage_line("--emoji-symbol-survey / --emoji-survey / --survey-emoji", "paged top-100 glyph incidence + every substituted word/phrase + timestamped log; emoji/emojis are equivalent")
         usage_line("--hud-layout-survey / --hud-survey / --survey-hud", "pairwise colored comparison of four HUD field-placement algorithms with reason-coded results")
         usage_line("--speaker-test-5.1 / --speaker-test-7.1", "play sequential discrete-channel HDMI speaker bursts; no music file required")
@@ -60085,6 +65217,8 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("-l, --loop / -L, --no-loop", "loop the current track", "on")
         usage_line("-k, --karaoke / -K, --no-karaoke", "display available lyrics", "on")
         usage_line("--replaygain=on|off|track|album", "playback-time ReplayGain; track/album select preference with opposite fallback", "track" if REPLAYGAIN_ENABLED else "off")
+        usage_line("--smooth-audio / --legacy-ffplay-audio", "buffered Windows WaveOut+MMCSS stereo playback / legacy FFplay fallback", "smooth")
+        usage_line("--audio-buffer-ms=MS", "decoded PCM safety reservoir before WaveOut starts; larger resists CPU spikes", f"{SMOOTH_AUDIO_BUFFER_MS}ms")
         usage_line("--trim-edge-silence / --no-trim-edge-silence", "skip sufficiently quiet audio only at track edges", "on")
         usage_line("--trim-silence-threshold-db=-43", "edge-silence threshold in dBFS", f"{TRIM_EDGE_SILENCE_THRESHOLD_DB:g}dB")
         usage_line("--trim-silence-min-duration=SECONDS", "minimum continuous quiet time before trimming", f"{TRIM_EDGE_SILENCE_MIN_DURATION_SECONDS:g}s")
@@ -60127,7 +65261,8 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("Art 🔡 / Floating 🔠", "open the independent lyric mode/treatment/timing configurator; per-mode palette, speed, tone, and shadow persist")
         usage_line("Album art rotation", "when not idle, occasionally crossfade among cover/back/related images using cover-heavy dwell weights")
         usage_line("Artwork Lyrics button", "three-way cycle: over artwork → floating → both; both destinations may render the same cue simultaneously")
-        usage_line("Floating lyrics", "drag a visible letter to move; hold Ctrl to grab transparent space or resize from an edge/corner")
+        usage_line("Floating lyrics", "click/reveal for an opaque thick-border editor; drag inside to move and grab the thick border to resize")
+        usage_line("Floating Ctrl+wheel / Autosize", "Ctrl+wheel changes floating text size (switches to manual); Autosize fits each sung line as large as possible inside the box")
         usage_line("Alt+L", "toggle effective learned tag; HUD 𝓛 is muted green/red")
         usage_line("Ctrl+Alt+L", "mark learned; extras save ONLY on Enter; 10s untouched or 30s typing-idle/Esc/second hotkey discard extras; R removes ~16s")
         usage_line("Ctrl+O", "open another playlist with the Windows picker; current session cleans up, then relaunches in the same console")
@@ -60194,9 +65329,9 @@ def main(argv: list[str] | None = None) -> int:
         )
         usage_line("-f, --fade-time SECONDS", "legacy spectrum brightness-fade timing; 0 disables", f"{DEFAULT_VISUALIZER_FADE_SECONDS:g}s")
         usage_line("--truncate-top-visualizer-lines=N", "hide N highest/rarest spectrum rows while still analyzing them", str(TRUNCATE_TOP_VISUALIZER_LINES))
-        usage_line("--no-microtile-detail-for-bars", "disable EXP 2×2 artwork micro-tile detail in filled visualizer bar cells for this run")
-        usage_line("--no-microtile-detail-for-black", "disable EXP 2×2 artwork micro-tile detail in visualizer blackness for this run")
-        usage_line("--no-microtile-detail", "equivalent to both micro-tile detail opt-outs above")
+        usage_line("--no-microtile-detail-for-bars", "force Single-character artwork detail in filled visualizer bar cells for this run")
+        usage_line("--no-microtile-detail-for-black", "force Single-character artwork detail in visualizer blackness for this run")
+        usage_line("--no-microtile-detail", "force Single-character artwork detail for both areas for this run")
         usage_line("Alt+C", "cycle favorite palettes")
         usage_line("Alt+G / Ctrl+Alt+G", "cycle favorite persistence / toggle current persistence favorite")
         usage_line("V / Shift+V", "next / previous visualizer mode")
@@ -60204,6 +65339,8 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("Ctrl+R / Ctrl+Alt+R", "re-read playlist from disk, reload karaoke/lyrics, then rebuild shuffled queue/cache")
         usage_line("--visualizer-target-fps=FPS", "target spectrum repaint rate; interpolates 30-Hz analysis and adapts downward to terminal throughput", f"{VISUALIZER_TARGET_FPS:g}")
         usage_line("-a, --album-art / -A, --no-album-art", "SIXEL artwork background", "on")
+        usage_line("--no-chafa-album-art-in-console", "suppress Chafa's pre-play album-art grid only; popup, web art, and visualizers remain available")
+        usage_line("--simple / --light", "lightweight preset: no console/popup art, web server, now-playing sidecar, or visualizers")
         usage_line("--album-art-style STYLE", "cover-on-black, cover-on-both, or cover-on-bars; aspect-mismatched covers tile from a centered origin", "cover-on-both")
         usage_line("--external-album-art / --no-external-album-art", "enable/disable separate movable GUI cover-art window for this run", "on" if ENABLE_EXTERNAL_ALBUM_ART_WINDOW else "off")
         usage_line("--external-album-art-idle-foreground-seconds=SECONDS", "idle time before auto-raising artwork; 0=never", f"{EXTERNAL_ALBUM_ART_IDLE_FOREGROUND_SECONDS:g}s")
@@ -60327,12 +65464,13 @@ def main(argv: list[str] | None = None) -> int:
     # V310: bundled releases already contain this. A third-party single-file
     # install gets one explicit choice of same-folder vs clairecjs_utils\.
     ensure_clairecjs_dependency("claire_audio_processing", interactive=True)
-    global ART_COLOR_VISUALIZER_REPRESENTATION, ART_COLOR_VISUALIZER_BAR_STRENGTH, ART_COLOR_VISUALIZER_BLACK_STRENGTH, ART_COLOR_VISUALIZER_KARAOKE_SIDES, ART_COLOR_VISUALIZER_KARAOKE
+    global ART_COLOR_VISUALIZER_REPRESENTATION, ART_COLOR_VISUALIZER_BAR_STRENGTH, ART_COLOR_VISUALIZER_BLACK_STRENGTH, ART_COLOR_VISUALIZER_KARAOKE_SIDES, ART_COLOR_VISUALIZER_KARAOKE, CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED
     ART_COLOR_VISUALIZER_REPRESENTATION = ART_COLOR_VISUALIZER_REPRESENTATIONS[min(3, max(0, persisted_settings.get("ArtColorRepresentation", 0)))]
     ART_COLOR_VISUALIZER_BAR_STRENGTH = persisted_settings.get("ArtColorBarStrength", 70) / 100.0
     ART_COLOR_VISUALIZER_BLACK_STRENGTH = persisted_settings.get("ArtColorBlackStrength", 25) / 100.0
     ART_COLOR_VISUALIZER_KARAOKE_SIDES = bool(persisted_settings.get("ArtColorKaraokeSides", 0))
     ART_COLOR_VISUALIZER_KARAOKE = bool(persisted_settings.get("ArtColorKaraoke", 0))
+    CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED = bool(persisted_settings.get("ConsoleVisualizerOverlayMessagesEnabled", 1))
     sixel_enabled = bool(persisted_settings['SixelEnabled'])
     drcs_enabled = bool(persisted_settings['DrcsEnabled'])
     fade_seconds = DEFAULT_VISUALIZER_FADE_SECONDS
@@ -60357,6 +65495,8 @@ def main(argv: list[str] | None = None) -> int:
     shuffle_expiration_in_hours = SHUFFLE_EXPIRATION_IN_HOURS
     truncate_top_visualizer_lines = TRUNCATE_TOP_VISUALIZER_LINES
     visualizer_target_fps = VISUALIZER_TARGET_FPS
+    smooth_audio_renderer_enabled = bool(SMOOTH_AUDIO_RENDERER_ENABLED)
+    audio_buffer_ms = int(SMOOTH_AUDIO_BUFFER_MS)
     trim_edge_silence = bool(TRIM_EDGE_SILENCE_ENABLED)
     trim_silence_threshold_db = TRIM_EDGE_SILENCE_THRESHOLD_DB
     trim_silence_min_duration = TRIM_EDGE_SILENCE_MIN_DURATION_SECONDS
@@ -60370,6 +65510,7 @@ def main(argv: list[str] | None = None) -> int:
     # bars and blackness, so the two web opt-out boxes always begin unchecked.
     microtile_bars_enabled = True
     microtile_blackness_enabled = True
+    chafa_album_art_in_console = True
     theory_modes: set[int] = set()
     filenames: list[str] = []
     argument_index = 0
@@ -60403,6 +65544,16 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"💥 ERROR: --theory values must be integers 1-{THEORY_MAX} ({PROGRAM_VERSION} accepts theories 1-{THEORY_MAX}).", file=sys.stderr)
                 return 2
             theory_modes.update(parsed_theories)
+        elif argument in {"--simple", "--light"}:
+            # The opt-in light preset intentionally maps to ordinary switches,
+            # so a later explicit command-line option can re-enable one surface.
+            album_art_display = False
+            external_album_art_enabled = False
+            web_server_enabled = False
+            now_playing_sidecar = False
+            drcs_enabled = False
+            sixel_enabled = False
+            chafa_album_art_in_console = False
         elif argument == "--suppress-attribute-management":
             suppress_attribute_management = True
         elif argument == "--no-microtile-detail-for-bars":
@@ -60412,6 +65563,26 @@ def main(argv: list[str] | None = None) -> int:
         elif argument == "--no-microtile-detail":
             microtile_bars_enabled = False
             microtile_blackness_enabled = False
+        elif argument == "--smooth-audio":
+            smooth_audio_renderer_enabled = True
+        elif argument == "--legacy-ffplay-audio":
+            smooth_audio_renderer_enabled = False
+        elif argument == "--audio-buffer-ms":
+            argument_index += 1
+            if argument_index >= len(arguments):
+                print("💥 ERROR: --audio-buffer-ms requires an integer milliseconds value.", file=sys.stderr)
+                return 2
+            try:
+                audio_buffer_ms = int(arguments[argument_index])
+            except ValueError:
+                print("💥 ERROR: --audio-buffer-ms must be an integer.", file=sys.stderr)
+                return 2
+        elif argument.startswith("--audio-buffer-ms="):
+            try:
+                audio_buffer_ms = int(argument.partition("=")[2])
+            except ValueError:
+                print("💥 ERROR: --audio-buffer-ms must be an integer.", file=sys.stderr)
+                return 2
         elif argument in {"--visualizers", "-v"}:
             drcs_enabled = True
             sixel_enabled = True
@@ -60546,6 +65717,8 @@ def main(argv: list[str] | None = None) -> int:
             album_art_display = True
         elif argument in {"--no-album-art", "-A"}:
             album_art_display = False
+        elif argument == "--no-chafa-album-art-in-console":
+            chafa_album_art_in_console = False
         elif argument == "--album-art-style":
             argument_index += 1
             if argument_index >= len(arguments):
@@ -60744,6 +65917,12 @@ def main(argv: list[str] | None = None) -> int:
     if not math.isfinite(visualizer_target_fps) or visualizer_target_fps <= 0:
         print("💥 ERROR: --visualizer-target-fps must be a finite number greater than zero.", file=sys.stderr)
         return 2
+    if not SMOOTH_AUDIO_BUFFER_MS_MIN <= int(audio_buffer_ms) <= SMOOTH_AUDIO_BUFFER_MS_MAX:
+        print(f"💥 ERROR: --audio-buffer-ms must be {SMOOTH_AUDIO_BUFFER_MS_MIN}..{SMOOTH_AUDIO_BUFFER_MS_MAX}.", file=sys.stderr)
+        return 2
+    if smooth_audio_renderer_enabled:
+        with contextlib.suppress(Exception):
+            sys.setswitchinterval(AUDIO_GIL_SWITCH_INTERVAL_SECONDS)
     visualizer_target_fps = min(VISUALIZER_MAX_ADAPTIVE_FPS, max(VISUALIZER_MIN_ADAPTIVE_FPS, visualizer_target_fps))
     if truncate_top_visualizer_lines < 0:
         print("💥 ERROR: --truncate-top-visualizer-lines must be zero or greater.", file=sys.stderr)
@@ -60977,6 +66156,9 @@ def main(argv: list[str] | None = None) -> int:
         decensor_artwork_lyrics_state = [bool(persisted_settings.get('DecensorArtworkLyrics', 0))]
         decensor_floating_lyrics_state = [bool(persisted_settings.get('DecensorFloatingLyrics', 0))]
         console_karaoke_enabled_state = [bool(persisted_settings.get('ConsoleKaraokeEnabled', 1))]
+        console_alerts_enabled_state = [bool(persisted_settings.get('ConsoleAlertsEnabled', 1))]
+        visualizer_bars_enabled_state = [bool(persisted_settings.get('VisualizerBarsEnabled', 1))]
+        visualizer_background_artwork_enabled_state = [bool(persisted_settings.get('VisualizerBackgroundArtworkEnabled', 1))]
         alert_no_replaygain_state = [bool(persisted_settings.get('AlertNoReplayGain', 1))]
         alert_missing_artist_state = [bool(persisted_settings.get('AlertMissingArtist', 1))]
         alert_missing_title_state = [bool(persisted_settings.get('AlertMissingTitle', 1))]
@@ -60992,8 +66174,8 @@ def main(argv: list[str] | None = None) -> int:
         progress_beat_detector_state = [int(persisted_settings.get('ProgressBeatDetector', 1))]
         progress_beat_treatment_state = [int(persisted_settings.get('ProgressBeatTreatment', 3))]
         cursive_fix_state = [bool(persisted_settings.get('CursiveFix', 0))]
-        drcs_art_microtiles_state = [bool(microtile_blackness_enabled)]
-        drcs_art_bar_microtiles_state = [bool(microtile_bars_enabled)]
+        drcs_art_microtiles_state = [int(persisted_settings.get('DrcsArtMicrotileDetailModeV370', ART_MICROTILE_DETAIL_MODE_DEFAULT)) if microtile_blackness_enabled else 0]
+        drcs_art_bar_microtiles_state = [int(persisted_settings.get('DrcsArtBarMicrotileDetailModeV370', ART_MICROTILE_DETAIL_MODE_DEFAULT)) if microtile_bars_enabled else 0]
         autoplay_state = [bool(persisted_settings['Autoplay'])]
         output_channels_state = [persisted_settings['OutputChannels']]
         output_rate_state = [int(persisted_settings.get('OutputRate', HDMI_PCM_OUTPUT_RATE))]
@@ -61575,8 +66757,50 @@ def main(argv: list[str] | None = None) -> int:
 
         if shuffle_state is None:
             shuffle_state = [False]
+        pending_playlist_warning: str | None = None
         while True:
             playback_position_state[0] = initial_resume_position
+            if playlist_path is not None and not current_audio.is_file():
+                # Large playlists intentionally avoid stat'ing every entry at
+                # load time. Resolve only the selected missing slot here, then
+                # advance to the next existing slot without turning a stale
+                # playlist line into a fatal session error.
+                missing_audio = Path(current_audio)
+                pending_playlist_warning = f"Playlist entry is missing: {missing_audio}"
+                append_pafplayer_trace(
+                    "playlist.entry-missing",
+                    playlist=playlist_path,
+                    track=missing_audio,
+                )
+                if web_server is not None:
+                    web_server.publish_notice(pending_playlist_warning, seconds=5.0)
+                with playlist_shuffle_lock:
+                    available_order = list(
+                        playlist_shuffle_order
+                        if shuffle_state and shuffle_state[0] and playlist_shuffle_order
+                        else (playlist_entries or [])
+                    )
+                replacement = playlist_queue_neighbor_distinct(
+                    available_order, missing_audio, 1
+                )
+                if replacement is None:
+                    # There is no valid track whose normal HUD/visualizer can
+                    # host the notice. Keep this a warning and a clean stop.
+                    write_console(
+                        "\033[1;5;38;2;255;240;45m⚠  "
+                        + pending_playlist_warning
+                        + " ⚠\033[0m\n"
+                    )
+                    time.sleep(5.0)
+                    break
+                previous_directory = missing_audio.parent.resolve()
+                current_audio = Path(replacement)
+                if playlist_navigation_cursor + 1 < len(playlist_navigation_history):
+                    del playlist_navigation_history[playlist_navigation_cursor + 1:]
+                playlist_navigation_history.append(current_audio)
+                playlist_navigation_cursor = len(playlist_navigation_history) - 1
+                if current_audio.parent.resolve() != previous_directory:
+                    pending_folder_line = current_audio.parent
             # V309: no distinct-file launch guard. Duplicate playlist slots are intentional slots.
             if external_album_art_window is not None:
                 external_album_art_window.update_track(current_audio)
@@ -61589,7 +66813,7 @@ def main(argv: list[str] | None = None) -> int:
                     "\033[2;90m" + "\u2500" * separator_width + "\033[0m\n"
                 )
             preplay_cover = b""
-            if album_art_display and not all_audio_tags_state[0]:
+            if album_art_display and chafa_album_art_in_console and not all_audio_tags_state[0]:
                 preplay_cover = render_preplay_album_cover(
                     current_audio, max(12, shutil.get_terminal_size((120, 30)).columns - 1)
                 )
@@ -61670,6 +66894,8 @@ def main(argv: list[str] | None = None) -> int:
             )
             if external_album_art_window is not None:
                 external_album_art_window.set_playback_running(not bool(playback_paused_state[0]))
+            track_initial_warning = pending_playlist_warning
+            pending_playlist_warning = None
             result = play_audio_file(
                 current_audio,
                 sixel_visualizer=sixel_enabled,
@@ -61695,6 +66921,9 @@ def main(argv: list[str] | None = None) -> int:
                 decensor_artwork_lyrics_state=decensor_artwork_lyrics_state,
                 decensor_floating_lyrics_state=decensor_floating_lyrics_state,
                 console_karaoke_enabled_state=console_karaoke_enabled_state,
+                console_alerts_enabled_state=console_alerts_enabled_state,
+                visualizer_bars_enabled_state=visualizer_bars_enabled_state,
+                visualizer_background_artwork_enabled_state=visualizer_background_artwork_enabled_state,
                 alert_no_replaygain_state=alert_no_replaygain_state,
                 alert_missing_artist_state=alert_missing_artist_state,
                 alert_missing_title_state=alert_missing_title_state,
@@ -61748,6 +66977,8 @@ def main(argv: list[str] | None = None) -> int:
                 trim_silence_min_duration=trim_silence_min_duration,
                 trim_silence_keep=trim_silence_keep,
                 replaygain_mode=replaygain_mode,
+                smooth_audio_renderer_enabled=smooth_audio_renderer_enabled,
+                audio_buffer_ms=audio_buffer_ms,
                 playlist_remove_callback=(
                     remove_track_from_active_playlist
                     if playlist_path is not None else None
@@ -61775,6 +67006,7 @@ def main(argv: list[str] | None = None) -> int:
                 playback_position_state=playback_position_state,
                 initially_paused=playback_paused_state[0],
                 paused_state=playback_paused_state,
+                initial_warning=track_initial_warning,
                 initial_blank_line=initial_blank_line and not bool(preplay_cover),
                 manage_winamp=False,
                 guard_winamp=True,
@@ -61805,6 +67037,10 @@ def main(argv: list[str] | None = None) -> int:
                 'DecensorArtworkLyrics': int(decensor_artwork_lyrics_state[0]),
                 'DecensorFloatingLyrics': int(decensor_floating_lyrics_state[0]),
                 'ConsoleKaraokeEnabled': int(console_karaoke_enabled_state[0]),
+                'ConsoleAlertsEnabled': int(console_alerts_enabled_state[0]),
+                'VisualizerBarsEnabled': int(visualizer_bars_enabled_state[0]),
+                'VisualizerBackgroundArtworkEnabled': int(visualizer_background_artwork_enabled_state[0]),
+                'ConsoleVisualizerOverlayMessagesEnabled': int(CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED),
                 'AlertNoReplayGain': int(alert_no_replaygain_state[0]),
                 'AlertMissingArtist': int(alert_missing_artist_state[0]),
                 'AlertMissingTitle': int(alert_missing_title_state[0]),
@@ -61845,6 +67081,12 @@ def main(argv: list[str] | None = None) -> int:
                 'ArtColorKaraokeSides': int(ART_COLOR_VISUALIZER_KARAOKE_SIDES),
                 'ArtColorKaraoke': int(ART_COLOR_VISUALIZER_KARAOKE),
             })
+            # The V370 dropdown selections persist across tracks/restarts. CLI --no-microtile-*
+            # overrides remain deliberately one-run-only and therefore are not written back.
+            if microtile_blackness_enabled:
+                persisted_settings['DrcsArtMicrotileDetailModeV370'] = int(drcs_art_microtiles_state[0])
+            if microtile_bars_enabled:
+                persisted_settings['DrcsArtBarMicrotileDetailModeV370'] = int(drcs_art_bar_microtiles_state[0])
             save_player_settings(persisted_settings)
             initial_resume_position = 0.0
             initial_blank_line = False

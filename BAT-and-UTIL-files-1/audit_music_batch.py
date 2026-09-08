@@ -46,8 +46,8 @@ from typing import Any, Callable, NoReturn
 # Published releases are deliberately separate from the timestamped safety
 # backups that the auditor makes before replacements. Update both values only
 # when publishing a new named release.
-AUDIT_MUSIC_BATCH_VERSION = "v148"
-AUDIT_MUSIC_BATCH_RELEASE_NAME = "stacked-full-width-waveform-comparisons"
+AUDIT_MUSIC_BATCH_VERSION = "v149"
+AUDIT_MUSIC_BATCH_RELEASE_NAME = "direct-chafa-artwork-previews"
 AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-08-14"
 
 # Set this to a full executable path only when automatic discovery cannot find
@@ -5178,9 +5178,12 @@ def inline_italic(text: str, use_color: bool) -> str:
 
 
 def chafa_executable() -> Path | None:
-    """Find Chafa, preferring PATH and then the established local install."""
+    """Find the pinned Chafa build used by echo-image, then fall back safely."""
+    pinned = shutil.which("chafa-1.18.2.exe") or shutil.which("chafa-1.18.2")
     discovered = shutil.which("chafa")
     candidates = [
+        Path(pinned) if pinned else None,
+        Path(r"C:\util\chafa-1.18.2.exe") if os.name == "nt" else None,
         Path(discovered) if discovered else None,
         Path(r"C:\util\Chafa.exe") if os.name == "nt" else None,
     ]
@@ -6570,7 +6573,7 @@ def prepare_artwork_preview(
     geometry: ArtworkPreviewGeometry | None = None,
     stretch_to_width: bool = False,
 ) -> PreparedArtworkPreview:
-    """Prepare Chafa, Sixel, or ANSI output without touching the terminal."""
+    """Prepare direct Chafa, Sixel, or ANSI output."""
     geometry = geometry or artwork_preview_geometry()
     chafa = chafa_executable()
     sixel = use_color and (
@@ -6611,19 +6614,21 @@ def prepare_artwork_preview(
         )
     output_format = "sixels" if sixel else "symbols"
     if sixel and not stretch_to_width:
-        # Keep this in lockstep with echo-image.bat: its geometry helper uses
-        # live cell pixels plus --font-ratio, rather than guessing from cells.
-        scaled_geometry = scaled_artwork_geometry(geometry)
+        # Match echo-image.bat exactly: Chafa owns the live terminal and gets
+        # the viewport directly. Capturing Sixel bytes and replaying them later
+        # is what caused the clipped/overlaid preview shown in the report.
         command = [
             str(chafa),
             "--format=sixels",
-            "--fit-width",
             "--colors=full",
-            f"--size={scaled_geometry.columns}x{scaled_geometry.rows}",
-            *chafa_sixel_geometry_options(geometry),
+            f"--view-size={geometry.terminal_columns}x{geometry.terminal_rows}",
+            "--scale=max",
             "--optimize=9",
             "--work=9",
             "--color-space=din99d",
+            str(path),
+            "--margin-bottom=4",
+            "--margin-right=0",
         ]
     else:
         command = [
@@ -6648,6 +6653,13 @@ def prepare_artwork_preview(
                 f"--colors={'full' if use_color else 'none'}",
                 "--dither=ordered",
             )
+        )
+    if sixel and not stretch_to_width:
+        return PreparedArtworkPreview(
+            mode="Chafa Sixel",
+            geometry=geometry,
+            renderer_options=tuple(command[1:]),
+            direct_command=tuple(command),
         )
     command.append(str(path))
     result = subprocess.run(
@@ -6717,7 +6729,7 @@ def emit_prepared_artwork_preview(
         )
         if result.returncode != 0:
             raise RuntimeError(
-                f"Direct Chafa waveform renderer exited with "
+                f"Direct Chafa renderer exited with "
                 f"status {result.returncode}"
             )
     elif prepared.sixel_payload is not None:
@@ -18198,8 +18210,10 @@ def run_unit_tests(use_color: bool = True) -> int:
                 )
             chafa_command = run.call_args.args[0]
             self.assertIn("--format=sixels", chafa_command)
-            self.assertIn("--fit-width", chafa_command)
             self.assertIn("--colors=full", chafa_command)
+            self.assertIn("--scale=max", chafa_command)
+            self.assertIn("--margin-bottom=4", chafa_command)
+            self.assertIn("--margin-right=0", chafa_command)
             self.assertTrue(any(option.startswith("--view-size=") for option in chafa_command))
             self.assertIn("--optimize=9", chafa_command)
             self.assertIn("--work=9", chafa_command)
