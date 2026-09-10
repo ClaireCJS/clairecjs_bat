@@ -21,8 +21,8 @@ rem  ---------------------- MP3INDEX.BAT ----------------------
 
 
 iff "%FILEMASK_AUDIO_VALIDATED%" ne "2" then
-        if not defined FILEMASK_AUDIO            call validate-environment-variable FILEMASK_AUDIO         skip_validation_existence
-        if not defined FILEMASK_VOCAL            call validate-environment-variable FILEMASK_VOCAL         skip_validation_existence
+        if not defined FILEMASK_AUDIO            call validate-environment-variable FILEMASK_AUDIO             skip_validation_existence
+        if not defined FILEMASK_VOCAL            call validate-environment-variable FILEMASK_VOCAL             skip_validation_existence
         if not defined ANSI_COLORS_HAVE_BEEN_SET call validate-environment-variable ANSI_COLORS_HAVE_BEEN_SET
         set FILEMASK_AUDIO_VALIDATED=2
 endiff
@@ -64,19 +64,25 @@ rem Determine filemask (vocals only mode vs all audio mode):
 
 
 rem THIS SHOULD WORK IN A PERFECT WORLD:
+    set REPORT_THESE=0
+    set REPORT_ALL=0
     iff "1" != "%recursive_mp3index_mode%" then
         rem We did NOT chose /s
+
         if exist these.m3u (*del /q these.m3u >nul)
         rem echo [DEBUG][GOAT] iff exist %FILEMASK_TO_USE% .or. %@FILES[/s/h,%FILEMASK_TO_USE] gt 0 then
+
         unset /q TMP_FILE_COUNT
         set TMP_FILE_COUNT=%@FILES[/s/h,%FILEMASK_TO_USE]
         iff exist %FILEMASK_TO_USE% .or. %TMP_FILE_COUNT% gt 0 then
                 iff exist %FILEMASK_TO_USE% then
                         (*dir /b /a:-d  %1$ %FILEMASK_TO_USE%) >:u8these.m3u
+                         set REPORT_THESE=1
                 else
                         if exist these.m3u (*del /q these.m3u >nul)
                 endiff
                 *dir /b /a:-d /s %* %FILEMASK_TO_USE% >:u8all.m3u
+                set REPORT_ALL=1
         else
                 call warning_soft "No audio files in: %faint_on%%_CWD%%faint_off% or subfolders"
         endiff
@@ -86,11 +92,22 @@ rem THIS SHOULD WORK IN A PERFECT WORLD:
         iff %@FILES[/s/h,%FILEMASK_TO_USE] gt 0 then
                 *dir /b /a:-d /s %1$ %FILEMASK_TO_USE%  >:u8all.m3u
                 call advice "call mp3index without any arguments to create all.m3u and these.m3u automatically"
+                set REPORT_ALL=1
         else
                 call warning_soft "No audio files in: %faint_on%%_CWD%%faint_off%, or any of its subfolders"
                 if exist all.m3u (*del /q   all.m3u >nul)
         endiff
     endiff
+
+
+
+rem Report:
+    unset /q LINES_ALL LINES_THESE
+    if exist   all.m3u set   LINES_ALL=%@INC[%@LINES[all.m3u]]
+    if exist these.m3u set LINES_THESE=%@INC[%@LINES[these.m3u]]
+    if "1" == "%REPORT_ALL%"   echo %ansi_color_success%%STAR2% %italics_on%  all.m3u%italics_off%: %@COOL[%LINES_ALL%%ZZZZZZZ%] %ansi_color_success%lines%ansi_color_normal%
+    if "1" == "%REPORT_THESE%" echo %ansi_color_success%%STAR2% %italics_on%these.m3u%italics_off%: %@COOL[%LINES_THESE%%ZZZZZ%] %ansi_color_success%lines%ansi_color_normal%
+
     goto :END
 
 

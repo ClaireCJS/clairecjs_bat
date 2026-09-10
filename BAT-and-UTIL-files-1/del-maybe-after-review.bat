@@ -120,7 +120,7 @@ rem Ask for each file, and delete:
                                                         pause "Press any key once you are done making your edits..."
                                                         goto /i reask
                                                 endiff
-                                                if  "Y" == "%ANSWER%" (echos %EMOJI_AXE% %ANSI_COLOR_REMOVAL% %+ *del /a: /f /Ns "%@UNQUOTE["%file%"]" %+ echos %ANSI_COLOR_NORMAL%)
+                                                if  "Y" == "%ANSWER%" .or. "D" == "%ANSWER%" (echos %EMOJI_AXE% %ANSI_COLOR_REMOVAL% %+ *del /a: /f /Ns "%@UNQUOTE["%file%"]" %+ echos %ANSI_COLOR_NORMAL%)
                                                 iff "I" == "%ANSWER%" then
                                                         gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%file%"]"                 
                                                 endiff

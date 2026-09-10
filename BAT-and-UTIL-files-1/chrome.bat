@@ -1,11 +1,22 @@
 @echo off
  on break cancel
 
-set OUR_CHROMEARGS=--max_old_space_size=4096
+
+
+
+
+rem Our very old optoins from the days of yore:
+        set OUR_CHROMEARGS=--max_old_space_size=4096
+
 rem 2025, let’s try not using the above, and because of yt-dlp changes we need to add LockProfileCookieDatabase
-set OUT_CHROMEARGS=--disable-features=LockProfileCookieDatabase
+        set OUT_CHROMEARGS=--disable-features=LockProfileCookieDatabase
+
+rem 2026/09/09: Trying to stop oversaturated HJDR video so adding disable_vp_auto_hdr:
+        set OUT_CHROMEARGS=--disable-features=LockProfileCookieDatabase --disable_vp_auto_hdr
  
  unset /q OUR_CHROMEARGS
+
+
 
 
 

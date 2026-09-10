@@ -235,7 +235,7 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
                         if "%@FILESIZE[%tmpfile1%]" == "0" (repeat 5 gosub step %+ goto :nothing_to_do)                         
 
         rem set options for del-maybe-after-review:
-                set EVEN_MORE_PROMPT_TEXT=,%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%Q%ansi_color_prompt%=enqueue,%ansi_color_bright_green%S%ansi_color_prompt%=₉as sound effect
+                set EVEN_MORE_PROMPT_TEXT=,%ansi_color_bright_green%Y%ansi_color_prompt%=Delete,%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%Q%ansi_color_prompt%=enqueue,%ansi_color_bright_green%S%ansi_color_prompt%=₉as sound effect
                 set EVEN_MORE_EXTRA_LETTERS=IPS
 
         rem Set additional Winamp-related options if winamp integration is set:

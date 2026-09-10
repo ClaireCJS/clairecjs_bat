@@ -46,9 +46,9 @@ from typing import Any, Callable, NoReturn
 # Published releases are deliberately separate from the timestamped safety
 # backups that the auditor makes before replacements. Update both values only
 # when publishing a new named release.
-AUDIT_MUSIC_BATCH_VERSION = "v149"
-AUDIT_MUSIC_BATCH_RELEASE_NAME = "direct-chafa-artwork-previews"
-AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-08-14"
+AUDIT_MUSIC_BATCH_VERSION = "v153"
+AUDIT_MUSIC_BATCH_RELEASE_NAME = "clear-newer-lrc-srt-backfill-wording"
+AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-09-09"
 
 # Set this to a full executable path only when automatic discovery cannot find
 # your preferred image viewer. The V key first honors openimage.bat, then this
@@ -132,6 +132,7 @@ WAVEFORM_PLOT_WIDTH = WAVEFORM_JPEG_WIDTH - WAVEFORM_METRICS_GUTTER_WIDTH
 WAVEFORM_SILENCE_MIN_SECONDS = 0.1
 WAVEFORM_APPROVAL_DATABASE_MAX_BYTES = 50 * 1024 * 1024
 WAVEFORM_APPROVAL_DATABASE_FILENAME = "waveform_reviews.sqlite3"
+REMEMBERED_NO_DATABASE_FILENAME = "remembered_noes.sqlite3"
 AUDIT_CACHE_FILENAME = "audit_music_batch.sqlite3"
 REPLAYGAIN_TIMING_DATABASE_FILENAME = "replaygain_timings.sqlite3"
 WAVEFORM_CHANNEL_COLORS = (
@@ -457,6 +458,8 @@ EXECUTABLE_CATEGORIES = {
     "temporary_batch_file",
     "vad_scratch_srt",
     "wav_remaining",
+    "xml_sidecar",
+    "json_sidecar",
 }
 GROUPED_RENAME_CATEGORIES = {
     "redundant_album_artist_filename_group",
@@ -494,7 +497,7 @@ ACTION_PROMPT_QUESTIONS = {
         "Embed the timed karaoke lyrics into this audio file now?"
     ),
     "newer_lrc_needs_srt_backfill": (
-        "Regenerate this older SRT from the newer MiniLyrics LRC now?"
+        "Regenerate this older SRT from the newer LRC"
     ),
     "missing_embedded_art": (
         "Use the available sidecar—or search for a verified release artwork "
@@ -523,8 +526,9 @@ ACTION_PROMPT_QUESTIONS = {
         "song-title capitalization now?"
     ),
     "filename_marker_style": (
-        "Rename this file to the proposed canonical marker spelling now?"
+        "Rename this file from the displayed Before filename to the displayed After filename now?"
     ),
+    "json_sidecar": "Send this JSON sidecar to the Recycle Bin now?",
     "smaller_numbered_image_duplicate": (
         "Send this smaller artwork duplicate to the Recycle Bin now?"
     ),
@@ -540,6 +544,7 @@ ACTION_PROMPT_QUESTIONS = {
     "vad_scratch_srt": (
         "Send this VAD scratch SRT sidecar to the Recycle Bin now?"
     ),
+    "xml_sidecar": "Send this XML sidecar to the Recycle Bin now?",
     "wav_remaining": (
         "Convert this WAV to FLAC, carry forward available metadata, lyrics, "
         "and approved artwork, then audit the new FLAC now?"
@@ -1095,7 +1100,230 @@ def canonicalized_filename(name: str) -> str:
     result = name
     for old, new in CANONICAL_FILENAME_MARKERS.items():
         result = re.sub(re.escape(old), lambda _match, value=new: value, result, flags=re.I)
+    # In filenames, Claire's convention is ``feat`` rather than ``feat.``.
+    # This applies whether the modifier is parenthesized or part of the title.
+    result = re.sub(r"\bfeat\.(?=\s|\))", "feat", result, flags=re.I)
     return result
+
+
+def is_backup_filename(path: Path) -> bool:
+    """Return whether ``path`` is a preserved backup, never its own rename prompt."""
+    name = path.name.casefold()
+    return path.suffix.casefold() == ".bak" or ".bak." in name
+
+
+def rename_filename_with_backups(
+    target: Path,
+    proposed_name: str,
+) -> tuple[Path, list[Path]]:
+    """Rename one live file and silently carry its exact-name backups along.
+
+    A backup is a historical artifact, not an independently reviewable filename.
+    Only backups whose filename begins with the exact current live filename are
+    included, so ``Song.flac.bak.<timestamp>...bak`` follows ``Song.flac``
+    without ever losing its final ``.bak`` extension.
+    """
+    source = target.resolve()
+    if not source.is_file():
+        raise FileNotFoundError(f"Rename source is missing: {source}")
+    if is_backup_filename(source):
+        raise ValueError("Backups must follow a live-file rename; they are not rename sources")
+    requested = proposed_name.strip()
+    if not requested or Path(requested).name != requested:
+        raise ValueError("The proposed filename must be one non-empty filename")
+    destination = source.with_name(requested)
+    if destination.name.casefold() == source.name.casefold():
+        return source, []
+
+    backup_prefix = f"{source.name}.bak."
+    family = [source]
+    for candidate in source.parent.iterdir():
+        if (
+            candidate.is_file()
+            and candidate.name.casefold().startswith(backup_prefix.casefold())
+        ):
+            family.append(candidate.resolve())
+    family = list(dict.fromkeys(family))
+    mappings = [
+        (
+            candidate,
+            destination
+            if candidate == source
+            else candidate.with_name(
+                destination.name + candidate.name[len(source.name) :]
+            ),
+        )
+        for candidate in family
+    ]
+    destination_keys = [str(item).casefold() for _source, item in mappings]
+    if len(destination_keys) != len(set(destination_keys)):
+        raise FileExistsError("Filename rename would make duplicate destinations")
+    sources = {candidate.resolve() for candidate, _destination in mappings}
+    for _candidate, candidate_destination in mappings:
+        if (
+            candidate_destination.exists()
+            and candidate_destination.resolve() not in sources
+        ):
+            raise FileExistsError(
+                f"Refusing rename collision: {candidate_destination.name}"
+            )
+
+    staged: list[tuple[Path, Path, Path]] = []
+    finalized: list[tuple[Path, Path, Path]] = []
+    try:
+        for index, (candidate, candidate_destination) in enumerate(
+            mappings,
+            start=1,
+        ):
+            temporary = collision_safe_path(
+                source.parent / f".audit_music_batch-filename-rename-{index:04d}.tmp"
+            )
+            candidate.rename(temporary)
+            staged.append((candidate, temporary, candidate_destination))
+        for candidate, temporary, candidate_destination in staged:
+            temporary.rename(candidate_destination)
+            finalized.append((candidate, temporary, candidate_destination))
+    except Exception:
+        for candidate, _temporary, candidate_destination in reversed(finalized):
+            try:
+                if candidate_destination.exists() and not candidate.exists():
+                    candidate_destination.rename(candidate)
+            except OSError:
+                pass
+        finalized_temps = {temporary for _candidate, temporary, _destination in finalized}
+        for candidate, temporary, _destination in reversed(staged):
+            if temporary in finalized_temps:
+                continue
+            try:
+                if temporary.exists() and not candidate.exists():
+                    temporary.rename(candidate)
+            except OSError:
+                pass
+        raise
+
+    if not destination.is_file() or any(
+        not candidate_destination.is_file()
+        for _candidate, _temporary, candidate_destination in finalized
+    ):
+        raise RuntimeError("Filename-and-backup rename did not verify")
+    return destination, [
+        candidate_destination
+        for candidate, _temporary, candidate_destination in finalized
+        if candidate != source
+    ]
+
+
+def _casefolded_child_paths(folder: Path) -> dict[str, Path]:
+    """Snapshot immediate children by Windows' case-insensitive name rule."""
+    try:
+        return {
+            child.name.casefold(): child
+            for child in folder.iterdir()
+        }
+    except OSError:
+        return {}
+
+
+def normalize_batch_preflight_paths(root: Path) -> tuple[Path, list[str]]:
+    """Apply the user's safe structural naming conventions before auditing.
+
+    These are pure renames with no overwrite: ``folder.jpg`` becomes
+    ``cover.jpg`` only when absent, ``album.nfo`` gets the requested readme
+    name only when a collision-free target exists, and ``(incomplete)`` folder
+    markers become ``[incomplete]``.  Directory moves also migrate waveform
+    approvals/comparison rasters so a rename never creates a fake re-review.
+    """
+    resolved_root = Path(root).resolve()
+    actions: list[str] = []
+    try:
+        folders = [path for path in resolved_root.rglob("*") if path.is_dir()]
+    except OSError:
+        return resolved_root, actions
+    for folder in sorted(folders, key=lambda path: len(path.parts), reverse=True):
+        if not folder.exists() or folder == resolved_root:
+            continue
+        desired_name = re.sub(
+            r"\(incomplete\)",
+            "[incomplete]",
+            folder.name,
+            flags=re.IGNORECASE,
+        )
+        if desired_name == folder.name:
+            continue
+        destination = folder.with_name(desired_name)
+        if destination.exists():
+            actions.append(f"unchanged:incomplete_folder_collision:{folder}")
+            continue
+        audio_before = [
+            child for child in folder.rglob("*")
+            if child.is_file() and child.suffix.casefold() in AUDIO_EXTS
+        ]
+        folder.rename(destination)
+        actions.append(f"renamed_folder:{destination}")
+        for source_audio in audio_before:
+            destination_audio = destination / source_audio.relative_to(folder)
+            actions.extend(
+                migrate_waveform_review_cache_path(
+                    source_audio,
+                    destination_audio,
+                )
+            )
+
+    try:
+        current_folders = [resolved_root, *(
+            path for path in resolved_root.rglob("*") if path.is_dir()
+        )]
+    except OSError:
+        return resolved_root, actions
+    for folder in current_folders:
+        children = _casefolded_child_paths(folder)
+        folder_jpg = children.get("folder.jpg")
+        if folder_jpg is not None and "cover.jpg" not in children:
+            destination = folder / "cover.jpg"
+            folder_jpg.rename(destination)
+            actions.append(f"renamed_front_art:{destination}")
+
+        children = _casefolded_child_paths(folder)
+        album_nfo = children.get("album.nfo")
+        if album_nfo is None:
+            continue
+        if "readme.txt" not in children:
+            destination = folder / "readme.txt"
+        elif "readme.nfo" not in children:
+            destination = folder / "readme.nfo"
+        else:
+            actions.append(f"unchanged:album_nfo_collision:{album_nfo}")
+            continue
+        album_nfo.rename(destination)
+        actions.append(f"renamed_album_notes:{destination}")
+    root_desired_name = re.sub(
+        r"\(incomplete\)",
+        "[incomplete]",
+        resolved_root.name,
+        flags=re.IGNORECASE,
+    )
+    if root_desired_name != resolved_root.name:
+        root_destination = resolved_root.with_name(root_desired_name)
+        if root_destination.exists():
+            actions.append(f"unchanged:incomplete_root_collision:{resolved_root}")
+        else:
+            audio_before = [
+                child for child in resolved_root.rglob("*")
+                if child.is_file() and child.suffix.casefold() in AUDIO_EXTS
+            ]
+            old_root = resolved_root
+            resolved_root.rename(root_destination)
+            resolved_root = root_destination
+            actions.append(f"renamed_folder:{resolved_root}")
+            for source_audio in audio_before:
+                destination_audio = resolved_root / source_audio.relative_to(old_root)
+                actions.extend(
+                    migrate_waveform_review_cache_path(
+                        source_audio,
+                        destination_audio,
+                    )
+                )
+    return resolved_root, actions
 
 
 def is_windows_read_only(path: Path) -> bool:
@@ -1767,6 +1995,70 @@ def album_uses_disc_track_prefix(files: list[Path]) -> bool:
     return len(discs) >= 2
 
 
+def packed_disc_track_profile(files: list[Path]) -> dict[str, Any] | None:
+    """Recognize ``0105 - Title`` as packed disc/track numbering.
+
+    The convention is accepted only when *every* audio file in a folder uses
+    exactly four leading digits.  ``01`` is the disc and ``05`` the track.
+    A single disc becomes ``5_Title``; multiple discs become ``2_5_Title``.
+    Track zero-padding is retained only when at least one disc reaches track
+    10, and then it is retained consistently for every disc.
+    """
+    audio = [
+        path for path in files if path.suffix.casefold() in AUDIO_EXTS
+    ]
+    if not audio:
+        return None
+    parsed: list[re.Match[str]] = []
+    for path in audio:
+        match = re.match(
+            r"^(?P<disc>\d{2})(?P<track>\d{2})[-_. ]+(?P<rest>.+)$",
+            path.stem,
+        )
+        if match is None:
+            return None
+        parsed.append(match)
+    tracks_by_disc: dict[int, set[int]] = defaultdict(set)
+    for match in parsed:
+        tracks_by_disc[int(match.group("disc"))].add(
+            int(match.group("track"))
+        )
+    if not tracks_by_disc or any(
+        disc < 1 or track < 1
+        for disc, tracks in tracks_by_disc.items()
+        for track in tracks
+    ):
+        return None
+    return {
+        "discs": frozenset(tracks_by_disc),
+        "multi_disc": len(tracks_by_disc) > 1,
+        "pad_tracks": any(max(tracks) >= 10 for tracks in tracks_by_disc.values()),
+    }
+
+
+def packed_disc_track_filename_parts(
+    path: Path,
+    profile: dict[str, Any] | None,
+) -> tuple[str, str, bool] | None:
+    """Return normalized prefix/rest for a qualified packed-number filename."""
+    if not profile or path.suffix.casefold() not in CANONICAL_RENAME_EXTS:
+        return None
+    match = re.match(
+        r"^(?P<disc>\d{2})(?P<track>\d{2})[-_. ]+(?P<rest>.+)$",
+        path.stem,
+    )
+    if match is None:
+        return None
+    disc = int(match.group("disc"))
+    track = int(match.group("track"))
+    if disc not in profile["discs"] or track < 1:
+        return None
+    track_text = f"{track:02d}" if profile["pad_tracks"] else str(track)
+    multi_disc = bool(profile["multi_disc"])
+    prefix = f"{disc}_{track_text}_" if multi_disc else f"{track_text}_"
+    return prefix, match.group("rest"), multi_disc
+
+
 def album_title_source_and_suffix(
     path: Path, rest: str, *, compound_track_prefix: bool
 ) -> tuple[str, str]:
@@ -1787,11 +2079,23 @@ def capitalized_album_filename_proposal(
     album_track_count: int,
     *,
     compound_track_prefix: bool = False,
+    packed_track_profile: dict[str, Any] | None = None,
 ) -> str | None:
     """Normalize track prefix/title case while preserving compound disc numbering."""
     path = Path(filename)
     if path.suffix.casefold() not in CANONICAL_RENAME_EXTS:
         return None
+    packed = packed_disc_track_filename_parts(path, packed_track_profile)
+    if packed is not None:
+        prefix, rest, packed_is_compound = packed
+        title_source, suffix = album_title_source_and_suffix(
+            path,
+            rest,
+            compound_track_prefix=packed_is_compound,
+        )
+        title = canonical_song_title_text(title_source)
+        proposed = f"{prefix}{title}{suffix}"
+        return proposed if proposed != path.name else None
     if compound_track_prefix:
         match = re.match(
             r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_(?P<rest>.+)$",
@@ -1836,12 +2140,21 @@ def all_caps_album_title_proposal(
     album_track_count: int,
     *,
     compound_track_prefix: bool = False,
+    packed_track_profile: dict[str, Any] | None = None,
 ) -> str | None:
     """Suggest conservative title case while preserving disc/track prefixes."""
     path = Path(filename)
     if path.suffix.casefold() not in CANONICAL_RENAME_EXTS:
         return None
-    if compound_track_prefix:
+    packed = packed_disc_track_filename_parts(path, packed_track_profile)
+    if packed is not None:
+        prefix, rest, packed_is_compound = packed
+        title_source, suffix = album_title_source_and_suffix(
+            path,
+            rest,
+            compound_track_prefix=packed_is_compound,
+        )
+    elif compound_track_prefix:
         match = re.match(
             r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_(?P<rest>.+)$",
             path.stem,
@@ -1849,6 +2162,11 @@ def all_caps_album_title_proposal(
         if match is None:
             return None
         prefix = f"{match.group('disc')}_{match.group('track')}_"
+        title_source, suffix = album_title_source_and_suffix(
+            path,
+            match.group("rest"),
+            compound_track_prefix=compound_track_prefix,
+        )
     else:
         match = re.match(
             r"^(?P<track>\d{1,3})[-_. ]+(?P<rest>.+)$",
@@ -1859,11 +2177,11 @@ def all_caps_album_title_proposal(
         track_number = int(match.group("track"))
         track = f"{track_number:02d}" if album_track_count >= 10 else str(track_number)
         prefix = f"{track}_"
-    title_source, suffix = album_title_source_and_suffix(
-        path,
-        match.group("rest"),
-        compound_track_prefix=compound_track_prefix,
-    )
+        title_source, suffix = album_title_source_and_suffix(
+            path,
+            match.group("rest"),
+            compound_track_prefix=False,
+        )
     title_source = title_source.translate(str.maketrans({
         "‘": "'", "’": "'", "“": '"', "”": '"',
     }))
@@ -2379,7 +2697,7 @@ class BatchAudit:
                     "Clear read-only before approving metadata, lyric, artwork, or ReplayGain writes.",
                 )
 
-            if suffix in CANONICAL_RENAME_EXTS:
+            if suffix in CANONICAL_RENAME_EXTS and not is_backup_filename(path):
                 proposed_name = canonicalized_filename(path.name)
                 if proposed_name != path.name:
                     proposed_path = path.with_name(proposed_name)
@@ -2388,7 +2706,7 @@ class BatchAudit:
                             "problem",
                             "filename_marker_collision",
                             path,
-                            f"Canonical marker spelling would collide with existing {proposed_name}.",
+                            f"Proposed filename normalization would collide with existing {proposed_name}.",
                             "Resolve the two files manually.",
                             proposed_name=proposed_name,
                         )
@@ -2397,8 +2715,8 @@ class BatchAudit:
                             "safe_fix",
                             "filename_marker_style",
                             path,
-                            f"Filename marker should be normalized to {proposed_name}.",
-                            "Approve the exact filename normalization.",
+                            f"Filename normalization proposes {proposed_name}.",
+                            "Compare the displayed Before and After filenames, then approve the exact rename.",
                             proposed_name=proposed_name,
                         )
 
@@ -2406,12 +2724,20 @@ class BatchAudit:
                 self.progress_update()
                 continue
 
-            if suffix == ".bak" or ".bak." in name_lower:
+            if is_backup_filename(path):
                 self.add("never_default", "backup_file", path, "Backup file.", "Keep by default; recycling requires explicit approval.")
             elif suffix == ".log":
                 self.add("ask_first", "log_sidecar", path, "Log sidecar.", "Keep by default; ask before cleanup.")
             elif suffix == ".json":
                 self.add("ask_first", "json_sidecar", path, "JSON sidecar.", "Ask before cleanup; may contain transcription/search details.")
+            elif suffix == ".xml":
+                self.add(
+                    "ask_first",
+                    "xml_sidecar",
+                    path,
+                    "XML sidecar.",
+                    "Preview its text, then choose whether to send it to the Recycle Bin.",
+                )
 
             if name_lower.endswith("._vad_ten.srt"):
                 normal_base = re.sub(r"\.(mp3|flac)\._vad_ten\.srt$", "", path.name, flags=re.I)
@@ -2524,7 +2850,21 @@ class BatchAudit:
                 else None
             )
             compound_track_prefix = album_uses_disc_track_prefix(files)
-            if compound_track_prefix:
+            packed_track_profile = packed_disc_track_profile(files)
+            if packed_track_profile is not None:
+                track_identities = {
+                    (match.group("disc"), match.group("track"))
+                    for path in files
+                    if path.suffix.lower() in AUDIO_EXTS
+                    and (
+                        match := re.match(
+                            r"^(?P<disc>\d{2})(?P<track>\d{2})[-_. ]+",
+                            path.name,
+                        )
+                    )
+                }
+                album_track_count = len(track_identities)
+            elif compound_track_prefix:
                 track_identities = {
                     (match.group("disc"), match.group("track"))
                     for path in files
@@ -2632,6 +2972,7 @@ class BatchAudit:
                     path.name,
                     album_track_count,
                     compound_track_prefix=compound_track_prefix,
+                    packed_track_profile=packed_track_profile,
                 )
                 if proposed_name is None:
                     continue
@@ -2675,6 +3016,7 @@ class BatchAudit:
                     path.name,
                     album_track_count,
                     compound_track_prefix=compound_track_prefix,
+                    packed_track_profile=packed_track_profile,
                 )
                 if proposed_name is None:
                     continue
@@ -6723,8 +7065,14 @@ def emit_prepared_artwork_preview(
             sys.stderr.flush()
         except Exception:
             pass
+        # ``ConsolePager`` deliberately wraps normal report text.  A Sixel
+        # DCS must never go through that wrapper: a pager sees binary control
+        # bytes as ordinary text (the enormous ``??!40...`` screen) instead of
+        # allowing Windows Terminal to paint the raster.  Hand Chafa the
+        # wrapper's real terminal stream, exactly like echo-image.bat does.
         result = subprocess.run(
             list(prepared.direct_command),
+            stdout=_raw_console_stream(),
             check=False,
         )
         if result.returncode != 0:
@@ -8564,6 +8912,7 @@ def rename_waveform_problem_family(
         raise RuntimeError(
             "Interactive waveform-problem rename did not verify"
         )
+    migrate_waveform_review_cache_path(source, destination_audio)
     return destination_audio, renamed, backups
 
 
@@ -10546,6 +10895,15 @@ def waveform_approval_database_path() -> Path:
     )
 
 
+def remembered_no_database_path() -> Path:
+    """Keep explicit per-file refusals in the user's ordinary temp folder."""
+    return (
+        Path(tempfile.gettempdir())
+        / "audit_music_batch"
+        / REMEMBERED_NO_DATABASE_FILENAME
+    )
+
+
 class WaveformApprovalStore:
     """Persist unchanged audio files that a user has visually marked fine."""
 
@@ -10622,6 +10980,37 @@ class WaveformApprovalStore:
                 ),
             )
 
+    def relocate(self, source: Path, destination: Path) -> bool:
+        """Move an unchanged approval record when an audio filename changes."""
+        source_key = self._key(source)
+        destination_key = self._key(destination)
+        if source_key == destination_key:
+            return False
+        with sqlite3.connect(self.path) as connection:
+            row = connection.execute(
+                "SELECT 1 FROM waveform_approvals WHERE path = ?",
+                (source_key,),
+            ).fetchone()
+            if row is None:
+                return False
+            # A record already belonging to the destination is the newer,
+            # more specific decision.  Preserve it and retire only the old key.
+            destination_row = connection.execute(
+                "SELECT 1 FROM waveform_approvals WHERE path = ?",
+                (destination_key,),
+            ).fetchone()
+            if destination_row is not None:
+                connection.execute(
+                    "DELETE FROM waveform_approvals WHERE path = ?",
+                    (source_key,),
+                )
+            else:
+                connection.execute(
+                    "UPDATE waveform_approvals SET path = ? WHERE path = ?",
+                    (destination_key, source_key),
+                )
+        return True
+
     def prune_if_oversized(
         self,
         max_bytes: int = WAVEFORM_APPROVAL_DATABASE_MAX_BYTES,
@@ -10648,6 +11037,105 @@ class WaveformApprovalStore:
         with sqlite3.connect(self.path) as connection:
             connection.execute("VACUUM")
         return len(vanished)
+
+
+class RememberedNoStore:
+    """Persist a deliberate no for an unchanged, specific file and category."""
+
+    def __init__(self, database_path: Path | None = None) -> None:
+        self.path = Path(database_path or remembered_no_database_path())
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(self.path) as connection:
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS remembered_noes (
+                    category TEXT NOT NULL,
+                    path TEXT NOT NULL,
+                    size_bytes INTEGER NOT NULL,
+                    modified_ns INTEGER NOT NULL,
+                    remembered_at TEXT NOT NULL,
+                    PRIMARY KEY(category, path)
+                )
+                """
+            )
+
+    @staticmethod
+    def _key(path: Path) -> str:
+        return os.path.normcase(str(path.resolve(strict=False)))
+
+    @staticmethod
+    def _signature(path: Path) -> tuple[int, int]:
+        status = path.stat()
+        return int(status.st_size), int(status.st_mtime_ns)
+
+    def is_remembered_no(self, category: str, path: Path) -> bool:
+        try:
+            signature = self._signature(path)
+        except OSError:
+            return False
+        key = self._key(path)
+        with sqlite3.connect(self.path) as connection:
+            row = connection.execute(
+                """
+                SELECT size_bytes, modified_ns FROM remembered_noes
+                WHERE category = ? AND path = ?
+                """,
+                (str(category), key),
+            ).fetchone()
+            if row and tuple(map(int, row)) == signature:
+                return True
+            if row:
+                connection.execute(
+                    "DELETE FROM remembered_noes WHERE category = ? AND path = ?",
+                    (str(category), key),
+                )
+        return False
+
+    def remember_no(self, category: str, path: Path) -> None:
+        size_bytes, modified_ns = self._signature(path)
+        with sqlite3.connect(self.path) as connection:
+            connection.execute(
+                """
+                INSERT INTO remembered_noes(
+                    category, path, size_bytes, modified_ns, remembered_at
+                ) VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(category, path) DO UPDATE SET
+                    size_bytes = excluded.size_bytes,
+                    modified_ns = excluded.modified_ns,
+                    remembered_at = excluded.remembered_at
+                """,
+                (
+                    str(category),
+                    self._key(path),
+                    size_bytes,
+                    modified_ns,
+                    datetime.now().astimezone().isoformat(timespec="seconds"),
+                ),
+            )
+
+
+def migrate_waveform_review_cache_path(
+    source: Path,
+    destination: Path,
+    *,
+    approval_store: WaveformApprovalStore | None = None,
+) -> list[str]:
+    """Carry visual approvals and replaygain comparison rasters across a rename."""
+    source = Path(source)
+    destination = Path(destination)
+    actions: list[str] = []
+    store = approval_store or WaveformApprovalStore()
+    if store.relocate(source, destination):
+        actions.append(f"migrated_waveform_approval:{destination}")
+    old_before, old_after = replaygain_bake_waveform_cache_paths(source)
+    new_before, new_after = replaygain_bake_waveform_cache_paths(destination)
+    for old_cache, new_cache in ((old_before, new_before), (old_after, new_after)):
+        if not old_cache.is_file() or new_cache.exists():
+            continue
+        new_cache.parent.mkdir(parents=True, exist_ok=True)
+        old_cache.rename(new_cache)
+        actions.append(f"migrated_waveform_preview:{new_cache}")
+    return actions
 
 
 def prioritized_waveform_render_futures(
@@ -12492,10 +12980,12 @@ def suggestion_emoji(category: str) -> str:
     if category in {
         "adobe_xmp",
         "bare_marker",
+        "json_sidecar",
         "stale_transcription_marker",
         "tagrename_m3u8",
         "temporary_batch_file",
         "vad_scratch_srt",
+        "xml_sidecar",
     }:
         return "🗑️"
     if category in {
@@ -13108,6 +13598,29 @@ def finding_target_lines(
             lines.append(
                 f"{prefix}{varied_path(middle_ellipsize(folder_text, folder_width), use_color)}"
             )
+    if finding["category"] == "filename_marker_style":
+        proposed_name = str(
+            finding.get("details", {}).get("proposed_name")
+            or canonicalized_filename(raw_path.name)
+        )
+        preview_finding = {
+            "details": {
+                "renames": [
+                    {
+                        "before": str(raw_path),
+                        "after": str(raw_path.with_name(proposed_name)),
+                    }
+                ]
+            }
+        }
+        lines.extend(
+            rename_preview_table(
+                preview_finding,
+                use_color,
+                terminal_columns=terminal_columns,
+            )
+        )
+        return lines
     lines.append(music_filename(raw_path.name, use_color, prominent=True))
     return lines
 
@@ -13453,6 +13966,7 @@ def friendly_category(category: str) -> str:
         "filename_title_capitalization_group": (
             "Album filename capitalization"
         ),
+        "filename_marker_style": "Filename normalization",
         "all_caps_album_title": "All-caps album title",
         "same_stem_mp3_flac": "Matching MP3/FLAC pair",
     }
@@ -13697,6 +14211,65 @@ def preview_existing_front_sidecar(
             use_color,
         )
     return candidate
+
+
+def preview_text_sidecar_before_cleanup(
+    root: Path,
+    finding: dict[str, Any],
+    *,
+    use_color: bool,
+) -> None:
+    """Show a bounded, control-safe text preview before XML/JSON cleanup."""
+    if finding.get("category") not in {"json_sidecar", "xml_sidecar"}:
+        return
+    target = safe_finding_path(root, finding)
+    try:
+        raw = target.read_bytes()[:12_000]
+    except OSError as exc:
+        print_formatted_error(
+            f"Could not preview {target.name}: {type(exc).__name__}: {exc}",
+            use_color,
+        )
+        return
+    text = raw.decode("utf-8", errors="replace").replace("\r", "")
+    text = "".join(
+        character if character >= " " or character in "\n\t" else "�"
+        for character in text
+    ).replace("\t", "    ")
+    lines = text.splitlines() or [""]
+    width = max(24, visible_console_size().columns - 20)
+    print(
+        rgb_text(
+            f"            📄 Preview of {target.name}:",
+            140,
+            185,
+            220,
+            use_color,
+            dim=True,
+        )
+    )
+    for line in lines[:10]:
+        print(
+            rgb_text(
+                "                │ " + middle_ellipsize(line, width),
+                165,
+                165,
+                175,
+                use_color,
+                dim=True,
+            )
+        )
+    if len(lines) > 10 or len(raw) == 12_000:
+        print(
+            rgb_text(
+                "                … preview truncated …",
+                165,
+                165,
+                175,
+                use_color,
+                dim=True,
+            )
+        )
 
 
 def render_console_report(
@@ -14748,6 +15321,7 @@ ACTION_SCOPE_KEYS = {
     "f": "folder",
     "j": "folder",
     "s": "stop_folder",
+    "r": "remember_no",
     "d": "delete_art",
     "\x7f": "delete_art",
 }
@@ -14761,6 +15335,7 @@ def action_scope_options(
     allow_always: bool = True,
     allow_stop_folder: bool = False,
     allow_delete_art: bool = False,
+    allow_remember_no: bool = True,
 ) -> str:
     """Render all single-key choices for a repeatable batch action."""
     yes_key = "Y" if default_yes else "y"
@@ -14770,6 +15345,8 @@ def action_scope_options(
         choices.append("A=Always")
     if allow_stop_folder:
         choices.append("S=Not for This Folder")
+    if allow_remember_no:
+        choices.append("R=No, Remember This File")
     if allow_delete_art:
         choices.append("D=Delete Cover Art")
     choices.append("V=Never")
@@ -14793,6 +15370,11 @@ def action_scope_options(
         chunks.extend([
             rgb_text(" / ", 255, 165, 45, True),
             rgb_text("S=Not for This Folder", 255, 205, 95, True),
+        ])
+    if allow_remember_no:
+        chunks.extend([
+            rgb_text(" / ", 255, 165, 45, True),
+            rgb_text("R=No, Remember This File", 185, 145, 255, True),
         ])
     if allow_delete_art:
         chunks.extend([
@@ -14824,6 +15406,7 @@ def action_scope_prompt(
     allow_always: bool = True,
     allow_stop_folder: bool = False,
     allow_delete_art: bool = False,
+    allow_remember_no: bool = True,
 ) -> str:
     """Build the urgent repeatable-action prompt."""
     return prompt_with_option_legend(
@@ -14835,6 +15418,7 @@ def action_scope_prompt(
             allow_always=allow_always,
             allow_stop_folder=allow_stop_folder,
             allow_delete_art=allow_delete_art,
+            allow_remember_no=allow_remember_no,
         ),
         indent=indent,
     )
@@ -14849,6 +15433,7 @@ def action_scope_answer(choice: str, use_color: bool) -> str:
         "never": ("Never!", (255, 125, 80)),
         "folder": ("All in This Folder!", (145, 215, 255)),
         "stop_folder": ("Not for This Folder!", (255, 205, 95)),
+        "remember_no": ("No — remembered for this file!", (185, 145, 255)),
         "delete_art": ("Cover Art Recycled!", (255, 105, 105)),
     }
     label, color = labels[choice]
@@ -14884,6 +15469,7 @@ def prompt_for_action_scope(
     allow_always: bool = True,
     allow_stop_folder: bool = False,
     allow_delete_art: bool = False,
+    allow_remember_no: bool = True,
 ) -> str:
     """Read Y/N/Always/Never/Folder with one key and no required Enter."""
     reader = key_reader or read_single_key
@@ -14896,6 +15482,7 @@ def prompt_for_action_scope(
         allow_always=allow_always,
         allow_stop_folder=allow_stop_folder,
         allow_delete_art=allow_delete_art,
+        allow_remember_no=allow_remember_no,
     )
     interactive_terminal = bool(
         getattr(sys.stdout, "isatty", lambda: False)()
@@ -14924,6 +15511,7 @@ def prompt_for_action_scope(
                 or (choice == "always" and not allow_always)
                 or (choice == "stop_folder" and not allow_stop_folder)
                 or (choice == "delete_art" and not allow_delete_art)
+                or (choice == "remember_no" and not allow_remember_no)
             ):
                 invalid_key_beep()
                 continue
@@ -15221,6 +15809,10 @@ def prompt_for_punk_genre_selection(
         f"                {keep_index}) Keep whole existing tag unchanged: "
         f"{existing_text}"
     )
+    print(
+        "                Or type a non-number genre value yourself "
+        "(for example: Riot Grrrl)."
+    )
     reader = input_reader or input
     while True:
         try:
@@ -15236,6 +15828,12 @@ def prompt_for_punk_genre_selection(
                 return choices[selected - 1]
             if selected == keep_index:
                 return PUNK_GENRE_KEEP_EXISTING
+            invalid_key_beep()
+            continue
+        # A manually typed value is deliberate: the current tag may be a
+        # multi-genre mess, while the reviewer knows the actual replacement.
+        if not any(character in entered for character in "\r\n\x00"):
+            return entered
         invalid_key_beep()
 
 
@@ -15350,6 +15948,15 @@ def apply_redundant_album_artist_filename_group(
     if not album_folder.is_dir():
         raise NotADirectoryError(f"Album folder is missing: {album_folder}")
 
+    # The audit can run alongside taggers, lyric tools, and the user's own
+    # Explorer changes.  Re-read the immediate folder immediately before the
+    # destructive two-phase rename; a pre-scan plan is an intent, not proof
+    # that every source name still exists.
+    live_children = {
+        child.name.casefold(): child
+        for child in album_folder.iterdir()
+        if child.is_file()
+    }
     mappings: list[tuple[Path, Path]] = []
     for item in finding.get("details", {}).get("renames", []):
         source = Path(os.path.abspath(root / item["before"]))
@@ -15365,16 +15972,23 @@ def apply_redundant_album_artist_filename_group(
             raise ValueError(
                 "Grouped album rename may only change immediate-child filenames"
             )
-        mappings.append((source, destination))
+        live_source = live_children.get(source.name.casefold())
+        if live_source is not None:
+            mappings.append((live_source, destination))
+        # If another process already produced this exact destination, it is
+        # already resolved.  If both names are gone, leave it alone rather
+        # than failing a whole folder over a stale report line.
 
     if not mappings:
-        raise RuntimeError("Grouped album rename contains no files")
+        return ["unchanged:grouped_rename_sources_refreshed"]
     destinations = [str(destination).casefold() for _source, destination in mappings]
     if len(destinations) != len(set(destinations)):
         raise FileExistsError("Grouped album rename proposes duplicate destinations")
     for source, destination in mappings:
         if not source.is_file():
-            raise FileNotFoundError(f"Grouped rename source is missing: {source}")
+            raise FileNotFoundError(
+                f"Grouped rename source disappeared during live refresh: {source}"
+            )
         same_logical_path = (
             os.path.normcase(str(source))
             == os.path.normcase(str(destination))
@@ -15389,17 +16003,12 @@ def apply_redundant_album_artist_filename_group(
         for source, destination in mappings
         if source.suffix.lower() in AUDIO_EXTS
     }
+    # Re-read playlists as well; a newly written local playlist should be
+    # updated, while a removed one is simply not part of this live operation.
     playlist_updates: list[tuple[Path, str, str, str]] = []
-    for relative in finding.get("details", {}).get("playlists", []):
-        playlist = (root / relative).resolve()
-        try:
-            playlist.relative_to(root)
-        except ValueError as exc:
-            raise ValueError(
-                f"Refusing playlist update outside audited root: {playlist}"
-            ) from exc
-        if not playlist.is_file() or playlist.parent != album_folder:
-            raise FileNotFoundError(f"Album playlist is missing: {playlist}")
+    for playlist in album_folder.iterdir():
+        if not playlist.is_file() or playlist.suffix.casefold() not in PLAYLIST_EXTS:
+            continue
         original, encoding = read_text_and_encoding(playlist)
         updated = original
         for before_name, after_name in name_changes.items():
@@ -15413,6 +16022,14 @@ def apply_redundant_album_artist_filename_group(
             playlist_updates.append(
                 (playlist, original, updated, encoding)
             )
+
+    finding.setdefault("details", {})["renames"] = [
+        {
+            "before": str(source.relative_to(root)),
+            "after": str(destination.relative_to(root)),
+        }
+        for source, destination in mappings
+    ]
 
     actions: list[str] = []
     for playlist, _original, _updated, _encoding in playlist_updates:
@@ -15460,6 +16077,11 @@ def apply_redundant_album_artist_filename_group(
         raise
 
     actions.append(f"renamed_group:{len(mappings)} files")
+    for source, _temporary, destination in finalized:
+        if source.suffix.casefold() in AUDIO_EXTS:
+            actions.extend(
+                migrate_waveform_review_cache_path(source, destination)
+            )
     if playlist_updates:
         actions.append(f"updated_playlists:{len(playlist_updates)}")
     return actions
@@ -15478,11 +16100,13 @@ def apply_finding(
     if category in {
         "adobe_xmp",
         "bare_marker",
+        "json_sidecar",
         "smaller_numbered_image_duplicate",
         "stale_transcription_marker",
         "tagrename_m3u8",
         "temporary_batch_file",
         "vad_scratch_srt",
+        "xml_sidecar",
     }:
         recycled = recycle_path(target)
         return [f"recycled:{recycled}"]
@@ -15627,11 +16251,15 @@ def apply_finding(
             finding.get("details", {}).get("proposed_name")
             or canonicalized_filename(target.name)
         )
-        destination = target.with_name(proposed_name)
-        if destination.exists():
-            raise FileExistsError(f"Refusing rename collision: {destination}")
-        target.rename(destination)
-        return [f"renamed:{destination}"]
+        destination, renamed_backups = rename_filename_with_backups(
+            target,
+            proposed_name,
+        )
+        actions = [f"renamed:{destination}"]
+        actions.extend(f"renamed_backup:{backup}" for backup in renamed_backups)
+        if target.suffix.casefold() in AUDIO_EXTS:
+            actions.extend(migrate_waveform_review_cache_path(target, destination))
+        return actions
 
     raise NotImplementedError(f"No immediate-action handler for {category}")
 
@@ -15874,12 +16502,26 @@ def interactive_apply(
     input_reader=None,
     artwork_preview_renderer=None,
 ) -> dict[str, Any]:
-    coded = [f for f in data["findings"] if f.get("code")]
+    rename_first_categories = GROUPED_RENAME_CATEGORIES | {
+        "all_caps_album_title",
+        "filename_marker_style",
+    }
+    # Every filename action happens before tag/art/cleanup work.  This keeps
+    # later findings aligned with live paths and lets waveform cache records
+    # move once, before review begins.
+    coded = sorted(
+        (f for f in data["findings"] if f.get("code")),
+        key=lambda finding: (
+            0 if finding["category"] in rename_first_categories else 1,
+            str(finding.get("code") or ""),
+        ),
+    )
     applied: list[str] = []
     skipped: list[str] = []
     failed: list[str] = []
     decisions: list[dict[str, Any]] = []
     root = Path(data["resolved_root"])
+    remembered_no_store = RememberedNoStore()
     reaudited_categories: dict[str, set[str]] = {}
     printed_prompt = False
     remembered_category_choices: dict[str, str] = {}
@@ -16196,7 +16838,20 @@ def interactive_apply(
                 choice = "folder"
             if choice is None and folder_key in remembered_folder_skips:
                 choice = "stop_folder"
+            if (
+                choice is None
+                and remembered_no_store.is_remembered_no(
+                    str(finding["category"]),
+                    target,
+                )
+            ):
+                choice = "remember_no"
             if choice is None:
+                preview_text_sidecar_before_cleanup(
+                    root,
+                    finding,
+                    use_color=use_color,
+                )
                 preview_existing_front_sidecar(
                     root,
                     finding,
@@ -16212,9 +16867,7 @@ def interactive_apply(
                         indent="            ",
                         allow_folder=allow_folder_scope,
                         allow_always=True,
-                        allow_stop_folder=(
-                            replaygain_scope or folder_level or local_cover_prompt
-                        ),
+                        allow_stop_folder=allow_folder_scope,
                         allow_delete_art=local_cover_prompt,
                     )
                     if choice != "always":
@@ -16237,6 +16890,22 @@ def interactive_apply(
                     remembered_folder_approvals.add(folder_key)
                 elif choice == "stop_folder":
                     remembered_folder_skips.add(folder_key)
+                elif choice == "remember_no":
+                    remembered_no_store.remember_no(
+                        str(finding["category"]),
+                        target,
+                    )
+                    print(
+                        rgb_text(
+                            "            ↪️ No remembered for this unchanged "
+                            "file; it will be skipped on later runs.",
+                            185,
+                            145,
+                            255,
+                            use_color,
+                            dim=True,
+                        )
+                    )
             else:
                 print(
                     settled_action_scope_prompt(
@@ -16907,7 +17576,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                     if item["category"] == "newer_lrc_needs_srt_backfill"
                 )
                 self.assertEqual(
-                    "Regenerate this older SRT from the newer MiniLyrics LRC now?",
+                    "Regenerate this older SRT from the newer LRC",
                     approval_question(finding),
                 )
                 module = sys.modules[__name__]
@@ -24729,6 +25398,33 @@ def _main(argv: list[str] | None = None) -> int:
             )
         )
         return 3
+    if args.interactive:
+        normalized_root, preflight_actions = normalize_batch_preflight_paths(
+            Path(args.root)
+        )
+        args.root = normalized_root
+        if preflight_actions:
+            print()
+            print(
+                rgb_text(
+                    "        🧭 Pre-audit filename normalization completed first:",
+                    145,
+                    205,
+                    235,
+                    not args.no_color,
+                )
+            )
+            for action in preflight_actions:
+                print(
+                    rgb_text(
+                        "            " + action,
+                        145,
+                        165,
+                        180,
+                        not args.no_color,
+                        dim=True,
+                    )
+                )
     audit = BatchAudit(
         Path(args.root),
         include_archives=args.include_archives,
