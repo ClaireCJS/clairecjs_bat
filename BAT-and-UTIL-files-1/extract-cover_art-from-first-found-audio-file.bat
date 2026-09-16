@@ -1,5 +1,5 @@
 @on break cancel
-@Echo OFF
+@Echo On
 
 rem Validate environment:
         call validate-environment-variable FILEMASK_AUDIO
@@ -38,11 +38,11 @@ rem FIND FIRST MP3:
 rem EXTRACT ARTWORK:
         :NO: ffmpeg -i "%AN_MP3%" cover.jpg
         iff "%AN_MP3" != "" then
-                LAST_EXTRACT_COMMAND=metamp3-v0.91.exe   --save-pict       cover.jpg "%AN_MP3%" 
+                set LAST_EXTRACT_COMMAND=metamp3-v0.91.exe   --save-pict       cover.jpg "%AN_MP3%" 
                 %LAST_EXTRACT_COMMAND% >nul
         endiff
         iff "%AN_FLA" != "" then
-                LAST_EXTRACT_COMMAND=metaflac          --export-picture-to cover.jpg "%AN_FLA%" 
+                set LAST_EXTRACT_COMMAND=metaflac          --export-picture-to cover.jpg "%AN_FLA%" 
                 %LAST_EXTRACT_COMMAND% >nul
         endiff
         if exist cover.jpg goto :Artwork_Created_Successfully

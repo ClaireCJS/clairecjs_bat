@@ -88,7 +88,7 @@ rem Ask for each file, and delete:
                         endiff
 
                 rem Ask user about deletion ... Whether we say "Delete or Edit" or "Delete hallucations or edit" depends on if we are using this as part of our AILyrics system or not:
-                        call askyn "₇%ansi_color_bright_green%E%ansi_color_prompt%dit%DIRECT_OBJECT_CLAUSE% or %ansi_color_bright_green%D%ansi_color_prompt%elete %lq%%ansi_color_bright_yellow%%@UNQUOTE["%file%"]%ansi_color_prompt%%rq%%BRACKETED_TEXT%" no 0 %LETTER_E_MAYBE%%EVEN_MORE_EXTRA_LETTERS% %E_EXPLANATION%%EVEN_MORE_EXTRA_EXPLANATIONS%
+                        call askyn "₇%ansi_color_bright_green%E%ansi_color_prompt%dit%DIRECT_OBJECT_CLAUSE% or %ansi_color_bright_green%D%ansi_color_prompt%elete %lq%%ansi_color_bright_yellow%%@UNQUOTE["%file%"]%ansi_color_prompt%%rq%%BRACKETED_TEXT%" no 0 D%LETTER_E_MAYBE%%EVEN_MORE_EXTRA_LETTERS% %E_EXPLANATION%%EVEN_MORE_EXTRA_EXPLANATIONS%
 
 
                 rem Make sure file is still there:

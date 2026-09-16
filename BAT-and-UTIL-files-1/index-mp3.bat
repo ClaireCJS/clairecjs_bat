@@ -3,14 +3,14 @@
 
 :DESCRIPTION: This a wrapper to launch the REAL indexer (index-mp3-helper.bat) in a separate window/pane
 
-set                                INDEXER=c:\bat\index-mp3-helper.bat
+set                                INDEXER=c:\bat\
 call validate-environment-variable INDEXER
 call validate-in-path              perl index-mp3-helper 
 
 goto %OS
 
     :Default
-	:Windows_NT
+    :Windows_NT
     :10
     :11
                 call validate-in-path      splv
