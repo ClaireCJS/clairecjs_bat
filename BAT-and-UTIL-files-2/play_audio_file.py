@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# CHAT ARTIFACT BUILD: 2026-09-08-V401-BATCHED-BAR-ARTWORK-COLORS
+# CHAT ARTIFACT BUILD: 2026-09-20-V416-TIMELINE-TODOS-EXTERNAL-MEDIA
 """Interactively preview an audio file from a Windows console.
 
 This program uses FFplay and accepts any audio format FFmpeg can decode,
@@ -527,10 +527,17 @@ except ImportError:  # pragma: no cover
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID                 = "2026-09-08-v401-batched-bar-artwork-colors"
+PLAYER_BUILD_ID                 = "2026-09-21-v417-wawi-controls-and-downloads"
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION                 = "V401"
-PROGRAM_RELEASE_LABEL           = "V400"
+PROGRAM_VERSION                 = "V417"
+PROGRAM_RELEASE_LABEL           = "V417"
+
+# Other media takes priority; fade duration is also a persisted web Playback setting.
+EXTERNAL_MEDIA_AUTO_PAUSE = True
+EXTERNAL_MEDIA_RESUME_FADE_SECONDS = 15
+EXTERNAL_MEDIA_RESUME_QUIET_SECONDS = 1.5
+EXTERNAL_MEDIA_PAUSE = "external-media-auto-pause"
+EXTERNAL_MEDIA_RESUME = "external-media-auto-resume"
 WRITE_NOWPLAYING_THIS_OFTEN     = 5.0
 PREVENT_WINAMP_PAUSE_WHEN_WE_ARE_PAUSED = 0
 LYRIC_FADE_SECONDS              = 6.0
@@ -556,6 +563,11 @@ SMOOTH_AUDIO_RENDERER_ENABLED = True
 SMOOTH_AUDIO_BUFFER_MS = 250
 SMOOTH_AUDIO_BUFFER_MS_MIN = 0
 SMOOTH_AUDIO_BUFFER_MS_MAX = 5000
+# Pause currently stops the decoder and starts it again on Space. Keep the
+# normal reservoir for ordinary playback/render spikes, but use a short,
+# one-shot reservoir for that resume launch so Space does not wait for a full
+# queue refill before the user hears playback.
+PAUSE_RESUME_AUDIO_BUFFER_MS = 50
 MP3_DURATION_DISAGREEMENT_THRESHOLD_SECONDS = 1.0
 MP3_TLEN_MAX_REASONABLE_HOURS = 24.0
 AUDIO_GIL_SWITCH_INTERVAL_SECONDS = 0.002  # Give the buffered audio pump frequent chances to refill WaveOut even while Python rendering is CPU-heavy.
@@ -1119,7 +1131,16 @@ KARAOKE_BAKE_YES                = "karaoke-bake-yes"
 KARAOKE_BAKE_NO                 = "karaoke-bake-no"
 KARAOKE_FAVORITE_TOGGLE         = "karaoke-favorite-toggle"
 KARAOKE_FAVORITE_CYCLE          = "karaoke-favorite-cycle"
-AUTOPLAY_TOGGLE                 = "autoplay-toggle"
+
+# Explicit play-order modes used by the two primary web/console controls.
+REPEAT_MODE_NAMES = ("Repeat 1", "Repeat Folder", "Repeat playlist", "Repeat OFF")
+SHUFFLE_MODE_NAMES = ("Sequential", "Shuffle by history", "Shuffle randomly", "Repeat Folder", "Repeat playlist", "Repeat OFF")
+REPEAT_NEXT = "repeat-next"
+REPEAT_PREVIOUS = "repeat-prev"
+REPEAT_DOUBLE = "repeat-double"
+SHUFFLE_NEXT = "shuffle-next"
+SHUFFLE_PREVIOUS = "shuffle-prev"
+SHUFFLE_DOUBLE = "shuffle-double"
 PROGRESS_STYLE_PREVIOUS         = "progress-style-previous"
 PROGRESS_STYLE_NEXT             = "progress-style-next"
 HELP_OVERLAY                    = "help-overlay"
@@ -1140,6 +1161,8 @@ OPEN_PRIMARY_URL                = "open-primary-url"
 BROWSE_URLS                     = "browse-urls"
 EXTERNAL_ALBUM_ART_FOREGROUND   = "external-album-art-foreground"
 EXTERNAL_FLOATING_LYRICS_FOREGROUND = "external-floating-lyrics-foreground"
+EXTERNAL_ALBUM_ART_CENTER = "external-album-art-center"
+EXTERNAL_FLOATING_LYRICS_CENTER = "external-floating-lyrics-center"
 EXTERNAL_ALBUM_ART_IDLE_START   = "external-album-art-idle-start"
 ALBUM_ART_DOWNLOAD_OR_DRCS      = "album-art-download-or-drcs"
 ALBUM_ART_DOWNLOAD              = "album-art-download"
@@ -1163,6 +1186,7 @@ PLAYLIST_DELETE_CURRENT         = "playlist-delete-current"
 PLAYLIST_DELETE_CURRENT_WEB_CONFIRMED = "playlist-delete-current-web-confirmed"
 WEB_PLAY                        = "web-play"
 WEB_PAUSE                       = "web-pause"
+WEB_STOP                        = "web-stop"  # Stop/reset without exiting the HTTP session.
 WEB_SEEK_RATIO_PREFIX           = "web-seek-ratio:"
 WEB_SET_PREFIX                  = "web-set:"
 WEB_FAVORITE_PREFIX             = "web-favorite:"
@@ -1236,7 +1260,7 @@ HUD_METADATA_REFRESH_SECONDS    = 0.25  # V263: animated metadata text at 4 Hz i
 VISUALIZER_IDLE_SLEEP_MAX        = 0.004  # Upper bound for main-loop naps while waiting for the next high-rate spectrum frame.
 SPECTRUM_INITIAL_CHUNK_SECONDS  = 1.25  # Publish the first usable block quickly instead of decoding a long starter window.
 SPECTRUM_BACKGROUND_CHUNK_SECONDS = 3.0 # Short rolling chunks keep FFmpeg interruptible and cheap while other startup work finishes.
-SPECTRUM_ANALYSIS_AHEAD_SECONDS   = 2.5 # Stay only a little ahead of live playback instead of racing through the file.
+SPECTRUM_ANALYSIS_AHEAD_SECONDS   = 12.0 # Stay only a little ahead of live playback instead of racing through the file.
 SPECTRUM_BACKGROUND_START_DELAY_SECONDS = 0.35 # Enough time for FFplay to own audio first, but short enough that the visualizer wakes quickly.
 DEFAULT_VISUALIZER_FADE_SECONDS = 0.08
 DEFAULT_PERSISTENCE_MODE        = 12  # Waterfall Smear.
@@ -1313,7 +1337,7 @@ EXTERNAL_FLOATING_LYRICS_FONT_SCALE_STEP = 0.10
 # intermediate fields/timing masks.  Above this rendered-text area, keep the
 # newly selected cue visible but freeze decorative color motion so an enormous
 # floating lyric can never monopolize the GUI thread/GIL during playback.
-EXTERNAL_FLOATING_LYRICS_ANIMATION_MAX_PIXELS = 1_250_000
+EXTERNAL_FLOATING_LYRICS_ANIMATION_MAX_PIXELS = 8_500_000
 EXTERNAL_FLOATING_LYRICS_ANIMATION_MAX_FRAME_MS = 100.0
 EXTERNAL_FLOATING_LYRICS_EDIT_BACKGROUND = "#090b0f"
 EXTERNAL_FLOATING_LYRICS_EDIT_BORDER_PIXELS = 10  # 96-DPI pixels; scaled per monitor while editing.
@@ -1443,8 +1467,16 @@ ALBUM_ART_VISUALIZER_STYLE_NAMES = (
 # Experimental DRCS palette source.  The cover is quantized to the actual
 # visualizer grid once per artwork/geometry, so live frames only blend RGBs.
 ART_COLOR_VISUALIZER_REPRESENTATIONS = ("none", "bars", "blackness", "both")
+ARTWORK_SEAM_STRATEGY = 0
+ARTWORK_SEAM_STRATEGY_NAMES = (
+    "0 — None", "1 — Full-cell glyphs, one-column overlap",
+    "2 — Fill isolated one-cell vertical gaps", "3 — Prefer SIXEL bitmap layer",
+    "4 — Aspect-aware Chafa symbols", "5 — Avoid mixed DRCS/Unicode artwork",
+)
+
 ART_COLOR_VISUALIZER_REPRESENTATION = "none"
 ART_COLOR_VISUALIZER_BAR_STRENGTH = 0.70
+ART_COLOR_VISUALIZER_BAR_OPACITY = 0.0  # Extra solid-bar coverage over the selected artwork blend.
 ART_COLOR_VISUALIZER_BLACK_STRENGTH = 0.25
 # V305 EXP: how cover-art detail is carried inside *filled bars*.  The blackness
 # artwork path is intentionally unchanged.  Luma detail is the recommended
@@ -11283,6 +11315,30 @@ for _v367_removed_word in ("dying", "mars", "venus"):
     SEMANTIC_PHRASES.pop(_v367_removed_word, None)
 semantic["shine"] = "🌞"
 
+# V416: final curated removals apply after the imported survey dictionaries.
+EMOJIMAX_V416_REMOVED = frozenset({
+    "puked", "yelling", "flick", "flicking", "singing", "faced", "face", "faces", "facing",
+    "confront", "confronted", "encounter", "encountered", "stare", "stared", "opposite",
+    "stuck", "trapped", "jammed", "blocked", "stranded", "stalled", "cream", "single",
+    "double", "triple", "quadruple", "quintuple", "sextuple", "septuple", "octuple",
+    "nonuple", "decuple", "slice", "broke", "teenage",
+})
+for _v416_table in (semantic, SEMANTIC_PHRASES):
+    for _v416_word in EMOJIMAX_V416_REMOVED:
+        _v416_table.pop(_v416_word, None)
+    for _v416_word in ("grew", "person", "30", "thirty"):
+        _v416_table.pop(_v416_word, None)
+semantic.update({"grew": "🌱", "person": "👤", "30": "㉚", "thirty": "㉚"})
+# Explicit inflections track their base mapping; do not infer arbitrary verbs.
+EMOJIMAX_BASE_SUFFIX = {
+    "praying": ("pray", "ing"), "speaking": ("speak", "ing"),
+    "talking": ("talk", "ing"), "licking": ("lick", "ing"),
+    "worshipping": ("worship", "ping"),
+}
+for _v416_word in EMOJIMAX_BASE_SUFFIX:
+    semantic.pop(_v416_word, None)
+    SEMANTIC_PHRASES.pop(_v416_word, None)
+
 # V369 plural normalization.  The imported/curated dictionary historically
 # mixes one-glyph plurals (dogs -> 🐶), fixed triples, and occasional doubles.
 # When an existing plural key has a recognizable singular key whose replacement
@@ -11350,6 +11406,12 @@ def _emojimax_existing_plural_repeat_count(plural_replacement: object, singular_
 def emojimax_replacement_for_key(key: str) -> str | None:
     """Resolve one Emojimaxx word, applying the configurable plural count safely."""
     folded = str(key or "").casefold()
+    if folded in EMOJIMAX_V416_REMOVED:
+        return None
+    if folded in EMOJIMAX_BASE_SUFFIX:
+        base, suffix = EMOJIMAX_BASE_SUFFIX[folded]
+        replacement = semantic.get(base)
+        return str(replacement) + suffix if replacement is not None else None
     replacement = semantic.get(folded)
     if replacement is None:
         return None
@@ -11647,7 +11709,7 @@ def emojimax_plain_with_solutions(
         cursor = match.end()
     emit_literal(protected[cursor:])
 
-    result = re.sub(r"(?:⬆️|⬇️) (?=\S)", lambda match: match.group(0).rstrip(), "".join(pieces))
+    result = "".join(pieces)
     return result.rstrip(), solutions
 
 
@@ -11731,7 +11793,6 @@ def _stylize_karaoke_with_emojimax_uncached(
     result = "".join(pieces)
     for token, replacement in phrase_tokens.items():
         result = result.replace(stylize_karaoke_text(token, style), replacement).replace(token, replacement)
-    result = re.sub(r"(?:⬆️|⬇️) (?=\S)", lambda match: match.group(0).rstrip(), result)
     return result.rstrip()
 
 
@@ -11848,7 +11909,8 @@ PLAYER_SETTING_DEFAULTS: dict[str, int] = {
     "SpeedIndex": PLAYBACK_SPEEDS.index(1.0),
     "Looping": 1,
     "Shuffle": 1,
-    "Autoplay": 0,
+    "RepeatMode": 0,
+    "ShuffleMode": 1,
     "DrcsEnabled": int(bool(ENABLE_DRCS_VISUALIZER)),
     "VisualizerBarsEnabled": 1,
     "VisualizerBackgroundArtworkEnabled": 1,
@@ -11857,14 +11919,60 @@ PLAYER_SETTING_DEFAULTS: dict[str, int] = {
     "HudDetails": 0,
     "PlaybackPaused": 0,  # V174: restore the actual play/pause state from the previous clean exit.
     "KaraokeVisualizerExpansion": 0,
+    "KaraokeVisualizerHeightMode": 0,  # Legacy compositing; independently marked with Fav/Def.
     "VisualizerRows": DRCS_VISUALIZER_ROWS,
     "TruncateTopVisualizerLines": 2,
     "ArtColorRepresentation": 0,
     "ArtColorBarStrength": 70,
+    "ArtColorBarOpacity": 0,
     "ArtColorBlackStrength": 25,
     "ArtColorKaraokeSides": 0,
     "ArtColorKaraoke": 0,
+    "ArtworkSeamStrategy": 0,
+    "ExternalMediaAutoPause": int(EXTERNAL_MEDIA_AUTO_PAUSE),
+    "ExternalMediaResumeFadeSeconds": int(EXTERNAL_MEDIA_RESUME_FADE_SECONDS),
 }
+
+
+# Any command-line option that overlaps a durable player setting belongs here.
+# The option controls the current process, while the registry value remains the
+# user's preference unless they subsequently change that setting in the UI.
+CLI_PLAYER_SETTING_OVERRIDES: dict[str, frozenset[str]] = {
+    "--simple": frozenset({"DrcsEnabled", "SixelEnabled"}),
+    "--light": frozenset({"DrcsEnabled", "SixelEnabled"}),
+    "--visualizers": frozenset({"DrcsEnabled", "SixelEnabled"}),
+    "-v": frozenset({"DrcsEnabled", "SixelEnabled"}),
+    "--no-visualizers": frozenset({"DrcsEnabled", "SixelEnabled"}),
+    "-V": frozenset({"DrcsEnabled", "SixelEnabled"}),
+    "--sixel-visualizer": frozenset({"SixelEnabled"}),
+    "-s": frozenset({"SixelEnabled"}),
+    "--no-sixel-visualizer": frozenset({"SixelEnabled"}),
+    "-S": frozenset({"SixelEnabled"}),
+    "--drcs-visualizer": frozenset({"DrcsEnabled"}),
+    "-d": frozenset({"DrcsEnabled"}),
+    "--no-drcs-visualizer": frozenset({"DrcsEnabled"}),
+    "-D": frozenset({"DrcsEnabled"}),
+    "--loop": frozenset({"Looping"}),
+    "-l": frozenset({"Looping"}),
+    "--no-loop": frozenset({"Looping"}),
+    "-L": frozenset({"Looping"}),
+    "--truncate-top-visualizer-lines": frozenset({"TruncateTopVisualizerLines"}),
+    "--no-microtile-detail-for-bars": frozenset({"DrcsArtBarMicrotileDetailModeV370"}),
+    "--no-microtile-detail-for-black": frozenset({"DrcsArtMicrotileDetailModeV370"}),
+    "--no-microtile-detail": frozenset({
+        "DrcsArtMicrotileDetailModeV370",
+        "DrcsArtBarMicrotileDetailModeV370",
+    }),
+}
+
+
+def command_line_player_setting_override_keys(arguments: list[str]) -> set[str]:
+    """Return durable setting names overridden only for this invocation."""
+    overridden: set[str] = set()
+    for argument in arguments:
+        option_name = argument.partition("=")[0]
+        overridden.update(CLI_PLAYER_SETTING_OVERRIDES.get(option_name, ()))
+    return overridden
 
 
 def load_player_settings() -> dict[str, int]:
@@ -11925,12 +12033,15 @@ def load_player_settings() -> dict[str, int]:
     settings["Balance"] = min(100, max(-100, settings["Balance"]))
     settings["Volume"] = min(400, max(0, settings["Volume"]))
     settings["SpeedIndex"] = min(len(PLAYBACK_SPEEDS) - 1, max(0, settings["SpeedIndex"]))
+    settings["RepeatMode"] = min(len(REPEAT_MODE_NAMES) - 1, max(0, int(settings.get("RepeatMode", 0))))
+    settings["ShuffleMode"] = min(len(SHUFFLE_MODE_NAMES) - 1, max(0, int(settings.get("ShuffleMode", 1))))
     settings["HudDetails"] = int(bool(settings.get("HudDetails", 0)))
     settings["VisualizerBarsEnabled"] = int(bool(settings.get("VisualizerBarsEnabled", 1)))
     settings["VisualizerBackgroundArtworkEnabled"] = int(bool(settings.get("VisualizerBackgroundArtworkEnabled", 1)))
     settings["ConsoleVisualizerOverlayMessagesEnabled"] = int(bool(settings.get("ConsoleVisualizerOverlayMessagesEnabled", 1)))
     settings["PlaybackPaused"] = int(bool(settings.get("PlaybackPaused", 0)))
     settings["KaraokeVisualizerExpansion"] = int(bool(settings.get("KaraokeVisualizerExpansion", 0)))
+    settings["KaraokeVisualizerHeightMode"] = max(0, min(3, int(settings.get("KaraokeVisualizerHeightMode", 0))))
     settings["VisualizerRows"] = min(48, max(4, settings.get("VisualizerRows", DRCS_VISUALIZER_ROWS)))
     settings["TruncateTopVisualizerLines"] = min(8, max(0, settings.get("TruncateTopVisualizerLines", 2)))
     return settings
@@ -11943,6 +12054,23 @@ def save_player_settings(settings: dict[str, int]) -> None:
     with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
         for name, value in settings.items():
             _safe_winreg_set_value(key, name, 0, winreg.REG_DWORD, int(value))
+
+
+def merge_runtime_player_settings(
+    persisted_settings: dict[str, int],
+    runtime_settings: dict[str, int],
+    *,
+    session_only_values: dict[str, int] | None = None,
+) -> None:
+    """Merge runtime choices without ever persisting CLI-only overrides."""
+    command_line_values = session_only_values or {}
+    for name, value in runtime_settings.items():
+        # A command-line option is scoped to this process.  Do not let a
+        # --simple/--no-visualizers instance write its temporary disabled state
+        # into the shared registry while another PAFPlayer window is running.
+        if name in command_line_values:
+            continue
+        persisted_settings[name] = value
 
 
 def save_player_setting_value(name: str, value: int) -> None:
@@ -12024,6 +12152,7 @@ def effective_player_defaults() -> dict[str, int]:
     result["VisualizerMode"] = min(len(VISUALIZER_MODE_NAMES), max(1, int(result["VisualizerMode"])))
     result["PersistenceMode"] = min(len(PERSISTENCE_MODE_NAMES), max(1, int(result["PersistenceMode"])))
     result["VisualizerGranularity"] = min(len(VISUALIZER_GRANULARITY_NAMES), max(1, int(result["VisualizerGranularity"])))
+    result["KaraokeVisualizerHeightMode"] = max(0, min(3, int(result.get("KaraokeVisualizerHeightMode", 0))))
     result["VisualizerInputSource"] = min(len(LIVE_VISUALIZER_INPUT_NAMES), max(1, int(result.get("VisualizerInputSource", DEFAULT_VISUALIZER_INPUT_SOURCE))))
     result["ProcessingStyle"] = min(len(PROCESSING_STYLE_NAMES), max(1, int(result["ProcessingStyle"])))
     result["ColorStyle"] = min(len(PALETTE_NAMES), max(1, int(result["ColorStyle"])))
@@ -12935,7 +13064,8 @@ def interactive_audio_catalog_picker(
     sleeper_fn=time.sleep,
     initial_quit_q_presses: int = 0,
     quit_callback=None,
-) -> Path | None:
+    jump_state: list[bool] | None = None,
+) -> Path | tuple[Path, ...] | None:
     """Keyboard-first INS picker whose input wait never stalls playback painting.
 
     ``render_callback`` lets the player own cursor placement and confine the
@@ -12947,6 +13077,7 @@ def interactive_audio_catalog_picker(
         return None
     import msvcrt
     query = ""
+    selected_paths: list[Path] = []
     selected = 0
     page_top = 0
     consecutive_quit_q_presses = max(0, int(initial_quit_q_presses))
@@ -12963,14 +13094,14 @@ def interactive_audio_catalog_picker(
             page_top = selected - rows + 1
         _entries, source = catalog.snapshot()
         rendered = [
-            "\033[1;5;38;2;255;220;95m➕ Add to playlist — type words; Enter adds; Esc cancels; Shift+INS = Windows file picker\033[0m",
+            "\033[1;5;38;2;255;220;95m➕ J/Insert — Enter enqueues; Shift+Enter jumps; Ctrl+Space selects; Esc cancels; Shift+INS files\033[0m",
             f"\033[2;38;2;145;175;205mCatalog: {source or '(loading / unavailable)'}\033[0m",
             f"\033[1;5;38;2;140;225;255mWords any order: {query}█\033[0m",
         ]
         if not matches:
             rendered.append("\033[2;38;2;175;185;200m  (no matching audio files)\033[0m")
         for index, path in enumerate(matches[page_top:page_top + rows], page_top):
-            marker = "➤" if index == selected else " "
+            marker = ("➤" if index == selected else " ") + ("☑" if path in selected_paths else " ")
             ansi = "\033[1;7;38;2;255;255;255m" if index == selected else "\033[38;2;175;205;225m"
             rendered.append(ansi + truncate_to_cells(f"{marker} {path}", max(10, terminal.columns - 1), "…") + "\033[0m")
         if render_callback is None:
@@ -13000,7 +13131,19 @@ def interactive_audio_catalog_picker(
         if key == "\x1b":
             return None
         if key in {"\r", "\n"}:
-            return matches[selected] if matches else None
+            if shift and matches:
+                if jump_state is not None:
+                    jump_state[0] = True
+                return matches[selected]
+            return tuple(selected_paths) if selected_paths else (matches[selected] if matches else None)
+        if ctrl and not alt and (key == " " or (key == "\x00" and _windows_key_down(0x20))):
+            if matches:
+                path = matches[selected]
+                if path in selected_paths:
+                    selected_paths.remove(path)
+                else:
+                    selected_paths.append(path)
+            continue
         if key in {"\b", "\x7f"}:
             query = query[:-1]
             selected = page_top = 0
@@ -13024,7 +13167,7 @@ def interactive_audio_catalog_picker(
             elif ext == "R" and shift:
                 picked = traditional_windows_audio_file_picker()
                 if picked:
-                    return picked[0]
+                    return picked
             continue
         if key.isprintable():
             if key.casefold() == "q" and consecutive_quit_q_presses:
@@ -17899,6 +18042,30 @@ def lyric_title_text_at(
     return None
 
 
+def karaoke_title_timeline(entries: list[tuple[float, float | None, str]]) -> list[list[object]]:
+    """Compile browser cue deadlines from the same title-selection rules as Tk.
+
+    Times are on the raw lyric timeline; the browser applies the live offset to
+    its source playback clock. Blank cues and explicit ends keep their existing
+    short-gap behavior. Only distinct text changes need network publication.
+    """
+    boundaries = {0.0}
+    if _lyrics_are_timed(entries):
+        for index, (start, end, _text) in enumerate(entries):
+            boundaries.add(max(0.0, float(start)))
+            if end is None:
+                end = entries[index + 1][0] if index + 1 < len(entries) else start + LYRIC_MAX_UNTIMED_SECONDS
+            boundaries.add(max(0.0, float(end)))
+    else:
+        boundaries.update(float(index) * 4.0 for index in range(len(entries)))
+    result: list[list[object]] = []
+    for boundary in sorted(boundaries):
+        text = lyric_title_text_at(entries, boundary + 1e-7 - KARAOKE_DISPLAY_OFFSET_SECONDS) or ""
+        if not result or result[-1][1] != text:
+            result.append([boundary, text])
+    return result
+
+
 def lyric_neighbor_opacities(
     entries: list[tuple[float, float | None, str]],
     index: int,
@@ -18166,7 +18333,7 @@ ANSI_CSI_RE = re.compile(
 # (❶–❿) is a separate Unicode series and stops at ten.
 CIRCLED_NUMBER_GLYPHS = "⓿①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿❶❷❸❹❺❻❼❽❾❿"
 WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS = "❶❷❸❹❺❻❼❽❾"
-WINDOWS_TERMINAL_SINGLE_SPACE_EMOJIMAX_KEYS = frozenset({"write"})
+WINDOWS_TERMINAL_SINGLE_SPACE_EMOJIMAX_KEYS = frozenset({"write", "up"})
 
 
 def windows_terminal_emojimax_spacing_enabled() -> bool:
@@ -18388,8 +18555,13 @@ def wrap_to_cells(text: str, width: int) -> list[str]:
     width = max(1, width)
     lines: list[str] = []
     current = ""
-    for word in text.split():
-        proposal = word if not current else current + " " + word
+    # Generated Windows Terminal safety cells must survive the current-line
+    # wrapping path exactly as they do the previous/next line paths. split()
+    # collapsed two safety cells + a source space back to one source space.
+    for match in re.finditer(r"(\s*)(\S+)", str(text)):
+        gap, word = match.groups()
+        gap = re.sub(r"[\r\n\t\f\v]+", " ", gap)
+        proposal = word if not current else current + gap + word
         if terminal_cell_width(proposal) <= width:
             current = proposal
             continue
@@ -20422,10 +20594,10 @@ def compact_url_display_text(url: str) -> str:
 
     The full original URL remains the OSC-8 hyperlink target.  This is purely a
     display-space optimization: ``https://www.rammstein.com/`` becomes
-    ``rammstein.com/`` without changing what Ctrl/click opens.
+    ``rammstein.com`` without changing what Ctrl/click opens.
     """
     text = str(url or "").strip()
-    return re.sub(r"(?i)^https?://(?:www\.)?", "", text)
+    return re.sub(r"(?i)^https?://(?:www\.)?", "", text).rstrip("/")
 
 
 def osc8_hyperlink(url: str, label: str | None = None) -> str:
@@ -22430,12 +22602,17 @@ def interpret_console_key(
         if ctrl or alt:
             return QUIT_Q
         return Q_COMMAND_MENU
+    if not ctrl and not alt and first.casefold() == "j":
+        return PLAYLIST_ADD_SEARCH
     if first.casefold() == "x":
         return STOP
     if first == " ":
         return PAUSE_TOGGLE
+    # Ctrl+Alt+V toggles the console visualizer for this running window.
+    if ctrl and alt and (first.casefold() == "v" or first == "\x16"):
+        return DRCS_VISUALIZER_TOGGLE
     # V is once again the quick visualizer-mode cycle key.  DRCS enable/disable
-    # moved to Ctrl+Alt+D so Ctrl+V is no longer consumed by the player.
+    # otherwise remains separate from the ordinary V mode-cycle key.
     if ctrl and alt and (first.casefold() == "d" or first == "\x04"):
         return ALBUM_ART_DOWNLOAD_OR_DRCS
     if ctrl and alt and (first.casefold() == "s" or first == "\x13"):
@@ -22514,8 +22691,6 @@ def interpret_console_key(
         if ctrl:
             return KARAOKE_FAVORITE_TOGGLE if alt else KARAOKE_TREATMENT_NEXT
         return KARAOKE_FAVORITE_CYCLE if alt else (KARAOKE_PREVIOUS if shift else KARAOKE_NEXT)
-    if first.casefold() == "a" and not ctrl and not alt:
-        return AUTOPLAY_TOGGLE
     if first in {"2", "5", "7"}:
         return {"2": OUTPUT_STEREO, "5": OUTPUT_51, "7": OUTPUT_71}[first]
     if first.isdigit():
@@ -22647,6 +22822,308 @@ def read_windows_menu_choice() -> str | None:
             msvcrt.getwch()
         return None
     return first
+
+
+_PAF_EXTERNAL_MEDIA_PROBE = r'''
+$ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+Add-Type -TypeDefinition @'
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+[ComImport, Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")] class PafDeviceEnumerator {}
+[ComImport, Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IPafDevices { [PreserveSig] int EnumAudioEndpoints(int flow, uint mask, out IPafDeviceCollection devices); }
+[ComImport, Guid("0BD7A1BE-7A1A-44DB-8397-CC5392387B5E"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IPafDeviceCollection { [PreserveSig] int GetCount(out uint count); [PreserveSig] int Item(uint index, out IPafDevice device); }
+[ComImport, Guid("D666063F-1587-4E43-81F1-B948E807363F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IPafDevice { [PreserveSig] int Activate(ref Guid iid, uint context, IntPtr parameters, [MarshalAs(UnmanagedType.IUnknown)] out object result); }
+[ComImport, Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IPafManager {
+    [PreserveSig] int GetAudioSessionControl(IntPtr guid, uint flags, out IntPtr session);
+    [PreserveSig] int GetSimpleAudioVolume(IntPtr guid, uint flags, out IntPtr volume);
+    [PreserveSig] int GetSessionEnumerator(out IPafSessions sessions);
+}
+[ComImport, Guid("E2F5BB11-0570-40CA-ACDD-3AA01277DEE8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IPafSessions { [PreserveSig] int GetCount(out int count); [PreserveSig] int GetSession(int index, [MarshalAs(UnmanagedType.IUnknown)] out object session); }
+[ComImport, Guid("BFB7FF88-7239-4FC9-8FA2-07C950BE9C6D"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IPafSession {
+    [PreserveSig] int GetState(out int state);
+    [PreserveSig] int GetDisplayName(out IntPtr value);
+    [PreserveSig] int SetDisplayName(IntPtr value, IntPtr context);
+    [PreserveSig] int GetIconPath(out IntPtr value);
+    [PreserveSig] int SetIconPath(IntPtr value, IntPtr context);
+    [PreserveSig] int GetGroupingParam(out Guid value);
+    [PreserveSig] int SetGroupingParam(ref Guid value, IntPtr context);
+    [PreserveSig] int RegisterAudioSessionNotification(IntPtr events);
+    [PreserveSig] int UnregisterAudioSessionNotification(IntPtr events);
+    [PreserveSig] int GetSessionIdentifier(out IntPtr value);
+    [PreserveSig] int GetSessionInstanceIdentifier(out IntPtr value);
+    [PreserveSig] int GetProcessId(out uint processId);
+}
+public class PafAudioSession { public string name; public uint processId; public int state; }
+public static class PafMediaProbe {
+    [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern IntPtr FindWindow(string cls, string title);
+    [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern IntPtr SendMessageTimeout(IntPtr hwnd, uint msg, UIntPtr wparam, IntPtr lparam, uint flags, uint timeout, out UIntPtr result);
+    static void Check(int result) { Marshal.ThrowExceptionForHR(result); }
+    static void Release(object value) { if(value != null && Marshal.IsComObject(value)) Marshal.ReleaseComObject(value); }
+    public static int WinampState() {
+        IntPtr window = FindWindow("Winamp v1.x", null);
+        if(window == IntPtr.Zero) return 0;
+        UIntPtr result;
+        if(SendMessageTimeout(window, 0x400, UIntPtr.Zero, new IntPtr(104), 2, 250, out result) == IntPtr.Zero) return -1;
+        return (int)result.ToUInt64();
+    }
+    public static PafAudioSession[] AudioSessions() {
+        var result = new List<PafAudioSession>();
+        object enumerator = new PafDeviceEnumerator();
+        IPafDeviceCollection devices = null;
+        try {
+            Check(((IPafDevices)enumerator).EnumAudioEndpoints(0, 1, out devices));
+            uint count; Check(devices.GetCount(out count));
+            for(uint d=0; d<count; d++) {
+                IPafDevice device=null; object manager=null; IPafSessions sessions=null;
+                try {
+                    Check(devices.Item(d, out device));
+                    Guid iid=new Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F");
+                    Check(device.Activate(ref iid, 23, IntPtr.Zero, out manager));
+                    Check(((IPafManager)manager).GetSessionEnumerator(out sessions));
+                    int total; Check(sessions.GetCount(out total));
+                    for(int i=0; i<total; i++) {
+                        object raw=null;
+                        try {
+                            Check(sessions.GetSession(i, out raw));
+                            IPafSession session=(IPafSession)raw;
+                            int state; uint pid;
+                            Check(session.GetState(out state)); Check(session.GetProcessId(out pid));
+                            if(pid==0) continue;
+                            try {
+                                using(var process=Process.GetProcessById((int)pid)) {
+                                    string name=process.ProcessName.ToLowerInvariant();
+                                    if(name=="vlc" || name=="vlcplayer" || name=="chrome" || name=="msedge" || name=="firefox" || name=="brave" || name=="vivaldi" || name=="opera" || name=="librewolf" || name=="waterfox")
+                                        result.Add(new PafAudioSession {name=name,processId=pid,state=state});
+                                }
+                            } catch(ArgumentException) {} // Process exited between enumeration and lookup.
+                        } finally { Release(raw); }
+                    }
+                } finally { Release(sessions); Release(manager); Release(device); }
+            }
+        } finally { Release(devices); Release(enumerator); }
+        return result.ToArray();
+    }
+}
+'@
+$manager = $null
+$smtcError = ''
+try {
+    Add-Type -AssemblyName System.Runtime.WindowsRuntime
+    $managerType = [Windows.Media.Control.GlobalSystemMediaTransportControlsSessionManager,Windows.Media.Control,ContentType=WindowsRuntime]
+    $asTask = [System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object { $_.Name -eq 'AsTask' -and $_.IsGenericMethod -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' } | Select-Object -First 1
+    $task = $asTask.MakeGenericMethod($managerType).Invoke($null, @($managerType::RequestAsync()))
+    if (-not $task.Wait(3000)) { throw 'Windows media session request timed out' }
+    $manager = $task.Result
+} catch { $smtcError = $_.Exception.GetBaseException().Message }
+$ownerId = __PAF_OWNER_PID__
+$owner = [Diagnostics.Process]::GetProcessById($ownerId)
+while (-not $owner.HasExited) {
+    $media = @(); $audio = @(); $errors = @(); $winamp = -1
+    try { $audio = @([PafMediaProbe]::AudioSessions()) } catch { $errors += $_.Exception.Message }
+    try { $winamp = [PafMediaProbe]::WinampState() } catch { $errors += $_.Exception.Message }
+    if ($winamp -lt 0) { $errors += 'Winamp did not answer its playback-state query' }
+    if ($null -ne $manager) {
+        try {
+            foreach ($session in $manager.GetSessions()) {
+                $media += @{ app = $session.SourceAppUserModelId; state = $session.GetPlaybackInfo().PlaybackStatus.ToString() }
+            }
+        } catch { $errors += $_.Exception.Message }
+    }
+    @{ media = $media; audio = $audio; winamp = $winamp; known = ($errors.Count -eq 0); error = ($errors -join '; '); smtc_available = ($null -ne $manager); smtc_error = $smtcError } | ConvertTo-Json -Compress -Depth 5
+    [Console]::Out.Flush()
+    Start-Sleep -Milliseconds 250
+    $owner.Refresh()
+}
+
+'''
+
+
+def external_media_family(name: str) -> str:
+    name = str(name).casefold()
+    if "winamp" in name:
+        return "Winamp"
+    if "vlc" in name or "videolan" in name:
+        return "VLC"
+    for browser in ("chrome", "msedge", "firefox", "brave", "vivaldi", "opera", "librewolf", "waterfox", "youtube"):
+        if browser in name:
+            return browser
+    return ""
+
+
+def resolve_external_media_snapshot(payload, observed_at):
+    """Prefer actual transport state; streaming-session fallback includes silence."""
+    states = {}
+    for item in payload.get("media", ()):
+        family = external_media_family(item.get("app", ""))
+        if family and family != "Winamp":
+            states.setdefault(family, []).append(str(item.get("state", "")))
+    active = {family for family, values in states.items() if any(value in {"Playing", "Changing"} for value in values)}
+    for item in payload.get("audio", ()):
+        family = external_media_family(item.get("name", ""))
+        if family and family != "Winamp" and family not in states and int(item.get("state", 0)) == 1:
+            active.add(family)
+    if payload.get("winamp") == 1:
+        active.add("Winamp")
+    return {"active": tuple(sorted(active)), "known": bool(payload.get("known", False)),
+            "at": float(observed_at), "error": str(payload.get("error", "")),
+            "backend": "Windows media sessions + audio sessions" if payload.get("smtc_available") else "Windows audio sessions + Winamp",
+            "smtc_error": str(payload.get("smtc_error", ""))}
+
+
+class PAFExternalMediaMonitor:
+    """One hidden, read-only Windows probe per player session; no external controls."""
+    def __init__(self):
+        self._stop = threading.Event()
+        self._process = None
+        self._thread = None
+        self._snapshot = {"active": (), "known": False, "at": 0.0, "error": "Starting playback monitor", "backend": ""}
+
+    def start(self):
+        if os.name == "nt" and self._thread is None:
+            self._thread = threading.Thread(target=self._run, name="paf-external-media", daemon=True)
+            self._thread.start()
+        return self
+
+    def _run(self):
+        while not self._stop.is_set():
+            process = None
+            try:
+                script = _PAF_EXTERNAL_MEDIA_PROBE.replace("__PAF_OWNER_PID__", str(os.getpid()))
+                powershell = str(Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32/WindowsPowerShell/v1.0/powershell.exe")
+                process = subprocess.Popen([powershell, "-NoProfile", "-NonInteractive", "-MTA", "-EncodedCommand",
+                    base64.b64encode(script.encode("utf-16-le")).decode("ascii")],
+                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                    text=True, encoding="utf-8", creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+                self._process = process
+                if self._stop.is_set():
+                    break
+                for line in process.stdout:
+                    if self._stop.is_set():
+                        break
+                    try:
+                        payload = json.loads(line)
+                        self._snapshot = resolve_external_media_snapshot(payload, time.monotonic())
+                    except (TypeError, ValueError):
+                        continue
+                if not self._stop.is_set():
+                    self._snapshot = {**self._snapshot, "known": False, "error": "Playback monitor disconnected; retrying"}
+            except Exception as exc:
+                self._snapshot = {**self._snapshot, "known": False, "error": str(exc)}
+            finally:
+                if process is not None:
+                    if process.poll() is None:
+                        with contextlib.suppress(OSError):
+                            process.terminate()
+                    with contextlib.suppress(OSError, subprocess.TimeoutExpired):
+                        process.wait(timeout=2)
+                    if process.stdout is not None:
+                        process.stdout.close()
+                self._process = None
+            self._stop.wait(5)
+
+    def snapshot(self, now=None):
+        now = time.monotonic() if now is None else now
+        snapshot = self._snapshot
+        if now - snapshot["at"] > 3:
+            return {**snapshot, "known": False, "error": snapshot.get("error") or "Playback monitor has not updated"}
+        return snapshot
+
+    def close(self):
+        self._stop.set()
+        process = self._process
+        if process is not None and process.poll() is None:
+            with contextlib.suppress(OSError):
+                process.terminate()
+        if self._thread is not None:
+            self._thread.join(timeout=0.5)
+
+
+class PAFExternalPlaybackCoordinator:
+    """Own only automatic pauses; explicit transport input always has priority."""
+    def __init__(self, monitor=None):
+        self.monitor = monitor
+        self.auto_paused = False
+        self.override_until_quiet = False
+        self.quiet_since = None
+        self.fade_total = self.fade_elapsed = 0.0
+        self.last_snapshot = {"active": (), "known": False, "error": "", "backend": ""}
+
+    def filter_action(self, action, paused, now, *, enabled=None, fade_seconds=None):
+        enabled = EXTERNAL_MEDIA_AUTO_PAUSE if enabled is None else enabled
+        fade_seconds = EXTERNAL_MEDIA_RESUME_FADE_SECONDS if fade_seconds is None else fade_seconds
+        snapshot = self.monitor.snapshot(now) if self.monitor is not None else self.last_snapshot
+        self.last_snapshot = snapshot
+        active = bool(snapshot.get("active"))
+        known = bool(snapshot.get("known"))
+        if known and not active:
+            if self.quiet_since is None:
+                self.quiet_since = now
+        else:
+            self.quiet_since = None
+        quiet = self.quiet_since is not None and now - self.quiet_since >= EXTERNAL_MEDIA_RESUME_QUIET_SECONDS
+        if quiet:
+            self.override_until_quiet = False
+        if action in {PAUSE_TOGGLE, WEB_PLAY, WEB_PAUSE, WEB_STOP}:
+            # Pause during an automatic hold converts it to a manual hold.
+            self.auto_paused = False
+            if action == WEB_PLAY or (action == PAUSE_TOGGLE and paused):
+                self.override_until_quiet = active or not known
+            return action
+        if action is not None:
+            return action
+        if self.auto_paused and paused and (not enabled or quiet):
+            self.auto_paused = False
+            self.fade_total, self.fade_elapsed = max(0.0, float(fade_seconds)), 0.0
+            return EXTERNAL_MEDIA_RESUME
+        if enabled and active and known and not paused and not self.override_until_quiet:
+            self.auto_paused = True
+            return EXTERNAL_MEDIA_PAUSE
+        return action
+
+    def fade_arguments(self):
+        return (self.fade_total, self.fade_elapsed) if self.fade_elapsed < self.fade_total else None
+
+    def advance_fade(self, segment_start, output_seconds):
+        if self.fade_total:
+            self.fade_elapsed = min(self.fade_total, max(self.fade_elapsed, segment_start + max(0.0, output_seconds)))
+
+    def status(self):
+        return {"external_media_auto_pause": bool(EXTERNAL_MEDIA_AUTO_PAUSE),
+                "external_media_resume_fade_seconds": EXTERNAL_MEDIA_RESUME_FADE_SECONDS,
+                "external_media_auto_paused": self.auto_paused,
+                "external_media_active": list(self.last_snapshot.get("active", ())),
+                "external_media_monitor_known": bool(self.last_snapshot.get("known")),
+                "external_media_monitor_status": self.last_snapshot.get("error") or self.last_snapshot.get("backend", ""),
+                "external_media_fade_remaining": max(0.0, self.fade_total - self.fade_elapsed)}
+
+    def close(self):
+        if self.monitor is not None:
+            self.monitor.close()
+
+
+def apply_external_resume_fade(command, fade):
+    """Apply an audio-sample-time envelope without changing the user's volume."""
+    if not fade or fade[0] <= 0 or fade[1] >= fade[0]:
+        return command
+    total, elapsed = (max(0.0, float(value)) for value in fade)
+    # Reset filter time after atempo: 15 seconds means 15 audible seconds at any speed.
+    envelope = f"asetpts=N/SR/TB,volume='min(1,max(0,(t+{elapsed:.6f})/{total:.6f}))':eval=frame"
+    result = list(command)
+    if "-af" in result:
+        index = result.index("-af") + 1
+        result[index] += "," + envelope
+    else:
+        result[-1:-1] = ["-af", envelope]
+    return result
 
 
 def pause_playing_winamp() -> bool:
@@ -23087,6 +23564,69 @@ def media_transport_key_action(
     return None
 
 
+GLOBAL_SEEK_PREFIX = "global-seek-seconds:"
+_GLOBAL_SEEK_CAPTURE = None
+
+
+def seek_seconds_for_action(action):
+    if action in SEEK_SECONDS:
+        return SEEK_SECONDS[action]
+    if isinstance(action, str) and action.startswith(GLOBAL_SEEK_PREFIX):
+        try:
+            value = float(action[len(GLOBAL_SEEK_PREFIX):])
+            return value if math.isfinite(value) else None
+        except ValueError:
+            pass
+    return None
+
+
+class GlobalSeekCapture:
+    """Capture physical presses/releases while the playback owner restarts audio.
+
+    Only this thread samples the two global seek chords. It never consumes
+    msvcrt text, so searchable menus retain ownership of their normal input.
+    """
+    def __init__(self):
+        self.stop_event = threading.Event()
+        self.lock = threading.Lock()
+        self.pending = 0.0
+        self.direction = 0
+        self.repeat_at = 0.0
+        self.suppress_until = 0.0
+
+    def sample(self, direction, now):
+        with self.lock:
+            if direction:
+                self.suppress_until = now + 1.0
+                if direction != self.direction:
+                    self.pending += 5.0 * direction
+                    self.repeat_at = now + 0.25
+                elif now >= self.repeat_at:
+                    repeats = 1 + int((now - self.repeat_at) / 0.085)
+                    self.pending += 5.0 * direction * repeats
+                    self.repeat_at += 0.085 * repeats
+            self.direction = direction
+
+    def drain(self):
+        with self.lock:
+            value, self.pending = self.pending, 0.0
+            return value
+
+    def run(self):
+        while not self.stop_event.is_set():
+            chord = _windows_key_down(0x11) and _windows_key_down(0x12)
+            direction = (int(_windows_key_down(0x27)) - int(_windows_key_down(0x25))) if chord else 0
+            self.sample(direction, time.monotonic())
+            self.stop_event.wait(0.005)
+
+    def start(self):
+        threading.Thread(target=self.run, name="paf-global-seek", daemon=True).start()
+        return self
+
+    def close(self):
+        self.stop_event.set()
+
+
 def read_windows_key_action() -> str | None:
     """Nonblockingly produce one semantic playback action from Windows input.
 
@@ -23115,6 +23655,10 @@ def read_windows_key_action() -> str | None:
         )
     import msvcrt
 
+    if _GLOBAL_SEEK_CAPTURE is not None:
+        delta = _GLOBAL_SEEK_CAPTURE.drain()
+        if delta:
+            return GLOBAL_SEEK_PREFIX + str(delta)
     ctrl_down = _windows_key_down(0x11)
     alt_down = _windows_key_down(0x12)
     shift_down = _windows_key_down(0x10)
@@ -23134,6 +23678,8 @@ def read_windows_key_action() -> str | None:
     )
     if ctrl_down and alt_down:
         for virtual_key, scan_character, action in global_arrow_bindings:
+            if _GLOBAL_SEEK_CAPTURE is not None and action in {SEEK_BACK_5, SEEK_FORWARD_5}:
+                continue
             latch_key = 0xA00 + virtual_key
             key_is_down = _windows_key_down(virtual_key)
             now_key = time.monotonic()
@@ -23142,7 +23688,13 @@ def read_windows_key_action() -> str | None:
                 _ASYNC_HELD_ACTION_REPEAT_AT[latch_key] = now_key + 0.32
                 _ASYNC_EXTENDED_SUPPRESS_ONCE[scan_character] = now_key + 1.0
                 return action
-            if key_is_down and action in {VOLUME_UP_5, VOLUME_DOWN_5}:
+            # Keep held seek chords repeating just like volume chords.  A seek
+            # currently restarts the decoder, so the previous latch suppressed
+            # every repeat until the key was released; rapid-fire Ctrl+Alt+Left
+            # therefore felt artificially limited to one five-second jump.
+            if key_is_down and action in {
+                VOLUME_UP_5, VOLUME_DOWN_5, SEEK_BACK_5, SEEK_FORWARD_5,
+            }:
                 repeat_at = float(_ASYNC_HELD_ACTION_REPEAT_AT.get(latch_key, now_key + 0.32))
                 if now_key >= repeat_at:
                     _ASYNC_HELD_ACTION_REPEAT_AT[latch_key] = now_key + 0.085
@@ -23295,6 +23847,19 @@ def read_windows_key_action() -> str | None:
         return ALTERNATE_HUD_TOGGLE
     if not _windows_key_down(0x48):
         _ASYNC_KEY_LATCH.discard(alternate_hud_latch)
+
+    # Ctrl+Alt+V is the focused-console shortcut for enabling/disabling the
+    # console visualizer. Windows Terminal may deliver only the printable V,
+    # so preserve the chord with one physical-key latch as the other hotkeys do.
+    visualizer_toggle_latch = 0x956
+    visualizer_toggle_down = bool(ctrl_down and alt_down and _windows_key_down(0x56))
+    if focused_buffered_input and visualizer_toggle_down and visualizer_toggle_latch not in _ASYNC_KEY_LATCH:
+        _ASYNC_KEY_LATCH.add(visualizer_toggle_latch)
+        _ASYNC_CHAR_SUPPRESS_ONCE["v"] = time.monotonic() + 1.0
+        _ASYNC_CHAR_SUPPRESS_ONCE["V"] = time.monotonic() + 1.0
+        return DRCS_VISUALIZER_TOGGLE
+    if not _windows_key_down(0x56):
+        _ASYNC_KEY_LATCH.discard(visualizer_toggle_latch)
 
     # Focus-gated external-art toggle.  Alt+A and Ctrl+Alt+Numpad8 retain their
     # bindings, but pressing them in another application can no longer toggle PAF.
@@ -23497,6 +24062,9 @@ def read_windows_key_action() -> str | None:
         msvcrt.getwch() if first in {"\x00", "\xe0"} else None
     )
     if extended is not None:
+        if (_GLOBAL_SEEK_CAPTURE is not None and extended in {"K", "M", "s", "t"}
+                and (ctrl_down and alt_down or time.monotonic() < _GLOBAL_SEEK_CAPTURE.suppress_until)):
+            return None
         deadline = _ASYNC_EXTENDED_SUPPRESS_ONCE.get(extended)
         if deadline is not None:
             _ASYNC_EXTENDED_SUPPRESS_ONCE.pop(extended, None)
@@ -24553,6 +25121,29 @@ def matrixmixer_read_pcm_block(stream, target_bytes: int, stop_event: threading.
     return b"".join(chunks)
 
 
+class _MMTimeValue(ctypes.Union):
+    _fields_ = [("value", ctypes.c_uint32), ("smpte", ctypes.c_byte * 8)]
+
+
+class _MMTime(ctypes.Structure):
+    _fields_ = [("wType", ctypes.c_uint32), ("u", _MMTimeValue)]
+
+
+def audio_segment_elapsed(process, now: float, started: float, speed: float, waiting=False) -> float:
+    """Source seconds from the device clock, with a bounded IPC extrapolation.
+
+    Legacy FFplay exposes no consumed-sample counter and retains its startup
+    estimate. Buffered audio never substitutes time since decode/queue for time
+    actually consumed by the output device.
+    """
+    sample = getattr(process, "playback_clock", None)
+    if isinstance(sample, dict) and sample.get("seconds") is not None:
+        age = max(0.0, float(now) - float(sample["at"]))
+        advance = min(age, 0.15, max(0.0, float(sample.get("queued_seconds", 0.0))))
+        return max(0.0, float(sample["seconds"]) + advance) * speed
+    return 0.0 if waiting else max(0.0, float(now) - float(started)) * speed
+
+
 class MatrixMixerInspiredWaveOutProcess:
     """Popen-like FFmpeg->WaveOut bridge with an explicit WAVEFORMATEXTENSIBLE mask.
 
@@ -24576,11 +25167,15 @@ class MatrixMixerInspiredWaveOutProcess:
         self.initial_delay_ms = max(0, int(initial_delay_ms))
         self.start_barrier = start_barrier
         self.target_buffer_ms = max(SMOOTH_AUDIO_BUFFER_MS_MIN, min(SMOOTH_AUDIO_BUFFER_MS_MAX, int(target_buffer_ms)))
-        self.preroll_buffers = max(1, min(
-            MM_INSPIRED_PENDING_BUFFERS - 1,
+        self.preroll_buffers = max(1,
             math.ceil((self.sample_rate * (self.target_buffer_ms / 1000.0)) / MM_INSPIRED_BUFFER_FRAMES)
             if self.target_buffer_ms > 0 else 1,
-        ))
+        )
+        # The reservoir is specified in milliseconds, not a fixed number of
+        # blocks: eight blocks cannot honor 250 ms at 192 kHz (or larger CLI values).
+        self.pending_buffer_limit = max(MM_INSPIRED_PENDING_BUFFERS, self.preroll_buffers + 2)
+        self._pending_headers = ()
+        self.underruns = 0
         self._playback_started_at: float | None = None
         self._meter_source_id = id(self)
         self._last_meter_update = 0.0
@@ -24591,6 +25186,8 @@ class MatrixMixerInspiredWaveOutProcess:
         self._returncode: int | None = None
         self._last_error = ""
         self._wave_handle = ctypes.c_void_p()
+        self._wave_handle_lock = threading.RLock()
+        self._last_playback_clock = None
         self._winmm = ctypes.WinDLL("winmm")
         self._kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
         self._avrt = None
@@ -24646,7 +25243,8 @@ class MatrixMixerInspiredWaveOutProcess:
                 # The matrix itself is tiny; underruns are scheduling/I/O problems,
                 # not GPU-compute problems. Give FFmpeg a modest Windows CPU
                 # scheduling preference while the WaveOut pump already runs in MMCSS.
-                creationflags=getattr(subprocess, "ABOVE_NORMAL_PRIORITY_CLASS", 0),
+                creationflags=(getattr(subprocess, "ABOVE_NORMAL_PRIORITY_CLASS", 0)
+                               | getattr(subprocess, "CREATE_NO_WINDOW", 0)),
             )
         except Exception:
             self._winmm.waveOutClose(self._wave_handle)
@@ -24676,6 +25274,8 @@ class MatrixMixerInspiredWaveOutProcess:
         w.waveOutReset.restype = ctypes.c_uint32
         w.waveOutClose.argtypes = [ctypes.c_void_p]
         w.waveOutClose.restype = ctypes.c_uint32
+        w.waveOutGetPosition.argtypes = [ctypes.c_void_p, ctypes.POINTER(_MMTime), ctypes.c_uint32]
+        w.waveOutGetPosition.restype = ctypes.c_uint32
         w.waveOutGetErrorTextW.argtypes = [ctypes.c_uint32, ctypes.c_wchar_p, ctypes.c_uint]
         w.waveOutGetErrorTextW.restype = ctypes.c_uint32
 
@@ -24699,6 +25299,8 @@ class MatrixMixerInspiredWaveOutProcess:
         self._avrt.AvSetMmThreadCharacteristicsW.restype = ctypes.c_void_p
         self._avrt.AvRevertMmThreadCharacteristics.argtypes = [ctypes.c_void_p]
         self._avrt.AvRevertMmThreadCharacteristics.restype = ctypes.c_bool
+        self._avrt.AvSetMmThreadPriority.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        self._avrt.AvSetMmThreadPriority.restype = ctypes.c_bool
 
     def _wave_error(self, operation: str, code: int) -> str:
         text = ctypes.create_unicode_buffer(256)
@@ -24741,6 +25343,8 @@ class MatrixMixerInspiredWaveOutProcess:
                 task_index = ctypes.c_uint32(0)
                 with contextlib.suppress(Exception):
                     mmcss_handle = self._avrt.AvSetMmThreadCharacteristicsW("Pro Audio", ctypes.byref(task_index))
+                    if mmcss_handle:
+                        self._avrt.AvSetMmThreadPriority(mmcss_handle, 2)  # AVRT_PRIORITY_HIGH
             stdout = self._ffmpeg.stdout
             if stdout is None:
                 raise RuntimeError("FFmpeg PCM pipe did not open")
@@ -24763,6 +25367,8 @@ class MatrixMixerInspiredWaveOutProcess:
                     continue
                 if usable != len(data):
                     data = data[:usable]
+                if waveout_started and pending and all(int(item[1].dwFlags) & MM_WHDR_DONE for item in pending):
+                    self.underruns += 1
                 buffer = ctypes.create_string_buffer(data, len(data))
                 header = _MMWaveHeader(ctypes.addressof(buffer), len(data), 0, 0, 0, 0, None, 0)
                 result = self._winmm.waveOutPrepareHeader(self._wave_handle, ctypes.byref(header), ctypes.sizeof(header))
@@ -24774,6 +25380,7 @@ class MatrixMixerInspiredWaveOutProcess:
                         self._winmm.waveOutUnprepareHeader(self._wave_handle, ctypes.byref(header), ctypes.sizeof(header))
                     raise RuntimeError(self._wave_error("waveOutWrite", result))
                 pending.append((buffer, header))
+                self._pending_headers = tuple(item[1] for item in pending)
                 meter_now=time.monotonic()
                 if meter_now-self._last_meter_update>=0.12:
                     self._last_meter_update=meter_now
@@ -24794,12 +25401,13 @@ class MatrixMixerInspiredWaveOutProcess:
                         raise RuntimeError(self._wave_error("waveOutRestart", restarted))
                     self._playback_started_at = time.monotonic()
                     waveout_started = True
-                if len(pending) >= MM_INSPIRED_PENDING_BUFFERS:
+                if len(pending) >= self.pending_buffer_limit:
                     _buffer, old = pending.pop(0)
                     self._release_header(old)
+                    self._pending_headers = tuple(item[1] for item in pending)
             # A very short track may end before the normal pre-roll threshold.
             # Start whatever was queued before waiting for WHDR_DONE.
-            if pending and not waveout_started:
+            if pending and not waveout_started and not self._stop.is_set():
                 if self.start_barrier is not None:
                     try:
                         self.start_barrier.wait(timeout=3.0)
@@ -24826,16 +25434,12 @@ class MatrixMixerInspiredWaveOutProcess:
             with contextlib.suppress(Exception):
                 self._ffmpeg.kill()
         finally:
+            self._pending_headers = ()
             remove_matrix_output_levels(self._meter_source_id)
             if mmcss_handle and self._avrt is not None:
                 with contextlib.suppress(Exception):
                     self._avrt.AvRevertMmThreadCharacteristics(mmcss_handle)
-            if self._stop.is_set():
-                with contextlib.suppress(Exception):
-                    self._winmm.waveOutReset(self._wave_handle)
-            with contextlib.suppress(Exception):
-                self._winmm.waveOutClose(self._wave_handle)
-            self._wave_handle = ctypes.c_void_p()
+            self._close_waveout()
             if self._done_event:
                 with contextlib.suppress(Exception):
                     self._kernel32.CloseHandle(self._done_event)
@@ -24849,26 +25453,84 @@ class MatrixMixerInspiredWaveOutProcess:
     def playback_started_at(self) -> float | None:
         return self._playback_started_at
 
+    def _close_waveout(self) -> None:
+        # WinMM may dereference a freed handle if GetPosition overlaps Close.
+        with getattr(self, "_wave_handle_lock", contextlib.nullcontext()):
+            with contextlib.suppress(OSError):
+                self._sample_playback_clock()
+            if self._stop.is_set():
+                with contextlib.suppress(Exception):
+                    self._winmm.waveOutReset(self._wave_handle)
+            with contextlib.suppress(Exception):
+                self._winmm.waveOutClose(self._wave_handle)
+            self._wave_handle = ctypes.c_void_p()
+            if getattr(self, "_last_playback_clock", None) is not None:
+                self._last_playback_clock = {**self._last_playback_clock, "queued_seconds": 0.0}
+
+    @property
+    def playback_clock(self) -> dict[str, float] | None:
+        with getattr(self, "_wave_handle_lock", contextlib.nullcontext()):
+            try:
+                return self._sample_playback_clock()
+            except OSError:
+                return getattr(self, "_last_playback_clock", None)
+
+    def _sample_playback_clock(self) -> dict[str, float] | None:
+        if self._playback_started_at is None or not self._wave_handle:
+            return getattr(self, "_last_playback_clock", None)
+        stamp = _MMTime()
+        stamp.wType = 2  # TIME_SAMPLES; drivers may return MS or bytes instead.
+        at = time.monotonic()
+        if self._winmm.waveOutGetPosition(self._wave_handle, ctypes.byref(stamp), ctypes.sizeof(stamp)):
+            return None
+        divisor = {1: 1000.0, 2: float(self.sample_rate),
+                   4: float(self.sample_rate * self.channels * (self.container_bits // 8))}.get(stamp.wType)
+        if divisor is None:
+            return None
+        # Unwrap the driver's DWORD counter for long uninterrupted sessions.
+        previous_type, previous_raw, wraps = getattr(self, "_clock_counter", (stamp.wType, 0, 0))
+        raw = int(stamp.u.value)
+        if previous_type == stamp.wType and previous_raw - raw > 0x80000000:
+            wraps += 1
+        elif previous_type != stamp.wType:
+            wraps = 0
+        self._clock_counter = (stamp.wType, raw, wraps)
+        seconds = (raw + wraps * 0x100000000) / divisor - self.initial_delay_ms / 1000.0
+        self._last_playback_clock = {"seconds": seconds, "at": at,
+                "queued_seconds": self.queued_audio_ms / 1000.0}
+        return self._last_playback_clock
+
+    @property
+    def queued_audio_ms(self) -> float:
+        pending_bytes = sum(int(header.dwBufferLength) for header in self._pending_headers if not (int(header.dwFlags) & MM_WHDR_DONE))
+        return 1000.0 * pending_bytes / (self.sample_rate * self.channels * (self.container_bits // 8))
+
     def poll(self):
         return None if self._thread.is_alive() else self._returncode
 
     def terminate(self) -> None:
         self._stop.set()
+        if self.start_barrier is not None:
+            self.start_barrier.abort()
         if self._done_event:
             with contextlib.suppress(Exception):
                 self._kernel32.SetEvent(self._done_event)
-        with contextlib.suppress(Exception):
-            self._winmm.waveOutReset(self._wave_handle)
+        with getattr(self, "_wave_handle_lock", contextlib.nullcontext()):
+            with contextlib.suppress(Exception):
+                self._winmm.waveOutReset(self._wave_handle)
         with contextlib.suppress(Exception):
             self._ffmpeg.terminate()
 
     def kill(self) -> None:
         self._stop.set()
+        if self.start_barrier is not None:
+            self.start_barrier.abort()
         if self._done_event:
             with contextlib.suppress(Exception):
                 self._kernel32.SetEvent(self._done_event)
-        with contextlib.suppress(Exception):
-            self._winmm.waveOutReset(self._wave_handle)
+        with getattr(self, "_wave_handle_lock", contextlib.nullcontext()):
+            with contextlib.suppress(Exception):
+                self._winmm.waveOutReset(self._wave_handle)
         with contextlib.suppress(Exception):
             self._ffmpeg.kill()
 
@@ -24917,6 +25579,188 @@ class MultiOutputWaveOutProcess:
         return codes[0] if codes else 0
 
 
+def run_isolated_audio_worker(config, input_stream, output_stream, *, process_factory=None) -> int:
+    """Own all audio pumps in a process that never renders lyrics or artwork.
+
+    Only status/meters cross the pipe; PCM stays between FFmpeg and WaveOut.
+    EOF on the owner pipe also stops playback, preventing orphaned audio when
+    the UI exits unexpectedly. One worker retains the multi-device start barrier.
+    """
+    factory = process_factory or MatrixMixerInspiredWaveOutProcess
+    processes = []
+    stop = threading.Event()
+
+    def read_owner_commands():
+        try:
+            for line in input_stream:
+                if line.strip() == "stop":
+                    break
+        finally:
+            stop.set()
+
+    def send(message):
+        output_stream.write(json.dumps(message, ensure_ascii=True) + "\n")
+        output_stream.flush()
+
+    threading.Thread(target=read_owner_commands, name="paf-audio-owner", daemon=True).start()
+    try:
+        outputs = config["outputs"]
+        barrier = threading.Barrier(len(outputs)) if len(outputs) > 1 else None
+        for output in outputs:
+            if stop.is_set():
+                return 0
+            processes.append(factory(
+                config["command"], config["output_channels"], config["sample_rate"],
+                output["device"], config["bit_depth"], initial_delay_ms=output["delay_ms"],
+                start_barrier=barrier, target_buffer_ms=config["buffer_ms"],
+            ))
+        send({"ready": True})
+        while not stop.is_set():
+            codes = [process.poll() for process in processes]
+            errors = [process._last_error for process in processes if getattr(process, "_last_error", "")]
+            if errors or any(code not in (None, 0) for code in codes):
+                send({"error": "; ".join(errors) or f"Audio decoder exited: {codes}"})
+                return 1
+            starts = [process.playback_started_at for process in processes]
+            started = max(starts) if starts and all(value is not None for value in starts) else None
+            meters = matrix_output_levels_snapshot()
+            # The first selected endpoint is the timing reference. Its optional
+            # leading calibration silence is already removed by playback_clock.
+            clock_sample = getattr(processes[0], "playback_clock", None) if processes else None
+            send({
+                "clock": clock_sample if isinstance(clock_sample, dict) else None,
+                "started_at": started,
+                "queued_ms": min((process.queued_audio_ms for process in processes), default=0.0),
+                "underruns": sum(process.underruns for process in processes),
+                "peaks": [value["linear"] for value in meters.get("levels", {}).values()],
+            })
+            if all(code is not None for code in codes):
+                return 0
+            stop.wait(0.02)
+        return 0
+    except Exception as exc:
+        with contextlib.suppress(Exception):
+            send({"error": str(exc)})
+        return 1
+    finally:
+        for process in processes:
+            if process.poll() is None:
+                with contextlib.suppress(Exception):
+                    process.kill()
+        for process in processes:
+            with contextlib.suppress(Exception):
+                process.wait(timeout=2.0)
+
+
+class IsolatedWaveOutProcess:
+    """Popen-compatible controller for an independent audio-only Python process."""
+
+    def __init__(self, config) -> None:
+        self._started_at = None
+        self._health = {"isolated": True, "queued_ms": 0.0, "underruns": 0}
+        self._last_error = ""
+        self._ready = threading.Event()
+        self._stop_sent = False
+        self._meter_source_id = id(self)
+        self._output_channels = int(config["output_channels"])
+        self._process = subprocess.Popen(
+            [sys.executable, "-B", "-u", str(Path(__file__).resolve()), "--paf-audio-worker"],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            text=True, encoding="utf-8", bufsize=1,
+            creationflags=(getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                           | getattr(subprocess, "ABOVE_NORMAL_PRIORITY_CLASS", 0)),
+        )
+        self.pid = self._process.pid
+        self._reader = threading.Thread(target=self._read_status, name="paf-audio-status", daemon=True)
+        self._reader.start()
+        try:
+            self._process.stdin.write(json.dumps(config, ensure_ascii=True) + "\n")
+            self._process.stdin.flush()
+            if not self._ready.wait(15.0):
+                raise RuntimeError("Audio worker did not become ready within 15 seconds")
+            if self._last_error:
+                raise RuntimeError(self._last_error)
+        except BaseException:
+            self.kill()
+            raise
+
+    def _read_status(self) -> None:
+        try:
+            for line in self._process.stdout:
+                message = json.loads(line)
+                if "error" in message:
+                    self._last_error = str(message["error"])
+                    self._ready.set()
+                    with contextlib.suppress(Exception):
+                        record_pafplayer_runtime_warning("Audio worker stopped", self._last_error)
+                if message.get("ready"):
+                    self._ready.set()
+                if message.get("started_at") is not None:
+                    self._started_at = float(message["started_at"])
+                if isinstance(message.get("clock"), dict):
+                    self._clock_sample = message["clock"]
+                if "queued_ms" in message:
+                    self._health = {"isolated": True, "queued_ms": message["queued_ms"], "underruns": message["underruns"]}
+                if message.get("peaks"):
+                    publish_matrix_output_levels(self._meter_source_id, self._output_channels, tuple(message["peaks"]))
+        except (OSError, ValueError) as exc:
+            self._last_error = str(exc)
+        finally:
+            with contextlib.suppress(OSError, ValueError):
+                self._process.stdout.close()
+            if not self._ready.is_set():
+                self._last_error = self._last_error or "Audio worker exited before opening the output device"
+                self._ready.set()
+            remove_matrix_output_levels(self._meter_source_id)
+
+    @property
+    def playback_started_at(self):
+        return self._started_at
+
+    @property
+    def playback_clock(self):
+        return getattr(self, "_clock_sample", None)
+
+    @property
+    def audio_health(self):
+        return dict(self._health)
+
+    def poll(self):
+        return self._process.poll()
+
+    def terminate(self) -> None:
+        if self._stop_sent:
+            return
+        self._stop_sent = True
+        with contextlib.suppress(OSError, ValueError):
+            self._process.stdin.write("stop\n")
+            self._process.stdin.flush()
+        with contextlib.suppress(OSError, ValueError):
+            self._process.stdin.close()
+
+    def kill(self) -> None:
+        self.terminate()
+        try:
+            self.wait(timeout=2.0)
+        except subprocess.TimeoutExpired:
+            # Only this owned worker and its decoder children are terminated.
+            # Killing the worker alone could leave FFmpeg blocked on its PCM pipe.
+            subprocess.run(
+                ["taskkill.exe", "/PID", str(self.pid), "/T", "/F"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), timeout=5.0,
+            )
+            self.wait(timeout=2.0)
+
+    def wait(self, timeout=None):
+        code = self._process.wait(timeout=timeout)
+        with contextlib.suppress(OSError, ValueError):
+            self._process.stdin.close()
+        self._reader.join(timeout=0.2)
+        remove_matrix_output_levels(self._meter_source_id)
+        return code
+
+
 def launch_matrixmixer_inspired_renderer(
     audio_path: Path,
     start_seconds: float,
@@ -24932,6 +25776,7 @@ def launch_matrixmixer_inspired_renderer(
     end_seconds: float | None,
     target_buffer_ms: int = SMOOTH_AUDIO_BUFFER_MS,
     replaygain_info: ReplayGainInfo | None,
+    resume_fade: tuple[float, float] | None = None,
 ):
     """Launch the opt-in WaveOut/WAVEFORMATEXTENSIBLE backend."""
     ffmpeg = direct_ffmpeg_executable()
@@ -24941,6 +25786,7 @@ def launch_matrixmixer_inspired_renderer(
         ffmpeg, audio_path, start_seconds, volume, speed, output_channels, balance,
         output_rate, output_bit_depth, end_seconds=end_seconds, replaygain_info=replaygain_info,
     )
+    command = apply_external_resume_fade(command, resume_fade)
     requested = list(output_device_indexes or [output_device_index])
     # Preserve order while removing duplicates/invalid endpoints.
     valid = {int(item.get("value", DEFAULT_OUTPUT_DEVICE_INDEX)) for item in waveout_output_devices()}
@@ -24956,21 +25802,11 @@ def launch_matrixmixer_inspired_renderer(
         selected = [DEFAULT_OUTPUT_DEVICE_INDEX]
     stored_latencies = load_multi_output_latencies_ms()
     effective_delays = effective_multi_output_delays_ms(selected, stored_latencies)
-    start_barrier = threading.Barrier(len(selected)) if len(selected) > 1 else None
-    processes = []
-    try:
-        for index in selected:
-            processes.append(MatrixMixerInspiredWaveOutProcess(
-                command, output_channels, output_rate, index, output_bit_depth,
-                initial_delay_ms=effective_delays.get(index, 0), start_barrier=start_barrier,
-                target_buffer_ms=target_buffer_ms,
-            ))
-    except Exception:
-        for process in processes:
-            with contextlib.suppress(Exception):
-                process.kill()
-        raise
-    process = processes[0] if len(processes) == 1 else MultiOutputWaveOutProcess(processes)
+    process = IsolatedWaveOutProcess({
+        "command": [str(part) for part in command], "output_channels": output_channels,
+        "sample_rate": output_rate, "bit_depth": output_bit_depth, "buffer_ms": target_buffer_ms,
+        "outputs": [{"device": index, "delay_ms": effective_delays.get(index, 0)} for index in selected],
+    })
     return process, command
 
 
@@ -25951,6 +26787,9 @@ def art_quadrant_unicode_char(mask: int) -> tuple[str, bool]:
 
 def art_detail_cell_uses_unicode_glyph(mode: int, glyph: str) -> bool:
     """Unicode+DRCS rows can mix native Unicode cells and printable DRCS bytes."""
+    if ARTWORK_SEAM_STRATEGY in {1, 4} and glyph:
+        # While Chafa prepares, the fallback may still contain DRCS bytes.
+        return not (len(glyph) == 1 and 0x21 <= ord(glyph) <= 0x7E)
     if not art_detail_uses_unicode_glyphs(mode) or not glyph:
         return False
     # DRCS occupies printable 94-set bytes ! through ~. Space is not a DRCS
@@ -26611,7 +27450,7 @@ def spectrum_timeline_cache_path(audio_path: Path, columns: int) -> Path | None:
     identity = "|".join((
         str(audio_path.resolve()).casefold(), str(stat.st_size), str(stat.st_mtime_ns),
         str(int(columns)), str(SPECTRUM_ANALYSIS_FPS), str(SPECTRUM_ANALYSIS_HEIGHT),
-        "v26-agc-two-bin-analysis",
+        "v416-silence-safe-timeline",
     ))
     digest = hashlib.sha256(identity.encode("utf-8", errors="surrogatepass")).hexdigest()
     root = Path(tempfile.gettempdir()) / "play_audio_file" / "spectrum_cache"
@@ -28177,7 +29016,7 @@ def _visualizer_pack_art_colors(np, result, row_bytes: int):
 
 def _visualizer_bar_art_colors(
     grid, base_colors: list[tuple[int, int, int]], strength_step: int,
-    blend_mode: int, feedback_brightness: float,
+    blend_mode: int, feedback_brightness: float, opacity_step: int = 0,
 ):
     """Batch changing full-cell RGB blends without losing color precision.
 
@@ -28191,12 +29030,14 @@ def _visualizer_bar_art_colors(
     arrays = _visualizer_bar_art_arrays(np, grid, feedback_brightness, True)
     base = np.asarray(base_colors, dtype=np.float64)[None, :, None, :]
     result = _visualizer_blend_bar_art_array(np, base, arrays, strength_step, blend_mode)
+    if opacity_step:
+        result = np.rint((result * (1000 - opacity_step) + base * opacity_step) / 1000.0)
     return _visualizer_pack_art_colors(np, result, len(base_colors) * 6)
 
 
 def _visualizer_bar_half_colors(
     grid, base_colors: list[tuple[int, int, int]], strength: float,
-    blend_mode: int, feedback_brightness: float, source_rows: int,
+    blend_mode: int, feedback_brightness: float, source_rows: int, opacity_step: int = 0,
 ):
     """Batch edge/non-microtile colors in their legacy blend/quantize/flash order."""
     np = _visualizer_numpy()
@@ -28212,11 +29053,123 @@ def _visualizer_bar_half_colors(
         result = np.clip(np.rint(base * (1.0 - strength)) + weighted_art, 0, 255)
     else:
         result = _visualizer_blend_bar_art_array(np, base, arrays, step, blend_mode)
+    if opacity_step:
+        result = np.rint((result * (1000 - opacity_step) + base * opacity_step) / 1000.0)
     if source_rows >= 24:
         result = np.minimum(255, np.rint(result / 32) * 32)
     if abs(feedback_brightness - 1.0) >= 0.0001:
         result = np.clip(np.rint(result * feedback_brightness), 0, 255)
     return _visualizer_pack_art_colors(np, result, len(base_colors) * 3)
+
+
+@lru_cache(maxsize=16384)
+def _visualizer_bar_opacity_color(color, base, opacity_step: int):
+    return tuple(round((channel * (1000 - opacity_step) + original * opacity_step) / 1000.0)
+                 for channel, original in zip(color, base))
+
+
+def fill_artwork_vertical_gaps(rows):
+    """Experimental: fill only isolated dark cells between bright neighbors.
+
+    Glyph overhang itself is font-dependent; this addresses quantized one-cell
+    dark dividers, and can also remove real dark detail. Never enabled by default.
+    """
+    result = []
+    for row in rows:
+        cells = list(row)
+        for column in range(1, len(row) - 1):
+            left, here, right = row[column - 1:column + 2]
+            luminance = lambda cell: max(sum(cell[0]), sum(cell[1])) / 3
+            if luminance(here) <= 8 and min(luminance(left), luminance(right)) >= 40:
+                color = tuple(round((left[0][c] + right[0][c]) / 2) for c in range(3))
+                # A space painted with a solid background uses no font bounds.
+                cells[column] = (color, color, " ")
+        result.append(tuple(cells))
+    return tuple(result)
+
+
+_CHAFA_SYMBOL_CACHE = {}
+_CHAFA_SYMBOL_PENDING = set()
+_CHAFA_SYMBOL_LOCK = threading.Lock()
+
+
+def chafa_symbol_art_cells(grid, columns, rows):
+    key = (id(grid), columns, rows, terminal_cell_pixel_size_nonintrusive())
+    with _CHAFA_SYMBOL_LOCK:
+        cached = _CHAFA_SYMBOL_CACHE.get(key)
+        if cached is not None and cached[0] is grid:
+            return cached[1]
+        if key in _CHAFA_SYMBOL_PENDING:
+            return ()
+        _CHAFA_SYMBOL_PENDING.add(key)
+    def prepare():
+        try:
+            result = _render_chafa_symbol_art_cells(grid, columns, rows)
+            with _CHAFA_SYMBOL_LOCK:
+                if len(_CHAFA_SYMBOL_CACHE) >= 4:
+                    _CHAFA_SYMBOL_CACHE.pop(next(iter(_CHAFA_SYMBOL_CACHE)))
+                _CHAFA_SYMBOL_CACHE[key] = (grid, result)
+            # Discard the temporary ordinary-glyph fallback when Chafa is ready.
+            _VISUALIZER_ART_DETAIL_GRID_CACHE.clear()
+            _VISUALIZER_ART_CELL_STYLE_CACHE.clear()
+        finally:
+            with _CHAFA_SYMBOL_LOCK:
+                _CHAFA_SYMBOL_PENDING.discard(key)
+    threading.Thread(target=prepare, name="paf-chafa-symbols", daemon=True).start()
+    return ()
+
+
+def _render_chafa_symbol_art_cells(grid, columns, rows):
+    """Render a cached artwork grid with measured cell aspect and parse its cells."""
+    chafa = shutil.which("chafa")
+    if not chafa or not grid:
+        return ()
+    try:
+        from PIL import Image
+        cw, ch = terminal_cell_pixel_size_nonintrusive()
+        image = Image.new("RGB", (len(grid[0]), len(grid)))
+        image.putdata([rgb for row in grid for rgb in row])
+        image = image.resize((columns * cw, rows * ch))
+        stream = io.BytesIO(); image.save(stream, format="PNG")
+        process = subprocess.run([chafa, "--format=symbols", "--colors=full",
+            "--symbols=half+solid+space", "--optimize=0", "--relative=off", "--probe=off",
+            "--animate=off", "--threads=1", "--work=3", "--scale=max",
+            f"--font-ratio={cw}/{ch}", f"--size={columns}x{rows}", "-"],
+            input=stream.getvalue(), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            timeout=3.0, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        if process.returncode:
+            return ()
+        output = []; fg = (255, 255, 255); bg = (0, 0, 0)
+        for line in process.stdout.decode("utf-8", errors="replace").splitlines()[:rows]:
+            cells = []; index = 0
+            while index < len(line):
+                ansi = ANSI_CSI_RE.match(line, index)
+                if ansi:
+                    token = ansi.group(0)
+                    if token.endswith("m"):
+                        codes = [int(n or 0) for n in token[2:-1].split(";")]
+                        j = 0
+                        while j < len(codes):
+                            code = codes[j]
+                            if code in (38, 48) and j + 4 < len(codes) and codes[j + 1] == 2:
+                                rgb = tuple(codes[j + 2:j + 5])
+                                if code == 38: fg = rgb
+                                else: bg = rgb
+                                j += 5; continue
+                            if code in (0, 39): fg = (255, 255, 255)
+                            if code in (0, 49): bg = (0, 0, 0)
+                            j += 1
+                    index = ansi.end(); continue
+                glyph = line[index]; index += 1
+                if glyph in " ▀▄▌▐█" and len(cells) < columns:
+                    cells.append((fg, bg, glyph))
+            cells.extend([((0, 0, 0), (0, 0, 0), " ")] * (columns - len(cells)))
+            output.append(tuple(cells))
+        if len(output) != rows:
+            return ()
+        return tuple(output)
+    except (ImportError, OSError, ValueError, subprocess.TimeoutExpired):
+        return ()
 
 
 _VISUALIZER_ART_DETAIL_GRID_CACHE: dict[
@@ -28243,7 +29196,7 @@ def _visualizer_art_microtiles(
         return tuple()
     layout_mode = _normalize_art_detail_layout_mode(dense_drcs_layout)
     strength_step = max(0, min(1000, round(float(strength) * 1000.0)))
-    cache_key = (id(grid), int(source_rows), int(terminal_width), strength_step, mode, layout_mode)
+    cache_key = (id(grid), int(source_rows), int(terminal_width), strength_step, mode, layout_mode, ARTWORK_SEAM_STRATEGY)
     cached = _VISUALIZER_ART_DETAIL_GRID_CACHE.get(cache_key)
     if cached is not None and cached[0] is grid:
         return cached[1]
@@ -28270,6 +29223,7 @@ def _visualizer_art_microtiles(
         relative = round(((subcolumn + 0.5) * source_horizontal / wanted_horizontal) - 0.5)
         sampled_column_offsets.append(max(0, min(source_horizontal - 1, relative)))
 
+    chafa_cells = chafa_symbol_art_cells(grid, terminal_width, source_rows) if ARTWORK_SEAM_STRATEGY == 4 else ()
     output = []
     for row in range(source_rows):
         cells = []
@@ -28281,7 +29235,22 @@ def _visualizer_art_microtiles(
                 for column_offset in sampled_column_offsets:
                     samples.append(source_row[base_column + column_offset])
             flattened = tuple(channel for rgb in samples for channel in rgb)
-            if art_detail_is_seamless_adaptive(mode):
+            if chafa_cells:
+                fg, bg, glyph = chafa_cells[row][column]
+                cells.append((tuple(round(c * strength_step / 1000) for c in fg),
+                              tuple(round(c * strength_step / 1000) for c in bg), glyph))
+            elif ARTWORK_SEAM_STRATEGY == 1:
+                color = tuple(round(sum(rgb[c] for rgb in samples) / len(samples)) for c in range(3))
+                glyph = "██\033[1D" if column + 1 < terminal_width else "█"
+                cells.append((color, color, glyph))
+            elif ARTWORK_SEAM_STRATEGY == 5:
+                # Native half blocks only if no DRCS bank is loaded; otherwise
+                # quantize every artwork cell into the same downloaded bank.
+                if layout_mode:
+                    cells.append(_art_detail_quantize_drcs_cached(mode, layout_mode, flattened))
+                else:
+                    cells.append(_art_detail_quantize_cached(min(3, art_detail_base_mode(mode)), flattened))
+            elif art_detail_is_seamless_adaptive(mode):
                 cells.append(_art_detail_quantize_seamless_cached(mode, layout_mode, _ART_DETAIL_DRCS_OVERRIDE_GENERATION, flattened))
             elif art_detail_is_adaptive_exact(mode):
                 cells.append(_art_detail_quantize_adaptive_exact_cached(mode, layout_mode, flattened))
@@ -28295,7 +29264,7 @@ def _visualizer_art_microtiles(
                 # Defensive fallback for an unexpected bank transition.
                 cells.append(_art_detail_quantize_cached(min(3, art_detail_base_mode(mode)), flattened))
         output.append(tuple(cells))
-    result = tuple(output)
+    result = fill_artwork_vertical_gaps(tuple(output)) if ARTWORK_SEAM_STRATEGY == 2 else tuple(output)
     if len(_VISUALIZER_ART_DETAIL_GRID_CACHE) >= 12:
         _VISUALIZER_ART_DETAIL_GRID_CACHE.pop(next(iter(_VISUALIZER_ART_DETAIL_GRID_CACHE)))
     _VISUALIZER_ART_DETAIL_GRID_CACHE[cache_key] = (grid, result)
@@ -28610,6 +29579,7 @@ def render_drcs_visualizer(
     artwork_microtile_color_grid: tuple[tuple[tuple[int, int, int], ...], ...] | None = None,
     artwork_bar_strength: float = 0.0,
     artwork_bar_blend_mode: int = 0,
+    artwork_bar_opacity: float = 0.0,
     artwork_background_strength: float = 0.0,
     artwork_microtiles_enabled: bool = False,
     artwork_bar_microtiles_enabled: bool = False,
@@ -28748,6 +29718,7 @@ def render_drcs_visualizer(
         else tuple()
     )
     artwork_bar_strength_step = max(0, min(1000, round(artwork_bar_strength * 1000.0)))
+    artwork_bar_opacity_step = max(0, min(1000, round(float(artwork_bar_opacity) * 1000.0)))
     artwork_bar_base_weight = 1.0 - artwork_bar_strength
     feedback_brightness = max(0.75, min(1.25, float(feedback_brightness)))
 
@@ -28826,6 +29797,7 @@ def render_drcs_visualizer(
         batched_half_art_colors = _visualizer_bar_half_colors(
             artwork_color_grid, row_independent_colors, artwork_bar_strength,
             artwork_bar_blend_mode, feedback_brightness, source_rows,
+            artwork_bar_opacity_step,
         )
 
     def artwork_bar_color(
@@ -28852,6 +29824,8 @@ def render_drcs_visualizer(
             rendered = _visualizer_blend_bar_art_cached(
                 *base_rendered, *art, artwork_bar_strength_step, artwork_bar_blend_mode
             )
+        if artwork_bar_opacity_step:
+            rendered = _visualizer_bar_opacity_color(rendered, base_rendered, artwork_bar_opacity_step)
         if source_rows >= 24:
             rendered = (
                 min(255, round(rendered[0] / 32) * 32),
@@ -29048,6 +30022,7 @@ def render_drcs_visualizer(
         batched_bar_art_colors = _visualizer_bar_art_colors(
             bar_microtile_art_grid, base_bar_colors, artwork_bar_strength_step,
             artwork_bar_blend_mode, feedback_brightness,
+            artwork_bar_opacity_step,
         )
         if batched_bar_art_colors is not None:
             # Most cells are entirely full or empty. Classify each terminal
@@ -29239,6 +30214,9 @@ def render_drcs_visualizer(
                     background = _visualizer_blend_bar_art_cached(
                         *base_bar, *art_bg, artwork_bar_strength_step, artwork_bar_blend_mode
                     )
+                    if artwork_bar_opacity_step:
+                        color = _visualizer_bar_opacity_color(color, base_bar, artwork_bar_opacity_step)
+                        background = _visualizer_bar_opacity_color(background, base_bar, artwork_bar_opacity_step)
                     # V376: V373's ordered RGB dither was aimed at the wrong
                     # artifact and added per-cell work.  Keep the richer artwork
                     # detail itself, but do not dither its colors on the hot path.
@@ -29726,6 +30704,10 @@ def progress_beat_pulse(
     already paid for the FFT.  None of these performs another audio transform:
     they derive onset cues from the spectrum bins already on hand.
     """
+    if not levels or not any(levels):
+        state.clear()
+        state["pulse"] = 0.0
+        return 0.0
     dt = max(0.0, float(delta))
     detector = min(len(PROGRESS_BEAT_DETECTOR_NAMES), max(1, int(detector)))
     previous_pulse = float(state.get("pulse", 0.0) or 0.0) * math.exp(-dt / 0.16)
@@ -29753,7 +30735,7 @@ def progress_beat_pulse(
         if isinstance(old, list) and len(old) == n:
             positive_flux = sum(max(0.0, cur - float(prev)) for cur, prev in zip(normalized, old)) / n
         else:
-            positive_flux = 0.0
+            positive_flux = sum(normalized) / n
         state["spectrum"] = list(normalized)
         energy = min(1.0, positive_flux * 4.0)
         threshold = 0.010
@@ -29772,7 +30754,7 @@ def progress_beat_pulse(
         # transients still have headroom rather than pinning the meter forever.
         energy = math.sqrt(sum(value * value for value in normalized) / n)
         previous_energy = float(state.get("adaptive_energy", energy) or 0.0)
-        difference = abs(energy - previous_energy)
+        difference = max(0.0, energy - previous_energy)
         difference_scale = float(state.get("adaptive_difference_scale", max(0.003, difference)) or 0.003)
         scale_tau = 0.20 if difference > difference_scale else 2.80
         scale_alpha = min(1.0, dt / max(0.001, scale_tau))
@@ -29825,6 +30807,27 @@ def progress_beat_pulse(
     return pulse
 
 
+class ProgressBeatTimeline:
+    """Precompute all five detectors off the render thread, indexed by source PTS."""
+    def __init__(self):
+        self.states = [{} for _ in PROGRESS_BEAT_DETECTOR_NAMES]
+        self.samples = bytearray()
+        self.fps = SPECTRUM_ANALYSIS_FPS
+
+    def append(self, data: bytes, width: int, fps: int):
+        self.fps = fps
+        batch = bytearray()
+        for offset in range(0, len(data) - width + 1, width):
+            levels = data[offset:offset + width]
+            for index, state in enumerate(self.states):
+                batch.append(round(255 * progress_beat_pulse(levels, state, 1.0 / fps, index + 1)))
+        self.samples.extend(batch)
+
+    def at(self, position: float, detector: int) -> float:
+        index = max(0, int(position * self.fps)) * len(self.states) + detector - 1
+        return self.samples[index] / 255.0 if 0 <= index < len(self.samples) else 0.0
+
+
 def write_console(text: str) -> None:
     with _CONSOLE_WRITE_LOCK:
         if _CURSOR_SUPPRESSION_ACTIVE and _CURSOR_HIDE_APPEND_ENABLED:
@@ -29873,6 +30876,38 @@ def set_console_title(title: str) -> None:
         pass
 
 
+def expand_lyric_outline(mask, radius: int):
+    """Exactly match Pillow's square MaxFilter with separable native array work.
+
+    RankFilter sorts a (2r+1)-squared neighborhood at every pixel. Two sliding
+    maxima need only log2(2r+1) NumPy passes per axis, preserving antialiasing,
+    full resolution, and Pillow's edge extension without a SciPy dependency.
+    """
+    from PIL import Image, ImageFilter
+    radius = max(0, int(radius))
+    if not radius:
+        return mask.copy()
+    np = _visualizer_numpy()
+    if np is None or mask.mode != "L":
+        return mask.filter(ImageFilter.MaxFilter(radius * 2 + 1))
+    values = np.asarray(mask)
+    size = radius * 2 + 1
+    for axis in (1, 0):
+        padding = [(0, 0), (0, 0)]
+        padding[axis] = (radius, radius)
+        values = np.pad(values, padding, mode="edge")
+        covered = 1
+        while covered < size:
+            step = min(covered, size - covered)
+            left = [slice(None), slice(None)]
+            right = [slice(None), slice(None)]
+            left[axis] = slice(None, -step)
+            right[axis] = slice(step, None)
+            values = np.maximum(values[tuple(left)], values[tuple(right)])
+            covered += step
+    return Image.fromarray(values)
+
+
 def floating_lyrics_animation_interval_ms(
     pixel_area: int,
     render_cost_ms: float = 0.0,
@@ -29880,33 +30915,14 @@ def floating_lyrics_animation_interval_ms(
     playback_running: bool = True,
     edit_mode: bool = False,
 ) -> int:
-    """Return an audio-safe cadence for floating-lyric color animation.
+    """Budget decorative recolors independently of cue layout and shadow creation.
 
-    Floating lyrics use a transparent ImageTk bitmap. Re-coloring and uploading a
-    large mask too frequently can monopolize the Python GUI thread/GIL long enough
-    to starve the audio pump even though the GUI thread itself has low OS priority.
-    During active playback, target roughly <=3% renderer duty cycle and let a
-    measured expensive frame push the next update farther away. Paused/edit use
-    can run more eagerly because there is no audio-underrun risk.
+    Audio runs in its own process. Leave most GUI time for cue changes and input,
+    while affordable cached bitmaps can animate smoothly instead of every 5 s.
     """
-    area = max(1, int(pixel_area))
     cost = max(0.0, float(render_cost_ms or 0.0))
-    if area < 180_000:
-        area_floor = 180
-    elif area < 500_000:
-        area_floor = 280
-    else:
-        area_floor = 440
-    if edit_mode:
-        area_floor += 120
-    if playback_running:
-        # interval >= cost / 0.03 keeps the expensive recolor+Tk upload around
-        # a three-percent duty cycle.  The previous 1.5-second ceiling meant a
-        # 500-ms fullscreen frame could still consume one third of the GUI
-        # thread forever; the wider ceiling makes the budget real.
-        cost_floor = int(round(cost / 0.03)) if cost > 0.0 else 0
-        return max(220, min(5000, max(area_floor, cost_floor)))
-    return max(120, min(900, int(round(area_floor * 0.70))))
+    floor = 50 if edit_mode else 16
+    return max(floor, min(1000, int(round(cost * 4.0))))
 
 
 def floating_lyrics_animation_is_safe(
@@ -32450,6 +33466,41 @@ def windows_tk_geometry_from_hwnd(
         return str(fallback_geometry) if parsed_fallback is not None else None
 
 
+def centered_popup_geometry(width: int, height: int, monitors, anchor_rect=None) -> str:
+    """Center inside the active monitor's work area, including negative origins."""
+    valid = [area for area in monitors if area[2] > area[0] and area[3] > area[1]]
+    if not valid:
+        valid = [(0, 0, 1280, 720, True, "")]
+    monitor = next((area for area in valid if area[4]), valid[0])
+    if anchor_rect is not None:
+        left, top, right, bottom = anchor_rect
+        def overlap(area):
+            return max(0, min(right, area[2]) - max(left, area[0])) * max(0, min(bottom, area[3]) - max(top, area[1]))
+        best = max(valid, key=overlap)
+        if overlap(best):
+            monitor = best
+    left, top, right, bottom = monitor[:4]
+    width = max(1, min(int(width), max(1, right - left - 32)))
+    height = max(1, min(int(height), max(1, bottom - top - 64)))
+    return f"{width}x{height}{left + (right - left - width) // 2:+d}{top + (bottom - top - height) // 2:+d}"
+
+
+def center_popup_window(window, hwnd: int, monitors, anchor_rect=None) -> str:
+    """Recover a popup using native outer bounds, even on negative-origin monitors."""
+    window.update_idletasks()
+    outer = windows_window_rect(hwnd)
+    width = outer[2] - outer[0] if outer else window.winfo_width()
+    height = outer[3] - outer[1] if outer else window.winfo_height()
+    geometry = centered_popup_geometry(max(360, width), max(120, height), monitors, anchor_rect)
+    width, height, x, y = _parse_external_album_art_geometry(geometry)
+    # Tk's '-X' syntax anchors to the screen's right edge; USER32 accepts real
+    # signed desktop coordinates and also includes the title bar in the fit.
+    if not windows_set_window_rect(hwnd, (x, y, x + width, y + height)):
+        window.geometry(geometry)
+    window.update_idletasks()
+    return geometry
+
+
 def windows_foreground_window_handle() -> int:
     """Return the current foreground HWND without changing activation."""
     if os.name != "nt":
@@ -32646,7 +33697,7 @@ def paf_web_action_catalog() -> list[dict[str, object]]:
             (NEXT_FILE, "Next"),
             (SEEK_BACK_10, "−10s"),
             (SEEK_FORWARD_10, "+10s"),
-            (LOOP_TOGGLE, "Loop"),
+            (LOOP_TOGGLE, "Repeat"),
             (RANDOM_TOGGLE, "Shuffle"),
             (QUIT_Q, "Quit"),
         ]),
@@ -32705,6 +33756,7 @@ WEB_CHOICE_MARK_SPECS: dict[str, tuple[str, str]] = {
     "processing_style": ("ProcessingFavorites", "ProcessingStyle"),
     "persistence_mode": ("PersistenceFavorites", "PersistenceMode"),
     "visualizer_granularity": ("GranularityFavorites", "VisualizerGranularity"),
+    "karaoke_visualizer_height_mode": ("KaraokeVisualizerCompositingFavorites", "KaraokeVisualizerHeightMode"),
     "karaoke_style": ("KaraokeStyleFavorites", "KaraokeStyle"),
     "karaoke_treatment": ("KaraokeTreatmentFavorites", "KaraokeTreatment"),
     "progress_style": ("ProgressStyleFavorites", "ProgressStyle"),
@@ -32795,6 +33847,8 @@ def paf_web_choice_value_is_valid(key: str, value: int) -> bool:
         "fade_style": len(FADE_STYLE_NAMES),
     }
     key = str(key)
+    if key == "karaoke_visualizer_height_mode":
+        return 0 <= int(value) <= 3
     if key in {"drcs_art_bar_microtile_mode", "drcs_art_microtile_mode"}:
         return 0 <= int(value) < len(ART_MICROTILE_DETAIL_MODE_NAMES)
     if key == "output_device":
@@ -32903,7 +33957,7 @@ def paf_web_control_schema() -> dict[str, object]:
                 "theme": "visualizer",
                 "tooltip": "Artwork subcell geometry for visualizer blackness. Favorites/default are saved independently from Bars.",
             },
-            {"key": "art_color_bar_blend_mode", "label": "Bar artwork blend", "options": options(ART_COLOR_VISUALIZER_BAR_BLEND_MODES, start=0), "experimental": True, "theme": "visualizer", "tooltip": "EXP: Color mix is legacy RGB blending; Luma detail preserves bar peak brightness while carrying cover structure; Hybrid adds a smaller amount of cover hue."},
+            {"key": "art_color_bar_blend_mode", "label": "Bar artwork blend", "options": options(ART_COLOR_VISUALIZER_BAR_BLEND_MODES, start=0), "theme": "visualizer", "tooltip": "Color mix uses RGB blending; Luma detail preserves bar brightness; Hybrid adds some cover hue. Increase Bar opacity for more solid bars while retaining some artwork."},
             {"key": "visualizer_input_source", "label": "Visualizer input", "options": options(LIVE_VISUALIZER_INPUT_NAMES), "theme": "playback", "tooltip": "Choose the spectrum input. Auto uses the current PAFPlayer track while playing, then switches to Windows WASAPI What You Hear + the default microphone while paused."},
             {"key": "truncate_visualizer_rows", "label": "Rows truncated\nfrom top", "options": [{"value": value, "label": str(value)} for value in range(0, 9)]},
             {"key": "karaoke_style", "label": "Karaoke style", "options": options(KARAOKE_STYLE_NAMES)},
@@ -32963,7 +34017,8 @@ def paf_web_control_schema() -> dict[str, object]:
                     {"value": 3, "label": "Over karaoke"},
                 ],
                 "experimental": True,
-                "theme": "karaoke",
+                "theme": "visualizer",
+                "tooltip": "Choose how the console visualizer and karaoke share space. Fav saves the selected mode as a favorite; Def saves the startup and restore-default mode, including Legacy.",
             },
         ],
         "sliders": [
@@ -32971,6 +34026,7 @@ def paf_web_control_schema() -> dict[str, object]:
             {"key": "balance", "label": "Balance", "min": -100, "max": 100, "step": 10, "suffix": ""},
             {"key": "visualizer_rows", "label": "Visualizer Rows", "min": 4, "max": 48, "step": 1, "suffix": ""},
             {"key": "art_color_bar_strength", "label": "Cover art saturation in bars", "min": 0, "max": 100, "step": 5, "suffix": "%", "theme": "visualizer"},
+            {"key": "art_color_bar_opacity", "label": "Bar opacity", "min": 0, "max": 100, "step": 1, "suffix": "%", "theme": "visualizer", "tooltip": "Extra solid-bar coverage: 0% keeps the selected artwork blend; 100% shows solid palette-colored bars. Intermediate values keep artwork visible beneath more opaque bars."},
             {"key": "art_color_black_strength", "label": "Cover art saturation in blackness", "min": 0, "max": 100, "step": 5, "suffix": "%"},
         ],
         "toggles": [
@@ -32984,9 +34040,8 @@ def paf_web_control_schema() -> dict[str, object]:
             {"key": "art_color_karaoke_sides", "label": "Album art onto karaoke sides", "web_key": "art_color_karaoke_sides", "experimental": True},
             {"key": "art_color_karaoke", "label": "Album art onto karaoke", "web_key": "art_color_karaoke", "experimental": True},
             {"key": "shuffle", "label": "Shuffle", "action": RANDOM_TOGGLE},
-            {"key": "loop", "label": "Loop", "action": LOOP_TOGGLE},
-            {"key": "autoplay", "label": "Autoplay", "action": AUTOPLAY_TOGGLE, "tooltip": "When the current selection/playlist context ends, keep PAFPlayer moving into an automatically chosen next track rather than stopping."},
-            {"key": "mm_inspired_renderer_enabled", "label": "Disable experimental 5.1/7.1 mixer", "web_key": "mm_inspired_renderer_enabled", "experimental": True, "invert": True, "theme": "playback", "tooltip": "EXP: checked disables the MatrixMixer-inspired WAVEFORMATEXTENSIBLE renderer and uses the legacy FFplay/SDL path for multichannel audio."},
+            {"key": "loop", "label": "Repeat", "action": LOOP_TOGGLE, "tooltip": "Repeat the current track when it reaches the end."},
+            {"key": "mm_inspired_renderer_enabled", "label": "Disable speaker expansion", "web_key": "mm_inspired_renderer_enabled", "experimental": True, "invert": True, "theme": "playback", "tooltip": "Turn off custom Speaker Expansion Matrix processing for multichannel playback. Uncheck to enable it."},
             {"key": "color_reverse", "label": "Reverse palette", "action": COLOR_REVERSE_TOGGLE},
             {"key": "karaoke_emojimax", "label": "Emojimaxx", "action": KARAOKE_EMOJI_TOGGLE},
             {"key": "decensor_console_karaoke", "label": "De-censor profanity — Console", "web_key": "decensor_console_karaoke", "theme": "karaoke", "tooltip": "Display-only; restore profanity recognized by DeCensor.pm on asterisk-bearing Console Karaoke lines. Default off."},
@@ -33014,7 +34069,7 @@ def paf_web_control_schema() -> dict[str, object]:
                 "experimental": True,
                 "theme": "visualizer",
             },
-            {"key": "cursive_fix", "label": "Cursive fix", "web_key": "cursive_fix", "experimental": True, "theme": "karaoke", "tooltip": "EXP: experimental cursive shaping for Web Karaoke: shape lyric text as a whole line and color the resulting mask by pixel position so ligatures/contextual joins can stay connected."},
+            {"key": "cursive_fix", "label": "Cursive fix (broken)", "web_key": "cursive_fix", "experimental": True, "theme": "karaoke", "tooltip": "Broken experimental cursive shaping for Web Karaoke."},
             {
                 "key": "karaoke_visualizer_overlay",
                 "label": "Karaoke over visualizer",
@@ -33023,6 +34078,11 @@ def paf_web_control_schema() -> dict[str, object]:
             },
         ],
     }
+    schema["sliders"].append({"key": "external_media_resume_fade_seconds", "label": "Automatic resume fade-in", "min": 0, "max": 120, "step": 1, "suffix": "s", "theme": "playback", "tooltip": "Fade from silence to your selected volume after other media finishes. Default 15 seconds; 0 disables the fade. Applies to the next automatic resume."})
+    schema["toggles"].append({"key": "external_media_auto_pause", "label": "Pause for VLC, Winamp and browser media", "web_key": "external_media_auto_pause", "theme": "playback", "tooltip": "Let other media take priority, including YouTube. Resume only a pause made automatically; manual Pause stays paused. Manual Play overrides the current interruption."})
+    schema["selects"].append({"key": "artwork_seam_strategy", "label": "Artwork seam experiment",
+        "options": options(ARTWORK_SEAM_STRATEGY_NAMES, start=0), "experimental": True,
+        "tooltip": "Experimental / broken: compare painted glyph bounds, cell aspect and mixed charset advances. 0 is unchanged output. SIXEL requires terminal support; gap filling can remove real dark detail."})
     for collection in (schema["selects"], schema["sliders"], schema["toggles"]):
         for item in collection:
             item.setdefault("tooltip", str(item.get("label", "PAFPlayer control")))
@@ -33043,10 +34103,11 @@ def paf_web_allowed_actions() -> frozenset[str]:
         for group in paf_web_action_catalog()
         for item in group["items"]
     }
-    actions.update({WEB_PLAY, WEB_PAUSE, WEB_OPEN_TRACK_FOLDER, WEB_EDIT_LYR, WEB_EDIT_KAR, WEB_RESTART_AUDIO, WEB_MATRIX_APPLY})
+    actions.update({WEB_PLAY, WEB_PAUSE, WEB_STOP, WEB_OPEN_TRACK_FOLDER, WEB_EDIT_LYR, WEB_EDIT_KAR, WEB_RESTART_AUDIO, WEB_MATRIX_APPLY, REPEAT_NEXT, REPEAT_PREVIOUS, REPEAT_DOUBLE, SHUFFLE_NEXT, SHUFFLE_PREVIOUS, SHUFFLE_DOUBLE})
     # These popup/floating controls have first-class web UI but intentionally
     # do not appear in the generic bottom action catalog.
     actions.update({ARTWORK_KARAOKE_TOGGLE, ARTWORK_KARAOKE_CONFIG, FLOATING_KARAOKE_CONFIG, EXTERNAL_ALBUM_ART_FOREGROUND, EXTERNAL_FLOATING_LYRICS_FOREGROUND})
+    actions.update({EXTERNAL_ALBUM_ART_CENTER, EXTERNAL_FLOATING_LYRICS_CENTER})
     actions.update(
         str(item["action"])
         for item in paf_web_control_schema()["toggles"] if "action" in item
@@ -33106,6 +34167,9 @@ def paf_web_action_is_allowed(action: str) -> bool:
         "visualizer_mode": (1, len(VISUALIZER_MODE_NAMES)),
         "visualizer_type": (1, len(VISUALIZER_TYPE_NAMES)),
         "visualizer_treatment": (1, len(VISUALIZER_TREATMENT_NAMES)),
+        "artwork_seam_strategy": (0, 5),
+        "external_media_auto_pause": (0, 1),
+        "external_media_resume_fade_seconds": (0, 120),
         "art_color_representation": (0, len(ART_COLOR_VISUALIZER_REPRESENTATIONS) - 1),
         "art_color_blackness": (0, 1),
         "art_color_bars": (0, 1),
@@ -33115,6 +34179,7 @@ def paf_web_action_is_allowed(action: str) -> bool:
         "art_color_demo": (0, 1),
         "mm_inspired_renderer_enabled": (0, 1),
         "art_color_bar_strength": (0, 100),
+        "art_color_bar_opacity": (0, 100),
         "art_color_black_strength": (0, 100),
         "art_color_bar_autoslide_enabled": (0, 1),
         "art_color_bar_autoslide_min": (0, 100),
@@ -33256,7 +34321,8 @@ h1{
   box-shadow:0 2px 12px rgba(0,0,0,.22);
   background:linear-gradient(90deg,rgba(255,80,120,.9),rgba(255,190,70,.9),rgba(95,230,120,.9),rgba(65,190,255,.9),rgba(155,90,255,.9));
   color:#f7fbff;text-shadow:0 1px 4px rgba(0,0,0,.68)
-}.muted{color:var(--muted)}.path{word-break:break-all;color:#95e6b5}
+}.muted{color:var(--muted)}.path{word-break:break-all;color:#95e6b5;text-decoration:none}.path:hover{text-decoration:underline}
+.track-file{display:flex;align-items:baseline;gap:6px;min-width:0}.track-file .path{min-width:0}.track-download{flex:none;color:#95e6b5;text-decoration:none;font-size:15px;line-height:1;padding:3px 5px;border:1px solid #ffffff30;border-radius:4px}.track-download:hover{background:#ffffff20}.track-download[hidden]{display:none}
 .path-url-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,max-content);gap:12px;align-items:start;max-width:100%}.path-url-row .path{min-width:0}.path-url-row #urls{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:5px;justify-content:flex-start}
 #lyricDock{flex:0 0 auto;overflow:hidden;transition:none}
 #lyricDock.auto-expand{display:grid;align-items:center;justify-items:stretch}
@@ -33308,6 +34374,13 @@ h1{
 .wawi:hover{background:linear-gradient(#f0f0f0,#aaa)}
 .wawi:active{border-style:inset;background:linear-gradient(#888,#c4c4c4)}
 .wawi.play{color:#08752e}.wawi.pause{color:#7b6400}.wawi.stop{color:#9a1111}
+.wawi.transport-mode{position:relative;color:#f2f2f2;background:linear-gradient(#4b4b4b,#101010);border-color:#858585;text-shadow:0 1px #000;filter:grayscale(1)}
+.wawi.transport-mode::after{content:"";position:absolute;left:6px;right:6px;top:50%;height:3px;background:#f4f4f4;box-shadow:0 1px 1px #000;transform:rotate(-34deg);transform-origin:center;pointer-events:none}
+.wawi.transport-mode.active-toggle{filter:none;color:#071015;text-shadow:0 1px rgba(255,255,255,.55);box-shadow:0 0 0 2px rgba(255,255,255,.28) inset,0 0 10px currentColor}
+.wawi.transport-mode.active-toggle::after{display:none}
+#transportShuffle.active-toggle{background:linear-gradient(#62f0df,#159bba);border-color:#7ffff4;color:#063943}
+#transportLoop.active-toggle{background:linear-gradient(#ffd76a,#ed7c24);border-color:#ffe69a;color:#612400}
+.wawi.speed-favored{background:linear-gradient(#b8f5b8,#34a853);border-color:#d8ffd8;color:#073b16}
 .chips{display:flex;flex-wrap:nowrap;gap:7px;margin:10px 0;overflow-x:auto;white-space:nowrap}.chip{background:#1a2230;border:1px solid #344155;border-radius:999px;padding:5px 9px;flex:0 0 auto;color:#e8eef7;font:inherit}.perf-chip{cursor:pointer}.perf-chip:hover{border-color:#68bde8;background:#183044}
 .group{margin:15px 0;padding:2px 0}.group h3{margin:.3em 0 .5em}.buttons{display:flex;flex-wrap:wrap;gap:7px}
 #choicesFrame{font-size:clamp(14px,.9vw,18px)}
@@ -33335,7 +34408,7 @@ button,select,input{font:inherit}
 .toggle.experimental{border-color:#705d2b}.toggle.experimental::after{content:" EXP";color:#ffd66b;font-size:.72em;font-weight:800}
 .control-item.experimental{position:relative;padding-right:46px}.control-item.experimental::after{content:"EXP";position:absolute;right:8px;top:5px;color:#ffd66b;font-size:.68em;font-weight:800;letter-spacing:.04em}
 .section-visualizer .control-item,.section-visualizer .toggle{background:#10283b;border-color:#287cb6}.section-visualizer h3{color:#6bc8ff}
-.section-visualizer .control-item[data-control-key="art_color_bar_blend_mode"]{background:#26322f;border-color:#8f9148}.section-visualizer .control-item[data-control-key="art_color_bar_blend_mode"] label{color:#e4dda0}.section-visualizer .control-item[data-control-key="art_color_bar_blend_mode"] select{border-color:#8f9148;background:#2a3330}.section-visualizer .control-item[data-control-key="art_color_bar_blend_mode"]::after{color:#ffe47a}
+.section-visualizer .control-item[data-control-key="art_color_bar_blend_mode"]{background:#10283b;border-color:#2878a8}
 .section-heading-row{display:flex;align-items:center;gap:10px}.section-heading-row h3{margin:.3em 0 .5em}
 .visualizer-master-switch{position:relative;display:inline-block;width:44px;height:23px;flex:0 0 44px;cursor:pointer;margin-top:-2px}
 .visualizer-master-switch input{opacity:0;width:0;height:0;position:absolute}
@@ -33349,7 +34422,7 @@ button,select,input{font:inherit}
 .secondary-button.active-toggle{box-shadow:0 0 0 1px #64d99b inset;background:#183a2b;border-color:#54bf86}
 .visualizer-height-control{grid-template-columns:max-content max-content auto}.visualizer-height-default{white-space:nowrap}.control-inapplicable{filter:grayscale(1)!important;opacity:.42!important}.control-inapplicable select,.control-inapplicable input{cursor:not-allowed}.two-line-label{white-space:pre-line;line-height:1.05}
 .section-karaoke .control-item,.section-karaoke .toggle,.section-web-karaoke .control-item,.section-web-karaoke .toggle{background:#291844;border-color:#8e52d5}.section-karaoke h3,.section-web-karaoke h3{color:#d1a1ff}
-.section-web-karaoke .toggle.experimental[data-control-key="cursive_fix"]{background:#3c3312;border-color:#b69a30}.section-web-karaoke .toggle.experimental[data-control-key="cursive_fix"] span{color:#ffe47a}
+.section-web-karaoke .toggle.experimental[data-control-key="cursive_fix"]{background:#3c1218;border-color:#c64652}.section-web-karaoke .toggle.experimental[data-control-key="cursive_fix"] span,.section-web-karaoke .toggle.experimental[data-control-key="cursive_fix"]::after{color:#ff9a9a}
 .section-web-karaoke .web-karaoke-actions{display:flex;flex-wrap:wrap;gap:7px;align-items:stretch;justify-content:flex-start;margin-top:8px;width:100%;clear:both}.section-web-karaoke .web-karaoke-local-note{font-size:.75rem;color:#aa95c6}.section-web-karaoke .tiny-toggle,.section-web-karaoke .web-karaoke-glow{display:flex;align-items:center;gap:7px;background:#291844;border:1px solid #8e52d5;border-radius:5px;padding:8px}.section-web-karaoke .lyric-option-button{font-size:.9rem;padding:8px 10px;font-weight:700}
 .section-playback .control-item,.section-playback .toggle{background:#163529;border-color:#348e69}.section-playback h3{color:#82ebba}
 .section-progress .control-item,.section-progress .toggle{background:#3a2b13;border-color:#ad7c27}.section-progress h3{color:#ffd27a}
@@ -33390,7 +34463,7 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
 <main>
 <div id="playerFixed">
 <h1 id="songTitle">Waiting for playback…</h1>
-<div class="path-url-row"><div class="path" id="path" title="Click filename/path to open this track’s folder in Explorer"></div><div id="urls"></div></div>
+<div class="path-url-row"><div class="track-file"><a class="path" id="path"></a><a class="track-download" id="trackDownload" href="/api/audio/download" download title="Download current audio file" aria-label="Download current audio file" hidden>↓</a></div><div id="urls"></div></div>
 
 <div class="chips" id="chips"></div>
 <div id="sessionNotice" class="session-notice" role="status" aria-live="assertive"></div>
@@ -33405,16 +34478,16 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
   <button class="wawi" onclick="action('previous-file')" title="Last">|◀</button>
   <button class="wawi play" onclick="action('web-play')" title="Play / resume">▶</button>
   <button id="pauseResumeButton" class="wawi pause" onclick="action('pause-toggle')" title="Pause / resume">⏸︎</button>
-  <button class="wawi stop" onclick="action('stop')" title="Stop">■</button>
+  <button class="wawi stop" onclick="action('web-stop')" title="Stop and return to the beginning">■</button>
   <button class="wawi" onclick="action('next-file')" title="Next">▶|</button>
-  <button id="transportShuffle" class="wawi transport-mode" onclick="action('random-toggle')" title="Shuffle: choose subsequent tracks in PAFPlayer’s randomized/history-aware order instead of sequential playlist order.">🔀</button>
-  <button id="transportLoop" class="wawi transport-mode" onclick="action('loop-toggle')" title="Loop: when this track reaches the end, restart this same track instead of returning to the playlist/session to choose another track. Autoplay disables Loop while Autoplay is on.">🔁</button>
+  <button id="transportShuffle" class="wawi transport-mode" title="Shuffle status: unknown">🔀</button>
+  <button id="transportLoop" class="wawi transport-mode" title="Repeat status: unknown">🔁</button>
 </div>
 
 <div class="progress" id="progress" title="Click to seek"><div class="bar" id="bar"></div></div>
 <div id="time"></div>
 
-<div class="group section-playback"><h3 title="Playback configuration">Playback</h3><div class="toggle-grid" id="playbackToggles"></div><div class="control-grid" id="playbackControls"></div></div>
+<div class="group section-playback"><h3 title="Playback configuration">Playback</h3><div class="toggle-grid" id="playbackToggles"></div><div class="control-grid" id="playbackControls"></div><div class="note" id="externalMediaStatus" role="status"></div></div>
 </div>
 
 <div id="lyricDock"><div id="lyric" aria-live="polite" title="Current lyrics"></div></div><div id="emojimaxTooltip" class="emojimax-tooltip" role="tooltip"></div>
@@ -33426,15 +34499,15 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
   <div class="control-grid" id="webKaraokeControls"></div>
   <div class="web-karaoke-actions" id="lyricWebOptions">
     <button id="editLyrButton" class="secondary-button lyric-option-button web-only-button" title="Edit plain lyrics: opens the matching .txt sidecar when one exists">✏️ Lyrics</button>
-    <button id="editKarButton" class="secondary-button lyric-option-button web-only-button" title="Edit karaoke timing: opens matching .lrc and/or .srt sidecars when they exist">🎼 Karaoke</button>
-    <label class="tiny-toggle" title="Expand the current Web Karaoke text to fill the lyric frame you assigned"><input type="checkbox" id="karaokeAutoExpand">Auto-Expand</label>
+    <button id="editKarButton" class="secondary-button lyric-option-button web-only-button" title="Edit karaoke timing: opens matching .lrc and/or .srt sidecars when they exist">✏️ Karaoke</button>
+    <label class="tiny-toggle" title="Expand the current Web Karaoke text to fill the lyric frame you assigned"><input type="checkbox" id="karaokeAutoExpand">Auto-Expand Lyric Size</label>
     <label class="tiny-toggle" title="Apply Emojimaxx substitutions to Web Karaoke only"><input type="checkbox" id="webEmojimaxToggle">Emojimaxx</label>
     <label class="tiny-toggle" title="Display-only: restore recognized asterisk-masked profanity in Web Karaoke. Default off."><input type="checkbox" id="webDecensorToggle">De-censor profanity</label>
     <div class="web-karaoke-glow" title="Add a configurable glow/shadow around web lyrics for readability"><label><input type="checkbox" id="webKaraokeGlow">Glow</label><input type="color" id="webKaraokeGlowColor" value="#000000" title="Glow/shadow color"><label id="webKaraokeGlowLabel">Glow size 14%</label><input type="range" id="webKaraokeGlowSize" min="0" max="100" step="1" value="14"></div>
   </div>
 </div>
 <div class="group section-artwork-popup" id="artworkPopupSection">
-  <div class="section-heading-row"><label class="visualizer-master-switch" title="Show or hide the album artwork popup"><input type="checkbox" id="artworkPopupMasterToggle"><span class="visualizer-master-track"></span></label><h3>Artwork Pop-Up + Karaoke</h3></div>
+  <div class="section-heading-row"><label class="visualizer-master-switch" title="Show or hide the album artwork popup"><input type="checkbox" id="artworkPopupMasterToggle"><span class="visualizer-master-track"></span></label><h3>Artwork Pop-Up</h3></div>
   <div class="toggle-grid" id="artworkPopupControls"><button id="artworkPopupBringTopButton" class="secondary-button web-only-button" title="Bring the artwork pop-up to the top without changing its saved always-on-top setting">⬆ Bring to top</button><button id="artworkPopupTopmostButton" class="secondary-button web-only-button" aria-pressed="false" title="Keep the artwork pop-up above other windows">📌 Always on top</button><button id="artworkPopupConfigButton" class="secondary-button web-only-button" title="Configure artwork lyric coloring">🎨 Configure artwork karaoke</button><button id="artworkPopupDecensorButton" class="secondary-button web-only-button" aria-pressed="false" title="Display-only: restore recognized asterisk-masked profanity in artwork karaoke">De-censor profanity</button><label class="toggle" title="Enable karaoke text in the album artwork popup"><input type="checkbox" id="artworkPopupKaraokeToggle"><span>Popup Karaoke</span></label></div>
 </div>
 <div class="group section-floating-lyrics" id="floatingLyricsSection">
@@ -33497,7 +34570,7 @@ background</span></label>
   <div class="toggle-grid" id="experimentalControls"></div>
 </div>
 <div id="controls"></div>
-<div class="group broken-area"><h3 title="Known broken experimental controls">Broken experimental</h3><div class="toggle-grid" id="brokenControls"></div></div>
+<div class="group broken-area"><h3 title="Known broken experimental controls">Broken experimental</h3><div class="toggle-grid" id="brokenControls"></div><div class="control-grid" id="artworkSeamControls"></div></div>
 </section>
 </main>
 <div id="matrixModal" role="dialog" aria-modal="true" aria-label="Speaker Expansion Matrix"><div class="matrix-dialog">
@@ -33564,6 +34637,8 @@ let rawWebLyric='';
 let lastWebLyricRenderSignature='';
 let webLyricRenderSequence=0;
 let webLyricSolutions=[];
+const webLyricStyleCache=new Map();
+let webLyricTimeline=[];
 let hostSolutionSignature='';
 let lastLyricAnimationPaint=0;
 let lastSpectrumAnimationPaint=0;
@@ -33628,12 +34703,41 @@ function applyWebKaraokeEnabled(){
   const section=document.getElementById('webKaraokeSection'),dock=document.getElementById('lyricDock'),master=document.getElementById('webKaraokeMasterToggle');
   if(master)master.checked=webKaraokeEnabled();if(section)section.classList.toggle('section-disabled',!webKaraokeEnabled());if(dock)dock.style.display=webKaraokeEnabled()?'':'none';
 }
+function webLyricStyleKey(text){return [String(text||''),webKaraokeSettings.style,!!webKaraokeSettings.emojimax,!!webKaraokeSettings.decensor].join('\u241f')}
+function prepareWebLyric(text){
+  const raw=String(text||''),key=webLyricStyleKey(raw);
+  if(webLyricStyleCache.has(key))return webLyricStyleCache.get(key);
+  const prepared={text:raw,solutions:[],ready:!raw,promise:null};
+  webLyricStyleCache.set(key,prepared);
+  while(webLyricStyleCache.size>32)webLyricStyleCache.delete(webLyricStyleCache.keys().next().value);
+  prepared.promise=(async()=>{
+    if(raw){try{const r=await fetch('/api/web-karaoke-render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:raw,style:Number(webKaraokeSettings.style||1),emojimax:!!webKaraokeSettings.emojimax,decensor:!!webKaraokeSettings.decensor})});if(r.ok){const d=await r.json();prepared.text=String(d.text??raw);prepared.solutions=Array.isArray(d.solutions)?d.solutions:[]}}catch(e){}}
+    prepared.ready=true;return prepared;
+  })();
+  return prepared;
+}
 async function renderWebLyric(text,force=false){
-  rawWebLyric=String(text||'');const sig=[rawWebLyric,webKaraokeSettings.style,webKaraokeSettings.emojimax,webKaraokeSettings.decensor].join('\u241f');if(!force&&sig===lastWebLyricRenderSignature)return;lastWebLyricRenderSignature=sig;const requestSequence=++webLyricRenderSequence;
-  let shown=rawWebLyric,solutions=[];
-  if(shown){try{const r=await fetch('/api/web-karaoke-render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:shown,style:Number(webKaraokeSettings.style||1),emojimax:!!webKaraokeSettings.emojimax,decensor:!!webKaraokeSettings.decensor})});if(r.ok){const d=await r.json();shown=String(d.text??shown);solutions=Array.isArray(d.solutions)?d.solutions:[]}}catch(e){}}
-  if(requestSequence!==webLyricRenderSequence)return;
-  webLyricSolutions=solutions;setRainbowLyric(shown,solutions);applyWebKaraokeEnabled();applyWebKaraokeGlow();updateWebEmojimaxToggle();
+  rawWebLyric=String(text||'');const sig=webLyricStyleKey(rawWebLyric);
+  if(!force&&sig===lastWebLyricRenderSignature)return;
+  lastWebLyricRenderSignature=sig;const requestSequence=++webLyricRenderSequence;
+  const prepared=prepareWebLyric(rawWebLyric);
+  function present(){webLyricSolutions=prepared.solutions;setRainbowLyric(prepared.text,prepared.solutions);applyWebKaraokeEnabled();applyWebKaraokeGlow();updateWebEmojimaxToggle()}
+  // The line changes at its deadline even if a style request is still in flight.
+  present();
+  if(!prepared.ready){await prepared.promise;if(requestSequence===webLyricRenderSequence)present()}
+}
+function scheduledWebLyric(now){
+  if(!webLyricTimeline.length)return;
+  const sample=webClockSample;
+  let position=Number(sample.lyricPosition||0);
+  if(sample.playing&&!sample.paused)position+=Math.max(0,Math.min(now,sample.validUntil??now)-sample.at)/1000*Math.max(0,Number(sample.speed||1));
+  position=Math.max(0,position+Number(sample.karaokeOffset||0));
+  let lo=0,hi=webLyricTimeline.length;
+  while(lo<hi){const mid=(lo+hi)>>>1;if(Number(webLyricTimeline[mid][0])<=position)lo=mid+1;else hi=mid}
+  const index=lo-1;
+  // Prepare future styles without displaying a future cue on any surface.
+  for(let next=Math.max(0,index);next<Math.min(webLyricTimeline.length,index+3);next++)prepareWebLyric(webLyricTimeline[next][1]);
+  renderWebLyric(index>=0?webLyricTimeline[index][1]:'');
 }
 function updateWebEmojimaxToggle(){const b=document.getElementById('webEmojimaxToggle');if(b)b.checked=!!webKaraokeSettings.emojimax}
 function hexToRgba(hex,alpha){const raw=String(hex||'#000000').replace('#','');const n=parseInt(raw.length===3?raw.split('').map(x=>x+x).join(''):raw,16)||0;return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${alpha})`}
@@ -33785,6 +34889,7 @@ function configureLyricColorMode(effective){
 }
 
 function animateLyric(now){
+  scheduledWebLyric(now);
   if(spectrumPaused){requestAnimationFrame(animateLyric);return;}
   if(document.hidden || now-lastLyricAnimationPaint<karaokeAnimMs){requestAnimationFrame(animateLyric);return;}
   lastLyricAnimationPaint=now;
@@ -33831,6 +34936,35 @@ function processRawSpectrumBuffer(buffer){
   spectrumTarget=browserSpectrumProcess(new Uint8Array(buffer),spectrumOutputBins,mode,warp);
 }
 
+let spectrumTimeline=null,lastTimelineClockAt=-Infinity;
+function timelineSpectrumAt(now){
+  const t=spectrumTimeline;if(!t||t.source!=='track')return null;
+  const age=Math.max(0,now-t.at)/1000;
+  if(age>4)return new Uint8Array(0);
+  const position=t.position+(t.playing?age*t.speed:0);
+  const frame=position*t.fps-t.start_frame,index=Math.floor(frame),count=t.raw.length/t.width;
+  if(index<0||index>=count)return new Uint8Array(0);
+  const next=Math.min(count-1,index+1),blend=frame-index,result=new Uint8Array(t.width);
+  for(let i=0;i<t.width;i++)result[i]=Math.round(t.raw[index*t.width+i]*(1-blend)+t.raw[next*t.width+i]*blend);
+  return result;
+}
+async function timelineTick(){
+ try{
+  const requested=performance.now(),r=await fetch('/api/timeline',{cache:'no-store'}),t=await r.json(),received=performance.now();
+  const serverNow=Number(r.headers.get('X-PAF-Server-Time')||t.clock_epoch||0);
+  const transit=Math.min(.25,Math.max(0,serverNow-Number(t.clock_epoch||serverNow))+(received-requested)/2000);
+  const raw=Uint8Array.from(atob(t.frames||''),c=>c.charCodeAt(0));
+  t.position=Number(t.position||0)+(t.playing?transit*Number(t.speed||0):0);t.at=received;t.raw=raw;
+  spectrumTimeline=t;
+  if(t.source!=='live'&&t.source!=='stopped'){
+   webClockSample={...webClockSample,position:Math.max(0,t.position-Number(t.ui_start||0)),lyricPosition:t.position,speed:t.speed,paused:!t.playing,playing:t.playing,at:received,validUntil:received+4000};
+   lastTimelineClockAt=received;
+  }
+  if(t.source==='stopped'){spectrumTarget=[];spectrumCurrent=[];webClockSample.playing=false;webLyricTimeline=[];renderWebLyric('');}
+ }catch(e){}
+ setTimeout(timelineTick,document.hidden?1000:150);
+}
+
 function drawSpectrum(now){
   if(!webVisualizerEnabled || spectrumPaused || document.hidden){requestAnimationFrame(drawSpectrum);return;}
   if(now-lastSpectrumAnimationPaint<spectrumDrawMs){requestAnimationFrame(drawSpectrum);return;}
@@ -33839,6 +34973,11 @@ function drawSpectrum(now){
   const ctx=canvas.getContext('2d');
   const w=canvas.width,h=canvas.height;
   ctx.clearRect(0,0,w,h);ctx.fillStyle='#030609';ctx.fillRect(0,0,w,h);
+  const scheduled=timelineSpectrumAt(now);
+  if(scheduled!==null){
+    spectrumTarget=browserSpectrumProcess(scheduled,spectrumOutputBins,Math.max(1,Number(latestState.visualizer_mode||1)),!!latestState.frequency_warp_enabled);
+    spectrumCurrent=spectrumTarget.slice();
+  }
   const target=spectrumTarget||[];if(spectrumCurrent.length!==target.length)spectrumCurrent=target.slice();
   for(let i=0;i<target.length;i++)spectrumCurrent[i]=(spectrumCurrent[i]||0)+(Number(target[i]||0)-(spectrumCurrent[i]||0))*.28;
   const n=spectrumCurrent.length;if(n){const gap=Math.max(1,Math.floor(w/600)),bw=Math.max(1,(w-gap*(n-1))/n);for(let i=0;i<n;i++){const v=Math.max(0,Math.min(1,spectrumCurrent[i]||0)),bh=Math.max(1,v*(h-3)),hue=((i/Math.max(1,n-1))*300+(now/40))%360;ctx.fillStyle=`hsl(${hue} 100% 52%)`;ctx.fillRect(i*(bw+gap),h-bh,bw,bh)}}
@@ -33970,7 +35109,7 @@ function applyVisualizerLayerEnablement(){
   updateLayerSwitchText('visualizerBarsState',!!bars.checked);updateLayerSwitchText('visualizerBarArtworkState',!!barArtwork.checked);updateLayerSwitchText('visualizerBackgroundArtworkState',!!background.checked);
   const barArtworkCard=document.querySelector('[data-control-key="art_color_bars"]');barArtwork.disabled=!barsOn;if(barArtworkCard)barArtworkCard.classList.toggle('control-inapplicable',!barsOn);
   const barKeys=['visualizer_type','visualizer_treatment','color_style','processing_style','persistence_mode','fade_style','color_reverse','frequency_warp_enabled'];
-  const barArtworkKeys=['art_color_bar_strength','art_color_bar_blend_mode','drcs_art_bar_microtile_mode'];
+  const barArtworkKeys=['art_color_bar_strength','art_color_bar_blend_mode','art_color_bar_opacity','drcs_art_bar_microtile_mode'];
   const backgroundKeys=['art_color_black_strength','drcs_art_microtile_mode'];
   const commonKeys=['visualizer_granularity','visualizer_rows','truncate_visualizer_rows'];
   for(const key of barKeys)setControlApplicability(key,barsOn);
@@ -34037,9 +35176,20 @@ function syncControls(s){
   if(progressSection && s.progress_bar_enabled!==undefined) progressSection.classList.toggle('section-disabled',!s.progress_bar_enabled);
   const reactiveOn=!!s.progress_beat_reactive;
   for(const key of ['progress_beat_detector','progress_beat_treatment']){const el=document.getElementById('ctl-'+key),wrap=document.querySelector('[data-control-key="'+key+'"]');if(el)el.disabled=!reactiveOn;if(wrap)wrap.classList.toggle('control-inapplicable',!reactiveOn)}
-  const transportShuffle=document.getElementById('transportShuffle');if(transportShuffle){transportShuffle.classList.toggle('active-toggle',!!s.shuffle);transportShuffle.setAttribute('aria-pressed',s.shuffle?'true':'false')}
-  const transportLoop=document.getElementById('transportLoop');if(transportLoop){transportLoop.classList.toggle('active-toggle',!!s.loop);transportLoop.setAttribute('aria-pressed',s.loop?'true':'false')}
+  const repeatNames=['Repeat 1','Repeat Folder','Repeat playlist','Repeat OFF'];
+  const shuffleNames=['Sequential','Shuffle by history','Shuffle randomly','Repeat Folder','Repeat playlist','Repeat OFF'];
+  const repeatDescriptions=['playback repeats the current file','playback continues through the folder and repeats it','playback continues through the playlist and repeats it','playback stops after the end of the file'];
+  const shuffleDescriptions=['playback follows the playlist order','shuffle based on listening history, preferring music we haven’t heard in awhile','shuffle completely randomly','playback continues through the folder and repeats it','playback continues through the playlist and repeats it','playback stops after the end of the playlist'];
+  const repeatIndex=Math.max(0,Math.min(repeatNames.length-1,Number(s.repeat_mode??(s.loop?0:3))));
+  const shuffleIndex=Math.max(0,Math.min(shuffleNames.length-1,Number(s.shuffle_mode??(s.shuffle?1:0))));
+  const orderTip=(label,index,names,descriptions,nextAction,prevAction,doubleAction)=>label+'.\\nCURRENT MODE: '+names[index]+'\\nThis mode '+descriptions[index]+'.\\nRight-click for next mode, which is '+names[(index+1)%names.length]+'.\\nLeft-click for previous mode, which is '+names[(index+names.length-1)%names.length]+'.\\nDouble-click to toggle between '+names[names.length-2]+' and '+names[names.length-1]+'.';
+  const transportShuffle=document.getElementById('transportShuffle');if(transportShuffle){const name=shuffleNames[shuffleIndex];transportShuffle.textContent=shuffleIndex===0?'123':shuffleIndex===1?'🔀📖':shuffleIndex===2?'🔀🎲':shuffleIndex===3?'🔁📁':shuffleIndex===4?'🔁☷':'↪';transportShuffle.classList.toggle('active-toggle',shuffleIndex!==0&&shuffleIndex!==5);transportShuffle.setAttribute('aria-label','Shuffle: '+name);transportShuffle.title=orderTip('Shuffle',shuffleIndex,shuffleNames,shuffleDescriptions,'shuffle-next','shuffle-prev','shuffle-double')}
+  const transportLoop=document.getElementById('transportLoop');if(transportLoop){const name=repeatNames[repeatIndex];transportLoop.textContent=repeatIndex===0?'🔂1':repeatIndex===1?'🔁📁':repeatIndex===2?'🔁☷':'↪';transportLoop.classList.toggle('active-toggle',repeatIndex!==3);transportLoop.setAttribute('aria-label','Repeat: '+name);transportLoop.title=orderTip('Repeat',repeatIndex,repeatNames,repeatDescriptions,'repeat-next','repeat-prev','repeat-double')}
   const transportVolume=document.getElementById('transportVolume');if(transportVolume && s.volume!==undefined) transportVolume.value=String(s.volume);
+  const transportSpeedSelect=document.getElementById('transportSpeedSelect');if(transportSpeedSelect && s.speed_index!==undefined) transportSpeedSelect.value=String(s.speed_index);
+  const speedValue=Number(s.speed??1), speedText=(speedValue===1?'1':String(speedValue))+'×', minusSpeed=document.querySelector('.wawi-speed-minus'), plusSpeed=document.querySelector('.wawi-speed-plus');
+  if(minusSpeed){minusSpeed.classList.toggle('speed-favored',speedValue>1);minusSpeed.title='Decrease the speed from '+speedText+' to the next slower setting.\\nDouble-right-click to restore speed to 1×'}
+  if(plusSpeed){plusSpeed.classList.toggle('speed-favored',speedValue<1);plusSpeed.title='Increase the speed from '+speedText+' to the next faster setting.\\nDouble-right-click to restore speed to 1×'}
 }
 
 function appendLinkified(parent,text){
@@ -34343,10 +35493,10 @@ async function build(){
   for(const item of [...(controlSchema.selects||[]),...(controlSchema.sliders||[])]){
     if(item.custom_microtile)continue;
     let host=visualizer;
-    if(item.key==='art_color_bar_blend_mode') host=visualizer;
-    else if(item.key==='visualizer_granularity') host=experimentalSelects;
+    if(['art_color_bar_blend_mode','visualizer_granularity','karaoke_visualizer_height_mode'].includes(item.key)) host=visualizer;
+    else if(item.key==='artwork_seam_strategy') host=document.getElementById('artworkSeamControls');
     else if(item.experimental) host=experimentalSelects;
-    else if(['output_device','output_rate','output_bit_depth','speed_index','output_channels','balance','visualizer_input_source'].includes(item.key)) host=playback;
+    else if(['external_media_resume_fade_seconds','output_device','output_rate','output_bit_depth','speed_index','output_channels','balance','visualizer_input_source'].includes(item.key)) host=playback;
     else if(item.key.startsWith('karaoke')) host=karaoke;
     else if(item.key.includes('progress')) host=progress;
     const control=item.key==='output_device'?makeMultiOutputDeviceControl(item):(item.min===undefined?makeSelect(item):makeSlider(item));
@@ -34360,26 +35510,28 @@ async function build(){
   const experimental=document.getElementById('experimentalControls');
   (controlSchema.toggles||[]).forEach(item=>{
     if(['drcs_enabled','visualizer_bars_enabled','visualizer_background_artwork_enabled','console_alerts_enabled','art_color_blackness','art_color_bars','shuffle','loop'].includes(item.key)) return;
-    const playbackKeys=['shuffle','loop','autoplay'];
+  const playbackKeys=['external_media_auto_pause','shuffle','loop','mm_inspired_renderer_enabled'];
     const karaokeKeys=['karaoke_emojimax','decensor_console_karaoke'];
     const webKaraokeKeys=['cursive_fix'];
     const visualizerKeys=['color_reverse','frequency_warp_enabled','karaoke_visualizer_expansion_enabled','console_visualizer_volume_feedback_enabled'];
     const progressKeys=['progress_beat_reactive'];
     const alertKeys=['alert_no_replaygain','alert_missing_artist','alert_missing_title','alert_missing_karaoke','alert_missing_lyrics','alert_missing_artwork','alert_unknown_year','alert_unknown_genre','alert_embedded_lyrics_mismatch'];
-    const brokenKeys=['sixel_enabled','album_art_visualizer_enabled'];
+    const brokenKeys=['sixel_enabled','album_art_visualizer_enabled','art_color_karaoke_sides','art_color_karaoke','karaoke_visualizer_overlay'];
     let target=visualizer;
     if(['external_album_art_enabled','floating_lyrics_enabled','decensor_artwork_lyrics','decensor_floating_lyrics'].includes(item.key)) return;
     if(brokenKeys.includes(item.key)) target=document.getElementById('brokenControls');
+    else if(playbackKeys.includes(item.key)) target=playbackToggles;
     else if(webKaraokeKeys.includes(item.key)) target=webKaraokeControls;
     else if(visualizerKeys.includes(item.key)) target=visualizer;
     else if(item.experimental) target=experimental;
     else if(item.key.startsWith('art_color_') || item.key==='drcs_enabled') target=visualizer;
     else if(progressKeys.includes(item.key)) target=progress;
     else if(alertKeys.includes(item.key)) target=consoleAlerts;
-    else if(playbackKeys.includes(item.key)) target=playbackToggles;
     else if(karaokeKeys.includes(item.key)) target=karaoke;
     target.appendChild(makeToggle(item));
   });
+  // All current experiments now live beside their related controls or in Broken.
+  experimental.closest('.experimental-area').hidden=!experimental.children.length&&!experimentalSelects.children.length;
   setupMicrotileModeControl('microtileBarsMode','microtileBarsTools','drcs_art_bar_microtile_mode','Bars');
   setupMicrotileModeControl('microtileBlacknessMode','microtileBlacknessTools','drcs_art_microtile_mode','Blackness');
   const popupMaster=document.getElementById('artworkPopupMasterToggle'),popupKaraoke=document.getElementById('artworkPopupKaraokeToggle'),floatingMaster=document.getElementById('floatingLyricsMasterToggle');
@@ -34391,6 +35543,12 @@ async function build(){
   if(floatingMaster)floatingMaster.onchange=()=>action('floating-lyrics-toggle');
   if(popupBringTop)popupBringTop.onclick=()=>action('external-album-art-foreground');
   if(floatingBringTop)floatingBringTop.onclick=()=>action('external-floating-lyrics-foreground');
+  for(const [prefix,command] of [['artworkPopup','external-album-art-center'],['floatingLyrics','external-floating-lyrics-center']]){
+    const top=document.getElementById(prefix+'BringTopButton');
+    if(top){const center=document.createElement('button');center.id=prefix+'BringCenterButton';center.className=top.className;center.textContent='⊙ Bring to center';center.title='Show this window in the center of the active screen';center.onclick=()=>action(command);top.insertAdjacentElement('afterend',center);}
+  }
+  const barBlend=document.querySelector('[data-control-key="art_color_bar_blend_mode"]'),barOpacity=document.querySelector('[data-control-key="art_color_bar_opacity"]');
+  if(barBlend&&barOpacity)barBlend.insertAdjacentElement('afterend',barOpacity);
   if(popupTopmost)popupTopmost.onclick=()=>{const on=!pressed(popupTopmost);setPressed(popupTopmost,on);action('web-set:art_topmost:'+(on?'1':'0'))};
   if(floatingTopmost)floatingTopmost.onclick=()=>{const on=!pressed(floatingTopmost);setPressed(floatingTopmost,on);action('web-set:floating_topmost:'+(on?'1':'0'))};
   if(popupDecensor)popupDecensor.onclick=()=>{const on=!pressed(popupDecensor);setPressed(popupDecensor,on);action('web-set:decensor_artwork_lyrics:'+(on?'1':'0'))};
@@ -34427,10 +35585,23 @@ async function build(){
   setupArtSaturationAutoslide();
   applyVisualizerLayerEnablement();applyConsoleAlertsEnablement();
   const transport=document.querySelector('.transport');
-  for(const [index,[label,name,title]] of [['−','speed-down','Slower'],['1×','speed-reset','Normal speed'],['+','speed-up','Faster']].entries()){
-    const button=document.createElement('button');button.className='wawi';button.textContent=label;button.title=title;
+  const transportShuffle=document.getElementById('transportShuffle'), transportLoop=document.getElementById('transportLoop');
+  const wireOrderButton=(node,next,prev,double)=>{if(!node)return;let clicks=0,timer=null;node.onclick=()=>{clicks++;clearTimeout(timer);timer=setTimeout(()=>{if(clicks===1)action(prev);else if(clicks===2)action(double);clicks=0},250)};node.addEventListener('contextmenu',event=>{event.preventDefault();clearTimeout(timer);clicks=0;action(next)})};
+  wireOrderButton(transportLoop,'repeat-next','repeat-prev','repeat-double');wireOrderButton(transportShuffle,'shuffle-next','shuffle-prev','shuffle-double');
+  for(const [index,[label,name,title]] of [['−','speed-down','Slower'],['+','speed-up','Faster']].entries()){
+    const button=document.createElement('button');button.className='wawi '+(name==='speed-up'?'wawi-speed-plus':'wawi-speed-minus');button.textContent=label;button.title=title;
     if(index===0) button.style.marginLeft='16px';
     button.onclick=()=>action(name);transport.appendChild(button);
+    button.addEventListener('contextmenu',event=>{event.preventDefault();clearTimeout(button._speedClickTimer);button._speedClicks=(button._speedClicks||0)+1;button._speedClickTimer=setTimeout(()=>{if(button._speedClicks===1)action(name);else {const normal=[...document.querySelectorAll('#ctl-speed_index option')].find(o=>o.textContent==='1×');action('web-set:speed_index:'+(normal?normal.value:'0'))}button._speedClicks=0},250)});
+  }
+  const speedSource=document.getElementById('ctl-speed_index');
+  if(speedSource){
+    const speedSelect=document.createElement('select');speedSelect.id='transportSpeedSelect';speedSelect.className='wawi-speed-select';speedSelect.title='Playback speed';
+    for(const option of speedSource.options){const copy=document.createElement('option');copy.value=option.value;copy.textContent=option.textContent;speedSelect.appendChild(copy)}
+    speedSelect.value=speedSource.value;
+    speedSelect.onchange=()=>action('web-set:speed_index:'+speedSelect.value);
+    const plus=transport.querySelector('.wawi-speed-plus');
+    if(plus)plus.before(speedSelect);else transport.appendChild(speedSelect);
   }
   const volume=document.createElement('input');volume.id='transportVolume';volume.type='range';volume.min='0';volume.max='400';volume.step='5';volume.value='100';volume.title='Volume';volume.style.width='110px';volume.style.marginLeft='16px';
   let volumeTimer=null;volume.oninput=()=>{clearTimeout(volumeTimer);volumeTimer=setTimeout(()=>action('web-set:volume:'+volume.value),80)};
@@ -34467,9 +35638,27 @@ document.getElementById('progress').addEventListener('click',event=>{
   action('web-seek-ratio:'+ratio.toFixed(6));
 });
 
+function updateTrackLinks(track,isLocal){
+ const pathHost=document.getElementById('path'),download=document.getElementById('trackDownload');
+ const pathText=track.path||'';
+ if(pathHost.textContent!==pathText)pathHost.textContent=pathText;
+ download.hidden=!pathText;
+ pathHost.onclick=null;
+ if(!pathText){pathHost.removeAttribute('href');pathHost.removeAttribute('download');pathHost.title='';return;}
+ pathHost.href=isLocal?'#':'/api/audio/download';
+ pathHost.title=isLocal?'Open this track’s folder in Explorer':'Download this audio file';
+ if(isLocal){
+  pathHost.removeAttribute('download');
+  pathHost.onclick=event=>{event.preventDefault();action('web-open-track-folder');};
+ }else pathHost.setAttribute('download','');
+}
 async function tick(){
  try{
-  const s=await (await fetch('/api/status',{cache:'no-store'})).json();
+  const clockRequestAt=performance.now();
+  const response=await fetch('/api/status',{cache:'no-store'});
+  const s=await response.json(),clockReceivedAt=performance.now();
+  const serverNow=Number(response.headers.get('X-PAF-Server-Time')||0);
+  const clockAge=serverNow?Math.max(0,Math.min(2,serverNow-Number(s.lyric_clock_epoch||serverNow)))+(clockReceivedAt-clockRequestAt)/2000:0;
   latestState=s;
   if(typeof s.web_visualizer_enabled==='boolean' && s.web_visualizer_enabled!==webVisualizerEnabled) await setWebVisualizerEnabled(s.web_visualizer_enabled,false);
   if(loadedPlayerVersion===null) loadedPlayerVersion=String(s.version||'');
@@ -34483,20 +35672,24 @@ async function tick(){
   const songTitleHost=document.getElementById('songTitle');
   if(songTitleHost.textContent!==webTitle){songTitleHost.textContent=webTitle;requestAnimationFrame(fitWebSongTitle);}
   const sharedWindowTitle=String(s.window_title||webTitle||'PAFPlayer');if(document.title!==sharedWindowTitle)document.title=sharedWindowTitle;
-  const pathHost=document.getElementById('path');
-  const pathText=t.path||'';
-  if(pathHost.textContent!==pathText) pathHost.textContent=pathText;
-  pathHost.onclick=pathText?()=>action('web-open-track-folder'):null;pathHost.style.cursor=pathText?'pointer':'default';
+  updateTrackLinks(t,response.headers.get('X-PAF-Client-Local')==='1');
   const notice=s.session_notice||{},noticeHost=document.getElementById('sessionNotice');
   const noticeVisible=Boolean(notice.message)&&Number(notice.expires_at_epoch||0)>Date.now()/1000;
   if(noticeHost){noticeHost.textContent=noticeVisible?String(notice.message):'';noticeHost.classList.toggle('visible',noticeVisible);noticeHost.classList.toggle('error',noticeVisible&&String(notice.level||'warning')==='error');}
   renderDetectedUrls(s.urls||[]);
-  webClockSample={position:Number(s.position_seconds||0),duration:Number(s.duration_seconds||0),progress:Number(s.progress||0),speed:Number(s.speed||1),paused:!!s.paused,playing:!!s.playing,karaokeOffset:Number(s.karaoke_offset_seconds||0),at:performance.now()};
-  if(!spectrumPaused) renderWebLyric(s.lyric||'');
+  const clockAdvance=s.playing&&!s.paused?clockAge*Math.max(0,Number(s.speed||1)):0;
+  // Status owns metadata even while the newer timeline owns the clock anchor.
+  webClockSample={...webClockSample,duration:Number(s.duration_seconds||0),progress:Number(s.progress||0),karaokeOffset:Number(s.karaoke_offset_seconds||0)};
+  if(clockReceivedAt-lastTimelineClockAt>500)webClockSample={...webClockSample,position:Number(s.position_seconds||0)+clockAdvance,lyricPosition:Number(s.lyric_position_seconds??s.position_seconds??0)+clockAdvance,speed:Number(s.speed||1),paused:!!s.paused,playing:!!s.playing,at:clockReceivedAt,validUntil:clockReceivedAt+4000};
+  webLyricTimeline=Array.isArray(s.lyric_timeline)?s.lyric_timeline:[];
+  if(webLyricTimeline.length)scheduledWebLyric(performance.now());
+  else if(!spectrumPaused)renderWebLyric(s.lyric||'');
   const pauseButton=document.getElementById('pauseResumeButton');
   if(pauseButton){pauseButton.textContent=s.paused?'▶':'⏸︎';pauseButton.title=s.paused?'Resume':'Pause';}
   updateWebArtTitle();maybeAutoRotateWebArt();const outputDeviceControl=document.querySelector('[data-control-key="output_device"]');if(outputDeviceControl&&outputDeviceControl._setMultiOutputMask)outputDeviceControl._setMultiOutputMask(Number(s.output_devices_mask||1));
-  const playState=s.paused?'Paused':s.playing?'Playing':'Stopped';
+  const mediaStatus=document.getElementById('externalMediaStatus');
+  if(mediaStatus){mediaStatus.textContent=!s.external_media_auto_pause?'':s.external_media_auto_paused?'Waiting for other media to finish. Play overrides this pause; Pause keeps PAF paused.':s.external_media_monitor_known===false?'Automatic pause monitor: '+(s.external_media_monitor_status||'starting…'):Number(s.external_media_fade_remaining||0)>0?'Resuming gently: '+Math.ceil(s.external_media_fade_remaining)+' seconds of fade remaining.':'';}
+  const playState=s.transport_stopped?'Stopped':s.external_media_auto_paused?'Paused for '+(s.external_media_active||[]).join(', '):s.paused?'Paused':s.playing?'Playing':'Stopped';
   const vol=Number(s.volume??0);const volIcon=vol<=0?'🔇':vol<=35?'🔈':vol<=100?'🔉':'🔊';
   const bal=Number(s.balance??0);const balanceText=bal===0?'Center':Math.abs(bal)+'% '+(bal<0?'Left':'Right');
   const ch=Number(s.output_channels??2);const channelText=ch===12?'Dolby Atmos 7.1.4':ch===7?'7.1':ch===5?'5.1':'Stereo';
@@ -34508,13 +35701,13 @@ async function tick(){
   const perfTitle='5-second rolling average. Ctrl+Alt+F toggles detailed attribution on the console.'+(perfHot?' Hot sections: '+perfHot:'')+' CPU: '+perfCpu.toFixed(0)+'%';
   const chips=[
     'Status: '+playState,
+    'Shuffle: '+(s.shuffle?'Yes':'No'),
     volIcon+' Volume: '+vol+'%',
     'Speed: '+(s.speed??'')+'×',
     'Balance: '+balanceText,
     'Channels: '+channelText,
     'Output Rate: '+rateKhz+'kHz / '+Number(s.output_bit_depth||16)+' bit'+(m.Bitrate?' • '+m.Bitrate:''),
-    'Shuffle: '+(s.shuffle?'On':'Off'),
-    'Loop: '+(s.loop?'On':'Off'),
+    'Repeat: '+(s.repeat_mode_name??(s.loop?'Repeat 1':'Repeat OFF')),
     'Last play: '+((m['Last play'])??'Never')
   ];
   if(performance.now()<versionChipUntil) chips.push('Version: '+String(s.version||''));
@@ -34540,7 +35733,7 @@ async function tick(){
 function animateWebClock(now){
   if(now-lastWebClockPaint>=50){
     lastWebClockPaint=now;const sample=webClockSample||{};let pos=Number(sample.position||0),duration=Number(sample.duration||0);
-    if(sample.playing&&!sample.paused)pos+=Math.max(0,(now-Number(sample.at||now))/1000)*Math.max(0,Number(sample.speed||1));
+    if(sample.playing&&!sample.paused)pos+=Math.max(0,(Math.min(now,sample.validUntil??now)-Number(sample.at||now))/1000)*Math.max(0,Number(sample.speed||1));
     if(duration>0)pos=Math.max(0,Math.min(duration,pos));else pos=Math.max(0,pos);
     const progress=duration>0?Math.max(0,Math.min(1,pos/duration)):Math.max(0,Math.min(1,Number(sample.progress||0)));
     const bar=document.getElementById('bar');if(bar)bar.style.width=(progress*100).toFixed(2)+'%';
@@ -34556,8 +35749,9 @@ async function setWebVisualizerEnabled(enabled,send=true){
   if(send){try{await fetch('/api/web-visualizer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:webVisualizerEnabled})})}catch(e){}}
 }
 function setupWebVisualizerToggle(){const toggle=document.getElementById('webVisualizerToggle');if(!toggle)return;toggle.onchange=()=>setWebVisualizerEnabled(toggle.checked,true)}
+timelineTick();
 async function spectrumTick(){
- if(!webVisualizerEnabled || document.hidden){setTimeout(spectrumTick,document.hidden?1000:Math.max(250,spectrumMs));return}
+ if(spectrumTimeline?.source==='track' || !webVisualizerEnabled || document.hidden){setTimeout(spectrumTick,document.hidden?1000:Math.max(250,spectrumMs));return}
  try{
   const r=await fetch('/api/spectrum.raw',{cache:'no-store'});if(r.status===204){spectrumTarget=[]}else if(r.ok){const buffer=await r.arrayBuffer();if(buffer.byteLength)processRawSpectrumBuffer(buffer);else spectrumTarget=[]}
  }catch(e){}
@@ -34602,6 +35796,30 @@ startWebUi();
     )
 
 
+def paf_web_client_is_local(peer_address: str, server_address: str) -> bool:
+    """Classify the TCP peer, including LAN and IPv4-mapped IPv6 connections.
+
+    Never trust Host or X-Forwarded-For to authorize opening an Explorer window.
+    """
+    import ipaddress
+    try:
+        peer = ipaddress.ip_address(str(peer_address).split("%", 1)[0])
+        local = ipaddress.ip_address(str(server_address).split("%", 1)[0])
+        peer = getattr(peer, "ipv4_mapped", None) or peer
+        local = getattr(local, "ipv4_mapped", None) or local
+        return peer.is_loopback or peer == local
+    except ValueError:
+        return False
+
+
+def paf_web_download_disposition(filename: str) -> str:
+    """RFC 6266 UTF-8 filename plus a safe ASCII fallback."""
+    from urllib.parse import quote
+    name = "".join(c for c in filename if ord(c) >= 32 and ord(c) != 127)
+    fallback = "".join(c if 32 <= ord(c) < 127 and c not in '\\"/;' else "_" for c in name)
+    return f'attachment; filename="{fallback or "audio"}"; filename*=UTF-8\'\'{quote(name or "audio", safe="")}'
+
+
 class PAFWebServer:
     """Own one low-rate HTTP status/control server for the complete PAFPlayer session."""
 
@@ -34643,6 +35861,7 @@ class PAFWebServer:
         self._web_visualizer_enabled = True
         self._spectrum_paused = False
         self._spectrum_raw_bytes = b""
+        self._timeline_sample = None
         self._spectrum_raw_sequence = 0
         self._spectrum_state: dict[str, object] = {"spectrum": [], "sequence": 0, "paused": False}
         self._status_json_bytes = b"{}"
@@ -34699,6 +35918,8 @@ class PAFWebServer:
             "alert_embedded_lyrics_mismatch": True,
             "progress_bar_enabled": True,
             "progress_beat_reactive": True,
+            "external_media_auto_pause": bool(EXTERNAL_MEDIA_AUTO_PAUSE),
+            "external_media_resume_fade_seconds": EXTERNAL_MEDIA_RESUME_FADE_SECONDS,
             "progress_beat_detector": 1,
             "progress_beat_treatment": 3,
             "cursive_fix": False,
@@ -34708,7 +35929,6 @@ class PAFWebServer:
             "drcs_art_bar_microtile_mode": ART_MICROTILE_DETAIL_MODE_DEFAULT,
             "shuffle": False,
             "loop": False,
-            "autoplay": False,
             "art_generation": 0,
             "art_count": 0,
             "art_popup_variant_index": 0,
@@ -34823,13 +36043,19 @@ class PAFWebServer:
             def log_message(self, _format, *_args):
                 return
 
+            def _client_is_local(self) -> bool:
+                return paf_web_client_is_local(self.client_address[0], self.connection.getsockname()[0])
+
             def _send(self, status: int, body: bytes, content_type: str) -> None:
                 self.send_response(status)
                 self.send_header("Content-Type", content_type)
                 self.send_header("Content-Length", str(len(body)))
                 self.send_header("Cache-Control", "no-store")
+                self.send_header("X-PAF-Server-Time", str(time.time()))
+                self.send_header("X-PAF-Client-Local", "1" if self._client_is_local() else "0")
                 self.end_headers()
-                self.wfile.write(body)
+                if self.command != "HEAD":
+                    self.wfile.write(body)
 
             def _json(self, status: int, value) -> None:
                 self._send(
@@ -34838,8 +36064,78 @@ class PAFWebServer:
                     "application/json; charset=utf-8",
                 )
 
+            def _download_audio(self):
+                # Snapshot/open once: advancing the playlist cannot switch a transfer.
+                import mimetypes
+                import stat
+                audio = owner.current_audio()
+                if audio is None:
+                    self._json(404, {"error": "no current audio file"}); return
+                try:
+                    stream = audio.open("rb")
+                except (FileNotFoundError, IsADirectoryError):
+                    self._json(404, {"error": "current audio file is unavailable"}); return
+                except OSError:
+                    self._json(403, {"error": "current audio file cannot be read"}); return
+                with stream:
+                    info = os.fstat(stream.fileno())
+                    if not stat.S_ISREG(info.st_mode):
+                        self._json(404, {"error": "current audio is not a file"}); return
+                    self.send_response(200)
+                    self.send_header("Content-Type", mimetypes.guess_type(audio.name)[0] or "application/octet-stream")
+                    self.send_header("Content-Length", str(info.st_size))
+                    self.send_header("Content-Disposition", paf_web_download_disposition(audio.name))
+                    self.send_header("Cache-Control", "no-store")
+                    self.send_header("X-Content-Type-Options", "nosniff")
+                    self.end_headers()
+                    if self.command == "HEAD":
+                        return
+                    remaining = info.st_size
+                    try:
+                        while remaining:
+                            chunk = stream.read(min(128 * 1024, remaining))
+                            if not chunk:
+                                self.close_connection = True
+                                break
+                            self.wfile.write(chunk)
+                            remaining -= len(chunk)
+                    except OSError:
+                        # Browser cancellation/file removal must not affect playback.
+                        self.close_connection = True
+
+            def do_HEAD(self):
+                # winamp-*.bat uses wget32 --spider: HEAD must execute exactly once.
+                self.do_GET()
+
             def do_GET(self):
                 path, _separator, query = self.path.partition("?")
+                legacy_actions = {"/play": WEB_PLAY, "/pause": PAUSE_TOGGLE,
+                                  "/unpause": WEB_PLAY, "/stop": WEB_STOP,
+                                  "/next": NEXT_FILE, "/prev": PREVIOUS_FILE,
+                                  "/previous": PREVIOUS_FILE}
+                if path in legacy_actions:
+                    owner.note_client_activity()
+                    accepted = owner.enqueue_action(legacy_actions[path])
+                    self._json(200 if accepted else 503, {"accepted": accepted, "action": legacy_actions[path]})
+                    return
+                if path == "/main" or (path == "/winamp" and "page=main" in query.split("&")):
+                    import html
+                    state = owner.snapshot()
+                    if state.get("transport_stopped") or not state.get("playing"):
+                        # Both the Perl parser and BAT fast parser have case-sensitive matches.
+                        label = "Winamp is stopped at track (Stopped at track)"
+                    elif state.get("paused"):
+                        label = "Paused in track"
+                    else:
+                        label = "Playing track"
+                    name = str(state.get("track", {}).get("filename", ""))
+                    # Keep names on a separate line so a name cannot spoof the legacy parser.
+                    body = "<!doctype html><meta charset=utf-8><title>PAFPlayer status</title>\n<p>" + html.escape(name) + "</p>\n<p>" + label + "</p>\n"
+                    self._send(200, body.encode("utf-8"), "text/html; charset=utf-8")
+                    return
+                if path == "/api/audio/download":
+                    self._download_audio()
+                    return
                 if path == "/":
                     owner.note_client_activity()
                     self._send(200, _paf_web_html().encode("utf-8"), "text/html; charset=utf-8")
@@ -34856,6 +36152,10 @@ class PAFWebServer:
                     else:
                         self._send(200, owner.spectrum_raw_snapshot(), "application/octet-stream")
                     owner._record_http_perf("spectrum_raw", time.perf_counter() - started)
+                    return
+                if path == "/api/timeline":
+                    owner.note_client_activity()
+                    self._json(200, owner.timeline_snapshot())
                     return
                 if path == "/api/spectrum":
                     owner.note_client_activity(); started = time.perf_counter()
@@ -34967,6 +36267,9 @@ class PAFWebServer:
                     return
                 if path == "/api/action":
                     action = str(payload.get("action", ""))
+                    if action == WEB_OPEN_TRACK_FOLDER and not self._client_is_local():
+                        self._json(403, {"accepted": False, "error": "folder opening is available on the player computer"})
+                        return
                     accepted = owner.enqueue_action(action)
                     self._json(202 if accepted else 400, {"accepted": accepted, "action": action})
                     return
@@ -35178,7 +36481,7 @@ class PAFWebServer:
         if not paf_web_action_is_allowed(action):
             return False
         transport_actions = {
-            STOP, PAUSE_TOGGLE, WEB_PLAY, WEB_PAUSE, PREVIOUS_FILE, NEXT_FILE,
+            STOP, PAUSE_TOGGLE, WEB_PLAY, WEB_PAUSE, WEB_STOP, PREVIOUS_FILE, NEXT_FILE,
             PREVIOUS_DIRECTORY, NEXT_DIRECTORY, SEEK_BACK_5, SEEK_FORWARD_5,
             SEEK_BACK_10, SEEK_FORWARD_10, SEEK_BACK_15, SEEK_FORWARD_15,
             SEEK_BACK_60, SEEK_FORWARD_60, SEEK_BACK_80, SEEK_FORWARD_80,
@@ -35286,6 +36589,43 @@ class PAFWebServer:
             self._spectrum_state["sequence"] = int(self._spectrum_state.get("sequence", 0) or 0) + 1
             self._refresh_spectrum_json_locked()
 
+    def bind_timeline_clock(self, process, origin, speed, started, end, timeline_source):
+        # HTTP readers follow audio independently when the console opens a menu.
+        self._timeline_clock_binding = (process, origin, speed, started, end, timeline_source)
+
+    def publish_timeline(self, timeline, position, speed, sampled_at, *, playing=True, live=False, ui_start=0.0):
+        # Immutable tuple publication; HTTP slicing/encoding never holds up audio.
+        self._timeline_sample = (timeline, float(position), float(speed), float(sampled_at),
+                                 bool(playing), bool(live), float(ui_start))
+
+    def timeline_snapshot(self) -> dict[str, object]:
+        sample = self._timeline_sample
+        if sample is None:
+            return {"source": "stopped", "frames": "", "playing": False}
+        timeline, position, speed, at, playing, live, ui_start = sample
+        now = time.monotonic()
+        binding = getattr(self, "_timeline_clock_binding", None)
+        if binding is not None and playing:
+            process, origin, speed, started, end, timeline_source = binding
+            waiting = getattr(process, "playback_started_at", False) is None
+            position = origin + audio_segment_elapsed(process, now, started, speed, waiting)
+            if end is not None:
+                position = min(end, position)
+            playing = not waiting and process.poll() is None and (end is None or position < end)
+            timeline = timeline_source()
+        else:
+            # Older publishers have no independent audio clock: bound their drift.
+            age = max(0.0, now - at)
+            position += min(age, 0.25) * speed if playing else 0.0
+            playing = playing and age < 0.5
+        data, width, fps = timeline
+        first = max(0, int(position * fps) - 1)
+        last = min(len(data) // max(1, width), first + int(max(4.0, 4.0 * speed) * fps) + 2)
+        return {"source": "live" if live else "track", "position": position,
+                "ui_start": ui_start, "speed": speed, "playing": playing,
+                "clock_epoch": time.time(), "start_frame": first, "fps": fps, "width": width,
+                "frames": base64.b64encode(data[first * width:last * width] if not live else b"").decode("ascii")}
+
     def publish_spectrum_raw(self, spectrum) -> None:
         """V265 hot path: atomically publish analyzer bytes; browser owns shaping and AGC."""
         if not self._web_visualizer_enabled or self._spectrum_paused:
@@ -35384,9 +36724,12 @@ class PAFWebServer:
         path = Path(audio_path)
         with self._lock:
             self._current_audio = path
+            self._timeline_sample = None
+            self._timeline_clock_binding = None
             self._state.update({
                 "playing": True,
                 "paused": False,
+                "transport_stopped": False,
                 "track": {
                     "path": str(path),
                     "filename": path.name,
@@ -35403,6 +36746,9 @@ class PAFWebServer:
                 "replaygain": asdict(replaygain),
                 "urls": list(urls),
                 "lyric": "",
+                "lyric_timeline": [],
+                "lyric_position_seconds": 0.0,
+                "lyric_clock_epoch": time.time(),
                 "playlist": playlist,
                 "playlist_track_count": playlist_track_count,
                 "art_generation": self._art_generation,
@@ -35526,6 +36872,10 @@ class PAFWebServer:
         """Publish live state and pre-encode it so HTTP polling never serializes on demand."""
         with self._lock:
             self._state.update(values)
+            if values.get("paused") is False and values.get("playing") is True:
+                self._state["transport_stopped"] = False
+            if self._state.get("transport_stopped"):
+                self._state["playing"] = False
             self._state["updated_at_epoch"] = time.time()
             self._state["sequence"] = int(self._state.get("sequence", 0) or 0) + 1
             self._refresh_status_json_locked()
@@ -35541,6 +36891,9 @@ class PAFWebServer:
         })
 
     def finish_track(self, result: str) -> None:
+        self._timeline_clock_binding = None
+        self._timeline_sample = None
+        self._spectrum_raw_bytes = b""
         with self._lock:
             self._state["playing"] = False
             self._state["paused"] = False
@@ -35565,6 +36918,7 @@ class ExternalAlbumArtWindow:
         self._closed = False
         self._lock = threading.RLock()
         self._commands: queue.Queue[tuple[object, ...]] = queue.Queue()
+        self._pending_lyric_command: tuple[object, ...] | None = None
         self._thread: threading.Thread | None = None
         self._shutdown_complete = threading.Event()
         self._current_audio: Path | None = None
@@ -35673,6 +37027,11 @@ class ExternalAlbumArtWindow:
         with self._lock:
             if self._closed:
                 return
+            if self._current_audio != path:
+                self._karaoke_timeline = None
+                self._audio_clock_binding = None
+                self._playback_position = 0.0
+                self._playback_clock_speed = 0.0
             self._current_audio = path
             self._current_has_art = None
             self._spectrum_ready_for_art_karaoke.clear()
@@ -35910,13 +37269,7 @@ class ExternalAlbumArtWindow:
         artwork_progress_override: float | None = None,
         artwork_target_position: float | None = None,
     ) -> None:
-        """Publish one cue to artwork/floating renderers with independent display timing.
-
-        V374 lets the artwork surface receive the *next* cue a few milliseconds
-        before its timestamp, while floating/web/console continue consuming the
-        canonical current cue.  Only cue preparation is led; all animation phase
-        is still read from the shared playback clock.
-        """
+        """Publish a shared current cue; style choices remain independent per surface."""
         raw_source = str(lyric or "").strip()
         artwork_raw_source = (
             str(artwork_lyric_override or "").strip()
@@ -36020,7 +37373,7 @@ class ExternalAlbumArtWindow:
             return
         if self._thread is not None and self._thread.is_alive():
             if text_inputs_changed:
-                self._commands.put((
+                self._queue_lyric_command((
                     "lyric",
                     artwork_value,
                     floating_value,
@@ -36041,38 +37394,44 @@ class ExternalAlbumArtWindow:
                     artwork_render_lead_ms=round(self.artwork_karaoke_render_lead_seconds() * 1000.0, 2),
                 )
             else:
-                self._commands.put(("lyric-progress", artwork_progress, floating_progress))
+                self._queue_lyric_command(("lyric-progress", artwork_progress, floating_progress))
+
+    def _queue_lyric_command(self, command: tuple[object, ...]) -> None:
+        """Keep one latest cue/progress update, never a backlog of obsolete lyrics."""
+        with self._lock:
+            previous = self._pending_lyric_command
+            if command[0] == "lyric-progress" and previous and previous[0] == "lyric":
+                merged = list(previous)
+                merged[3:5] = command[1:3]
+                command = tuple(merged)
+            elif command[0] == "lyric" and previous and previous[0] == "lyric":
+                merged = list(command)
+                # A per-surface style change must survive replacement by a newer cue.
+                merged[7] = bool(command[7] or previous[7])
+                merged[8] = bool(command[8] or previous[8])
+                command = tuple(merged)
+            self._pending_lyric_command = command
+            if previous is None:
+                self._commands.put(("latest-lyric",))
+
+    def _take_pending_lyric_command(self) -> tuple[object, ...] | None:
+        with self._lock:
+            command = self._pending_lyric_command
+            self._pending_lyric_command = None
+            return command
 
     def update_karaoke_frame(
         self, frame: KaraokeFrame, *, emojimax: bool = False,
         decensor_artwork: bool = False, decensor_floating: bool = False,
     ) -> None:
-        """Phase-lock artwork cue completion while all surfaces share one song clock."""
-        artwork_text = frame.title_text
-        artwork_progress = frame.emphasis_progress
-        artwork_target_position = frame.active_start_position
-
-        # Rendering into a large Tk window has non-zero queue/layout/paint time.
-        # Predict the next cue only for the artwork popup so that the *completed*
-        # paint, rather than the request enqueue, lands on its canonical timestamp.
-        # The learned lead is continuously corrected from actual completion error.
-        next_start = frame.next_start_position
-        if frame.next_text and next_start is not None:
-            until_next = float(next_start) - float(frame.position)
-            if 0.0 < until_next <= self.artwork_karaoke_render_lead_seconds():
-                artwork_text = frame.next_text
-                artwork_progress = 0.0
-                artwork_target_position = float(next_start)
-
+        """Select the same current cue as console and web, with no artwork-only lead."""
         self.update_lyric(
             frame.title_text,
             frame.emphasis_progress,
             emojimax=emojimax,
             decensor_artwork=decensor_artwork,
             decensor_floating=decensor_floating,
-            artwork_lyric_override=artwork_text,
-            artwork_progress_override=artwork_progress,
-            artwork_target_position=artwork_target_position,
+            artwork_target_position=frame.active_start_position,
         )
 
     def consume_terminal_redraw_request(self) -> bool:
@@ -36102,14 +37461,43 @@ class ExternalAlbumArtWindow:
         with self._lock:
             self._playback_running = bool(running)
 
-    def set_playback_position(self, position: float) -> None:
-        """Publish the owner's canonical millisecond song clock without queuing GUI work."""
+    def set_playback_clock(self, process, origin, speed, started, end=None):
+        with self._lock:
+            self._audio_clock_binding = (process, origin, speed, started, end)
+
+    def set_karaoke_timeline(self, entries, **options):
+        """Deliver every future cue before its deadline, once per source revision."""
+        with self._lock:
+            current = getattr(self, "_karaoke_timeline", None)
+            if current is None or current[0] is not entries:
+                self._karaoke_timeline = (entries, tuple(entries), dict(options))
+            else:
+                self._karaoke_timeline = (current[0], current[1], dict(options))
+
+    def advance_karaoke_timeline(self):
+        with self._lock:
+            timeline = getattr(self, "_karaoke_timeline", None)
+        if timeline is not None:
+            self.update_karaoke_frame(karaoke_frame_at(timeline[1], self.playback_position()), **timeline[2])
+
+    def set_playback_position(self, position: float, *, speed: float = 0.0, sampled_at: float | None = None) -> None:
+        """Publish a source-time anchor so Tk can meet deadlines between owner paints."""
         with self._lock:
             self._playback_position = max(0.0, float(position))
+            self._playback_clock_speed = float(speed)
+            self._playback_clock_at = time.monotonic() if sampled_at is None else sampled_at
 
     def playback_position(self) -> float:
         with self._lock:
-            return float(self._playback_position)
+            binding = getattr(self, "_audio_clock_binding", None)
+            if binding is not None and getattr(self, "_playback_running", False):
+                process, origin, speed, started, end = binding
+                live = origin + audio_segment_elapsed(process, time.monotonic(), started, speed,
+                    getattr(process, "playback_started_at", False) is None)
+                return min(end, live) if end is not None else live
+            age = min(0.25, max(0.0, time.monotonic() - getattr(self, "_playback_clock_at", time.monotonic())))
+            speed = getattr(self, "_playback_clock_speed", 0.0) if getattr(self, "_playback_running", False) else 0.0
+            return float(self._playback_position) + age * speed
 
     def start_idle_routine(self) -> bool:
         """Immediately start the idle-art dance from a focus-only player command.
@@ -36149,6 +37537,17 @@ class ExternalAlbumArtWindow:
                 return False
         self._ensure_started()
         self._commands.put(("foreground-floating",))
+        return True
+
+    def bring_to_center(self, *, floating: bool = False) -> bool:
+        with self._lock:
+            if self._closed:
+                return False
+            if not floating:
+                self._enabled = True
+        anchor = windows_foreground_window_rect() or self._player_window_rect
+        self._ensure_started()
+        self._commands.put(("center-window", bool(floating), anchor))
         return True
 
     def bring_to_foreground(self) -> bool:
@@ -36805,9 +38204,22 @@ class ExternalAlbumArtWindow:
                 return ""
             try:
                 window.update_idletasks()
-                return str(window.geometry())
+                return str(windows_tk_geometry_from_hwnd(
+                    int(state.get("floating_hwnd", 0) or 0), window.geometry(),
+                ) or window.geometry())
             except Exception:
                 return ""
+
+        def set_floating_geometry(width, height, x, y) -> None:
+            window = state.get("floating_window")
+            if window is None:
+                return
+            # Floating lyrics are borderless, so client and outer sizes agree.
+            # Keep a recovered negative desktop position when autosizing/dragging.
+            if not windows_set_window_rect(
+                int(state.get("floating_hwnd", 0) or 0), (x, y, x + width, y + height),
+            ):
+                window.geometry(f"{width}x{height}{x:+d}{y:+d}")
 
         def save_floating_geometry_now() -> None:
             state["floating_save_after"] = None
@@ -37033,7 +38445,7 @@ class ExternalAlbumArtWindow:
                 y = round(center_y - desired_height / 2.0)
             state["floating_geometry_sync"] = True
             with contextlib.suppress(Exception):
-                window.geometry(f"{desired_width}x{desired_height}{x:+d}{y:+d}")
+                set_floating_geometry(desired_width, desired_height, x, y)
                 window.update_idletasks()
             state["floating_geometry_sync"] = False
 
@@ -37062,8 +38474,12 @@ class ExternalAlbumArtWindow:
 
         def render_floating_lyric(*, reveal_after: bool = False) -> None:
             """Render a floating cue atomically into the stable transparent window."""
+            pending_resize = state.get("floating_resize_after")
             state["floating_resize_after"] = None
             window = state.get("floating_window")
+            if pending_resize is not None and window is not None:
+                with contextlib.suppress(Exception):
+                    window.after_cancel(pending_resize)
             floating_canvas = state.get("floating_canvas")
             if window is None or floating_canvas is None:
                 return
@@ -37077,7 +38493,7 @@ class ExternalAlbumArtWindow:
             except Exception:
                 return
 
-            lyric = str(state.get("lyric_floating") or state.get("lyric") or "").strip()
+            lyric = str(state.get("lyric_floating", state.get("lyric", "")) or "").strip()
             if not lyric:
                 old_item = state.get("floating_lyric_item")
                 if old_item is not None:
@@ -37144,13 +38560,8 @@ class ExternalAlbumArtWindow:
                 state["floating_glyph_boxes"] = [
                     (int(origin[0]), int(origin[1]), int(origin[0] + mask.size[0]), int(origin[1] + mask.size[1]))
                 ]
-                render_cost_ms = max(0.0, (time.perf_counter() - render_started) * 1000.0)
-                previous_cost = float(state.get("floating_animation_cost_ema_ms", 0.0) or 0.0)
-                state["floating_animation_cost_ema_ms"] = (
-                    render_cost_ms
-                    if previous_cost <= 0.0
-                    else previous_cost * 0.72 + render_cost_ms * 0.28
-                )
+                # Layout/outline happen once per cue, not on cached color frames.
+                state["floating_cue_cost_ms"] = max(0.0, (time.perf_counter() - render_started) * 1000.0)
                 if reveal_after:
                     with contextlib.suppress(Exception):
                         window.attributes("-transparentcolor", EXTERNAL_ALBUM_ART_TRANSPARENT_KEY)
@@ -37253,21 +38664,10 @@ class ExternalAlbumArtWindow:
             previous_cost = float(state.get("floating_animation_cost_ema_ms", 0.0) or 0.0)
             learned_cost = render_cost_ms if previous_cost <= 0.0 else previous_cost * 0.72 + render_cost_ms * 0.28
             state["floating_animation_cost_ema_ms"] = learned_cost
-            editor_active = False
-            if bool(state.get("floating_edit_mode")):
-                # Keep the historical editor backoff explicit: the opaque,
-                # resizable editor may do geometry/paint work of its own.
-                editor_active = True
-                animation_ms = 200
-            else:
-                animation_ms = 110
-            animation_ms = max(
-                animation_ms,
-                floating_lyrics_animation_interval_ms(
-                    pixel_area, learned_cost,
-                    playback_running=bool(self._playback_running),
-                    edit_mode=editor_active,
-                ),
+            animation_ms = floating_lyrics_animation_interval_ms(
+                pixel_area, learned_cost,
+                playback_running=bool(self._playback_running),
+                edit_mode=bool(state.get("floating_edit_mode")),
             )
             with contextlib.suppress(Exception):
                 state["floating_color_after"] = window.after(animation_ms, animate_floating_lyric_colors)
@@ -37311,7 +38711,7 @@ class ExternalAlbumArtWindow:
                     edit_mode=bool(state.get("floating_edit_mode")),
                 )
             with contextlib.suppress(Exception):
-                state["floating_color_after"] = window.after(max(40, int(delay_ms)), animate_floating_lyric_colors)
+                state["floating_color_after"] = window.after(max(16, int(delay_ms)), animate_floating_lyric_colors)
 
         def install_floating_hit_test(window) -> None:
             """Make transparent pixels mouse-transparent without losing glyph dragging.
@@ -37473,7 +38873,7 @@ class ExternalAlbumArtWindow:
             new_x = round(center_x - width / 2.0)
             new_y = round(center_y - height / 2.0)
             with contextlib.suppress(Exception):
-                window.geometry(f"{width}x{height}{new_x:+d}{new_y:+d}")
+                set_floating_geometry(width, height, new_x, new_y)
 
         def set_floating_edit_mode(enabled: bool) -> None:
             """Show focus-only edit chrome without moving or resizing the lyric window.
@@ -37711,7 +39111,7 @@ class ExternalAlbumArtWindow:
                 if "b" in edges:
                     height = max(80, height + dy)
             with contextlib.suppress(Exception):
-                window.geometry(f"{width}x{height}{x:+d}{y:+d}")
+                set_floating_geometry(width, height, x, y)
 
         def floating_mouse_release(_event=None) -> None:
             geometry = _parse_external_album_art_geometry(floating_current_geometry())
@@ -38074,7 +39474,7 @@ class ExternalAlbumArtWindow:
                 x += int(event.x_root) - int(start_screen[0])
                 y += int(event.y_root) - int(start_screen[1])
                 with contextlib.suppress(Exception):
-                    floating.geometry(f"{width}x{height}{x:+d}{y:+d}")
+                    set_floating_geometry(width, height, x, y)
 
             def floating_title_release(_event=None) -> None:
                 state["floating_title_drag"] = None
@@ -38140,7 +39540,7 @@ class ExternalAlbumArtWindow:
                 # Exact-position entry is explicitly a top-left coordinate;
                 # do not reinterpret it as an earlier resize-center anchor.
                 state["floating_content_center"] = None
-                floating.geometry(f"{width}x{height}{new_x:+d}{new_y:+d}")
+                set_floating_geometry(width, height, new_x, new_y)
                 save_floating_geometry_now()
 
             floating_menu.add_command(label="Set exact screen position…", command=set_exact_floating_position)
@@ -40867,15 +42267,17 @@ class ExternalAlbumArtWindow:
             filter_size = max(3, int(shadow) * 2 + 1)
             if filter_size % 2 == 0:
                 filter_size += 1
-            cached_shadow = state.get("lyric_shadow_alpha_cache")
-            if (
-                isinstance(cached_shadow, tuple) and len(cached_shadow) == 3
-                and cached_shadow[0] is mask and cached_shadow[1] == filter_size
-            ):
-                shadow_alpha = cached_shadow[2]
-            else:
-                shadow_alpha = ImageChops.subtract(mask.filter(ImageFilter.MaxFilter(filter_size)), mask)
-                state["lyric_shadow_alpha_cache"] = (mask, filter_size, shadow_alpha)
+            # Artwork and floating masks must not evict one another every frame.
+            shadow_cache = state.setdefault("lyric_shadow_alpha_cache", [])
+            shadow_alpha = None
+            for cached_mask, cached_size, cached_alpha in shadow_cache:
+                if cached_mask is mask and cached_size == filter_size:
+                    shadow_alpha = cached_alpha
+                    break
+            if shadow_alpha is None:
+                shadow_alpha = ImageChops.subtract(expand_lyric_outline(mask, filter_size // 2), mask)
+                shadow_cache.append((mask, filter_size, shadow_alpha))
+                del shadow_cache[:-4]
             shadow_layer = Image.new("RGBA", mask.size, (0, 0, 0, 0))
             shadow_layer.putalpha(shadow_alpha.point(lambda alpha: round(alpha * 0.90)))
             return Image.alpha_composite(shadow_layer, field)
@@ -42685,9 +44087,15 @@ class ExternalAlbumArtWindow:
 
         def process_commands() -> None:
             try:
+                self.advance_karaoke_timeline()
                 while True:
                     command = self._commands.get_nowait()
                     kind = command[0]
+                    if kind == "latest-lyric":
+                        command = self._take_pending_lyric_command()
+                        if command is None:
+                            continue
+                        kind = command[0]
                     if kind == "save-geometry-sync":
                         _kind, completed = command
                         try:
@@ -42741,6 +44149,32 @@ class ExternalAlbumArtWindow:
                         continue
                     if kind == "foreground-floating":
                         raise_floating_without_permanent_topmost()
+                        continue
+                    if kind == "center-window":
+                        _kind, floating, anchor = command
+                        state["initial_console_focus_restore_pending"] = False
+                        if floating:
+                            raise_floating_without_permanent_topmost()
+                            set_floating_edit_mode(True)
+                            window = state.get("floating_window")
+                        else:
+                            end_idle_art_routine()
+                            raise_without_permanent_topmost()
+                            window = root
+                        if window is not None:
+                            geometry = center_popup_window(
+                                window, widget_root_hwnd(window),
+                                external_album_art_monitor_work_areas(), anchor,
+                            )
+                            with contextlib.suppress(Exception):
+                                window.focus_force()
+                            if floating:
+                                width, height, x, y = _parse_external_album_art_geometry(geometry)
+                                state["floating_content_center"] = (x + width / 2, y + height / 2)
+                                save_floating_geometry_now()
+                                schedule_floating_render()
+                            else:
+                                save_geometry_now()
                         continue
                     if kind == "toggle-floating-lyrics":
                         current_mode = max(0, min(2, int(state.get("lyrics_mode", 0) or 0)))
@@ -42805,6 +44239,13 @@ class ExternalAlbumArtWindow:
                         state["lyric_progress_artwork"] = max(0.0, min(1.0, float(artwork_progress)))
                         state["lyric_progress"] = max(0.0, min(1.0, float(floating_progress)))
                         lyric_mode = int(state.get("lyrics_mode", 0) or 0)
+                        # Prepare the floating bitmap before modifying artwork. Its
+                        # geometry flush must not present just one surface's new cue.
+                        # Both canvas updates then paint together on return to Tk.
+                        if bool(floating_text_changed) and lyrics_mode_includes_floating(lyric_mode):
+                            ensure_floating_lyrics_window()
+                            render_floating_lyric()
+                            ensure_floating_color_animation()
                         if (
                             bool(artwork_text_changed)
                             and lyrics_mode_includes_artwork(lyric_mode)
@@ -42812,17 +44253,6 @@ class ExternalAlbumArtWindow:
                             and not self._color_configurator_active.is_set()
                         ):
                             redraw_artwork_lyric_layer()
-                            # Flush Tk's queued geometry/canvas work before measuring
-                            # completion. This happens only on cue changes, not at
-                            # animation FPS, and makes the learned lead track actual
-                            # large-window paint cost instead of mere enqueue time.
-                            with contextlib.suppress(Exception):
-                                root.update_idletasks()
-                            self._calibrate_artwork_karaoke_render_lead(artwork_target_position)
-                        if bool(floating_text_changed) and lyrics_mode_includes_floating(lyric_mode):
-                            ensure_floating_lyrics_window()
-                            render_floating_lyric()
-                            ensure_floating_color_animation()
                         continue
                     if kind == "lyric-progress":
                         _kind, artwork_progress, floating_progress = command
@@ -42921,9 +44351,7 @@ class ExternalAlbumArtWindow:
                                 root.after(220, rebuild_idle_gallery_after_track)
             except queue.Empty:
                 pass
-            # V374: 50-ms polling was itself a visible karaoke delay. Keep the
-            # callback tiny and poll quickly only while playback is advancing;
-            # adaptive render lead handles the remaining layout/paint latency.
+            # Poll the shared latest-cue mailbox promptly during playback.
             with self._lock:
                 playback_active = bool(self._playback_running)
             command_poll_ms = (
@@ -43937,8 +45365,10 @@ def play_audio_file(
     visualizer_target_fps: float = VISUALIZER_TARGET_FPS,
     looping: bool = True,
     looping_state: list[bool] | None = None,
+    repeat_mode_state: list[int] | None = None,
     lyrics_display: bool = True,
     shuffle_state: list[bool] | None = None,
+    shuffle_mode_state: list[int] | None = None,
     visualizer_mode_state: list[int] | None = None,
     persistence_mode_state: list[int] | None = None,
     visualizer_granularity_state: list[int] | None = None,
@@ -43972,7 +45402,6 @@ def play_audio_file(
     cursive_fix_state: list[bool] | None = None,
     drcs_art_microtiles_state: list[int] | None = None,
     drcs_art_bar_microtiles_state: list[int] | None = None,
-    autoplay_state: list[bool] | None = None,
     output_channels_state: list[int] | None = None,
     output_rate_state: list[int] | None = None,
     output_bit_depth_state: list[int] | None = None,
@@ -44036,6 +45465,7 @@ def play_audio_file(
     initial_blank_line: bool = True,
     manage_winamp: bool = True,
     guard_winamp: bool | None = None,
+    external_media_controller: PAFExternalPlaybackCoordinator | None = None,
     attribute_management_enabled: bool = bool(CLAIRE_ECOSYSTEM),
     theory_modes: frozenset[int] | set[int] | None = None,
 ) -> str:
@@ -44256,17 +45686,24 @@ def play_audio_file(
     # V302: one semantic karaoke engine feeds console, artwork, floating lyrics,
     # web/title publication.  Renderers keep independent visual options, but cue
     # selection/timing/emphasis are computed once for an exact playback position.
-    _karaoke_frame_cache_position: list[float | None] = [None]
+    _karaoke_frame_cache_position: list[tuple[float, int, float] | None] = [None]
+    _web_lyric_timeline_cache: list[object] = [None, []]
     _karaoke_frame_cache_value: list[KaraokeFrame | None] = [None]
 
     def shared_karaoke_frame(source_position: float) -> KaraokeFrame:
         value = max(0.0, float(source_position))
-        if _karaoke_frame_cache_position[0] == value and _karaoke_frame_cache_value[0] is not None:
+        cache_key = (value, id(lyrics), KARAOKE_DISPLAY_OFFSET_SECONDS)
+        if _karaoke_frame_cache_position[0] == cache_key and _karaoke_frame_cache_value[0] is not None:
             return _karaoke_frame_cache_value[0]
         frame = karaoke_frame_at(lyrics, value)
-        _karaoke_frame_cache_position[0] = value
+        _karaoke_frame_cache_position[0] = cache_key
         _karaoke_frame_cache_value[0] = frame
         return frame
+
+    def shared_web_lyric_timeline() -> list[list[object]]:
+        if _web_lyric_timeline_cache[0] is not lyrics:
+            _web_lyric_timeline_cache[:] = [lyrics, karaoke_title_timeline(lyrics)]
+        return _web_lyric_timeline_cache[1]
 
     goto_urls = goto_urls_from_tags(audio_tags)
     if web_server is not None:
@@ -44365,7 +45802,12 @@ def play_audio_file(
     # a source of row-count drift and duplicated-looking metadata.
     tag_plain_rows: tuple[str, ...] = ()
     tag_ansi_rows: tuple[str, ...] = ()
-    winamp_paused_by_preview = pause_playing_winamp() if manage_winamp else False
+    # V416 yields to newly started media instead of repeatedly pausing Winamp.
+    winamp_paused_by_preview = False
+    owns_external_media_controller = external_media_controller is None
+    if external_media_controller is None:
+        monitor = PAFExternalMediaMonitor().start() if os.name == "nt" and process_factory is subprocess.Popen and key_action_reader is read_windows_key_action else None
+        external_media_controller = PAFExternalPlaybackCoordinator(monitor)
     guard_winamp = manage_winamp if guard_winamp is None else guard_winamp
     process = None
     abort_requested = threading.Event()
@@ -44392,6 +45834,11 @@ def play_audio_file(
         position = min(position, max(playback_start, playback_end - 0.05))
     if looping_state is not None:
         looping = looping_state[0]
+    repeat_mode = min(len(REPEAT_MODE_NAMES) - 1, max(0, int(repeat_mode_state[0]))) if repeat_mode_state is not None else (0 if looping else 3)
+    shuffle_mode = min(len(SHUFFLE_MODE_NAMES) - 1, max(0, int(shuffle_mode_state[0]))) if shuffle_mode_state is not None else (1 if shuffle_state and shuffle_state[0] else 0)
+    looping = repeat_mode == 0
+    if shuffle_state is not None:
+        shuffle_state[0] = shuffle_mode not in {0, 5}
     volume = volume_state[0] if volume_state is not None else 100
     volume_direction = "up"
     output_channels = output_channels_state[0] if output_channels_state is not None else 2
@@ -44455,6 +45902,7 @@ def play_audio_file(
     # and commit the new soft font plus the first complete new frame inside one
     # synchronized-output transaction on the next visualizer paint.
     drcs_bank_swap_pending = False
+    progress_beat_timeline = ProgressBeatTimeline()
     progress_beat_state: dict[str, object] = {"baseline": 0.0, "pulse": 0.0}
     progress_beat_last_time = -1.0
     if disable_live_visualizers:
@@ -44493,7 +45941,8 @@ def play_audio_file(
     #     compete, by design.
     karaoke_visualizer_height_mode = (
         int(karaoke_visualizer_height_mode_state[0]) % 4
-        if karaoke_visualizer_height_mode_state is not None else 0
+        if karaoke_visualizer_height_mode_state is not None
+        else effective_player_defaults()["KaraokeVisualizerHeightMode"]
     )
     _initial_header_available = max(12, shutil.get_terminal_size((120, 30)).columns - 1)
     _last_play_value = str(audio_tags.get("Last play", "") or "")
@@ -44703,6 +46152,7 @@ def play_audio_file(
     last_sixel_refresh = -10.0
     last_metadata_animation_write = -10.0
     last_karaoke_status_write = -10.0
+    last_console_cue_key: tuple[object, ...] | None = None
     last_hud_details_status_write = -10.0
     last_now_playing_write = -10.0
     last_web_publish = -10.0
@@ -45420,9 +46870,16 @@ def play_audio_file(
 
     def announce_shuffle_state() -> None:
         enabled = bool(shuffle_state and shuffle_state[0])
-        plain = f"Shuffle: {'On' if enabled else 'Off'}"
+        plain = f"Shuffle {'enabled' if enabled else 'disabled'}"
         rgb = "90;235;125" if enabled else "255;95;95"
         set_transient_notice(plain, f"\033[1;38;2;{rgb}m{plain}\033[0m", seconds=4.0)
+        start_interaction_visual_feedback(plain, monotonic())
+
+    def announce_loop_state(enabled: bool) -> None:
+        plain = f"Loop {'enabled' if enabled else 'disabled'}"
+        rgb = "90;235;125" if enabled else "255;95;95"
+        set_transient_notice(plain, f"\033[1;38;2;{rgb}m{plain}\033[0m", seconds=4.0)
+        start_interaction_visual_feedback(plain, monotonic())
 
 
     def announce_art_detail_mode(channel: str, mode: int) -> None:
@@ -45435,7 +46892,7 @@ def play_audio_file(
             seconds=4.0,
         )
     if web_server is not None and web_server.claim_startup_announcement():
-        web_plain = f"🌐 {PROGRAM_TITLE} {PROGRAM_VERSION.casefold()} webserver: port {web_server.port}  {web_server.url}"
+        web_plain = f"🌐 {PROGRAM_TITLE} {PROGRAM_VERSION.casefold()} webserver: port {web_server.port}  {web_server.url.rstrip(chr(47))}"
         set_transient_notice(
             web_plain,
             "\033[1;38;2;95;220;255m" + web_plain + "\033[0m",
@@ -46114,6 +47571,13 @@ def play_audio_file(
         last_play_ansi = (
             "\033[38;2;145;170;195m📅 Last play: " + heard_text + "\033[0m"
         )
+        playback_modes_ansi = (
+            "\033[38;2;120;205;185m🔀 Shuffle: "
+            + ("ON" if bool(shuffle_state and shuffle_state[0]) else "OFF")
+            + "  •  🔁 Loop: "
+            + ("ON" if looping else "OFF")
+            + "\033[0m"
+        )
         source_bitrate = str(audio_tags.get("Bitrate", "") or "").strip()
         output_names = selected_output_device_names(output_device_indexes)
         output_rate_text = output_help_summary_text(
@@ -46121,6 +47585,8 @@ def play_audio_file(
         )
         diagnostic_rows_ansi = pack_help_diagnostic_segments(
             (
+                last_play_ansi,
+                playback_modes_ansi,
                 "\033[38;2;145;170;195m🎚️ ReplayGain: \033[0m" + replaygain_ansi,
                 "\033[38;2;145;170;195m🔊 Out: " + output_rate_text + "\033[0m",
                 "\033[38;2;145;170;195m📂 Playlist: " + playlist_text + "\033[0m",
@@ -46168,7 +47634,6 @@ def play_audio_file(
                     ("</>", "⏮/⏭ track"),
                     ("{/}", "📁 previous/next folder"),
                     ("R", "🔀 shuffle/preorder playlist"),
-                    ("A", "▶ autoplay"),
                     ("↑/↓", "volume ±5%"),
                     ("Shift+↑/↓", "volume ±20%"),
                     ("Ctrl+Alt+↑/↓", "global volume ±5%"),
@@ -46234,7 +47699,7 @@ def play_audio_file(
                     ("Ctrl+R/Ctrl+Alt+R", "reload playlist"),
                     ("Ctrl+A", "✏ attrib.lst; inherited learned→nearest parent"),
                     *attribute_help_items,
-                    ("INS/Q / Shift+INS", "add + queue next / multi-file picker"),
+                    ("J/INS/Q / Shift+INS", "Enter queues; Shift+Enter jumps / files"),
                     ("QQQ / Ctrl+Q / Alt+Q", "quit"),
                     ("DEL", "remove from playlist"),
                     ("PgUp/PgDn", "browse; Enter jumps to that playlist file"),
@@ -46283,9 +47748,8 @@ def play_audio_file(
         divider_plain = "─" * available
         rendered: list[str] = [
             "\033[1;38;2;215;235;255m" + title_plain + "\033[0m",
-            last_play_ansi,
             *diagnostic_rows_ansi,
-            attribute_tags_ansi(available),
+            attribute_tags_ansi(available, icon=True),
             *["\033[38;2;220;175;105m" + row + "\033[0m" for row in track_alert_help_rows],
             "\033[38;2;85;195;185m" + divider_plain + "\033[0m",
         ]
@@ -46449,6 +47913,10 @@ def play_audio_file(
             return ""
         if raw == PAUSE_TOGGLE:
             return "Pause"
+        if raw in {LOOP_TOGGLE, RANDOM_TOGGLE}:
+            # These are announced after mutation so the user sees the resulting
+            # enabled/disabled state instead of an ambiguous "toggle" label.
+            return ""
         if raw in {SPEED_UP, SPEED_DOWN, SPEED_RESET}:
             # Speed feedback is armed *after* the change so it can say the
             # actual resulting multiplier rather than the generic action name.
@@ -46535,7 +48003,7 @@ def play_audio_file(
         """
         nonlocal status_rendered, last_drcs_position, last_lyric_index, last_visualizer_payload
         nonlocal drcs_bank_swap_pending
-        nonlocal lyric_rows_known_blank
+        nonlocal lyric_rows_known_blank, last_console_cue_key
         nonlocal static_visualizer_payload
         nonlocal last_visualizer_rows, last_visualizer_cells, visualizer_cursor_known_bottom, last_visualizer_row_count
         nonlocal visualizer_color_snapshot_tick, visualizer_color_heights, visualizer_color_energies
@@ -46578,7 +48046,8 @@ def play_audio_file(
         # and double-height karaoke own the full console width.
         visualizer_width = available_width
         karaoke_line_capacity = max(10, available_width // 2)
-        karaoke_frame = decensor_karaoke_frame(shared_karaoke_frame(current_position), decensor_console_karaoke)
+        shared_frame = shared_karaoke_frame(current_position)
+        karaoke_frame = decensor_karaoke_frame(shared_frame, decensor_console_karaoke)
         active_lyric = karaoke_frame.active if console_karaoke_enabled else None
         gap_outgoing_lyric = False
         if active_lyric is not None:
@@ -46754,7 +48223,7 @@ def play_audio_file(
                 + (LYRIC_ROWS if expand_visualizer_into_lyrics else 0)
             )
             visualizer_art_rows = max(1, visualizer_source_rows - truncate_top_visualizer_lines)
-            if not album_art_visualizer_enabled or layered_art_visualizer_enabled or not track_artwork_allowed:
+            if not album_art_visualizer_enabled or layered_art_visualizer_enabled or ARTWORK_SEAM_STRATEGY == 3 or not track_artwork_allowed:
                 def visualizer_origin(target_row: int) -> str:
                     if minimal_visualizer_transport:
                         # Keep the saved-cursor restore only at the slow UI cadence:
@@ -46896,6 +48365,7 @@ def play_audio_file(
                         else 0.0
                     ),
                     artwork_bar_blend_mode=ART_COLOR_VISUALIZER_BAR_BLEND_MODE,
+                    artwork_bar_opacity=ART_COLOR_VISUALIZER_BAR_OPACITY,
                     artwork_background_strength=(
                         effective_art_black_strength
                         if track_artwork_allowed
@@ -47249,6 +48719,7 @@ def play_audio_file(
         visualizer_cursor_known_bottom = False
         beat_now = max(0.0, float(current_position))
         if progress_beat_last_time < 0.0 or beat_now < progress_beat_last_time or beat_now - progress_beat_last_time > 1.0:
+            progress_beat_state.clear()
             beat_delta = 1.0 / max(1, SPECTRUM_ANALYSIS_FPS)
         else:
             beat_delta = max(0.0, beat_now - progress_beat_last_time)
@@ -47257,10 +48728,11 @@ def play_audio_file(
         progress_levels = levels if levels else (
             progress_visualizer_levels
             if desired_live_mode
-            else (spectrum_frame_interpolated_at(drcs_timeline, current_position) or progress_visualizer_levels)
+            else spectrum_frame_interpolated_at(drcs_timeline, current_position)
         )
         progress_beat_value = (
-            progress_beat_pulse(progress_levels, progress_beat_state, beat_delta, progress_beat_detector)
+            (progress_beat_pulse(progress_levels, progress_beat_state, beat_delta, progress_beat_detector)
+             if desired_live_mode else progress_beat_timeline.at(current_position, progress_beat_detector))
             if progress_beat_reactive
             else (sum(progress_levels) / (len(progress_levels) * SPECTRUM_ANALYSIS_HEIGHT) if progress_levels else 0.0)
         )
@@ -47292,6 +48764,7 @@ def play_audio_file(
             if perf_hud_started:
                 performance_profile_add("hud", time.perf_counter() - perf_hud_started)
         if not skip_karaoke:
+            last_console_cue_key = (shared_frame.active_index, shared_frame.active_text)
             perf_karaoke_started = time.perf_counter() if performance_stats_overlay_enabled else 0.0
             if active_lyric is None:
                 # V251: clear the karaoke reservation based on what is physically on
@@ -48427,6 +49900,7 @@ def play_audio_file(
             "VisualizerMode": visualizer_mode,
             "PersistenceMode": persistence_mode,
             "VisualizerGranularity": visualizer_granularity,
+            "KaraokeVisualizerHeightMode": karaoke_visualizer_height_mode,
             "VisualizerInputSource": visualizer_input_source,
             "ProcessingStyle": processing_style,
             "ColorStyle": color_style,
@@ -48450,6 +49924,9 @@ def play_audio_file(
             "AlertUnknownYear": int(alert_unknown_year),
             "AlertUnknownGenre": int(alert_unknown_genre),
             "AlertEmbeddedLyricsMismatch": int(alert_embedded_lyrics_mismatch),
+            "ArtworkSeamStrategy": ARTWORK_SEAM_STRATEGY,
+            "ExternalMediaAutoPause": int(EXTERNAL_MEDIA_AUTO_PAUSE),
+            "ExternalMediaResumeFadeSeconds": EXTERNAL_MEDIA_RESUME_FADE_SECONDS,
             "ProgressStyle": progress_style,
             "ProgressBarEnabled": int(progress_bar_enabled),
             "ProgressBeatReactive": int(progress_beat_reactive),
@@ -48467,13 +49944,19 @@ def play_audio_file(
             "SpeedIndex": speed_index,
             "Looping": int(looping),
             "Shuffle": int(bool(shuffle_state and shuffle_state[0])),
-            "Autoplay": int(bool(autoplay_state and autoplay_state[0])),
+            "RepeatMode": int(repeat_mode),
+            "ShuffleMode": int(shuffle_mode),
             "DrcsEnabled": int(drcs_enabled),
             "SixelEnabled": int(sixel_enabled),
             "HudDetails": int(hud_details_visible),
         }
 
     def apply_mode_settings(settings: dict[str, int]) -> None:
+        global ARTWORK_SEAM_STRATEGY, EXTERNAL_MEDIA_AUTO_PAUSE, EXTERNAL_MEDIA_RESUME_FADE_SECONDS
+        EXTERNAL_MEDIA_AUTO_PAUSE = bool(settings.get("ExternalMediaAutoPause", EXTERNAL_MEDIA_AUTO_PAUSE))
+        EXTERNAL_MEDIA_RESUME_FADE_SECONDS = max(0, min(120, int(settings.get("ExternalMediaResumeFadeSeconds", EXTERNAL_MEDIA_RESUME_FADE_SECONDS))))
+        ARTWORK_SEAM_STRATEGY = max(0, min(5, int(settings.get("ArtworkSeamStrategy", ARTWORK_SEAM_STRATEGY))))
+        nonlocal karaoke_visualizer_height_mode, last_lyric_index, last_visualizer_payload
         nonlocal visualizer_mode, persistence_mode, visualizer_granularity, visualizer_input_source, processing_style, color_style, color_reverse, fade_style, frequency_warp_enabled, karaoke_style, karaoke_treatment
         nonlocal karaoke_emojimax, console_karaoke_enabled, console_alerts_enabled, visualizer_bars_enabled, visualizer_background_artwork_enabled, progress_style, progress_bar_enabled, progress_beat_reactive, progress_beat_detector, progress_beat_treatment, cursive_fix, output_channels, output_rate, output_bit_depth, output_device_index, output_devices_mask_value, output_device_indexes, mm_inspired_renderer_enabled, balance
         nonlocal alert_no_replaygain, alert_missing_artist, alert_missing_title, alert_missing_karaoke, alert_missing_lyrics, alert_missing_artwork, alert_unknown_year, alert_unknown_genre, alert_embedded_lyrics_mismatch, replaygain_missing_continuous, track_alert_details, track_alerts_announced
@@ -48481,6 +49964,11 @@ def play_audio_file(
         visualizer_mode = settings["VisualizerMode"]
         persistence_mode = settings.get("PersistenceMode", DEFAULT_PERSISTENCE_MODE)
         visualizer_granularity = settings.get("VisualizerGranularity", DEFAULT_VISUALIZER_GRANULARITY)
+        new_compositing = max(0, min(3, int(settings.get("KaraokeVisualizerHeightMode", karaoke_visualizer_height_mode))))
+        if new_compositing != karaoke_visualizer_height_mode:
+            karaoke_visualizer_height_mode = new_compositing
+            last_lyric_index = None
+            last_visualizer_payload = None
         visualizer_input_source = min(len(LIVE_VISUALIZER_INPUT_NAMES), max(1, int(settings.get("VisualizerInputSource", DEFAULT_VISUALIZER_INPUT_SOURCE))))
         sync_live_visualizer_capture(bool(prompt_paused_state[0]))
         processing_style = settings.get("ProcessingStyle", PROCESSING_STYLE_NAMES.index("Signal Aurora") + 1)
@@ -48538,12 +50026,11 @@ def play_audio_file(
         sixel_enabled = bool(settings["SixelEnabled"])
         if shuffle_state is not None:
             shuffle_state[0] = bool(settings["Shuffle"])
-        if autoplay_state is not None:
-            autoplay_state[0] = bool(settings["Autoplay"])
         for state, value in (
             (visualizer_mode_state, visualizer_mode),
             (persistence_mode_state, persistence_mode),
             (visualizer_granularity_state, visualizer_granularity),
+            (karaoke_visualizer_height_mode_state, karaoke_visualizer_height_mode),
             (visualizer_input_source_state, visualizer_input_source),
             (processing_style_state, processing_style),
             (color_style_state, color_style),
@@ -48696,6 +50183,7 @@ def play_audio_file(
         FFplay reconstruction; visual choices repaint in-place.
         """
         global ART_COLOR_VISUALIZER_REPRESENTATION, ART_COLOR_VISUALIZER_BAR_STRENGTH, ART_COLOR_VISUALIZER_BLACK_STRENGTH, ART_COLOR_VISUALIZER_BAR_BLEND_MODE, ART_COLOR_VISUALIZER_KARAOKE_SIDES, ART_COLOR_VISUALIZER_KARAOKE, ART_COLOR_VISUALIZER_DEMO_SAVED, KARAOKE_DISPLAY_OFFSET_SECONDS, CURSIVE_FIX_RUNTIME
+        global ART_COLOR_VISUALIZER_BAR_OPACITY, ARTWORK_SEAM_STRATEGY, EXTERNAL_MEDIA_AUTO_PAUSE, EXTERNAL_MEDIA_RESUME_FADE_SECONDS
         global ART_COLOR_AUTOSLIDES_LOCKED, ART_COLOR_AUTOSLIDES_SHARED_STARTED
         global CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED
         nonlocal visualizer_mode, color_style, processing_style, persistence_mode
@@ -48745,6 +50233,18 @@ def play_audio_file(
         elif key == "karaoke_offset_delta":
             adjust_karaoke_display_offset_tenths(value)
             last_lyric_index = None
+        elif key == "external_media_auto_pause":
+            EXTERNAL_MEDIA_AUTO_PAUSE = bool(value)
+            save_player_setting_value("ExternalMediaAutoPause", int(EXTERNAL_MEDIA_AUTO_PAUSE))
+        elif key == "external_media_resume_fade_seconds":
+            EXTERNAL_MEDIA_RESUME_FADE_SECONDS = max(0, min(120, value))
+            save_player_setting_value("ExternalMediaResumeFadeSeconds", EXTERNAL_MEDIA_RESUME_FADE_SECONDS)
+        elif key == "artwork_seam_strategy":
+            ARTWORK_SEAM_STRATEGY = max(0, min(5, value))
+            _VISUALIZER_ART_DETAIL_GRID_CACHE.clear()
+            _VISUALIZER_ART_CELL_STYLE_CACHE.clear()
+            last_visualizer_payload = last_visualizer_rows = last_visualizer_cells = None
+            last_drcs_position = None
         elif key == "art_color_representation":
             ART_COLOR_VISUALIZER_REPRESENTATION = ART_COLOR_VISUALIZER_REPRESENTATIONS[
                 min(len(ART_COLOR_VISUALIZER_REPRESENTATIONS) - 1, max(0, value))
@@ -48776,6 +50276,10 @@ def play_audio_file(
             last_visualizer_payload = None
         elif key == "art_color_bar_strength":
             ART_COLOR_VISUALIZER_BAR_STRENGTH = max(0.0, min(1.0, value / 100.0))
+            last_visualizer_payload = None
+        elif key == "art_color_bar_opacity":
+            ART_COLOR_VISUALIZER_BAR_OPACITY = max(0.0, min(1.0, value / 100.0))
+            save_player_setting_value("ArtColorBarOpacity", round(ART_COLOR_VISUALIZER_BAR_OPACITY * 100))
             last_visualizer_payload = None
         elif key == "art_color_black_strength":
             ART_COLOR_VISUALIZER_BLACK_STRENGTH = max(0.0, min(1.0, value / 100.0))
@@ -49427,7 +50931,7 @@ def play_audio_file(
         """Return the live playback position while a modal prompt owns input."""
         if prompt_paused_state[0]:
             return position
-        live = position + max(0.0, monotonic() - segment_started) * PLAYBACK_SPEEDS[speed_index]
+        live = position + audio_segment_elapsed(process, monotonic(), segment_started, PLAYBACK_SPEEDS[speed_index], getattr(process, "playback_started_at", False) is None)
         if playback_end is not None:
             live = min(playback_end, live)
         return max(playback_start, live)
@@ -49528,6 +51032,7 @@ def play_audio_file(
         if playlist_add_callback is None:
             set_transient_warning("⚠ No active playlist ⚠", seconds=5.0)
             return False
+        jump_selection = [False]
         picked = (
             traditional_windows_audio_file_picker(audio_path.parent)
             if use_file_picker
@@ -49540,6 +51045,7 @@ def play_audio_file(
                     sleeper_fn=sleeper,
                     initial_quit_q_presses=initial_quit_q_presses,
                     quit_callback=abort_requested.set,
+                    jump_state=jump_selection,
                 )
                 if audio_catalog_index is not None
                 else None
@@ -49552,6 +51058,16 @@ def play_audio_file(
             if isinstance(picked, (tuple, list))
             else (Path(picked),)
         )
+        if jump_selection[0] and playlist_jump_state is not None:
+            target = selected[0]
+            if not target.is_file():
+                set_transient_warning("Selected file is missing", seconds=5.0)
+                return False
+            playlist_jump_state[0] = target
+            speed_index = PLAYBACK_SPEEDS.index(1.0)
+            if speed_index_state is not None:
+                speed_index_state[0] = speed_index
+            return False
         added_paths: list[Path] = []
         for selected_path in selected:
             try:
@@ -50033,9 +51549,12 @@ def play_audio_file(
             # after FFplay while this worker launched analyzer FFmpeg at +0.35s.
             # That overlap brought back the foreground-window resize bug. Wait
             # only in this background analyzer thread; playback stays immediate.
-            while not lastfm_now_playing_finished.wait(0.05):
-                if abort_requested.is_set():
-                    return
+            # Artwork/lyrics must not wait indefinitely for a network scrobble.
+            # The detached native analyzer no longer needs the historical
+            # unbounded Last.fm startup gate.
+            lastfm_now_playing_finished.wait(0.05)
+            if abort_requested.is_set():
+                return
             if spectrum_diagnostic_mode:
                 write_console(
                     move_to(STATUS_ROW) + "\033[2K"
@@ -50052,6 +51571,14 @@ def play_audio_file(
                 # FFmpeg, read a pipe, publish frames, or touch the cache.
                 while not abort_requested.is_set():
                     time.sleep(0.25)
+                return
+            if cached_spectrum is not None:
+                data, width, fps = cached_spectrum
+                chunk_bytes = width * fps * 3
+                for start in range(0, len(data), chunk_bytes):
+                    if abort_requested.is_set():
+                        return
+                    progress_beat_timeline.append(data[start:start + chunk_bytes], width, fps)
                 return
             offset = 0.0
             accumulated = bytearray()
@@ -50100,12 +51627,10 @@ def play_audio_file(
                 expected_bytes = expected_frames * width
                 chunk_data = bytearray(chunk[0][:expected_bytes])
                 if len(chunk_data) < expected_bytes:
-                    if len(chunk_data) >= width:
-                        last_frame = bytes(chunk_data[-width:])
-                    else:
-                        last_frame = bytes(width)
+                    last_frame = bytes(width)
                     while len(chunk_data) < expected_bytes:
                         chunk_data.extend(last_frame[: min(width, expected_bytes - len(chunk_data))])
+                progress_beat_timeline.append(bytes(chunk_data), width, fps)
                 accumulated.extend(chunk_data)
                 if not discard_spectrum_publish:
                     drcs_timeline = (bytes(accumulated), width, fps)
@@ -50123,7 +51648,7 @@ def play_audio_file(
                 save_spectrum_timeline_cache(audio_path, drcs_timeline)
 
         spectrum_thread: threading.Thread | None = None
-        if (drcs_enabled or web_server is not None) and cached_spectrum is None and not disable_spectrum_analyzer:
+        if (drcs_enabled or web_server is not None or progress_bar_enabled) and not disable_spectrum_analyzer:
             spectrum_thread = threading.Thread(
                 target=analyze_spectrum,
                 name="audio-spectrum-analysis",
@@ -50189,6 +51714,13 @@ def play_audio_file(
                 set_transient_warning("⚠ " + short + "  [? for details]", seconds=6.0)
             return True
         indicator = "▶️"
+        # Set only when Space resumes from the paused loop. The next decoder
+        # launch gets a short one-shot audio reservoir; normal launches keep
+        # the configured buffer unchanged.
+        global _GLOBAL_SEEK_CAPTURE
+        if key_action_reader is read_windows_key_action and os.name == "nt":
+            _GLOBAL_SEEK_CAPTURE = GlobalSeekCapture().start()
+        resume_after_pause = False
         if output_rate not in OUTPUT_SAMPLE_RATES:
             output_rate = HDMI_PCM_OUTPUT_RATE
         lastfm_submission_attempted = False
@@ -50202,6 +51734,8 @@ def play_audio_file(
         last_runtime_warning_serial = pafplayer_runtime_warning_serial()
         while True:
             speed = PLAYBACK_SPEEDS[speed_index]
+            resume_fade = external_media_controller.fade_arguments()
+            fade_segment_start = external_media_controller.fade_elapsed
             buffered_waveout_active = bool(
                 os.name == "nt" and process_factory is subprocess.Popen and (
                     (smooth_audio_renderer_enabled and output_channels == 2)
@@ -50215,7 +51749,11 @@ def play_audio_file(
                     process, command = launch_matrixmixer_inspired_renderer(
                         audio_path, position, volume, speed, output_channels, balance, output_rate, output_device_index, output_bit_depth, output_device_indexes=output_device_indexes,
                         end_seconds=playback_end, replaygain_info=replaygain_info,
-                        target_buffer_ms=audio_buffer_ms,
+                        resume_fade=resume_fade,
+                        target_buffer_ms=(
+                            min(audio_buffer_ms, PAUSE_RESUME_AUDIO_BUFFER_MS)
+                            if resume_after_pause else audio_buffer_ms
+                        ),
                     )
                     append_pafplayer_trace(
                         "mm-inspo.started", track=audio_path, position_seconds=position,
@@ -50245,6 +51783,7 @@ def play_audio_file(
                     end_seconds=playback_end,
                     replaygain_info=replaygain_info,                                      # The same object is reused after seek/pause/speed/volume/balance/channel restarts.
                 )
+                command = apply_external_resume_fade(command, resume_fade)
                 append_pafplayer_trace(
                     "ffplay.launch",
                     track=audio_path,
@@ -50268,10 +51807,17 @@ def play_audio_file(
                     # simply ignore the hint.
                     process_kwargs["creationflags"] = getattr(subprocess, "ABOVE_NORMAL_PRIORITY_CLASS", 0)
                     ffplay_env = os.environ.copy()
-                    if smooth_audio_renderer_enabled and audio_buffer_ms > 0:
-                        ffplay_env["SDL_AUDIO_DEVICE_SAMPLE_FRAMES"] = str(max(256, round(output_rate * audio_buffer_ms / 1000.0)))
+                    launch_audio_buffer_ms = (
+                        min(audio_buffer_ms, PAUSE_RESUME_AUDIO_BUFFER_MS)
+                        if resume_after_pause else audio_buffer_ms
+                    )
+                    if smooth_audio_renderer_enabled and launch_audio_buffer_ms > 0:
+                        ffplay_env["SDL_AUDIO_DEVICE_SAMPLE_FRAMES"] = str(max(256, round(output_rate * launch_audio_buffer_ms / 1000.0)))
                     process_kwargs["env"] = ffplay_env
                 process = process_factory(command, **process_kwargs)
+                # This is deliberately one-shot: subsequent restarts caused by
+                # seek/volume/speed retain the user's normal buffer setting.
+                resume_after_pause = False
                 append_pafplayer_trace(
                     "ffplay.started",
                     track=audio_path,
@@ -50301,6 +51847,10 @@ def play_audio_file(
                 volume_blink_started_at = segment_started
                 last_volume_blink_phase = -1
                 volume_blink_rearm_on_playback_start = False
+            if external_album_art_window is not None:
+                external_album_art_window.set_playback_clock(process, position, speed, segment_started, playback_end)
+            if web_server is not None:
+                web_server.bind_timeline_clock(process, position, speed, segment_started, playback_end, lambda: drcs_timeline)
             segment_was_recorded = False
 
             def record_segment(end_position: float, *, minimum_seconds: float = 3.0) -> None:
@@ -50371,7 +51921,8 @@ def play_audio_file(
                         segment_started = float(process_started_at)
                         buffered_clock_waiting = False
                         next_visualizer_deadline = now
-                elapsed = 0.0 if buffered_clock_waiting else max(0.0, now - segment_started) * speed
+                elapsed = audio_segment_elapsed(process, now, segment_started, speed, buffered_clock_waiting)
+                external_media_controller.advance_fade(fade_segment_start, elapsed / max(0.01, speed))
                 displayed_position = position + elapsed
                 if playback_end is not None:
                     displayed_position = min(playback_end, displayed_position)
@@ -50381,8 +51932,12 @@ def play_audio_file(
                     math.floor((displayed_position + 1e-12) / PLAYBACK_PRESENTATION_QUANTUM_SECONDS)
                     * PLAYBACK_PRESENTATION_QUANTUM_SECONDS
                 )
+                if web_server is not None:
+                    web_server.publish_timeline(drcs_timeline, displayed_position, speed, now,
+                        playing=not buffered_clock_waiting, live=bool(live_visualizer_capture_mode(visualizer_input_source, False)),
+                        ui_start=playback_start)
                 if external_album_art_window is not None:
-                    external_album_art_window.set_playback_position(displayed_position)
+                    external_album_art_window.set_playback_position(displayed_position, speed=0.0 if buffered_clock_waiting else speed, sampled_at=now)
                 if apply_finished_last_play_lookup():
                     # The lookup worker owns SQLite only. Reflow/repaint remains
                     # on the playback owner thread so terminal output stays atomic.
@@ -50454,8 +52009,8 @@ def play_audio_file(
                     and now - last_external_lyric_publish >= EXTERNAL_KARAOKE_CLOCK_PUBLISH_SECONDS
                 ):
                     perf_art_started = time.perf_counter() if performance_stats_overlay_enabled else 0.0
-                    external_album_art_window.update_karaoke_frame(
-                        shared_karaoke_frame(displayed_position),
+                    external_album_art_window.set_karaoke_timeline(
+                        lyrics,
                         emojimax=karaoke_emojimax,
                         decensor_artwork=decensor_artwork_lyrics,
                         decensor_floating=decensor_floating_lyrics,
@@ -50501,10 +52056,15 @@ def play_audio_file(
                         output_devices_mask=output_devices_mask_value,
                         output_device_label=" + ".join(output_device_label(index) for index in output_device_indexes),
                         mm_inspired_renderer_enabled=mm_inspired_renderer_enabled,
+                        artwork_seam_strategy=ARTWORK_SEAM_STRATEGY,
+                        **external_media_controller.status(),
                         art_color_demo=ART_COLOR_VISUALIZER_DEMO_SAVED is not None,
                         shuffle=bool(shuffle_state[0]) if shuffle_state is not None else False,
                         loop=bool(looping),
-                        autoplay=bool(autoplay_state[0]) if autoplay_state is not None else False,
+                        repeat_mode=repeat_mode,
+                        repeat_mode_name=REPEAT_MODE_NAMES[repeat_mode],
+                        shuffle_mode=shuffle_mode,
+                        shuffle_mode_name=SHUFFLE_MODE_NAMES[shuffle_mode],
                         visualizer_mode=visualizer_mode,
                         visualizer_input_source=visualizer_input_source,
                         visualizer_input_status=current_visualizer_input_status(False),
@@ -50515,6 +52075,8 @@ def play_audio_file(
                         art_color_karaoke=ART_COLOR_VISUALIZER_KARAOKE,
                         art_color_bar_strength=round(ART_COLOR_VISUALIZER_BAR_STRENGTH * 100),
                         art_color_bar_blend_mode=ART_COLOR_VISUALIZER_BAR_BLEND_MODE,
+                        art_color_bar_opacity=round(ART_COLOR_VISUALIZER_BAR_OPACITY * 100),
+                        audio_health=getattr(process, "audio_health", {}),
                         art_color_black_strength=round(ART_COLOR_VISUALIZER_BLACK_STRENGTH * 100),
                         color_style=color_style,
                         color_reverse=color_reverse,
@@ -50588,6 +52150,9 @@ def play_audio_file(
                         karaoke_visualizer_overlay=karaoke_visualizer_overlay,
                         karaoke_visualizer_height_mode=karaoke_visualizer_height_mode,
                         lyric=current_lyric,
+                        lyric_timeline=shared_web_lyric_timeline(),
+                        lyric_position_seconds=displayed_position,
+                        lyric_clock_epoch=time.time() - max(0.0, monotonic() - now),
                         playlist_track_count=(
                             playlist_track_count_state[0]
                             if playlist_track_count_state is not None
@@ -50626,6 +52191,7 @@ def play_audio_file(
                             render_controls(
                                 playback_fraction(displayed_position)
                             )
+                startup_pause_transition = startup_pause_pending
                 if startup_pause_pending:
                     # V174 restores the previous process' play/pause state.  Consume
                     # this latch exactly once; later FFplay reconstructions (seek,
@@ -50667,6 +52233,11 @@ def play_audio_file(
                 # the keyboard's single pause-toggle.  Normalize them into the
                 # existing owner-thread semantics without inventing another audio
                 # control path.
+                if not startup_pause_transition:
+                    action = external_media_controller.filter_action(action, False, now)
+                if action == EXTERNAL_MEDIA_PAUSE:
+                    set_transient_notice("Paused for other media", "⏸ Paused for " + ", ".join(external_media_controller.last_snapshot.get("active", ())), 5.0)
+                    action = PAUSE_TOGGLE
                 if action == WEB_PLAY:
                     action = None  # Already playing: Play is idempotent.
                 elif action == WEB_PAUSE:
@@ -50820,10 +52391,6 @@ def play_audio_file(
                         last_drcs_position = None
                         last_lyric_index = None
                         last_sixel_refresh = -10.0
-                if not disable_winamp_enforcement and guard_winamp and now - last_winamp_enforcement >= 0.5:
-                    if pause_playing_winamp() and manage_winamp:
-                        winamp_paused_by_preview = True
-                    last_winamp_enforcement = now
                 if loop_indicator_until and now >= loop_indicator_until:
                     indicator = "▶️"
                     loop_indicator_until = 0.0
@@ -50950,11 +52517,13 @@ def play_audio_file(
                             if next_visualizer_deadline <= after_paint:
                                 missed = math.floor((after_paint - next_visualizer_deadline) / period_after_paint) + 1
                                 next_visualizer_deadline += missed * period_after_paint
-                    if now - last_status_write >= 1.0 / max(1.0, VISUALIZER_STATUS_FPS):
+                    cue_frame = shared_karaoke_frame(displayed_position)
+                    cue_changed = (cue_frame.active_index, cue_frame.active_text) != last_console_cue_key
+                    if cue_changed or now - last_status_write >= 1.0 / max(1.0, VISUALIZER_STATUS_FPS):
                         if _PENDING_KARAOKE_BAKE_CHANGED.is_set():
                             _PENDING_KARAOKE_BAKE_CHANGED.clear()
                             render_controls(playback_fraction(displayed_position))
-                        karaoke_due = now - last_karaoke_status_write >= 1.0 / max(1.0, KARAOKE_STATUS_FPS)
+                        karaoke_due = cue_changed or now - last_karaoke_status_write >= 1.0 / max(1.0, KARAOKE_STATUS_FPS)
                         hud_details_due = now - last_hud_details_status_write >= 1.0 / max(1.0, HUD_DETAILS_STATUS_FPS)
                         show_status(
                             displayed_position,
@@ -50981,7 +52550,7 @@ def play_audio_file(
                         if perf_metadata_started:
                             performance_profile_add("metadata", time.perf_counter() - perf_metadata_started)
                     last_metadata_animation_write = now
-                if action is None and not config_visualizers_paused and not all_audio_tags_active and layered_art_visualizer_enabled and visualizer_track_artwork_allowed(visualizer_input_source, False) and now - last_sixel_refresh >= layered_art_restore_period(visualizer_columns, drcs_rows + LYRIC_ROWS):
+                if action is None and not config_visualizers_paused and not all_audio_tags_active and (layered_art_visualizer_enabled or (ARTWORK_SEAM_STRATEGY == 3 and shutil.which("chafa"))) and visualizer_track_artwork_allowed(visualizer_input_source, False) and now - last_sixel_refresh >= layered_art_restore_period(visualizer_columns, drcs_rows + LYRIC_ROWS):
                     active_now = shared_karaoke_frame(displayed_position).active
                     expand_now = bool(
                         karaoke_visualizer_expansion_enabled and LYRIC_ROWS
@@ -51277,10 +52846,22 @@ def play_audio_file(
                     record_segment(displayed_position)
                     stop_process(process)
                     return finish_playback(action)
+                if action in {REPEAT_NEXT, REPEAT_PREVIOUS, REPEAT_DOUBLE}:
+                    if action == REPEAT_DOUBLE:
+                        repeat_mode = 2 if repeat_mode == 3 else 3
+                    else:
+                        delta = 1 if action == REPEAT_NEXT else -1
+                        repeat_mode = (repeat_mode + delta) % len(REPEAT_MODE_NAMES)
+                    looping = repeat_mode == 0
+                    if repeat_mode_state is not None: repeat_mode_state[0] = repeat_mode
+                    if looping_state is not None: looping_state[0] = looping
+                    announce_loop_state(looping)
+                    render_controls(playback_fraction(displayed_position)); continue
                 if action == LOOP_TOGGLE:
                     looping = not looping
                     if looping_state is not None:
                         looping_state[0] = looping
+                    announce_loop_state(looping)
                     indicator = "🔁" if looping else "➡️"
                     loop_indicator_until = now + 5.0
                     render_controls(playback_fraction(displayed_position))
@@ -51317,6 +52898,10 @@ def play_audio_file(
                         record_segment(displayed_position); hard_stop_process(process); return finish_playback("stopped")
                     if choice == "q":
                         add_track_via_insert(False)
+                        if playlist_jump_state is not None and playlist_jump_state[0] is not None:
+                            record_segment(current_prompt_position())
+                            stop_process(process)
+                            return finish_playback(PLAYLIST_JUMP_RESULT)
                     elif choice == "h":
                         history_result = history_regex_screen()
                         if history_result == "eof":
@@ -51332,6 +52917,10 @@ def play_audio_file(
                         record_segment(current_prompt_position())
                         stop_process(process)
                         return finish_playback("stopped")
+                    if playlist_jump_state is not None and playlist_jump_state[0] is not None:
+                        record_segment(current_prompt_position())
+                        stop_process(process)
+                        return finish_playback(PLAYLIST_JUMP_RESULT)
                     if speed_changed:
                         insert_position = current_prompt_position()
                         record_segment(insert_position)
@@ -51368,6 +52957,16 @@ def play_audio_file(
                         playback_fraction(displayed_position)
                     )
                     continue
+                if action in {SHUFFLE_NEXT, SHUFFLE_PREVIOUS, SHUFFLE_DOUBLE}:
+                    if action == SHUFFLE_DOUBLE:
+                        shuffle_mode = 4 if shuffle_mode == 5 else 5
+                    else:
+                        delta = 1 if action == SHUFFLE_NEXT else -1
+                        shuffle_mode = (shuffle_mode + delta) % len(SHUFFLE_MODE_NAMES)
+                    if shuffle_mode_state is not None: shuffle_mode_state[0] = shuffle_mode
+                    if shuffle_state is not None: shuffle_state[0] = shuffle_mode not in {0, 5}
+                    announce_shuffle_state()
+                    render_controls(playback_fraction(displayed_position)); continue
                 if action == VISUALIZER_PERF_TOGGLE:
                     toggle_visualizer_performance_overlay()
                     render_controls(playback_fraction(displayed_position))
@@ -51516,14 +53115,6 @@ def play_audio_file(
                     render_controls()
                     show_status(displayed_position, indicator)
                     continue
-                if action == AUTOPLAY_TOGGLE and autoplay_state is not None:
-                    autoplay_state[0] = not autoplay_state[0]
-                    if autoplay_state[0]:
-                        looping = False
-                        if shuffle_state is not None:
-                            shuffle_state[0] = True
-                    render_controls()
-                    continue
                 if action == FLOATING_LYRICS_TOGGLE:
                     if external_album_art_window is not None:
                         floating_enabled = external_album_art_window.toggle_floating_lyrics()
@@ -51585,6 +53176,10 @@ def play_audio_file(
                             web_server.publish(floating_lyrics_enabled=True)
                     else:
                         set_transient_error("💥 Floating lyrics unavailable 💥", seconds=5.0)
+                    continue
+                if action in {EXTERNAL_ALBUM_ART_CENTER, EXTERNAL_FLOATING_LYRICS_CENTER}:
+                    if external_album_art_window is not None:
+                        external_album_art_window.bring_to_center(floating=action == EXTERNAL_FLOATING_LYRICS_CENTER)
                     continue
                 if action == EXTERNAL_ALBUM_ART_TOGGLE:
                     enabled = (
@@ -51830,10 +53425,13 @@ def play_audio_file(
                     if playback_end is not None:
                         position = min(position, max(playback_start, playback_end - 0.05))
                     stop_process(process)
-                    render_controls(playback_fraction(position))
-                    show_status(position, indicator)
+                    # The volume popup and full HUD/visualizer repaint are
+                    # intentionally deferred until the restarted decoder has
+                    # been launched. Painting them here made a volume key wait
+                    # behind the expensive console artwork path before audio
+                    # could resume.
                     break
-                if action == PAUSE_TOGGLE:
+                if action in {PAUSE_TOGGLE, WEB_STOP}:
                     record_segment(displayed_position)
                     if web_server is not None:
                         web_server.publish(
@@ -51846,6 +53444,13 @@ def play_audio_file(
                     if playback_end is not None:
                         position = min(position, max(playback_start, playback_end - 0.05))
                     stop_process(process)
+                    if action == WEB_STOP:
+                        position = playback_start
+                        if playback_position_state is not None:
+                            playback_position_state[0] = position
+                        if web_server is not None:
+                            web_server.publish(transport_stopped=True, playing=False, paused=True,
+                                               position_seconds=0.0, progress=0.0)
                     header_paused = True
                     prompt_paused_state[0] = True
                     if external_album_art_window is not None:
@@ -51940,13 +53545,16 @@ def play_audio_file(
                             external_album_art_window is not None
                             and paused_now - last_external_lyric_publish >= 0.10
                         ):
-                            external_album_art_window.update_karaoke_frame(
-                                shared_karaoke_frame(position),
+                            external_album_art_window.set_karaoke_timeline(
+                                lyrics,
                                 emojimax=karaoke_emojimax,
                                 decensor_artwork=decensor_artwork_lyrics,
                                 decensor_floating=decensor_floating_lyrics,
                             )
                             last_external_lyric_publish = paused_now
+                        if web_server is not None:
+                            web_server.publish_timeline(drcs_timeline, position, 0.0, paused_now,
+                                playing=False, live=bool(live_visualizer_capture_mode(visualizer_input_source, True)), ui_start=playback_start)
                         if web_server is not None and web_server.web_visualizer_active(paused_now) and paused_now - last_web_spectrum_publish >= WEB_SPECTRUM_POLL_MILLISECONDS / 1000.0:
                             desired_paused_live_mode = live_visualizer_capture_mode(visualizer_input_source, True)
                             paused_live_raw = (live_visualizer_capture.latest_levels() if desired_paused_live_mode and live_visualizer_capture is not None else b"")
@@ -51957,6 +53565,7 @@ def play_audio_file(
                             web_server.publish(
                                 playing=True,
                                 paused=True,
+                                **external_media_controller.status(),
                                 position_seconds=playback_ui_position(position),
                                 duration_seconds=playback_duration,
                                 progress=playback_fraction(position),
@@ -51967,7 +53576,10 @@ def play_audio_file(
                                 output_channels=output_channels,
                                 shuffle=bool(shuffle_state[0]) if shuffle_state is not None else False,
                                 loop=bool(looping),
-                                autoplay=bool(autoplay_state[0]) if autoplay_state is not None else False,
+                                repeat_mode=repeat_mode,
+                                repeat_mode_name=REPEAT_MODE_NAMES[repeat_mode],
+                                shuffle_mode=shuffle_mode,
+                                shuffle_mode_name=SHUFFLE_MODE_NAMES[shuffle_mode],
                                 visualizer_mode=visualizer_mode,
                                 visualizer_input_source=visualizer_input_source,
                                 visualizer_input_status=current_visualizer_input_status(True),
@@ -52006,6 +53618,10 @@ def play_audio_file(
                                 karaoke_visualizer_overlay=karaoke_visualizer_overlay,
                                 karaoke_visualizer_height_mode=karaoke_visualizer_height_mode,
                                 lyric=shared_karaoke_frame(position).title_text,
+                                lyric_timeline=shared_web_lyric_timeline(),
+                                lyric_position_seconds=position,
+                                lyric_clock_epoch=time.time(),
+                                karaoke_offset_seconds=KARAOKE_DISPLAY_OFFSET_SECONDS,
                                 visualizer_perf=dict(performance_latest),
                             )
                             last_web_publish = paused_now
@@ -52038,11 +53654,6 @@ def play_audio_file(
                                     show_status(position, "⏸️")
                             last_drcs_position = None
                             last_lyric_index = None
-                        if PREVENT_WINAMP_PAUSE_WHEN_WE_ARE_PAUSED:
-                            if not disable_winamp_enforcement and guard_winamp and paused_now - last_winamp_enforcement >= 0.5:
-                                if pause_playing_winamp() and manage_winamp:
-                                    winamp_paused_by_preview = True
-                                last_winamp_enforcement = paused_now
                         if handle_color_selection_input(paused_now, position, "⏸️"):
                             paused_action = None
                         elif favorite_menu_active:
@@ -52074,6 +53685,20 @@ def play_audio_file(
                             paused_action = key_action_reader()
                             if paused_action is None and web_server is not None:
                                 paused_action = web_server.pop_action()
+                        paused_action = external_media_controller.filter_action(paused_action, True, paused_now)
+                        if paused_action == EXTERNAL_MEDIA_RESUME:
+                            set_transient_notice("Other media finished", f"▶ Resuming with {EXTERNAL_MEDIA_RESUME_FADE_SECONDS}s fade-in", 5.0)
+                            paused_action = PAUSE_TOGGLE
+                        if paused_action == WEB_STOP:
+                            position = playback_start
+                            if playback_position_state is not None:
+                                playback_position_state[0] = position
+                            if web_server is not None:
+                                web_server.publish(transport_stopped=True, playing=False, paused=True,
+                                                   position_seconds=0.0, progress=0.0)
+                            render_static_header(position)
+                            show_status(position, "⏹️")
+                            continue
                         if paused_action == WEB_PAUSE:
                             paused_action = None  # Already paused: Pause is idempotent.
                         elif paused_action == WEB_PLAY:
@@ -52451,6 +54076,10 @@ def play_audio_file(
                             else:
                                 set_transient_error("💥 Floating lyrics unavailable 💥", seconds=5.0)
                             continue
+                        if paused_action in {EXTERNAL_ALBUM_ART_CENTER, EXTERNAL_FLOATING_LYRICS_CENTER}:
+                            if external_album_art_window is not None:
+                                external_album_art_window.bring_to_center(floating=paused_action == EXTERNAL_FLOATING_LYRICS_CENTER)
+                            continue
                         if paused_action == EXTERNAL_ALBUM_ART_TOGGLE:
                             enabled = (
                                 external_album_art_window.toggle()
@@ -52639,10 +54268,10 @@ def play_audio_file(
                             break
                         if abort_requested.is_set() or paused_action in {STOP, QUIT_Q}:
                             return finish_playback("stopped")
-                        if paused_action in SEEK_SECONDS:
+                        if (seek_delta := seek_seconds_for_action(paused_action)) is not None:
                             position = max(
                                 playback_start,
-                                position + SEEK_SECONDS[paused_action],
+                                position + seek_delta,
                             )
                             if playback_end is not None:
                                 position = min(
@@ -52654,26 +54283,43 @@ def play_audio_file(
                             render_controls(playback_fraction(position))
                             show_status(
                                 position,
-                                "⏪" if SEEK_SECONDS[paused_action] < 0 else "⏩",
+                                "⏪" if seek_delta < 0 else "⏩",
                             )
                             continue
                         if paused_action in NAVIGATION_ACTIONS:
                             return finish_playback(paused_action)
                         if paused_action == PAUSE_TOGGLE:
                             indicator = "▶️"
+                            resume_after_pause = True
                             if paused_state is not None:
                                 paused_state[0] = False
                             if web_server is not None:
                                 web_server.publish(paused=False, playing=True)
                             break
+                        if paused_action in {REPEAT_NEXT, REPEAT_PREVIOUS, REPEAT_DOUBLE}:
+                            if paused_action == REPEAT_DOUBLE: repeat_mode = 2 if repeat_mode == 3 else 3
+                            else: repeat_mode = (repeat_mode + (1 if paused_action == REPEAT_NEXT else -1)) % len(REPEAT_MODE_NAMES)
+                            looping = repeat_mode == 0
+                            if repeat_mode_state is not None: repeat_mode_state[0] = repeat_mode
+                            if looping_state is not None: looping_state[0] = looping
+                            announce_loop_state(looping); render_controls(playback_fraction(position)); show_status(position, "⏸️")
+                            continue
                         if paused_action == LOOP_TOGGLE:
                             looping = not looping
                             if looping_state is not None:
                                 looping_state[0] = looping
+                            announce_loop_state(looping)
                             render_controls(
                                 playback_fraction(position)
                             )
                             show_status(position, "⏸️")
+                        if paused_action in {SHUFFLE_NEXT, SHUFFLE_PREVIOUS, SHUFFLE_DOUBLE}:
+                            if paused_action == SHUFFLE_DOUBLE: shuffle_mode = 4 if shuffle_mode == 5 else 5
+                            else: shuffle_mode = (shuffle_mode + (1 if paused_action == SHUFFLE_NEXT else -1)) % len(SHUFFLE_MODE_NAMES)
+                            if shuffle_mode_state is not None: shuffle_mode_state[0] = shuffle_mode
+                            if shuffle_state is not None: shuffle_state[0] = shuffle_mode not in {0, 5}
+                            announce_shuffle_state(); render_controls(playback_fraction(position)); show_status(position, "⏸️")
+                            continue
                         if paused_action in {PLAYLIST_DELETE_CURRENT, PLAYLIST_DELETE_CURRENT_WEB_CONFIRMED}:
                             if playlist_remove_callback is None:
                                 set_transient_warning("⚠ No active playlist ⚠", seconds=5.0)
@@ -52694,7 +54340,10 @@ def play_audio_file(
                         if paused_action == Q_COMMAND_MENU:
                             choice = q_command_menu_choice()
                             if choice == "!": return finish_playback("stopped")
-                            if choice == "q": add_track_via_insert(False)
+                            if choice == "q":
+                                add_track_via_insert(False)
+                                if playlist_jump_state is not None and playlist_jump_state[0] is not None:
+                                    return finish_playback(PLAYLIST_JUMP_RESULT)
                             elif choice == "h": history_regex_screen()
                             redraw_entire_player_ui(position, "⏸️", clear_art=False)
                             continue
@@ -52703,6 +54352,8 @@ def play_audio_file(
                                 paused_action == PLAYLIST_ADD_PICKER,
                                 initial_quit_q_presses=(1 if paused_action == PLAYLIST_ADD_SEARCH_Q else 0),
                             )
+                            if playlist_jump_state is not None and playlist_jump_state[0] is not None:
+                                return finish_playback(PLAYLIST_JUMP_RESULT)
                             if abort_requested.is_set():
                                 stop_process(process)
                                 return finish_playback("stopped")
@@ -52867,13 +54518,6 @@ def play_audio_file(
                                 progress_style_state[0] = progress_style
                             render_controls(playback_fraction(position))
                             show_status(position, "⏸️")
-                        if paused_action == AUTOPLAY_TOGGLE and autoplay_state is not None:
-                            autoplay_state[0] = not autoplay_state[0]
-                            if autoplay_state[0]:
-                                looping = False
-                                if shuffle_state is not None:
-                                    shuffle_state[0] = True
-                            render_controls(playback_fraction(position))
                         if paused_action == VOLUME_AND_SPEED_RESET:
                             if speed_adjusted_state is not None:
                                 speed_adjusted_state[0] = True
@@ -52930,11 +54574,11 @@ def play_audio_file(
                     sync_live_visualizer_capture(False)
                     render_static_header(position)
                     break
-                if action in SEEK_SECONDS:
+                if (seek_delta := seek_seconds_for_action(action)) is not None:
                     record_segment(displayed_position)
                     destination = max(
                         playback_start,
-                        position + elapsed + SEEK_SECONDS[action],
+                        position + elapsed + seek_delta,
                     )
                     if playback_end is not None:
                         destination = min(
@@ -52949,7 +54593,9 @@ def play_audio_file(
                         SEEK_BACK_15: "⏪", SEEK_FORWARD_15: "⏩",
                         SEEK_BACK_60: "⏮️", SEEK_FORWARD_60: "⏭️",
                         SEEK_BACK_80: "⏪", SEEK_FORWARD_80: "⏩",
-                    }[action]
+                    }.get(action, "⏪" if seek_delta < 0 else "⏩")
+                    resume_after_pause = True  # Use the short preroll for interactive seeks, too.
+                    progress_beat_state.clear()
                     show_status(position, indicator)
                     break
                 # High-rate rendering needs much finer scheduling than the old
@@ -52992,6 +54638,9 @@ def play_audio_file(
         # Signal-only cleanup is intentional: navigation must not block while a
         # currently-running FFmpeg chunk winds down.
         abort_requested.set()
+        if _GLOBAL_SEEK_CAPTURE is not None:
+            _GLOBAL_SEEK_CAPTURE.close()
+            _GLOBAL_SEEK_CAPTURE = None
         stop_process(process)
         if live_visualizer_capture is not None:
             live_visualizer_capture.stop()
@@ -53002,6 +54651,8 @@ def play_audio_file(
             process_returncode=(process.poll() if process is not None else None),
         )
         set_console_title(previous_console_title)
+        if owns_external_media_controller:
+            external_media_controller.close()
         resume_winamp_if_paused_by_preview(winamp_paused_by_preview)
         if not screen_closed:
             _CURSOR_SUPPRESSION_ACTIVE = False
@@ -53386,7 +55037,6 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertEqual(KARAOKE_TREATMENT_NEXT, interpret_console_key("\x0b"))
         self.assertEqual(KARAOKE_FAVORITE_TOGGLE, interpret_console_key("\x0b", alt=True))
         self.assertEqual(KARAOKE_FAVORITE_CYCLE, interpret_console_key("k", alt=True))
-        self.assertEqual(AUTOPLAY_TOGGLE, interpret_console_key("a"))
         self.assertEqual(PERSISTENCE_NEXT, interpret_console_key("\x07"))
         self.assertEqual(BROWSE_URLS, interpret_console_key("\x15"))
         self.assertEqual(BROWSE_URLS, interpret_console_key("\x02"))
@@ -54343,7 +55993,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("update_lastfm_now_playing_async(", source)
         self.assertIn("track.updateNowPlaying", source)
         self.assertIn("lastfm_now_playing_finished = threading.Event()", source)
-        self.assertIn("while not lastfm_now_playing_finished.wait(0.05)", source)
+        self.assertIn("lastfm_now_playing_finished.wait(0.05)", source)
         self.assertIn("completion_event=lastfm_now_playing_finished", source)
 
     def test_v56_single_scrobble_per_visit_and_force_confirmation_source(self) -> None:
@@ -54974,7 +56624,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('id="visualizerMasterToggle"', html)
         self.assertIn("visualizer-disabled", html)
         self.assertIn("Default visualizer height", html)
-        self.assertEqual("Disable experimental 5.1/7.1 mixer", mm["label"])
+        self.assertEqual("Disable speaker expansion", mm["label"])
         self.assertTrue(mm.get("invert"))
 
     def test_v229_web_art_is_capped_and_transport_precedes_visualizer(self) -> None:
@@ -55349,7 +56999,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertEqual("visualizer", toggles["frequency_warp_enabled"].get("theme"))
         self.assertNotIn("drcs_art_microtiles", toggles)
         self.assertIn("Artwork cell detail", _paf_web_html())
-        self.assertEqual("Disable experimental 5.1/7.1 mixer", toggles["mm_inspired_renderer_enabled"]["label"])
+        self.assertEqual("Disable speaker expansion", toggles["mm_inspired_renderer_enabled"]["label"])
         self.assertTrue(toggles["mm_inspired_renderer_enabled"].get("invert"))
         self.assertTrue(toggles["cursive_fix"].get("experimental", False))
 
@@ -55860,7 +57510,6 @@ class PlayWaveFileTests(unittest.TestCase):
 
     def test_v72_alt_a_external_album_art_key_contract(self) -> None:
         self.assertEqual(EXTERNAL_ALBUM_ART_TOGGLE, interpret_console_key("a", alt=True))
-        self.assertEqual(AUTOPLAY_TOGGLE, interpret_console_key("a"))
         self.assertEqual(EDIT_ATTRIB_CURRENT, interpret_console_key("a", ctrl=True))
         self.assertEqual(EXTERNAL_ALBUM_ART_FOREGROUND, interpret_console_key("a", ctrl=True, alt=True))
         source = Path(__file__).read_text(encoding="utf-8")
@@ -57636,7 +59285,8 @@ class PlayWaveFileTests(unittest.TestCase):
         """INS UI must expose the requested completion/file-picker/navigation affordances."""
         import inspect
         source = inspect.getsource(interactive_audio_catalog_picker)
-        self.assertIn("Shift+INS = Windows file picker", source)
+        self.assertIn("Shift+Enter jumps", source)
+        self.assertIn("Shift+INS files", source)
         self.assertIn('if key == "\\t":', source)
         self.assertIn('ext == "I"', source)
         self.assertIn('ext == "Q"', source)
@@ -59009,7 +60659,7 @@ class PlayWaveFileTests(unittest.TestCase):
         server_source = inspect.getsource(PAFWebServer)
         self.assertIn("def claim_startup_announcement", server_source)
         playback_source = inspect.getsource(play_audio_file)
-        self.assertIn('web_plain = f"🌐 {PROGRAM_TITLE} {PROGRAM_VERSION.casefold()} webserver: port {web_server.port}  {web_server.url}"', playback_source)
+        self.assertIn('web_plain = f"🌐 {PROGRAM_TITLE} {PROGRAM_VERSION.casefold()} webserver: port {web_server.port}  {web_server.url.rstrip(chr(47))}"', playback_source)
 
 
 
@@ -59094,7 +60744,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertNotIn("web_spectrum = visualizer_mode_heights(", source)
         self.assertIn("web_server.publish_spectrum_raw(web_raw_spectrum)", source)
         self.assertNotIn("spectrum=web_spectrum", source)
-        self.assertIn("(drcs_enabled or web_server is not None)", source)
+        self.assertIn("(drcs_enabled or web_server is not None or progress_bar_enabled)", source)
 
     def test_v226_web_document_title_is_single_line_act_title_with_cover_credit(self) -> None:
         """Browser title is the web-specific Act - Title line with optional original-artist credit."""
@@ -59134,7 +60784,6 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertTrue({
             "shuffle",
             "loop",
-            "autoplay",
             "color_reverse",
             "karaoke_emojimax",
             "drcs_enabled",
@@ -59197,7 +60846,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("border:2px outset", html)
         self.assertIn("action('web-play')", html)
         self.assertIn("action('pause-toggle')", html)
-        self.assertIn("action('stop')", html)
+        self.assertIn("action('web-stop')", html)
         self.assertIn('id="pauseResumeButton"', html)
         self.assertTrue(paf_web_action_is_allowed(WEB_PLAY))
         self.assertTrue(paf_web_action_is_allowed(PAUSE_TOGGLE))
@@ -60807,8 +62456,8 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('timing_type in {"inverse", "complement-trail"}', renderer)
         self.assertIn('timing_type == "underline"', renderer)
         self.assertIn('timing_type in {"italic", "cursive"}', renderer)
-        self.assertIn('ImageFilter.MaxFilter(filter_size)', renderer)
-        self.assertIn('ImageChops.subtract(mask.filter', renderer)
+        self.assertIn('expand_lyric_outline(mask, filter_size // 2)', renderer)
+        self.assertIn('shadow_cache = state.setdefault("lyric_shadow_alpha_cache", [])', renderer)
         self.assertNotIn('shadow_alpha.paste(mask, (shadow, shadow))', renderer)
 
     def test_v192_floating_edit_focus_border_and_unpadded_title_contract(self) -> None:
@@ -60881,7 +62530,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('(("artwork", "🎨 Artwork Lyric Coloring"), ("floating", "☁ Floating Lyric Coloring"))', source)
         renderer = source[source.index('def pattern_rgba_for_mask'):source.index('def plasma_rgba_for_mask')]
         self.assertIn('state["lyric_glyph_run_cache"] = (mask, runs)', renderer)
-        self.assertIn('state["lyric_shadow_alpha_cache"] = (mask, filter_size, shadow_alpha)', renderer)
+        self.assertIn('state.setdefault("lyric_shadow_alpha_cache", [])', renderer)
         self.assertIn('tile = ImageEnhance.Color(tile)', renderer)
         self.assertIn('Image.Resampling.BILINEAR', renderer)
         self.assertIn('animation_ms = 90 if pixel_area < 180_000', source)
@@ -61564,7 +63213,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("playback_paused_state = [bool(persisted_settings.get('PlaybackPaused', 0))]", main_source)
         self.assertIn("initially_paused=playback_paused_state[0]", main_source)
         self.assertIn("paused_state=playback_paused_state", main_source)
-        self.assertIn("'PlaybackPaused': int(playback_paused_state[0])", main_source)
+        self.assertIn("'PlaybackPaused': int(playback_paused_state[0] and not external_media_controller.auto_paused)", main_source)
 
     def test_v173_configurator_animation_is_incremental_and_close_cancels_it(self) -> None:
         """Regression for the original V172 hang; hero and row clocks stay independent."""
@@ -62667,7 +64316,8 @@ class PlayWaveFileTests(unittest.TestCase):
             self.assertIn(token, html)
         source = inspect.getsource(launch_matrixmixer_inspired_renderer)
         self.assertIn("effective_multi_output_delays_ms", source)
-        self.assertIn("threading.Barrier", source)
+        self.assertIn("IsolatedWaveOutProcess", source)
+        self.assertIn("threading.Barrier", inspect.getsource(run_isolated_audio_worker))
 
     def test_v255_tone_arrival_detector_synthetic(self) -> None:
         try:
@@ -63067,7 +64717,7 @@ class PlayWaveFileTests(unittest.TestCase):
 
 
     def test_v370_url_display_hides_implied_scheme_and_www_but_keeps_link_target(self) -> None:
-        self.assertEqual("rammstein.com/", compact_url_display_text("http://www.rammstein.com/"))
+        self.assertEqual("rammstein.com", compact_url_display_text("http://www.rammstein.com/"))
         self.assertEqual("example.com/a", compact_url_display_text("https://example.com/a"))
         rows, ansi = format_tag_panel({"URL": "https://www.example.com/a"}, width=60)
         self.assertIn("URL: example.com/a", "\n".join(rows))
@@ -63430,7 +65080,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertAlmostEqual(0.80, float(frame.active_start_position), places=6)
         self.assertAlmostEqual(1.80, float(frame.next_start_position), places=6)
 
-    def test_v374_artwork_prepares_next_cue_without_advancing_other_surfaces(self) -> None:
+    def test_v404_artwork_and_floating_use_current_cue_without_early_display(self) -> None:
         window = ExternalAlbumArtWindow(enabled=False)
         window._artwork_karaoke_render_lead_seconds = 0.080
         frame = KaraokeFrame(
@@ -63454,9 +65104,9 @@ class PlayWaveFileTests(unittest.TestCase):
         args, kwargs = publish.call_args
         self.assertEqual("current", args[0])
         self.assertAlmostEqual(0.75, float(args[1]), places=6)
-        self.assertEqual("next", kwargs["artwork_lyric_override"])
-        self.assertEqual(0.0, kwargs["artwork_progress_override"])
-        self.assertAlmostEqual(10.0, kwargs["artwork_target_position"], places=6)
+        self.assertNotIn("artwork_lyric_override", kwargs)
+        self.assertNotIn("artwork_progress_override", kwargs)
+        self.assertAlmostEqual(5.0, kwargs["artwork_target_position"], places=6)
 
     def test_v374_artwork_render_lead_self_corrects_early_and_late(self) -> None:
         window = ExternalAlbumArtWindow(enabled=False)
@@ -63635,7 +65285,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn('id="ctl-art_color_bars"', html)
         self.assertIn('>Visualizer bar artwork</span>', html)
         self.assertIn("barArtworkOn=barsOn&&!!barArtwork.checked", html)
-        self.assertIn("const barArtworkKeys=['art_color_bar_strength','art_color_bar_blend_mode','drcs_art_bar_microtile_mode']", html)
+        self.assertIn("const barArtworkKeys=['art_color_bar_strength','art_color_bar_blend_mode','art_color_bar_opacity','drcs_art_bar_microtile_mode']", html)
         self.assertIn("visualizerBarArtworkSwitch.onchange", html)
 
     def test_v386_microtile_cards_hug_content_and_recycle_right_clicks_backwards(self) -> None:
@@ -63676,7 +65326,7 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertEqual(ALL_AUDIO_TAGS_FIRST_PAGE, interpret_console_key("\xe0", extended="G", ctrl=True))
 
     def test_v387_floating_lyrics_animation_is_audio_budgeted_and_not_immediately_repainted(self) -> None:
-        self.assertGreaterEqual(floating_lyrics_animation_interval_ms(600_000, 30.0, playback_running=True), 500)
+        self.assertGreaterEqual(floating_lyrics_animation_interval_ms(600_000, 30.0, playback_running=True), 120)
         self.assertGreater(
             floating_lyrics_animation_interval_ms(600_000, 60.0, playback_running=True),
             floating_lyrics_animation_interval_ms(100_000, 5.0, playback_running=True),
@@ -63788,6 +65438,85 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertIn("last_visualizer_cells = rendered_cells", source)
         self.assertIn("last_visualizer_rows = rendered_rows", source)
 
+    def test_v407_all_cli_preference_overrides_are_session_only(self) -> None:
+        self.assertEqual(
+            {"DrcsEnabled", "SixelEnabled", "Looping", "TruncateTopVisualizerLines"},
+            command_line_player_setting_override_keys([
+                "--no-visualizers",
+                "--loop",
+                "--truncate-top-visualizer-lines=5",
+                r"C:\music\song.flac",
+            ]),
+        )
+        self.assertEqual(
+            {"DrcsArtMicrotileDetailModeV370", "DrcsArtBarMicrotileDetailModeV370"},
+            command_line_player_setting_override_keys(["--no-microtile-detail"]),
+        )
+        persisted = {
+            "DrcsEnabled": 1,
+            "SixelEnabled": 0,
+            "Looping": 0,
+            "TruncateTopVisualizerLines": 2,
+            "Volume": 70,
+        }
+        runtime = {
+            "DrcsEnabled": 0,
+            "SixelEnabled": 0,
+            "Looping": 1,
+            "TruncateTopVisualizerLines": 5,
+            "Volume": 80,
+        }
+        merge_runtime_player_settings(
+            persisted,
+            runtime,
+            session_only_values={
+                "DrcsEnabled": 0,
+                "Looping": 1,
+                "TruncateTopVisualizerLines": 5,
+            },
+        )
+        self.assertEqual(
+            {
+                "DrcsEnabled": 1,
+                "SixelEnabled": 0,
+                "Looping": 0,
+                "TruncateTopVisualizerLines": 2,
+                "Volume": 80,
+            },
+            persisted,
+        )
+        # A later in-app change away from the CLI-imposed value remains a real
+        # user preference change and is therefore allowed to persist.
+        merge_runtime_player_settings(
+            persisted,
+            {"DrcsEnabled": 1},
+            session_only_values={"DrcsEnabled": 0},
+        )
+        self.assertEqual(1, persisted["DrcsEnabled"])
+        source = inspect.getsource(main)
+        self.assertIn("command_line_setting_keys = command_line_player_setting_override_keys(arguments)", source)
+        self.assertIn('if "TruncateTopVisualizerLines" in command_line_setting_keys', source)
+        self.assertIn("session_only_values=command_line_session_only_values", source)
+
+    def test_v408_shuffle_loop_web_console_and_help_state_clarity(self) -> None:
+        html = _paf_web_html()
+        self.assertIn(".wawi.transport-mode::after", html)
+        self.assertIn("#transportShuffle.active-toggle", html)
+        self.assertIn("#transportLoop.active-toggle", html)
+        self.assertIn("shuffleNames=['Sequential','Shuffle by history'", html)
+        chip_start = html.index("const chips=[")
+        chip_end = html.index("];", chip_start)
+        chips = html[chip_start:chip_end]
+        self.assertLess(chips.index("'Status: '"), chips.index("'Shuffle: '"))
+        self.assertLess(chips.index("'Shuffle: '"), chips.index("' Volume: '"))
+        self.assertIn("s.shuffle?'Yes':'No'", chips)
+        source = inspect.getsource(play_audio_file)
+        self.assertIn("plain = f\"Shuffle {'enabled' if enabled else 'disabled'}\"", source)
+        self.assertIn("plain = f\"Loop {'enabled' if enabled else 'disabled'}\"", source)
+        self.assertGreaterEqual(source.count("announce_loop_state(looping)"), 2)
+        self.assertIn("last_play_ansi,\n                playback_modes_ansi,", source)
+        self.assertIn("attribute_tags_ansi(available, icon=True)", source)
+
 
 def run_unit_tests() -> int:
     """Run this script's embedded tests with normal unittest reporting."""
@@ -63835,7 +65564,7 @@ class TestV369SmoothAudioPluralSync(unittest.TestCase):
         source = Path(__file__).read_text(encoding="utf-8")
         self.assertIn("self.playback_position() / 2.7", source)
         self.assertIn("progress_beat_last_time = -1.0", source)
-        self.assertIn("external_album_art_window.set_playback_position(displayed_position)", source)
+        self.assertIn("external_album_art_window.set_playback_position(displayed_position, speed=", source)
         self.assertIn("EXTERNAL_KARAOKE_CLOCK_PUBLISH_SECONDS", source)
         self.assertIn("playback_started_at", source)
         self.assertIn("math.floor((displayed_position + 1e-12)", source)
@@ -63871,6 +65600,7 @@ def emojimax_live_substitutions_by_glyph() -> list[tuple[str, tuple[str, ...]]]:
     # Phrase substitutions run first and explicitly win duplicate keys, so the
     # survey must report that same effective mapping rather than only the bulk
     # single-word dictionary used by the old incidence counter.
+    merged.update({word: emojimax_replacement_for_key(word) for word in EMOJIMAX_BASE_SUFFIX})
     merged.update({str(phrase): str(glyph) for phrase, glyph in SEMANTIC_PHRASES.items()})
     words_by_glyph: dict[str, list[str]] = {}
     for word, glyph in merged.items():
@@ -65199,6 +66929,10 @@ def main(argv: list[str] | None = None) -> int:
 
         usage_banner("🎧", "USAGE")
         print("play_audio_file.py [options] <audio-file>")
+        usage_line(
+            "Preference rule",
+            "CLI options are session-only; never saved",
+        )
         usage_banner("▶️", "PLAYBACK OPTIONS")
         usage_line("-u, --usage", "show this usage")
         usage_line("--version / --which-script", "show build ID and exact script path")
@@ -65234,7 +66968,7 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("Ctrl+Z", "undo the last runtime setting change (repeat for older changes)")
         usage_line("< / >", "previous / next track; forward navigation will not intentionally replay the current file")
         usage_line("PgUp / PgDn", "browse previous visits / future playlist; arrows/pages select; Enter jumps; Esc closes")
-        usage_line("INS / Q", "add audio to active playlist and queue it next using indexed word-any-order search + Tab completion")
+        usage_line("J / INS / Q", "search audio: Enter queues selected songs; Shift+Enter jumps; Ctrl+Space selects multiple rows")
         usage_line("Q Q Q / Ctrl+Q / Alt+Q / Ctrl+Alt+Q", "quit; bare Q otherwise behaves like INS")
         usage_line("Shift+INS", "multi-select audio in a Windows picker; add it and queue the selection next")
         usage_line("DEL", "remove current track from playlist only after Y/N confirmation; NEVER deletes audio file")
@@ -65292,7 +67026,6 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("Alt+Shift+C", "reverse the current palette")
         usage_line("Ctrl+G / Ctrl+Shift+G", "next / previous persistence behavior")
         usage_line("P / Shift+P", "next / previous progress-bar style")
-        usage_line("A", "toggle autoplay; enabling autoplay also enables shuffle")
         usage_line("2 / 5 / 7", "stereo / 5.1 expansion / 7.1 expansion")
         usage_line("X / Q / Ctrl+W / Alt+F4 / Ctrl+C / Ctrl+Break", "stop playback immediately")
         usage_banner("🌈", "COLOR / THROB ANIMATION")
@@ -65315,15 +67048,15 @@ def main(argv: list[str] | None = None) -> int:
         usage_banner("📈", "PROGRESS BAR OPTIONS")
         usage_line("P / Shift+P", "next / previous progress-bar style", "Progress 01")
         usage_banner("📊", "VISUALIZER OPTIONS")
-        usage_line("-v, --visualizers / -V, --no-visualizers", "enable/disable both")
+        usage_line("-v, --visualizers / -V, --no-visualizers", "enable/disable both for this process only")
         usage_line(
             "-s, --sixel-visualizer / -S, --no-sixel-visualizer",
-            "SIXEL spectrum / image visualizer",
+            "SIXEL spectrum / image visualizer (this process only)",
             "on" if ENABLE_SIXEL_VISUALIZER else "off",
         )
         usage_line(
             "-d, --drcs-visualizer / -D, --no-drcs-visualizer",
-            "DRCS soft-font spectrum",
+            "DRCS soft-font spectrum (this process only)",
             "on" if ENABLE_DRCS_VISUALIZER else "off",
             "🚩 experimental: doesn't work for the developer, but might work for you",
         )
@@ -65386,7 +67119,6 @@ def main(argv: list[str] | None = None) -> int:
         print("\033[2;90mV/Shift+V: visualizer mode +/-; Ctrl+Alt+D: missing-art download / DRCS toggle; F6/F7: glyph styles; Shift-F6/F7: treatments; Alt+F6/F7: processing styles; Shift+F4: granularity; C/Shift+C: palettes; Alt+Shift+C: reverse; Alt+C: favorite-palette cycle; Ctrl+G/Ctrl+Shift+G: persistence; F: favorites.\033[0m")
         print(f"\033[2;90mPAFPlayer spectrum painting targets {VISUALIZER_TARGET_FPS:g} Hz with synchronized multi-row frame commits, interpolates {SPECTRUM_ANALYSIS_FPS}-Hz FFT analysis, suppresses identical frames, and adapts down when terminal paint time cannot sustain the target.\033[0m")
         print("\033[2;90mPlaylist mode is a persistent queue: INS-added files play next (randomized among themselves in shuffle); departed songs then move to the tail; shuffle skips tracks played or merely visited <3h when another candidate exists.\033[0m")
-        print("\033[2;90mP/Shift+P: progress bar style; A: autoplay (enables shuffle).\033[0m")
         print("\033[2;90m2: stereo; 5: 5.1 expansion; 7: 7.1 expansion.\033[0m")
         usage_banner("🧪", "EXAMPLES")
         print(r"  play_audio_file.py C:\mp3\song.mp3")
@@ -65454,19 +67186,25 @@ def main(argv: list[str] | None = None) -> int:
         print(r"  While playing: * manages saved defaults; * then R then A restores all; Ctrl+Alt+F1 restores all directly; Alt+F1 undoes; F1 now opens help like ?.")
         print(r"  While playing: 2 selects stereo, 5 applies 5.1 expansion, and 7 applies 7.1 expansion.")
         print(r"  Playlist workflow: edit C:\mp3\lists\favorites.m3u while music plays, then Ctrl+R to reload it without restarting PAFPlayer.")
-        print(r"  Playlist editing: INS or Q searches/adds/queues next; QQQ quits; Ctrl/Alt/Ctrl+Alt+Q quits immediately; Shift+INS multi-selects; DEL removes after Y/N; PgUp/PgDn browses/jumps.")
+        print(r"  Playlist editing: J/INS/Q searches; Enter queues, Shift+Enter jumps, Ctrl+Space selects; QQQ quits; Ctrl/Alt/Ctrl+Alt+Q quits immediately; Shift+INS multi-selects; DEL removes after Y/N; PgUp/PgDn browses/jumps.")
         print(r"  Last.fm workflow: a track visit sends Now Playing immediately; normal >50% listening earns the actual scrobble later.")
         return 0
     if not ensure_standard_music_collection_aliases():
         return 1
     load_mp3_base_attribute_rules(MP3_BASE_ATTRIBUTES_PATH)
     persisted_settings = load_player_settings()
+    command_line_setting_keys = command_line_player_setting_override_keys(arguments)
     # V310: bundled releases already contain this. A third-party single-file
     # install gets one explicit choice of same-folder vs clairecjs_utils\.
     ensure_clairecjs_dependency("claire_audio_processing", interactive=True)
     global ART_COLOR_VISUALIZER_REPRESENTATION, ART_COLOR_VISUALIZER_BAR_STRENGTH, ART_COLOR_VISUALIZER_BLACK_STRENGTH, ART_COLOR_VISUALIZER_KARAOKE_SIDES, ART_COLOR_VISUALIZER_KARAOKE, CONSOLE_VISUALIZER_VOLUME_FEEDBACK_ENABLED
+    global ART_COLOR_VISUALIZER_BAR_OPACITY, ARTWORK_SEAM_STRATEGY, EXTERNAL_MEDIA_AUTO_PAUSE, EXTERNAL_MEDIA_RESUME_FADE_SECONDS
+    EXTERNAL_MEDIA_AUTO_PAUSE = bool(persisted_settings.get("ExternalMediaAutoPause", EXTERNAL_MEDIA_AUTO_PAUSE))
+    EXTERNAL_MEDIA_RESUME_FADE_SECONDS = max(0, min(120, int(persisted_settings.get("ExternalMediaResumeFadeSeconds", EXTERNAL_MEDIA_RESUME_FADE_SECONDS))))
+    ARTWORK_SEAM_STRATEGY = max(0, min(5, int(persisted_settings.get("ArtworkSeamStrategy", 0))))
     ART_COLOR_VISUALIZER_REPRESENTATION = ART_COLOR_VISUALIZER_REPRESENTATIONS[min(3, max(0, persisted_settings.get("ArtColorRepresentation", 0)))]
     ART_COLOR_VISUALIZER_BAR_STRENGTH = persisted_settings.get("ArtColorBarStrength", 70) / 100.0
+    ART_COLOR_VISUALIZER_BAR_OPACITY = max(0.0, min(1.0, persisted_settings.get("ArtColorBarOpacity", 0) / 100.0))
     ART_COLOR_VISUALIZER_BLACK_STRENGTH = persisted_settings.get("ArtColorBlackStrength", 25) / 100.0
     ART_COLOR_VISUALIZER_KARAOKE_SIDES = bool(persisted_settings.get("ArtColorKaraokeSides", 0))
     ART_COLOR_VISUALIZER_KARAOKE = bool(persisted_settings.get("ArtColorKaraoke", 0))
@@ -66064,6 +67802,7 @@ def main(argv: list[str] | None = None) -> int:
     maybe_prompt_for_lastfm_setup()
     schedule_playlist_history_full_identity_backfill()
     winamp_paused_by_session = False
+    external_media_controller = PAFExternalPlaybackCoordinator(PAFExternalMediaMonitor().start())
     external_album_art_window: ExternalAlbumArtWindow | None = None
     web_server: PAFWebServer | None = None
     audio_catalog_index: AudioCatalogIndex | None = None
@@ -66176,7 +67915,8 @@ def main(argv: list[str] | None = None) -> int:
         cursive_fix_state = [bool(persisted_settings.get('CursiveFix', 0))]
         drcs_art_microtiles_state = [int(persisted_settings.get('DrcsArtMicrotileDetailModeV370', ART_MICROTILE_DETAIL_MODE_DEFAULT)) if microtile_blackness_enabled else 0]
         drcs_art_bar_microtiles_state = [int(persisted_settings.get('DrcsArtBarMicrotileDetailModeV370', ART_MICROTILE_DETAIL_MODE_DEFAULT)) if microtile_bars_enabled else 0]
-        autoplay_state = [bool(persisted_settings['Autoplay'])]
+        repeat_mode_state = [int(persisted_settings.get('RepeatMode', 0 if persisted_settings.get('Looping', 1) else 3))]
+        shuffle_mode_state = [int(persisted_settings.get('ShuffleMode', 1 if persisted_settings.get('Shuffle', 1) else 0))]
         output_channels_state = [persisted_settings['OutputChannels']]
         output_rate_state = [int(persisted_settings.get('OutputRate', HDMI_PCM_OUTPUT_RATE))]
         output_bit_depth_state = [int(persisted_settings.get('OutputBitDepth', DEFAULT_OUTPUT_BIT_DEPTH))]
@@ -66201,14 +67941,17 @@ def main(argv: list[str] | None = None) -> int:
         inline_last_play_alignment_state = [bool(ALIGN_INLINE_LAST_PLAY_TO_HUD_COLONS)]
         karaoke_visualizer_expansion_state = [bool(persisted_settings.get("KaraokeVisualizerExpansion", 0))]
         visualizer_rows_state = [persisted_settings.get("VisualizerRows", DRCS_VISUALIZER_ROWS)]
-        truncate_visualizer_rows_state = [persisted_settings.get("TruncateTopVisualizerLines", 2)]
-        karaoke_visualizer_height_mode_state = [0]
+        truncate_visualizer_rows_state = [
+            truncate_top_visualizer_lines
+            if "TruncateTopVisualizerLines" in command_line_setting_keys
+            else persisted_settings.get("TruncateTopVisualizerLines", 2)
+        ]
+        karaoke_visualizer_height_mode_state = [effective_player_defaults()["KaraokeVisualizerHeightMode"]]
         playlist_path: Path | None = None
         playlist_switch_state: list[Path | None] = [None]
         pending_playlist_relaunch: Path | None = None
         initial_resume_position = 0.0
         playback_position_state = [0.0]
-        autoplay_seen: dict[Path, set[Path]] = {}
         pending_folder_line: Path | None = None
         last_launched_audio: Path | None = None
         last_transition_was_forward = False
@@ -66736,8 +68479,21 @@ def main(argv: list[str] | None = None) -> int:
         if playlist_argument is None and not loop_option_explicit:
             # Single files (including random-file mode) loop by default.
             looping_enabled = True
-        # Keep the UI/persisted state in sync with the actual startup policy.
+        # Keep the current-run UI in sync with the actual startup policy.
         looping_state[0] = looping_enabled
+        startup_runtime_setting_values = {
+            "DrcsEnabled": int(drcs_enabled_state[0]),
+            "SixelEnabled": int(sixel_enabled_state[0]),
+            "Looping": int(looping_state[0]),
+            "TruncateTopVisualizerLines": int(truncate_visualizer_rows_state[0]),
+            "DrcsArtMicrotileDetailModeV370": int(drcs_art_microtiles_state[0]),
+            "DrcsArtBarMicrotileDetailModeV370": int(drcs_art_bar_microtiles_state[0]),
+        }
+        command_line_session_only_values = {
+            name: startup_runtime_setting_values[name]
+            for name in command_line_setting_keys
+            if name in startup_runtime_setting_values
+        }
         def choose_new_playlist() -> Path | None:
             """Choose a replacement playlist; activation waits for current-session cleanup."""
             initial_dir = (
@@ -66836,8 +68592,6 @@ def main(argv: list[str] | None = None) -> int:
                 pending_folder_line = None
             for now_playing_target in now_playing_targets:
                 write_now_playing_art(current_audio, now_playing_target)
-            if not winamp_paused_by_session:
-                winamp_paused_by_session = pause_playing_winamp()
             launched_audio = current_audio
             last_launched_audio = launched_audio
             if playlist_path is not None:
@@ -66889,7 +68643,6 @@ def main(argv: list[str] | None = None) -> int:
                 playlist=playlist_path,
                 playlist_track_count=playlist_track_count_state[0],
                 shuffle=(shuffle_state[0] if shuffle_state else None),
-                autoplay=autoplay_state[0],
                 resume_position=initial_resume_position,
             )
             if external_album_art_window is not None:
@@ -66902,10 +68655,12 @@ def main(argv: list[str] | None = None) -> int:
                 drcs_visualizer=drcs_enabled,
                 visualizer_fade_seconds=fade_seconds,
                 visualizer_target_fps=visualizer_target_fps,
-                looping=looping_enabled and not autoplay_state[0],
+                looping=looping_enabled,
                 looping_state=looping_state,
+                repeat_mode_state=repeat_mode_state,
                 lyrics_display=lyrics_enabled,
                 shuffle_state=shuffle_state,
+                shuffle_mode_state=shuffle_mode_state,
                 visualizer_mode_state=visualizer_mode_state,
                 persistence_mode_state=persistence_mode_state,
                 visualizer_granularity_state=visualizer_granularity_state,
@@ -66941,7 +68696,6 @@ def main(argv: list[str] | None = None) -> int:
                 cursive_fix_state=cursive_fix_state,
                 drcs_art_microtiles_state=drcs_art_microtiles_state,
                 drcs_art_bar_microtiles_state=drcs_art_bar_microtiles_state,
-                autoplay_state=autoplay_state,
                 output_channels_state=output_channels_state,
                 output_rate_state=output_rate_state,
                 output_bit_depth_state=output_bit_depth_state,
@@ -67010,6 +68764,7 @@ def main(argv: list[str] | None = None) -> int:
                 initial_blank_line=initial_blank_line and not bool(preplay_cover),
                 manage_winamp=False,
                 guard_winamp=True,
+                external_media_controller=external_media_controller,
                 attribute_management_enabled=bool(CLAIRE_ECOSYSTEM and not suppress_attribute_management),
                 theory_modes=frozenset(theory_modes),
             )
@@ -67021,7 +68776,13 @@ def main(argv: list[str] | None = None) -> int:
                 result=result,
                 final_position=playback_position_state[0],
             )
-            persisted_settings.update({
+            # Console/web toggles update these shared state cells while a track
+            # is running. Carry the live values back into the dispatch locals;
+            # otherwise the next track reused the startup CLI/persisted value
+            # and could unexpectedly turn the console visualizer off.
+            drcs_enabled = bool(drcs_enabled_state[0])
+            sixel_enabled = bool(sixel_enabled_state[0])
+            runtime_player_settings = {
                 'VisualizerMode': visualizer_mode_state[0],
                 'PersistenceMode': persistence_mode_state[0],
                 'VisualizerGranularity': visualizer_granularity_state[0],
@@ -67067,20 +68828,30 @@ def main(argv: list[str] | None = None) -> int:
                 'SpeedIndex': speed_index_state[0],
                 'Looping': int(looping_state[0]),
                 'Shuffle': int(shuffle_state[0]),
-                'Autoplay': int(autoplay_state[0]),
+                'RepeatMode': int(repeat_mode_state[0]),
+                'ShuffleMode': int(shuffle_mode_state[0]),
                 'DrcsEnabled': int(drcs_enabled_state[0]),
                 'SixelEnabled': int(sixel_enabled_state[0]),
                 'HudDetails': int(hud_details_state[0]),
-                'PlaybackPaused': int(playback_paused_state[0]),
+                'PlaybackPaused': int(playback_paused_state[0] and not external_media_controller.auto_paused),
                 'KaraokeVisualizerExpansion': int(karaoke_visualizer_expansion_state[0]),
                 'VisualizerRows': int(visualizer_rows_state[0]),
                 'TruncateTopVisualizerLines': int(truncate_visualizer_rows_state[0]),
+                'ArtworkSeamStrategy': ARTWORK_SEAM_STRATEGY,
+                'ExternalMediaAutoPause': int(EXTERNAL_MEDIA_AUTO_PAUSE),
+                'ExternalMediaResumeFadeSeconds': EXTERNAL_MEDIA_RESUME_FADE_SECONDS,
                 'ArtColorRepresentation': ART_COLOR_VISUALIZER_REPRESENTATIONS.index(ART_COLOR_VISUALIZER_REPRESENTATION),
                 'ArtColorBarStrength': round(ART_COLOR_VISUALIZER_BAR_STRENGTH * 100),
+                'ArtColorBarOpacity': round(ART_COLOR_VISUALIZER_BAR_OPACITY * 100),
                 'ArtColorBlackStrength': round(ART_COLOR_VISUALIZER_BLACK_STRENGTH * 100),
                 'ArtColorKaraokeSides': int(ART_COLOR_VISUALIZER_KARAOKE_SIDES),
                 'ArtColorKaraoke': int(ART_COLOR_VISUALIZER_KARAOKE),
-            })
+            }
+            merge_runtime_player_settings(
+                persisted_settings,
+                runtime_player_settings,
+                session_only_values=command_line_session_only_values,
+            )
             # The V370 dropdown selections persist across tracks/restarts. CLI --no-microtile-*
             # overrides remain deliberately one-run-only and therefore are not written back.
             if microtile_blackness_enabled:
@@ -67138,6 +68909,11 @@ def main(argv: list[str] | None = None) -> int:
                     raise RuntimeError(f"Could not read playlist entries: {playlist_background_error[0]}") from playlist_background_error[0]
                 if not playlist_entries:
                     playlist_entries = [current_audio]
+                if shuffle_mode_state[0] == 2 and result in {NEXT_FILE, "completed"} and playlist_entries:
+                    random_candidates = [Path(item) for item in playlist_entries if Path(item).is_file() and not same_audio_file_identity(Path(item), current_audio)]
+                    if random_candidates:
+                        current_audio = random.choice(random_candidates)
+                        continue
                 if shuffle_state and shuffle_state[0] and result in {NEXT_FILE, "completed"}:
                     phase_started = time.monotonic()
                     with playlist_shuffle_lock:
@@ -67301,22 +69077,20 @@ def main(argv: list[str] | None = None) -> int:
                 if current_audio.parent.resolve() != previous_directory:
                     pending_folder_line = current_audio.parent
                 continue
-            if result == "completed" and autoplay_state[0]:
-                current_directory = current_audio.parent.resolve()
-                seen = autoplay_seen.setdefault(current_directory, set())
-                seen.add(current_audio.resolve())
-                remaining = [
-                    path for path in audio_files_in(current_directory)
-                    if path.resolve() not in seen
-                ]
-                previous_directory = current_directory
-                if remaining:
-                    current_audio = random.choice(remaining)
-                else:
-                    current_audio = navigate_audio_path(current_audio, NEXT_DIRECTORY)
-                    autoplay_seen.setdefault(current_audio.parent.resolve(), set())
-                if current_audio.parent.resolve() != previous_directory:
-                    pending_folder_line = current_audio.parent
+            # Repeat Folder/playlist modes are session play-order modes, not
+            # decoder looping.  Handle the single-file/folder case here after
+            # the playlist coordinator has had first refusal.
+            if result == "completed" and repeat_mode_state[0] == 1 and playlist_path is None:
+                folder_tracks = [Path(item) for item in audio_files_in(current_audio.parent)]
+                if folder_tracks:
+                    try:
+                        folder_index = next(i for i, item in enumerate(folder_tracks) if same_audio_file_identity(item, current_audio))
+                    except StopIteration:
+                        folder_index = -1
+                    current_audio = folder_tracks[(folder_index + 1) % len(folder_tracks)]
+                    continue
+            if result == "completed" and repeat_mode_state[0] == 2 and playlist_path is None:
+                # A single file is its own one-entry playlist.
                 continue
             if result not in NAVIGATION_ACTIONS:
                 break
@@ -67338,6 +69112,7 @@ def main(argv: list[str] | None = None) -> int:
             web_server.close()
         if external_album_art_window is not None:
             external_album_art_window.close()
+        external_media_controller.close()
         resume_winamp_if_paused_by_preview(winamp_paused_by_session)
         write_console("\033[?25h")
         finish_pafplayer_diagnostic_session("main cleanup complete")
@@ -68194,4 +69969,6 @@ def _v266_transport_contract_selftest() -> None:
 
 
 if __name__ == "__main__":
+    if sys.argv[1:] == ["--paf-audio-worker"]:
+        raise SystemExit(run_isolated_audio_worker(json.loads(sys.stdin.readline()), sys.stdin, sys.stdout))
     raise SystemExit(main())

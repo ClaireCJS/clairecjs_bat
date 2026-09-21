@@ -89,7 +89,7 @@
 2024-11-19  02:23            690   54%  audio-batch-processing---encode-everything-and-remove-redundant-WAVs.bat
 2025-11-17  20:08          2,634   69%  audio-countdown-noise.bat
 2026-04-10  19:53         43,671   78%  audit-music-files.py
-2026-08-29  10:55        963,824   78%  audit_music_batch.py
+2026-09-09  13:39        991,104   78%  audit_music_batch.py
 2024-11-19  02:23          5,089   78%  auto-clean.bat
 2025-01-05  12:11         13,972   74%  auto-process.bat
 2026-04-18  10:10          6,507   72%  autoexec-common.btm
@@ -185,7 +185,7 @@
 2026-04-04  19:04         15,188   73%  check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py
 2025-04-17  12:41          7,622   86%  check_playlist_for_files_with_txt_but_without_transcription.py
 2024-11-19  07:48             62   -1%  chown.bat
-2025-01-19  18:58          1,569   66%  chrome.bat
+2026-09-09  14:44          1,833   66%  chrome.bat
 2025-05-19  18:07             24   -8%  cl.bat
 2024-11-18  16:42         17,107   79%  clairevironment-install.bat
 2024-11-19  07:29          4,081   65%  clean-dbcu.bat
@@ -297,10 +297,10 @@
 2024-11-26  15:13             17  -11%  defragment-files-in-this-folder-tree.bat
 2024-11-19  02:50            215   29%  del-FLACs-if-mp3s-exist.bat
 2025-07-30  05:17          2,317   64%  del-if-exists.bat
-2026-04-22  12:29          9,384   73%  del-maybe-after-review.bat
+2026-09-10  00:55          9,408   73%  del-maybe-after-review.bat
 2024-11-19  02:50            213   28%  del-WAVs-if-mp3s-exist.bat
 2024-11-19  02:50            359   36%  del-WAVs-if-mp3s-or-flacs-exist.bat
-2026-04-22  12:27         37,721   81%  delete-bad-AI-transcriptions.bat
+2026-09-10  00:52         37,774   81%  delete-bad-AI-transcriptions.bat
 2024-11-19  02:50            445   39%  delete-duplicate-files-in-each-subfolder-but-not-across-current-folder.bat
 2024-11-19  02:50          2,110   58%  delete-duplicate-files-including-subfolder-duplicates.bat
 2024-12-08  18:17            661   48%  delete-largest-file.bat
@@ -469,7 +469,7 @@
 2025-07-04  09:14            251   33%  extract-all-WAVs-from-audio-files.bat
 2025-07-04  09:15            250   32%  extract-all-WAVs-from-video-files.bat
 2024-11-19  07:47            123   33%  extract-all-WAVs.bat
-2026-08-08  14:08          7,712   76%  extract-cover_art-from-first-found-audio-file.bat
+2026-09-10  19:58          7,719   76%  extract-cover_art-from-first-found-audio-file.bat
 2024-11-19  07:47             74    3%  extract-cover_art-from-first-found-mp3.bat
 2024-11-19  07:47            229   33%  extract-jpg.bat
 2024-11-19  07:47             73    5%  extract-mp3.bat
@@ -519,7 +519,8 @@
 2024-11-19  07:47             31   -3%  functions.bat
 2024-11-19  07:47          1,470   57%  gather-message-types-into-pretty-environment-variable.bat
 2026-07-31  02:57            844   59%  generate-and-play-random-midi.bat
-2026-06-05  16:26          1,963   63%  generate-audio-playlists.bat
+2026-06-05  16:26          1,963   63%  generate-audio-playlists-legacy-perl.bat
+2026-09-21  12:58            167   23%  generate-audio-playlists.bat
 2024-11-27  14:59         11,632   68%  generate-audio-transcripts-for-files-with-openlrc.py
 2025-09-02  18:11          5,061   59%  generate-filelists-by-attribute-audio.ini
 2019-10-01  10:28          4,444   64%  generate-filelists-by-attribute-images-and-video-WWW.ini
@@ -544,7 +545,7 @@
 2025-01-14  21:33            559   51%  get-lyrics-for-all-songs-in-this-folder.bat
 2024-11-11  15:33            418   42%  get-lyrics-for-currently-playing-song.bat
 2025-01-13  11:45             49    0%  get-lyrics-for-file.bat
-2026-09-07  20:54        513,736   83%  get-lyrics-for-file.btm
+2026-09-08  21:42        513,871   83%  get-lyrics-for-file.btm
 2025-03-01  21:15          1,068   53%  get-lyrics-for-playlist.bat
 2024-11-11  15:34             65   -3%  get-lyrics-for-song.bat
 2025-01-13  11:48             61   -1%  get-lyrics-from-song.bat
@@ -552,7 +553,7 @@
 2024-12-05  21:49         62,796   78%  get-lyrics-via-multiple-sources.bat
 2024-12-08  23:59          2,466   72%  get-lyrics-with-lyricsgenius-json-processor.pl
 2025-01-13  11:48             77    3%  get-lyrics-with-lyricsgenius.bat
-2026-05-15  09:02          5,594   69%  get-lyrics.bat
+2026-09-08  21:25          6,430   72%  get-lyrics.bat
 2024-10-18  12:53          4,561   67%  get-meat-from-mp3-filename.pl
 2026-04-14  11:53             57   -3%  get-missing-karaoke.bat
 2025-01-13  11:48             47   -4%  get-missing-lyrics-here.bat
@@ -641,9 +642,10 @@
 2025-01-13  12:02             77    3%  important.bat
 2025-01-13  12:02             82    5%  important_less.bat
 2026-05-03  19:15             32   -6%  incoming!.bat
-2026-03-23  15:24          6,296   80%  index-audio-files.bat
+2026-09-09  19:04          7,004   79%  index-audio-files.bat
 2025-05-06  15:23         13,623   69%  index-MP3-helper.bat
-2024-11-25  13:06            727   55%  index-MP3.bat
+2026-09-10  01:36            730   55%  index-mp3-legacy-perl.bat
+2026-09-10  01:37            710   54%  index-MP3.bat
 2024-11-19  07:51          1,547   49%  index-video-playlists.bat
 2025-11-16  23:41         12,113   68%  ingest_ics.py
 2025-08-01  10:07         31,692   74%  ingest_youtube_album.py
@@ -808,7 +810,7 @@
 2024-11-19  21:35             40   -5%  pendmoves.bat
 2024-11-19  21:35             42   -4%  pf.bat
 2024-11-19  20:25          2,116   44%  PhraseExpress-Claire.csv
-2026-09-07  05:34      1,183,744    0%  PhraseExpress-phrases.pexdb
+2026-09-21  12:51      1,183,744    0%  PhraseExpress-phrases.pexdb
 2023-04-28  14:03            627   51%  pickle_view.py
 2025-03-26  16:02          2,254   56%  play-m3u-with-VLC.bat
 2024-11-19  21:35             54   -3%  play-m3u-with-winamp.bat
@@ -816,7 +818,7 @@
 2026-07-31  02:57          2,239   60%  play-WAV-file.bat
 2024-11-19  21:35             40   -5%  play.bat
 2024-11-19  15:14            526   51%  playlist.bat
-2026-08-29  10:58      2,982,333   76%  play_audio_file.py
+2026-09-21  13:07      3,381,857   76%  play_audio_file.py
 2023-06-01  22:26          1,141   58%  play_wav_file.py
 2024-11-19  15:14            749   52%  plot-generalized-graph---edit-data.bat
 2024-11-19  15:14          1,212   54%  plot-generalized-graph---enter-new-data.bat
@@ -831,7 +833,7 @@
 2024-11-19  21:35             40   -5%  prev.bat
 2025-02-21  23:33          1,236   49%  prevdir.bat
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
-2026-09-07  20:57         10,908   73%  preview-audio-file.bat
+2026-09-07  21:57         11,277   72%  preview-audio-file.bat
 2025-04-04  14:37             40   -5%  preview-image-file.bat
 2025-04-04  14:37             40   -5%  preview-video-file.bat
 2024-11-19  21:35             31   -6%  previousdir.bat
