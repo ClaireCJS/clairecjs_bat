@@ -86,12 +86,10 @@ manual browser setup before scrolling.
 A project virtual environment is already set up. From this folder in PowerShell:
 
 ```powershell
-C:\BAT\clips4sale_downloader.bat "https://www.clips4sale.com/studio/54509/latinass-locas/Cat183-cuckolding/Page1/recommended/Limit24"
+C:\BAT\clips4sale_downloader.bat "https://www.clips4sale.com/studio/12345/whatever-it-is/Cat183-whatevercategoryname/Page1/recommended/Limit24"
 ```
 
 1. Choose a destination by its number, or choose **Enter another location**.
-   When `%USERNAME%` is `claire`, Enter selects
-   `C:\new\p\clips4sale-previews` (and creates it after selection).
 2. Chrome opens. Complete any site prompts, then press Enter in the terminal.
 3. The program scrolls the whole listing, selects editions, then saves each clip's media.
 4. Between clips it counts down the duration measured from the downloaded preview.
@@ -128,13 +126,6 @@ replace copies of that library.
 
 ## Filenames and quality selection
 
-The linked listing supplies this prefix:
-
-```text
-cuck - Jasmine Mendez LatinAss Locas - Cuckolding - <clip title>.mp4
-cuck - Jasmine Mendez LatinAss Locas - Cuckolding - <clip title>-preview-gif.gif
-cuck - Jasmine Mendez LatinAss Locas - Cuckolding - <clip title>-image.jpg
-```
 
 Only one primary preview, one GIF-family preview, and one best still are
 downloaded. If both GIF and WebM versions of the same animation are exposed,
@@ -160,15 +151,9 @@ Use `--ffmpeg PATH` if FFmpeg is not on `PATH`. Already-complete videos remain
 untouched and are not downloaded again just to add a tag; GIF/JPEG sidecars
 receive category-bearing filenames but are not remuxed as videos.
 
-Optional sortable category abbreviations are disabled by default. Pass
-`--category-prefixes` to add `sph -`, `cuck -`, or `ch -` where applicable;
-without that option, filenames begin with the studio, category, and title.
-Invalid Windows filename characters are replaced; overly long names are
-shortened with the clip ID retained.
 
 For a full-studio URL, the scanner keeps scrolling until the studio listing is
-quiet at the bottom. It then uses each clip's own category for the filename,
-for example `Holly Hardy - Small Penis Humiliation - <clip title>.mp4`.
+quiet at the bottom. It then uses each clip's own category for the filename
 
 Duplicates are matched within a studio using case-insensitive titles after
 removing trailing edition labels such as `(HD)`, `- 4K`, `1080p`, and `MP4`.
