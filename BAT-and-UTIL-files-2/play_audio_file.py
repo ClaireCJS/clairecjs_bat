@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# CHAT ARTIFACT BUILD: 2026-09-20-V416-TIMELINE-TODOS-EXTERNAL-MEDIA
+# CHAT ARTIFACT BUILD: 2026-09-22-V428-FAST-CTRL-BREAK-SHUTDOWN
 """Interactively preview an audio file from a Windows console.
 
 This program uses FFplay and accepts any audio format FFmpeg can decode,
@@ -527,10 +527,10 @@ except ImportError:  # pragma: no cover
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID                 = "2026-09-21-v417-wawi-controls-and-downloads"
+PLAYER_BUILD_ID                 = "2026-09-22-v429-circled-ten-terminal-spacing"
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION                 = "V417"
-PROGRAM_RELEASE_LABEL           = "V417"
+PROGRAM_VERSION                 = "V429"
+PROGRAM_RELEASE_LABEL           = "V429"
 
 # Other media takes priority; fade duration is also a persisted web Playback setting.
 EXTERNAL_MEDIA_AUTO_PAUSE = True
@@ -18332,7 +18332,7 @@ ANSI_CSI_RE = re.compile(
 # Ordinary enclosed numbers continue through 50.  The bold/negative family
 # (❶–❿) is a separate Unicode series and stops at ten.
 CIRCLED_NUMBER_GLYPHS = "⓿①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿❶❷❸❹❺❻❼❽❾❿"
-WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS = "❶❷❸❹❺❻❼❽❾"
+WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS = "❶❷❸❹❺❻❼❽❾❿"
 WINDOWS_TERMINAL_SINGLE_SPACE_EMOJIMAX_KEYS = frozenset({"write", "up"})
 
 
@@ -18350,8 +18350,9 @@ def windows_terminal_emojimax_replacement(replacement: str, semantic_key: str = 
     """Add terminal-only safety cells after generated enclosed-number forms.
 
     Windows Terminal's DECDHL renderer can visually consume the first safety
-    cell after a negative circled digit.  Existing one-digit behavior remains
-    unchanged.  V390 additionally recognizes a tens compound such as ``❹⓿``
+    cell after a negative circled number. V429 includes the last member, ❿:
+    ten is one glyph too and needs the same safety cells as ❶ through ❾.
+    V390 additionally recognizes a tens compound such as ``❹⓿``
     as one visual number, keeps those two digits adjacent, and appends the two
     safety cells only after the pair.  Web/Tk/other-terminal surfaces never
     call this compatibility helper, so they keep the exact replacement with no
@@ -20330,7 +20331,15 @@ def _split_attrib_rule(line: str) -> tuple[str, str] | None:
         regex_text, attrs = raw.split(":", 1)
     else:
         return None
-    return regex_text.strip(), attrs.strip()
+    regex_text = regex_text.strip()
+    # Claire's long-lived base list uses ``|:attributes`` as a visual
+    # separator after a list of regex alternatives.  The colon is the actual
+    # attrib delimiter; retaining its preceding pipe creates an empty regex
+    # alternative, which matches every track.  Preserve ordinary alternation
+    # while discarding only that terminal, delimiter-adjacent pipe.
+    if regex_text.endswith("|"):
+        regex_text = regex_text[:-1].rstrip()
+    return regex_text, attrs.strip()
 
 
 def apply_attribute_assignment(states: dict[str, tuple[str, int]], token: str) -> None:
@@ -22824,98 +22833,160 @@ def read_windows_menu_choice() -> str | None:
     return first
 
 
+def probe_external_audio_sessions():
+    """Read Core Audio/Winamp directly; no PowerShell or C# compiler dependency.
+
+    All COM pointers belong to this background thread and are released here.
+    Only process names, stream states and peak levels are read, never audio data.
+    """
+    import ctypes as ct
+    from ctypes import wintypes as wt
+    import uuid
+
+    class Guid(ct.Structure):
+        _fields_ = [("data1", ct.c_uint32), ("data2", ct.c_uint16),
+                    ("data3", ct.c_uint16), ("data4", ct.c_ubyte * 8)]
+
+    def guid(value):
+        return Guid.from_buffer_copy(uuid.UUID(value).bytes_le)
+
+    def call(ptr, slot, args=(), values=()):
+        table = ct.cast(ptr, ct.POINTER(ct.POINTER(ct.c_void_p))).contents
+        return ct.WINFUNCTYPE(ct.c_long, ct.c_void_p, *args)(table[slot])(ptr, *values)
+
+    def checked(result):
+        if result < 0:
+            raise OSError(f"Windows audio HRESULT 0x{result & 0xffffffff:08X}")
+
+    def release(ptr):
+        if ptr:
+            call(ptr, 2)
+
+    def query(ptr, iid):
+        result = ct.c_void_p()
+        checked(call(ptr, 0, (ct.POINTER(Guid), ct.POINTER(ct.c_void_p)),
+                     (ct.byref(iid), ct.byref(result))))
+        return result
+
+    kernel = ct.WinDLL("kernel32", use_last_error=True)
+    kernel.OpenProcess.argtypes = [wt.DWORD, wt.BOOL, wt.DWORD]
+    kernel.OpenProcess.restype = wt.HANDLE
+    kernel.QueryFullProcessImageNameW.argtypes = [wt.HANDLE, wt.DWORD, wt.LPWSTR, ct.POINTER(wt.DWORD)]
+    kernel.QueryFullProcessImageNameW.restype = wt.BOOL
+    kernel.CloseHandle.argtypes = [wt.HANDLE]
+    kernel.CloseHandle.restype = wt.BOOL
+
+    names = {}
+    def process_name(pid):
+        if pid not in names:
+            handle = kernel.OpenProcess(0x1000, False, pid)
+            name = ""
+            if handle:
+                try:
+                    text = ct.create_unicode_buffer(32768)
+                    size = wt.DWORD(len(text))
+                    if kernel.QueryFullProcessImageNameW(handle, 0, text, ct.byref(size)):
+                        name = Path(text.value).stem.casefold()
+                finally:
+                    kernel.CloseHandle(handle)
+            names[pid] = name
+        return names[pid]
+
+    result = {"audio": [], "audio_known": False, "winamp": -1, "winamp_known": False, "errors": []}
+    user = ct.WinDLL("user32", use_last_error=True)
+    user.FindWindowW.argtypes = [wt.LPCWSTR, wt.LPCWSTR]
+    user.FindWindowW.restype = wt.HWND
+    user.SendMessageTimeoutW.argtypes = [wt.HWND, wt.UINT, ct.c_size_t, ct.c_ssize_t,
+                                       wt.UINT, wt.UINT, ct.POINTER(ct.c_size_t)]
+    user.SendMessageTimeoutW.restype = ct.c_ssize_t
+    window = user.FindWindowW("Winamp v1.x", None)
+    answer = ct.c_size_t()
+    if not window:
+        result.update(winamp=0, winamp_known=True)
+    elif user.SendMessageTimeoutW(window, 0x400, 0, 104, 2, 250, ct.byref(answer)):
+        result.update(winamp=answer.value, winamp_known=True)
+    else:
+        result["errors"].append("Winamp playback query timed out")
+
+    ole = ct.OleDLL("ole32")
+    ole.CoInitializeEx.argtypes = [ct.c_void_p, wt.DWORD]
+    ole.CoInitializeEx.restype = ct.c_long
+    ole.CoCreateInstance.argtypes = [ct.POINTER(Guid), ct.c_void_p, wt.DWORD,
+                                    ct.POINTER(Guid), ct.POINTER(ct.c_void_p)]
+    ole.CoCreateInstance.restype = ct.c_long
+    ole.CoUninitialize.argtypes = []
+    initialized = False
+    enumerator, devices = ct.c_void_p(), ct.c_void_p()
+    try:
+        checked(ole.CoInitializeEx(None, 0))  # COINIT_MULTITHREADED; S_FALSE also needs Uninitialize.
+        initialized = True
+        clsid = guid("BCDE0395-E52F-467C-8E3D-C4579291692E")
+        iid = guid("A95664D2-9614-4F35-A746-DE8DB63617E6")
+        checked(ole.CoCreateInstance(ct.byref(clsid), None, 23, ct.byref(iid), ct.byref(enumerator)))
+        checked(call(enumerator, 3, (ct.c_int, wt.DWORD, ct.POINTER(ct.c_void_p)),
+                     (0, 1, ct.byref(devices))))  # All active render endpoints.
+        count = wt.UINT()
+        checked(call(devices, 3, (ct.POINTER(wt.UINT),), (ct.byref(count),)))
+        audio_errors = []
+        for index in range(count.value):
+            device, manager, sessions = ct.c_void_p(), ct.c_void_p(), ct.c_void_p()
+            try:
+                checked(call(devices, 4, (wt.UINT, ct.POINTER(ct.c_void_p)), (index, ct.byref(device))))
+                iid = guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F")
+                checked(call(device, 3, (ct.POINTER(Guid), wt.DWORD, ct.c_void_p, ct.POINTER(ct.c_void_p)),
+                             (ct.byref(iid), 23, None, ct.byref(manager))))
+                checked(call(manager, 5, (ct.POINTER(ct.c_void_p),), (ct.byref(sessions),)))
+                total = ct.c_int()
+                checked(call(sessions, 3, (ct.POINTER(ct.c_int),), (ct.byref(total),)))
+                for item in range(total.value):
+                    raw, control, meter = ct.c_void_p(), ct.c_void_p(), ct.c_void_p()
+                    try:
+                        checked(call(sessions, 4, (ct.c_int, ct.POINTER(ct.c_void_p)), (item, ct.byref(raw))))
+                        control = query(raw, guid("BFB7FF88-7239-4FC9-8FA2-07C950BE9C6D"))
+                        state, pid = ct.c_int(), wt.DWORD()
+                        checked(call(control, 3, (ct.POINTER(ct.c_int),), (ct.byref(state),)))
+                        checked(call(control, 14, (ct.POINTER(wt.DWORD),), (ct.byref(pid),)))
+                        if not pid.value or state.value == 2:
+                            continue
+                        name = process_name(pid.value)
+                        if not name and state.value == 1:
+                            audio_errors.append(f"Cannot identify active audio process {pid.value}")
+                        if not external_media_family(name) or external_media_family(name) == "Winamp":
+                            continue
+                        peak = None
+                        try:
+                            meter = query(raw, guid("C02216F6-8C67-4B5B-9D00-D008E73E0064"))
+                            value = ct.c_float()
+                            checked(call(meter, 3, (ct.POINTER(ct.c_float),), (ct.byref(value),)))
+                            peak = float(value.value)
+                        except OSError:
+                            pass  # The stream state remains useful without a peak meter.
+                        result["audio"].append({"name": name, "processId": pid.value, "state": state.value, "peak": peak})
+                    except OSError as exc:
+                        audio_errors.append(str(exc))
+                    finally:
+                        release(meter); release(control); release(raw)
+            except OSError as exc:
+                audio_errors.append(str(exc))  # One disappearing endpoint cannot erase another's positive detection.
+            finally:
+                release(sessions); release(manager); release(device)
+        result["audio_known"] = not audio_errors
+        result["errors"].extend(audio_errors)
+    except OSError as exc:
+        result["errors"].append(str(exc))
+    finally:
+        release(devices); release(enumerator)
+        if initialized:
+            ole.CoUninitialize()
+    result["known"] = result["audio_known"] and result["winamp_known"]
+    result["error"] = "; ".join(dict.fromkeys(result.pop("errors")))
+    return result
+
+
 _PAF_EXTERNAL_MEDIA_PROBE = r'''
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
-Add-Type -TypeDefinition @'
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-[ComImport, Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")] class PafDeviceEnumerator {}
-[ComImport, Guid("A95664D2-9614-4F35-A746-DE8DB63617E6"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-interface IPafDevices { [PreserveSig] int EnumAudioEndpoints(int flow, uint mask, out IPafDeviceCollection devices); }
-[ComImport, Guid("0BD7A1BE-7A1A-44DB-8397-CC5392387B5E"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-interface IPafDeviceCollection { [PreserveSig] int GetCount(out uint count); [PreserveSig] int Item(uint index, out IPafDevice device); }
-[ComImport, Guid("D666063F-1587-4E43-81F1-B948E807363F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-interface IPafDevice { [PreserveSig] int Activate(ref Guid iid, uint context, IntPtr parameters, [MarshalAs(UnmanagedType.IUnknown)] out object result); }
-[ComImport, Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-interface IPafManager {
-    [PreserveSig] int GetAudioSessionControl(IntPtr guid, uint flags, out IntPtr session);
-    [PreserveSig] int GetSimpleAudioVolume(IntPtr guid, uint flags, out IntPtr volume);
-    [PreserveSig] int GetSessionEnumerator(out IPafSessions sessions);
-}
-[ComImport, Guid("E2F5BB11-0570-40CA-ACDD-3AA01277DEE8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-interface IPafSessions { [PreserveSig] int GetCount(out int count); [PreserveSig] int GetSession(int index, [MarshalAs(UnmanagedType.IUnknown)] out object session); }
-[ComImport, Guid("BFB7FF88-7239-4FC9-8FA2-07C950BE9C6D"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-interface IPafSession {
-    [PreserveSig] int GetState(out int state);
-    [PreserveSig] int GetDisplayName(out IntPtr value);
-    [PreserveSig] int SetDisplayName(IntPtr value, IntPtr context);
-    [PreserveSig] int GetIconPath(out IntPtr value);
-    [PreserveSig] int SetIconPath(IntPtr value, IntPtr context);
-    [PreserveSig] int GetGroupingParam(out Guid value);
-    [PreserveSig] int SetGroupingParam(ref Guid value, IntPtr context);
-    [PreserveSig] int RegisterAudioSessionNotification(IntPtr events);
-    [PreserveSig] int UnregisterAudioSessionNotification(IntPtr events);
-    [PreserveSig] int GetSessionIdentifier(out IntPtr value);
-    [PreserveSig] int GetSessionInstanceIdentifier(out IntPtr value);
-    [PreserveSig] int GetProcessId(out uint processId);
-}
-public class PafAudioSession { public string name; public uint processId; public int state; }
-public static class PafMediaProbe {
-    [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern IntPtr FindWindow(string cls, string title);
-    [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern IntPtr SendMessageTimeout(IntPtr hwnd, uint msg, UIntPtr wparam, IntPtr lparam, uint flags, uint timeout, out UIntPtr result);
-    static void Check(int result) { Marshal.ThrowExceptionForHR(result); }
-    static void Release(object value) { if(value != null && Marshal.IsComObject(value)) Marshal.ReleaseComObject(value); }
-    public static int WinampState() {
-        IntPtr window = FindWindow("Winamp v1.x", null);
-        if(window == IntPtr.Zero) return 0;
-        UIntPtr result;
-        if(SendMessageTimeout(window, 0x400, UIntPtr.Zero, new IntPtr(104), 2, 250, out result) == IntPtr.Zero) return -1;
-        return (int)result.ToUInt64();
-    }
-    public static PafAudioSession[] AudioSessions() {
-        var result = new List<PafAudioSession>();
-        object enumerator = new PafDeviceEnumerator();
-        IPafDeviceCollection devices = null;
-        try {
-            Check(((IPafDevices)enumerator).EnumAudioEndpoints(0, 1, out devices));
-            uint count; Check(devices.GetCount(out count));
-            for(uint d=0; d<count; d++) {
-                IPafDevice device=null; object manager=null; IPafSessions sessions=null;
-                try {
-                    Check(devices.Item(d, out device));
-                    Guid iid=new Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F");
-                    Check(device.Activate(ref iid, 23, IntPtr.Zero, out manager));
-                    Check(((IPafManager)manager).GetSessionEnumerator(out sessions));
-                    int total; Check(sessions.GetCount(out total));
-                    for(int i=0; i<total; i++) {
-                        object raw=null;
-                        try {
-                            Check(sessions.GetSession(i, out raw));
-                            IPafSession session=(IPafSession)raw;
-                            int state; uint pid;
-                            Check(session.GetState(out state)); Check(session.GetProcessId(out pid));
-                            if(pid==0) continue;
-                            try {
-                                using(var process=Process.GetProcessById((int)pid)) {
-                                    string name=process.ProcessName.ToLowerInvariant();
-                                    if(name=="vlc" || name=="vlcplayer" || name=="chrome" || name=="msedge" || name=="firefox" || name=="brave" || name=="vivaldi" || name=="opera" || name=="librewolf" || name=="waterfox")
-                                        result.Add(new PafAudioSession {name=name,processId=pid,state=state});
-                                }
-                            } catch(ArgumentException) {} // Process exited between enumeration and lookup.
-                        } finally { Release(raw); }
-                    }
-                } finally { Release(sessions); Release(manager); Release(device); }
-            }
-        } finally { Release(devices); Release(enumerator); }
-        return result.ToArray();
-    }
-}
-'@
-$manager = $null
-$smtcError = ''
 try {
     Add-Type -AssemblyName System.Runtime.WindowsRuntime
     $managerType = [Windows.Media.Control.GlobalSystemMediaTransportControlsSessionManager,Windows.Media.Control,ContentType=WindowsRuntime]
@@ -22923,27 +22994,28 @@ try {
     $task = $asTask.MakeGenericMethod($managerType).Invoke($null, @($managerType::RequestAsync()))
     if (-not $task.Wait(3000)) { throw 'Windows media session request timed out' }
     $manager = $task.Result
-} catch { $smtcError = $_.Exception.GetBaseException().Message }
-$ownerId = __PAF_OWNER_PID__
-$owner = [Diagnostics.Process]::GetProcessById($ownerId)
-while (-not $owner.HasExited) {
-    $media = @(); $audio = @(); $errors = @(); $winamp = -1
-    try { $audio = @([PafMediaProbe]::AudioSessions()) } catch { $errors += $_.Exception.Message }
-    try { $winamp = [PafMediaProbe]::WinampState() } catch { $errors += $_.Exception.Message }
-    if ($winamp -lt 0) { $errors += 'Winamp did not answer its playback-state query' }
-    if ($null -ne $manager) {
-        try {
-            foreach ($session in $manager.GetSessions()) {
-                $media += @{ app = $session.SourceAppUserModelId; state = $session.GetPlaybackInfo().PlaybackStatus.ToString() }
-            }
-        } catch { $errors += $_.Exception.Message }
+    $propertiesType = [Windows.Media.Control.GlobalSystemMediaTransportControlsSessionMediaProperties,Windows.Media.Control,ContentType=WindowsRuntime]
+    $owner = [Diagnostics.Process]::GetProcessById(__PAF_OWNER_PID__)
+    while (-not $owner.HasExited) {
+        $media = @()
+        foreach ($session in $manager.GetSessions()) {
+            $title = ''
+            try {
+                $propertiesTask = $asTask.MakeGenericMethod($propertiesType).Invoke($null, @($session.TryGetMediaPropertiesAsync()))
+                if ($propertiesTask.Wait(500)) { $title = [string]$propertiesTask.Result.Title }
+            } catch { } # A disappearing session must not stop the monitor.
+            $media += @{ app = $session.SourceAppUserModelId; state = $session.GetPlaybackInfo().PlaybackStatus.ToString(); title = $title }
+        }
+        @{media=$media; smtc_available=$true; error=''} | ConvertTo-Json -Compress -Depth 5
+        [Console]::Out.Flush()
+        Start-Sleep -Milliseconds 250
+        $owner.Refresh()
     }
-    @{ media = $media; audio = $audio; winamp = $winamp; known = ($errors.Count -eq 0); error = ($errors -join '; '); smtc_available = ($null -ne $manager); smtc_error = $smtcError } | ConvertTo-Json -Compress -Depth 5
+} catch {
+    @{media=@(); smtc_available=$false; error=$_.Exception.GetBaseException().Message} | ConvertTo-Json -Compress -Depth 5
     [Console]::Out.Flush()
-    Start-Sleep -Milliseconds 250
-    $owner.Refresh()
+    exit 1
 }
-
 '''
 
 
@@ -22953,6 +23025,8 @@ def external_media_family(name: str) -> str:
         return "Winamp"
     if "vlc" in name or "videolan" in name:
         return "VLC"
+    if "microsoftedge" in name:
+        return "msedge"
     for browser in ("chrome", "msedge", "firefox", "brave", "vivaldi", "opera", "librewolf", "waterfox", "youtube"):
         if browser in name:
             return browser
@@ -22960,49 +23034,117 @@ def external_media_family(name: str) -> str:
 
 
 def resolve_external_media_snapshot(payload, observed_at):
-    """Prefer actual transport state; streaming-session fallback includes silence."""
+    """Use transport state when available; Core Audio-only sources must be audible.
+
+    VLC commonly has no Windows media-transport session.  Its Core Audio session
+    can linger after the app is closed, however, reporting ``Active`` with a zero
+    peak.  Treating that stale session as playback holds PAFPlayer's automatic
+    pause forever.  A live transport state still counts on its own, while a
+    Core-Audio-only source needs a positive peak to establish or retain a pause.
+    """
     states = {}
+    reasons = {}
+    excluded_families = set()
     for item in payload.get("media", ()):
         family = external_media_family(item.get("app", ""))
         if family and family != "Winamp":
-            states.setdefault(family, []).append(str(item.get("state", "")))
+            title = " ".join(str(item.get("title", "")).split())
+            if title.casefold() == "live video from your nest camera":
+                excluded_families.add(family)
+                continue
+            state = str(item.get("state", ""))
+            states.setdefault(family, []).append(state)
+            if state in {"Playing", "Changing"}:
+                reasons.setdefault(family, []).append(f"media session {state}" + (f": {title}" if title else ""))
     active = {family for family, values in states.items() if any(value in {"Playing", "Changing"} for value in values)}
     for item in payload.get("audio", ()):
         family = external_media_family(item.get("name", ""))
-        if family and family != "Winamp" and family not in states and int(item.get("state", 0)) == 1:
+        # Core Audio cannot identify browser tabs. Ignore its browser-wide
+        # signal when Nest is that browser's only reported media session.
+        # Other sessions from the same browser retain normal pause detection.
+        if family in excluded_families and family not in states:
+            continue
+        audible = float(item.get("peak") or 0) > 0.00001
+        if family and family != "Winamp" and int(item.get("state", 0)) == 1 and audible:
             active.add(family)
+            audio_reason = (
+                "audible active audio session (overrides media-session status)"
+                if family in states else "active audio session"
+            )
+            reasons.setdefault(family, []).append(audio_reason)
     if payload.get("winamp") == 1:
         active.add("Winamp")
+        reasons.setdefault("Winamp", []).append("Winamp IPC reports playing")
     return {"active": tuple(sorted(active)), "known": bool(payload.get("known", False)),
             "at": float(observed_at), "error": str(payload.get("error", "")),
-            "backend": "Windows media sessions + audio sessions" if payload.get("smtc_available") else "Windows audio sessions + Winamp",
-            "smtc_error": str(payload.get("smtc_error", ""))}
+            "backend": "Native Windows audio + media sessions" if payload.get("smtc_available") else "Native Windows audio + Winamp (media-session fallback)",
+            "smtc_error": str(payload.get("smtc_error", "")),
+            "degraded": not bool(payload.get("smtc_available")),
+            "reasons": {family: tuple(dict.fromkeys(values)) for family, values in reasons.items()}}
+
+
+def external_media_reason_summary(snapshot, *, limit: int = 3) -> str:
+    """Return compact, user-readable evidence for an automatic media pause."""
+    sources = tuple(snapshot.get("active", ()) or ())
+    reason_map = snapshot.get("reasons", {}) or {}
+    parts = []
+    for source in sources[:max(1, int(limit))]:
+        evidence = reason_map.get(source, ()) if isinstance(reason_map, dict) else ()
+        detail = "; ".join(str(item) for item in evidence if str(item))
+        parts.append(f"{source}: {detail or 'active external playback'}")
+    if len(sources) > len(parts):
+        parts.append(f"+{len(sources) - len(parts)} more")
+    return " | ".join(parts)
 
 
 class PAFExternalMediaMonitor:
-    """One hidden, read-only Windows probe per player session; no external controls."""
+    """Independent native-audio and media-session readers; neither blocks playback."""
     def __init__(self):
         self._stop = threading.Event()
         self._process = None
         self._thread = None
-        self._snapshot = {"active": (), "known": False, "at": 0.0, "error": "Starting playback monitor", "backend": ""}
+        self._audio_thread = None
+        self._audio_sample = {"audio": [], "winamp": -1, "known": False, "at": 0.0, "error": "Starting native audio monitor"}
+        self._media_sample = {"media": [], "smtc_available": False, "at": 0.0, "error": "Starting Windows media-session monitor"}
+        self._media_was_available = False
+        self._helper_started = 0.0
 
     def start(self):
         if os.name == "nt" and self._thread is None:
+            self._audio_thread = threading.Thread(target=self._run_audio, name="paf-native-media", daemon=True)
             self._thread = threading.Thread(target=self._run, name="paf-external-media", daemon=True)
+            self._audio_thread.start()
             self._thread.start()
         return self
+
+    def _run_audio(self):
+        while not self._stop.is_set():
+            try:
+                sample = probe_external_audio_sessions()
+            except Exception as exc:
+                sample = {"audio": [], "winamp": -1, "known": False, "error": str(exc)}
+            self._audio_sample = {**sample, "at": time.monotonic()}
+            # Break a hung helper's stdout read so the other thread can restart it.
+            process = self._process
+            last_response = max(self._helper_started, self._media_sample["at"])
+            if process is not None and time.monotonic() - last_response > 15:
+                with contextlib.suppress(OSError):
+                    process.terminate()
+            self._stop.wait(0.25)
 
     def _run(self):
         while not self._stop.is_set():
             process = None
+            diagnostics = []
+            helper_error = ""
             try:
                 script = _PAF_EXTERNAL_MEDIA_PROBE.replace("__PAF_OWNER_PID__", str(os.getpid()))
                 powershell = str(Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32/WindowsPowerShell/v1.0/powershell.exe")
-                process = subprocess.Popen([powershell, "-NoProfile", "-NonInteractive", "-MTA", "-EncodedCommand",
+                self._helper_started = time.monotonic()
+                process = subprocess.Popen([powershell, "-NoProfile", "-NonInteractive", "-MTA", "-OutputFormat", "Text", "-EncodedCommand",
                     base64.b64encode(script.encode("utf-16-le")).decode("ascii")],
-                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                    text=True, encoding="utf-8", creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    text=True, encoding="utf-8", errors="replace", creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
                 self._process = process
                 if self._stop.is_set():
                     break
@@ -23011,13 +23153,20 @@ class PAFExternalMediaMonitor:
                         break
                     try:
                         payload = json.loads(line)
-                        self._snapshot = resolve_external_media_snapshot(payload, time.monotonic())
+                        if not isinstance(payload, dict) or "smtc_available" not in payload:
+                            raise ValueError("not a media snapshot")
+                        helper_error = str(payload.get("error", ""))
+                        self._media_sample = {**payload, "at": time.monotonic()}
+                        self._media_was_available |= bool(payload["smtc_available"])
                     except (TypeError, ValueError):
-                        continue
+                        diagnostics = (diagnostics + [line.strip()[:300]])[-6:]
                 if not self._stop.is_set():
-                    self._snapshot = {**self._snapshot, "known": False, "error": "Playback monitor disconnected; retrying"}
+                    code = process.wait(timeout=2)
+                    detail = helper_error or " ".join(diagnostics) or "no diagnostic output"
+                    self._media_sample = {"media": [], "smtc_available": False, "at": time.monotonic(),
+                                          "error": f"Media helper exited {code}: {detail}"[:1000]}
             except Exception as exc:
-                self._snapshot = {**self._snapshot, "known": False, "error": str(exc)}
+                self._media_sample = {"media": [], "smtc_available": False, "at": time.monotonic(), "error": str(exc)}
             finally:
                 if process is not None:
                     if process.poll() is None:
@@ -23032,10 +23181,18 @@ class PAFExternalMediaMonitor:
 
     def snapshot(self, now=None):
         now = time.monotonic() if now is None else now
-        snapshot = self._snapshot
-        if now - snapshot["at"] > 3:
-            return {**snapshot, "known": False, "error": snapshot.get("error") or "Playback monitor has not updated"}
-        return snapshot
+        audio, media = self._audio_sample, self._media_sample
+        audio_fresh = now - audio["at"] <= 10
+        media_fresh = now - media["at"] <= 3
+        media_ok = media_fresh and bool(media.get("smtc_available"))
+        payload = dict(audio) if audio_fresh else {"audio": [], "winamp": -1, "known": False, "error": "Native audio monitor has not updated"}
+        payload.update(media=media.get("media", ()) if media_ok else (), smtc_available=media_ok,
+                       smtc_error=media.get("error") or ("Media-session monitor has not updated" if not media_fresh else ""))
+        # Lost coverage after a working transport feed must not release a held pause.
+        payload["known"] = bool(payload.get("known")) and (media_ok or not self._media_was_available)
+        if self._media_was_available and not media_ok:
+            payload["error"] = payload.get("error") or payload["smtc_error"]
+        return resolve_external_media_snapshot(payload, now)
 
     def close(self):
         self._stop.set()
@@ -23043,16 +23200,22 @@ class PAFExternalMediaMonitor:
         if process is not None and process.poll() is None:
             with contextlib.suppress(OSError):
                 process.terminate()
-        if self._thread is not None:
-            self._thread.join(timeout=0.5)
+        for thread in (self._thread, self._audio_thread):
+            if thread is not None:
+                thread.join(timeout=0.5)
+
 
 
 class PAFExternalPlaybackCoordinator:
-    """Own only automatic pauses; explicit transport input always has priority."""
+    """Pause for new competing playback; explicit Play acknowledges current sources."""
     def __init__(self, monitor=None):
         self.monitor = monitor
         self.auto_paused = False
-        self.override_until_quiet = False
+        self.last_decision = "starting"
+        self.baseline_observed = False
+        self.acknowledged_sources = set()
+        self.last_confirmed_sources = set()
+        self.source_quiet_since = {}
         self.quiet_since = None
         self.fade_total = self.fade_elapsed = 0.0
         self.last_snapshot = {"active": (), "known": False, "error": "", "backend": ""}
@@ -23062,31 +23225,65 @@ class PAFExternalPlaybackCoordinator:
         fade_seconds = EXTERNAL_MEDIA_RESUME_FADE_SECONDS if fade_seconds is None else fade_seconds
         snapshot = self.monitor.snapshot(now) if self.monitor is not None else self.last_snapshot
         self.last_snapshot = snapshot
-        active = bool(snapshot.get("active"))
+        sources = set(snapshot.get("active", ()))
         known = bool(snapshot.get("known"))
+        if known:
+            self.last_confirmed_sources = sources.copy()
+        else:
+            self.last_confirmed_sources.update(sources)
+        # Existing background media is not a new interruption. Wait for actual
+        # evidence before establishing the startup baseline (not an empty,
+        # unknown startup sample). Acknowledgements belong to individual apps,
+        # so a continuing Chrome video cannot suppress a newly started VLC.
+        if not self.baseline_observed and (known or sources):
+            self.acknowledged_sources.update(sources)
+            self.baseline_observed = True
+        for source in tuple(self.acknowledged_sources):
+            if not known or source in sources:
+                self.source_quiet_since.pop(source, None)
+            else:
+                since = self.source_quiet_since.setdefault(source, now)
+                if now - since >= EXTERNAL_MEDIA_RESUME_QUIET_SECONDS:
+                    self.acknowledged_sources.remove(source)
+                    self.source_quiet_since.pop(source, None)
+        active = bool(sources - self.acknowledged_sources)
         if known and not active:
             if self.quiet_since is None:
                 self.quiet_since = now
         else:
             self.quiet_since = None
         quiet = self.quiet_since is not None and now - self.quiet_since >= EXTERNAL_MEDIA_RESUME_QUIET_SECONDS
-        if quiet:
-            self.override_until_quiet = False
-        if action in {PAUSE_TOGGLE, WEB_PLAY, WEB_PAUSE, WEB_STOP}:
-            # Pause during an automatic hold converts it to a manual hold.
+        requests_play = action == WEB_PLAY or (action == PAUSE_TOGGLE and paused)
+        if requests_play:
+            self.acknowledged_sources.update(sources if known else self.last_confirmed_sources)
+            self.source_quiet_since.clear()
             self.auto_paused = False
-            if action == WEB_PLAY or (action == PAUSE_TOGGLE and paused):
-                self.override_until_quiet = active or not known
+            self.quiet_since = None
+            # Manual Play is immediate, including during a previous auto fade.
+            self.fade_total = self.fade_elapsed = 0.0
+            self.last_decision = "manual-play"
+            return action
+        if action in {PAUSE_TOGGLE, WEB_PAUSE, WEB_STOP}:
+            self.auto_paused = False
+            self.last_decision = "manual-hold"
             return action
         if action is not None:
+            self.last_decision = "processing-control"
             return action
         if self.auto_paused and paused and (not enabled or quiet):
             self.auto_paused = False
             self.fade_total, self.fade_elapsed = max(0.0, float(fade_seconds)), 0.0
+            self.last_decision = "automatic-resume"
             return EXTERNAL_MEDIA_RESUME
-        if enabled and active and known and not paused and not self.override_until_quiet:
+        if enabled and active and not paused:
             self.auto_paused = True
+            self.last_decision = "automatic-pause"
             return EXTERNAL_MEDIA_PAUSE
+        self.last_decision = ("disabled" if not enabled else
+                              "waiting-for-other-media" if self.auto_paused and active else
+                              "waiting-for-monitor" if self.auto_paused and not known else
+                              "waiting-for-quiet-period" if self.auto_paused else
+                              "manual-hold" if paused else "watching")
         return action
 
     def fade_arguments(self):
@@ -23100,8 +23297,12 @@ class PAFExternalPlaybackCoordinator:
         return {"external_media_auto_pause": bool(EXTERNAL_MEDIA_AUTO_PAUSE),
                 "external_media_resume_fade_seconds": EXTERNAL_MEDIA_RESUME_FADE_SECONDS,
                 "external_media_auto_paused": self.auto_paused,
+                "external_media_decision": self.last_decision,
                 "external_media_active": list(self.last_snapshot.get("active", ())),
+                "external_media_acknowledged": sorted(self.acknowledged_sources),
                 "external_media_monitor_known": bool(self.last_snapshot.get("known")),
+                "external_media_monitor_degraded": bool(self.last_snapshot.get("degraded")),
+                "external_media_smtc_error": self.last_snapshot.get("smtc_error", ""),
                 "external_media_monitor_status": self.last_snapshot.get("error") or self.last_snapshot.get("backend", ""),
                 "external_media_fade_remaining": max(0.0, self.fade_total - self.fade_elapsed)}
 
@@ -34079,7 +34280,7 @@ def paf_web_control_schema() -> dict[str, object]:
         ],
     }
     schema["sliders"].append({"key": "external_media_resume_fade_seconds", "label": "Automatic resume fade-in", "min": 0, "max": 120, "step": 1, "suffix": "s", "theme": "playback", "tooltip": "Fade from silence to your selected volume after other media finishes. Default 15 seconds; 0 disables the fade. Applies to the next automatic resume."})
-    schema["toggles"].append({"key": "external_media_auto_pause", "label": "Pause for VLC, Winamp and browser media", "web_key": "external_media_auto_pause", "theme": "playback", "tooltip": "Let other media take priority, including YouTube. Resume only a pause made automatically; manual Pause stays paused. Manual Play overrides the current interruption."})
+    schema["toggles"].append({"key": "external_media_auto_pause", "label": "Pause for VLC, Winamp and browser media", "web_key": "external_media_auto_pause", "theme": "playback", "tooltip": "Pause for newly active VLC, Winamp or browser playback. Existing background media is ignored at startup. Play resumes immediately and overrides currently active players until they stop; another player can still interrupt. Manual Pause stays paused."})
     schema["selects"].append({"key": "artwork_seam_strategy", "label": "Artwork seam experiment",
         "options": options(ARTWORK_SEAM_STRATEGY_NAMES, start=0), "experimental": True,
         "tooltip": "Experimental / broken: compare painted glyph bounds, cell aspect and mixed charset advances. 0 is unchanged output. SIXEL requires terminal support; gap filling can remove real dark detail."})
@@ -35688,7 +35889,11 @@ async function tick(){
   if(pauseButton){pauseButton.textContent=s.paused?'▶':'⏸︎';pauseButton.title=s.paused?'Resume':'Pause';}
   updateWebArtTitle();maybeAutoRotateWebArt();const outputDeviceControl=document.querySelector('[data-control-key="output_device"]');if(outputDeviceControl&&outputDeviceControl._setMultiOutputMask)outputDeviceControl._setMultiOutputMask(Number(s.output_devices_mask||1));
   const mediaStatus=document.getElementById('externalMediaStatus');
-  if(mediaStatus){mediaStatus.textContent=!s.external_media_auto_pause?'':s.external_media_auto_paused?'Waiting for other media to finish. Play overrides this pause; Pause keeps PAF paused.':s.external_media_monitor_known===false?'Automatic pause monitor: '+(s.external_media_monitor_status||'starting…'):Number(s.external_media_fade_remaining||0)>0?'Resuming gently: '+Math.ceil(s.external_media_fade_remaining)+' seconds of fade remaining.':'';}
+  if(mediaStatus){
+   const playbackNote=s.external_media_auto_paused?'Paused for other media. Press Play to resume now, or wait for it to finish. Pause keeps PAF paused afterward.':Number(s.external_media_fade_remaining||0)>0?'Resuming gently: '+Math.ceil(s.external_media_fade_remaining)+' seconds of fade remaining.':'';
+   const detectionNote=s.external_media_monitor_known===false?'Automatic pause monitor: '+(s.external_media_monitor_status||'starting…'):s.external_media_monitor_degraded?'Automatic pause uses Windows audio detection. Media-session status: '+(s.external_media_smtc_error||'unavailable'):'';
+   mediaStatus.textContent=s.external_media_auto_pause?[playbackNote,detectionNote].filter(Boolean).join(' '):'';
+  }
   const playState=s.transport_stopped?'Stopped':s.external_media_auto_paused?'Paused for '+(s.external_media_active||[]).join(', '):s.paused?'Paused':s.playing?'Playing':'Stopped';
   const vol=Number(s.volume??0);const volIcon=vol<=0?'🔇':vol<=35?'🔈':vol<=100?'🔉':'🔊';
   const bal=Number(s.balance??0);const balanceText=bal===0?'Center':Math.abs(bal)+'% '+(bal<0?'Left':'Right');
@@ -37602,10 +37807,18 @@ class ExternalAlbumArtWindow:
         self._commands.put(("save-geometry-sync", completed))
         return completed.wait(timeout=max(0.05, float(timeout))) or native_valid
 
-    def close(self) -> None:
-        """Synchronously persist geometry, then shut Tk down on its owner thread."""
+    def close(self, *, fast: bool = False) -> None:
+        """Shut Tk down on its owner thread, with a bounded process-exit path.
+
+        The normal path protects an interactive handoff from Tcl finalization by
+        waiting for the owner thread.  During final program termination that
+        wait is counterproductive: Ctrl+Break has already committed to exit.
+        ``fast`` still requests an orderly close and saves native geometry when
+        immediately available, but never waits more than a fraction of a second.
+        """
         append_pafplayer_trace("art.gui.close-request")
-        self.persist_geometry_sync(timeout=2.0)
+        geometry_timeout = 0.05 if fast else 2.0
+        self.persist_geometry_sync(timeout=geometry_timeout)
         with self._lock:
             if self._closed:
                 thread = self._thread
@@ -37620,15 +37833,16 @@ class ExternalAlbumArtWindow:
             and thread is not threading.current_thread()
         ):
             # Wait for _gui_main's finally block, not merely for root.destroy()
-            # to be requested. This prevents Python's main thread from entering
-            # interpreter finalization while Tcl still owns async handlers.
-            completed = self._shutdown_complete.wait(timeout=10.0)
+            # to be requested. A final Ctrl+Break uses the small bounded wait;
+            # ordinary interactive shutdown retains the full Tcl safety window.
+            completed = self._shutdown_complete.wait(timeout=0.5 if fast else 10.0)
             if completed:
-                thread.join()
+                thread.join(timeout=0.1 if fast else None)
                 append_pafplayer_trace("art.gui.close-complete")
             else:
+                detail = "within 0.5 seconds during final fast shutdown" if fast else "within 10 seconds"
                 append_pafplayer_error(
-                    "external album-art GUI did not acknowledge owner-thread shutdown within 10 seconds"
+                    f"external album-art GUI did not acknowledge owner-thread shutdown {detail}"
                 )
 
     def _gui_main(self) -> None:
@@ -40707,11 +40921,24 @@ class ExternalAlbumArtWindow:
             Segoe UI Emoji's nominal advance can contain a conspicuous right-side
             bearing.  When a colored emoji is followed by an ordinary source space,
             that bearing plus the real space looks like two or three spaces.  Emoji
-            runs therefore advance to their painted right edge; ordinary text keeps
-            normal shaping/textlength semantics.
+            runs therefore advance to their *ink* right edge; ordinary text keeps
+            normal shaping/textlength semantics.  ``textbbox`` alone is not enough:
+            on some Windows color-font builds it still reports the glyph cell's
+            transparent right padding rather than its painted pixels.
             """
             kwargs={} if is_emoji else _pillow_cursive_shaping_kwargs()
             if is_emoji:
+                # FreeType's rendered grayscale mask gives us the true ink bounds
+                # without depending on whether Pillow can composite this color
+                # emoji in the L-mode lyric mask.  Keep textbbox as the compatible
+                # fallback for older/non-FreeType emoji fonts.
+                try:
+                    glyph_mask = font.getmask(run, mode="L")
+                    ink_box = glyph_mask.getbbox()
+                    if ink_box is not None and int(ink_box[2]) > 0:
+                        return float(ink_box[2])
+                except Exception:
+                    pass
                 try:
                     box=draw.textbbox((0,0),run,font=font,anchor="ls")
                     right=float(box[2])
@@ -45818,8 +46045,6 @@ def play_audio_file(
         # Kill FFplay immediately so Ctrl+C is every bit as hard/fast as Break.
         abort_requested.set()
         hard_stop_process(process)
-        if external_album_art_window is not None:
-            external_album_art_window.persist_geometry_sync(timeout=2.0)
 
     if install_signal_handlers:
         supported_signals = [signal.SIGINT]
@@ -47352,26 +47577,38 @@ def play_audio_file(
     def render_hud_details(*, force: bool = False) -> None:
         """Paint the optional ReplayGain/playlist/tag rows only when they change."""
         nonlocal last_hud_details_payload
+        nonlocal HUD_DETAILS_ROWS, CONTROLS_ROW, STATUS_ROW
         if not hud_details_visible:
             return
         available = max(12, shutil.get_terminal_size((120, 30)).columns - 1)
         replaygain_plain, replaygain_ansi = replaygain_help_text(replaygain_info)
-        rows = (
-            truncate_ansi_to_cells(
-                "\033[1;38;2;185;155;235m🎚️ ReplayGain:\033[0m " + replaygain_ansi,
-                available,
-            ),
-            truncate_ansi_to_cells(
-                "\033[1;38;2;135;205;175m📂 Playlist:\033[0m "
-                + "\033[38;2;165;195;185m" + playlist_context_text() + "\033[0m",
-                available,
-            ),
-            attribute_tags_ansi(available, icon=True),
+        replaygain_row = "\033[1;38;2;185;155;235m🎚️ ReplayGain:\033[0m " + replaygain_ansi
+        playlist_row = (
+            "\033[1;38;2;135;205;175m📂 Playlist:\033[0m "
+            + "\033[38;2;165;195;185m" + playlist_context_text() + "\033[0m"
         )
+        # These are complementary diagnostics, not permanently separate rows.
+        # Keep them together whenever their actual ANSI-safe cell widths fit.
+        rows = (*pack_help_diagnostic_segments((replaygain_row, playlist_row), available),
+                attribute_tags_ansi(available, icon=True))
+        if HUD_DETAILS_ROWS != len(rows):
+            HUD_DETAILS_ROWS = len(rows)
+            CONTROLS_ROW = HUD_DETAILS_ROW + HUD_DETAILS_ROWS
+            STATUS_ROW = CONTROLS_ROW + CONTROLS_ROWS
+            last_hud_details_payload = None
+            reflow_rows_for_terminal()
+            # Reflow clears the old footprint. Repaint the header and controls;
+            # the nested details paint sees the settled row count and returns.
+            current_position = (playback_position_state[0]
+                                if playback_position_state else position)
+            render_static_header(current_position)
+            render_controls(playback_fraction(current_position))
+            return
         if not force and rows == last_hud_details_payload:
             return
         output: list[str] = []
-        for index, row in enumerate(rows):
+        for index in range(HUD_DETAILS_ROWS):
+            row = rows[index] if index < len(rows) else ""
             output.append(move_to(HUD_DETAILS_ROW + index) + "\033[2K" + row + "\033[K")
         write_console("".join(output) + "\033[?25l")
         last_hud_details_payload = rows
@@ -47583,14 +47820,21 @@ def play_audio_file(
         output_rate_text = output_help_summary_text(
             output_rate, source_bitrate, output_bit_depth, output_names
         )
+        pause_summary = external_media_reason_summary(external_media_controller.last_snapshot)
+        pause_status_ansi = (
+            "\033[1;38;2;255;210;120m⏸ Paused"
+            + (": " + pause_summary if external_media_controller.auto_paused and pause_summary else "")
+            + "\033[0m"
+        ) if header_paused else ""
         diagnostic_rows_ansi = pack_help_diagnostic_segments(
-            (
+            tuple(item for item in (
+                pause_status_ansi,
                 last_play_ansi,
                 playback_modes_ansi,
                 "\033[38;2;145;170;195m🎚️ ReplayGain: \033[0m" + replaygain_ansi,
                 "\033[38;2;145;170;195m🔊 Out: " + output_rate_text + "\033[0m",
                 "\033[38;2;145;170;195m📂 Playlist: " + playlist_text + "\033[0m",
-            ),
+            ) if item),
             available,
         )
         track_alert_help_rows: list[str] = []
@@ -47862,7 +48106,7 @@ def play_audio_file(
     ) -> None:
         """Arm the shared console-interaction overlay."""
         nonlocal volume_feedback_box_started, volume_feedback_box_until, volume_feedback_box_text
-        nonlocal interaction_feedback_terminal_width
+        nonlocal interaction_feedback_terminal_width, volume_feedback_box_last_fade_step
         nonlocal interaction_feedback_forced, interaction_feedback_hold_seconds
         nonlocal interaction_feedback_fade_seconds
         # Suppress startup churn (initial settings/track reconstruction is not
@@ -47878,6 +48122,10 @@ def play_audio_file(
         interaction_feedback_forced = bool(force)
         interaction_feedback_hold_seconds = max(0.0, float(hold_seconds))
         interaction_feedback_fade_seconds = max(0.0, float(fade_seconds))
+        # Presentation is independent from the action that caused it: a new
+        # command replaces this text and begins a fresh fade on the next visualizer
+        # paint; it never waits for an older notification to expire.
+        volume_feedback_box_last_fade_step = -1
         volume_feedback_box_started = now_value
         volume_feedback_box_until = (
             now_value + interaction_feedback_hold_seconds
@@ -52236,7 +52484,20 @@ def play_audio_file(
                 if not startup_pause_transition:
                     action = external_media_controller.filter_action(action, False, now)
                 if action == EXTERNAL_MEDIA_PAUSE:
-                    set_transient_notice("Paused for other media", "⏸ Paused for " + ", ".join(external_media_controller.last_snapshot.get("active", ())), 5.0)
+                    snapshot = external_media_controller.last_snapshot
+                    reason = external_media_reason_summary(snapshot)
+                    append_pafplayer_trace(
+                        "external-media.pause",
+                        trigger="new unacknowledged external playback",
+                        active=snapshot.get("active", ()),
+                        reasons=snapshot.get("reasons", {}),
+                        monitor_known=bool(snapshot.get("known")),
+                        monitor_backend=snapshot.get("backend", ""),
+                        monitor_degraded=bool(snapshot.get("degraded")),
+                        monitor_error=snapshot.get("error", ""),
+                        position_seconds=displayed_position,
+                    )
+                    set_transient_notice("Paused for other media", "⏸ " + (reason or "External playback detected"), 5.0)
                     action = PAUSE_TOGGLE
                 if action == WEB_PLAY:
                     action = None  # Already playing: Play is idempotent.
@@ -53687,7 +53948,18 @@ def play_audio_file(
                                 paused_action = web_server.pop_action()
                         paused_action = external_media_controller.filter_action(paused_action, True, paused_now)
                         if paused_action == EXTERNAL_MEDIA_RESUME:
-                            set_transient_notice("Other media finished", f"▶ Resuming with {EXTERNAL_MEDIA_RESUME_FADE_SECONDS}s fade-in", 5.0)
+                            snapshot = external_media_controller.last_snapshot
+                            quiet_reason = f"all external playback quiet for {EXTERNAL_MEDIA_RESUME_QUIET_SECONDS:g}s"
+                            append_pafplayer_trace(
+                                "external-media.resume",
+                                trigger=quiet_reason,
+                                last_active=snapshot.get("active", ()),
+                                monitor_known=bool(snapshot.get("known")),
+                                monitor_backend=snapshot.get("backend", ""),
+                                fade_seconds=EXTERNAL_MEDIA_RESUME_FADE_SECONDS,
+                                position_seconds=position,
+                            )
+                            set_transient_notice("Other media finished", f"▶ {quiet_reason}; {EXTERNAL_MEDIA_RESUME_FADE_SECONDS}s fade-in", 5.0)
                             paused_action = PAUSE_TOGGLE
                         if paused_action == WEB_STOP:
                             position = playback_start
@@ -54041,6 +54313,19 @@ def play_audio_file(
                                 ),
                                 3.0,
                             )
+                            render_static_header(position)
+                            render_controls(playback_fraction(position))
+                            show_status(position, "⏸️")
+                            continue
+                        if paused_action == HUD_DETAILS_TOGGLE:
+                            # Keep Ctrl+Alt+/ symmetrical: it must turn the
+                            # optional main-HUD diagnostics both on and off while
+                            # playback is paused, too.
+                            set_hud_details_visible(not hud_details_visible)
+                            last_drcs_position = None
+                            last_visualizer_payload = None
+                            last_visualizer_rows = None
+                            clear_region(HEADER_ROW, UI_ROWS)
                             render_static_header(position)
                             render_controls(playback_fraction(position))
                             show_status(position, "⏸️")
@@ -60471,6 +60756,16 @@ class PlayWaveFileTests(unittest.TestCase):
             self.assertTrue(audio_is_effectively_learned(first))
             self.assertTrue(audio_is_effectively_learned(second))
             self.assertEqual(("", "learned"), _split_attrib_rule(":learned"))
+
+    def test_v427_attrib_delimiter_does_not_leave_an_empty_regex_alternative(self) -> None:
+        self.assertEqual(
+            (r"[\\(\\[]instrumentals?[\\]\\)]|[\\(\\[]instrumental mix?[\\]\\)]", "instrumental,instrumentals"),
+            _split_attrib_rule(r"[\\(\\[]instrumentals?[\\]\\)]|[\\(\\[]instrumental mix?[\\]\\)]|:instrumental,instrumentals"),
+        )
+        self.assertEqual(
+            (r"[\\\\/]not *-*tolerable[\\\\/]", "+not tolerable"),
+            _split_attrib_rule(r"[\\\\/]not *-*tolerable[\\\\/]|:+not tolerable"),
+        )
 
     def test_v93_vlc_artistalbum_cache_fallback_reads_matching_art(self) -> None:
         """VLC-cached artist/album art should be usable when the audio file itself has none."""
@@ -68452,19 +68747,13 @@ def main(argv: list[str] | None = None) -> int:
                     target=worker, name="playlist-force-rebuild", daemon=True
                 ).start()
 
-            def watch_playlist_source_file() -> None:
-                """Rebuild in the background if the active playlist file changes on disk."""
-                while True:
-                    time.sleep(PLAYLIST_SOURCE_POLL_SECONDS)
-                    signature = playlist_source_signature(playlist_path)
-                    if signature is None or signature == playlist_source_signature_state[0]:
-                        continue
-                    playlist_source_signature_state[0] = signature
-                    force_rebuild_playlist_shuffle()
-
-            threading.Thread(
-                target=watch_playlist_source_file, name="playlist-source-watcher", daemon=True
-            ).start()
+            def check_playlist_source_after_track() -> None:
+                """Low-priority disk check, performed once after each song."""
+                signature = playlist_source_signature(playlist_path)
+                if signature is None or signature == playlist_source_signature_state[0]:
+                    return
+                playlist_source_signature_state[0] = signature
+                force_rebuild_playlist_shuffle()
 
             if not loop_option_explicit:
                 looping_enabled = False
@@ -68768,6 +69057,8 @@ def main(argv: list[str] | None = None) -> int:
                 attribute_management_enabled=bool(CLAIRE_ECOSYSTEM and not suppress_attribute_management),
                 theory_modes=frozenset(theory_modes),
             )
+            if playlist_path is not None:
+                check_playlist_source_after_track()
             if external_album_art_window is not None:
                 external_album_art_window.set_playback_running(False)
             append_pafplayer_trace(
@@ -69111,7 +69402,9 @@ def main(argv: list[str] | None = None) -> int:
         if web_server is not None:
             web_server.close()
         if external_album_art_window is not None:
-            external_album_art_window.close()
+            # Process termination must never be held hostage by normal Tk
+            # teardown timeouts. Ctrl+Break has already stopped the decoder.
+            external_album_art_window.close(fast=True)
         external_media_controller.close()
         resume_winamp_if_paused_by_preview(winamp_paused_by_session)
         write_console("\033[?25h")

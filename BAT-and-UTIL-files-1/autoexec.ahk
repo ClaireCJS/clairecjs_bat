@@ -492,7 +492,7 @@ Media_Stop::PostMessage(0x111, 40047, 0, , WinampClass  )
 ;; ⏭⏭ Next ⏭⏭                                     
 ;;PAFPLAYER ^!b::PostMessage(       0x111, 40048, 0, , WinampClass  )               ; Next Track
 ;;PAFPLAYER #b::PostMessage(        0x111, 40048, 0, , WinampClass  )
-Media_Next::PostMessage(0x111, 40048, 0, , WinampClass  )
+;;PAFPLAYER Media_Next::PostMessage(0x111, 40048, 0, , WinampClass  )
                  
 ;; ⏮⏮ Previous ⏮⏮                                       
 ^!z::PostMessage(       0x111, 40044, 0, , WinampClass  )               ; ;;PAFPLAYER Previous Track

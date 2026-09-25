@@ -960,8 +960,9 @@ rem Define Servers:
                 rem 👂 ***** Subtitle transcription stuff: *****
                         set LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE=1
 
-                rem 📻 *****  Last.FM stuff: ***** 
+                rem 📻 *****  Last.FM stuff: *****                                         
                         set AUDIOSCROBBLER_LOG=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
+                        rem ^^^^ DEPRECATED!!
 
                 rem ❌ *****  DEPRECATED STUFF: ***** 
 

@@ -1,3 +1,5 @@
-@Echo OFF
+     @Echo OFF
 @rem @call preview-audio-file %*
-play_audio_file.py %*
+@rem @play_audio_file.py      %*
+     @PAFPlayer.py            %*
+

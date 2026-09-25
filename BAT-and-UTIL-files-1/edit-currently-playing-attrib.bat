@@ -7,6 +7,7 @@
 
 rem REQUIRED CONFIGURATION:
         set SONGLIST_FILE_TO_USE=%ALL_SONGS_PLAYLIST%   %+ rem File that is a list of all the songs in your music collectoin. Used when we do regex-specific searches. c:\mp3\lists\everything.m3u or even c:\mp3\filelist.txt (run “makefilelist” to make one of those) will suffice
+        rem NOW_PLAYING_TXT must be defined             %+ rem it must point to your now-playing.txt file that reports what’s being played
 
 rem DEBUG CONFIGURATION:
 	set VERBOSE=0                                   %+ rem Setting this to 1 will make the greps be put on the screen
@@ -57,8 +58,8 @@ rem Create the script to run:
                 rem echo %ansi_color_debug%%faint_on%%ansi_color_bright_black%* edit-currently-playing-attrib-helper.pl "%LOG_TO_USE%" %ALL_SONGS_PLAYLIST% %*  `>`:u8%SCRIPT_TO_RUN% %ansi_color_normal%
 
         rem Generate our script using our helper program:                
-                 rem edit-currently-playing-attrib-helper.pl "%LOG_TO_USE%" %ALL_SONGS_PLAYLIST% %*    >:u8%SCRIPT_TO_RUN%
-                     edit-currently-playing-attrib-helper.pl "%LOG_TO_USE%" %ALL_SONGS_PLAYLIST%       >:u8%SCRIPT_TO_RUN%
+                 rem edit-currently-playing-attrib-helper.pl "%LOG_TO_USE%" %ALL_SONGS_PLAYLIST%                      %*    >:u8%SCRIPT_TO_RUN%
+                     edit-currently-playing-attrib-helper.pl "%LOG_TO_USE%" %ALL_SONGS_PLAYLIST% mode_nowplayingtxt   %*    >:u8%SCRIPT_TO_RUN%
 
 goto :Run_Generated_Script
 

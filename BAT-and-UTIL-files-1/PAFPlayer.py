@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# CHAT ARTIFACT BUILD: 2026-09-22-V428-FAST-CTRL-BREAK-SHUTDOWN
+# CHAT ARTIFACT BUILD: 2026-09-23-V446-GLOBAL-CONFIG-AND-PAUSE-FEEDBACK
 """Interactively preview an audio file from a Windows console.
 
 This program uses FFplay and accepts any audio format FFmpeg can decode,
@@ -26,7 +26,7 @@ Media Previous / Media Next
 { / }
     Play the previous or next directory containing audio files.
 
-Run ``play_audio_file.py --unit-tests`` to exercise the key mapping and the
+Run ``PAFPlayer.py --unit-tests`` to exercise the key mapping and the
 restart-at-offset seeking controller without playing real audio.
 """
 
@@ -527,10 +527,10 @@ except ImportError:  # pragma: no cover
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID                 = "2026-09-22-v429-circled-ten-terminal-spacing"
+PLAYER_BUILD_ID                 = "2026-09-23-v446-global-config-and-pause-feedback"
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION                 = "V429"
-PROGRAM_RELEASE_LABEL           = "V429"
+PROGRAM_VERSION                 = "V446"
+PROGRAM_RELEASE_LABEL           = "V446"
 
 # Other media takes priority; fade duration is also a persisted web Playback setting.
 EXTERNAL_MEDIA_AUTO_PAUSE = True
@@ -18350,9 +18350,8 @@ def windows_terminal_emojimax_replacement(replacement: str, semantic_key: str = 
     """Add terminal-only safety cells after generated enclosed-number forms.
 
     Windows Terminal's DECDHL renderer can visually consume the first safety
-    cell after a negative circled number. V429 includes the last member, ❿:
-    ten is one glyph too and needs the same safety cells as ❶ through ❾.
-    V390 additionally recognizes a tens compound such as ``❹⓿``
+    cell after a negative circled digit.  Existing one-digit behavior remains
+    unchanged.  V390 additionally recognizes a tens compound such as ``❹⓿``
     as one visual number, keeps those two digits adjacent, and appends the two
     safety cells only after the pair.  Web/Tk/other-terminal surfaces never
     call this compatibility helper, so they keep the exact replacement with no
@@ -22551,6 +22550,18 @@ def aligned_inline_last_play_gap(
     value_cells = terminal_cell_width(last_play_value)
     minimum_colon = base_cells + minimum_gap + label_cells
 
+    # When the metadata fits on one physical row, its final field is the
+    # visual right edge of that row regardless of the field's label.  Balance
+    # that composition by right-justifying the complete Play-row Last play
+    # field to the same terminal edge.  Multi-row layouts keep their existing
+    # semantic-colon behavior because a right edge on another row is not a
+    # meaningful inline anchor.
+    if len(metadata_rows) == 1:
+        metadata_row = str(metadata_rows[0])
+        if hud_metadata_label_colons_by_row(metadata_rows) and terminal_cell_width(metadata_row) >= width:
+            right_gap = width - base_cells - label_cells - 2 - value_cells
+            return max(minimum_gap, right_gap)
+
     target = inline_last_play_alignment_target(
         base_play_plain,
         last_play_value,
@@ -23097,6 +23108,30 @@ def external_media_reason_summary(snapshot, *, limit: int = 3) -> str:
     return " | ".join(parts)
 
 
+def external_media_pause_reason(snapshot, acknowledged_sources=()) -> str:
+    """Name the interrupting players, not already acknowledged background media.
+
+    Browser sessions do not always identify the website. Do not label Chrome
+    as YouTube unless the monitor actually reports a YouTube source.
+    """
+    names = {"chrome": "Chrome", "msedge": "Edge", "firefox": "Firefox",
+             "brave": "Brave", "vivaldi": "Vivaldi", "opera": "Opera",
+             "librewolf": "LibreWolf", "waterfox": "Waterfox", "youtube": "YouTube"}
+    ignored = set(acknowledged_sources)
+    sources = [str(source) for source in snapshot.get("active", ()) if source not in ignored]
+    labels = list(dict.fromkeys(names.get(source.casefold(), source) for source in sources))
+    return (", ".join(labels) + " playback detected") if labels else "external playback detected"
+
+
+def paused_status_text(reason: str) -> str:
+    return "Paused (" + (reason or "pause requested") + ")"
+
+
+def pause_visualizer_feedback_label(paused_before: bool) -> str:
+    """Name the result of the pause key in the console visualizer feedback."""
+    return "Unpause" if bool(paused_before) else "Pause"
+
+
 class PAFExternalMediaMonitor:
     """Independent native-audio and media-session readers; neither blocks playback."""
     def __init__(self):
@@ -23212,6 +23247,7 @@ class PAFExternalPlaybackCoordinator:
         self.monitor = monitor
         self.auto_paused = False
         self.last_decision = "starting"
+        self.pause_reason = ""
         self.baseline_observed = False
         self.acknowledged_sources = set()
         self.last_confirmed_sources = set()
@@ -23258,6 +23294,7 @@ class PAFExternalPlaybackCoordinator:
             self.acknowledged_sources.update(sources if known else self.last_confirmed_sources)
             self.source_quiet_since.clear()
             self.auto_paused = False
+            self.pause_reason = ""
             self.quiet_since = None
             # Manual Play is immediate, including during a previous auto fade.
             self.fade_total = self.fade_elapsed = 0.0
@@ -23265,6 +23302,9 @@ class PAFExternalPlaybackCoordinator:
             return action
         if action in {PAUSE_TOGGLE, WEB_PAUSE, WEB_STOP}:
             self.auto_paused = False
+            self.pause_reason = {
+                PAUSE_TOGGLE: "hit pause key", WEB_PAUSE: "web pause", WEB_STOP: "web stop",
+            }[action]
             self.last_decision = "manual-hold"
             return action
         if action is not None:
@@ -23272,11 +23312,13 @@ class PAFExternalPlaybackCoordinator:
             return action
         if self.auto_paused and paused and (not enabled or quiet):
             self.auto_paused = False
+            self.pause_reason = ""
             self.fade_total, self.fade_elapsed = max(0.0, float(fade_seconds)), 0.0
             self.last_decision = "automatic-resume"
             return EXTERNAL_MEDIA_RESUME
         if enabled and active and not paused:
             self.auto_paused = True
+            self.pause_reason = external_media_pause_reason(snapshot, self.acknowledged_sources)
             self.last_decision = "automatic-pause"
             return EXTERNAL_MEDIA_PAUSE
         self.last_decision = ("disabled" if not enabled else
@@ -23295,6 +23337,7 @@ class PAFExternalPlaybackCoordinator:
 
     def status(self):
         return {"external_media_auto_pause": bool(EXTERNAL_MEDIA_AUTO_PAUSE),
+                "pause_reason": self.pause_reason,
                 "external_media_resume_fade_seconds": EXTERNAL_MEDIA_RESUME_FADE_SECONDS,
                 "external_media_auto_paused": self.auto_paused,
                 "external_media_decision": self.last_decision,
@@ -31029,10 +31072,66 @@ class ProgressBeatTimeline:
         return self.samples[index] / 255.0 if 0 <= index < len(self.samples) else 0.0
 
 
+@lru_cache(maxsize=1)
+def _windows_console_text_api():
+    """Resolve the native Unicode console API without changing console modes."""
+    from ctypes import wintypes
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.GetConsoleMode.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
+    kernel.GetConsoleMode.restype = wintypes.BOOL
+    kernel.WriteConsoleW.argtypes = [
+        wintypes.HANDLE, ctypes.c_void_p, wintypes.DWORD,
+        ctypes.POINTER(wintypes.DWORD), ctypes.c_void_p,
+    ]
+    kernel.WriteConsoleW.restype = wintypes.BOOL
+    return kernel
+
+
+def _write_large_windows_console_text(stream: object, text: str) -> bool:
+    """Write an unchanged Unicode payload, bypassing CPython's UTF-8 split bug.
+
+    Return False only when this is not a native Python console stream. A native
+    failure raises rather than replaying a partly written frame. The caller
+    holds _CONSOLE_WRITE_LOCK across the entire payload, just as in V427.
+    """
+    if os.name != "nt":
+        return False
+    buffer_stream = getattr(stream, "buffer", None)
+    raw = getattr(buffer_stream, "raw", buffer_stream)
+    if type(raw).__name__ != "_WindowsConsoleIO":
+        return False
+    import msvcrt
+    kernel = _windows_console_text_api()
+    handle = msvcrt.get_osfhandle(stream.fileno())
+    mode = ctypes.c_ulong()
+    if not kernel.GetConsoleMode(handle, ctypes.byref(mode)):
+        return False
+    stream.flush()
+    # Windows wchar_t is UTF-16. len(buffer), unlike len(text), counts both
+    # surrogate units of non-BMP characters such as emoji.
+    buffer = ctypes.create_unicode_buffer(text)
+    units = len(buffer) - 1
+    offset = 0
+    while offset < units:
+        written = ctypes.c_ulong()
+        ok = kernel.WriteConsoleW(
+            handle, ctypes.byref(buffer, offset * ctypes.sizeof(ctypes.c_wchar)),
+            units - offset, ctypes.byref(written), None,
+        )
+        if not ok or not 0 < written.value <= units - offset:
+            raise OSError(ctypes.get_last_error(), "native Unicode console write failed")
+        offset += written.value
+    return True
+
+
 def write_console(text: str) -> None:
     with _CONSOLE_WRITE_LOCK:
         if _CURSOR_SUPPRESSION_ACTIVE and _CURSOR_HIDE_APPEND_ENABLED:
             text += "\033[?25l"
+        # Only large non-ASCII console writes need the row-alignment repair.
+        # Preserve V427's short, ASCII, redirected, and binary write paths.
+        if len(text) > 4096 and not text.isascii() and _write_large_windows_console_text(sys.stdout, text):
+            return
         sys.stdout.write(text)
         sys.stdout.flush()
 
@@ -33971,6 +34070,303 @@ WEB_CHOICE_MARK_SPECS: dict[str, tuple[str, str]] = {
 
 WEB_UI_PREFERENCES_REGISTRY_VALUE = "WebUiPreferencesV241"
 
+# V446 global configuration profiles.  Ordinary profiles stay in the user's
+# local application-data folder.  The one intentionally portable profile is a
+# plain sidecar beside the canonical application, so Claire can check it into
+# the repository without mixing it into the Windows registry.
+GLOBAL_CONFIG_FORMAT = "PAFPlayer Global Config"
+GLOBAL_CONFIG_FORMAT_VERSION = 1
+GLOBAL_CONFIG_PROFILE_FILENAME = "global-config-profiles-v446.json"
+GLOBAL_CONFIG_DCC_FILENAME = "PAFPlayer.dcc"
+GLOBAL_CONFIG_DEVELOPER_CHOICE_NAME = "Developer's Choice"
+GLOBAL_CONFIG_DEVELOPER_MACHINES = frozenset({"demona", "wyvern", "thailog", "goliath"})
+
+
+def global_config_developer_choice_available(environment=None) -> bool:
+    """Return whether this process may read/write the portable Developer's Choice.
+
+    The gate intentionally uses the Windows environment values supplied to the
+    process.  Tests and controlled launchers may pass a small mapping without
+    mutating the real process environment.
+    """
+    source = os.environ if environment is None else environment
+    username = str(source.get("USERNAME") or source.get("username") or source.get("USER") or "").strip().casefold()
+    machine = str(source.get("COMPUTERNAME") or source.get("computername") or source.get("HOSTNAME") or "").strip().casefold()
+    return username == "claire" and machine in GLOBAL_CONFIG_DEVELOPER_MACHINES
+
+
+def global_config_dcc_path() -> Path:
+    """Return the portable Developer's Choice sidecar beside PAFPlayer.py."""
+    return Path(__file__).resolve().with_name(GLOBAL_CONFIG_DCC_FILENAME)
+
+
+def global_config_profiles_path() -> Path:
+    """Return the private store used for ordinary named profiles."""
+    return Path(os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()) / "PAFPlayer" / GLOBAL_CONFIG_PROFILE_FILENAME
+
+
+def _global_config_profile_name(value: object) -> str:
+    clean = re.sub(r"[\r\n\t]+", " ", str(value or "")).strip()[:80]
+    if not clean:
+        raise ValueError("profile name is required")
+    if clean.casefold() == GLOBAL_CONFIG_DEVELOPER_CHOICE_NAME.casefold():
+        raise ValueError("Developer's Choice is reserved for the portable DCC profile")
+    return clean
+
+
+def _global_config_replacement_backup_path(target: Path) -> Path:
+    stamp = datetime.now().strftime("%Y%m%d%H%M")
+    candidate = Path(f"{target}.bak.{stamp}.replaced-by-chatgpt.bak")
+    index = 1
+    while candidate.exists():
+        candidate = Path(f"{target}.bak.{stamp}.replaced-by-chatgpt ({index}).bak")
+        index += 1
+    return candidate
+
+
+def _global_config_backup_before_replacement(target: Path) -> None:
+    """Back up an existing profile before replacing it, preserving collisions."""
+    if not target.exists():
+        return
+    if not target.is_file():
+        raise OSError(f"Cannot replace non-file global config target: {target}")
+    backup = _global_config_replacement_backup_path(target)
+    shutil.copy2(target, backup)
+    if not backup.is_file() or backup.stat().st_size != target.stat().st_size:
+        raise OSError(f"Could not verify replacement backup: {backup}")
+
+
+def _global_config_write_json(path: Path, value: object) -> None:
+    """Write JSON atomically, creating the mandated sibling replacement backup."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _global_config_backup_before_replacement(path)
+    temporary = path.with_name(f"{path.name}.tmp.{os.getpid()}.{time.time_ns()}")
+    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    os.replace(temporary, path)
+
+
+def _global_config_read_json(path: Path, fallback):
+    try:
+        value = json.loads(Path(path).read_text(encoding="utf-8"))
+        return value
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        return fallback
+
+
+def _global_config_registry_value_snapshot() -> dict[str, object]:
+    """Capture the app's registry-backed choices without playlist bookmarks."""
+    if os.name != "nt":
+        return {}
+    try:
+        import winreg
+        result: dict[str, object] = {}
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            value_count = int(winreg.QueryInfoKey(key)[1])
+            for index in range(value_count):
+                name, value, kind = winreg.EnumValue(key, index)
+                # Playlist resume values contain machine-specific absolute paths
+                # and are playback history, not portable configuration.
+                if str(name).startswith("PlaylistResume_"):
+                    continue
+                if kind == winreg.REG_BINARY:
+                    encoded = base64.b64encode(bytes(value)).decode("ascii")
+                    clean_value = {"kind": "REG_BINARY", "value": encoded}
+                elif kind in {getattr(winreg, "REG_DWORD", -1), getattr(winreg, "REG_QWORD", -2)}:
+                    clean_value = {"kind": "REG_QWORD" if kind == getattr(winreg, "REG_QWORD", -2) else "REG_DWORD", "value": int(value)}
+                else:
+                    clean_value = {"kind": "REG_SZ", "value": str(value)}
+                result[str(name)] = clean_value
+        return result
+    except (OSError, TypeError, ValueError):
+        return {}
+
+
+def _global_config_restore_registry_values(values: object) -> None:
+    """Restore the portable registry portion when running on Windows."""
+    if os.name != "nt" or not isinstance(values, dict):
+        return
+    try:
+        import winreg
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\ClaireCJS\play_audio_file") as key:
+            for raw_name, raw_entry in values.items():
+                if not isinstance(raw_entry, dict):
+                    continue
+                name = str(raw_name)[:255]
+                kind_name = str(raw_entry.get("kind", "REG_SZ"))
+                kind = getattr(winreg, kind_name, winreg.REG_SZ)
+                value = raw_entry.get("value", "")
+                if kind == winreg.REG_BINARY:
+                    try:
+                        value = base64.b64decode(str(value).encode("ascii"), validate=True)
+                    except (ValueError, TypeError):
+                        continue
+                _safe_winreg_set_value(key, name, 0, kind, value)
+    except (OSError, TypeError, ValueError):
+        pass
+
+
+def _global_config_runtime_settings(runtime_state: object = None) -> dict[str, int]:
+    """Build the durable scalar settings, preferring the live web snapshot."""
+    settings = dict(load_player_settings())
+    if not isinstance(runtime_state, dict):
+        return settings
+    mapping = {
+        "visualizer_mode": "VisualizerMode", "persistence_mode": "PersistenceMode",
+        "visualizer_granularity": "VisualizerGranularity", "visualizer_input_source": "VisualizerInputSource",
+        "processing_style": "ProcessingStyle", "color_style": "ColorStyle", "color_reverse": "ColorReverse",
+        "frequency_warp_enabled": "FrequencyWarp", "karaoke_style": "KaraokeStyle", "karaoke_treatment": "KaraokeTreatment",
+        "karaoke_emojimax": "KaraokeEmojimax", "decensor_console_karaoke": "DecensorConsoleKaraoke",
+        "decensor_artwork_lyrics": "DecensorArtworkLyrics", "decensor_floating_lyrics": "DecensorFloatingLyrics",
+        "console_karaoke_enabled": "ConsoleKaraokeEnabled", "console_alerts_enabled": "ConsoleAlertsEnabled",
+        "alert_no_replaygain": "AlertNoReplayGain", "alert_missing_artist": "AlertMissingArtist", "alert_missing_title": "AlertMissingTitle",
+        "alert_missing_karaoke": "AlertMissingKaraoke", "alert_missing_lyrics": "AlertMissingLyrics", "alert_missing_artwork": "AlertMissingArtwork",
+        "alert_unknown_year": "AlertUnknownYear", "alert_unknown_genre": "AlertUnknownGenre", "alert_embedded_lyrics_mismatch": "AlertEmbeddedLyricsMismatch",
+        "progress_style": "ProgressStyle", "progress_bar_enabled": "ProgressBarEnabled", "progress_beat_reactive": "ProgressBeatReactive",
+        "progress_beat_detector": "ProgressBeatDetector", "progress_beat_treatment": "ProgressBeatTreatment", "cursive_fix": "CursiveFix",
+        "drcs_art_microtile_mode": "DrcsArtMicrotileDetailModeV370", "drcs_art_bar_microtile_mode": "DrcsArtBarMicrotileDetailModeV370",
+        "fade_style": "BarFadeStyle", "volume": "Volume", "balance": "Balance", "speed_index": "SpeedIndex",
+        "output_channels": "OutputChannels", "output_rate": "OutputRate", "output_bit_depth": "OutputBitDepth",
+        "output_device": "OutputDevice", "output_devices_mask": "OutputDevicesMask", "mm_inspired_renderer_enabled": "MMInspiredRenderer",
+        "shuffle": "Shuffle", "loop": "Looping", "repeat_mode": "RepeatMode", "shuffle_mode": "ShuffleMode",
+        "drcs_enabled": "DrcsEnabled", "sixel_enabled": "SixelEnabled", "hud_details": "HudDetails",
+        "visualizer_bars_enabled": "VisualizerBarsEnabled", "visualizer_background_artwork_enabled": "VisualizerBackgroundArtworkEnabled",
+        "console_visualizer_volume_feedback_enabled": "ConsoleVisualizerOverlayMessagesEnabled",
+        "karaoke_visualizer_expansion_enabled": "KaraokeVisualizerExpansion", "karaoke_visualizer_height_mode": "KaraokeVisualizerHeightMode",
+        "visualizer_rows": "VisualizerRows", "truncate_visualizer_rows": "TruncateTopVisualizerLines",
+        "artwork_seam_strategy": "ArtworkSeamStrategy", "external_media_auto_pause": "ExternalMediaAutoPause",
+        "external_media_resume_fade_seconds": "ExternalMediaResumeFadeSeconds", "art_color_representation": "ArtColorRepresentation",
+        "art_color_bar_strength": "ArtColorBarStrength", "art_color_bar_opacity": "ArtColorBarOpacity",
+        "art_color_black_strength": "ArtColorBlackStrength", "art_color_karaoke_sides": "ArtColorKaraokeSides", "art_color_karaoke": "ArtColorKaraoke",
+        "paused": "PlaybackPaused",
+    }
+    for source, target in mapping.items():
+        if source not in runtime_state or target not in PLAYER_SETTING_DEFAULTS:
+            continue
+        raw = runtime_state[source]
+        try:
+            if isinstance(raw, bool):
+                settings[target] = int(raw)
+            elif target in {"ArtColorBarStrength", "ArtColorBarOpacity", "ArtColorBlackStrength"}:
+                settings[target] = int(round(float(raw)))
+            else:
+                settings[target] = int(raw)
+        except (TypeError, ValueError):
+            continue
+    return settings
+
+
+def global_config_snapshot(runtime_state: object = None) -> dict[str, object]:
+    """Return one JSON-safe snapshot of all portable PAFPlayer configuration."""
+    load_matrixmixer_configuration()
+    matrix = matrixmixer_configuration_snapshot()
+    matrix["named_profiles"] = _paf_web_json_safe(_MM_MATRIX_PROFILES)
+    runtime = dict(runtime_state) if isinstance(runtime_state, dict) else {}
+    return {
+        "format": GLOBAL_CONFIG_FORMAT,
+        "format_version": GLOBAL_CONFIG_FORMAT_VERSION,
+        "program_version": PROGRAM_VERSION,
+        "saved_at": datetime.now(timezone.utc).isoformat(),
+        "player_settings": _paf_web_json_safe(_global_config_runtime_settings(runtime)),
+        "web_preferences": _paf_web_json_safe(load_web_ui_preferences()),
+        "matrix": _paf_web_json_safe(matrix),
+        "registry_values": _paf_web_json_safe(_global_config_registry_value_snapshot()),
+        # Keep the live web state so a running session can apply toggles without
+        # guessing whether an action is currently on or off.
+        "runtime_state": _paf_web_json_safe({str(k): v for k, v in runtime.items() if str(k) in {
+            "visualizer_mode", "visualizer_type", "visualizer_treatment", "persistence_mode", "visualizer_granularity",
+            "visualizer_input_source", "processing_style", "color_style", "color_reverse", "frequency_warp_enabled",
+            "karaoke_style", "karaoke_treatment", "karaoke_emojimax", "decensor_console_karaoke", "decensor_artwork_lyrics",
+            "decensor_floating_lyrics", "console_karaoke_enabled", "console_alerts_enabled", "alert_no_replaygain",
+            "alert_missing_artist", "alert_missing_title", "alert_missing_karaoke", "alert_missing_lyrics", "alert_missing_artwork",
+            "alert_unknown_year", "alert_unknown_genre", "alert_embedded_lyrics_mismatch", "progress_style", "progress_bar_enabled",
+            "progress_beat_reactive", "progress_beat_detector", "progress_beat_treatment", "cursive_fix", "drcs_art_microtile_mode",
+            "drcs_art_bar_microtile_mode", "fade_style", "volume", "balance", "speed_index", "output_channels", "output_rate",
+            "output_bit_depth", "output_device", "output_devices_mask", "mm_inspired_renderer_enabled", "shuffle", "loop",
+            "repeat_mode", "shuffle_mode", "drcs_enabled", "sixel_enabled", "hud_details", "visualizer_bars_enabled",
+            "visualizer_background_artwork_enabled", "console_visualizer_volume_feedback_enabled", "karaoke_visualizer_expansion_enabled",
+            "karaoke_visualizer_overlay", "karaoke_visualizer_height_mode", "visualizer_rows", "truncate_visualizer_rows",
+            "artwork_seam_strategy", "external_media_auto_pause", "external_media_resume_fade_seconds", "art_color_representation",
+            "art_color_blackness", "art_color_bars", "art_color_bar_strength", "art_color_bar_opacity", "art_color_black_strength",
+            "art_color_karaoke_sides", "art_color_karaoke", "art_topmost", "floating_topmost", "external_album_art_enabled",
+            "floating_lyrics_enabled", "paused",
+        }}),
+    }
+
+
+def _global_config_profile_store() -> dict[str, object]:
+    raw = _global_config_read_json(global_config_profiles_path(), {})
+    return dict(raw) if isinstance(raw, dict) else {}
+
+
+def _global_config_profile_list() -> list[str]:
+    return sorted(_global_config_profile_store(), key=str.casefold)
+
+
+def _global_config_persist_snapshot(snapshot: object) -> None:
+    if not isinstance(snapshot, dict):
+        raise ValueError("global config profile is not an object")
+    settings = snapshot.get("player_settings", {})
+    if isinstance(settings, dict):
+        clean_settings = {str(k): int(v) for k, v in settings.items() if str(k) in PLAYER_SETTING_DEFAULTS}
+        save_player_settings({**PLAYER_SETTING_DEFAULTS, **clean_settings})
+    _global_config_restore_registry_values(snapshot.get("registry_values", {}))
+    prefs = snapshot.get("web_preferences")
+    if isinstance(prefs, dict):
+        save_web_ui_preferences(prefs)
+    matrix = snapshot.get("matrix", {})
+    if isinstance(matrix, dict):
+        save_active_matrixmixer_matrices(
+            matrix.get("matrix5"), matrix.get("matrix7"), matrix.get("matrix12"),
+            matrix.get("crossover5"), matrix.get("crossover7"), matrix.get("crossover12"),
+            matrix.get("mutes5"), matrix.get("mutes7"), matrix.get("mutes12"),
+        )
+
+
+def global_config_save_profile(name: str, runtime_state: object = None, *, developer_choice: bool = False) -> dict[str, object]:
+    """Save a complete profile; Developer's Choice is gated and lives in PAFPlayer.dcc."""
+    if developer_choice:
+        if not global_config_developer_choice_available():
+            raise PermissionError("Developer's Choice is available only for USERNAME=claire on a designated developer machine")
+        target = global_config_dcc_path()
+        snapshot = global_config_snapshot(runtime_state)
+        snapshot["profile_name"] = GLOBAL_CONFIG_DEVELOPER_CHOICE_NAME
+        _global_config_write_json(target, snapshot)
+        return snapshot
+    name = _global_config_profile_name(name)
+    store = _global_config_profile_store()
+    snapshot = global_config_snapshot(runtime_state)
+    snapshot["profile_name"] = name
+    store[name] = snapshot
+    _global_config_write_json(global_config_profiles_path(), store)
+    return snapshot
+
+
+def global_config_load_profile(name: str, *, developer_choice: bool = False) -> dict[str, object]:
+    if developer_choice:
+        if not global_config_developer_choice_available():
+            raise PermissionError("Developer's Choice is available only for USERNAME=claire on a designated developer machine")
+        snapshot = _global_config_read_json(global_config_dcc_path(), None)
+        if not isinstance(snapshot, dict):
+            raise FileNotFoundError(global_config_dcc_path())
+    else:
+        clean = _global_config_profile_name(name)
+        snapshot = _global_config_profile_store().get(clean)
+        if not isinstance(snapshot, dict):
+            raise FileNotFoundError(clean)
+    _global_config_persist_snapshot(snapshot)
+    return snapshot
+
+
+def global_config_delete_profile(name: str) -> list[str]:
+    clean = _global_config_profile_name(name)
+    store = _global_config_profile_store()
+    if clean not in store:
+        raise FileNotFoundError(clean)
+    del store[clean]
+    _global_config_write_json(global_config_profiles_path(), store)
+    return sorted(store, key=str.casefold)
+
 
 def _web_ui_preferences_fallback_path() -> Path:
     base = Path(os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()) / "PAFPlayer"
@@ -34632,8 +35028,9 @@ button,select,input{font:inherit}
 .experimental-area .control-theme-visualizer{background:#10283b;border-color:#287cb6}.experimental-area .control-theme-visualizer label,.experimental-area .control-theme-visualizer span{color:#6bc8ff}
 .broken-area .toggle{background:#411a20;border-color:#b6404e}.broken-area h3{color:#ff8b96}.microtile-disable-card{margin-top:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}.microtile-disable-card>label{font-weight:800}.microtile-disable-options{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.microtile-mode-row{display:flex;align-items:center;gap:7px;min-width:0}.microtile-mode-row>label{display:flex;align-items:center;gap:5px;cursor:pointer;min-width:0}.microtile-mode-row select{max-width:min(760px,58vw)}.microtile-mode-tools{display:flex;align-items:center;gap:6px}.favorite-cycle-button{position:relative;min-width:38px;padding:5px 8px;cursor:pointer}.favorite-cycle-button::after{content:attr(data-tip);display:none;position:absolute;z-index:9999;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%);width:max-content;max-width:min(620px,70vw);padding:7px 9px;border:1px solid #60728a;border-radius:5px;background:#080d14;color:#eef6ff;font-size:.78rem;line-height:1.25;white-space:normal;box-shadow:0 5px 18px rgba(0,0,0,.5);pointer-events:none}.favorite-cycle-button:hover::after,.favorite-cycle-button:focus-visible::after{display:block}
 .control-theme-mmexp{background:#183821!important;border-color:#9bb83d!important}.control-theme-mmexp span,.control-theme-mmexp label{color:#cbe96b!important}.control-theme-mmexp::after{color:#cbe96b!important}
-.section-webserver-config h3{color:#75e5ec}.web-config-subhead{margin:.8em 0 .45em;color:#f0a9ff;font-weight:800}
-.section-webserver-config .web-config-box{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:end;background:#2d1833;border:1px solid #a45bb5;border-radius:7px;padding:12px;width:100%;max-width:100%;overflow-x:auto}.web-config-field{display:flex;flex-direction:column;gap:4px}.web-config-field select,.web-config-field input[type=range]{max-width:280px}.web-config-field label{font-size:.82rem;color:#e9c7ef}.web-bg-wide-range{width:270px!important}.web-tiling-radio{display:flex;gap:8px;flex-wrap:wrap}.web-tiling-radio label{display:flex;align-items:center;gap:4px;background:#22162a;border:1px solid #70447d;border-radius:5px;padding:5px 7px}.web-only-button{background:#2c2040!important;border-color:#8959b3!important}.lyric-option-button{font-size:.78rem;padding:3px 7px}
+ .section-webserver-config h3{color:#75e5ec}.web-config-subhead{margin:.8em 0 .45em;color:#f0a9ff;font-weight:800}
+ .section-webserver-config .web-config-box{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:end;background:#2d1833;border:1px solid #a45bb5;border-radius:7px;padding:12px;width:100%;max-width:100%;overflow-x:auto}.web-config-field{display:flex;flex-direction:column;gap:4px}.web-config-field select,.web-config-field input[type=range]{max-width:280px}.web-config-field label{font-size:.82rem;color:#e9c7ef}.web-bg-wide-range{width:270px!important}.web-tiling-radio{display:flex;gap:8px;flex-wrap:wrap}.web-tiling-radio label{display:flex;align-items:center;gap:4px;background:#22162a;border:1px solid #70447d;border-radius:5px;padding:5px 7px}.web-only-button{background:#2c2040!important;border-color:#8959b3!important}.lyric-option-button{font-size:.78rem;padding:3px 7px}
+ .section-global-config{border-color:#6b9b68;background:#122313}.section-global-config h3{color:#a8f09d}.global-config-box{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:end;background:#172d18;border:1px solid #6b9b68;border-radius:7px;padding:12px;width:100%;overflow-x:auto}.global-config-box input,.global-config-box select{min-width:180px;max-width:320px}.global-config-box .secondary-button{background:#203c24!important;border-color:#75b570!important}.global-config-choice-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%;padding-top:9px;border-top:1px solid rgba(190,255,184,.18)}.global-config-status{min-height:1.3em;color:#b7e8af;font-size:.82rem;width:100%}.global-config-note{color:#a7c6a2;font-size:.78rem;max-width:1000px;margin:.25em 0 .7em}
 .art-saturation-card{position:relative}.art-saturation-card.art-saturation-disabled{filter:grayscale(.88) brightness(.58);background:#17212a!important;border-color:#304555!important}.art-saturation-card.art-saturation-disabled::after{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(25,120,185,.035);border-radius:5px}.art-saturation-enable{display:flex;align-items:center;gap:5px;font-size:.78rem;font-weight:700}.autoslide-box{grid-column:auto;display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:.78rem}.autoslide-range{display:none;gap:10px;align-items:center;flex-wrap:wrap}.autoslide-box.enabled .autoslide-range{display:flex}.dual-range-wrap{position:relative;width:230px;height:28px;display:inline-block}.dual-range-track{position:absolute;left:0;right:0;top:12px;height:5px;border-radius:4px;background:#46515e}.dual-range-fill{position:absolute;top:12px;height:5px;border-radius:4px;background:#3da9e8}.dual-range-wrap input[type=range]{position:absolute;left:0;top:2px;width:230px;margin:0;background:transparent;pointer-events:none;appearance:none;-webkit-appearance:none}.dual-range-wrap input[type=range]::-webkit-slider-thumb{pointer-events:auto;appearance:none;-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#e8f3ff;border:2px solid #3da9e8;cursor:pointer}.dual-range-wrap input[type=range]::-moz-range-thumb{pointer-events:auto;width:14px;height:14px;border-radius:50%;background:#e8f3ff;border:2px solid #3da9e8;cursor:pointer}.dual-range-values{min-width:82px;text-align:center;font:700 .78rem Consolas,monospace}.slide-interval{width:360px!important;max-width:48vw!important}.slide-value{min-width:48px;font:700 .78rem Consolas,monospace}.other-action-button{font-size:1.03rem!important;font-weight:850!important;padding:10px 14px!important;background:hsl(var(--action-hue,205) 42% 19%)!important;border-color:hsl(var(--action-hue,205) 62% 48%)!important;color:hsl(var(--action-hue,205) 90% 86%)!important}.other-action-button:hover{background:hsl(var(--action-hue,205) 50% 25%)!important}
 #matrixModal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:20px}#matrixModal.open{display:flex}
 #multiOutLatencyModal{position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.76);display:none;align-items:center;justify-content:center;padding:20px}#multiOutLatencyModal.open{display:flex}.multiout-dialog{position:relative;background:#101923;border:1px solid #5e8eb1;border-radius:10px;padding:18px;width:80vw;max-width:1900px;max-height:92vh;overflow:auto}.multiout-rows{display:flex;flex-direction:column;gap:10px;margin:14px 0}.multiout-row{display:grid;grid-template-columns:minmax(180px,25%) minmax(320px,1fr) 112px;gap:12px;align-items:center}.multiout-row .multiout-label{font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.multiout-row input[type=range]{width:100%;min-width:0}.multiout-row input[type=number]{width:106px;font:700 .9rem Consolas,monospace}.multiout-effective{font-size:.75rem;color:#8da5ba;grid-column:2/4}.multiout-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.multiout-autosync{display:none;margin-top:14px;padding:12px;border:1px solid #806f35;border-radius:8px;background:#241f0f}.multiout-autosync.open{display:block}.multiout-mic-row{display:grid;grid-template-columns:auto minmax(180px,1fr) minmax(180px,45%);gap:8px;align-items:center;margin:7px 0}.multiout-meter{height:12px;border:1px solid #56606d;border-radius:999px;background:#080d12;overflow:hidden}.multiout-meter>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#42d584,#f2cf45,#f45d67);transition:width .12s}.multiout-exp{background:#4b3f13!important;border-color:#b69a30!important;color:#ffe47a!important}.multiout-status{min-height:1.3em;margin-top:8px;color:#a7e4be}.multiout-note{font-size:.8rem;color:#91a2b5}.multiout-latency-button{white-space:nowrap}.matrix-dialog{position:relative;background:#111923;border:1px solid #66819c;border-radius:9px;padding:16px;max-width:1480px;width:min(1480px,98vw);max-height:94vh;overflow:auto}.matrix-close-x{position:absolute;right:10px;top:8px;width:34px;height:34px;border-radius:50%;font-size:22px;line-height:24px;padding:0;background:#263342;color:#f5f8fc;border:1px solid #65768a;cursor:pointer}.matrix-close-x:hover{background:#445469}.matrix-heading{display:flex;align-items:center;gap:8px}.matrix-heading h3{margin:.3em 0}.matrix-mute-all{font-size:.78rem;padding:3px 7px!important}.matrix-grid{display:grid;grid-template-columns:48px minmax(72px,max-content) 54px 88px 88px minmax(155px,1fr) minmax(145px,1fr);gap:6px 8px;align-items:center}.matrix-level{display:grid;grid-template-columns:minmax(70px,1fr) 66px;gap:6px;align-items:center}.matrix-level-track{height:12px;border:1px solid #4d5d6d;border-radius:999px;background:#070b10;overflow:hidden}.matrix-level-fill{display:block;height:100%;width:0;background:linear-gradient(90deg,#49d684,#e2c84f,#ef6673);transition:width .11s linear}.matrix-level-text{font:700 .72rem Consolas,monospace;color:#b8c7d8;text-align:right;white-space:nowrap}.matrix-grid input[type=number]{width:82px}.matrix-speaker{text-align:right;font-weight:700}.matrix-test-button{width:38px;padding:4px!important}.matrix-crossover{display:flex;align-items:center;gap:6px;min-width:150px;font-size:.78rem}.matrix-crossover input[type=range]{width:105px}.matrix-columns{display:flex;gap:26px;flex-wrap:wrap}.matrix-columns>div{min-width:480px;flex:1 1 480px}.matrix-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}.matrix-status{min-height:1.2em;color:#9ee5b9;font-size:.85rem}.default-option{font-weight:800}
@@ -34656,6 +35053,7 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
   #choicesFrame{max-height:none;min-height:220px}
   #choicesResizeHandle{display:none}
 }
+.microtile-mode-row{flex-wrap:wrap}.microtile-detail-reason{flex-basis:100%;font-size:.78rem;color:#bdd5ee}.microtile-mode-row.control-inapplicable{opacity:1;filter:none}.microtile-mode-row.control-inapplicable>label,.microtile-mode-row.control-inapplicable>.microtile-mode-tools{opacity:.48;filter:grayscale(1)}
 </style>
 </head>
 <body>
@@ -34726,8 +35124,8 @@ details{margin-top:18px}pre{white-space:pre-wrap;word-break:break-word;backgroun
     <div class="control-item layer-switch-card control-theme-visualizer" data-control-key="visualizer_background_artwork_enabled" title="Turn ANSI background artwork on/off independently of visualizer bars"><span class="layer-switch-name">Background artwork</span><label class="visualizer-master-switch" title="Background artwork on/off"><input type="checkbox" id="ctl-visualizer_background_artwork_enabled" checked><span class="visualizer-master-track"></span></label><span class="layer-switch-state" id="visualizerBackgroundArtworkState">ON</span></div>
   </div>
   <div class="visualizer-artwork-detail-controls" id="visualizerArtworkDetailControls">
-    <div class="control-item microtile-mode-row control-theme-visualizer" data-control-key="drcs_art_bar_microtile_mode" title="Artwork subcell geometry for filled visualizer bars"><label>Artwork cell detail for visualizer bars: <select id="microtileBarsMode"></select></label><span class="microtile-mode-tools" id="microtileBarsTools"></span></div>
-    <div class="control-item microtile-mode-row control-theme-visualizer" data-control-key="drcs_art_microtile_mode" title="Artwork subcell geometry for the visualizer background"><label>Artwork cell detail for visualizer background: <select id="microtileBlacknessMode"></select></label><span class="microtile-mode-tools" id="microtileBlacknessTools"></span></div>
+    <div class="control-item microtile-mode-row control-theme-visualizer" data-control-key="drcs_art_bar_microtile_mode" title="Artwork subcell geometry for filled visualizer bars"><label>Artwork cell detail for visualizer bars: <select id="microtileBarsMode" aria-describedby="microtileBarsReason"></select></label><span class="microtile-mode-tools" id="microtileBarsTools"></span><small id="microtileBarsReason" class="microtile-detail-reason" hidden></small></div>
+    <div class="control-item microtile-mode-row control-theme-visualizer" data-control-key="drcs_art_microtile_mode" title="Artwork subcell geometry for the visualizer background"><label>Artwork cell detail for visualizer background: <select id="microtileBlacknessMode" aria-describedby="microtileBlacknessReason"></select></label><span class="microtile-mode-tools" id="microtileBlacknessTools"></span><small id="microtileBlacknessReason" class="microtile-detail-reason" hidden></small></div>
   </div>
   <div class="control-grid" id="visualizerControls"></div>
 </div>
@@ -34772,6 +35170,21 @@ background</span></label>
 </div>
 <div id="controls"></div>
 <div class="group broken-area"><h3 title="Known broken experimental controls">Broken experimental</h3><div class="toggle-grid" id="brokenControls"></div><div class="control-grid" id="artworkSeamControls"></div></div>
+<div class="group section-global-config" id="globalConfigSection">
+  <h3 title="Save and restore complete PAFPlayer configuration">Global Config</h3>
+  <p class="global-config-note">Save or load a complete profile covering player settings, web preferences, MatrixMixer, favorites/defaults, and other PAFPlayer configuration. Ordinary profiles stay private to this computer. On Claire's designated developer machines, Developer’s Choice is stored as <code>PAFPlayer.dcc</code> beside the app for distribution.</p>
+  <div class="global-config-box">
+    <div class="web-config-field"><label for="globalConfigProfileName">Profile name</label><input id="globalConfigProfileName" placeholder="profile name"></div>
+    <button id="globalConfigSaveProfile" class="secondary-button">Save profile</button>
+    <div class="web-config-field"><label for="globalConfigProfiles">Saved profiles</label><select id="globalConfigProfiles"></select></div>
+    <button id="globalConfigLoadProfile" class="secondary-button">Load profile</button>
+    <button id="globalConfigDeleteProfile" class="secondary-button">Delete</button>
+    <div class="global-config-choice-row" id="globalConfigDeveloperChoiceRow" hidden>
+      <strong>Developer’s Choice</strong><button id="globalConfigSaveDeveloperChoice" class="secondary-button">Save Developer’s Choice</button><button id="globalConfigLoadDeveloperChoice" class="secondary-button">Load Developer’s Choice</button><span id="globalConfigDeveloperChoiceFile"></span>
+    </div>
+    <div class="global-config-status" id="globalConfigStatus" role="status"></div>
+  </div>
+</div>
 </section>
 </main>
 <div id="matrixModal" role="dialog" aria-modal="true" aria-label="Speaker Expansion Matrix"><div class="matrix-dialog">
@@ -35317,6 +35730,14 @@ function applyVisualizerLayerEnablement(){
   for(const key of barArtworkKeys)setControlApplicability(key,barArtworkOn);
   for(const key of backgroundKeys)setControlApplicability(key,backgroundOn);
   for(const key of commonKeys)setControlApplicability(key,anyLayer);
+  const granularity=document.getElementById('ctl-visualizer_granularity');
+  const forcedUnicode=section.dataset.unicodeHalfcellForced==='true';
+  const detailSupported=!!granularity&&Number(granularity.value)===3&&!forcedUnicode;
+  const detailReason=forcedUnicode?'Unavailable while the forced Unicode renderer is active.':'Requires Granularity: 2× Twin DRCS.';
+  for(const [key,reasonId,layerOn] of [['drcs_art_bar_microtile_mode','microtileBarsReason',barArtworkOn],['drcs_art_microtile_mode','microtileBlacknessReason',backgroundOn]]){
+    setControlApplicability(key,layerOn&&detailSupported);
+    const reason=document.getElementById(reasonId);if(reason){reason.hidden=detailSupported;reason.textContent=detailSupported?'':detailReason;}
+  }
 }
 function applyConsoleAlertsEnablement(){
   const master=document.getElementById('ctl-console_alerts_enabled'),section=document.getElementById('consoleAlertsSection'),host=document.getElementById('consoleAlertsControls');if(!master||!section||!host)return;
@@ -35325,6 +35746,8 @@ function applyConsoleAlertsEnablement(){
 
 function syncControls(s){
   if(!controlSchema) return;
+  const artworkDetailSection=document.getElementById('visualizerSection');
+  if(artworkDetailSection&&s.visualizer_unicode_halfcell_forced!==undefined)artworkDetailSection.dataset.unicodeHalfcellForced=String(!!s.visualizer_unicode_halfcell_forced);
   for(const item of controlSchema.selects||[]){
     const el=document.getElementById('ctl-'+item.key);
     let value=s[item.key];
@@ -35612,6 +36035,51 @@ function setupWebBackgroundConfig(){
  function pull(){const checked=document.querySelector('input[name="webBgTiling"]:checked');const scale=bgScaleFromSlider(document.getElementById('webBgScale').value);const n={enabled:document.getElementById('webBgEnabled').checked,first:document.getElementById('webBgFirst').value,second:document.getElementById('webBgSecond').value,third:document.getElementById('webBgThird').value,final:document.getElementById('webBgFinal').value,saturation:Number(document.getElementById('webBgSaturation').value),brightness:Number(document.getElementById('webBgBrightness').value),alpha:Number(document.getElementById('webBgAlpha').value),titleBleed:Number(document.getElementById('titleBleed').value),aspect:document.getElementById('webBgAspect').value,scale,tiling:checked?checked.value:'none',checkerboard:document.getElementById('webBgCheckerboard').checked};document.getElementById('webBgSatLabel').textContent='Saturation '+n.saturation+'%';document.getElementById('webBgBrightnessLabel').textContent='Brightness '+n.brightness+'%';document.getElementById('webBgAlphaLabel').textContent='Alpha '+n.alpha+'%';document.getElementById('webBgScaleLabel').textContent='Scale '+n.scale.toLocaleString(undefined,{maximumFractionDigits:n.scale<1?2:1})+'×';applyTitleBox(n);webBgOverrideIndex=null;saveWebBgConfig(n)}
  for(const id of ['webBgEnabled',...ids,'webBgSaturation','webBgBrightness','webBgAlpha','titleBleed','webBgAspect','webBgScale','webBgCheckerboard'])document.getElementById(id).addEventListener('input',pull);for(const radio of document.querySelectorAll('input[name="webBgTiling"]'))radio.addEventListener('change',pull);refreshWebBgProfileList();document.getElementById('webBgSaveProfile').onclick=()=>{let name=document.getElementById('webBgProfileName').value.trim();if(!name)name=(prompt('Background profile name:','profile 1')||'').trim();if(!name)return;const profiles=webBgProfiles();profiles[name]=webBgConfig();webPrefSet(WEB_BG_PROFILES_KEY,profiles);refreshWebBgProfileList(name);document.getElementById('webBgProfileName').value=''};document.getElementById('webBgLoadProfile').onclick=()=>{const name=document.getElementById('webBgProfiles').value,profile=webBgProfiles()[name];if(profile&&confirm('Restore page-background profile “'+name+'”?'))applyWebBgProfile(profile)};document.getElementById('webBgDeleteProfile').onclick=()=>{const name=document.getElementById('webBgProfiles').value;if(!name||!confirm('Delete page-background profile “'+name+'”?'))return;const profiles=webBgProfiles();delete profiles[name];webPrefSet(WEB_BG_PROFILES_KEY,profiles);refreshWebBgProfileList()};applyTitleBox(c);pull();
 }
+const globalConfigDirectTargets=[
+ ['visualizer_mode','VisualizerMode'],['persistence_mode','PersistenceMode'],['visualizer_granularity','VisualizerGranularity'],['visualizer_input_source','VisualizerInputSource'],
+ ['processing_style','ProcessingStyle'],['color_style','ColorStyle'],['karaoke_style','KaraokeStyle'],['karaoke_treatment','KaraokeTreatment'],
+ ['console_karaoke_enabled','ConsoleKaraokeEnabled'],['console_alerts_enabled','ConsoleAlertsEnabled'],['visualizer_bars_enabled','VisualizerBarsEnabled'],['visualizer_background_artwork_enabled','VisualizerBackgroundArtworkEnabled'],
+ ['console_visualizer_volume_feedback_enabled','ConsoleVisualizerOverlayMessagesEnabled'],['decensor_console_karaoke','DecensorConsoleKaraoke'],['decensor_artwork_lyrics','DecensorArtworkLyrics'],['decensor_floating_lyrics','DecensorFloatingLyrics'],
+ ['alert_no_replaygain','AlertNoReplayGain'],['alert_missing_artist','AlertMissingArtist'],['alert_missing_title','AlertMissingTitle'],['alert_missing_karaoke','AlertMissingKaraoke'],['alert_missing_lyrics','AlertMissingLyrics'],['alert_missing_artwork','AlertMissingArtwork'],['alert_unknown_year','AlertUnknownYear'],['alert_unknown_genre','AlertUnknownGenre'],['alert_embedded_lyrics_mismatch','AlertEmbeddedLyricsMismatch'],
+ ['progress_style','ProgressStyle'],['progress_bar_enabled','ProgressBarEnabled'],['progress_beat_reactive','ProgressBeatReactive'],['progress_beat_detector','ProgressBeatDetector'],['progress_beat_treatment','ProgressBeatTreatment'],['cursive_fix','CursiveFix'],
+ ['drcs_art_microtile_mode','DrcsArtMicrotileDetailModeV370'],['drcs_art_bar_microtile_mode','DrcsArtBarMicrotileDetailModeV370'],['fade_style','BarFadeStyle'],['speed_index','SpeedIndex'],['output_channels','OutputChannels'],['output_rate','OutputRate'],['output_bit_depth','OutputBitDepth'],['output_device','OutputDevice'],['output_devices_mask','OutputDevicesMask'],['mm_inspired_renderer_enabled','MMInspiredRenderer'],['volume','Volume'],['balance','Balance'],['karaoke_visualizer_height_mode','KaraokeVisualizerHeightMode'],
+ ['external_media_auto_pause','ExternalMediaAutoPause'],['external_media_resume_fade_seconds','ExternalMediaResumeFadeSeconds'],['artwork_seam_strategy','ArtworkSeamStrategy'],['art_color_representation','ArtColorRepresentation'],['art_color_blackness',null],['art_color_bars',null],['art_color_bar_strength','ArtColorBarStrength'],['art_color_bar_opacity','ArtColorBarOpacity'],['art_color_black_strength','ArtColorBlackStrength'],['art_color_karaoke_sides','ArtColorKaraokeSides'],['art_color_karaoke','ArtColorKaraoke'],['art_topmost',null],['floating_topmost',null]
+];
+const globalConfigToggleTargets=[
+ ['drcs_enabled','DrcsEnabled','drcs-visualizer-toggle'],['sixel_enabled','SixelEnabled','sixel-visualizer-toggle'],['hud_details','HudDetails','hud-details-toggle'],['karaoke_emojimax','KaraokeEmojimax','karaoke-emoji-toggle'],['frequency_warp_enabled','FrequencyWarp','frequency-warp-toggle'],['shuffle','Shuffle','random-toggle'],['loop','Looping','loop-toggle'],['karaoke_visualizer_expansion_enabled','KaraokeVisualizerExpansion','karaoke-visualizer-expand-toggle'],['karaoke_visualizer_overlay',null,'karaoke-visualizer-overlay-toggle'],['external_album_art_enabled',null,'external-album-art-toggle'],['floating_lyrics_enabled',null,'floating-lyrics-toggle']
+];
+async function globalConfigPost(payload){const r=await fetch('/api/global-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const d=await r.json();if(!r.ok)throw new Error(d.error||'Global Config operation failed');return d}
+function globalConfigStatus(text,bad=false){const node=document.getElementById('globalConfigStatus');if(node){node.textContent=text||'';node.style.color=bad?'#ff9ca8':'#b7e8af'}}
+async function refreshGlobalConfigList(selected=''){
+ const sel=document.getElementById('globalConfigProfiles');if(!sel)return;
+ try{
+  const r=await fetch('/api/global-config',{cache:'no-store'}),d=await r.json();if(!r.ok)throw new Error(d.error||'Global Config unavailable');
+  sel.textContent='';for(const name of d.profiles||[]){const o=document.createElement('option');o.value=name;o.textContent=name;sel.appendChild(o)}if(selected&&[...sel.options].some(o=>o.value===selected))sel.value=selected;
+  const choice=d.developer_choice||{},row=document.getElementById('globalConfigDeveloperChoiceRow'),file=document.getElementById('globalConfigDeveloperChoiceFile');if(row)row.hidden=!choice.available;if(file&&choice.available)file.textContent=choice.exists?'PAFPlayer.dcc found':'PAFPlayer.dcc not saved yet';
+ }catch(e){globalConfigStatus(String(e),true)}
+}
+function globalConfigValue(profile,statusKey,settingKey){const state=profile&&profile.runtime_state&&typeof profile.runtime_state==='object'?profile.runtime_state:{};if(Object.prototype.hasOwnProperty.call(state,statusKey))return state[statusKey];const settings=profile&&profile.player_settings&&typeof profile.player_settings==='object'?profile.player_settings:{};return settingKey&&Object.prototype.hasOwnProperty.call(settings,settingKey)?settings[settingKey]:undefined}
+function globalConfigApplyRuntime(profile){
+ for(const [statusKey,settingKey] of globalConfigDirectTargets){const value=globalConfigValue(profile,statusKey,settingKey);if(value!==undefined&&value!==null)action('web-set:'+statusKey+':'+(typeof value==='boolean'?(value?'1':'0'):String(value)))}
+ for(const [statusKey,settingKey,command] of globalConfigToggleTargets){const value=globalConfigValue(profile,statusKey,settingKey);if(value===undefined||value===null)continue;const current=latestState[statusKey];if(current!==undefined&&Boolean(current)!==Boolean(value))action(command)}
+}
+function globalConfigApplyWebPreferences(profile){
+ const prefs=profile&&profile.web_preferences;if(!prefs||typeof prefs!=='object'||Array.isArray(prefs))return;
+ serverWebPrefs={...prefs};for(const [key,value] of Object.entries(prefs)){try{localStorage.setItem(key,typeof value==='string'?value:JSON.stringify(value))}catch(e){}}
+}
+async function loadGlobalConfigProfile(name,developerChoice=false){
+ if(!name)return; if(!confirm('Load complete Global Config profile “'+name+'”? Current PAFPlayer settings will be replaced.'))return;
+ try{const d=await globalConfigPost({op:'load',name,developer_choice:developerChoice});globalConfigApplyWebPreferences(d.profile);globalConfigApplyRuntime(d.profile);globalConfigStatus('Loaded “'+name+'”; applying all live controls and refreshing the page…');setTimeout(()=>location.reload(),450)}catch(e){globalConfigStatus(String(e),true)}
+}
+function setupGlobalConfigUI(){
+ const nameInput=document.getElementById('globalConfigProfileName'),select=document.getElementById('globalConfigProfiles');if(!nameInput||!select)return;
+ document.getElementById('globalConfigSaveProfile').onclick=async()=>{let name=nameInput.value.trim();if(!name)name=(prompt('Global Config profile name:','profile 1')||'').trim();if(!name)return;try{await globalConfigPost({op:'save',name});nameInput.value='';await refreshGlobalConfigList(name);globalConfigStatus('Saved complete profile “'+name+'”.')}catch(e){globalConfigStatus(String(e),true)}};
+ document.getElementById('globalConfigLoadProfile').onclick=()=>loadGlobalConfigProfile(select.value,false);
+ document.getElementById('globalConfigDeleteProfile').onclick=async()=>{const name=select.value;if(!name||!confirm('Delete Global Config profile “'+name+'”?'))return;try{await globalConfigPost({op:'delete',name});await refreshGlobalConfigList();globalConfigStatus('Deleted profile “'+name+'”.')}catch(e){globalConfigStatus(String(e),true)}};
+ document.getElementById('globalConfigSaveDeveloperChoice').onclick=async()=>{try{await globalConfigPost({op:'save',developer_choice:true});await refreshGlobalConfigList();globalConfigStatus('Saved Developer’s Choice to PAFPlayer.dcc.')}catch(e){globalConfigStatus(String(e),true)}};
+ document.getElementById('globalConfigLoadDeveloperChoice').onclick=()=>loadGlobalConfigProfile("Developer's Choice",true);
+ refreshGlobalConfigList();
+}
 let webBgProbeSerial=0;
 function applyWebBackgroundGeometry(host,c,scale,naturalWidth=0,naturalHeight=0){
  const w=Math.max(1,host.clientWidth||window.innerWidth),h=Math.max(1,host.clientHeight||window.innerHeight),nw=Math.max(0,Number(naturalWidth)||0),nh=Math.max(0,Number(naturalHeight)||0);let sw=0,sh=0;
@@ -35672,6 +36140,7 @@ async function build(){
   controlSchema=await (await fetch('/api/control-schema')).json();
   setupResizableWebPanes();
   setupWebPlaylistQueue();
+  setupGlobalConfigUI();
   const autoExpand=document.getElementById('karaokeAutoExpand');
   karaokeAutoExpand=localStorage.getItem('paf-karaoke-auto-expand')==='1';autoExpand.checked=karaokeAutoExpand;
   autoExpand.onchange=()=>{karaokeAutoExpand=!!autoExpand.checked;localStorage.setItem('paf-karaoke-auto-expand',karaokeAutoExpand?'1':'0');const dock=document.getElementById('lyricDock');if(karaokeAutoExpand&&lyricReservedHeight<=0)lyricReservedHeight=Math.max(70,Number(localStorage.getItem('paf-web-lyric-height-px')||0),dock.clientHeight||0);dock.classList.toggle('auto-expand',karaokeAutoExpand);updateKaraokeReservation();fitKaraokeToDock()};
@@ -35894,7 +36363,7 @@ async function tick(){
    const detectionNote=s.external_media_monitor_known===false?'Automatic pause monitor: '+(s.external_media_monitor_status||'starting…'):s.external_media_monitor_degraded?'Automatic pause uses Windows audio detection. Media-session status: '+(s.external_media_smtc_error||'unavailable'):'';
    mediaStatus.textContent=s.external_media_auto_pause?[playbackNote,detectionNote].filter(Boolean).join(' '):'';
   }
-  const playState=s.transport_stopped?'Stopped':s.external_media_auto_paused?'Paused for '+(s.external_media_active||[]).join(', '):s.paused?'Paused':s.playing?'Playing':'Stopped';
+  const playState=s.transport_stopped?'Stopped':s.paused?'Paused'+(s.pause_reason?' ('+s.pause_reason+')':''):s.playing?'Playing':'Stopped';
   const vol=Number(s.volume??0);const volIcon=vol<=0?'🔇':vol<=35?'🔈':vol<=100?'🔉':'🔊';
   const bal=Number(s.balance??0);const balanceText=bal===0?'Center':Math.abs(bal)+'% '+(bal<0?'Left':'Right');
   const ch=Number(s.output_channels??2);const channelText=ch===12?'Dolby Atmos 7.1.4':ch===7?'7.1':ch===5?'5.1':'Stereo';
@@ -36379,6 +36848,21 @@ class PAFWebServer:
                 if path == "/api/web-preferences":
                     self._json(200, load_web_ui_preferences())
                     return
+                if path == "/api/global-config":
+                    dcc_available = global_config_developer_choice_available()
+                    dcc_path = global_config_dcc_path()
+                    self._json(200, {
+                        "format": GLOBAL_CONFIG_FORMAT,
+                        "format_version": GLOBAL_CONFIG_FORMAT_VERSION,
+                        "profiles": _global_config_profile_list(),
+                        "developer_choice": {
+                            "available": dcc_available,
+                            "exists": bool(dcc_available and dcc_path.is_file()),
+                            "name": GLOBAL_CONFIG_DEVELOPER_CHOICE_NAME,
+                            "filename": GLOBAL_CONFIG_DCC_FILENAME,
+                        },
+                    })
+                    return
                 if path == "/api/emoji-font":
                     candidate = preferred_custom_emoji_font_path()
                     if candidate is not None:
@@ -36488,6 +36972,45 @@ class PAFWebServer:
                     except Exception as exc:
                         self._json(400, {"ok": False, "error": str(exc)}); return
                     self._json(200, {"ok": True, "preferences": prefs}); return
+                if path == "/api/global-config":
+                    if not self._client_is_local():
+                        self._json(403, {"ok": False, "error": "Global Config is available only from the player computer"}); return
+                    try:
+                        operation = str(payload.get("op", "")).strip().casefold()
+                        developer_choice = bool(payload.get("developer_choice", False))
+                        if operation == "save":
+                            snapshot = global_config_save_profile(
+                                str(payload.get("name", "")),
+                                owner.snapshot(),
+                                developer_choice=developer_choice,
+                            )
+                            self._json(200, {
+                                "ok": True,
+                                "name": snapshot.get("profile_name", ""),
+                                "profiles": _global_config_profile_list(),
+                                "developer_choice": {
+                                    "available": global_config_developer_choice_available(),
+                                    "exists": global_config_dcc_path().is_file(),
+                                },
+                            })
+                            return
+                        if operation == "load":
+                            snapshot = global_config_load_profile(
+                                str(payload.get("name", "")),
+                                developer_choice=developer_choice,
+                            )
+                            self._json(200, {"ok": True, "name": snapshot.get("profile_name", ""), "profile": snapshot})
+                            return
+                        if operation == "delete":
+                            if developer_choice:
+                                raise ValueError("Developer's Choice is portable and cannot be deleted from the web UI")
+                            names = global_config_delete_profile(str(payload.get("name", "")))
+                            self._json(200, {"ok": True, "profiles": names})
+                            return
+                        raise ValueError("unknown Global Config operation")
+                    except Exception as exc:
+                        self._json(400, {"ok": False, "error": str(exc)})
+                    return
                 if path == "/api/choice-mark":
                     key = str(payload.get("key", "")); kind = str(payload.get("kind", ""))
                     try: value = int(payload.get("value"))
@@ -37807,18 +38330,10 @@ class ExternalAlbumArtWindow:
         self._commands.put(("save-geometry-sync", completed))
         return completed.wait(timeout=max(0.05, float(timeout))) or native_valid
 
-    def close(self, *, fast: bool = False) -> None:
-        """Shut Tk down on its owner thread, with a bounded process-exit path.
-
-        The normal path protects an interactive handoff from Tcl finalization by
-        waiting for the owner thread.  During final program termination that
-        wait is counterproductive: Ctrl+Break has already committed to exit.
-        ``fast`` still requests an orderly close and saves native geometry when
-        immediately available, but never waits more than a fraction of a second.
-        """
+    def close(self) -> None:
+        """Synchronously persist geometry, then shut Tk down on its owner thread."""
         append_pafplayer_trace("art.gui.close-request")
-        geometry_timeout = 0.05 if fast else 2.0
-        self.persist_geometry_sync(timeout=geometry_timeout)
+        self.persist_geometry_sync(timeout=2.0)
         with self._lock:
             if self._closed:
                 thread = self._thread
@@ -37833,16 +38348,15 @@ class ExternalAlbumArtWindow:
             and thread is not threading.current_thread()
         ):
             # Wait for _gui_main's finally block, not merely for root.destroy()
-            # to be requested. A final Ctrl+Break uses the small bounded wait;
-            # ordinary interactive shutdown retains the full Tcl safety window.
-            completed = self._shutdown_complete.wait(timeout=0.5 if fast else 10.0)
+            # to be requested. This prevents Python's main thread from entering
+            # interpreter finalization while Tcl still owns async handlers.
+            completed = self._shutdown_complete.wait(timeout=10.0)
             if completed:
-                thread.join(timeout=0.1 if fast else None)
+                thread.join()
                 append_pafplayer_trace("art.gui.close-complete")
             else:
-                detail = "within 0.5 seconds during final fast shutdown" if fast else "within 10 seconds"
                 append_pafplayer_error(
-                    f"external album-art GUI did not acknowledge owner-thread shutdown {detail}"
+                    "external album-art GUI did not acknowledge owner-thread shutdown within 10 seconds"
                 )
 
     def _gui_main(self) -> None:
@@ -46045,6 +46559,8 @@ def play_audio_file(
         # Kill FFplay immediately so Ctrl+C is every bit as hard/fast as Break.
         abort_requested.set()
         hard_stop_process(process)
+        if external_album_art_window is not None:
+            external_album_art_window.persist_geometry_sync(timeout=2.0)
 
     if install_signal_handlers:
         supported_signals = [signal.SIGINT]
@@ -47263,6 +47779,8 @@ def play_audio_file(
     header_paused = bool(initially_paused)
     prompt_paused_state = [bool(initially_paused)]
     startup_pause_pending = bool(initially_paused)
+    if initially_paused and not external_media_controller.pause_reason:
+        external_media_controller.pause_reason = "restored previous pause state"
     track_artwork_input_allowed = visualizer_track_artwork_allowed(
         visualizer_input_source, bool(initially_paused)
     )
@@ -47820,10 +48338,9 @@ def play_audio_file(
         output_rate_text = output_help_summary_text(
             output_rate, source_bitrate, output_bit_depth, output_names
         )
-        pause_summary = external_media_reason_summary(external_media_controller.last_snapshot)
         pause_status_ansi = (
-            "\033[1;38;2;255;210;120m⏸ Paused"
-            + (": " + pause_summary if external_media_controller.auto_paused and pause_summary else "")
+            "\033[1;38;2;255;210;120m⏸ "
+            + paused_status_text(external_media_controller.pause_reason)
             + "\033[0m"
         ) if header_paused else ""
         diagnostic_rows_ansi = pack_help_diagnostic_segments(
@@ -48147,7 +48664,7 @@ def play_audio_file(
             now_value,
         )
 
-    def interaction_feedback_label(action: str) -> str:
+    def interaction_feedback_label(action: str, *, paused_before: bool = False) -> str:
         """Turn every user control action into a compact overlay label."""
         raw = str(action or "").strip()
         if raw in {DISMISS_OVERLAY, HELP_OVERLAY}:
@@ -48160,7 +48677,7 @@ def play_audio_file(
             # normal terminal/scrollback behavior without flashing an overlay.
             return ""
         if raw == PAUSE_TOGGLE:
-            return "Pause"
+            return pause_visualizer_feedback_label(paused_before)
         if raw in {LOOP_TOGGLE, RANDOM_TOGGLE}:
             # These are announced after mutation so the user sees the resulting
             # enabled/disabled state instead of an ambiguous "toggle" label.
@@ -52288,6 +52805,7 @@ def play_audio_file(
                     web_server.publish(
                         playing=True,
                         paused=header_paused,
+                        visualizer_unicode_halfcell_forced=force_unicode_halfcell_visualizer,
                         position_seconds=playback_ui_position(displayed_position),
                         duration_seconds=playback_duration,
                         progress=playback_fraction(displayed_position),
@@ -52511,7 +53029,7 @@ def play_audio_file(
                         track=audio_path,
                         position_seconds=displayed_position,
                     )
-                    feedback_label = interaction_feedback_label(action)
+                    feedback_label = interaction_feedback_label(action, paused_before=False)
                     if feedback_label:
                         start_interaction_visual_feedback(feedback_label, monotonic())
 
@@ -53693,10 +54211,15 @@ def play_audio_file(
                     # could resume.
                     break
                 if action in {PAUSE_TOGGLE, WEB_STOP}:
+                    append_pafplayer_trace(
+                        "player.pause", reason=external_media_controller.pause_reason,
+                        restored=startup_pause_transition, position_seconds=displayed_position,
+                    )
                     record_segment(displayed_position)
                     if web_server is not None:
                         web_server.publish(
                             paused=True,
+                            pause_reason=external_media_controller.pause_reason,
                             playing=True,
                             position_seconds=playback_ui_position(displayed_position),
                             progress=playback_fraction(displayed_position),
@@ -53827,6 +54350,7 @@ def play_audio_file(
                                 playing=True,
                                 paused=True,
                                 **external_media_controller.status(),
+                                visualizer_unicode_halfcell_forced=force_unicode_halfcell_visualizer,
                                 position_seconds=playback_ui_position(position),
                                 duration_seconds=playback_duration,
                                 progress=playback_fraction(position),
@@ -53946,7 +54470,13 @@ def play_audio_file(
                             paused_action = key_action_reader()
                             if paused_action is None and web_server is not None:
                                 paused_action = web_server.pop_action()
+                        previous_pause_reason = external_media_controller.pause_reason
                         paused_action = external_media_controller.filter_action(paused_action, True, paused_now)
+                        if paused_action in {WEB_PAUSE, WEB_STOP} and previous_pause_reason != external_media_controller.pause_reason:
+                            if web_server is not None:
+                                web_server.publish(pause_reason=external_media_controller.pause_reason)
+                            if help_overlay_until:
+                                render_help_overlay()
                         if paused_action == EXTERNAL_MEDIA_RESUME:
                             snapshot = external_media_controller.last_snapshot
                             quiet_reason = f"all external playback quiet for {EXTERNAL_MEDIA_RESUME_QUIET_SECONDS:g}s"
@@ -53983,7 +54513,7 @@ def play_audio_file(
                                 track=audio_path,
                                 position_seconds=position,
                             )
-                            feedback_label = interaction_feedback_label(paused_action)
+                            feedback_label = interaction_feedback_label(paused_action, paused_before=True)
                             if feedback_label:
                                 start_interaction_visual_feedback(feedback_label, monotonic())
 
@@ -54579,7 +55109,7 @@ def play_audio_file(
                             if paused_state is not None:
                                 paused_state[0] = False
                             if web_server is not None:
-                                web_server.publish(paused=False, playing=True)
+                                web_server.publish(paused=False, playing=True, pause_reason="")
                             break
                         if paused_action in {REPEAT_NEXT, REPEAT_PREVIOUS, REPEAT_DOUBLE}:
                             if paused_action == REPEAT_DOUBLE: repeat_mode = 2 if repeat_mode == 3 else 3
@@ -55120,6 +55650,28 @@ class PlayWaveFileTests(unittest.TestCase):
             120,
             terminal_cell_width(base) + gap
             + terminal_cell_width("Last play") + 2 + terminal_cell_width("Aug 13"),
+        )
+
+    def test_v448_inline_last_play_right_justifies_against_single_metadata_row(self) -> None:
+        width = 165
+        base = "▶ Play: 13 Human Being.mp3 (0m40s)"
+        tags = {
+            "Artist": "Descendents",
+            "Song": "Human Being",
+            "Album": "Hypercaffium Spazzinate",
+            "Year": "2016",
+            "Genre": "Punk",
+            "URL": "https://descendentsonline.com",
+        }
+        rows, _ansi = format_tag_panel(tags, width=width)
+        self.assertEqual(1, len(rows))
+        self.assertEqual(width, terminal_cell_width(rows[0]))
+        gap = aligned_inline_last_play_gap(base, "Sep 7", rows, width=width)
+        self.assertEqual(
+            width,
+            terminal_cell_width(base)
+            + gap
+            + terminal_cell_width("Last play: Sep 7"),
         )
 
     def test_v367_nonadjacent_album_case_can_swap_composer_with_last_play(self) -> None:
@@ -69402,9 +69954,7 @@ def main(argv: list[str] | None = None) -> int:
         if web_server is not None:
             web_server.close()
         if external_album_art_window is not None:
-            # Process termination must never be held hostage by normal Tk
-            # teardown timeouts. Ctrl+Break has already stopped the decoder.
-            external_album_art_window.close(fast=True)
+            external_album_art_window.close()
         external_media_controller.close()
         resume_winamp_if_paused_by_preview(winamp_paused_by_session)
         write_console("\033[?25h")

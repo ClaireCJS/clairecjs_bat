@@ -1,8 +1,9 @@
 #!/usr/bin/perl
 
 ########## WHAT THIS DOES:
-##########	1) Opens up the last.fm log (which can be hardcoded) and determines the song playing.
-##########	2) Prints what the song is in "artist - title" format
+##########	1) Auto-detects the 2026 NOW_PLAYING_TXT format when line 2 is an existing audio filename.
+##########	2) Otherwise preserves the existing 2024/legacy behavior of Opening up the last.fm log (which can be hardcoded) and determining the song playing.
+##########	3) Prints what the song is in "artist - title" format.
 
 
 ###########  GENERAL NOTE: This fails if a song is not tagged, but as of 2011 that could be fixed with some effort.
@@ -22,7 +23,7 @@ my $target_filename    = "attrib.lst";
 
 ##### NEAR-CONSTANT:
 #y $METHOD   = "2011";		#Last.fm likes to change their logfile format. Remember, this method affects code below too, so search for $METHOD to update those pieces of code as well
-my $METHOD   = "2024";		#no longer using last.fm
+my $METHOD   = "2024";		#default/fallback; may be auto-detected as 2026 after NOW_PLAYING_TXT is known
 if ($METHOD eq "2011") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "CScrobbler::ASStart"    ; $AUDIOSCROBBLER_LOG_SEARCH_FOR2 = "Event::TrackChanged"; }	
 if ($METHOD eq "2009") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = ": Sent Start for "      ; }
 if ($METHOD eq "2008") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "CScrobbler::OnTrackPlay"; }
@@ -34,8 +35,8 @@ my $REMAPENVVAR        = "REMAP$MACHINE_NAME";
 my $REMAP              = $ENV{$REMAPENVVAR};
 my @REMAPS             = split(/\s+/,"$REMAP");
 #DEBUG: print "echo name=$MACHINE_NAME, \$REMAPENVVAR=$REMAPENVVAR         REMAP=$REMAP\n\n";
-print $ENV{"WHATEVER_TEST1"} . "\n";
-print $ENV{"WHATEVER_TEST2"} . "\n";
+#DEBUG: print $ENV{"WHATEVER_TEST1"} . "\n";
+#DEBUG: print $ENV{"WHATEVER_TEST2"} . "\n";
 
 
 ##### COMMAND-LINE ARGUMENTS:
@@ -61,6 +62,30 @@ if ($ENV{"HADES_DOWN"}) {
 my  $ALL_SONGS_PLAYLIST_ENV = $ENV{"ALL_SONGS_PLAYLIST"};
 my  $ALL_SONGS_LIST         = $ENV{"ALL_SONGS_PLAYLIST"};
 my  $NOW_PLAYING_TXT        = $ENV{"NOW_PLAYING_TXT"};
+
+##### 2026 AUTO-DETECTION:
+##### PAFPlayer's 2026 now-playing file has the full path of the currently-playing audio file on line 2.
+##### If line 2 looks like an audio filename AND that file currently exists, use the 2026 parser.
+##### Otherwise leave $METHOD alone and preserve the previous behavior.
+if (($NOW_PLAYING_TXT ne "") && (-f $NOW_PLAYING_TXT)) {
+	if (open(my $detect_fh, '<', $NOW_PLAYING_TXT)) {
+		my $detect_display_title = <$detect_fh>;       # line 1 -- intentionally not used for detection
+		my $detect_filename      = <$detect_fh>;       # line 2 -- authoritative full current-song path in 2026
+		close($detect_fh);
+
+		if (defined $detect_filename) {
+			$detect_filename =~ s/[\r\n]+$//;
+			$detect_filename =~ s/^\s*"//;
+			$detect_filename =~ s/"\s*$//;
+
+			my $looks_like_audio = ($detect_filename =~ /\.(?:mp3|flac|wav|wave|m4a|m4b|aac|ogg|oga|opus|wma|ape|mpc|mp2|mp1|aiff|aif|alac|ac3|dts|mid|midi)$/i);
+			if ($looks_like_audio && (-f $detect_filename)) {
+				$METHOD = "2026";
+				if ($DEBUG) { print "* Auto-detected 2026 NOW_PLAYING_TXT format from existing audio file on line 2: $detect_filename\n"; }
+			}
+		}
+	}
+}
 if (!-e $ALL_SONGS_LIST) {
 	my  $ALL_SONGS_LIST     = $ENV{"MP3OFFICIAL"}        . "\\LISTS\\everything.m3u";
 	if (!-e $ALL_SONGS_LIST) {
@@ -137,15 +162,14 @@ if (!-e $ALL_SONGS_LIST) {
 														}	
 
 
-if ($METHOD eq "2024") {
+if (($METHOD eq "2024") || ($METHOD eq "2026")) {
 	my $display_title;
 	my $filename;
 	my %metadata;
 	my $MUSIC_LOG=$NOW_PLAYING_TXT;
-	#print ("Method 2024 oooh, log is $MUSIC_LOG ... regex='$REGEX'\n");
+	#print ("Method $METHOD oooh, log is $MUSIC_LOG ... regex='$REGEX'\n");
 	use strict;
 	use warnings;
-	use Data::Dumper;																		    
 	#pen(my $fh, '<:encoding(UTF-8)', $MUSIC_LOG) or die "Cannot open file '$MUSIC_LOG': $!";	 	# Open the file and read its contents
 	open(my $fh,                      $MUSIC_LOG) or die "Cannot open file '$MUSIC_LOG': $!";	 	# Open the file and read its contents
 	my @lines = <$fh>;																		    
@@ -183,6 +207,7 @@ if ($METHOD eq "2024") {
 		print "echo * Generated Display Title: $generated_display_title\n";				# Print the first two special variables
 		print "echo * Filename: $filename\n";
 		print "echo * Metadata Hash Table:\n";						# Print the entire hash table for debugging
+		use Data::Dumper;																				
 		my $meta=Dumper(\%metadata);
 		$meta =~ s/^/echo /ig;
 		print $meta . "\n";
@@ -246,6 +271,5 @@ $song =~ s/\s+$//;
 $song =~ s/^\s+//;
 while ($song =~ /  /) { $song =~ s/\s\s/ /g; }
 
-##### This should be precisely what we want now:
-print $song;
+##### This should be precisely what we want now except it already prints and $song was empty when we tried this 20260925 so nevermind: #print "[" . $song . "]";
 

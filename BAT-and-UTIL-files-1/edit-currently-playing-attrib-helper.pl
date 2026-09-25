@@ -14,7 +14,8 @@
 ##########
 ########## WHAT THIS DOES:
 ##########
-##########	1)      2024: Opens up the file named in the environemnt variable NOW_PLAYING_TXT, which is a winamp_now_playing.txt (or similarly named) file created by the WinampNowPlayingToFile plugin obtained from https://github.com/Aldaviva/WinampNowPlayingToFile. The 2ⁿᵈ line of the output file must be set to the full filename of the currently playing song.
+##########	1)     2026: Opens the supplied now-playing text file and reads ONLY its 2ⁿᵈ line as the full path of the current song. The containing folder is derived from that path.
+##########         2024: Opens up the file named in the environemnt variable NOW_PLAYING_TXT, which is a winamp_now_playing.txt (or similarly named) file created by the WinampNowPlayingToFile plugin obtained from https://github.com/Aldaviva/WinampNowPlayingToFile. The 2ⁿᵈ line of the output file must be set to the full filename of the currently playing song.
 ##########     2008–2023: Opens up the last.fm log (which can be hardcoded) to determine the song playing.
 ##########	2) Determines the folder the song is playing in
 ##########	3) Generates script which, when run, does the following:
@@ -50,6 +51,7 @@ if ($METHOD eq "2011") { $MUSIC_LOG_SEARCH_FOR = "Failed to extract MBID for"   
 if ($METHOD eq "2012") { $MUSIC_LOG_SEARCH_FOR = "Line received: START c=.*&a=.*&t=.*"            ; }	
 if ($METHOD eq "2013") { $MUSIC_LOG_SEARCH_FOR = "PlayerCommandParser::PlayerCommandParser.*START"; }	
 if ($METHOD eq "2024") { $MUSIC_LOG_SEARCH_FOR = ""; $crawl_log=0;                                  }	#2024 method does not involve searching through a logfile because we're moving from using Last.FM's log as we have for 16 years, to moving the now-playing.txt file NOW_PLAYING_TXT created by WinAmp's now-playing plugin
+############### 2026 is handled by passing a third argument mode_nowplayingtxt, so 2024 is the default method otherwise. Confusing, yes, but this is related to my WinAmp ➜ PAFPlayer migration
 
 ##### CONFIGURATION: DEBUG STATUS:
 my $DEBUG_BAT                        = 0;			#set to   1     for pauses in the actual batfile which is generated, 0 else
@@ -99,6 +101,10 @@ my $MUSIC_LOG      = $ARGV[0];
 my $ALL_SONGS_LIST = $ARGV[1];						#for 2008/2009 years
 my $REGEX          = $ARGV[2];						#we can also pass it a regex, to edit the status of songs that AREN'T currently playing
 my $COMMENT        = $ENV{"LEARNED_COMMENT"};		#20240702 —— changed this from 'comment' to 'learned_comment' to avoid scope collisions
+if ($REGEX =~ /mode_nowplayingtxt/i) {
+		$REGEX = "";
+		$METHOD=2026;
+}
 if ("" eq $MUSIC_LOG) { print "echo * FATAL ERROR 1: First argument must specify filename of MUSIC LOG!!\n"; exit(); }
 if ( !-e  $MUSIC_LOG) { print "echo * FATAL ERROR 2: music log OF “$MUSIC_LOG” DOES NOT EXIST!!\n"       ; exit(); }
 if (($METHOD eq "2008") || ($METHOD eq "2009")) {
@@ -124,11 +130,33 @@ my $filename      = "";
 my %metadata=();	
 my $grep="";
 
+if ($METHOD eq "2026") {
+	##### PAFPlayer-era now-playing format: line 1 is display text; line 2 is the authoritative full path.
+	##### Deliberately ignore everything after line 2; this helper only needs the current file path.
+	open(my $fh_2026, '<', $MUSIC_LOG) or die "Cannot open file '$MUSIC_LOG': $!";
+	$display_title = <$fh_2026> // "";
+	$filename      = <$fh_2026> // "";
+	close($fh_2026);
+
+	chomp($display_title);
+	chomp($filename);
+	$display_title =~ s/\r$//;
+	$filename      =~ s/\r$//;
+
+	if ($filename eq "") {
+		die "FATAL ERROR: 2026 now-playing file '$MUSIC_LOG' does not contain a full path on line 2";
+	}
+
+	if ($DEBUG>0) {
+		print "echo * 2026 Display Title: $display_title\n";
+		print "echo * 2026 Filename: $filename\n";
+	}
+}
+
 if ($METHOD eq "2024") {
 	#print ("Method 2024 oooh, log is $MUSIC_LOG ... regex='$REGEX'\n");
 	use strict;
 	use warnings;
-	use Data::Dumper;																		    
 	#pen(my $fh, '<:encoding(UTF-8)', $MUSIC_LOG) or die "Cannot open file '$MUSIC_LOG': $!";	 	# Open the file and read its contents
 	open(my $fh,                      $MUSIC_LOG) or die "Cannot open file '$MUSIC_LOG': $!";	 	# Open the file and read its contents
 	my @lines = <$fh>;																		    
@@ -158,6 +186,7 @@ if ($METHOD eq "2024") {
 		print "echo * Display Title: $display_title\n";				# Print the first two special variables
 		print "echo * Filename: $filename\n";
 		print "echo * Metadata Hash Table:\n";						# Print the entire hash table for debugging
+		use Data::Dumper;																		    
 		my $meta=Dumper(\%metadata);
 		$meta =~ s/^/echo /ig;
 		print $meta . "\n";
@@ -402,12 +431,10 @@ if ($METHOD >= 2024) {
 	if ($DEBUG>0) { print "{{{{post-last.fm methodology}}}} [method=$METHOD] [filename=$filename]\n"; }
 
 	# only include the current-playing file when no regex was supplied
-    if (!$REGEX_GIVEN_AT_COMMAND_LINE) {	
-        my $tmp_whatchamacallit = $filename;
-        push(@TARGET_FILES, $tmp_whatchamacallit);
-    }
-	push(@TARGET_FILES,$tmp_whatchamacallit);
-}	
+	if (!$REGEX_GIVEN_AT_COMMAND_LINE) {
+		push(@TARGET_FILES, $filename);
+	}
+}
 
 
 
