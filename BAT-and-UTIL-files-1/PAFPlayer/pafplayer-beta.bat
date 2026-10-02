@@ -1,0 +1,1 @@
+c:\codex\clairevironment\bat\PAFPlayer\PAFPlayer.py %*

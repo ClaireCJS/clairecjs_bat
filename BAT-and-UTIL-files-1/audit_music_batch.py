@@ -40,15 +40,15 @@ from collections import Counter, defaultdict
 from contextlib import ExitStack, contextmanager, nullcontext
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import Any, Callable, NoReturn
+from typing import Any, Callable, Iterator, NoReturn
 
 # USER CONFIGURATION ---------------------------------------------------------
 # Published releases are deliberately separate from the timestamped safety
 # backups that the auditor makes before replacements. Update both values only
 # when publishing a new named release.
-AUDIT_MUSIC_BATCH_VERSION = "v153"
-AUDIT_MUSIC_BATCH_RELEASE_NAME = "clear-newer-lrc-srt-backfill-wording"
-AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-09-09"
+AUDIT_MUSIC_BATCH_VERSION = "v160"
+AUDIT_MUSIC_BATCH_RELEASE_NAME = "json-sidecar-audio-rename"
+AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-09-27"
 
 # Set this to a full executable path only when automatic discovery cannot find
 # your preferred image viewer. The V key first honors openimage.bat, then this
@@ -87,17 +87,17 @@ BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS = 10.0
 # are not offered for destructive sample-data baking. Change this one value to
 # make both the folder-wide workflow and the per-file B option more/less strict.
 REPLAYGAIN_BAKE_THRESHOLD_DB = 0.05
+REPLAYGAIN_COMMAND_TIMEOUT_SECONDS = 300.0
 SILENCE_DETECT_NOISE_DB = -50
 SILENCE_ANALYSIS_WORKERS = max(2, min(8, os.cpu_count() or 4))
-# Restore v113's known-good width-driven renderer at exactly half its original
-# values: ordinary 0.60 -> 0.30; comparison 0.80 -> 0.40.  Raster height is not
-# independently scaled or forced; it follows the 2000x700 JPEG aspect ratio.
-WAVEFORM_REVIEW_WIDTH_SCALE = 0.80
-# A genuine comparison is one 80%-wide composite containing two side-by-side
-# panels, so each before/after waveform occupies approximately 40%.
-WAVEFORM_COMPARISON_WIDTH_SCALE = 0.80
-WAVEFORM_REVIEW_HEIGHT_SCALE = 0.80
-WAVEFORM_COMPARISON_HEIGHT_SCALE = 0.40
+# Keep the known-good full-width, vertically stacked waveform layout, with a
+# modest 10% reduction from the previous viewport allocation.  A single
+# waveform now uses 72% of the usable terminal width/height; each graph in a
+# genuine before/after pair uses 72% width and 36% height.
+WAVEFORM_REVIEW_WIDTH_SCALE = 0.72
+WAVEFORM_COMPARISON_WIDTH_SCALE = 0.72
+WAVEFORM_REVIEW_HEIGHT_SCALE = 0.72
+WAVEFORM_COMPARISON_HEIGHT_SCALE = 0.36
 # Compatibility aliases retained for older call sites/tests. Normal waveform
 # review keeps horizontal and vertical scales identical.
 WAVEFORM_REVIEW_SCALE = WAVEFORM_REVIEW_WIDTH_SCALE
@@ -130,6 +130,7 @@ WAVEFORM_JPEG_HEIGHT = 700
 WAVEFORM_METRICS_GUTTER_WIDTH = 260
 WAVEFORM_PLOT_WIDTH = WAVEFORM_JPEG_WIDTH - WAVEFORM_METRICS_GUTTER_WIDTH
 WAVEFORM_SILENCE_MIN_SECONDS = 0.1
+WAVEFORM_RENDER_TIMEOUT_SECONDS = 120.0
 WAVEFORM_APPROVAL_DATABASE_MAX_BYTES = 50 * 1024 * 1024
 WAVEFORM_APPROVAL_DATABASE_FILENAME = "waveform_reviews.sqlite3"
 REMEMBERED_NO_DATABASE_FILENAME = "remembered_noes.sqlite3"
@@ -283,6 +284,34 @@ except Exception as _progress_exc:
         """Small stdlib fallback retained for diagnostics and unit-test output."""
         red, green, blue = colorsys.hsv_to_rgb(float(position) % 1.0, 1.0, 1.0)
         return f"#{round(red * 255):02x}{round(green * 255):02x}{round(blue * 255):02x}"
+
+
+def progress_terminal_enabled() -> bool:
+    """Return whether either console stream can display a live progress bar."""
+    return any(
+        bool(getattr(stream, "isatty", lambda: False)())
+        for stream in (sys.stdout, sys.stderr)
+    )
+
+
+def progressive_rglob(
+    root: Path,
+    *,
+    description: str = "📂 Finding files",
+) -> Iterator[Path]:
+    """Yield a recursive scan while showing rainbow discovery progress."""
+    with progress_bar(
+        total=None,
+        description=description,
+        unit="paths",
+        enabled=progress_terminal_enabled(),
+        bar_format=ENUMERATION_PROGRESS_FORMAT,
+    ) as progress:
+        for path in root.rglob("*"):
+            if progress is not None:
+                progress.update(1)
+            yield path
+
 
 # The geometry helper may travel alongside the script, inside either spelling
 # of the shared utilities folder, or in the canonical library location.
@@ -621,10 +650,9 @@ ANSI_DOUBLE_HEIGHT_TOP = "\033#3"
 ANSI_DOUBLE_HEIGHT_BOTTOM = "\033#4"
 
 ENUMERATION_PROGRESS_FORMAT = (
-    "{desc:<24.24}: {n:>7,.0f} files found"
-    " • {elapsed} elapsed • {rate_fmt}"
+    "{desc:<24.24}: {n:>7,.0f} paths scanned |{bar}|"
+    " • {elapsed:>8} elapsed • {rate_fmt:>12}"
 )
-ENUMERATION_PROGRESS_FORMAT = "{desc:<24.24}: {n:>7,.0f} files found • {elapsed:>8} elapsed • ETA --:--:-- • {rate_fmt:>12}"
 AUDIT_PROGRESS_FORMAT = (
     "{desc}: {percentage:3.0f}%|{bar}| "
     "{n:>7,.0f}/{total:>7,.0f}"
@@ -776,6 +804,25 @@ def require_replaygain_program(name: str) -> str:
     return executable
 
 
+def decode_process_output(value: Any) -> str:
+    """Decode captured child output without routing it through Windows cp1252."""
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return str(value)
+
+
+def compact_process_output(value: Any, *, limit: int = 12) -> str:
+    """Return only the useful tail of captured process output."""
+    lines = [
+        line.strip()
+        for line in decode_process_output(value).splitlines()
+        if line.strip()
+    ]
+    return "\n".join(lines[-limit:])
+
+
 def run_live_command(
     command: list[str],
     *,
@@ -793,19 +840,27 @@ def run_live_command(
     options: dict[str, Any] = {
         "cwd": str(cwd),
         "check": False,
+        "timeout": REPLAYGAIN_COMMAND_TIMEOUT_SECONDS,
     }
     if not stream_output:
         options.update(
             {
                 "stdout": subprocess.PIPE,
                 "stderr": subprocess.STDOUT,
-                "text": True,
-                "errors": "replace",
             }
         )
-    result = subprocess.run(command, **options)
+    try:
+        result = subprocess.run(command, **options)
+    except subprocess.TimeoutExpired as exc:
+        detail = compact_process_output(exc.output)
+        raise RuntimeError(
+            "ReplayGain command timed out after "
+            f"{REPLAYGAIN_COMMAND_TIMEOUT_SECONDS:g} seconds: "
+            f"{subprocess.list2cmdline(command)}"
+            + (f"\n{detail}" if detail else "")
+        ) from exc
     if result.returncode:
-        captured = str(getattr(result, "stdout", "") or "").strip()
+        captured = compact_process_output(getattr(result, "stdout", ""))
         detail = f"\n{captured}" if captured else ""
         raise RuntimeError(
             f"ReplayGain command failed with exit code {result.returncode}: "
@@ -831,6 +886,7 @@ def run_silent_polled_command(
     cwd: Path,
     on_tick: Callable[[float], None] | None = None,
     poll_seconds: float = 0.10,
+    timeout_seconds: float | None = REPLAYGAIN_COMMAND_TIMEOUT_SECONDS,
 ) -> float:
     """Run a child silently, polling often enough for a live progress display."""
     started = time.perf_counter()
@@ -846,6 +902,25 @@ def run_silent_polled_command(
             elapsed = time.perf_counter() - started
             if on_tick is not None:
                 on_tick(elapsed)
+            if (
+                timeout_seconds is not None
+                and elapsed >= float(timeout_seconds)
+            ):
+                process.terminate()
+                try:
+                    process.wait(timeout=1.0)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=1.0)
+                output.flush()
+                output.seek(0)
+                captured = output.read().strip()
+                detail = f"\n{captured}" if captured else ""
+                raise RuntimeError(
+                    "ReplayGain command timed out after "
+                    f"{float(timeout_seconds):g} seconds: "
+                    f"{subprocess.list2cmdline(command)}{detail}"
+                )
             if returncode is not None:
                 break
             time.sleep(max(0.02, float(poll_seconds)))
@@ -1236,7 +1311,14 @@ def normalize_batch_preflight_paths(root: Path) -> tuple[Path, list[str]]:
     resolved_root = Path(root).resolve()
     actions: list[str] = []
     try:
-        folders = [path for path in resolved_root.rglob("*") if path.is_dir()]
+        folders = [
+            path
+            for path in progressive_rglob(
+                resolved_root,
+                description="📂 Finding files",
+            )
+            if path.is_dir()
+        ]
     except OSError:
         return resolved_root, actions
     for folder in sorted(folders, key=lambda path: len(path.parts), reverse=True):
@@ -1255,7 +1337,11 @@ def normalize_batch_preflight_paths(root: Path) -> tuple[Path, list[str]]:
             actions.append(f"unchanged:incomplete_folder_collision:{folder}")
             continue
         audio_before = [
-            child for child in folder.rglob("*")
+            child
+            for child in progressive_rglob(
+                folder,
+                description="🔁 Checking renamed folder",
+            )
             if child.is_file() and child.suffix.casefold() in AUDIO_EXTS
         ]
         folder.rename(destination)
@@ -1270,9 +1356,17 @@ def normalize_batch_preflight_paths(root: Path) -> tuple[Path, list[str]]:
             )
 
     try:
-        current_folders = [resolved_root, *(
-            path for path in resolved_root.rglob("*") if path.is_dir()
-        )]
+        current_folders = [
+            resolved_root,
+            *(
+                path
+                for path in progressive_rglob(
+                    resolved_root,
+                    description="📂 Finding files",
+                )
+                if path.is_dir()
+            ),
+        ]
     except OSError:
         return resolved_root, actions
     for folder in current_folders:
@@ -1308,7 +1402,11 @@ def normalize_batch_preflight_paths(root: Path) -> tuple[Path, list[str]]:
             actions.append(f"unchanged:incomplete_root_collision:{resolved_root}")
         else:
             audio_before = [
-                child for child in resolved_root.rglob("*")
+                child
+                for child in progressive_rglob(
+                    resolved_root,
+                    description="📂 Finding files",
+                )
                 if child.is_file() and child.suffix.casefold() in AUDIO_EXTS
             ]
             old_root = resolved_root
@@ -2059,6 +2157,56 @@ def packed_disc_track_filename_parts(
     return prefix, match.group("rest"), multi_disc
 
 
+def single_disc_track_prefix_profile(files: list[Path]) -> dict[str, Any] | None:
+    """Recognize a redundant ``1_01_Title`` prefix on a one-disc album.
+
+    This is distinct from genuine multi-disc ``DISC_TRACK_Title`` numbering.
+    Every audio file must use the form and all must identify disc 1, so a title
+    merely beginning with digits is never reinterpreted.  The redundant disc
+    component is removed; tracks retain a leading zero only for albums that
+    reach track 10.
+    """
+    audio = [path for path in files if path.suffix.casefold() in AUDIO_EXTS]
+    if len(audio) < 2:
+        return None
+    parsed: list[re.Match[str]] = []
+    for path in audio:
+        match = re.match(
+            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_(?P<rest>.+)$",
+            path.stem,
+        )
+        if match is None or int(match.group("disc")) != 1:
+            return None
+        parsed.append(match)
+    tracks = {int(match.group("track")) for match in parsed}
+    if len(tracks) != len(parsed) or any(track < 1 for track in tracks):
+        return None
+    return {
+        "tracks": frozenset(tracks),
+        "pad_tracks": max(tracks) >= 10,
+    }
+
+
+def single_disc_track_filename_parts(
+    path: Path,
+    profile: dict[str, Any] | None,
+) -> tuple[str, str] | None:
+    """Return the collapsed track prefix and title for a qualified file."""
+    if not profile or path.suffix.casefold() not in CANONICAL_RENAME_EXTS:
+        return None
+    match = re.match(
+        r"^(?P<disc>1)_(?P<track>\d{1,2})_(?P<rest>.+)$",
+        path.stem,
+    )
+    if match is None:
+        return None
+    track = int(match.group("track"))
+    if track not in profile["tracks"]:
+        return None
+    track_text = f"{track:02d}" if profile["pad_tracks"] else str(track)
+    return f"{track_text}_", match.group("rest")
+
+
 def album_title_source_and_suffix(
     path: Path, rest: str, *, compound_track_prefix: bool
 ) -> tuple[str, str]:
@@ -2080,11 +2228,21 @@ def capitalized_album_filename_proposal(
     *,
     compound_track_prefix: bool = False,
     packed_track_profile: dict[str, Any] | None = None,
+    single_disc_track_profile: dict[str, Any] | None = None,
 ) -> str | None:
     """Normalize track prefix/title case while preserving compound disc numbering."""
     path = Path(filename)
     if path.suffix.casefold() not in CANONICAL_RENAME_EXTS:
         return None
+    single_disc = single_disc_track_filename_parts(path, single_disc_track_profile)
+    if single_disc is not None:
+        prefix, rest = single_disc
+        title_source, suffix = album_title_source_and_suffix(
+            path, rest, compound_track_prefix=False
+        )
+        title = canonical_song_title_text(title_source)
+        proposed = f"{prefix}{title}{suffix}"
+        return proposed if proposed != path.name else None
     packed = packed_disc_track_filename_parts(path, packed_track_profile)
     if packed is not None:
         prefix, rest, packed_is_compound = packed
@@ -2141,13 +2299,20 @@ def all_caps_album_title_proposal(
     *,
     compound_track_prefix: bool = False,
     packed_track_profile: dict[str, Any] | None = None,
+    single_disc_track_profile: dict[str, Any] | None = None,
 ) -> str | None:
     """Suggest conservative title case while preserving disc/track prefixes."""
     path = Path(filename)
     if path.suffix.casefold() not in CANONICAL_RENAME_EXTS:
         return None
+    single_disc = single_disc_track_filename_parts(path, single_disc_track_profile)
     packed = packed_disc_track_filename_parts(path, packed_track_profile)
-    if packed is not None:
+    if single_disc is not None:
+        prefix, rest = single_disc
+        title_source, suffix = album_title_source_and_suffix(
+            path, rest, compound_track_prefix=False
+        )
+    elif packed is not None:
         prefix, rest, packed_is_compound = packed
         title_source, suffix = album_title_source_and_suffix(
             path,
@@ -2851,6 +3016,7 @@ class BatchAudit:
             )
             compound_track_prefix = album_uses_disc_track_prefix(files)
             packed_track_profile = packed_disc_track_profile(files)
+            single_disc_track_profile = single_disc_track_prefix_profile(files)
             if packed_track_profile is not None:
                 track_identities = {
                     (match.group("disc"), match.group("track"))
@@ -2864,6 +3030,8 @@ class BatchAudit:
                     )
                 }
                 album_track_count = len(track_identities)
+            elif single_disc_track_profile is not None:
+                album_track_count = len(single_disc_track_profile["tracks"])
             elif compound_track_prefix:
                 track_identities = {
                     (match.group("disc"), match.group("track"))
@@ -2973,6 +3141,7 @@ class BatchAudit:
                     album_track_count,
                     compound_track_prefix=compound_track_prefix,
                     packed_track_profile=packed_track_profile,
+                    single_disc_track_profile=single_disc_track_profile,
                 )
                 if proposed_name is None:
                     continue
@@ -3017,6 +3186,7 @@ class BatchAudit:
                     album_track_count,
                     compound_track_prefix=compound_track_prefix,
                     packed_track_profile=packed_track_profile,
+                    single_disc_track_profile=single_disc_track_profile,
                 )
                 if proposed_name is None:
                     continue
@@ -9539,6 +9709,7 @@ def bake_replaygain_for_batch(
         update_stable_bake_status(bake_progress, audio_path)
         before_path, after_path = replaygain_bake_waveform_cache_paths(audio_path)
         before_path.parent.mkdir(parents=True, exist_ok=True)
+        baked_backup: Path | None = None
         try:
             _before, _backup, before_metrics = generate_waveform_jpeg(
                 audio_path,
@@ -9547,7 +9718,7 @@ def bake_replaygain_for_batch(
                 acceptable_silence_seconds=acceptable_silence_seconds,
             )
             recolor_before_baked_waveform(before_path)
-            backup, applied_db = bake_replaygain_into_audio(
+            baked_backup, applied_db = bake_replaygain_into_audio(
                 audio_path,
                 before_metrics,
                 use_color=use_color,
@@ -9562,8 +9733,24 @@ def bake_replaygain_for_batch(
             recolor_newly_baked_waveform(after_path)
             baked.append(audio_path)
         except Exception as exc:
+            rollback_note = ""
+            if baked_backup is not None and baked_backup.is_file():
+                try:
+                    shutil.copy2(baked_backup, audio_path)
+                    rollback_note = (
+                        " ReplayGain was rolled back from the verified backup; "
+                        "the audio file was restored unchanged."
+                    )
+                except Exception as rollback_error:
+                    rollback_note = (
+                        " ReplayGain rollback FAILED: "
+                        f"{type(rollback_error).__name__}: {rollback_error}."
+                    )
+            elif baked_backup is None:
+                rollback_note = " The source audio was not changed by this step."
             print_formatted_error(
-                f"Could not bake ReplayGain into {audio_path.name}: {exc}",
+                f"Could not bake ReplayGain into {audio_path.name}: {exc}."
+                f" This file was skipped.{rollback_note}",
                 use_color,
             )
         finally:
@@ -10774,37 +10961,66 @@ def generate_waveform_jpeg(
             flush=True,
         )
     def run_waveform_command(arguments: list[str]):
-        if cancel_event is None:
-            return subprocess.run(
-                arguments,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                errors="replace",
-                check=False,
-            )
+        """Run FFmpeg with cancellation, a watchdog, and binary-safe capture."""
         process = subprocess.Popen(
             arguments,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            text=True,
-            errors="replace",
         )
-        while True:
+        started = time.perf_counter()
+        deadline = started + WAVEFORM_RENDER_TIMEOUT_SECONDS
+        partial_output: Any = b""
+
+        def stop_process() -> Any:
+            """Terminate FFmpeg and collect a bounded amount of its output."""
             try:
-                stdout, _stderr = process.communicate(timeout=0.10)
-                return subprocess.CompletedProcess(
-                    arguments, process.returncode, stdout=stdout, stderr=None
-                )
-            except subprocess.TimeoutExpired:
-                if not cancel_event.is_set():
-                    continue
                 process.terminate()
+            except OSError:
+                pass
+            try:
+                process.wait(timeout=1.0)
+            except subprocess.TimeoutExpired:
                 try:
-                    stdout, _stderr = process.communicate(timeout=1.0)
-                except subprocess.TimeoutExpired:
                     process.kill()
-                    stdout, _stderr = process.communicate()
+                except OSError:
+                    pass
+                try:
+                    process.wait(timeout=1.0)
+                except subprocess.TimeoutExpired:
+                    pass
+            try:
+                stdout, _stderr = process.communicate(timeout=1.0)
+            except subprocess.TimeoutExpired:
+                stdout = partial_output
+            return stdout or partial_output
+
+        while True:
+            remaining = deadline - time.perf_counter()
+            if remaining <= 0:
+                captured = stop_process()
+                if temporary.exists():
+                    recycle_path(temporary)
+                detail = compact_process_output(captured)
+                raise RuntimeError(
+                    "waveform rendering timed out after "
+                    f"{WAVEFORM_RENDER_TIMEOUT_SECONDS:g} seconds"
+                    + (f"\n{detail}" if detail else "")
+                )
+            try:
+                stdout, _stderr = process.communicate(
+                    timeout=min(0.10, remaining)
+                )
+                return subprocess.CompletedProcess(
+                    arguments,
+                    process.returncode,
+                    stdout=decode_process_output(stdout),
+                    stderr=None,
+                )
+            except subprocess.TimeoutExpired as exc:
+                partial_output = exc.output or partial_output
+                if cancel_event is None or not cancel_event.is_set():
+                    continue
+                stop_process()
                 if temporary.exists():
                     recycle_path(temporary)
                 raise RuntimeError("waveform rendering cancelled")
@@ -13058,7 +13274,11 @@ def rename_preview_table(
     outside_indent = 12
     column_gap = 5
     available = max(4, columns - outside_indent)
-    if available < 41:
+    # Small approval batches are much easier to compare when each old/new
+    # filename gets its own vertical pair.  Keep the side-by-side table for
+    # larger batches, where stacking every row would unnecessarily consume
+    # the terminal's vertical space.
+    if len(pairs) < 5 or available < 41:
         lines: list[str] = []
         label_width = len(after_heading) + 2
         content_width = max(4, available - label_width)
@@ -14272,6 +14492,56 @@ def preview_text_sidecar_before_cleanup(
         )
 
 
+def associated_audio_for_sidecar(sidecar: Path) -> Path | None:
+    """Find the same-stem audio file for a text sidecar, if it still exists."""
+    candidates = [
+        candidate
+        for candidate in sidecar.parent.iterdir()
+        if candidate.is_file()
+        and candidate.suffix.casefold() in AUDIO_EXTS
+        and candidate.stem.casefold() == sidecar.stem.casefold()
+    ]
+    return sorted(candidates, key=lambda item: item.name.casefold())[0] if candidates else None
+
+
+def prompt_for_json_audio_rename(
+    root: Path,
+    sidecar: Path,
+    *,
+    use_color: bool,
+    input_reader=None,
+) -> list[str]:
+    """Rename a JSON sidecar's audio family with the rn.bat-style editor."""
+    audio = associated_audio_for_sidecar(sidecar)
+    if audio is None:
+        raise FileNotFoundError(
+            f"No same-stem audio file was found for JSON sidecar: {sidecar.name}"
+        )
+    print(
+        rgb_text(
+            f"            🎵 Associated audio: {audio.name}",
+            95,
+            210,
+            230,
+            use_color,
+        )
+    )
+    renamed_audio = prompt_for_waveform_problem_rename(
+        audio,
+        use_color=use_color,
+        input_reader=input_reader,
+    )
+    # The family rename moves the JSON alongside the audio. Recycle the live
+    # destination, not the stale pre-rename path.
+    live_sidecar = renamed_audio.with_name(
+        renamed_audio.stem + sidecar.suffix
+    )
+    if not live_sidecar.is_file():
+        live_sidecar = sidecar
+    recycled = recycle_path(live_sidecar)
+    return [f"renamed_audio:{renamed_audio}", f"recycled:{recycled}"]
+
+
 def render_console_report(
     data: dict[str, Any],
     max_examples: int,
@@ -14494,32 +14764,35 @@ def render_console_report(
                 same_file_set_groups[file_set] = []
                 same_file_set_order.append(file_set)
             same_file_set_groups[file_set].append(group)
+        lines.append("        Summary:")
+        for group in grouped_review[: max_examples or None]:
+            finding = group[0]
+            message = str(finding.get("message", "")).rstrip(" .:") + "."
+            label = finding_category_label(finding["category"])
+            lines.append(
+                f"            • {label} — {len(group)} affected track"
+                f"{'s' if len(group) != 1 else ''}: {message}"
+            )
         for file_set in same_file_set_order:
             related_groups = same_file_set_groups[file_set]
             # Two diagnoses sharing exactly the same tracks belong together:
-            # show both labels first, then one shared newspaper-style file list.
-            for group in related_groups:
-                finding = group[0]
-                label_color = (
-                    (255, 255, 0)
-                    if finding["category"] == "missing_album"
-                    else (245, 190, 105)
-                )
-                label = rgb_text(
-                    finding_category_label(finding["category"]),
-                    *label_color,
-                    use_color,
-                )
-                lines.append(
-                    f"        {label} — {warning_finding_message(finding)}:"
-                )
+            # show one clean file block, then one combined recommendation.
+            lines.append(
+                f"        Affected files ({len(file_set)} track"
+                f"{'s' if len(file_set) != 1 else ''}):"
+            )
             lines.extend(finding_filename_columns(related_groups[0], use_color))
-            for group in related_groups:
-                finding = group[0]
-                if finding.get("suggestion"):
-                    lines.append(
-                        f"            {suggested_text(finding, use_color)}"
-                    )
+            suggestions = list(dict.fromkeys(
+                str(group[0]["suggestion"])
+                for group in related_groups
+                if group[0].get("suggestion")
+            ))
+            if suggestions:
+                combined = " · ".join(suggestions)
+                lines.append(
+                    f"            {rgb_text('💡 Suggested: ', 105, 175, 205, use_color, dim=True)}"
+                    f"{rgb_text(combined, 105, 175, 205, use_color, dim=True)}"
+                )
         if max_examples and len(review) > max_examples:
             lines.append(f"        … {len(review) - max_examples} more findings omitted.")
 
@@ -14681,6 +14954,12 @@ def render_usage(use_color: bool = True) -> str:
         f"  {command('--interactive')}  {command('--no-interactive')}  "
         f"{default_badge(True)}",
         note("  ^ Prompt for supported actions, or suppress all action prompts."),
+        "",
+        f"  {command('--preview-ALL-changes-first')}  {default_badge(False)}",
+        note(
+            "  ^ Show the full proposed-change report before action prompts. By default, "
+            "actions start directly and each applicable change is shown only when it is handled."
+        ),
         "",
         f"  {command('--write-reports')}  {command('--output-dir')} "
         f"{example('FOLDER')}  {default_badge(False)}",
@@ -15323,6 +15602,7 @@ ACTION_SCOPE_KEYS = {
     "s": "stop_folder",
     "r": "remember_no",
     "d": "delete_art",
+    "e": "rename_audio",
     "\x7f": "delete_art",
 }
 
@@ -15336,6 +15616,7 @@ def action_scope_options(
     allow_stop_folder: bool = False,
     allow_delete_art: bool = False,
     allow_remember_no: bool = True,
+    allow_rename_audio: bool = False,
 ) -> str:
     """Render all single-key choices for a repeatable batch action."""
     yes_key = "Y" if default_yes else "y"
@@ -15349,6 +15630,8 @@ def action_scope_options(
         choices.append("R=No, Remember This File")
     if allow_delete_art:
         choices.append("D=Delete Cover Art")
+    if allow_rename_audio:
+        choices.append("E=Rename Audio")
     choices.append("V=Never")
     if allow_folder:
         choices.append("F=Yes for This Folder")
@@ -15381,6 +15664,11 @@ def action_scope_options(
             rgb_text(" / ", 255, 165, 45, True),
             rgb_text("D=Delete Cover Art", 255, 105, 105, True),
         ])
+    if allow_rename_audio:
+        chunks.extend([
+            rgb_text(" / ", 255, 165, 45, True),
+            rgb_text("E=Rename Audio", 255, 205, 95, True),
+        ])
     chunks.extend([
         rgb_text(" / ", 255, 165, 45, True),
         rgb_text("V=Never", 255, 145, 80, True),
@@ -15407,6 +15695,7 @@ def action_scope_prompt(
     allow_stop_folder: bool = False,
     allow_delete_art: bool = False,
     allow_remember_no: bool = True,
+    allow_rename_audio: bool = False,
 ) -> str:
     """Build the urgent repeatable-action prompt."""
     return prompt_with_option_legend(
@@ -15419,6 +15708,7 @@ def action_scope_prompt(
             allow_stop_folder=allow_stop_folder,
             allow_delete_art=allow_delete_art,
             allow_remember_no=allow_remember_no,
+            allow_rename_audio=allow_rename_audio,
         ),
         indent=indent,
     )
@@ -15435,6 +15725,7 @@ def action_scope_answer(choice: str, use_color: bool) -> str:
         "stop_folder": ("Not for This Folder!", (255, 205, 95)),
         "remember_no": ("No — remembered for this file!", (185, 145, 255)),
         "delete_art": ("Cover Art Recycled!", (255, 105, 105)),
+        "rename_audio": ("Rename Audio", (255, 205, 95)),
     }
     label, color = labels[choice]
     if not use_color:
@@ -15470,6 +15761,7 @@ def prompt_for_action_scope(
     allow_stop_folder: bool = False,
     allow_delete_art: bool = False,
     allow_remember_no: bool = True,
+    allow_rename_audio: bool = False,
 ) -> str:
     """Read Y/N/Always/Never/Folder with one key and no required Enter."""
     reader = key_reader or read_single_key
@@ -15483,6 +15775,7 @@ def prompt_for_action_scope(
         allow_stop_folder=allow_stop_folder,
         allow_delete_art=allow_delete_art,
         allow_remember_no=allow_remember_no,
+        allow_rename_audio=allow_rename_audio,
     )
     interactive_terminal = bool(
         getattr(sys.stdout, "isatty", lambda: False)()
@@ -15511,6 +15804,7 @@ def prompt_for_action_scope(
                 or (choice == "always" and not allow_always)
                 or (choice == "stop_folder" and not allow_stop_folder)
                 or (choice == "delete_art" and not allow_delete_art)
+                or (choice == "rename_audio" and not allow_rename_audio)
                 or (choice == "remember_no" and not allow_remember_no)
             ):
                 invalid_key_beep()
@@ -16869,6 +17163,7 @@ def interactive_apply(
                         allow_always=True,
                         allow_stop_folder=allow_folder_scope,
                         allow_delete_art=local_cover_prompt,
+                        allow_rename_audio=(finding["category"] == "json_sidecar"),
                     )
                     if choice != "always":
                         break
@@ -16923,7 +17218,7 @@ def interactive_apply(
                         dim=True,
                     )
                 )
-            should_apply = choice in {"yes", "always", "folder"}
+            should_apply = choice in {"yes", "always", "folder", "rename_audio"}
             should_delete_art = choice == "delete_art"
             if should_apply or should_delete_art:
                 try:
@@ -16932,6 +17227,13 @@ def interactive_apply(
                         if artwork is None:
                             raise RuntimeError("The displayed local cover art no longer exists")
                         actions = [f"recycled_art:{recycle_path(artwork)}"]
+                    elif choice == "rename_audio":
+                        actions = prompt_for_json_audio_rename(
+                            root,
+                            target,
+                            use_color=use_color,
+                            input_reader=input_reader,
+                        )
                     else:
                         actions = apply_finding(
                             root,
@@ -19307,7 +19609,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertEqual(" file", spaced_unit("file"))
             self.assertEqual(" file", spaced_unit("  file "))
             self.assertEqual("", spaced_unit(""))
-            self.assertIn("{n:,.0f} files found", ENUMERATION_PROGRESS_FORMAT)
+            self.assertIn("{n:,.0f} paths scanned", ENUMERATION_PROGRESS_FORMAT)
             self.assertIn("{rate_fmt}", ENUMERATION_PROGRESS_FORMAT)
             self.assertIn("{n:,.0f}/{total:,.0f}", AUDIT_PROGRESS_FORMAT)
             self.assertNotIn("checks", AUDIT_PROGRESS_FORMAT)
@@ -21874,6 +22176,37 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertNotIn("\n", target_lines[0])
             self.assertIn("…", target_lines[0])
 
+        def test_small_rename_preview_stacks_before_and_after(self) -> None:
+            table = rename_preview_table(
+                {
+                    "details": {
+                        "renames": [
+                            {
+                                "before": "01_old-name.flac",
+                                "after": "01_New Name.flac",
+                            },
+                            {
+                                "before": "02_old-name.flac",
+                                "after": "02_New Name.flac",
+                            },
+                        ]
+                    }
+                },
+                use_color=False,
+                terminal_columns=160,
+            )
+            self.assertEqual(4, len(table))
+            self.assertFalse(
+                any(
+                    "old-name.flac" in line and "New Name.flac" in line
+                    for line in table
+                )
+            )
+            self.assertTrue(table[0].startswith("Before filename:"))
+            self.assertTrue(table[1].startswith("After filename:"))
+            self.assertIn("01_old-name.flac", table[0])
+            self.assertIn("01_New Name.flac", table[1])
+
         def test_unit_tests_disable_console_paging(self) -> None:
             self.assertFalse(console_paging_enabled(["--unit-tests"]))
             self.assertFalse(
@@ -22283,6 +22616,14 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertIn(
                 "--interactive  --no-interactive",
                 usage,
+            )
+            self.assertIn("--preview-ALL-changes-first", usage)
+            self.assertFalse(
+                parse_args(["."]).preview_all_changes_first
+            )
+            self.assertTrue(
+                parse_args([".", "--preview-ALL-changes-first"])
+                .preview_all_changes_first
             )
             self.assertIn("[default = Yes]", usage)
             self.assertIn("[default = No]", usage)
@@ -22820,7 +23161,13 @@ def run_unit_tests(use_color: bool = True) -> int:
                     False,
                     terminal_columns=190,
                 )
-                self.assertEqual(64, max(map(len, compact_table)))
+                self.assertEqual(4, len(compact_table))
+                self.assertFalse(
+                    any(
+                        "from me to u.flac" in line and "Song One.flac" in line
+                        for line in compact_table
+                    )
+                )
                 self.assertTrue(
                     all(len(line) + 12 <= 190 for line in compact_table)
                 )
@@ -24984,6 +25331,16 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         action="store_false",
         help="Strictly read-only report mode; do not prompt or apply actions.",
     )
+    parser.add_argument(
+        "--preview-ALL-changes-first",
+        "--preview-all-changes-first",
+        dest="preview_all_changes_first",
+        action="store_true",
+        help=(
+            "Show the full proposed-change console report before interactive "
+            "actions. By default, actions begin directly."
+        ),
+    )
     parser.add_argument("--no-color", action="store_true", help="Disable ANSI color in interactive prompts.")
     parser.add_argument(
         "--no-pager",
@@ -25484,7 +25841,7 @@ def _main(argv: list[str] | None = None) -> int:
         print(json.dumps(data, indent=2, ensure_ascii=False))
     elif args.format == "markdown":
         print(render_markdown(data, args.max_examples), end="")
-    else:
+    elif not args.interactive or args.preview_all_changes_first:
         print(
             console_safe_text(
                 render_console_report(
@@ -25500,6 +25857,10 @@ def _main(argv: list[str] | None = None) -> int:
             print("Reports written:")
             for kind, path in data["written_reports"].items():
                 print(f"  {kind}: {path}")
+    elif args.write_reports:
+        print("Reports written:")
+        for kind, path in data["written_reports"].items():
+            print(f"  {kind}: {path}")
     waveform_handoff_failed = False
     if args.interactive:
         result = interactive_apply(data, use_color=not args.no_color)

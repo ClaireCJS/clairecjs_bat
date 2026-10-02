@@ -1,0 +1,1 @@
+%BAT%\PAFPlayer\PAFPlayer.py %*
