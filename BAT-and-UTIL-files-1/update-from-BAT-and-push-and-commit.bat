@@ -22,6 +22,7 @@ rem CONFIGURATION:
         set TARGET_MAIN=%PUBCL%\DEV\py\clairecjs_bat\BAT-and-UTIL-files-1
         set TARGET_1=%TARGET_MAIN%
         set TARGET_2=%TARGET_NEXT%
+        
         set COMMIT_CONFIRMATION_WAIT_TIME=5
         set COMMIT_CONFIRMATION_WAIT_TIME=4
         SET MANIFEST_FILES=NONE
@@ -195,7 +196,9 @@ rem Update BAT files from live location to github-folder location:
                 set GIT_SKIP_COMMIT_REASON_EDIT=1
                 set COMMIT_WITH_AUTOMATIC_REASON=1
         else
-                call c:\bat\update-from-BAT-via-manifest %TARGET_ROOT% %*                             %+ REM       ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼  ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼  ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ 
+echo                call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN% %*                             %+ REM       ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼  ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼  ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ 
+pause
+                call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN% %*                             %+ REM       ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼  ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼  ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ 
         endiff
 
 
