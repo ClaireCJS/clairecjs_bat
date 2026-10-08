@@ -123,9 +123,10 @@ goto :END_OF_SUBROUTINES
                                     %SOURCE_DIR%\
                         REM make target folder
                                     rem call print-if-debug "need to make individual distribution of OUR_FILELIST=“%OUR_FILELIST%”"
+                                    set TARGET_DIR=%PROJECT_DIR%
                                     set TARGET_DIR=%PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%
                                     if not exist %TARGET_DIR% mkdir /s %TARGET_DIR%
-                                    call validate-environment-variable  TARGET_DIR
+                                    if not isdir %TARGET_DIR% call validate-environment-variable  TARGET_DIR
                                     echos                  ``
                         REM copy each file
                                     rem echo %ansi_color_warning%our_filelist is %our_filelist%%ansi_color_normal% 🐮
@@ -142,7 +143,8 @@ goto :END_OF_SUBROUTINES
                                                 rem echo iff exist "%file%" then
                                                 iff exist "%file%" then
                                                         echos %@random_cursor_color[]%@randfg[].
-                                                        %UPDATE%   "%file%"   "%TARGET_DIR%\%file%"
+                                                        rem echo %UPDATE%   "%@UNQUOTE[%file%]"   "%@UNQUOTE[%TARGET_DIR%]\%@UNQUOTE[%file%]" %+ pause
+                                                                 %UPDATE%   "%@UNQUOTE[%file%]"   "%@UNQUOTE[%TARGET_DIR%]\%@UNQUOTE[%file%]"
                                                 else
                                                         call error "file doesn’t exist: “%italics_on%%file%%italics_off%”"
                                                 endiff
