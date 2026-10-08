@@ -89,11 +89,11 @@
 2024-11-19  02:23            690   54%  audio-batch-processing---encode-everything-and-remove-redundant-WAVs.bat
 2025-11-17  20:08          2,634   69%  audio-countdown-noise.bat
 2026-04-10  19:53         43,671   78%  audit-music-files.py
-2026-09-09  13:39        991,104   78%  audit_music_batch.py
+2026-09-28  22:35      1,004,946   78%  audit_music_batch.py
 2024-11-19  02:23          5,089   78%  auto-clean.bat
 2025-01-05  12:11         13,972   74%  auto-process.bat
 2026-04-18  10:10          6,507   72%  autoexec-common.btm
-2026-08-14  21:08         44,419   77%  autoexec.ahk
+2026-09-25  04:57         44,431   77%  autoexec.ahk
 2024-11-19  02:23            917   52%  AutoHotKey-autoexec.bat
 2025-05-22  19:21          2,692   61%  AutoHotKey.bat
 2026-04-29  19:28          3,776   61%  autoname.bat
@@ -423,9 +423,9 @@
 2026-08-14  14:04          3,883   66%  echo-image.bat
 2024-11-19  07:21          4,244   74%  echo-rainbow.bat
 2024-11-19  07:41          1,807   64%  edit-all-BAT-files-that-do-not-contain-a-string.bat
-2026-06-17  17:48         37,975   69%  edit-currently-playing-attrib-helper.pl
+2026-09-25  18:02         39,085   69%  edit-currently-playing-attrib-helper.pl
 2025-07-03  04:45            265   47%  edit-currently-playing-attrib-with-automark.bat
-2025-12-29  03:56         22,629   84%  edit-currently-playing-attrib.bat
+2026-09-25  17:41         22,813   83%  edit-currently-playing-attrib.bat
 2025-03-24  22:12          4,837   66%  edit-filenames-matching-regex.bat
 2024-11-19  07:47            994   52%  edit-windows-terminal-settings.bat
 2025-01-05  11:47             19  -10%  editgr.bat
@@ -439,7 +439,7 @@
 2024-11-19  07:47             41   -4%  emoji-grep.bat
 2024-12-09  15:35             39   -5%  emoji-search-online.bat
 2025-01-12  17:30          2,105   60%  emoji-search.bat
-2026-08-11  13:51        103,006   78%  emoji.env
+2026-09-27  19:03        104,422   78%  emoji.env
 2025-05-29  07:15          1,940   57%  enqueue-file-into-winamp-playlist.bat
 2024-12-11  17:04             80   15%  enqueue-regex-to-winamp.bat
 2024-11-19  07:47             66   -3%  enqueue.bat
@@ -450,7 +450,7 @@
 2025-03-29  05:16            393   39%  env.bat
 2019-10-01  10:25            172   20%  env.pl
 2026-08-03  19:27        208,418   87%  environm-common-vars.env
-2026-08-10  23:33        259,764   84%  environm.btm
+2026-09-25  17:38        259,851   84%  environm.btm
 2025-02-21  17:44             33   -6%  erase-scrollback.bat
 2025-01-13  11:54             73    2%  error.bat
 2026-04-16  16:26         13,564   75%  errorlevel.bat
@@ -534,7 +534,7 @@
 2026-04-27  21:54          2,170   57%  get-all-LRCs.bat
 2024-11-19  07:47             52   -3%  get-command-line.bat
 2025-01-14  11:28            243   28%  get-current-escape-character.bat
-2026-08-03  19:32         12,695   67%  get-current-song-playing.pl
+2026-09-25  18:18         14,225   67%  get-current-song-playing.pl
 2024-10-10  11:49            422   49%  get-currently-playing-tracknum-from-wawi-index_html.pl
 2024-11-19  07:47            567   58%  get-image-dimensions.bat
 2025-04-17  14:39            486   64%  get-karaoke-prompts-only.bat
@@ -712,7 +712,7 @@
 2026-07-31  02:41         80,959   77%  lrc2srt.py
 2026-04-21  14:10          7,710   69%  lrc2txt.bat
 2026-04-21  14:26         34,205   77%  lrc2txt.py
-2026-04-29  13:16          2,181   63%  lrcget.bat
+2026-09-27  19:06          2,145   61%  lrcget.bat
 2026-07-20  20:41         25,111   70%  lyric-postprocessor.pl
 2026-08-10  19:36            749   44%  LyricsProcessing.pm
 2024-11-19  07:56            448   37%  make-attrib_lst.bat
@@ -797,7 +797,7 @@
 2024-12-27  02:16             49    3%  openpdf.bat
 2026-07-21  14:18          2,718   69%  opera.bat
 2024-11-19  21:35             45   -4%  package-tracking.bat
-2026-08-18  16:41             68   11%  paf.bat
+2026-09-25  15:31             33   -6%  paf.bat
 2024-03-28  02:16             23   -8%  paus.btm
 2025-10-27  02:51          5,933   66%  pause-alias.bat
 2025-05-07  20:16          1,383   50%  pause-for-x-seconds.bat
@@ -810,7 +810,7 @@
 2024-11-19  21:35             40   -5%  pendmoves.bat
 2024-11-19  21:35             42   -4%  pf.bat
 2024-11-19  20:25          2,116   44%  PhraseExpress-Claire.csv
-2026-09-21  12:51      1,183,744    0%  PhraseExpress-phrases.pexdb
+2026-10-07  22:34      1,183,744    0%  PhraseExpress-phrases.pexdb
 2023-04-28  14:03            627   51%  pickle_view.py
 2025-03-26  16:02          2,254   56%  play-m3u-with-VLC.bat
 2024-11-19  21:35             54   -3%  play-m3u-with-winamp.bat
@@ -818,7 +818,7 @@
 2026-07-31  02:57          2,239   60%  play-WAV-file.bat
 2024-11-19  21:35             40   -5%  play.bat
 2024-11-19  15:14            526   51%  playlist.bat
-2026-09-21  13:07      3,381,857   76%  play_audio_file.py
+2026-09-28  02:54            482   39%  play_audio_file.py
 2023-06-01  22:26          1,141   58%  play_wav_file.py
 2024-11-19  15:14            749   52%  plot-generalized-graph---edit-data.bat
 2024-11-19  15:14          1,212   54%  plot-generalized-graph---enter-new-data.bat
@@ -1244,7 +1244,7 @@
 2024-11-19  15:02            305   34%  unzip-all.bat
 2025-10-01  15:03          6,208   70%  unzip-gracefully.bat
 2024-11-19  15:02            461   39%  update-cygwin.bat
-2025-01-12  16:41         14,435   73%  update-from-BAT-via-manifest.bat
+2026-10-08  22:08         14,721   73%  update-from-BAT-via-manifest.bat
 2026-03-12  17:32             55   -3%  update-windows-terminal-preview.bat
 2026-03-12  17:32             47   -4%  update-windows-terminal.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
