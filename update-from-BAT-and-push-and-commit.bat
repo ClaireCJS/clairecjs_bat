@@ -20,7 +20,7 @@ rem CONFIGURATION:
         set TARGET_ROOT=%PUBCL%\DEV\py\clairecjs_bat\
         set TARGET_FOLDERNAME_ONLY=BAT-and-UTIL-files-1
         set TARGET_MAIN=%PUBCL%\DEV\py\clairecjs_bat\BAT-and-UTIL-files-1
-        set TARGET_MAIN=%PUBCL%\DEV\py\clairecjs_bat\BAT-and-UTIL-files-1
+        set TARGET_NEXT=%PUBCL%\DEV\py\clairecjs_bat\BAT-and-UTIL-files-2
         set TARGET_1=%TARGET_MAIN%
         set TARGET_2=%TARGET_NEXT%
         
@@ -227,7 +227,7 @@ rem Make sure they’re all added —— any new extensions that we add to our p
                 
         rem extensions that appear in [m-z]*.*
                 for %%tmpfolder in (%TARGET_MAIN% %TARGET_2%) do (
-                        call git add %tmpFolder%\*.bat %tmpFolder%\*.csv LICENSE *.md .gitattributes .gitignore %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl  %tmpFolder%\*.py   %tmpFolder%\*.exe   %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.ansi %tmpFolder%\*.midi  %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat
+                        call git add %tmpFolder%\*.bat LICENSE *.md .gitattributes .gitignore %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl  %tmpFolder%\*.py   %tmpFolder%\*.exe   %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.ansi %tmpFolder%\*.midi  %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat
                 )
                 
         rem This secondary folder seems to be having troubles sometimes... Re-add just to be sure.

@@ -1,4 +1,4 @@
-@Echo ON
+@Echo Off
 @loadbtm on
 rem                      edit this file only as %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
 @on break cancel
@@ -17,10 +17,13 @@ cls
 
 
 rem CONFIGURATION:
+        set TARGET_ROOT=%PUBCL%\DEV\py\clairecjs_bat\
+        set TARGET_FOLDERNAME_ONLY=BAT-and-UTIL-files-1
         set TARGET_MAIN=%PUBCL%\DEV\py\clairecjs_bat\BAT-and-UTIL-files-1
         set TARGET_NEXT=%PUBCL%\DEV\py\clairecjs_bat\BAT-and-UTIL-files-2
         set TARGET_1=%TARGET_MAIN%
         set TARGET_2=%TARGET_NEXT%
+        
         set COMMIT_CONFIRMATION_WAIT_TIME=5
         set COMMIT_CONFIRMATION_WAIT_TIME=4
         SET MANIFEST_FILES=NONE
@@ -94,7 +97,7 @@ rem Make sure none of our files are set as read-only, so that we can successfull
                                         attrib %attrib_to_use%    %TARGET_2%\*.*      >nul
                                         attrib %attrib_to_use%    %TARGET_1%\*.*      >nul     
                                         attrib %attrib_to_use% /s %TARGET_1%\docs\*.* >nul     
-                                        attrib %attrib_to_use% /s %TARGET_2%\docs\*.* >nul
+                                        if isdir %TARGET_2%\docs\ if exist %TARGET_2%\docs\*.* attrib %attrib_to_use% /s %TARGET_2%\docs\*.* >nul
                                 return
                         :end_of_subroutines
 
@@ -194,7 +197,7 @@ rem Update BAT files from live location to github-folder location:
                 set GIT_SKIP_COMMIT_REASON_EDIT=1
                 set COMMIT_WITH_AUTOMATIC_REASON=1
         else
-                call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN% %*                             %+ REM       ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼  ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼  ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ 
+                call c:\bat\update-from-BAT-via-manifest %TARGET_FOLDERNAME_ONLY% %*                             %+ REM       ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼  ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼  ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ 
         endiff
 
 

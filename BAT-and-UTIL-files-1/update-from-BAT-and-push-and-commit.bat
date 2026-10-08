@@ -20,7 +20,7 @@ rem CONFIGURATION:
         set TARGET_ROOT=%PUBCL%\DEV\py\clairecjs_bat\
         set TARGET_FOLDERNAME_ONLY=BAT-and-UTIL-files-1
         set TARGET_MAIN=%PUBCL%\DEV\py\clairecjs_bat\BAT-and-UTIL-files-1
-        set TARGET_MAIN=%PUBCL%\DEV\py\clairecjs_bat\BAT-and-UTIL-files-1
+        set TARGET_NEXT=%PUBCL%\DEV\py\clairecjs_bat\BAT-and-UTIL-files-2
         set TARGET_1=%TARGET_MAIN%
         set TARGET_2=%TARGET_NEXT%
         
