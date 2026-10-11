@@ -1,0 +1,2034 @@
+{
+  "format": "PAFPlayer Global Config",
+  "format_version": 1,
+  "matrix": {
+    "crossover12": {
+      "enabled": true,
+      "hz": 60.0
+    },
+    "crossover5": {
+      "enabled": true,
+      "hz": 66.0
+    },
+    "crossover7": {
+      "enabled": true,
+      "hz": 83.0
+    },
+    "factory12": [
+      [
+        "FL",
+        1.0,
+        0.0
+      ],
+      [
+        "FR",
+        0.0,
+        1.0
+      ],
+      [
+        "FC",
+        0.4,
+        0.4
+      ],
+      [
+        "LFE",
+        1.0,
+        1.0
+      ],
+      [
+        "SL",
+        0.7,
+        0.0
+      ],
+      [
+        "SR",
+        0.0,
+        0.7
+      ],
+      [
+        "BL",
+        0.55,
+        0.0
+      ],
+      [
+        "BR",
+        0.0,
+        0.55
+      ],
+      [
+        "TFL",
+        0.38,
+        0.0
+      ],
+      [
+        "TFR",
+        0.0,
+        0.38
+      ],
+      [
+        "TBL",
+        0.28,
+        0.0
+      ],
+      [
+        "TBR",
+        0.0,
+        0.28
+      ]
+    ],
+    "factory5": [
+      [
+        "FL",
+        1.0,
+        0.0
+      ],
+      [
+        "FR",
+        0.0,
+        1.0
+      ],
+      [
+        "FC",
+        0.4,
+        0.4
+      ],
+      [
+        "LFE",
+        1.0,
+        1.0
+      ],
+      [
+        "SL",
+        0.7,
+        0.0
+      ],
+      [
+        "SR",
+        0.0,
+        0.7
+      ]
+    ],
+    "factory7": [
+      [
+        "FL",
+        1.0,
+        0.0
+      ],
+      [
+        "FR",
+        0.0,
+        1.0
+      ],
+      [
+        "FC",
+        0.4,
+        0.4
+      ],
+      [
+        "LFE",
+        1.0,
+        1.0
+      ],
+      [
+        "SL",
+        0.7,
+        0.0
+      ],
+      [
+        "SR",
+        0.0,
+        0.7
+      ],
+      [
+        "BL",
+        0.55,
+        0.0
+      ],
+      [
+        "BR",
+        0.0,
+        0.55
+      ]
+    ],
+    "matrix12": [
+      [
+        "FL",
+        1.0,
+        0.0
+      ],
+      [
+        "FR",
+        0.0,
+        1.0
+      ],
+      [
+        "FC",
+        0.4,
+        0.4
+      ],
+      [
+        "LFE",
+        1.0,
+        1.0
+      ],
+      [
+        "SL",
+        0.7,
+        0.0
+      ],
+      [
+        "SR",
+        0.0,
+        0.7
+      ],
+      [
+        "BL",
+        0.55,
+        0.0
+      ],
+      [
+        "BR",
+        0.0,
+        0.55
+      ],
+      [
+        "TFL",
+        0.38,
+        0.0
+      ],
+      [
+        "TFR",
+        0.0,
+        0.38
+      ],
+      [
+        "TBL",
+        0.28,
+        0.0
+      ],
+      [
+        "TBR",
+        0.0,
+        0.28
+      ]
+    ],
+    "matrix5": [
+      [
+        "FL",
+        1.0,
+        0.0
+      ],
+      [
+        "FR",
+        0.0,
+        1.0
+      ],
+      [
+        "FC",
+        0.4,
+        0.4
+      ],
+      [
+        "LFE",
+        1.0,
+        1.0
+      ],
+      [
+        "SL",
+        0.7,
+        0.0
+      ],
+      [
+        "SR",
+        0.0,
+        0.7
+      ]
+    ],
+    "matrix7": [
+      [
+        "FL",
+        1.0,
+        0.0
+      ],
+      [
+        "FR",
+        0.0,
+        1.0
+      ],
+      [
+        "FC",
+        0.4,
+        0.4
+      ],
+      [
+        "LFE",
+        1.1,
+        1.1
+      ],
+      [
+        "SL",
+        1.0,
+        0.0
+      ],
+      [
+        "SR",
+        0.0,
+        1.0
+      ],
+      [
+        "BL",
+        1.75,
+        0.0
+      ],
+      [
+        "BR",
+        0.0,
+        1.75
+      ]
+    ],
+    "mutes12": [],
+    "mutes5": [],
+    "mutes7": [
+      "FR"
+    ],
+    "named_profiles": {
+      "before 7.1 factory reset": {
+        "12": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ],
+          [
+            "BL",
+            0.55,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            0.55
+          ],
+          [
+            "TFL",
+            0.38,
+            0.0
+          ],
+          [
+            "TFR",
+            0.0,
+            0.38
+          ],
+          [
+            "TBL",
+            0.28,
+            0.0
+          ],
+          [
+            "TBR",
+            0.0,
+            0.28
+          ]
+        ],
+        "5": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ]
+        ],
+        "7": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.1,
+            1.1
+          ],
+          [
+            "SL",
+            1.0,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            1.0
+          ],
+          [
+            "BL",
+            1.75,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            1.75
+          ]
+        ],
+        "crossover12": {
+          "enabled": true,
+          "hz": 60.0
+        },
+        "crossover5": {
+          "enabled": true,
+          "hz": 66.0
+        },
+        "crossover7": {
+          "enabled": true,
+          "hz": 83.0
+        },
+        "mutes12": [],
+        "mutes5": [],
+        "mutes7": [
+          "FR"
+        ]
+      },
+      "default": {
+        "12": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ],
+          [
+            "BL",
+            0.55,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            0.55
+          ],
+          [
+            "TFL",
+            0.38,
+            0.0
+          ],
+          [
+            "TFR",
+            0.0,
+            0.38
+          ],
+          [
+            "TBL",
+            0.28,
+            0.0
+          ],
+          [
+            "TBR",
+            0.0,
+            0.28
+          ]
+        ],
+        "5": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ]
+        ],
+        "7": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ],
+          [
+            "BL",
+            0.55,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            0.55
+          ]
+        ],
+        "crossover12": {
+          "enabled": true,
+          "hz": 60.0
+        },
+        "crossover5": {
+          "enabled": true,
+          "hz": 60.0
+        },
+        "crossover7": {
+          "enabled": true,
+          "hz": 60.0
+        },
+        "mutes12": [],
+        "mutes5": [],
+        "mutes7": []
+      },
+      "test1": {
+        "12": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ],
+          [
+            "BL",
+            0.55,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            0.55
+          ],
+          [
+            "TFL",
+            0.38,
+            0.0
+          ],
+          [
+            "TFR",
+            0.0,
+            0.38
+          ],
+          [
+            "TBL",
+            0.28,
+            0.0
+          ],
+          [
+            "TBR",
+            0.0,
+            0.28
+          ]
+        ],
+        "5": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ]
+        ],
+        "7": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            2.0,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            2.0
+          ],
+          [
+            "BL",
+            0.55,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            0.55
+          ]
+        ],
+        "crossover12": {
+          "enabled": true,
+          "hz": 60.0
+        },
+        "crossover5": {
+          "enabled": true,
+          "hz": 66.0
+        },
+        "crossover7": {
+          "enabled": true,
+          "hz": 73.0
+        },
+        "mutes12": [],
+        "mutes5": [],
+        "mutes7": []
+      },
+      "testing 4": {
+        "12": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ],
+          [
+            "BL",
+            0.55,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            0.55
+          ],
+          [
+            "TFL",
+            0.38,
+            0.0
+          ],
+          [
+            "TFR",
+            0.0,
+            0.38
+          ],
+          [
+            "TBL",
+            0.28,
+            0.0
+          ],
+          [
+            "TBR",
+            0.0,
+            0.28
+          ]
+        ],
+        "5": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ]
+        ],
+        "7": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.1,
+            1.1
+          ],
+          [
+            "SL",
+            1.0,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            1.0
+          ],
+          [
+            "BL",
+            1.75,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            1.75
+          ]
+        ],
+        "crossover12": {
+          "enabled": true,
+          "hz": 60.0
+        },
+        "crossover5": {
+          "enabled": true,
+          "hz": 66.0
+        },
+        "crossover7": {
+          "enabled": true,
+          "hz": 83.0
+        },
+        "mutes12": [],
+        "mutes5": [],
+        "mutes7": []
+      },
+      "testing2": {
+        "12": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ],
+          [
+            "BL",
+            0.55,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            0.55
+          ],
+          [
+            "TFL",
+            0.38,
+            0.0
+          ],
+          [
+            "TFR",
+            0.0,
+            0.38
+          ],
+          [
+            "TBL",
+            0.28,
+            0.0
+          ],
+          [
+            "TBR",
+            0.0,
+            0.28
+          ]
+        ],
+        "5": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ]
+        ],
+        "7": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            1.0,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            1.0
+          ],
+          [
+            "BL",
+            3.0,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            3.0
+          ]
+        ],
+        "crossover12": {
+          "enabled": true,
+          "hz": 60.0
+        },
+        "crossover5": {
+          "enabled": true,
+          "hz": 66.0
+        },
+        "crossover7": {
+          "enabled": true,
+          "hz": 73.0
+        },
+        "mutes12": [],
+        "mutes5": [],
+        "mutes7": []
+      },
+      "testing3": {
+        "12": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ],
+          [
+            "BL",
+            0.55,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            0.55
+          ],
+          [
+            "TFL",
+            0.38,
+            0.0
+          ],
+          [
+            "TFR",
+            0.0,
+            0.38
+          ],
+          [
+            "TBL",
+            0.28,
+            0.0
+          ],
+          [
+            "TBR",
+            0.0,
+            0.28
+          ]
+        ],
+        "5": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            0.7,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            0.7
+          ]
+        ],
+        "7": [
+          [
+            "FL",
+            1.0,
+            0.0
+          ],
+          [
+            "FR",
+            0.0,
+            1.0
+          ],
+          [
+            "FC",
+            0.4,
+            0.4
+          ],
+          [
+            "LFE",
+            1.0,
+            1.0
+          ],
+          [
+            "SL",
+            1.0,
+            0.0
+          ],
+          [
+            "SR",
+            0.0,
+            1.0
+          ],
+          [
+            "BL",
+            4.0,
+            0.0
+          ],
+          [
+            "BR",
+            0.0,
+            4.0
+          ]
+        ],
+        "crossover12": {
+          "enabled": true,
+          "hz": 60.0
+        },
+        "crossover5": {
+          "enabled": true,
+          "hz": 66.0
+        },
+        "crossover7": {
+          "enabled": true,
+          "hz": 73.0
+        },
+        "mutes12": [],
+        "mutes5": [],
+        "mutes7": []
+      }
+    },
+    "profiles": [
+      "default",
+      "before 7.1 factory reset",
+      "test1",
+      "testing 4",
+      "testing2",
+      "testing3"
+    ]
+  },
+  "player_settings": {
+    "AlertEmbeddedLyricsMismatch": 1,
+    "AlertMissingArtist": 1,
+    "AlertMissingArtwork": 1,
+    "AlertMissingKaraoke": 0,
+    "AlertMissingLyrics": 0,
+    "AlertMissingTitle": 1,
+    "AlertNoReplayGain": 1,
+    "AlertUnknownGenre": 1,
+    "AlertUnknownYear": 0,
+    "ArtColorBarOpacity": 64,
+    "ArtColorBarStrength": 100,
+    "ArtColorBlackStrength": 30,
+    "ArtColorKaraoke": 0,
+    "ArtColorKaraokeSides": 0,
+    "ArtColorRepresentation": 3,
+    "ArtworkSeamStrategy": 0,
+    "Balance": 0,
+    "BarFadeStyle": 1,
+    "ColorReverse": 0,
+    "ColorStyle": 1,
+    "ConsoleAlertsEnabled": 1,
+    "ConsoleKaraokeEnabled": 1,
+    "ConsoleVisualizerOverlayMessagesEnabled": 1,
+    "CursiveFix": 1,
+    "DecensorArtworkLyrics": 1,
+    "DecensorConsoleKaraoke": 1,
+    "DecensorFloatingLyrics": 1,
+    "DrcsArtBarMicrotileDetailModeV370": 9,
+    "DrcsArtBarMicrotiles": 1,
+    "DrcsArtMicrotileDetailModeV370": 9,
+    "DrcsArtMicrotiles": 1,
+    "DrcsEnabled": 1,
+    "ExternalMediaAutoPause": 1,
+    "ExternalMediaResumeFadeSeconds": 15,
+    "FrequencyWarp": 1,
+    "HudDetails": 0,
+    "KaraokeEmojimax": 1,
+    "KaraokeStyle": 1,
+    "KaraokeTreatment": 2,
+    "KaraokeVisualizerExpansion": 1,
+    "KaraokeVisualizerHeightMode": 0,
+    "Looping": 0,
+    "MMInspiredRenderer": 1,
+    "OutputBitDepth": 24,
+    "OutputChannels": 5,
+    "OutputDevice": -1,
+    "OutputDevicesMask": 1,
+    "OutputRate": 96000,
+    "PersistenceMode": 2,
+    "PlaybackPaused": 0,
+    "ProcessingStyle": 62,
+    "ProgressBarEnabled": 1,
+    "ProgressBeatDetector": 5,
+    "ProgressBeatReactive": 1,
+    "ProgressBeatTreatment": 3,
+    "ProgressStyle": 2,
+    "RepeatMode": 2,
+    "Shuffle": 1,
+    "ShuffleMode": 1,
+    "SixelEnabled": 0,
+    "SpeedIndex": 12,
+    "TruncateTopVisualizerLines": 0,
+    "VisualizerBackgroundArtworkEnabled": 1,
+    "VisualizerBarsEnabled": 1,
+    "VisualizerGranularity": 3,
+    "VisualizerInputSource": 5,
+    "VisualizerMode": 1,
+    "VisualizerRows": 32,
+    "Volume": 20
+  },
+  "profile_name": "Developer's Choice",
+  "program_version": "V446",
+  "registry_values": {
+    "AlertEmbeddedLyricsMismatch": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "AlertMissingArtist": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "AlertMissingArtwork": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "AlertMissingKaraoke": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "AlertMissingLyrics": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "AlertMissingTitle": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "AlertNoReplayGain": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "AlertUnknownGenre": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "AlertUnknownYear": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ArtColorBarAutoslideEnabled": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ArtColorBarOpacity": {
+      "kind": "REG_DWORD",
+      "value": 64
+    },
+    "ArtColorBarStrength": {
+      "kind": "REG_DWORD",
+      "value": 100
+    },
+    "ArtColorBlackAutoslideEnabled": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ArtColorBlackStrength": {
+      "kind": "REG_DWORD",
+      "value": 30
+    },
+    "ArtColorKaraoke": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ArtColorKaraokeSides": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ArtColorRepresentation": {
+      "kind": "REG_DWORD",
+      "value": 3
+    },
+    "ArtworkSeamStrategy": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Autoplay": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Balance": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "BarFadeStyle": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "BarFadeStyleFavorites": {
+      "kind": "REG_SZ",
+      "value": "1"
+    },
+    "ColorFavorites": {
+      "kind": "REG_SZ",
+      "value": "7,28,41,47,66,67,76,77,78,79,80"
+    },
+    "ColorReverse": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ColorStyle": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ConsoleAlertsEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ConsoleKaraokeEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ConsoleVisualizerOverlayMessagesEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "CursiveFix": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "DecensorArtworkLyrics": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "DecensorConsoleKaraoke": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "DecensorFloatingLyrics": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "DrcsArtBarMicrotileDetailModeV370": {
+      "kind": "REG_DWORD",
+      "value": 9
+    },
+    "DrcsArtBarMicrotileModeFavorites": {
+      "kind": "REG_SZ",
+      "value": "9"
+    },
+    "DrcsArtBarMicrotiles": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "DrcsArtMicrotileDetailModeV370": {
+      "kind": "REG_DWORD",
+      "value": 9
+    },
+    "DrcsArtMicrotileModeFavorites": {
+      "kind": "REG_SZ",
+      "value": "0,7,8,9,13"
+    },
+    "DrcsArtMicrotiles": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "DrcsEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalAlbumArtAlwaysOnTop": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ExternalAlbumArtGeometry": {
+      "kind": "REG_SZ",
+      "value": "1297x1085+2639-2144"
+    },
+    "ExternalAlbumArtKaraokeBrightnessesV192": {
+      "kind": "REG_SZ",
+      "value": "[1.8,1.0,1.0]"
+    },
+    "ExternalAlbumArtKaraokeColorDefaultMode": {
+      "kind": "REG_DWORD",
+      "value": 9
+    },
+    "ExternalAlbumArtKaraokeColorFavorites": {
+      "kind": "REG_DWORD",
+      "value": 515
+    },
+    "ExternalAlbumArtKaraokeColorMode": {
+      "kind": "REG_DWORD",
+      "value": 9
+    },
+    "ExternalAlbumArtKaraokeColorPalettes": {
+      "kind": "REG_SZ",
+      "value": "[0,0,0,0,0,0,21,0,16,0,0,5,26,0,0]"
+    },
+    "ExternalAlbumArtKaraokeColorSpeeds": {
+      "kind": "REG_SZ",
+      "value": "[1.0,1.0,1.0]"
+    },
+    "ExternalAlbumArtKaraokeEnabledV336": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalAlbumArtKaraokePatternTreatmentsV192": {
+      "kind": "REG_SZ",
+      "value": "[8,0,0]"
+    },
+    "ExternalAlbumArtKaraokeSaturationsV192": {
+      "kind": "REG_SZ",
+      "value": "[0.35,1.0,1.0]"
+    },
+    "ExternalAlbumArtKaraokeShadowSizesV192": {
+      "kind": "REG_SZ",
+      "value": "[0.045,0.045,0.045]"
+    },
+    "ExternalAlbumArtKaraokeTimedEmphasis": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ExternalAlbumArtLyricFontScalePercent": {
+      "kind": "REG_DWORD",
+      "value": 70
+    },
+    "ExternalAlbumArtLyricsEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalAlbumArtLyricsMode": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalAlbumArtLyricsModeV180": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ExternalAlbumArtManualSize": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalAlbumArtPlacementV241": {
+      "kind": "REG_SZ",
+      "value": "{\"rect\":[2639,-2144,3960,-995],\"monitor_device\":\"\\\\\\\\.\\\\DISPLAY3\",\"monitor_work\":[1280,-2168,5120,-8]}"
+    },
+    "ExternalAlbumArtPopupColorEmojiV287": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ExternalAlbumArtPopupColorEmojiV295": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalAlbumArtPopupEmojimaxV287": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ExternalAlbumArtPopupEmojimaxV295": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalFloatingLyricsAlwaysOnTop": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ExternalFloatingLyricsAutosizeV366": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalFloatingLyricsEmojimax": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalFloatingLyricsEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalFloatingLyricsFontScalePercentV366": {
+      "kind": "REG_DWORD",
+      "value": 113
+    },
+    "ExternalFloatingLyricsGeometry": {
+      "kind": "REG_SZ",
+      "value": "3409x582+1580-1980"
+    },
+    "ExternalFloatingLyricsKaraokeBrightnessesV192": {
+      "kind": "REG_SZ",
+      "value": "[1.0,1.0,1.0]"
+    },
+    "ExternalFloatingLyricsKaraokeColorDefaultMode": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalFloatingLyricsKaraokeColorFavorites": {
+      "kind": "REG_DWORD",
+      "value": 3
+    },
+    "ExternalFloatingLyricsKaraokeColorMode": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ExternalFloatingLyricsKaraokeColorPalettes": {
+      "kind": "REG_SZ",
+      "value": "[1,0,6]"
+    },
+    "ExternalFloatingLyricsKaraokeColorSpeeds": {
+      "kind": "REG_SZ",
+      "value": "[1.0,4.2,1.0]"
+    },
+    "ExternalFloatingLyricsKaraokeSaturationsV192": {
+      "kind": "REG_SZ",
+      "value": "[1.0,1.0,1.0]"
+    },
+    "ExternalFloatingLyricsKaraokeShadowSizesV192": {
+      "kind": "REG_SZ",
+      "value": "[0.045,0.045,0.045]"
+    },
+    "ExternalFloatingLyricsKaraokeTimingsV192": {
+      "kind": "REG_SZ",
+      "value": "[6,0,0]"
+    },
+    "ExternalFloatingLyricsLayoutSizeV197": {
+      "kind": "REG_SZ",
+      "value": "3409x582"
+    },
+    "ExternalFloatingLyricsNeighbors": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalFloatingLyricsPositionV302": {
+      "kind": "REG_SZ",
+      "value": "1580,-1980"
+    },
+    "ExternalMediaAutoPause": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ExternalMediaResumeFadeSeconds": {
+      "kind": "REG_DWORD",
+      "value": 15
+    },
+    "FrequencyWarp": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "GranularityFavorites": {
+      "kind": "REG_SZ",
+      "value": "3"
+    },
+    "HudDetails": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "KaraokeEmojimax": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "KaraokeEmojimaxFavorites": {
+      "kind": "REG_SZ",
+      "value": "1"
+    },
+    "KaraokeFavorites": {
+      "kind": "REG_SZ",
+      "value": "2,95"
+    },
+    "KaraokeStyle": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "KaraokeStyleFavorites": {
+      "kind": "REG_SZ",
+      "value": "1,7"
+    },
+    "KaraokeTreatment": {
+      "kind": "REG_DWORD",
+      "value": 2
+    },
+    "KaraokeTreatmentFavorites": {
+      "kind": "REG_SZ",
+      "value": "2"
+    },
+    "KaraokeVisualizerCompositingFavorites": {
+      "kind": "REG_SZ",
+      "value": "0"
+    },
+    "KaraokeVisualizerExpansion": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "KaraokeVisualizerHeightMode": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Looping": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "MMInspiredMatrix51": {
+      "kind": "REG_SZ",
+      "value": "[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]]"
+    },
+    "MMInspiredMatrix71": {
+      "kind": "REG_SZ",
+      "value": "[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.1,1.1],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",1.75,0.0],[\"BR\",0.0,1.75]]"
+    },
+    "MMInspiredMatrixAtmos714": {
+      "kind": "REG_SZ",
+      "value": "[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]]"
+    },
+    "MMInspiredMatrixProfiles": {
+      "kind": "REG_SZ",
+      "value": "{\"default\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":60.0},\"crossover7\":{\"enabled\":true,\"hz\":60.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"test1\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",2.0,0.0],[\"SR\",0.0,2.0],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":73.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"testing2\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",3.0,0.0],[\"BR\",0.0,3.0]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":73.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"testing3\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",4.0,0.0],[\"BR\",0.0,4.0]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":73.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"testing 4\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.1,1.1],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",1.75,0.0],[\"BR\",0.0,1.75]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":83.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"before 7.1 factory reset\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.1,1.1],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",1.75,0.0],[\"BR\",0.0,1.75]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":83.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[\"FR\"],\"mutes12\":[]}}"
+    },
+    "MMInspiredMutes51": {
+      "kind": "REG_SZ",
+      "value": "[]"
+    },
+    "MMInspiredMutes71": {
+      "kind": "REG_SZ",
+      "value": "[\"FR\"]"
+    },
+    "MMInspiredMutesAtmos714": {
+      "kind": "REG_SZ",
+      "value": "[]"
+    },
+    "MMInspiredRenderer": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "MMInspiredSubCrossover51": {
+      "kind": "REG_SZ",
+      "value": "{\"enabled\":true,\"hz\":66.0}"
+    },
+    "MMInspiredSubCrossover71": {
+      "kind": "REG_SZ",
+      "value": "{\"enabled\":true,\"hz\":83.0}"
+    },
+    "MMInspiredSubCrossoverAtmos714": {
+      "kind": "REG_SZ",
+      "value": "{\"enabled\":true,\"hz\":60.0}"
+    },
+    "OutputBitDepth": {
+      "kind": "REG_DWORD",
+      "value": 24
+    },
+    "OutputChannels": {
+      "kind": "REG_DWORD",
+      "value": 5
+    },
+    "OutputDevice": {
+      "kind": "REG_DWORD",
+      "value": 4294967295
+    },
+    "OutputDeviceFavorites": {
+      "kind": "REG_SZ",
+      "value": "0"
+    },
+    "OutputDevicesMask": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "OutputRate": {
+      "kind": "REG_DWORD",
+      "value": 96000
+    },
+    "PaletteFavorites": {
+      "kind": "REG_SZ",
+      "value": "1"
+    },
+    "PersistenceFavorites": {
+      "kind": "REG_SZ",
+      "value": "2,3,12"
+    },
+    "PersistenceMode": {
+      "kind": "REG_DWORD",
+      "value": 2
+    },
+    "PlaybackPaused": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ProcessingFavorites": {
+      "kind": "REG_SZ",
+      "value": "62"
+    },
+    "ProcessingStyle": {
+      "kind": "REG_DWORD",
+      "value": 62
+    },
+    "ProgressBarEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ProgressBeatDetector": {
+      "kind": "REG_DWORD",
+      "value": 5
+    },
+    "ProgressBeatDetectorFavorites": {
+      "kind": "REG_SZ",
+      "value": "1,4,5"
+    },
+    "ProgressBeatReactive": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ProgressBeatTreatment": {
+      "kind": "REG_DWORD",
+      "value": 3
+    },
+    "ProgressBeatTreatmentFavorites": {
+      "kind": "REG_SZ",
+      "value": "3"
+    },
+    "ProgressStyle": {
+      "kind": "REG_DWORD",
+      "value": 2
+    },
+    "ProgressStyleFavorites": {
+      "kind": "REG_SZ",
+      "value": "1,2,9"
+    },
+    "RepeatMode": {
+      "kind": "REG_DWORD",
+      "value": 2
+    },
+    "Shuffle": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ShuffleMode": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "SixelEnabled": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "SpeedIndex": {
+      "kind": "REG_DWORD",
+      "value": 12
+    },
+    "TruncateTopVisualizerLines": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "UserDefault_ColorStyle": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "UserDefault_DrcsArtMicrotileDetailModeV370": {
+      "kind": "REG_DWORD",
+      "value": 9
+    },
+    "UserDefault_OutputDevice": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "UserDefault_ProgressBeatDetector": {
+      "kind": "REG_DWORD",
+      "value": 5
+    },
+    "UserDefault_VisualizerMode": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "VisualizerBackgroundArtworkEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "VisualizerBarsEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "VisualizerFavorites": {
+      "kind": "REG_SZ",
+      "value": "1,15"
+    },
+    "VisualizerGranularity": {
+      "kind": "REG_DWORD",
+      "value": 3
+    },
+    "VisualizerInputSource": {
+      "kind": "REG_DWORD",
+      "value": 5
+    },
+    "VisualizerMode": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "VisualizerRows": {
+      "kind": "REG_DWORD",
+      "value": 32
+    },
+    "VisualizerStyleFavorites": {
+      "kind": "REG_SZ",
+      "value": "1,25"
+    },
+    "VisualizerTreatmentFavorites": {
+      "kind": "REG_SZ",
+      "value": "1"
+    },
+    "Volume": {
+      "kind": "REG_DWORD",
+      "value": 20
+    },
+    "WebUiPreferencesV241": {
+      "kind": "REG_SZ",
+      "value": "{\"paf-web-background-config-v238\":{\"enabled\":true,\"first\":\"back\",\"second\":\"inlay\",\"third\":\"cover\",\"final\":\"any\",\"saturation\":20,\"brightness\":85,\"alpha\":14,\"titleBleed\":20,\"aspect\":\"fit\",\"scale\":0.4443458300156051,\"tiling\":\"all\",\"checkerboard\":true},\"paf-web-karaoke-v238\":{\"enabled\":true,\"style\":1,\"treatment\":2,\"emojimax\":true,\"decensor\":true,\"glow\":true,\"glowColor\":\"#000000\",\"glowSize\":68,\"styleFav\":[1],\"treatmentFav\":[2],\"styleDefault\":1,\"treatmentDefault\":2},\"paf-art-bars-autoslide-min\":0,\"paf-art-bars-autoslide-max\":100,\"paf-art-bars-autoslide-enabled\":0,\"paf-art-black-autoslide-min\":0,\"paf-art-black-autoslide-max\":25,\"paf-art-black-autoslide-enabled\":0,\"paf-art-autoslides-locked\":0,\"paf-art-autoslides-lock-interval\":32.15017200264428,\"paf-art-bars-autoslide-interval\":1.2951324838722384,\"paf-art-black-autoslide-interval\":1.8858658765082084,\"paf-web-background-profiles-v252\":{\"test1\":{\"enabled\":true,\"first\":\"back\",\"second\":\"inlay\",\"third\":\"cover\",\"final\":\"any\",\"saturation\":20,\"brightness\":85,\"alpha\":14,\"titleBleed\":20,\"aspect\":\"fit\",\"tiling\":\"all\",\"checkerboard\":true,\"scale\":0.31593944275926195}}}"
+    }
+  },
+  "runtime_state": {
+    "alert_embedded_lyrics_mismatch": true,
+    "alert_missing_artist": true,
+    "alert_missing_artwork": true,
+    "alert_missing_karaoke": false,
+    "alert_missing_lyrics": false,
+    "alert_missing_title": true,
+    "alert_no_replaygain": true,
+    "alert_unknown_genre": true,
+    "alert_unknown_year": false,
+    "art_color_bar_opacity": 64,
+    "art_color_bar_strength": 100,
+    "art_color_bars": true,
+    "art_color_black_strength": 30,
+    "art_color_blackness": true,
+    "art_color_karaoke": false,
+    "art_color_karaoke_sides": false,
+    "art_color_representation": 3,
+    "art_topmost": false,
+    "artwork_seam_strategy": 0,
+    "balance": 0,
+    "color_reverse": false,
+    "color_style": 1,
+    "console_alerts_enabled": true,
+    "console_karaoke_enabled": true,
+    "console_visualizer_volume_feedback_enabled": true,
+    "cursive_fix": true,
+    "decensor_artwork_lyrics": true,
+    "decensor_console_karaoke": true,
+    "decensor_floating_lyrics": true,
+    "drcs_art_bar_microtile_mode": 9,
+    "drcs_art_microtile_mode": 9,
+    "drcs_enabled": true,
+    "external_album_art_enabled": true,
+    "external_media_auto_pause": true,
+    "external_media_resume_fade_seconds": 15,
+    "fade_style": 1,
+    "floating_lyrics_enabled": false,
+    "floating_topmost": false,
+    "frequency_warp_enabled": true,
+    "karaoke_emojimax": true,
+    "karaoke_style": 1,
+    "karaoke_treatment": 2,
+    "karaoke_visualizer_expansion_enabled": true,
+    "karaoke_visualizer_height_mode": 0,
+    "karaoke_visualizer_overlay": false,
+    "loop": false,
+    "mm_inspired_renderer_enabled": true,
+    "output_bit_depth": 24,
+    "output_channels": 5,
+    "output_device": -1,
+    "output_devices_mask": 1,
+    "output_rate": 96000,
+    "paused": false,
+    "persistence_mode": 2,
+    "processing_style": 62,
+    "progress_bar_enabled": true,
+    "progress_beat_detector": 5,
+    "progress_beat_reactive": true,
+    "progress_beat_treatment": 3,
+    "progress_style": 2,
+    "repeat_mode": 2,
+    "shuffle": true,
+    "shuffle_mode": 1,
+    "sixel_enabled": false,
+    "speed_index": 12,
+    "truncate_visualizer_rows": 0,
+    "visualizer_background_artwork_enabled": true,
+    "visualizer_bars_enabled": true,
+    "visualizer_granularity": 3,
+    "visualizer_input_source": 5,
+    "visualizer_mode": 1,
+    "visualizer_rows": 32,
+    "volume": 20
+  },
+  "saved_at": "2026-09-24T20:18:24.822266+00:00",
+  "web_preferences": {
+    "paf-art-autoslides-lock-interval": 32.15017200264428,
+    "paf-art-autoslides-locked": 0,
+    "paf-art-bars-autoslide-enabled": 0,
+    "paf-art-bars-autoslide-interval": 1.2951324838722384,
+    "paf-art-bars-autoslide-max": 100,
+    "paf-art-bars-autoslide-min": 0,
+    "paf-art-black-autoslide-enabled": 0,
+    "paf-art-black-autoslide-interval": 1.8858658765082084,
+    "paf-art-black-autoslide-max": 25,
+    "paf-art-black-autoslide-min": 0,
+    "paf-web-background-config-v238": {
+      "alpha": 14,
+      "aspect": "fit",
+      "brightness": 85,
+      "checkerboard": true,
+      "enabled": true,
+      "final": "any",
+      "first": "back",
+      "saturation": 20,
+      "scale": 0.4443458300156051,
+      "second": "inlay",
+      "third": "cover",
+      "tiling": "all",
+      "titleBleed": 20
+    },
+    "paf-web-background-profiles-v252": {
+      "test1": {
+        "alpha": 14,
+        "aspect": "fit",
+        "brightness": 85,
+        "checkerboard": true,
+        "enabled": true,
+        "final": "any",
+        "first": "back",
+        "saturation": 20,
+        "scale": 0.31593944275926195,
+        "second": "inlay",
+        "third": "cover",
+        "tiling": "all",
+        "titleBleed": 20
+      }
+    },
+    "paf-web-karaoke-v238": {
+      "decensor": true,
+      "emojimax": true,
+      "enabled": true,
+      "glow": true,
+      "glowColor": "#000000",
+      "glowSize": 68,
+      "style": 1,
+      "styleDefault": 1,
+      "styleFav": [
+        1
+      ],
+      "treatment": 2,
+      "treatmentDefault": 2,
+      "treatmentFav": [
+        2
+      ]
+    }
+  }
+}
