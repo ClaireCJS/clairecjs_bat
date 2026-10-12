@@ -25,14 +25,36 @@ import sys
 import time
 import glob
 import random
+import ctypes
+import traceback
 import webbrowser
 from urllib.parse import urlencode
 from datetime import datetime
-import emoji
-import arrow
-import pyperclip
-from ics import Calendar as icsCalendar
-from colorama import Fore, Style, init
+
+
+def show_error_popup(title, message):
+    """Display a real, foreground Windows error dialog."""
+    try:
+        flags = 0x00000010 | 0x00010000 | 0x00040000
+        ctypes.windll.user32.MessageBoxW(None, str(message), str(title), flags)
+    except Exception as popup_error:
+        print(f"ERROR: Could not display Windows error dialog: {popup_error}", file=sys.stderr)
+
+
+try:
+    import emoji
+    import arrow
+    import pyperclip
+    from ics import Calendar as icsCalendar
+    from colorama import Fore, Style, init
+except Exception as import_error:
+    show_error_popup(
+        "Calendar ingest could not start",
+        f"A required Python package could not be loaded.\n\n"
+        f"{type(import_error).__name__}: {import_error}",
+    )
+    raise
+
 init(autoreset=True)
 
 
@@ -60,6 +82,34 @@ DOT_COLORS                                   = [Fore.RED, Fore.YELLOW, Fore.GREE
 
 DEBUG_ICS_PROCESSING = False
 DEBUG_DATE_TIMEZONE  = True
+
+
+class IcsProcessingError(Exception):
+    """An ICS file could not be converted into a Google Calendar URL."""
+
+
+def report_error(context, error, file_path=None):
+    """Log an exception and notify the user with a foreground Windows dialog."""
+    path_text = f"\n\nFile: {file_path}" if file_path else ""
+    detail = f"{type(error).__name__}: {error}"
+    print(f"\n{Fore.RED}{context}{path_text}\n{detail}{Fore.RESET}", file=sys.stderr)
+    if DEBUG_ICS_PROCESSING:
+        traceback.print_exc()
+    show_error_popup("Calendar ingest failure", f"{context}{path_text}\n\n{detail}")
+
+
+def unique_path(path):
+    """Return a non-colliding path, preserving both files with ' (N)' suffixes."""
+    if not os.path.exists(path):
+        return path
+    stem, extension = os.path.splitext(path)
+    counter = 1
+    while True:
+        candidate = f"{stem} ({counter}){extension}"
+        if not os.path.exists(candidate):
+            return candidate
+        counter += 1
+
 
 def create_google_calendar_link(start, end, title, location, description):
     """
@@ -90,7 +140,7 @@ def fix_malformed_ics(ics_string):
     Fixes malformed ics files that are missing DESCRIPTION tags from the VEVENT and VALARM subsections
     """
     print("* Fixing ics data...")
-    summary_search = re.search(r"SUMMARY:(.*)", ics_string)
+    summary_search = re.search(r"^SUMMARY(?:;[^:]*)?:(.*)$", ics_string, re.MULTILINE)
     if summary_search is not None:
         summary = summary_search.group(1)
     else:
@@ -99,13 +149,15 @@ def fix_malformed_ics(ics_string):
     valarm_search = re.compile(r"(BEGIN:VALARM.*?)(END:VALARM)", re.DOTALL)
     updated_ics   = ics_string
     def replace_vevent_func(match):
-        if "DESCRIPTION:" in match.group(0): return match.group(0)
+        if re.search(r"^DESCRIPTION(?:;[^:]*)?:", match.group(0), re.MULTILINE):
+            return match.group(0)
         return match.group(1) + "\nDESCRIPTION:" + summary + "\n" + match.group(2)
     def replace_valarm_func(match):
-        if "DESCRIPTION:" in match.group(0): return match.group(0)
+        if re.search(r"^DESCRIPTION(?:;[^:]*)?:", match.group(0), re.MULTILINE):
+            return match.group(0)
         return match.group(1) + "\nDESCRIPTION:Alarm\n" + match.group(2)
     if summary_search is None:
-        print('WARNING: Consider throwing: ValueError("Error: Could not find SUMMARY in the ics file."')    # 20240311 stopped throwing this cause of ics files missing summary sections entirely, or so it seemed
+        print("WARNING: Could not find SUMMARY in the ICS file; using a fallback title.")
     updated_ics = vevent_search.sub(replace_vevent_func, updated_ics)
     updated_ics = valarm_search.sub(replace_valarm_func, updated_ics)
     updated_ics = updated_ics.replace("\n\n", "\n")
@@ -119,15 +171,23 @@ def generate_google_calendar_url_from_ics_file(file_path):                      
     global COPY_URL_TO_CLIPBOARD, AUTOMATICALLY_GO_TO_GOOGLE_CALENDAR_CREATION, DEBUG_ICS_PROCESSING, DEBUG_DATE_TIMEZONE
 
     print(f"\n{Fore.YELLOW}* Processing ics file: {file_path}{Fore.WHITE}")
-    with open(file_path, 'r', encoding="utf-8") as file: ics_content = file.read()
+    try:
+        with open(file_path, 'r', encoding="utf-8-sig") as file:
+            ics_content = file.read()
+    except (OSError, UnicodeError) as error:
+        raise IcsProcessingError(f"Could not read the ICS file: {error}") from error
+    if not ics_content.strip():
+        raise IcsProcessingError("The ICS file is empty.")
     fixed_ics = fix_malformed_ics(ics_content)
 
     try:
-        calendar  = icsCalendar(fixed_ics)
-    except Exception:
-        print ("Calendar exception 555!")
+        calendar = icsCalendar(fixed_ics)
+    except Exception as error:
+        raise IcsProcessingError(f"The ICS data could not be parsed: {error}") from error
 
     events = calendar.events
+    if not events:
+        raise IcsProcessingError("The ICS file does not contain any calendar events.")
 
     if DEBUG_ICS_PROCESSING:
         print(f"\t- contents of original ics file={Fore.RED}{ics_content}{Fore.WHITE}")
@@ -136,9 +196,11 @@ def generate_google_calendar_url_from_ics_file(file_path):                      
         print(f"\t- # events={len(events)}")
 
     for event in events:
-        title       = event.name
-        location    = event.location
-        description = event.description.replace('\n','<BR>')
+        title       = event.name or "Untitled event"
+        location    = event.location or ""
+        description = (event.description or "").replace('\n','<BR>')
+        if event.begin is None or event.end is None:
+            raise IcsProcessingError("An event is missing its start or end date/time.")
         local_tz    = arrow.now().tzinfo
         start       = arrow.get(event.begin.datetime).to(local_tz)
         end         = arrow.get(event.end  .datetime).to(local_tz)
@@ -171,6 +233,7 @@ def monitor_folder(folder_to_drop_ics_files_in):
     """
     global HOW_OFTEN_TO_CHECK, DOT_COLORS
     processed_files = 0
+    failed_file_signatures = {}
     processed_folder = os.path.join(folder_to_drop_ics_files_in, 'processed')
     if not os.path.exists(folder_to_drop_ics_files_in):
         os.makedirs(folder_to_drop_ics_files_in)
@@ -186,41 +249,46 @@ def monitor_folder(folder_to_drop_ics_files_in):
             print(f'\n\n{Fore.GREEN}{Style.NORMAL}Just save ics files into {folder_to_drop_ics_files_in} to create Google Calendar events!\n')
         ics_files = glob.glob(folder_to_drop_ics_files_in + '/*.ics')
         for ics_file in ics_files:
-            # solve the problem this script intends to solve: generating the google calendar URL from our ICS file:
-            url = generate_google_calendar_url_from_ics_file(ics_file)
+            try:
+                stat = os.stat(ics_file)
+                signature = (stat.st_size, stat.st_mtime_ns)
+                if failed_file_signatures.get(ics_file) == signature:
+                    continue
 
-            # Now move our file to processing, because it has now been processed
+                url = generate_google_calendar_url_from_ics_file(ics_file)
 
-            # ensure our processed folder exists
-            if not os.path.exists(processed_folder):
-                print(f"\n\n{Fore.YELLOW}Creating processed folder: {processed_folder}{Fore.RESET}")
-                print("ics files will be moved here as they are processed")
-                print("url files will be moved here as they are generated from the processed ics files")
-                os.makedirs(processed_folder)
+                if not os.path.exists(processed_folder):
+                    print(f"\n\n{Fore.YELLOW}Creating processed folder: {processed_folder}{Fore.RESET}")
+                    print("ics files will be moved here as they are processed")
+                    print("url files will be moved here as they are generated from the processed ics files")
+                    os.makedirs(processed_folder)
 
-            # move file to processed folder when we are done with it...
-            file_name                      = os.path.basename(ics_file)
-            #file_directory                = os.path.dirname (ics_file)
-            file_name_base, file_extension = os.path.splitext(file_name)
-            new_file_name                  = f"{file_name_base}.{file_extension}"
-            new_file_path                  = os.path.join(processed_folder, new_file_name)
+                file_name = os.path.basename(ics_file)
+                new_file_path = unique_path(os.path.join(processed_folder, file_name))
+                os.rename(ics_file, new_file_path)
 
-            # ...but make sure target filename is unique..
-            counter = 0
-            while os.path.exists(new_file_path):
-                counter = counter + 1
-                new_file_name = f"{file_name_base}.{str(counter)}{file_extension}"
-                new_file_path = os.path.join(processed_folder, new_file_name)
-            os.rename(ics_file, new_file_path)
+                processed_files += 1
+                failed_file_signatures.pop(ics_file, None)
+                print(f"{Fore.GREEN}{Style.BRIGHT}\n...Successfully processed file: {Style.NORMAL}{ics_file}")
+                print(f"{Fore.CYAN}Total processed files: {Style.BRIGHT}{str(processed_files)}{Fore.WHITE}{Style.NORMAL}")
 
-            # Let the user know the processing was done
-            processed_files += 1
-            print(f"{Fore.GREEN}{Style.BRIGHT}\n...Successfully processed file: {Style.NORMAL}{ics_file}")
-            print(f"{Fore.CYAN}Total processed files: {Style.BRIGHT}{str(processed_files)}{Fore.WHITE}{Style.NORMAL}")
-
-            # Store our generated google calendar URL result in a file
-            results_file = f"{processed_folder}/{os.path.basename(ics_file)}.url"       # had processed.on.{time.strftime("%Y%m%d%H%M%S")} in filename but realized the file's date is already exactly that
-            with open(results_file, 'w', encoding="utf-8") as file: file.write(url)     # store our URL for posterity/postprocesing
+                results_file = unique_path(new_file_path + ".url")
+                with open(results_file, 'x', encoding="utf-8") as file:
+                    file.write(url)
+            except KeyboardInterrupt:
+                raise
+            except Exception as error:
+                try:
+                    stat = os.stat(ics_file)
+                    failed_file_signatures[ics_file] = (stat.st_size, stat.st_mtime_ns)
+                except OSError:
+                    failed_file_signatures[ics_file] = None
+                report_error(
+                    "This ICS file could not be processed. The monitor will keep running. "
+                    "It will retry after the file changes or after the monitor is restarted.",
+                    error,
+                    ics_file,
+                )
         time.sleep(HOW_OFTEN_TO_CHECK)                                                  # check every HOW_OFTEN_TO_CHECK seconds
 
 
@@ -230,15 +298,27 @@ def main():
         print(f"{Fore.CYAN}{Style.BRIGHT}\n* Options:\n")
         print(f"{Fore.CYAN}{Style.NORMAL}1. Run with a filename of an .ics file as argument.")
         print(f"{Fore.CYAN}{Style.NORMAL}2. Run with 'monitor' as argument to monitor the folder {FOLDER_TO_DROP_ICS_FILES_IN} for new .ics files")
-        sys.exit(777)
+        return 0
 
     if len(sys.argv) == 1 or bool(len(sys.argv) == 2 and sys.argv[1] == 'monitor'):
         monitor_folder(FOLDER_TO_DROP_ICS_FILES_IN)
-        sys.exit()
+        return 0
     elif not os.path.exists(sys.argv[1]):
-        print(f"\n{Fore.RED}File {sys.argv[1]} does not exist!\n")
-        sys.exit(666)                                                                   # return a non-zero error level
-    generate_google_calendar_url_from_ics_file(sys.argv[1])
+        error = FileNotFoundError(f"File {sys.argv[1]} does not exist.")
+        report_error("The requested ICS file could not be processed.", error, sys.argv[1])
+        return 1
+    try:
+        generate_google_calendar_url_from_ics_file(sys.argv[1])
+    except Exception as error:
+        report_error("The requested ICS file could not be processed.", error, sys.argv[1])
+        return 1
+    return 0
 
 if __name__ == "__main__":
-    main()
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("\nCalendar monitor stopped by user.")
+    except Exception as fatal_error:
+        report_error("The calendar monitor stopped because of an unexpected fatal error.", fatal_error)
+        sys.exit(1)
