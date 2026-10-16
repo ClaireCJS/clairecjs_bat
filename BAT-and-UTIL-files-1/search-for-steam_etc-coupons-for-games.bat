@@ -7,7 +7,11 @@ call warning "spaces need to be '%blink_on%+%blink_off%' tho, so maybe fix that:
 eset search_for
 
 call warning "Don't bother searching Difmark - they are horrible scammers https://difmark.com/en/products?name=%search_for%"
+call warning "Fuck Kinguin too"
 pause               
+
+
+
 
     https://www.g2a.com/search?query=%search_for%&sort=price-lowest-first
     https://www.gamersgate.com/games/?query=%search_for%
