@@ -1,0 +1,7 @@
+{
+  "muted_tracks": 12,
+  "concurrent_clock_readers": 4,
+  "samples": 4002,
+  "eof_clock_retained": true,
+  "access_violations": 0
+}

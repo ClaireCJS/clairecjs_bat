@@ -1,0 +1,207 @@
+{
+  "run": 656,
+  "failures": [
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_playlist_defaults_to_shuffle_and_advances_without_track_loop",
+      "error": "AssertionError: 0 != 1"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_playlist_quit_restores_and_saves_same_track_position",
+      "error": "AssertionError: 0 != 1"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_positional_m3u_is_promoted_to_playlist_mode",
+      "error": "AssertionError: 0 != 1"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_stop_and_seek_key_mappings",
+      "error": "AssertionError: 'drcs-visualizer-toggle' is not None"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v106_metadata_tails_fill_existing_rows_before_adding_lines",
+      "error": "AssertionError: 76 != 47"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v109_alt3_is_live_persistent_state_across_track_handoff",
+      "error": "AssertionError: 'album_art_display and not all_audio_tags_state[0]' not found in 'def main(argv: list[str] | None = None) -> int:\\n    \"\"\"Run unit tests or preview the single supplied audio filename.\"\"\"\\n    arguments = list(sys.argv[1:] if argv is None else argv)\\n    # V369 plural-count override is process-wide and is consumed before special\\n    # one-shot modes such as --emojimaxx so preview and playback behave identically.\\n    cleaned_arguments: list[str] = []\\n    index = 0\\n    plural_op"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v111_insert_is_multiselect_play_next_and_resets_speed",
+      "error": "AssertionError: 'and not manual_queue_transition' not found in 'def main(argv: list[str] | None = None) -> int:\\n    \"\"\"Run unit tests or preview the single supplied audio filename.\"\"\"\\n    arguments = list(sys.argv[1:] if argv is None else argv)\\n    # V369 plural-count override is process-wide and is consumed before special\\n    # one-shot modes such as --emojimaxx so preview and playback behave identically.\\n    cleaned_arguments: list[str] = []\\n    index = 0\\n    plural_option_names = {\"--p"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v168_supplied_hud_screenshots_align_inline_last_play_when_spare_width_exists (song='Gardener Of Vengeance')",
+      "error": "AssertionError: 161 != 118"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v168_supplied_hud_screenshots_align_inline_last_play_when_spare_width_exists (song='Anna Maria')",
+      "error": "AssertionError: 161 != 125"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v169_bride_riot_screenshot_justifies_every_free_semantic_colon_pair",
+      "error": "AssertionError: 66 != 41 : ('Song', 'Genre', ('   Act: Bride Riot                                            Song: Hot To Go! (by Chappell Roan)                                             Album: Hot To Go! [single]', '  Year: 2024                        Genre: Punk \ud83e\uddf7                         Comment: Chappell Roan cover          Original artist: Chappell Roan  Composer: Chappell Roan'))"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v170_art_window_focus_transparency_zoom_and_plasma_contract",
+      "error": "AssertionError: 'origin_y = max(safe_y, min(max(safe_y, height - safe_y - crop_h), origin_y))' not found in '    def _gui_main(self) -> None:\\n        try:\\n            import tkinter as tk\\n            from tkinter import ttk\\n        except Exception:\\n            return\\n        try:\\n            root = tk.Tk()\\n        except Exception:\\n            return\\n\\n        def report_tk_callback_exception(exception_type, exception_value, exception_traceback) -> None:\\n            \"\"\"Replace Tk\\'s "
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v179_black_dresses_album_and_url_use_same_colon_when_slack_exists",
+      "error": "AssertionError: 2 != 1"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v180_playback_publishes_emphasis_progress_to_external_lyrics",
+      "error": "AssertionError: 'lyric_emphasis_progress_at(' not found in 'def play_audio_file(\\n    file_path: str | os.PathLike[str],\\n    *,\\n    ffplay: Path | None = None,\\n    duration_probe=probe_duration_seconds,\\n    key_action_reader=read_windows_key_action,\\n    process_factory=subprocess.Popen,\\n    monotonic=time.monotonic,\\n    sleeper=time.sleep,\\n    install_signal_handlers: bool = True,\\n    sixel_visualizer: bool | None = None,\\n    drcs_visualizer: bool | None = None,\\n    visualizer_fade_se"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v183_equal_spacing_preserves_existing_semantic_colon_anchors",
+      "error": "AssertionError: 66 != 41 : ('Song', 'Genre', ('   Act: Bride Riot                                            Song: Hot To Go! (by Chappell Roan)                                             Album: Hot To Go! [single]', '  Year: 2024                        Genre: Punk \ud83e\uddf7                         Comment: Chappell Roan cover          Original artist: Chappell Roan  Composer: Chappell Roan'))"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v192_floating_overlay_is_content_sized_and_drag_stable",
+      "error": "AssertionError: 'def fit_floating_window_to_content' not found in '    def _gui_main(self) -> None:\\n        try:\\n            import tkinter as tk\\n            from tkinter import ttk\\n        except Exception:\\n            return\\n        try:\\n            root = tk.Tk()\\n        except Exception:\\n            return\\n\\n        def report_tk_callback_exception(exception_type, exception_value, exception_traceback) -> None:\\n            \"\"\"Replace Tk\\'s stderr traceback dump with PAFPlayer\\'s wa"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v192_resize_preserves_floating_center_and_artwork_rectangle",
+      "error": "AssertionError: 'x = round(float(anchor[0]) - max(1, int(width)) / 2.0)' not found in '    def _gui_main(self) -> None:\\n        try:\\n            import tkinter as tk\\n            from tkinter import ttk\\n        except Exception:\\n            return\\n        try:\\n            root = tk.Tk()\\n        except Exception:\\n            return\\n\\n        def report_tk_callback_exception(exception_type, exception_value, exception_traceback) -> None:\\n            \"\"\"Replace Tk\\'s stderr traceback dump "
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v238_playlist_browser_and_web_queue_contract",
+      "error": "AssertionError: 'head + deduped_queue + tail' not found in 'def main(argv: list[str] | None = None) -> int:\\n    \"\"\"Run unit tests or preview the single supplied audio filename.\"\"\"\\n    arguments = list(sys.argv[1:] if argv is None else argv)\\n    # V369 plural-count override is process-wide and is consumed before special\\n    # one-shot modes such as --emojimaxx so preview and playback behave identically.\\n    cleaned_arguments: list[str] = []\\n    index = 0\\n    plural_option_names = {\"--plura"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v238_web_rainbow_title_glow_art_cycle_and_player_order",
+      "error": "AssertionError: 'maybeCycleBackgroundWithArt(-1)' not found in '<!doctype html>\\n<html>\\n<head>\\n<meta charset=\"utf-8\">\\n<title>PAFPlayer</title>\\n<style>\\n@font-face{font-family:\"PAFPlayer Preferred Emoji\";src:url(\"/api/emoji-font\") format(\"truetype\");font-display:swap}\\n:root{\\n  color-scheme:dark;\\n  background:#090b0f;\\n  color:#e8eef7;\\n  font-family:Segoe UI,\"PAFPlayer Preferred Emoji\",Arial,sans-serif;\\n  --panel:#101722;\\n  --edge:#405067;\\n  --muted:#8996a8;\\n}\\n*{box-sizing:border-box}"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v248_cursive_fix_is_in_web_karaoke_not_experimental_bottom",
+      "error": "AssertionError: '.section-web-karaoke .toggle.experimental[data-control-key=\"cursive_fix\"]{background:#3c3312;border-color:#b69a30}' not found in '<!doctype html>\\n<html>\\n<head>\\n<meta charset=\"utf-8\">\\n<title>PAFPlayer</title>\\n<style>\\n@font-face{font-family:\"PAFPlayer Preferred Emoji\";src:url(\"/api/emoji-font\") format(\"truetype\");font-display:swap}\\n:root{\\n  color-scheme:dark;\\n  background:#090b0f;\\n  color:#e8eef7;\\n  font-family:Segoe UI,\"PAFPlayer Preferred Emoji\",Arial,sans-serif;\\n  -"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v263_release_identity_split_hud_profiler_and_geometry_contract",
+      "error": "AssertionError: False is not true"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v264_web_is_demand_driven_cached_and_browser_animation_is_throttled",
+      "error": "AssertionError: False is not true"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v319_composer_anchors_right_and_comment_is_equidistant",
+      "error": "AssertionError: 9 not less than or equal to 1"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v319_restores_off_but_keeps_two_unclear_emojimax_removals",
+      "error": "AssertionError: 36 != 28"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v32_parent_attrib_lists_are_root_first_with_permanent_rules",
+      "error": "+  'sound effects')"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v331_frequency_warp_compacts_low_end_and_repeats_feedback",
+      "error": "AssertionError: 0.421875 not less than 0.4"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v368_floating_animation_backs_off_while_editor_is_opaque",
+      "error": "AssertionError: 'if bool(state.get(\"floating_edit_mode\")):' not found in 'def animate_floating_lyric_colors() -> None:\\n            \"\"\"Animate floating lyric colors within a strict audio-safe CPU budget.\"\"\"\\n            state[\"floating_color_after\"] = None\\n            window = state.get(\"floating_window\")\\n            floating_canvas = state.get(\"floating_canvas\")\\n            if (\\n                not lyrics_mode_includes_floating(int(state.get(\"lyrics_mode\", 0) or 0))\\n                or (\\n "
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v36_emojimax_prefers_written_word_emoji",
+      "error": " : up"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v380_renderer_switches_charset_per_hybrid_cell_only",
+      "error": "AssertionError: 'art_detail_cell_uses_unicode_glyph(artwork_bar_microtile_detail_mode, microtile)' not found in 'def render_drcs_visualizer(\\n    columns: int,\\n    spectrum_levels: bytes,\\n    recent_energy: list[float],\\n    mode: int = 1,\\n    color_style: int = 1,  # V29 palette index; compatibility name retained internally.\\n    color_reverse: bool = False,\\n    processing_style: int = 1,\\n    frequency_warp: bool = False,\\n    rows: int = DRCS_VISUALIZER_ROWS,\\n    fade_style: int = 1,\\n  "
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v52_shuffle_neighbor_skips_duplicate_current_track",
+      "error": "AssertionError: WindowsPath('C:/Users/ClioC/AppData/Local/Temp/tmpd1k8pcq2/B.mp3') != WindowsPath('C:/Users/ClioC/AppData/Local/Temp/tmpd1k8pcq2/A.mp3')"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v53_forward_history_never_replays_same_path",
+      "error": "AssertionError: WindowsPath('B.mp3') != WindowsPath('A.mp3')"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v63_resume_successor_is_captured_before_queue_rotation",
+      "error": "AssertionError: WindowsPath('C:/Users/ClioC/AppData/Local/Temp/tmpz9uzs33l/C.mp3') != WindowsPath('C:/Users/ClioC/AppData/Local/Temp/tmpz9uzs33l/B.mp3')"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v67_playback_start_history_never_synchronously_selects",
+      "error": "AssertionError: 'startup deliberately returns unknown' not found in 'def playlist_history_last_played(\\n    track: Path,\\n    *,\\n    duration_seconds: float | int | None = None,\\n    tags: dict[str, str] | None = None,\\n) -> float | None:\\n    \"\"\"Return cached/nonblocking Last-play state through the V308 resolver.\\n\\n    No SQLite query is issued on the playback startup path.  Bulk shuffle scoring\\n    and targeted background prefetches populate the same caches consumed here.\\n    \"\"\"\\n    path"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v67_up_uses_up_arrow_not_up_button",
+      "error": ""
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v71_last_heard_tail_still_uses_album_column_when_comment_occupies_row2",
+      "error": "AssertionError: 87 != 56 : ('   Act: A                                 Song: B                                 Album: C', '  Year: 2026        Genre: Industrial \ud83c\udfed         Comment: some comment  Last play: Tuesday')"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v73_down_emojimax_has_one_less_trailing_separator",
+      "error": "AssertionError: '\u2b07\ufe0fhere' not found in '\ud83e\udc0b here'"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v76_playlist_analysis_table_uses_full_paths_and_wraps_console_rows",
+      "error": "AssertionError: 'C:\\\\Users\\\\ClioC\\\\AppData\\\\Local\\\\Temp\\\\tmprjoyzvxy' not found in '\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2566\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\\n\u2551Last played      \u2551Full path                      \u2551\\n\u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256c\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563\\n\u2551NEVER            \u2551C:\\\\Users\\\\ClioC\\\\AppData\\\\Local\\\\Te\u2551\\n\u2551                 \u2551mp\\\\tmprjoyzvxy\\\\Artist\\\\Album\\\\03_\u2551\\n\u2551                 \u2551This is an intentionally very  \u2551\\n\u2551                 \u2551long filename to force         \u2551\\n\u2551                 \u2551wrapping.mp3     "
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v78_both_fresh_rebuild_sites_preserve_history_order_source",
+      "error": "AssertionError: 2 != 5"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v87_nonidle_album_art_uses_weighted_sampling_and_real_crossfade_source",
+      "error": "AssertionError: 'random.choices(range(len(variants)), weights=weights, k=1)[0]' not found in 'class ExternalAlbumArtWindow:\\n    \"\"\"Persistent Tk album-art window updated asynchronously across track changes.\"\"\"\\n\\n    def __init__(\\n        self,\\n        enabled: bool = True,\\n        *,\\n        idle_foreground_seconds: float = EXTERNAL_ALBUM_ART_IDLE_FOREGROUND_SECONDS,\\n    ) -> None:\\n        self._enabled = bool(enabled)\\n        self._idle_foreground_seconds = max(0.0, float(idle_foregrou"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v87_playlist_browser_rows_use_distinct_path_and_brighter_filename_colors",
+      "error": "AssertionError: 515 not greater than 533"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v91_multi_track_near_eof_resume_restarts_same_song_then_advances_normally",
+      "error": "AssertionError: 0 != 1"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v91_recent_shuffle_candidate_searches_forward_once_and_avoids_three_hours",
+      "error": "AssertionError: WindowsPath('C:/Users/ClioC/AppData/Local/Temp/tmpojb9gg61/old.mp3') != WindowsPath('C:/Users/ClioC/AppData/Local/Temp/tmpojb9gg61/recent.mp3')"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v91_recent_shuffle_unknown_cache_performs_one_targeted_history_query",
+      "error": "AssertionError: False is not true"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v91_shuffle_transition_calls_three_hour_guard_after_resume_successor",
+      "error": "AssertionError: 'shuffle_candidate_avoiding_recent(' not found in 'def main(argv: list[str] | None = None) -> int:\\n    \"\"\"Run unit tests or preview the single supplied audio filename.\"\"\"\\n    arguments = list(sys.argv[1:] if argv is None else argv)\\n    # V369 plural-count override is process-wide and is consumed before special\\n    # one-shot modes such as --emojimaxx so preview and playback behave identically.\\n    cleaned_arguments: list[str] = []\\n    index = 0\\n    plural_option_names = {\""
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v91_single_distinctless_playlist_replays_instead_of_exiting_to_prompt",
+      "error": "AssertionError: 0 != 1"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v96_web_album_art_mouse_contract_is_prev_next_middle_fullsize",
+      "error": "AssertionError: 'maybeCycleBackgroundWithArt(-1)' not found in '<!doctype html>\\n<html>\\n<head>\\n<meta charset=\"utf-8\">\\n<title>PAFPlayer</title>\\n<style>\\n@font-face{font-family:\"PAFPlayer Preferred Emoji\";src:url(\"/api/emoji-font\") format(\"truetype\");font-display:swap}\\n:root{\\n  color-scheme:dark;\\n  background:#090b0f;\\n  color:#e8eef7;\\n  font-family:Segoe UI,\"PAFPlayer Preferred Emoji\",Arial,sans-serif;\\n  --panel:#101722;\\n  --edge:#405067;\\n  --muted:#8996a8;\\n}\\n*{box-sizing:border-box}"
+    }
+  ],
+  "errors": [
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v26_history_mark_really_upserts_database_and_runtime_cache",
+      "error": "NotADirectoryError: [WinError 267] The directory name is invalid: 'C:\\\\Users\\\\ClioC\\\\AppData\\\\Local\\\\Temp\\\\tmpojauolmw\\\\history.sqlite3'"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v75_playlist_history_report_data_lines_use_high_brightness_random_rgb",
+      "error": "AttributeError: 'NoneType' object has no attribute 'update'"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v75_playlist_history_report_sorts_never_then_oldest_to_newest",
+      "error": "AttributeError: 'NoneType' object has no attribute 'update'"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v75_playlist_history_report_wraps_filename_inside_console_table",
+      "error": "AttributeError: 'NoneType' object has no attribute 'update'"
+    },
+    {
+      "test": "play_audio_file.PlayWaveFileTests.test_v76_playlist_analysis_display_exports_and_opens_editor",
+      "error": "AttributeError: 'NoneType' object has no attribute 'update'"
+    }
+  ]
+}

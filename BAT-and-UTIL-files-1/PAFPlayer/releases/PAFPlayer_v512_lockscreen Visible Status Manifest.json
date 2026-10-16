@@ -1,0 +1,17 @@
+{
+  "version": "V512",
+  "packageVersion": "512.0.0.0",
+  "visualVerification": "User confirmed Recovery visible before final V512 update; V512 live publication verified.",
+  "tests": {
+    "csharp": 47,
+    "python": 50
+  },
+  "literalCBatChanges": [],
+  "files": {
+    "releases/PAFPlayer_v512_lockscreen_visible_status.py": "e83a3ae5baf5868fd032970327d04ece21eabe39c6c50936520a05e21ac980c7",
+    "releases/PAFPlayer_v512_lockscreen_visible_status_release_notes.md": "c1d7d5c22b2ff1a816f75db0405462260e6d38fd4543998eba98599904820e3c",
+    "releases/PAFPlayer_v512_lockscreen_x64.msix": "873e7560f4249145c9f52733c7af6919da83f1e1a060575c6eec681b62d917fe",
+    "releases/PAFPlayer_v512_lockscreen_release_bundle.zip": "d494ccbba105bcd0ff29af834f343f7cccbdf72f1039ee5ee4b47d5cdff9dd83",
+    "docs/PAFPlayer_v512_lockscreen_visible_status.md": "4955c2287a7b026f2375d4e452064d9a2c5b015140b912009cd55ed6a3011d93"
+  }
+}

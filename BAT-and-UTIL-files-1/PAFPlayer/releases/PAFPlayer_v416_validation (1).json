@@ -1,0 +1,26 @@
+{
+  "ffmpeg": {
+    "first_burst_source_seconds": 0.4666666666666667,
+    "last_nonzero_source_seconds": 1.6,
+    "silence_at_2_seconds": true,
+    "frames": 90
+  },
+  "browser_javascript": {
+    "syntax": "passed",
+    "timestamp_selection_pause_speed_and_expiry": "passed"
+  },
+  "chafa": {
+    "symbol_cells": [
+      8,
+      4
+    ],
+    "supported": true
+  },
+  "native_waveout": {
+    "muted": true,
+    "samples": 150,
+    "first_seconds": 0.0,
+    "last_seconds": 2.9763125,
+    "monotonic": true
+  }
+}

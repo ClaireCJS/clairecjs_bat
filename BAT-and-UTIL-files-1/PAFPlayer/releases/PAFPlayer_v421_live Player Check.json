@@ -1,0 +1,33 @@
+{
+  "result": "stopped",
+  "phase": 3,
+  "external": {
+    "active": [
+      "VLC",
+      "chrome"
+    ],
+    "known": true,
+    "at": 1783564.765,
+    "error": "",
+    "backend": "Native Windows audio + media sessions",
+    "smtc_error": "",
+    "degraded": false
+  },
+  "real_audio_processes_stopped": [
+    {
+      "pid": 231364,
+      "before": null,
+      "after": 0,
+      "type": "IsolatedWaveOutProcess"
+    },
+    {
+      "pid": 231556,
+      "before": 0,
+      "after": 0,
+      "type": "IsolatedWaveOutProcess"
+    }
+  ],
+  "vlc_isolated_from_other_apps": false,
+  "baseline": "idle baseline injected before live monitor",
+  "manual_play_resumed": true
+}

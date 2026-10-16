@@ -1,0 +1,320 @@
+def probe_external_audio_sessions():
+    """Read Core Audio/Winamp directly; no PowerShell or C# compiler dependency.
+
+    All COM pointers belong to this background thread and are released here.
+    Only process names, stream states and peak levels are read, never audio data.
+    """
+    import ctypes as ct
+    from ctypes import wintypes as wt
+    import uuid
+
+    class Guid(ct.Structure):
+        _fields_ = [("data1", ct.c_uint32), ("data2", ct.c_uint16),
+                    ("data3", ct.c_uint16), ("data4", ct.c_ubyte * 8)]
+
+    def guid(value):
+        return Guid.from_buffer_copy(uuid.UUID(value).bytes_le)
+
+    def call(ptr, slot, args=(), values=()):
+        table = ct.cast(ptr, ct.POINTER(ct.POINTER(ct.c_void_p))).contents
+        return ct.WINFUNCTYPE(ct.c_long, ct.c_void_p, *args)(table[slot])(ptr, *values)
+
+    def checked(result):
+        if result < 0:
+            raise OSError(f"Windows audio HRESULT 0x{result & 0xffffffff:08X}")
+
+    def release(ptr):
+        if ptr:
+            call(ptr, 2)
+
+    def query(ptr, iid):
+        result = ct.c_void_p()
+        checked(call(ptr, 0, (ct.POINTER(Guid), ct.POINTER(ct.c_void_p)),
+                     (ct.byref(iid), ct.byref(result))))
+        return result
+
+    kernel = ct.WinDLL("kernel32", use_last_error=True)
+    kernel.OpenProcess.argtypes = [wt.DWORD, wt.BOOL, wt.DWORD]
+    kernel.OpenProcess.restype = wt.HANDLE
+    kernel.QueryFullProcessImageNameW.argtypes = [wt.HANDLE, wt.DWORD, wt.LPWSTR, ct.POINTER(wt.DWORD)]
+    kernel.QueryFullProcessImageNameW.restype = wt.BOOL
+    kernel.CloseHandle.argtypes = [wt.HANDLE]
+    kernel.CloseHandle.restype = wt.BOOL
+
+    names = {}
+    def process_name(pid):
+        if pid not in names:
+            handle = kernel.OpenProcess(0x1000, False, pid)
+            name = ""
+            if handle:
+                try:
+                    text = ct.create_unicode_buffer(32768)
+                    size = wt.DWORD(len(text))
+                    if kernel.QueryFullProcessImageNameW(handle, 0, text, ct.byref(size)):
+                        name = Path(text.value).stem.casefold()
+                finally:
+                    kernel.CloseHandle(handle)
+            names[pid] = name
+        return names[pid]
+
+    result = {"audio": [], "audio_known": False, "winamp": -1, "winamp_known": False, "errors": []}
+    user = ct.WinDLL("user32", use_last_error=True)
+    user.FindWindowW.argtypes = [wt.LPCWSTR, wt.LPCWSTR]
+    user.FindWindowW.restype = wt.HWND
+    user.SendMessageTimeoutW.argtypes = [wt.HWND, wt.UINT, ct.c_size_t, ct.c_ssize_t,
+                                       wt.UINT, wt.UINT, ct.POINTER(ct.c_size_t)]
+    user.SendMessageTimeoutW.restype = ct.c_ssize_t
+    window = user.FindWindowW("Winamp v1.x", None)
+    answer = ct.c_size_t()
+    if not window:
+        result.update(winamp=0, winamp_known=True)
+    elif user.SendMessageTimeoutW(window, 0x400, 0, 104, 2, 250, ct.byref(answer)):
+        result.update(winamp=answer.value, winamp_known=True)
+    else:
+        result["errors"].append("Winamp playback query timed out")
+
+    ole = ct.OleDLL("ole32")
+    ole.CoInitializeEx.argtypes = [ct.c_void_p, wt.DWORD]
+    ole.CoInitializeEx.restype = ct.c_long
+    ole.CoCreateInstance.argtypes = [ct.POINTER(Guid), ct.c_void_p, wt.DWORD,
+                                    ct.POINTER(Guid), ct.POINTER(ct.c_void_p)]
+    ole.CoCreateInstance.restype = ct.c_long
+    ole.CoUninitialize.argtypes = []
+    initialized = False
+    enumerator, devices = ct.c_void_p(), ct.c_void_p()
+    try:
+        checked(ole.CoInitializeEx(None, 0))  # COINIT_MULTITHREADED; S_FALSE also needs Uninitialize.
+        initialized = True
+        clsid = guid("BCDE0395-E52F-467C-8E3D-C4579291692E")
+        iid = guid("A95664D2-9614-4F35-A746-DE8DB63617E6")
+        checked(ole.CoCreateInstance(ct.byref(clsid), None, 23, ct.byref(iid), ct.byref(enumerator)))
+        checked(call(enumerator, 3, (ct.c_int, wt.DWORD, ct.POINTER(ct.c_void_p)),
+                     (0, 1, ct.byref(devices))))  # All active render endpoints.
+        count = wt.UINT()
+        checked(call(devices, 3, (ct.POINTER(wt.UINT),), (ct.byref(count),)))
+        audio_errors = []
+        for index in range(count.value):
+            device, manager, sessions = ct.c_void_p(), ct.c_void_p(), ct.c_void_p()
+            try:
+                checked(call(devices, 4, (wt.UINT, ct.POINTER(ct.c_void_p)), (index, ct.byref(device))))
+                iid = guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F")
+                checked(call(device, 3, (ct.POINTER(Guid), wt.DWORD, ct.c_void_p, ct.POINTER(ct.c_void_p)),
+                             (ct.byref(iid), 23, None, ct.byref(manager))))
+                checked(call(manager, 5, (ct.POINTER(ct.c_void_p),), (ct.byref(sessions),)))
+                total = ct.c_int()
+                checked(call(sessions, 3, (ct.POINTER(ct.c_int),), (ct.byref(total),)))
+                for item in range(total.value):
+                    raw, control, meter = ct.c_void_p(), ct.c_void_p(), ct.c_void_p()
+                    try:
+                        checked(call(sessions, 4, (ct.c_int, ct.POINTER(ct.c_void_p)), (item, ct.byref(raw))))
+                        control = query(raw, guid("BFB7FF88-7239-4FC9-8FA2-07C950BE9C6D"))
+                        state, pid = ct.c_int(), wt.DWORD()
+                        checked(call(control, 3, (ct.POINTER(ct.c_int),), (ct.byref(state),)))
+                        checked(call(control, 14, (ct.POINTER(wt.DWORD),), (ct.byref(pid),)))
+                        if not pid.value or state.value == 2:
+                            continue
+                        name = process_name(pid.value)
+                        if not external_media_family(name) or external_media_family(name) == "Winamp":
+                            continue
+                        peak = None
+                        try:
+                            meter = query(raw, guid("C02216F6-8C67-4B5B-9D00-D008E73E0064"))
+                            value = ct.c_float()
+                            checked(call(meter, 3, (ct.POINTER(ct.c_float),), (ct.byref(value),)))
+                            peak = float(value.value)
+                        except OSError:
+                            pass  # The stream state remains useful without a peak meter.
+                        result["audio"].append({"name": name, "processId": pid.value, "state": state.value, "peak": peak})
+                    except OSError as exc:
+                        audio_errors.append(str(exc))
+                    finally:
+                        release(meter); release(control); release(raw)
+            except OSError as exc:
+                audio_errors.append(str(exc))  # One disappearing endpoint cannot erase another's positive detection.
+            finally:
+                release(sessions); release(manager); release(device)
+        result["audio_known"] = not audio_errors
+        result["errors"].extend(audio_errors)
+    except OSError as exc:
+        result["errors"].append(str(exc))
+    finally:
+        release(devices); release(enumerator)
+        if initialized:
+            ole.CoUninitialize()
+    result["known"] = result["audio_known"] and result["winamp_known"]
+    result["error"] = "; ".join(dict.fromkeys(result.pop("errors")))
+    return result
+
+
+_PAF_EXTERNAL_MEDIA_PROBE = r'''
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+try {
+    Add-Type -AssemblyName System.Runtime.WindowsRuntime
+    $managerType = [Windows.Media.Control.GlobalSystemMediaTransportControlsSessionManager,Windows.Media.Control,ContentType=WindowsRuntime]
+    $asTask = [System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object { $_.Name -eq 'AsTask' -and $_.IsGenericMethod -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' } | Select-Object -First 1
+    $task = $asTask.MakeGenericMethod($managerType).Invoke($null, @($managerType::RequestAsync()))
+    if (-not $task.Wait(3000)) { throw 'Windows media session request timed out' }
+    $manager = $task.Result
+    $owner = [Diagnostics.Process]::GetProcessById(__PAF_OWNER_PID__)
+    while (-not $owner.HasExited) {
+        $media = @()
+        foreach ($session in $manager.GetSessions()) {
+            $media += @{ app = $session.SourceAppUserModelId; state = $session.GetPlaybackInfo().PlaybackStatus.ToString() }
+        }
+        @{media=$media; smtc_available=$true; error=''} | ConvertTo-Json -Compress -Depth 5
+        [Console]::Out.Flush()
+        Start-Sleep -Milliseconds 250
+        $owner.Refresh()
+    }
+} catch {
+    @{media=@(); smtc_available=$false; error=$_.Exception.GetBaseException().Message} | ConvertTo-Json -Compress -Depth 5
+    [Console]::Out.Flush()
+    exit 1
+}
+'''
+
+
+def external_media_family(name: str) -> str:
+    name = str(name).casefold()
+    if "winamp" in name:
+        return "Winamp"
+    if "vlc" in name or "videolan" in name:
+        return "VLC"
+    if "microsoftedge" in name:
+        return "msedge"
+    for browser in ("chrome", "msedge", "firefox", "brave", "vivaldi", "opera", "librewolf", "waterfox", "youtube"):
+        if browser in name:
+            return browser
+    return ""
+
+
+def resolve_external_media_snapshot(payload, observed_at):
+    """Transport handles silence; positive audio overrides another tab's paused state."""
+    states = {}
+    for item in payload.get("media", ()):
+        family = external_media_family(item.get("app", ""))
+        if family and family != "Winamp":
+            states.setdefault(family, []).append(str(item.get("state", "")))
+    active = {family for family, values in states.items() if any(value in {"Playing", "Changing"} for value in values)}
+    for item in payload.get("audio", ()):
+        family = external_media_family(item.get("name", ""))
+        audible = float(item.get("peak") or 0) > 0.00001
+        if family and family != "Winamp" and int(item.get("state", 0)) == 1 and (family not in states or audible):
+            active.add(family)
+    if payload.get("winamp") == 1:
+        active.add("Winamp")
+    return {"active": tuple(sorted(active)), "known": bool(payload.get("known", False)),
+            "at": float(observed_at), "error": str(payload.get("error", "")),
+            "backend": "Native Windows audio + media sessions" if payload.get("smtc_available") else "Native Windows audio + Winamp (media-session fallback)",
+            "smtc_error": str(payload.get("smtc_error", "")),
+            "degraded": not bool(payload.get("smtc_available"))}
+
+
+class PAFExternalMediaMonitor:
+    """Independent native-audio and media-session readers; neither blocks playback."""
+    def __init__(self):
+        self._stop = threading.Event()
+        self._process = None
+        self._thread = None
+        self._audio_thread = None
+        self._audio_sample = {"audio": [], "winamp": -1, "known": False, "at": 0.0, "error": "Starting native audio monitor"}
+        self._media_sample = {"media": [], "smtc_available": False, "at": 0.0, "error": "Starting Windows media-session monitor"}
+        self._media_was_available = False
+        self._helper_started = 0.0
+
+    def start(self):
+        if os.name == "nt" and self._thread is None:
+            self._audio_thread = threading.Thread(target=self._run_audio, name="paf-native-media", daemon=True)
+            self._thread = threading.Thread(target=self._run, name="paf-external-media", daemon=True)
+            self._audio_thread.start()
+            self._thread.start()
+        return self
+
+    def _run_audio(self):
+        while not self._stop.is_set():
+            try:
+                sample = probe_external_audio_sessions()
+            except Exception as exc:
+                sample = {"audio": [], "winamp": -1, "known": False, "error": str(exc)}
+            self._audio_sample = {**sample, "at": time.monotonic()}
+            # Break a hung helper's stdout read so the other thread can restart it.
+            process = self._process
+            last_response = max(self._helper_started, self._media_sample["at"])
+            if process is not None and time.monotonic() - last_response > 15:
+                with contextlib.suppress(OSError):
+                    process.terminate()
+            self._stop.wait(0.25)
+
+    def _run(self):
+        while not self._stop.is_set():
+            process = None
+            diagnostics = []
+            try:
+                script = _PAF_EXTERNAL_MEDIA_PROBE.replace("__PAF_OWNER_PID__", str(os.getpid()))
+                powershell = str(Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32/WindowsPowerShell/v1.0/powershell.exe")
+                self._helper_started = time.monotonic()
+                process = subprocess.Popen([powershell, "-NoProfile", "-NonInteractive", "-MTA", "-OutputFormat", "Text", "-EncodedCommand",
+                    base64.b64encode(script.encode("utf-16-le")).decode("ascii")],
+                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    text=True, encoding="utf-8", errors="replace", creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+                self._process = process
+                if self._stop.is_set():
+                    break
+                for line in process.stdout:
+                    if self._stop.is_set():
+                        break
+                    try:
+                        payload = json.loads(line)
+                        if not isinstance(payload, dict) or "smtc_available" not in payload:
+                            raise ValueError("not a media snapshot")
+                        self._media_sample = {**payload, "at": time.monotonic()}
+                        self._media_was_available |= bool(payload["smtc_available"])
+                    except (TypeError, ValueError):
+                        diagnostics = (diagnostics + [line.strip()[:300]])[-6:]
+                if not self._stop.is_set():
+                    code = process.wait(timeout=2)
+                    detail = self._media_sample.get("error") or " ".join(diagnostics) or "no diagnostic output"
+                    self._media_sample = {"media": [], "smtc_available": False, "at": time.monotonic(),
+                                          "error": f"Media helper exited {code}: {detail}"[:1000]}
+            except Exception as exc:
+                self._media_sample = {"media": [], "smtc_available": False, "at": time.monotonic(), "error": str(exc)}
+            finally:
+                if process is not None:
+                    if process.poll() is None:
+                        with contextlib.suppress(OSError):
+                            process.terminate()
+                    with contextlib.suppress(OSError, subprocess.TimeoutExpired):
+                        process.wait(timeout=2)
+                    if process.stdout is not None:
+                        process.stdout.close()
+                self._process = None
+            self._stop.wait(5)
+
+    def snapshot(self, now=None):
+        now = time.monotonic() if now is None else now
+        audio, media = self._audio_sample, self._media_sample
+        audio_fresh = now - audio["at"] <= 10
+        media_fresh = now - media["at"] <= 3
+        media_ok = media_fresh and bool(media.get("smtc_available"))
+        payload = dict(audio) if audio_fresh else {"audio": [], "winamp": -1, "known": False, "error": "Native audio monitor has not updated"}
+        payload.update(media=media.get("media", ()) if media_ok else (), smtc_available=media_ok,
+                       smtc_error=media.get("error") or ("Media-session monitor has not updated" if not media_fresh else ""))
+        # Lost coverage after a working transport feed must not release a held pause.
+        payload["known"] = bool(payload.get("known")) and (media_ok or not self._media_was_available)
+        if self._media_was_available and not media_ok:
+            payload["error"] = payload.get("error") or payload["smtc_error"]
+        return resolve_external_media_snapshot(payload, now)
+
+    def close(self):
+        self._stop.set()
+        process = self._process
+        if process is not None and process.poll() is None:
+            with contextlib.suppress(OSError):
+                process.terminate()
+        for thread in (self._thread, self._audio_thread):
+            if thread is not None:
+                thread.join(timeout=0.5)
+
+

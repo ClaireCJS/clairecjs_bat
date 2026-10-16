@@ -1,0 +1,14 @@
+[
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer.py",
+    "path": "C:\\BAT\\PAFPlayer.py",
+    "source_sha256": "5c576a7b69f9209a1da4853b42e67634c9638b5cba5407b461ded40c77fa11c8",
+    "prior_sha256": "a907468fa0ac09ca74ae81cc4183eb660eca070a603f225fff0408fa17fe2702"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\play_audio_file.py",
+    "path": "C:\\BAT\\play_audio_file.py",
+    "source_sha256": "8a7399b3030d2f1b6a135164a66ed44a888bb691034f47b7cb5e62796c83336c",
+    "prior_sha256": "ff0cd9049f63fe542f7f9a4a2d718e9bdc6311cfc7bc6e43f2d7eae5f85190d9"
+  }
+]

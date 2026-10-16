@@ -1,0 +1,18 @@
+{
+  "installed_at": "2026-09-21T13:14:18.211848",
+  "sha256": "3fe0df7977eb7b3843547e2ded7f7cec13c41b2b876ed51ba633c13b9a51c15c",
+  "changes": [
+    {
+      "path": "C:\\BAT\\play_audio_file.py.bak.202609211314.replaced-by-chatgpt.bak",
+      "operation": "created"
+    },
+    {
+      "path": "C:\\BAT\\play_audio_file_v418_native_browser_detection.py",
+      "operation": "created"
+    },
+    {
+      "path": "C:\\BAT\\play_audio_file.py",
+      "operation": "modified"
+    }
+  ]
+}

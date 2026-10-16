@@ -1,0 +1,30 @@
+{
+  "result": "stopped",
+  "phase": 2,
+  "external": {
+    "active": [
+      "VLC"
+    ],
+    "known": true,
+    "at": 1770414.421,
+    "error": "",
+    "backend": "Native Windows audio + media sessions",
+    "smtc_error": "",
+    "degraded": false
+  },
+  "real_audio_processes_stopped": [
+    {
+      "pid": 101196,
+      "before": null,
+      "after": 0,
+      "type": "IsolatedWaveOutProcess"
+    },
+    {
+      "pid": 101196,
+      "before": 0,
+      "after": 0,
+      "type": "IsolatedWaveOutProcess"
+    }
+  ],
+  "vlc_isolated_from_other_apps": true
+}

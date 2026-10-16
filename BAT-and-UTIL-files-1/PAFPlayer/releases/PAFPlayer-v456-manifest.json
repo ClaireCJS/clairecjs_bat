@@ -1,0 +1,21 @@
+{
+  "version": "V456",
+  "build": "2026-09-25-v456-todo-workflows",
+  "files": {
+    "PAFPlayer.py": "a907468fa0ac09ca74ae81cc4183eb660eca070a603f225fff0408fa17fe2702",
+    "PAFPlayer_workflows.py": "fce3d7292fcb4be485d8efd8889d71b93670147e9708a593c7e4b9c9de8f50d2",
+    "PAFPlayer_web_workflows.py": "f3979f6459c7a21e7c545af47c063486c8efb613a9a5981e0b3a2d0145204f82",
+    "PAFPlayer_workflows_ui.py": "295596da461137e477c7f46ab1a149370f347385353d36e57b98c0e19e9ceef7",
+    "PAFPlayer_windows_ui.py": "3ab3bdc7f6736c923b5a8c5d91f47b6d5ff20b562b9ba4932679a3dbb0599368",
+    "PAFPlayer_windows_media.py": "e3fd3e779f8ec855d2fd2b444a912f0e0915477e2e2182266a1eaa3de485d6a0",
+    "PAFPlayer_cli_workflows.py": "3b083d3f54e87db2614c6a1146bcdae084774d1a974b5432d0c761c037caf774",
+    "PAFPlayer_discord.py": "0fd50518a766fdd71b2e03e023a28001c0ffef7089d4e42d269d21a587bc2eec",
+    "PAFPlayer_render_book.py": "6d3fe1dbaf88ff26acaf36025f7001b76798720c3e35fb341ac86a5f17642a09",
+    "PAFPlayer_cuda_benchmarks.py": "a90b1102ec649c01435d7ece660e921153b7fc1a0ad0db36ef730fb370a30527",
+    "PAFPlayer_instance.py": "d6741baecb890de8a8fc07c1b76ff2f569d991c7e8a23333c4c77dbd749fbf42",
+    "paf.bat": "361b327c9c5ad5031007da362a3b249fe6e0be8759a3e54d2b8e275aa0dcdcdb"
+  },
+  "tests": "33 passed",
+  "baseline": "V455",
+  "snapshot": "C:\\codex\\clairevironment\\bat\\PAFPlayer_v456_todo_workflows.py"
+}

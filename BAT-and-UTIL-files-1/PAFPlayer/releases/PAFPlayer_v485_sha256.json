@@ -1,0 +1,18 @@
+{
+  "releases/PAFPlayer_v485_artwork_fps_and_responsive_bass.py": "b53be51721e0dcb344c1ebcfdae2f66a847f872fb193fb23eef22b4deca4dc21",
+  "releases/PAFPlayer_v485_release_notes.md": "ad8f68a3c91f570cff2c203e7c6fd5d5112e635e83aacd86858c26516ada1eb6",
+  "docs/performance-v485.md": "c801670e0c76dc54fb58488eb1fc1f753233209801c803d417249895bd31f286",
+  "tests/PAFPlayer_v485_encoder.c": "8b9dfea3c8e90da40863697d1efd9494861f7eafa003f18a777e333a48579b04",
+  "tests/test_v485_exact_frames.py": "4a2e62fead797a1b1fec33dd119e1731a432d6975328278bce56e5548f71ee44",
+  "tests/test_v485_bass_controls.py": "6a99bc86e5bf795c8be3a4ec3b0e48399e16507fdd60442337403d605ef5c4b8",
+  "tests/probe_v482_track_renderer.py": "1965d0005736edec4f40300eb53943db656cdc9caa3ef7e48aedc071a4ffd7a1",
+  "tests/v485-regression-results.json": "2cdeb3cad9cc5c28b7a467730e79611158668ede0741937f978be1255178115f",
+  "tests/v485-real-audio-console-results.txt": "c4a050a0ee69a8f8716bf84e3202740da2b9a35224592df8a554e649e5ee2f57",
+  "PAFPlayer.py": "b53be51721e0dcb344c1ebcfdae2f66a847f872fb193fb23eef22b4deca4dc21",
+  "docs/README.md": "d94d4f7d225c4c16b427bdf18398fd1bd7d05d47ad1e82942fb33d6d7b819a66",
+  "docs/playback-controls.md": "4abff1dffa22d74cd2e9eaff8b54258203bed24053d56cb3e4d114fb053874be",
+  "docs/web-config-playback.md": "6e9c302774f38fefd82d56cc002192f263bcdb5c585221c671173cfca5b2068a",
+  "PAFPlayer.md": "8b022422e15b3983a74fcc6489ea64a69718fd1e5f918098f15f9cabb269c716",
+  "PAFPlayer_changelog.md": "bf8ef0a968066832b29d0fff1cdadf9eb16a9a71bafde90227de972409e081f3",
+  "releases/PAFPlayer_v485_source_and_tests.zip": "0742621bc0272b38b23293c1bf5cde2bb178395e9fe15a49e015e554ee109d3f"
+}

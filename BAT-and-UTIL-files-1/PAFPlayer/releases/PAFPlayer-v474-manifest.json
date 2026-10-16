@@ -1,0 +1,30 @@
+{
+  "version": "V474",
+  "snapshot": "PAFPlayer_v474_visual_screensaver_sidecar.py",
+  "validation": {
+    "audit": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20260929-162432",
+    "native_checks": 29,
+    "python_tests": 77,
+    "successful": true,
+    "modules": [
+      "test_PAFPlayer_screensaver",
+      "test_PAFPlayer_v458",
+      "test_PAFPlayer_v459",
+      "test_PAFPlayer_v456",
+      "test_PAFPlayer_v456_release",
+      "test_PAFPlayer_workflows"
+    ],
+    "player_sha256": "280d009720d3e232ac74640d1977b3da26e96c2402c564a8645c772cd89d480b",
+    "screensaver_sha256": "32b15b5c63878f3ceaea09d852bbd7b1f89d4dc62a3a82fd2da2c145f3ebf1d5"
+  },
+  "files": {
+    "PAFPlayer.py": "280d009720d3e232ac74640d1977b3da26e96c2402c564a8645c772cd89d480b",
+    "releases\\PAFPlayer_v474_visual_screensaver_sidecar.py": "280d009720d3e232ac74640d1977b3da26e96c2402c564a8645c772cd89d480b",
+    "screensaver\\PAFPlayer_screensaver.py": "c25fdfd39113d71dfe35d16a5e17620188b275cc28f21ad8b15cdda770e3d6d1",
+    "screensaver\\PAFPlayer_screensaver.cs": "62eac386ccab81f3fd4c28564d313ad58684b07d7bb98a826e5e8709516f8260",
+    "screensaver\\README.md": "52a4494cf2104fb710a5fb83b3872b4e781cea1b5c5d1235cbc830c3793d6128"
+  },
+  "legacy_sha256": "8a7399b3030d2f1b6a135164a66ed44a888bb691034f47b7cb5e62796c83336c",
+  "native_binary_validation": "screensaver/verification-20260929-161816/summary.json",
+  "installed_native_sha256": "d754ff24f45d02f5e75ce645f0d68ec6f27d5a3bd834ecff5f7a9f5d26ff5c0f"
+}

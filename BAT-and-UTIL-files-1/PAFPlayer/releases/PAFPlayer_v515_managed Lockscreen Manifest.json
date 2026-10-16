@@ -1,0 +1,25 @@
+{
+  "version": "V515",
+  "packageVersion": "515.0.0.1",
+  "displayName": "PAFPlayer Lock Screen V515",
+  "rendering": "unconfirmed; issue remains open",
+  "focusedTests": {
+    "csharpPassed": 51,
+    "pythonPassed": 69
+  },
+  "embeddedComparison": {
+    "each": 678,
+    "passed": 614,
+    "failures": 51,
+    "errors": 13,
+    "newFailingNames": []
+  },
+  "literalCBatChanges": [],
+  "files": {
+    "releases/PAFPlayer_v515_managed_lockscreen.py": "687736e8e0d4018cdf2d661aa5640df1ceee5516affed584ae3288e78a4b48a2",
+    "releases/PAFPlayer_v515_managed_lockscreen_release_notes.md": "a577bf26c0f29b4c5ba59e11688202051ad717647ee434bf496fd66f5a3c3a0b",
+    "releases/PAFPlayer_v515_lockscreen_x64.msix": "c2f43849943170795095fab90e9d87c5e48b8d85628a2a45341b43fbd35e5ddd",
+    "releases/PAFPlayer_v515_lockscreen_release_bundle.zip": "063d041b45c216a80db286ef3d24e717464faf94933ca16b59c77588ed11bd01",
+    "docs/PAFPlayer_v515_managed_lockscreen.md": "b8b03f7307a9d3a1d9e83db6aa300375d18d4fde6a410c75fa8545613a23855d"
+  }
+}

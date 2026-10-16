@@ -1,0 +1,47 @@
+[
+  {
+    "module": "test_play_audio_file_v416",
+    "exit": 0,
+    "output": "----------------------------------------------------------------------\nRan 13 tests in 0.219s\n\nOK\n"
+  },
+  {
+    "module": "test_play_audio_file_v416_timeline_ui",
+    "exit": 0,
+    "output": "----------------------------------------------------------------------\nRan 5 tests in 0.010s\n\nOK\n"
+  },
+  {
+    "module": "test_play_audio_file_v416_delivery",
+    "exit": 0,
+    "output": "----------------------------------------------------------------------\nRan 4 tests in 0.090s\n\nOK\n"
+  },
+  {
+    "module": "test_play_audio_file_v416_external_media",
+    "exit": 0,
+    "output": "----------------------------------------------------------------------\nRan 9 tests in 0.252s\n\nOK\n"
+  },
+  {
+    "module": "test_play_audio_file_v416_media_integration",
+    "exit": 0,
+    "output": "----------------------------------------------------------------------\nRan 1 test in 0.828s\n\nOK\n"
+  },
+  {
+    "module": "test_play_audio_file_v402_audio_ui",
+    "exit": 0,
+    "output": "----------------------------------------------------------------------\nRan 12 tests in 3.311s\n\nOK\n"
+  },
+  {
+    "module": "test_play_audio_file_v401_bar_art",
+    "exit": 0,
+    "output": "----------------------------------------------------------------------\nRan 7 tests in 15.556s\n\nOK\n"
+  },
+  {
+    "module": "test_play_audio_file_v397_bar_art_performance",
+    "exit": 0,
+    "output": "----------------------------------------------------------------------\nRan 1 test in 1.462s\n\nOK\n"
+  },
+  {
+    "module": "test_play_audio_file_v394_rendering",
+    "exit": 0,
+    "output": "----------------------------------------------------------------------\nRan 4 tests in 19.842s\n\nOK\n"
+  }
+]

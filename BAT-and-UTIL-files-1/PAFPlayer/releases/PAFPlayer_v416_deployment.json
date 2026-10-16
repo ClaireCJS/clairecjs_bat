@@ -1,0 +1,18 @@
+{
+  "installed_at": "2026-09-20T20:56:59.270899",
+  "sha256": "d4413993422bb05080d850ea923a3127749b48a65f9bb66d1beb04ac46f78e6a",
+  "changes": [
+    {
+      "path": "C:\\BAT\\play_audio_file.py.bak.202609202056.replaced-by-chatgpt.bak",
+      "operation": "created"
+    },
+    {
+      "path": "C:\\BAT\\play_audio_file_v416_timestamped_timelines_and_external_media.py",
+      "operation": "created"
+    },
+    {
+      "path": "C:\\BAT\\play_audio_file.py",
+      "operation": "modified"
+    }
+  ]
+}

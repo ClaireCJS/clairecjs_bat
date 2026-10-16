@@ -1,0 +1,23 @@
+{
+  "version": "V517",
+  "packageVersion": "517.0.0.0",
+  "displayName": "PAFPlayer Lock Screen V517",
+  "focusedTests": {
+    "csharpPassed": 61,
+    "pythonPassed": 77
+  },
+  "pollMilliseconds": 250,
+  "unchangedRefreshSeconds": 30,
+  "interactivePublicationReceipt": "tests\\reports\\v517-publication-71cf3a23acbe4298adbacd30ad3d2ed4.json",
+  "nativeStatus": "user confirmed before this change",
+  "v517LyricTiming": "manual visual verification pending",
+  "mainPlayerFunctionClassChanges": [],
+  "literalCBatChanges": [],
+  "files": {
+    "releases/PAFPlayer_v517_lockscreen_live_lyrics.py": "89dd059057f9b661aa3af6973348e3e118e9f5601593813e8c9046b4de4446ed",
+    "releases/PAFPlayer_v517_lockscreen_live_lyrics_release_notes.md": "dd166a2a160141698f5fb0f5801c1e7149d597d559dbd18324d75ddf2843f906",
+    "releases/PAFPlayer_v517_lockscreen_x64.msix": "4118281959281e9b0d04ba57ebd49df6d070babfae081d531192e5c5a9f5ad13",
+    "releases/PAFPlayer_v517_lockscreen_release_bundle.zip": "fd33e7e8b74cd6682b09ea649b476f59639aabff7715730481ba9402d7fd0442",
+    "docs/PAFPlayer_v517_lockscreen_live_lyrics.md": "6875ac5dfd0c5a7262d57a21b1cd1098e7403c9a3440946e1f0925ffb7b7f0ce"
+  }
+}

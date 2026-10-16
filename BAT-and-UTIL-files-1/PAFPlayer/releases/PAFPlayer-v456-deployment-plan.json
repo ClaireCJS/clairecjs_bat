@@ -1,0 +1,62 @@
+[
+  {
+    "path": "C:\\BAT\\PAFPlayer.py",
+    "operation": "modified",
+    "prior_sha256": "aa5f168bda1d8cfbc6685dc136c7aee7002eb73e2834ee23003fb313d77e6977"
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer_workflows.py",
+    "operation": "created",
+    "prior_sha256": null
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer_web_workflows.py",
+    "operation": "created",
+    "prior_sha256": null
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer_workflows_ui.py",
+    "operation": "created",
+    "prior_sha256": null
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer_windows_ui.py",
+    "operation": "created",
+    "prior_sha256": null
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer_windows_media.py",
+    "operation": "created",
+    "prior_sha256": null
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer_cli_workflows.py",
+    "operation": "created",
+    "prior_sha256": null
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer_discord.py",
+    "operation": "created",
+    "prior_sha256": null
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer_render_book.py",
+    "operation": "created",
+    "prior_sha256": null
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer_cuda_benchmarks.py",
+    "operation": "created",
+    "prior_sha256": null
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer_instance.py",
+    "operation": "created",
+    "prior_sha256": null
+  },
+  {
+    "path": "C:\\BAT\\paf.bat",
+    "operation": "modified",
+    "prior_sha256": "9f09468febf18f3a8a0d354ef6896699e447f82afc51afad772751ea138bcadf"
+  }
+]

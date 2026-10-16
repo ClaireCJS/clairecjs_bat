@@ -1,0 +1,21 @@
+{
+  "version": "V516",
+  "packageVersion": "516.0.0.0",
+  "displayName": "PAFPlayer Lock Screen V516",
+  "rootCause": "PowerShell Add-Type rejected the running player inherited environment block (142043 bytes)",
+  "launchFix": "verified with actual player environment",
+  "rendering": "unconfirmed",
+  "focusedTests": {
+    "csharpPassed": 51,
+    "pythonPassed": 72
+  },
+  "mainPlayerFunctionClassChangesFromV515": [],
+  "literalCBatChanges": [],
+  "files": {
+    "releases/PAFPlayer_v516_lockscreen_launch_environment.py": "c75c7c22176548964aa567f6a68dbe5af993c3f3f5d12ef02e2ea3b482932ef2",
+    "releases/PAFPlayer_v516_lockscreen_launch_environment_release_notes.md": "e668e024b931026ff2040942e188c130f50a2bd5ff2956c69d8050fae8302f52",
+    "releases/PAFPlayer_v516_lockscreen_x64.msix": "e8d56e8f85114b19af6bc011d08ee6a651e0dd69377b2db58043eb7d4910b033",
+    "releases/PAFPlayer_v516_lockscreen_release_bundle.zip": "e5dff9815a91915ec30a69c71c1ed6e6b5ce70c329e56e11aee1a4fd60318a6d",
+    "docs/PAFPlayer_v516_lockscreen_launch_environment.md": "014a47f689b3534529e6b950bcab99d64359e670efa6acb706750241898843e4"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "installed_at": "2026-09-21T18:56:50.243970",
+  "sha256": "bed7d1ef136e858ae057230b34020efac7090cedbd8eaf7e36c967d05a77008a",
+  "changes": [
+    {
+      "path": "C:\\BAT\\play_audio_file.py.bak.202609211856.replaced-by-chatgpt.bak",
+      "operation": "created"
+    },
+    {
+      "path": "C:\\BAT\\play_audio_file_v421_manual_play_override.py",
+      "operation": "created"
+    },
+    {
+      "path": "C:\\BAT\\play_audio_file.py",
+      "operation": "modified"
+    }
+  ]
+}

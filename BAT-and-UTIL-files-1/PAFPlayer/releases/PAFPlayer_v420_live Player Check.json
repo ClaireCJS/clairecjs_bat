@@ -1,0 +1,29 @@
+{
+  "result": "stopped",
+  "phase": 2,
+  "external": {
+    "active": [
+      "chrome"
+    ],
+    "known": true,
+    "at": 1770191.562,
+    "error": "",
+    "backend": "Native Windows audio + media sessions",
+    "smtc_error": "",
+    "degraded": false
+  },
+  "real_audio_processes_stopped": [
+    {
+      "pid": 197040,
+      "before": null,
+      "after": 0,
+      "type": "IsolatedWaveOutProcess"
+    },
+    {
+      "pid": 197040,
+      "before": 0,
+      "after": 0,
+      "type": "IsolatedWaveOutProcess"
+    }
+  ]
+}

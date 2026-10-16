@@ -1,0 +1,9 @@
+# PAFPlayer V505 — Windows 10 lock-screen companion
+
+V505 adds a packaged UWP companion so **PAFPlayer Lock Screen** can be listed by Windows 10 in **Choose one app to show detailed status** after installation. The desktop PAFPlayer process and its tray-only clients remain unchanged. The companion verifies the official active player's `/api/remote-tray/hello` response before publishing title, artist/playback state and current lyric to the lock-screen detailed-status tile. It has no playback actions.
+
+The companion's source, assets and registration script are under `lockscreen/`. A signed x64 MSIX and its public development certificate are under `lockscreen/dist/`, with copies under `releases/`. Its manifest declares a monochrome 24-pixel badge, wide tile and timer background task. Foreground refresh is five seconds; Windows background timing is 15 minutes and may slip, so lyrics and track changes are not synchronized on lock. Tile text expires after 40 minutes to reduce stale display. The locked screen can expose metadata and lyric text to anyone who sees it. Album art and interactive controls are not supported in that Settings slot.
+
+The package compiled and passed the Windows SDK's package manifest validation. It was signed with a non-exportable self-signed certificate for `CN=PAFPlayerLocal`. Signature chain verification reports an untrusted root until that public certificate is deliberately trusted. Automatic approval review rejected importing it into this user's TrustedPeople store; **registration and visual appearance in the Settings picker are not yet verified**. Windows also requires the user to select the app manually after registration. See `docs/windows-lock-screen.md` and `lockscreen/README.md`.
+
+The existing SMTC media card, tray-only mode, per-machine tray tooltip/wallpaper options, and Python playback commands remain separate. No `C:\BAT` deployment occurred in this release work.

@@ -223,11 +223,11 @@ rem Give a chance to stop here...
 rem Make sure they’re all added —— any new extensions that we add to our project, need to be added here:
         :git_yes
         rem extensions that only appear in [a-l]*.*
-                call git.bat add docs\* %TARGET_MAIN%\samples\* %TARGET_MAIN%\dividers\* %TARGET_MAIN%\*.hlp  %TARGET_MAIN%\*.cnt %TARGET_MAIN%\*.lst %TARGET_MAIN%\*.gml %TARGET_MAIN%\*.jpg %TARGET_MAIN%\*.png %TARGET_MAIN%\*.lnk  %TARGET_MAIN%\*.ico  %TARGET_MAIN%\PAFPlayer
+                call git.bat add docs\* %TARGET_MAIN%\samples\* %TARGET_MAIN%\dividers\* %TARGET_MAIN%\*.hlp  %TARGET_MAIN%\*.cnt %TARGET_MAIN%\*.gml %TARGET_MAIN%\*.jpg %TARGET_MAIN%\*.png %TARGET_MAIN%\*.lnk  %TARGET_MAIN%\*.ico  %TARGET_MAIN%\PAFPlayer
                 
         rem extensions that appear in [m-z]*.*
                 for %%tmpfolder in (%TARGET_MAIN% %TARGET_2%) do (
-                        call git add %tmpFolder%\*.bat LICENSE *.md .gitattributes .gitignore %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl  %tmpFolder%\*.py   %tmpFolder%\*.pm  %tmpFolder%\*.pexdb %tmpFolder%\*.exe   %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.ansi %tmpFolder%\*.lst %tmpFolder%\*.dll %tmpFolder%\*.cmd  %tmpFolder%\*.midi  %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat
+                        call git add %tmpFolder%\*.bat LICENSE *.md .gitattributes .gitignore %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl  %tmpFolder%\*.py   %tmpFolder%\*.pm  %tmpFolder%\*.pexdb %tmpFolder%\*.exe   %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.ansi %tmpFolder%\*.dll %tmpFolder%\*.cmd  %tmpFolder%\*.midi  %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat
                 )
                 
         rem This secondary folder seems to be having troubles sometimes... Re-add just to be sure.

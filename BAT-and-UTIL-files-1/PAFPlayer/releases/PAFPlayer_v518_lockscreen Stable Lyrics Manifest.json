@@ -1,0 +1,27 @@
+{
+  "version": "V518",
+  "packageVersion": "518.0.0.0",
+  "displayName": "PAFPlayer Lock Screen V518",
+  "released": "2026-10-10",
+  "focusedTests": {
+    "csharpPassed": 67,
+    "pythonPassed": 81
+  },
+  "pollMilliseconds": 250,
+  "unchangedRefreshSeconds": 30,
+  "interactivePublicationReceipt": "tests/reports/v518-publication-2aeb83518a4741b8a98a3433a90b0636.json",
+  "nativeRendererEvidence": "tests/reports/v518-lock-cycle-analysis.json",
+  "visualClockAndEveryCue": "not yet confirmed",
+  "steadyTextUpdates": 23,
+  "steadyStatusRemovals": 0,
+  "installationHandoffRemovals": 1,
+  "mainPlayerFunctionClassChanges": [],
+  "literalCBatChanges": [],
+  "files": {
+    "releases/PAFPlayer_v518_lockscreen_stable_lyrics.py": "a71331fca41693479ee01ef2a1ff8c6e98dd36c51a5bd23001326a94c984a019",
+    "releases/PAFPlayer_v518_lockscreen_stable_lyrics_release_notes.md": "c96c23ee2e0afdc8608a66e7e4ebbaaf2260814fa9466d8fce8cbf4af0d06603",
+    "docs/PAFPlayer_v518_lockscreen_stable_lyrics.md": "d3bcd90771bb1d27f984bdb9ea4405fbd43e6f20cb6e80050d15d2242e0df1e3",
+    "releases/PAFPlayer_v518_lockscreen_x64.msix": "cdffb3d06c4af63db794fc04816f13f0d4a096d3f4302d54b8ed0c68cbab3fa1",
+    "releases/PAFPlayer_v518_lockscreen_release_bundle.zip": "745499e6ba71a27edf9e25ce2321ac6d7cf55849a2b424945d14681e28801e0b"
+  }
+}

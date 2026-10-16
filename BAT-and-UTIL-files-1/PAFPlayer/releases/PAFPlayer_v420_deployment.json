@@ -1,0 +1,18 @@
+{
+  "installed_at": "2026-09-21T15:18:26.575317",
+  "sha256": "d8aefe36768b26f92f478d6511c9a19174e51f9c2b00168a06f5f7a4259cc93d",
+  "changes": [
+    {
+      "path": "C:\\BAT\\play_audio_file.py.bak.202609211518.replaced-by-chatgpt.bak",
+      "operation": "created"
+    },
+    {
+      "path": "C:\\BAT\\play_audio_file_v420_external_media_priority.py",
+      "operation": "created"
+    },
+    {
+      "path": "C:\\BAT\\play_audio_file.py",
+      "operation": "modified"
+    }
+  ]
+}

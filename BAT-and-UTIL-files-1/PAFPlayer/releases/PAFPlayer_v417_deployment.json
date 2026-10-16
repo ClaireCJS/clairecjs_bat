@@ -1,0 +1,18 @@
+{
+  "installed_at": "2026-09-21T09:07:33.159169",
+  "sha256": "ab1f43809af5987e307dd0b9d74a0d8edcc83026f59884fc4ae69b7ed47825b3",
+  "changes": [
+    {
+      "path": "C:\\BAT\\play_audio_file.py.bak.202609210907.replaced-by-chatgpt.bak",
+      "operation": "created"
+    },
+    {
+      "path": "C:\\BAT\\play_audio_file_v417_wawi_controls_and_downloads.py",
+      "operation": "created"
+    },
+    {
+      "path": "C:\\BAT\\play_audio_file.py",
+      "operation": "modified"
+    }
+  ]
+}

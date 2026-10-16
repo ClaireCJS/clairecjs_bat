@@ -1,0 +1,34 @@
+{
+  "version": "V519",
+  "packageVersion": "519.0.0.0",
+  "displayName": "PAFPlayer Lock Screen V519",
+  "focusedTests": {
+    "totalPassed": 164,
+    "csharp": 67,
+    "pythonLockscreenAndTray": 84,
+    "renderer": 13
+  },
+  "embeddedTests": {
+    "perVersion": 678,
+    "passed": 614,
+    "failed": 51,
+    "errors": 13,
+    "newFailures": [],
+    "newErrors": []
+  },
+  "additionalLegacyFixture": "V486 floating mask test missing _pillow_render_runs in isolated namespace on V518 and V519; not counted as a pass",
+  "comparisonReport": "tests/reports/v519-comparison-20261010025119.json",
+  "finalRendererReport": "tests/reports/v519-renderer-focused-final.txt",
+  "publicationReceipt": "tests/reports/v519-publication-19cb952324764bc28c4224f6a22bc710.json",
+  "lockLyricLeadSeconds": 0.25,
+  "visualAndInGameVerification": "pending after player relaunch",
+  "literalCBatChanges": [],
+  "files": {
+    "releases/PAFPlayer_v519_lean_visualizer_and_early_lock_lyrics.py": "3b73dd63160d400a1c750b49c04e43a6a897b93c252eaab10779e495c2c41dfe",
+    "releases/PAFPlayer_v519_lean_visualizer_and_early_lock_lyrics_release_notes.md": "708fdf08946488875c02748739240ae4bd62ff0c27b983d529096bed1de4d4b3",
+    "docs/PAFPlayer_v519_lean_visualizer_and_early_lock_lyrics.md": "ab44fbb3d084c81d2e87fdaf2e352a5c8a24076a4c5511a8069c7203f816dbcd",
+    "releases/PAFPlayer_v519_lockscreen_x64.msix": "10fbb4755be11cb7e2489ad8ef8c87e40b959f94c72abb58fd6f2a40f09c0736",
+    "releases/PAFPlayer_v519_release_bundle.zip": "710897ad869a70ce2d8466cc26c0c7135474d2b6d9cfa10705e857db171e2f1b",
+    "docs/performance-v519.md": "ed9f82bb7f34bd9fe0f43da993f65663fecdad7c0958fde34e86a65ec26feb6e"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "version": "V513",
+  "packageVersion": "513.0.0.0",
+  "displayName": "PAFPlayer Lock Screen V513",
+  "lockScreenRendering": "unresolved per user; naming and publication verified",
+  "pythonTests": 50,
+  "literalCBatChanges": [],
+  "files": {
+    "releases/PAFPlayer_v513_lockscreen_versioned_name.py": "300403c4abc255e0523c4e61152c9fcd7ccd45070f9f6c4960e52df1c5a686f7",
+    "releases/PAFPlayer_v513_lockscreen_versioned_name_release_notes.md": "ba78f530df286499a1506ebb879783f74d88743bf5d5deb0331bdc68d4d21a77",
+    "releases/PAFPlayer_v513_lockscreen_x64.msix": "30e07cf353fb01c1953cccdae3a4d9198763dcc328fb50a4c9a5c4069c53b4ae",
+    "releases/PAFPlayer_v513_lockscreen_release_bundle.zip": "3a78de349de65b8b1401071b25f39efbd699a01186644a11384f97ef71e1eacc",
+    "docs/PAFPlayer_v513_lockscreen_versioned_name.md": "8c5b619696adce2221ece086de2adf106027f78349a66551defd9b122ca3f414"
+  }
+}

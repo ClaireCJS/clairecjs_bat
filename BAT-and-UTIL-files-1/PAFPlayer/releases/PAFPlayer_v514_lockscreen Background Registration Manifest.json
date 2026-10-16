@@ -1,0 +1,18 @@
+{
+  "version": "V514",
+  "packageVersion": "514.0.0.2",
+  "displayName": "PAFPlayer Lock Screen V514",
+  "rendering": "unresolved; final self-contained candidate awaiting visual confirmation",
+  "tests": {
+    "csharp": 47,
+    "python": 52
+  },
+  "literalCBatChanges": [],
+  "files": {
+    "releases/PAFPlayer_v514_lockscreen_background_registration.py": "bd19939607fb624af8dab5d581e53c0f357542b136e9ee3ca9100b839b4cd2cf",
+    "releases/PAFPlayer_v514_lockscreen_background_registration_release_notes.md": "acf5bd6ce9b7c6cb586b306d5bcb49f7337a7b280fe50d42817ca7a62cfa17f9",
+    "releases/PAFPlayer_v514_lockscreen_x64.msix": "5a3a2bb241ed276d284d535e942c1a9f1e0be53979328b008d55a6fd7dcf1d7b",
+    "releases/PAFPlayer_v514_lockscreen_release_bundle.zip": "d7b99940cf55afdbe26ac08636e5e20c672bcd30426347e9bf378970e94c662d",
+    "docs/PAFPlayer_v514_lockscreen_background_registration.md": "8ac17e90fca51eab55913d639c92ce2210698dea965851b43fe6027851856219"
+  }
+}

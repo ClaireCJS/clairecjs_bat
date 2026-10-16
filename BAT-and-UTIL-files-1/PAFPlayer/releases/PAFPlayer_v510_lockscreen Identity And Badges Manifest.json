@@ -1,0 +1,26 @@
+{
+  "version": "V510",
+  "packageVersion": "510.0.0.5",
+  "createdUtc": "2026-10-07T12:34:20.240591+00:00",
+  "workingOnTargetComputer": false,
+  "activationError": "0x80270254",
+  "uacChanged": false,
+  "literalCBatPathsChanged": [],
+  "validation": {
+    "csharpBehavioralPassed": 45,
+    "pythonFocusedAndRelatedPassed": 48,
+    "compilation": "pass",
+    "exeAndMsixSignatureVerification": "pass",
+    "interactiveActivation": "fail before process creation",
+    "notificationPublication": "blocked by activation",
+    "lockedScreenVisualVerification": "not performed"
+  },
+  "sha256": {
+    "PAFPlayer.py": "ef0fcad9e99d0daa976124a368841ec2eaf6d7e0793b8a2281539aad534eed5a",
+    "releases\\PAFPlayer_v510_lockscreen_identity_and_badges.py": "ef0fcad9e99d0daa976124a368841ec2eaf6d7e0793b8a2281539aad534eed5a",
+    "releases\\PAFPlayer_v510_lockscreen_identity_and_badges_release_notes.md": "ab360f7e3663b4a204fbb2599d1461c4727864b6e6906a29c9c314c11a5066a6",
+    "releases\\PAFPlayer_v510_lockscreen_x64.msix": "02688daac9de97161e3b415cb42e0219ac313fd9613f0b33fe90d45eb7b5009d",
+    "releases\\PAFPlayer_v510_lockscreen_release_bundle.zip": "b7d952f23f7e5b0ae2c2db6ba323e77b4cf8b265958be9defd15c4e62fe4f9ab",
+    "docs\\PAFPlayer_v510_lockscreen_identity_and_badges.md": "a159586cb7bf2d2dd4f3c7cb19d51e8f6f7c28cbd25937d5f2b7515f0090a31e"
+  }
+}
