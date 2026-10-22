@@ -57,7 +57,7 @@ REM CONFIG: 2024/2025: Changing VAD Threshold history:
         rem DEFAULT_VAD_THRESHOLD=0.05                                                                 %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
         rem DEFAULT_VAD_THRESHOLD=0.03                                                                 %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals. And increasingly, we make this lower over time because our auto-hallucation-removal removes is the primary bad side-effect from setting this value too low.
         rem DEFAULT_VAD_THRESHOLD=0.01                                                                 %+ rem 2025/09/12 adjustment
-        rem DEFAULT_VAD_THRESHOLD=0                                                                    %+ rem 2025/09/24 adjustment but I think this may be unnecessary for most music genres but it’s turned out to be the best. Requires more hallucination compensation but we have that functionality well-integrated.
+        set DEFAULT_VAD_THRESHOLD=0                                                                    %+ rem 2025/09/24 adjustment but I think this may be unnecessary for most music genres but it’s turned out to be the best. Requires more hallucination compensation but we have that functionality well-integrated.
 
 REM CONFIG: 2024: 
         set INSIST_ON_HAVING_ARTIST=0                                                                  %+ rem Set to 1 to ALWAYS ask for an artist, even if one can’t be found. For me personally, I found this to be too naggy.
