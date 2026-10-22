@@ -17,7 +17,7 @@ rem Validate environment once:
                 call validate-in-path               echos echoerr echoserr print-if-debug important.bat fatal_error.bat warning.bat repeat if set 
                 call validate-plugin                stripansi
                 call validate-functions             ansi_cursor_change_color_word cursor_color_by_hex ansi_move_up ansi_move_left 
-                call validate-environment-variables cursor_reset ansi_colors_have_been_set up_arrow ansi_color_pink ansi_color_orange color_alarm_hex color_success_hex dash
+                call validate-environment-variables cursor_reset ansi_colors_have_been_set up_arrow 
                 set VALIDATED_ASKYN=True
         endiff
 

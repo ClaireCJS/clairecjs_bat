@@ -250,13 +250,14 @@ ReleaseAllMods() {
 
 ;;;;; LOWER LETTERS ROW:
 		      
+; the X chars - xxxxxxxxxxxxxxxxxxxx××××××××××××××××××××XXXXXXXXXXXXXXXXXXXX╳╳╳╳╳╳╳╳╳╳╳╳╳╳╳╳╳╳╳╳✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️✖️
 ;|::Send   "x"          ; “x”  —                x key for the normal x
 ;^|::Send  "│"		;      —           Ctrl-x key is definitely reserved for other things
 ;!|::Send  "┃"		;      —            Alt-x key is likely     reserved for other things
-^!x::Send  "×"		; “×”  —       Ctrl-Alt-x key for “×” , the multiplication unicode symbol, which is more in the center than the “x” is:  ×x×x×x×x×
-#!x::Send  "✖️"		; “✖️” —        Win-Alt-x key for “✖️”, the multiplication  emoji  symbol, which is huuuge compared to the x: x×X✖️
-+^!X::Send "✖️"		; “✖️” — Shift-Ctrl-Alt-x key for “✖️”, the multiplication  emoji  symbol, which is huuuge compared to the x: x×X✖️
-
+^!x::Send  "×"		; “×”  —       Ctrl-Alt-x key for “×” , the multiplication unicode symbol, which is more in the center than the “x”: ×x×x×x×x×
+#!x::Send  "✖️"		; “✖️” —        Win-Alt-x key for “✖️”, the multiplication  emoji  symbol, which is huuuuuuuuge compared to the “x”: x×X╳✖️
+#^!x::Send "╳"		; “╳”  —   Win-Ctrl-Alt-x key for “╳” , the             “bigger X” symbol, which is  2nd largest compared to the “x”: x×X╳✖️
++^!X::Send "✖️"		; “✖️” — Shift-Ctrl-Alt-x key for “✖️”, the multiplication  emoji  symbol, which is huuuuuuuuge  compared to the “x”: x×X╳✖️
 
 ; ,::Send  "❟"		;          Comma for “❟” smart comma / fancy unicode comma [in editplus, it looks “dumber” (“❟”) than the “dumb” comma (“,”)
 ;^,::Send  "{U+2C}"	;     Ctrl-Comma for “,” dumb comma / original/normal comma but Windows Terminal overrides this

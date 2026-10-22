@@ -97,7 +97,6 @@
 
 #pylint: disable=C0103,C0413,W0719,R1726
 import os
-os.system("")                                                               #necessary bugfix, believe it or not #GOAT but let's try taking it out to challenge ourselves and maybe speedup startup time
 os.environ['PYTHAINLP_ZONEINFO_PACKAGE'] = 'tzdata'                         #necessary bugfix, believe it or not
 import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)             #recursionlimit came up during EXE-build attempts
 import shutil
@@ -105,11 +104,6 @@ import msvcrt
 import builtins
 #import unidecode                                                           #pip install Unidecode==1.2.0 - for the right one - capitalizing the U (or not) is (or isn't) important. this package sucks.
 import unicodedata
-import emoji                                                                                                    # emoji    library
-import romkan                                                                                                   # Japanese library
-from pypinyin                   import lazy_pinyin, Style as PypinyinStyle                                      # Chinese  library
-from korean_romanizer.romanizer import Romanizer          as KoreanRomanizer                                    # Korean   library
-from pythainlp.transliterate    import romanize           as ThaiRomanize                                       # Thai     library
 from unidecode import unidecode
 from colorama import Fore, Back, Style, just_fix_windows_console
 #init()
@@ -241,8 +235,6 @@ def convert_to_ascii_filename_chracters(filename,mode):
 
 #pylint: disable=C0415                                                                                  #don't nag me about lazy-loading the libraries, pylint!
 import logging
-from polyglot.detect import Detector
-from polyglot.transliteration import Transliterator
 def polyglot_language_agnostic_romanize(text):
     """Return translated text, but fail very gracefully and transparently if there are any exceptions"""
     global DEBUG, DEBUG_LANG_DETECT
@@ -250,6 +242,11 @@ def polyglot_language_agnostic_romanize(text):
      ##### CURRENTLY HAVING SLOWNESS PROBLEMS 2024Q4 / 2025Q1 and in need of optimization
 
     try:
+        # Polyglot pulls in NumPy and Morfessor.  Import it only when there is
+        # something non-ASCII that may benefit from language detection.
+        if text.isascii(): return text
+        from polyglot.detect import Detector
+        from polyglot.transliteration import Transliterator
         if not DEBUG_LANG_DETECT: logging.getLogger('polyglot').setLevel(logging.ERROR)                             #Disable logging messages from Polyglot unless in debug mode
         detector = Detector(text)
         if DEBUG_LANG_DETECT: primt(f"* Detector: {str(detector)}")
@@ -462,17 +459,26 @@ def translate_character_with_language_libraries(char,mode,filename="not given"):
 
 
 
-def translate_thai_____to_ascii(text): return ThaiRomanize(text)                                                # Thai
-def translate_japanese_to_ascii(char): return romkan.to_roma(char)                                              # Japanese
-def translate_chinese__to_ascii(char): return ''.join(lazy_pinyin(char, style=PypinyinStyle.TONE3))             # Chinese
+def translate_thai_____to_ascii(text):                                                                          # Thai
+    from pythainlp.transliterate import romanize
+    return romanize(text)
+def translate_japanese_to_ascii(char):                                                                          # Japanese
+    import romkan
+    return romkan.to_roma(char)
+def translate_chinese__to_ascii(char):                                                                          # Chinese
+    from pypinyin import lazy_pinyin, Style as PypinyinStyle
+    return ''.join(lazy_pinyin(char, style=PypinyinStyle.TONE3))
 def translate_bengali__to_ascii(text): return ''.join(bengali_to_english_phonetic.get(c, '_') for c in text)    # Bengali  (no library used)
 def translate_arabic___to_ascii(text): return ''.join( arabic_to_english_phonetic.get(c, '_') for c in text)    # Arabic   (no library used)
 def translate_hindi____to_ascii(text): return ''.join(  hindi_to_english_phonetic.get(c, '_') for c in text)    # Hindi    (no library used)
 def translate_korean___to_ascii(text):                                                                          # Korean
-    try:    retval = KoreanRomanizer(text).romanize()
+    try:
+        from korean_romanizer.romanizer import Romanizer
+        retval = Romanizer(text).romanize()
     except: retval = text
     return  retval
 def translate_emoji_to_ascii(char):
+    import emoji
     demojized = emoji.demojize(char)
     if demojized.startswith(':') and demojized.endswith(':'): return '{' + demojized[1:-1] + '}'
     return demojized

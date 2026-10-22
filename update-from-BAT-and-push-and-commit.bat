@@ -1,3 +1,4 @@
+@REM TODO: image_caption_gender_fixer ? c4s dl?
 @Echo Off
 @loadbtm on
 rem                      edit this file only as %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
