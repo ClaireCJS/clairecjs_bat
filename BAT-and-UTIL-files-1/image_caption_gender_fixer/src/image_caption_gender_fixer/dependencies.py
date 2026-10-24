@@ -72,19 +72,23 @@ def fetch(url, path, expected):
 
 def install_ocr(root, ask):
     root = Path(root)
-    plan = (f"Required: Tesseract OCR {TESS_VERSION} from Chocolatey package tesseract, "
-            "and official English tessdata_fast. Install privately under environment/tools "
-            "using verified archive extraction when 7-Zip is available; otherwise use "
-            "the installed Chocolatey manager. Image correction cannot proceed without OCR. "
-            "Allow these dependency downloads and installation? [y/N] ")
-    if not ask(plan):
-        raise DependencyUnavailable("Required OCR installation declined; no image processing performed.")
     seven = shutil.which("7z")
     for candidate in (Path(r"C:\Program Files\7-Zip\7z.exe"),):
         if candidate.exists():
             seven = str(candidate)
     bundled_seven=root/"environment/tools/7zip/7z.exe"
     if bundled_seven.is_file(): seven=str(bundled_seven)
+    destination=root/"environment/tools"/("tesseract-"+TESS_VERSION)
+    method=("Extract the verified portable files privately to "+str(destination)+" (about 102 MB unpacked). "
+            if seven else "Use the installed Chocolatey manager for a system Tesseract installation; administrator rights may be required. ")
+    plan=(f"Required: Tesseract OCR {TESS_VERSION}, Chocolatey package source "
+          f"https://community.chocolatey.org/api/v2/package/tesseract/{TESS_VERSION} (26,535,576 bytes), "
+          f"plus official English tessdata_fast from https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/{ENGLISH_COMMIT}/eng.traineddata "
+          f"(4,113,088 bytes) into {root/'environment/tessdata'}. "+method+
+          "Payload hashes will be verified. Image correction cannot proceed without the missing OCR dependencies. "
+          "Allow these dependency downloads and installation? [y/N] ")
+    if not ask(plan):
+        raise DependencyUnavailable("Required OCR installation declined; no image processing performed.")
     if seven:
         archive_path = root / "environment/staging" / ("tesseract-" + TESS_VERSION + ".nupkg")
         archive_path.parent.mkdir(parents=True, exist_ok=True)

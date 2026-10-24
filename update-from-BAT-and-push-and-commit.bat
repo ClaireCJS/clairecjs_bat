@@ -182,13 +182,13 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
                         %copy%  %PERL_SITELIB_FULL_ZIP%  %TARGET_MAIN%                
         rem Subfolders we want to publich will need to be explicitly added:
                 rem Subfolders that need to be copied once:
-                        %copy_S%  %DIVIDERS_FOLDER%                   %TARGET_MAIN%\dividers
-                        %copy_S%  %SAMPLES_FOLDER%                    %TARGET_MAIN%\samples
-                        %copy_S%  %SOUNDS_FOLDER%                     %TARGET_MAIN%\sounds
-                        %copy_S%  %PAFPLAYER_FOLDER%                  %TARGET_MAIN%\PAFPlayer
-                        %copy_S%  %AUDIT_MUSIC_BATCH_FOLDER%          %TARGET_MAIN%\audit_music_batch
-                        %copy_S%  %CLIPS4SALE_DOWNLOADER_FOLDER%      %TARGET_MAIN%\clips4sale_downloader
-                        %copy_S%  %IMAGE_CAPTION_GENDER_FIXER_FOLDER% %TARGET_MAIN%\image_caption_gender_fixer
+                        %copy_S%  /E %DIVIDERS_FOLDER%                   %TARGET_MAIN%\dividers
+                        %copy_S%  /E %SAMPLES_FOLDER%                    %TARGET_MAIN%\samples
+                        %copy_S%  /E %SOUNDS_FOLDER%                     %TARGET_MAIN%\sounds
+                        %copy_S%  /E %PAFPLAYER_FOLDER%                  %TARGET_MAIN%\PAFPlayer
+                        %copy_S%  /E %AUDIT_MUSIC_BATCH_FOLDER%          %TARGET_MAIN%\audit_music_batch
+                        %copy_S%  /E %CLIPS4SALE_DOWNLOADER_FOLDER%      %TARGET_MAIN%\clips4sale_downloader
+                        %copy_S%  /E %IMAGE_CAPTION_GENDER_FIXER_FOLDER% %TARGET_MAIN%\image_caption_gender_fixer
 
 
 

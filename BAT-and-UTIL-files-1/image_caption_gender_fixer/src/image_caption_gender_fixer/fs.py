@@ -16,6 +16,12 @@ import uuid
 from .errors import IntegrityError, UnsafeFilesystem
 
 
+def windows_path(path):
+    value=str(Path(path).absolute())
+    if os.name!="nt" or value.startswith("\\\\?\\"): return value
+    return "\\\\?\\UNC\\"+value[2:] if value.startswith("\\\\") else "\\\\?\\"+value
+
+
 def now():
     return datetime.now(timezone.utc).isoformat()
 
@@ -27,7 +33,7 @@ def sha256(path):
         kernel = ctypes.WinDLL("kernel32", use_last_error=True)
         kernel.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
         kernel.CreateFileW.restype = wintypes.HANDLE
-        handle = kernel.CreateFileW(str(Path(path).absolute()), 0x80000000, 7, None, 3, 0, None)
+        handle = kernel.CreateFileW(windows_path(path), 0x80000000, 7, None, 3, 0, None)
         if handle == wintypes.HANDLE(-1).value:
             raise ctypes.WinError(ctypes.get_last_error())
         source_file = os.fdopen(msvcrt.open_osfhandle(handle, os.O_RDONLY | os.O_BINARY), "rb")
@@ -110,8 +116,8 @@ def hide(path, enabled=True):
     kernel.GetFileAttributesW.argtypes = [wintypes.LPCWSTR]
     kernel.GetFileAttributesW.restype = wintypes.DWORD
     kernel.SetFileAttributesW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD]
-    attributes = kernel.GetFileAttributesW(str(Path(path).absolute()))
-    if attributes == 0xffffffff or not kernel.SetFileAttributesW(str(Path(path).absolute()), (attributes | 2) if enabled else (attributes & ~2)):
+    attributes = kernel.GetFileAttributesW(windows_path(path))
+    if attributes == 0xffffffff or not kernel.SetFileAttributesW(windows_path(path), (attributes | 2) if enabled else (attributes & ~2)):
         raise UnsafeFilesystem("Could not set required Windows Hidden attribute.")
 
 
@@ -123,7 +129,7 @@ def move(source, destination):
     if os.name == "nt":
         kernel = ctypes.WinDLL("kernel32", use_last_error=True)
         kernel.MoveFileExW.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD]
-        if not kernel.MoveFileExW(str(source.absolute()), str(destination.absolute()), 8):
+        if not kernel.MoveFileExW(windows_path(source), windows_path(destination), 8):
             raise ctypes.WinError(ctypes.get_last_error())
     else:
         # Windows is the supported production platform. Never use POSIX rename
@@ -185,10 +191,11 @@ def recycle(path):
 def state_write(path, value):
     """Replace only a validated application-owned state file, never an image."""
     path = Path(path)
+    validate_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
         old = json.loads(path.read_text(encoding="utf-8"))
-        if old.get("application") != "icgf":
+        if not isinstance(old,dict) or old.get("application") != "icgf" or old.get("schema")!=1:
             raise IntegrityError("Refusing to overwrite unrelated state.")
     value = dict(value, application="icgf", schema=1)
     stage = path.with_name(".icgf-state-" + uuid.uuid4().hex + ".json")
@@ -204,7 +211,7 @@ def state_read(path, default=None):
     if not path.exists():
         return default
     value = json.loads(path.read_text(encoding="utf-8"))
-    if value.get("application") != "icgf" or value.get("schema") != 1:
+    if not isinstance(value,dict) or value.get("application") != "icgf" or value.get("schema") != 1:
         raise IntegrityError("Unrecognized state schema.")
     return value
 
@@ -218,7 +225,7 @@ def source_lease(path):
                                   ctypes.c_void_p, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
     kernel.CreateFileW.restype = wintypes.HANDLE
     # Read and delete access; share read/delete, but exclude concurrent writers.
-    handle = kernel.CreateFileW(str(Path(path).absolute()), 0x80000000 | 0x10000, 1 | 4, None, 3, 0, None)
+    handle = kernel.CreateFileW(windows_path(path), 0x80000000 | 0x10000, 1 | 4, None, 3, 0, None)
     if handle == wintypes.HANDLE(-1).value:
         raise UnsafeFilesystem(f"Cannot exclusively protect source from writes: {ctypes.WinError(ctypes.get_last_error())}")
     try:

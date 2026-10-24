@@ -1,0 +1,48 @@
+Chafa is principally written and maintained by Hans Petter Jansson
+<hpj@hpjansson.org>. Feel free to contact him with any questions and
+comments.
+
+There is a growing list of contributors; these can be found in the
+git log. For a complete list, you could try:
+
+git log --pretty="format:%an <%ae>" | sort -f | uniq
+
+Per 2026-09-23, this yields the following (sans duplicates):
+
+alkahest <cyphergothic@protonmail.com>
+AnonymouX47 <anonymoux47@gmail.com>
+begasus <begasus@gmail.com>
+Biswapriyo Nath <nathbappai@gmail.com>
+Carlo Bramini <carlo_bramini@users.sourceforge.net>
+Daniel Eklöf <daniel@ekloef.se>
+data-man <dataman@tutanota.com>
+Delgan <delgan.py@gmail.com>
+desertstsung <int8@foxmail.com>
+Eli Schwartz <eschwartz@gentoo.org>
+Emanuel Haupt <ehaupt@critical.ch>
+Erica <e@mage.black>
+Felix Yan <felixonmars@archlinux.org>
+Hans Petter Jansson <hpj@hpjansson.org>
+Hayaki Saito <saitoha@me.com>
+Hoang Nguyen <folliekazetani@protonmail.com>
+Johan Mattsson <39247600+mjunix@users.noreply.github.com>
+korei999 <ju7t1xe@gmail.com>
+Launch Lee <80872691+LaunchLee@users.noreply.github.com>
+Michael Vetter <jubalh@iodoru.org>
+Mikel Olasagasti Uranga <mikel@olasagasti.info>
+Mo Zhou <cdluminate@gmail.com>
+oshaboy <35503208+oshaboy@users.noreply.github.com>
+oupson <oupson1er@gmail.com>
+Ricardo Arguello <ricardo.arguello@gmail.com>
+Robert-André Mauchin <zebob.m@gmail.com>
+Roman Wagner <roman.wagner@pm.me>
+Samuel Thibault <samuel.thibault@ens-lyon.org>
+Sebastian Stark <sstark@mailbox.org>
+Simon Law <sfllaw@sfllaw.ca>
+sitiom <sitiom@proton.me>
+Sotiris Papatheodorou <sotiris@papatheodorou.xyz>
+Sudhakar Verma <svermaiiti@gmail.com>
+Tim Gates <tim.gates@iress.com>
+Wu Zhenyu <wuzhenyu@ustc.edu>
+Øyvind Kolås <pippin@gimp.org>
+邹永赫 <1259085392@qq.com>

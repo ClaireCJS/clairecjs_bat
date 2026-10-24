@@ -11,7 +11,7 @@ import subprocess
 import uuid
 import re
 
-from .errors import DependencyUnavailable, IntegrityError
+from .errors import DependencyUnavailable, IntegrityError, RenderBlocked, ImageDeferred
 from .fs import capacity, hide, sha256, identity
 from .rules import transform
 
@@ -53,9 +53,9 @@ def decode(path):
         handle.verify()
     with Image.open(path) as handle:
         if getattr(handle, "n_frames", 1) != 1:
-            raise IntegrityError("Animated/multiframe image deferred; no frames were discarded.")
+            raise ImageDeferred("Animated/multiframe image deferred; no frames were discarded.")
         if handle.format not in ("PNG", "JPEG"):
-            raise IntegrityError("This format is not yet validated for editing; deferred without modifying it.")
+            raise ImageDeferred("This format is not validated for editing; deferred without modifying it.")
         metadata = {"format": handle.format, "info": dict(handle.info), "exif": handle.getexif(), "size": handle.size}
         image = ImageOps.exif_transpose(handle).convert("RGBA")
     return image, metadata
@@ -72,6 +72,8 @@ def marker(path):
         if text:
             try:
                 value = json.loads(text)
+                if not isinstance(value,dict) or value.get("application")!="icgf" or value.get("schema")!=1:
+                    raise IntegrityError("Unrecognized reserved ICGF metadata; inspect before editing.")
                 if value.get("application") == "icgf" and value.get("schema") == 1:
                     uuid.UUID(value["transaction"])
                     return value
@@ -81,11 +83,21 @@ def marker(path):
 
 
 def ocr(image, executable, tessdata, eco=False, full=False, psm=11):
-    _, _, Image, _, _, _, _, _ = libraries()
+    np, _, Image, _, _, _, _, _ = libraries()
     factor = min(1.0, (1200 if eco else 1800) / max(image.size)) if not full else 1.0
-    prepared = image.convert("RGB")
+    prepared = image
     if factor < 1:
         prepared = prepared.resize((max(1, round(image.width * factor)), max(1, round(image.height * factor))), Image.Resampling.LANCZOS)
+    if "A" in prepared.getbands():
+        rgba=np.array(prepared.convert("RGBA"))
+        if float(np.mean(rgba[:,:,3]<32))>.25:
+            visible=rgba[:,:,:3][rgba[:,:,3]>32]
+            luminance=float(np.median(visible)) if visible.size else 0
+            background=(0,0,0,255) if luminance>160 else (255,255,255,255)
+            canvas=Image.new("RGBA",prepared.size,background)
+            canvas.alpha_composite(prepared.convert("RGBA"))
+            prepared=canvas
+    prepared=prepared.convert("RGB")
     buffer = io.BytesIO()
     prepared.save(buffer, format="PNG")
     command = [str(executable), "stdin", "stdout", "--tessdata-dir", str(tessdata), "-l", "eng", "--psm", str(psm), "-c", "tessedit_create_tsv=1"]
@@ -127,12 +139,16 @@ def regions(lines, rules, ignores=()):
         for a, b in groups:
             words = [w for w in line["words"] if a <= w.start and w.end <= b]
             source = line["text"][a:b]
-            replacement = transform(source, rules, ignores)
-            if source == replacement["final"]:
+            replacement = source
+            selected_edits=[e for e in result["edits"] if a <= e["start"] and e["end"] <= b]
+            for edit in reversed(selected_edits):
+                replacement=replacement[:edit["start"]-a]+edit["after"]+replacement[edit["end"]-a:]
+            if source == replacement:
                 continue
             box = (min(w.box[0] for w in words), min(w.box[1] for w in words),
                    max(w.box[2] for w in words), max(w.box[3] for w in words))
-            answer.append(Region(source, replacement["final"], box, min(w.confidence for w in words), words, replacement["trace"]))
+            trace=[t for t in result["trace"] if t["original_span"][0] < b and a < t["original_span"][1]]
+            answer.append(Region(source, replacement, box, min(w.confidence for w in words), words, trace))
     return answer, protected
 
 
@@ -140,9 +156,38 @@ def overlaps(a, b):
     return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
 
 
+def scene_faces(image):
+    """Use only the small face cascade already shipped with OpenCV, if present."""
+    np,cv,_,_,_,_,_,_=libraries()
+    cascade=Path(cv.__file__).parent/"data/haarcascade_frontalface_default.xml"
+    if not cascade.is_file(): return []
+    classifier=cv.CascadeClassifier(str(cascade))
+    if classifier.empty(): return []
+    scale=min(1,800/max(image.size))
+    gray=cv.cvtColor(np.array(image.convert("RGB")),cv.COLOR_RGB2GRAY)
+    if scale<1: gray=cv.resize(gray,(max(1,round(image.width*scale)),max(1,round(image.height*scale))))
+    boxes=classifier.detectMultiScale(gray,scaleFactor=1.15,minNeighbors=5,minSize=(24,24))
+    return [(round(x/scale),round(y/scale),round((x+w)/scale),round((y+h)/scale)) for x,y,w,h in boxes]
+
+
+def review_crop(path,crop,kind,artifacts,callback,region_index):
+    path=Path(path)
+    if path.exists(): raise IntegrityError("Review artifact path is occupied; preserve it.")
+    entry={"path":str(path),"hash":None,"identity":None,"kind":kind,"region":region_index}
+    artifacts.append(entry)
+    if callback: callback(artifacts)
+    with path.open("xb") as output:
+        entry["identity"]=identity(path)[:2]
+        if callback: callback(artifacts)
+        crop.save(output,format="PNG");output.flush();os.fsync(output.fileno())
+    hide(path);entry["hash"]=sha256(path)
+    if callback: callback(artifacts)
+    return path
+
+
 def fonts():
     base = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts"
-    names = ["arial.ttf", "arialbd.ttf", "calibri.ttf", "calibrib.ttf", "segoeui.ttf", "seguisb.ttf", "impact.ttf", "tahoma.ttf", "consola.ttf"]
+    names = ["arial.ttf", "arialbd.ttf", "ariali.ttf", "arialbi.ttf", "calibri.ttf", "calibrib.ttf", "calibrii.ttf", "segoeui.ttf", "seguisb.ttf", "impact.ttf", "tahoma.ttf", "consola.ttf"]
     return [base / name for name in names if (base / name).is_file()]
 
 
@@ -179,33 +224,36 @@ def estimate(image, region):
     np, cv, Image, _, Font, _, _, _ = libraries()
     box = region.box
     crop = np.array(image.crop(box).convert("RGB"))
+    rgba=np.array(image.crop(box).convert("RGBA"))
     if crop.size == 0:
-        raise IntegrityError("Empty OCR box.")
+        raise RenderBlocked("Empty OCR box; correct its bounds before rendering.")
     padding=max(4,round((box[3]-box[1])*.25))
-    context=np.array(image.crop((max(0,box[0]-padding),max(0,box[1]-padding),min(image.width,box[2]+padding),min(image.height,box[3]+padding))).convert("RGB"))
+    context_rgba=np.array(image.crop((max(0,box[0]-padding),max(0,box[1]-padding),min(image.width,box[2]+padding),min(image.height,box[3]+padding))).convert("RGBA"))
+    context=context_rgba[:,:,:3]
     edge = np.concatenate((context[0], context[-1], context[:, 0], context[:, -1]))
     background = np.median(edge, axis=0)
-    distance = np.linalg.norm(crop.astype(float)-background, axis=2)
-    foreground = np.median(crop[distance > max(25, np.percentile(distance, 65))], axis=0) if np.any(distance > 25) else 255-background
+    background_alpha=int(np.median(np.concatenate((context_rgba[0,:,3],context_rgba[-1,:,3],context_rgba[:,0,3],context_rgba[:,-1,3]))))
+    distance = np.linalg.norm(crop.astype(float)-background, axis=2)*(rgba[:,:,3]/255)+np.abs(rgba[:,:,3].astype(float)-background_alpha)
+    selected=distance>=max(25,float(np.percentile(distance,65)))
+    foreground = np.median(crop[selected],axis=0) if selected.any() else 255-background
     mask = (distance > 28).astype("uint8")*255
     best = None
+    candidates=[]
     for filename in ([Path(region.settings["font"])] if region.settings.get("font") else fonts()):
         font = Font.truetype(str(filename), max(6, round((box[3]-box[1])*1.3)))
         glyph = styled(region.before, font, (255,255,255,255)).getchannel("A").resize((crop.shape[1], crop.shape[0]))
         predicted = np.array(glyph) > 80
         target = mask > 0
         score = float(np.logical_and(predicted,target).sum() / max(1,np.logical_or(predicted,target).sum()))
+        candidates.append({"font":str(filename),"score":score})
         if best is None or score > best[0]:
             best = (score, filename, font)
     if best is None:
-        raise DependencyUnavailable("No supported installed TrueType font is available.")
-    rgba=np.array(image.crop(box))
+        raise RenderBlocked("No plausible installed font is available; choose a local font path or defer.")
     foreground_alpha=int(np.median(rgba[:,:,3][mask>0])) if np.any(mask>0) else 255
-    context_rgba=np.array(image.crop((max(0,box[0]-padding),max(0,box[1]-padding),min(image.width,box[2]+padding),min(image.height,box[3]+padding))))
-    background_alpha=int(np.median(np.concatenate((context_rgba[0,:,3],context_rgba[-1,:,3],context_rgba[:,0,3],context_rgba[:,-1,3]))))
     return {"foreground": tuple(int(x) for x in foreground)+(foreground_alpha,), "background": tuple(int(x) for x in background),"background_alpha":background_alpha,
             "texture": float(edge.std(axis=0).mean()), "font": str(best[1]), "size": best[2].size,
-            "font_score": best[0], "source_mask": mask}
+            "font_score": best[0], "font_candidates":sorted(candidates,key=lambda c:-c["score"])[:3], "source_mask": mask}
 
 
 def render_region(image, region, protected):
@@ -218,7 +266,8 @@ def render_region(image, region, protected):
     crop_box = (max(0,x1-pad), max(0,y1-pad), min(image.width,x2+pad), min(image.height,y2+pad))
     original = image.crop(crop_box)
     rgb = np.array(original.convert("RGB"))
-    distance = np.linalg.norm(rgb.astype(float)-np.array(style["background"]), axis=2)
+    alpha=np.array(original.getchannel("A"))
+    distance = np.linalg.norm(rgb.astype(float)-np.array(style["background"]), axis=2)*(alpha/255)+np.abs(alpha.astype(float)-style["background_alpha"])
     raw = (distance > 25).astype("uint8")*255
     restriction = np.zeros(raw.shape, dtype="uint8")
     local = (x1-crop_box[0], y1-crop_box[1], x2-crop_box[0], y2-crop_box[1])
@@ -273,7 +322,7 @@ def render_region(image, region, protected):
             score = float(np.mean(np.abs(candidate[context].astype(float)-rgb[context]))) if context.any() else 1000
             candidates.append((score,candidate))
         if not candidates:
-            raise IntegrityError("No safe neighboring patch; choose another repair or defer.")
+            raise RenderBlocked("No safe neighboring patch; choose another repair or defer.")
         selected = min(candidates,key=lambda item:item[0])[1]
         repaired[mask>0] = selected[mask>0]
         # Nearby alpha is reconstructed conservatively from the context.
@@ -308,17 +357,26 @@ def render_region(image, region, protected):
         if chosen:
             break
     if not chosen:
-        raise IntegrityError("Replacement cannot fit safely within image/protected text. Adjust, choose other wording, or defer.")
+        raise RenderBlocked("Replacement cannot fit safely within image/protected text. Adjust, choose other wording, or defer.")
     if cfg.get("label"):
         label_bounds=(min(crop_box[0],chosen[2][0]),min(crop_box[1],chosen[2][1]),max(crop_box[2],chosen[2][2]),max(crop_box[3],chosen[2][3]))
-        if any(overlaps(label_bounds,p) for p in neighbors): raise IntegrityError("Explicit caption label would cover protected text.")
+        if any(overlaps(label_bounds,p) for p in neighbors): raise RenderBlocked("Explicit caption label would cover protected text.")
         Draw.Draw(composite).rectangle(label_bounds,fill=tuple(cfg["label"]))
     composite.alpha_composite(chosen[0],chosen[1])
     overlay = original.copy()
     tint = Image.new("RGBA",original.size,(255,30,40,140))
     overlay.alpha_composite(Image.composite(tint,Image.new("RGBA",original.size),Image.fromarray(mask)))
     Draw.Draw(overlay).text((2,2),"MASK",fill="yellow")
-    seam = float(np.mean(np.abs(repaired.astype(float)-rgb)[cv.dilate(mask,np.ones((3,3),"uint8")) > 0])) if mask.any() else 0
+    ring=cv.dilate(mask,np.ones((3,3),"uint8"))>0
+    gray_repaired=cv.cvtColor(repaired,cv.COLOR_RGB2GRAY).astype("float32")
+    gradient=np.abs(cv.Laplacian(gray_repaired,cv.CV_32F))
+    seam=float(np.percentile(gradient[ring],90)) if ring.any() else 0
+    context_edges=cv.Canny(rgb,80,180)>0
+    background_edges=context_edges & ~(cv.dilate(mask,np.ones((7,7),"uint8"))>0)
+    edge_warning=bool(background_edges.sum()>max(8,background_edges.size*.025))
+    warnings=[]
+    if seam>max(45,float(np.median(gradient))*4): warnings.append("Repair boundary may have a visible seam; compare repair candidates.")
+    if edge_warning: warnings.append("Strong background edges near the text may belong to an important object.")
     level = 3 if style["texture"] >= 18 or cfg.get("rotation") else 2
     if style["texture"] < 6 and region.confidence >= 92 and style["font_score"] >= 0.72 and chosen[3] == 1 and not outline and shadow == (0,0):
         level = 1
@@ -330,10 +388,14 @@ def render_region(image, region, protected):
     expansion_mask=np.ones(expansion.shape[:2],dtype=bool)
     expansion_mask[max(0,y1-y):max(0,min(bottom-y,y2-y)),max(0,x1-x):max(0,min(right-x,x2-x))]=False
     expansion_warning=bool(expansion_mask.any() and np.percentile(np.linalg.norm(expansion.astype(float)-np.array(style["background"]),axis=2)[expansion_mask],90)>35)
-    if expansion_warning or cfg.get("label"): level=3
+    if expansion_warning: warnings.append("Replacement expands into contrasting or textured background.")
+    if expansion_warning or cfg.get("label") or edge_warning or seam>80: level=3
+    if style["background_alpha"]<250 or style["foreground"][3]<250:
+        level=max(2,level)
+        warnings.append("Transparency changes contrast against the viewer background; inspect the intended appearance.")
     affected = (min(crop_box[0],chosen[2][0]),min(crop_box[1],chosen[2][1]),max(crop_box[2],chosen[2][2]),max(crop_box[3],chosen[2][3]))
     return composite,{"level":level,"style":{k:v for k,v in style.items() if k!="source_mask"},
-                      "repair":method,"seam_warning":seam,"fit_scale":chosen[3],"affected":affected,"expansion_warning":expansion_warning}, {
+                      "repair":method,"seam_warning":seam,"fit_scale":chosen[3],"affected":affected,"expansion_warning":expansion_warning,"warnings":warnings}, {
                       "original":original,"mask":overlay,"repair":repair_image,"corrected":composite.crop(affected)}
 
 
@@ -345,7 +407,13 @@ def save_image(image, metadata, path, transaction, original_hash, rules_hash, ec
     exif.load(metadata["exif"].tobytes())
     exif[274] = 1
     exif[40962],exif[40963] = image.size
+    if 34665 in exif:
+        nested=dict(exif.get_ifd(34665))
+        nested[40962],nested[40963]=image.size
+        exif[34665]=nested
     options = {"icc_profile":metadata["info"].get("icc_profile"),"exif":exif.tobytes()}
+    if metadata["info"].get("dpi"):
+        options["dpi"]=metadata["info"]["dpi"]
     if metadata["format"] == "JPEG":
         exif[270] = str(exif.get(270,""))+"\nICGF:"+marker_data
         options.update(exif=exif.tobytes(),quality=95,subsampling=0)
@@ -372,7 +440,7 @@ def save_image(image, metadata, path, transaction, original_hash, rules_hash, ec
 
 
 def proposal(source, image, metadata, region_list, protected, root, ocr_executable, original_hash, rules_hash, eco=False, transaction=None, artifact_callback=None):
-    _, _, Image, _, _, _, _, _ = libraries()
+    _, _, Image, Draw, _, _, _, _ = libraries()
     transaction = transaction or str(uuid.uuid4())
     capacity(Path(source).parent,image.width*image.height*12)
     current = image.copy()
@@ -391,14 +459,24 @@ def proposal(source, image, metadata, region_list, protected, root, ocr_executab
         entry["hash"]=sha256(path)
         if artifact_callback: artifact_callback(artifacts)
     prefix = ".icgf-"+transaction
+    faces=scene_faces(image)
     for index,region in enumerate(region_list):
         if region.skipped:
             continue
-        current,diagnostic,crops = render_region(current,region,protected)
+        try:
+            current,diagnostic,crops = render_region(current,region,protected)
+        except RenderBlocked as error:
+            return {"transaction":transaction,"stage":None,"artifacts":artifacts,"diagnostics":diagnostics,
+                    "level":3,"verification":[],"trace":[],"blocked":{"region":index,"reason":str(error)}}
         protected.append(diagnostic["affected"])
+        if any(overlaps(diagnostic["affected"],face) for face in faces):
+            diagnostic["level"]=3
+            diagnostic.setdefault("warnings",[]).append("A detected face overlaps this edit; preserve facial features and inspect the repair.")
         diagnostic.update(index=index,before=region.before,after=region.after)
         diagnostics.append(diagnostic)
         for kind,crop in crops.items():
+            if kind=="mask":
+                painter=Draw.Draw(crop);painter.rectangle((0,0,65,14),fill=(0,0,0,220));painter.text((2,1),"MASK "+str(index+1),fill="yellow")
             path = Path(source).parent/(prefix+f"-{index+1}-{kind}.png")
             if path.exists():
                 raise IntegrityError("Candidate artifact already exists; preserve and use a new transaction.")

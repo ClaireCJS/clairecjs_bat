@@ -5,15 +5,20 @@ import sys
 sys.dont_write_bytecode = True
 
 import os
+# Re-enter isolation before even importing pure standard-library modules that
+# an unrelated PYTHONPATH entry could shadow. Preserve the caller's directory.
+if not sys.flags.no_site or not sys.flags.isolated:
+    os.execv(sys.executable,[sys.executable,"-B","-I","-S",os.path.abspath(__file__),*sys.argv[1:]])
 import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-# Restart before importing application/dependency code. Ignore user site packages,
-# .pth hooks, PYTHONPATH and global packages when running the actual application.
-if not sys.flags.no_site or not sys.flags.isolated:
-    os.execv(sys.executable, [sys.executable, "-I", "-S", str(ROOT / Path(__file__).name), *sys.argv[1:]])
-
+if not any(a in sys.argv for a in ("--help","--version")):
+    import sysconfig
+    if os.name!="nt" or sys.version_info[:2]!=(3,10) or sysconfig.get_platform()!="win-amd64":
+        message="This bundle requires Windows CPython 3.10 x64. Help/version remain available; no packages or images were changed."
+        print(json.dumps({"state":"failed","error":message,"required_python":"3.10","required_architecture":"AMD64"}) if "--json" in sys.argv else message)
+        raise SystemExit(30)
 os.environ.setdefault("OMP_THREAD_LIMIT", "1")
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")

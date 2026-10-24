@@ -1,83 +1,53 @@
-# Implementation checkpoint
+# Release status: 0.2.0
 
-The current release location is `C:\BAT\image_caption_gender_fixer`.
-This supersedes the earlier nested `image_caption\gender_fixer` location.
-Only `image_caption_gender_fixer.py` and `README.md` belong directly in the root.
-The entire project, including development files and preserved backups, travels
-with the directory. Historical backups and test reports retain their original
-contents and may mention earlier paths.
+This supersedes the earlier in-progress implementation checkpoint. The supported
+local Windows CPython 3.10 x64 PNG/JPEG workflow is implemented, including private
+dependencies, OCR/render/review, safe transactions, hidden folder history,
+session pause/resume/forget, exact undo, and crash recovery. The installation is
+`C:\BAT\image_caption_gender_fixer`; root files are only the launcher and README.
 
-The complete specification is in `docs/implementation-specification.txt`.
-This remains a development release; a directory move does not certify every
-requirement in the 32-section specification as complete.
+The requirement-by-requirement evidence is in `requirements-checklist.md`.
+Actual installed-location tests, hashes, smoke checks, and every affected C:\BAT
+path are recorded in `releases/completion-20261024.md`. The installed verification
+record is authoritative; earlier release reports describe earlier checkpoints.
 
-## Dependency bundle
+The completion pass added or strengthened:
 
-- Supported interpreter: CPython 3.10 x64; Python itself is not bundled.
-- Launcher starts isolated, selects private packages, and disables bytecode.
-- Pillow 10.3.0, NumPy 1.26.4, OpenCV headless 4.10.0.84, regex, tqdm,
-  shared Claire progress-bar module, pytest and test dependencies are included.
-- NumPy/OpenCV downloads were explicitly approved and checked against PyPI hashes.
-- Tesseract and English fast data downloads were explicitly approved. The system
-  Chocolatey attempt installed no packages; verified private archive extraction
-  supplied the bundled OCR engine instead.
-- Tesseract 5.5.3.20260724, English fast data, Chafa 1.18.2,
-  ImageMagick 7.1.1-10, and 7-Zip 23.01 are bundled under environment.
-- Offline package repair archive, version lock and per-file hash manifest are
-  kept under environment. Normal users do not need pip or environment setup.
-- Existing global Python packages and the shared progress library are unchanged.
-- The pre-release cache containing generated-test hashes is preserved under
-  runtime/backups/pre-release-test-cache, outside the active cache location.
+- Safe blocked-render adjustment instead of a forced failure or unsafe approval.
+- Context/phrase/original-occurrence exclusions across the complete cascade,
+  profile and exclusion IDs/administration, global opt-in positive rules, malformed
+  byte/record quarantine, bounded matching/output, and intermediate rule traces.
+- Resumable cancellation, selected-profile retention, JSON decision IDs, durable
+  session validation, mixed committed/uncommitted session forgetting.
+- Actual offline package reconstruction followed by relocation, clear ABI
+  rejection, early isolation from unrelated global imports, and terminal-preserving
+  restart after a verified package switch.
+- Source identity and approved-stage hash checks under Windows leases, rename
+  identity checks, local-state capacity checks, extended Unicode paths, and
+  committed-history/filesystem consistency before recovery acknowledgement.
+- All durable undo-boundary recovery paths; preserved partial atomic-state
+  staging is reported separately instead of hiding a recoverable canonical journal.
+- Actual repair comparisons, numbered masks, approximate bold/italic font
+  candidates, local face/edge/seam warnings, and bounded manual style controls.
+- Lossless outside-region/alpha checks, ICC/DPI preservation, baked orientation,
+  nested EXIF dimension handling, reserved-marker collision refusal, and output
+  extensions based on actual format.
+- Read-only bundle-hash doctor checks, selected repaired-tree inspection,
+  provisional read-only explain, redacted local operation/crash diagnostics,
+  complete README/recovery/JSON/dependency/license documentation.
 
-## Implemented behavior and evidence
+The automatic setup-download cleanup remains: verified redundant archives are
+recycled after installation/repair or processing startup; working dependencies
+and the offline repair archive are kept. Recycled items still consume drive space
+in the Recycle Bin until it is emptied separately.
 
-- Priority cascade, Unicode word matching, overlap precedence, bounded regex,
-  provenance traces, learned folder rules and profiles.
-- Hidden unencrypted folder history with relative names, hashes, chained records,
-  corruption detection and committed/undone transaction states.
-- Windows read/delete leases, verified non-overwriting renames, original backups,
-  local durable journals, rollback, recovery, and byte-exact undo.
-- Windows IFileOperation recycling; no permanent-delete fallback.
-- Real local OCR and classical PNG/JPEG rendering, masks, font candidates,
-  text fitting, neighboring-text protection, adjacent hidden review artifacts.
-- Mandatory review, adjustments, optional OCR correction, level 1 bypass aliases,
-  and no review bypass through --yes.
-- Sessions, skip/defer handling, dry-run, rules/history/preferences commands,
-  corrected-hash cache, and owned-artifact cleanup.
-- Prior completed suite: 73 tests passed, including real PNG/JPEG OCR,
-  transactions, collision handling, interruption recovery, history, undo and
-  recycling. Dependency-installation tests are mocked and never download.
-- Relocation tests additionally exercise the launcher from an unrelated working
-  directory with a minimal PATH, assert private package/native paths, verify the
-  two-file root, and run bundled Chafa on a generated image.
-- See docs/releases for the actual post-move test result and the complete list
-  of created C:\BAT file paths. No real user images are used for validation.
+No real user image is used in tests. Tests perform no internet installations.
+Download/control paths are mocked; installed OCR, Windows file APIs, image
+processing, undo, lock death, package reconstruction, and relocation are exercised
+with actual local components and generated disposable data.
 
-## Work still requiring implementation or broader verification
-
-- Full 32-section requirement-by-requirement acceptance checklist and recovery
-  documentation; do not treat this checkpoint as that checklist.
-- More image-layout tests: multiple regions, edge fitting, alpha/orientation,
-  outside-region pixel preservation, detailed manual-adjustment behavior.
-- Broader session resume/forget/preference tests and corruption-boundary audits.
-- Full package-repair end-to-end validation and optional manifest-based doctor
-  health checks (doctor currently checks root cleanliness and reports imports).
-- More learned-ignore scope/context controls and profile administration.
-- Crash-report/logging coverage and automatic face/strong-edge warnings.
-- Font/effect inference for complex captions. Photograph repair remains
-  approximate and requires review. Animated/multiframe inputs are deferred;
-  PNG/JPEG are the implemented output formats.
-- Review redistribution notices for all bundled native distributions before
-  distributing this development build beyond the current local installation.
-
-## Development safety
-
-Before replacing an existing file, create and verify the required timestamped
-sibling replacement backup. Keep root-file backups in runtime/backups after
-verification. Preserve originals and uncertain artifacts; recycle rather than
-permanently deleting. Never test on real user images. Disclose every C:\BAT file
-change, including deployment, test reports, backups and synchronization.
-
-```powershell
-python -B -I -S C:\BAT\image_caption_gender_fixer\tests\run_tests.py -q
-```
+Deliberate limits remain those allowed by the specification: uncertain font/style
+and photographic repair require review; faces/edges are heuristics; animation and
+unvalidated formats defer; JPEG is lossy; the interpreter is not bundled; remote
+filesystem guarantees and cross-computer live jobs/undo are not promised.
+No neural model, font installation, telemetry, or image upload is introduced.
