@@ -1,0 +1,431 @@
+"""Local OCR, glyph masks, classical repair and measured text compositing."""
+from __future__ import annotations
+from dataclasses import dataclass, field
+import csv
+import io
+import json
+import math
+import os
+from pathlib import Path
+import subprocess
+import uuid
+import re
+
+from .errors import DependencyUnavailable, IntegrityError
+from .fs import capacity, hide, sha256, identity
+from .rules import transform
+
+
+def libraries():
+    try:
+        import numpy as np
+        import cv2
+        from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter, PngImagePlugin
+        return np, cv2, Image, ImageDraw, ImageFont, ImageOps, ImageFilter, PngImagePlugin
+    except ImportError as error:
+        raise DependencyUnavailable("Required bundled Pillow/NumPy/OpenCV packages are unavailable. Run environment repair.") from error
+
+
+@dataclass
+class Word:
+    text: str
+    box: tuple
+    confidence: float
+    start: int = 0
+    end: int = 0
+
+
+@dataclass
+class Region:
+    before: str
+    after: str
+    box: tuple
+    confidence: float
+    words: list
+    trace: list
+    settings: dict = field(default_factory=dict)
+    skipped: bool = False
+
+
+def decode(path):
+    _, _, Image, _, _, ImageOps, _, _ = libraries()
+    with Image.open(path) as handle:
+        handle.verify()
+    with Image.open(path) as handle:
+        if getattr(handle, "n_frames", 1) != 1:
+            raise IntegrityError("Animated/multiframe image deferred; no frames were discarded.")
+        if handle.format not in ("PNG", "JPEG"):
+            raise IntegrityError("This format is not yet validated for editing; deferred without modifying it.")
+        metadata = {"format": handle.format, "info": dict(handle.info), "exif": handle.getexif(), "size": handle.size}
+        image = ImageOps.exif_transpose(handle).convert("RGBA")
+    return image, metadata
+
+
+def marker(path):
+    _, _, Image, _, _, _, _, _ = libraries()
+    with Image.open(path) as image:
+        text = image.info.get("ICGF")
+        if not text:
+            description = str(image.getexif().get(270, ""))
+            if "\nICGF:" in description:
+                text = description.rsplit("\nICGF:", 1)[1]
+        if text:
+            try:
+                value = json.loads(text)
+                if value.get("application") == "icgf" and value.get("schema") == 1:
+                    uuid.UUID(value["transaction"])
+                    return value
+            except (ValueError, KeyError, TypeError):
+                raise IntegrityError("Malformed ICGF image marker; inspect before editing.")
+    return None
+
+
+def ocr(image, executable, tessdata, eco=False, full=False, psm=11):
+    _, _, Image, _, _, _, _, _ = libraries()
+    factor = min(1.0, (1200 if eco else 1800) / max(image.size)) if not full else 1.0
+    prepared = image.convert("RGB")
+    if factor < 1:
+        prepared = prepared.resize((max(1, round(image.width * factor)), max(1, round(image.height * factor))), Image.Resampling.LANCZOS)
+    buffer = io.BytesIO()
+    prepared.save(buffer, format="PNG")
+    command = [str(executable), "stdin", "stdout", "--tessdata-dir", str(tessdata), "-l", "eng", "--psm", str(psm), "-c", "tessedit_create_tsv=1"]
+    result = subprocess.run(command, input=buffer.getvalue(), capture_output=True, timeout=120,
+                            env=dict(os.environ, OMP_THREAD_LIMIT="1", OMP_NUM_THREADS="1"))
+    if result.returncode:
+        raise DependencyUnavailable("Tesseract failed: " + result.stderr.decode("utf-8", "replace")[:500])
+    lines = {}
+    for row in csv.DictReader(io.StringIO(result.stdout.decode("utf-8-sig")), delimiter="\t"):
+        if row.get("level") != "5" or not row.get("text", "").strip():
+            continue
+        x, y, w, h = (round(int(row[k]) / factor) for k in ("left", "top", "width", "height"))
+        key = tuple(row[k] for k in ("page_num", "block_num", "par_num", "line_num"))
+        lines.setdefault(key, []).append(Word(row["text"], (x, y, x+w, y+h), float(row["conf"])))
+    answer = []
+    for words in lines.values():
+        offset = 0
+        for word in words:
+            word.start, word.end = offset, offset + len(word.text)
+            offset = word.end + 1
+        answer.append({"text": " ".join(w.text for w in words), "words": words})
+    return answer
+
+
+def regions(lines, rules, ignores=()):
+    answer, protected = [], [w.box for line in lines for w in line["words"]]
+    for line in lines:
+        result = transform(line["text"], rules, ignores)
+        groups = []
+        for edit in result["edits"]:
+            selected = [w for w in line["words"] if w.start < edit["end"] and edit["start"] < w.end]
+            if not selected:
+                continue
+            a, b = selected[0].start, selected[-1].end
+            if groups and a <= groups[-1][1]:
+                groups[-1] = (groups[-1][0], max(b, groups[-1][1]))
+            else:
+                groups.append((a, b))
+        for a, b in groups:
+            words = [w for w in line["words"] if a <= w.start and w.end <= b]
+            source = line["text"][a:b]
+            replacement = transform(source, rules, ignores)
+            if source == replacement["final"]:
+                continue
+            box = (min(w.box[0] for w in words), min(w.box[1] for w in words),
+                   max(w.box[2] for w in words), max(w.box[3] for w in words))
+            answer.append(Region(source, replacement["final"], box, min(w.confidence for w in words), words, replacement["trace"]))
+    return answer, protected
+
+
+def overlaps(a, b):
+    return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
+
+
+def fonts():
+    base = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts"
+    names = ["arial.ttf", "arialbd.ttf", "calibri.ttf", "calibrib.ttf", "segoeui.ttf", "seguisb.ttf", "impact.ttf", "tahoma.ttf", "consola.ttf"]
+    return [base / name for name in names if (base / name).is_file()]
+
+
+def styled(text, font, foreground, outline=0, outline_color=(0, 0, 0, 255), tracking=0, shadow=(0, 0), blur=0, angle=0, shadow_color=(0,0,0,180)):
+    _, _, Image, Draw, _, _, Filter, _ = libraries()
+    measure = Draw.Draw(Image.new("RGBA", (1, 1)))
+    bbox = measure.textbbox((0, 0), text, font=font, stroke_width=outline)
+    width = max(1, math.ceil(measure.textlength(text, font=font) + max(0, len(text)-1)*tracking + 2*outline))
+    margin = max(3, outline + math.ceil(blur*3) + max(abs(shadow[0]), abs(shadow[1])) + 2)
+    layer = Image.new("RGBA", (width+2*margin, max(1, bbox[3]-bbox[1])+2*margin), (0, 0, 0, 0))
+    glyphs = Image.new("RGBA", layer.size)
+    painter = Draw.Draw(glyphs)
+    position = margin - bbox[0]
+    if tracking:
+        for char in text:
+            painter.text((position, margin-bbox[1]), char, font=font, fill=foreground, stroke_width=outline, stroke_fill=outline_color)
+            position += measure.textlength(char, font=font) + tracking
+    else:
+        painter.text((position, margin-bbox[1]), text, font=font, fill=foreground, stroke_width=outline, stroke_fill=outline_color)
+    if shadow != (0, 0) or blur:
+        shadow_layer = Image.new("RGBA", layer.size)
+        shadow_layer.paste(shadow_color, (0, 0, *layer.size), glyphs.getchannel("A"))
+        if blur:
+            shadow_layer = shadow_layer.filter(Filter.GaussianBlur(blur))
+        layer.alpha_composite(shadow_layer, shadow)
+    layer.alpha_composite(glyphs)
+    if angle:
+        layer = layer.rotate(angle, expand=True, resample=Image.Resampling.BICUBIC)
+    actual = layer.getbbox()
+    return layer.crop(actual) if actual else Image.new("RGBA", (1, 1))
+
+
+def estimate(image, region):
+    np, cv, Image, _, Font, _, _, _ = libraries()
+    box = region.box
+    crop = np.array(image.crop(box).convert("RGB"))
+    if crop.size == 0:
+        raise IntegrityError("Empty OCR box.")
+    padding=max(4,round((box[3]-box[1])*.25))
+    context=np.array(image.crop((max(0,box[0]-padding),max(0,box[1]-padding),min(image.width,box[2]+padding),min(image.height,box[3]+padding))).convert("RGB"))
+    edge = np.concatenate((context[0], context[-1], context[:, 0], context[:, -1]))
+    background = np.median(edge, axis=0)
+    distance = np.linalg.norm(crop.astype(float)-background, axis=2)
+    foreground = np.median(crop[distance > max(25, np.percentile(distance, 65))], axis=0) if np.any(distance > 25) else 255-background
+    mask = (distance > 28).astype("uint8")*255
+    best = None
+    for filename in ([Path(region.settings["font"])] if region.settings.get("font") else fonts()):
+        font = Font.truetype(str(filename), max(6, round((box[3]-box[1])*1.3)))
+        glyph = styled(region.before, font, (255,255,255,255)).getchannel("A").resize((crop.shape[1], crop.shape[0]))
+        predicted = np.array(glyph) > 80
+        target = mask > 0
+        score = float(np.logical_and(predicted,target).sum() / max(1,np.logical_or(predicted,target).sum()))
+        if best is None or score > best[0]:
+            best = (score, filename, font)
+    if best is None:
+        raise DependencyUnavailable("No supported installed TrueType font is available.")
+    rgba=np.array(image.crop(box))
+    foreground_alpha=int(np.median(rgba[:,:,3][mask>0])) if np.any(mask>0) else 255
+    context_rgba=np.array(image.crop((max(0,box[0]-padding),max(0,box[1]-padding),min(image.width,box[2]+padding),min(image.height,box[3]+padding))))
+    background_alpha=int(np.median(np.concatenate((context_rgba[0,:,3],context_rgba[-1,:,3],context_rgba[:,0,3],context_rgba[:,-1,3]))))
+    return {"foreground": tuple(int(x) for x in foreground)+(foreground_alpha,), "background": tuple(int(x) for x in background),"background_alpha":background_alpha,
+            "texture": float(edge.std(axis=0).mean()), "font": str(best[1]), "size": best[2].size,
+            "font_score": best[0], "source_mask": mask}
+
+
+def render_region(image, region, protected):
+    np, cv, Image, Draw, Font, _, _, _ = libraries()
+    style = estimate(image, region)
+    cfg = region.settings
+    x1,y1,x2,y2 = cfg.get("box", region.box)
+    sides=cfg.get("mask_sides",{})
+    pad = max(4, round((y2-y1)*0.15),max(sides.values(),default=0))
+    crop_box = (max(0,x1-pad), max(0,y1-pad), min(image.width,x2+pad), min(image.height,y2+pad))
+    original = image.crop(crop_box)
+    rgb = np.array(original.convert("RGB"))
+    distance = np.linalg.norm(rgb.astype(float)-np.array(style["background"]), axis=2)
+    raw = (distance > 25).astype("uint8")*255
+    restriction = np.zeros(raw.shape, dtype="uint8")
+    local = (x1-crop_box[0], y1-crop_box[1], x2-crop_box[0], y2-crop_box[1])
+    restriction[max(0,local[1]-sides.get("up",0)):min(raw.shape[0],local[3]+sides.get("down",0)), max(0,local[0]-sides.get("left",0)):min(raw.shape[1],local[2]+sides.get("right",0))] = 255
+    if style["texture"] >= 12 or cfg.get("effects") is False:
+        source_font = Font.truetype(style["font"], style["size"])
+        glyph = styled(region.before, source_font, (255,255,255,255)).getchannel("A").resize((max(1,x2-x1),max(1,y2-y1)))
+        restriction[:] = 0
+        restriction[local[1]:local[3], local[0]:local[2]] = np.array(glyph)
+        restriction = cv.dilate(restriction, np.ones((3,3),"uint8"))
+    mask = cv.bitwise_and(raw, restriction)
+    dilation = int(cfg.get("mask", 1))
+    if dilation > 0:
+        mask = cv.dilate(mask,np.ones((2*dilation+1,2*dilation+1),"uint8"))
+    elif dilation < 0:
+        mask = cv.erode(mask,np.ones((1-2*dilation,1-2*dilation),"uint8"))
+    neighbors = [p for p in protected if p not in [w.box for w in region.words]]+list(cfg.get("protected",[]))
+    for neighbor in neighbors:
+        a,b,c,d = neighbor
+        mask[max(0,b-crop_box[1]):max(0,min(mask.shape[0],d-crop_box[1])),
+             max(0,a-crop_box[0]):max(0,min(mask.shape[1],c-crop_box[0]))] = 0
+    method = cfg.get("repair", "fill" if style["texture"] < 6 else "telea")
+    repaired = rgb.copy()
+    repaired_alpha=np.array(original.getchannel("A"))
+    if method == "fill":
+        repaired[mask > 0] = style["background"]
+        repaired_alpha[mask>0]=style["background_alpha"]
+    elif method == "gradient":
+        for row in range(rgb.shape[0]):
+            gradient = np.linspace(rgb[row,0],rgb[row,-1],rgb.shape[1])
+            repaired[row,mask[row]>0] = gradient[mask[row]>0]
+            alpha_gradient=np.linspace(repaired_alpha[row,0],repaired_alpha[row,-1],rgb.shape[1])
+            repaired_alpha[row,mask[row]>0]=alpha_gradient[mask[row]>0]
+    elif method in ("telea", "navier"):
+        candidate = cv.inpaint(rgb,mask,3,cv.INPAINT_TELEA if method == "telea" else cv.INPAINT_NS)
+        repaired[mask>0] = candidate[mask>0]
+        alpha_candidate=cv.inpaint(repaired_alpha,mask,3,cv.INPAINT_TELEA if method=="telea" else cv.INPAINT_NS)
+        repaired_alpha[mask>0]=alpha_candidate[mask>0]
+    elif method == "patch":
+        # Search nearby, unprotected same-size patches and match the unmasked
+        # context. Do not synthesize a flat rectangle over a photograph.
+        candidates = []
+        source_rgb = np.array(image.convert("RGB"))
+        h,w = rgb.shape[:2]
+        for dx,dy in [(0,-h),(0,h),(-w,0),(w,0),(-w,-h),(w,h)]:
+            a,b = crop_box[0]+dx,crop_box[1]+dy
+            candidate_box = (a,b,a+w,b+h)
+            if a<0 or b<0 or a+w>image.width or b+h>image.height or any(overlaps(candidate_box,p) for p in protected):
+                continue
+            candidate = source_rgb[b:b+h,a:a+w]
+            context = mask == 0
+            score = float(np.mean(np.abs(candidate[context].astype(float)-rgb[context]))) if context.any() else 1000
+            candidates.append((score,candidate))
+        if not candidates:
+            raise IntegrityError("No safe neighboring patch; choose another repair or defer.")
+        selected = min(candidates,key=lambda item:item[0])[1]
+        repaired[mask>0] = selected[mask>0]
+        # Nearby alpha is reconstructed conservatively from the context.
+        repaired_alpha[mask>0]=style["background_alpha"]
+    else:
+        raise IntegrityError("Unknown background-repair method.")
+    repair_image = Image.fromarray(repaired).convert("RGBA")
+    repair_image.putalpha(Image.fromarray(repaired_alpha))
+    composite = image.copy()
+    composite.paste(repair_image,crop_box[:2])
+    foreground = tuple(cfg.get("foreground",style["foreground"]))
+    if "opacity" in cfg: foreground=foreground[:3]+(round(255*cfg["opacity"]),)
+    outline = int(cfg.get("outline",0))
+    shadow = tuple(cfg.get("shadow",(0,0)))
+    chosen = None
+    size = max(6,round(style["size"]*float(cfg.get("scale",1))))
+    for factor in (1,0.95,0.9,0.85,0.8):
+        font = Font.truetype(cfg.get("font",style["font"]),max(6,round(size*factor)))
+        for tracking in (float(cfg.get("tracking",0)), -0.5, -1):
+            layer = styled(region.after,font,foreground,outline,tuple(cfg.get("outline_color",(0,0,0,255))),tracking,
+                           shadow,float(cfg.get("blur",0)),float(cfg.get("rotation",0)),tuple(cfg.get("shadow_color",(0,0,0,180))))
+            for shift in (0,-2,-4,-round((y2-y1)*0.25)):
+                x = x1+shift+int(cfg.get("dx",0))
+                y = y1+int(cfg.get("dy",0))
+                bounds = (x,y,x+layer.width,y+layer.height)
+                if x<0 or y<0 or bounds[2]>image.width or bounds[3]>image.height or any(overlaps(bounds,p) for p in neighbors):
+                    continue
+                chosen = (layer,(x,y),bounds,factor,tracking)
+                break
+            if chosen:
+                break
+        if chosen:
+            break
+    if not chosen:
+        raise IntegrityError("Replacement cannot fit safely within image/protected text. Adjust, choose other wording, or defer.")
+    if cfg.get("label"):
+        label_bounds=(min(crop_box[0],chosen[2][0]),min(crop_box[1],chosen[2][1]),max(crop_box[2],chosen[2][2]),max(crop_box[3],chosen[2][3]))
+        if any(overlaps(label_bounds,p) for p in neighbors): raise IntegrityError("Explicit caption label would cover protected text.")
+        Draw.Draw(composite).rectangle(label_bounds,fill=tuple(cfg["label"]))
+    composite.alpha_composite(chosen[0],chosen[1])
+    overlay = original.copy()
+    tint = Image.new("RGBA",original.size,(255,30,40,140))
+    overlay.alpha_composite(Image.composite(tint,Image.new("RGBA",original.size),Image.fromarray(mask)))
+    Draw.Draw(overlay).text((2,2),"MASK",fill="yellow")
+    seam = float(np.mean(np.abs(repaired.astype(float)-rgb)[cv.dilate(mask,np.ones((3,3),"uint8")) > 0])) if mask.any() else 0
+    level = 3 if style["texture"] >= 18 or cfg.get("rotation") else 2
+    if style["texture"] < 6 and region.confidence >= 92 and style["font_score"] >= 0.72 and chosen[3] == 1 and not outline and shadow == (0,0):
+        level = 1
+    if region.confidence < 70 or not mask.any():
+        level = 3
+    # Never call expansion into textured/contrasting background Level 1.
+    x,y,right,bottom=chosen[2]
+    expansion=np.array(image.crop(chosen[2]).convert("RGB"))
+    expansion_mask=np.ones(expansion.shape[:2],dtype=bool)
+    expansion_mask[max(0,y1-y):max(0,min(bottom-y,y2-y)),max(0,x1-x):max(0,min(right-x,x2-x))]=False
+    expansion_warning=bool(expansion_mask.any() and np.percentile(np.linalg.norm(expansion.astype(float)-np.array(style["background"]),axis=2)[expansion_mask],90)>35)
+    if expansion_warning or cfg.get("label"): level=3
+    affected = (min(crop_box[0],chosen[2][0]),min(crop_box[1],chosen[2][1]),max(crop_box[2],chosen[2][2]),max(crop_box[3],chosen[2][3]))
+    return composite,{"level":level,"style":{k:v for k,v in style.items() if k!="source_mask"},
+                      "repair":method,"seam_warning":seam,"fit_scale":chosen[3],"affected":affected,"expansion_warning":expansion_warning}, {
+                      "original":original,"mask":overlay,"repair":repair_image,"corrected":composite.crop(affected)}
+
+
+def save_image(image, metadata, path, transaction, original_hash, rules_hash, eco=False, on_created=None):
+    _, _, Image, _, _, _, _, PNG = libraries()
+    marker_data = json.dumps({"application":"icgf","schema":1,"transaction":transaction,
+                              "original_sha256":original_hash,"rules_fingerprint":rules_hash},separators=(",",":"))
+    exif = Image.Exif()
+    exif.load(metadata["exif"].tobytes())
+    exif[274] = 1
+    exif[40962],exif[40963] = image.size
+    options = {"icc_profile":metadata["info"].get("icc_profile"),"exif":exif.tobytes()}
+    if metadata["format"] == "JPEG":
+        exif[270] = str(exif.get(270,""))+"\nICGF:"+marker_data
+        options.update(exif=exif.tobytes(),quality=95,subsampling=0)
+        image = image.convert("RGB")
+    else:
+        png = PNG.PngInfo()
+        for key,value in metadata["info"].items():
+            if isinstance(value,str) and key != "ICGF":
+                png.add_text(key,value)
+        png.add_text("ICGF",marker_data)
+        options.update(pnginfo=png,compress_level=3 if eco else 6)
+    with Path(path).open("xb") as output:
+        if on_created:
+            on_created()
+        image.save(output,format=metadata["format"],**options)
+        output.flush()
+        os.fsync(output.fileno())
+    hide(path)
+    with Image.open(path) as check:
+        check.verify()
+    with Image.open(path) as check:
+        if check.size != image.size or getattr(check,"n_frames",1) != 1:
+            raise IntegrityError("Staging output dimensions/frame count failed validation.")
+
+
+def proposal(source, image, metadata, region_list, protected, root, ocr_executable, original_hash, rules_hash, eco=False, transaction=None, artifact_callback=None):
+    _, _, Image, _, _, _, _, _ = libraries()
+    transaction = transaction or str(uuid.uuid4())
+    capacity(Path(source).parent,image.width*image.height*12)
+    current = image.copy()
+    diagnostics,artifacts = [],[]
+    protected=list(protected)
+    def plan(path,kind,region_index=None):
+        entry={"path":str(path),"hash":None,"identity":None,"kind":kind}
+        if region_index is not None: entry["region"]=region_index
+        artifacts.append(entry)
+        if artifact_callback: artifact_callback(artifacts)
+        return entry
+    def created(entry,path):
+        entry["identity"]=identity(path)[:2]
+        if artifact_callback: artifact_callback(artifacts)
+    def finished(entry,path):
+        entry["hash"]=sha256(path)
+        if artifact_callback: artifact_callback(artifacts)
+    prefix = ".icgf-"+transaction
+    for index,region in enumerate(region_list):
+        if region.skipped:
+            continue
+        current,diagnostic,crops = render_region(current,region,protected)
+        protected.append(diagnostic["affected"])
+        diagnostic.update(index=index,before=region.before,after=region.after)
+        diagnostics.append(diagnostic)
+        for kind,crop in crops.items():
+            path = Path(source).parent/(prefix+f"-{index+1}-{kind}.png")
+            if path.exists():
+                raise IntegrityError("Candidate artifact already exists; preserve and use a new transaction.")
+            entry=plan(path,kind,index)
+            with path.open("xb") as output:
+                created(entry,path)
+                crop.save(output,format="PNG")
+            hide(path)
+            finished(entry,path)
+    if not diagnostics:
+        return None
+    extension = ".jpg" if metadata["format"] == "JPEG" else ".png"
+    stage = Path(source).parent/(prefix+"-proposal"+extension)
+    entry=plan(stage,"proposal")
+    save_image(current,metadata,stage,transaction,original_hash,rules_hash,eco,lambda:created(entry,stage))
+    finished(entry,stage)
+    verification = []
+    for region,diagnostic in [(region_list[d["index"]],d) for d in diagnostics]:
+        detected = ocr(current.crop(diagnostic["affected"]),ocr_executable,Path(root)/"environment/tessdata",eco,True,6)
+        final_text = " ".join(line["text"] for line in detected)
+        expected = region.after.casefold().split()
+        passed = all(word.strip(".,!?;:") in final_text.casefold() for word in expected)
+        source_absent=not bool(re.search(r"(?<!\w)"+re.escape(region.before)+r"(?!\w)",final_text,re.I))
+        passed=passed and source_absent
+        verification.append({"region":diagnostic["index"],"replacement_confirmed":passed,"source_absent":source_absent})
+        if not passed:
+            diagnostic["level"] = max(2,diagnostic["level"])
+    return {"transaction":transaction,"stage":str(stage),"artifacts":artifacts,"diagnostics":diagnostics,
+            "level":max(d["level"] for d in diagnostics),"verification":verification,
+            "trace":[t for r in region_list if not r.skipped for t in r.trace]}

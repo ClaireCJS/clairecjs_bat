@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="38" time="0.980" timestamp="2026-10-23T14:24:19.212066" hostname="DEMONA"><testcase classname="image_caption.gender_fixer.tests.integration.test_transactions" name="test_real_windows_commit_and_undo_restores_exact_bytes" time="0.030"><failure message="PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_real_windows_commit_and_u0\\images\\original.jpg'">tmp_path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_real_windows_commit_and_u0')
+
+    def test_real_windows_commit_and_undo_restores_exact_bytes(tmp_path):
+        root,folder,source,stage,tx=prepared(tmp_path)
+        expected=sha256(source)
+&gt;       event=Transactions(root).commit(source,stage,expected,tx,"rules","default",[])
+
+bat\image_caption\gender_fixer\tests\integration\test_transactions.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\transactions.py:43: in commit
+    if sha256(source) != original_hash:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_real_windows_commit_and_u0/images/original.jpg')
+
+    def sha256(path):
+        h = hashlib.sha256()
+&gt;       with open(path, "rb") as source:
+E       PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_real_windows_commit_and_u0\\images\\original.jpg'
+
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\fs.py:25: PermissionError</failure></testcase><testcase classname="image_caption.gender_fixer.tests.integration.test_transactions" name="test_output_collision_preserves_both" time="0.015"><failure message="PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_output_collision_preserve0\\images\\original.jpg'">tmp_path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_output_collision_preserve0')
+
+    def test_output_collision_preserves_both(tmp_path):
+        root,folder,source,stage,tx=prepared(tmp_path)
+        occupied=folder/"original-gendeerfixed.jpg";occupied.write_bytes(b"unrelated")
+&gt;       event=Transactions(root).commit(source,stage,sha256(source),tx,"rules","default",[])
+
+bat\image_caption\gender_fixer\tests\integration\test_transactions.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\transactions.py:43: in commit
+    if sha256(source) != original_hash:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_output_collision_preserve0/images/original.jpg')
+
+    def sha256(path):
+        h = hashlib.sha256()
+&gt;       with open(path, "rb") as source:
+E       PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_output_collision_preserve0\\images\\original.jpg'
+
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\fs.py:25: PermissionError</failure></testcase><testcase classname="image_caption.gender_fixer.tests.integration.test_transactions" name="test_changed_source_refused" time="0.019"><failure message="PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_changed_source_refused0\\images\\original.jpg'">tmp_path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_changed_source_refused0')
+
+    def test_changed_source_refused(tmp_path):
+        root,folder,source,stage,tx=prepared(tmp_path);expected=sha256(source);source.write_bytes(b"changed")
+&gt;       with pytest.raises(IntegrityError): Transactions(root).commit(source,stage,expected,tx,"rules","default",[])
+
+bat\image_caption\gender_fixer\tests\integration\test_transactions.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\transactions.py:43: in commit
+    if sha256(source) != original_hash:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_changed_source_refused0/images/original.jpg')
+
+    def sha256(path):
+        h = hashlib.sha256()
+&gt;       with open(path, "rb") as source:
+E       PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_changed_source_refused0\\images\\original.jpg'
+
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\fs.py:25: PermissionError</failure></testcase><testcase classname="image_caption.gender_fixer.tests.integration.test_transactions" name="test_history_commit_failure_rolls_back_original" time="0.014" /><testcase classname="image_caption.gender_fixer.tests.integration.test_transactions" name="test_occupied_original_refuses_undo" time="0.013"><failure message="PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_occupied_original_refuses0\\images\\original.jpg'">tmp_path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_occupied_original_refuses0')
+
+    def test_occupied_original_refuses_undo(tmp_path):
+        root,folder,source,stage,tx=prepared(tmp_path);engine=Transactions(root)
+&gt;       event=engine.commit(source,stage,sha256(source),tx,"rules","default",[])
+
+bat\image_caption\gender_fixer\tests\integration\test_transactions.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\transactions.py:43: in commit
+    if sha256(source) != original_hash:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_occupied_original_refuses0/images/original.jpg')
+
+    def sha256(path):
+        h = hashlib.sha256()
+&gt;       with open(path, "rb") as source:
+E       PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_occupied_original_refuses0\\images\\original.jpg'
+
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\fs.py:25: PermissionError</failure></testcase><testcase classname="image_caption.gender_fixer.tests.integration.test_transactions" name="test_modified_corrected_archive_flagged_and_retained" time="0.014"><failure message="PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_modified_corrected_archiv0\\images\\original.jpg'">tmp_path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_modified_corrected_archiv0')
+
+    def test_modified_corrected_archive_flagged_and_retained(tmp_path):
+        root,folder,source,stage,tx=prepared(tmp_path);engine=Transactions(root)
+&gt;       event=engine.commit(source,stage,sha256(source),tx,"rules","default",[])
+
+bat\image_caption\gender_fixer\tests\integration\test_transactions.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\transactions.py:43: in commit
+    if sha256(source) != original_hash:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_modified_corrected_archiv0/images/original.jpg')
+
+    def sha256(path):
+        h = hashlib.sha256()
+&gt;       with open(path, "rb") as source:
+E       PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_modified_corrected_archiv0\\images\\original.jpg'
+
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\fs.py:25: PermissionError</failure></testcase><testcase classname="image_caption.gender_fixer.tests.integration.test_transactions" name="test_folder_lock_contention_is_real_windows_lock" time="0.005"><failure message="PermissionError: [Errno 13] Permission denied">tmp_path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_folder_lock_contention_is0')
+
+    def test_folder_lock_contention_is_real_windows_lock(tmp_path):
+        with folder_lock(tmp_path):
+            with pytest.raises(UnsafeFilesystem):
+&gt;               with folder_lock(tmp_path): pass
+
+bat\image_caption\gender_fixer\tests\integration\test_transactions.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\ProgramData\anaconda3\lib\contextlib.py:135: in __enter__
+    return next(self.gen)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+folder = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_folder_lock_contention_is0')
+
+    @contextmanager
+    def folder_lock(folder):
+        """OS-released byte-range lock; no stale PID files need deleting."""
+        import msvcrt
+        path = Path(folder) / ".icgf.lock"
+        signature = b"ICGF LOCK v1\n"
+        try:
+            with path.open("xb") as created:
+                created.write(signature)
+                created.flush()
+                os.fsync(created.fileno())
+            hide(path)
+        except FileExistsError:
+            pass
+        with path.open("r+b") as handle:
+&gt;           if handle.read() != signature:
+E           PermissionError: [Errno 13] Permission denied
+
+bat\image_caption\gender_fixer\src\image_caption_gender_fixer\fs.py:235: PermissionError</failure></testcase><testcase classname="image_caption.gender_fixer.tests.integration.test_transactions" name="test_windows_recycle_generated_disposable_file" time="0.121" /><testcase classname="image_caption.gender_fixer.tests.integration.test_transactions" name="test_available_names_number_before_final_extension" time="0.003" /><testcase classname="image_caption.gender_fixer.tests.unit.test_history" name="test_no_history_merely_for_inspection" time="0.002" /><testcase classname="image_caption.gender_fixer.tests.unit.test_history" name="test_hidden_relative_history_survives_folder_rename" time="0.013" /><testcase classname="image_caption.gender_fixer.tests.unit.test_history" name="test_idempotent_append_and_undo" time="0.021" /><testcase classname="image_caption.gender_fixer.tests.unit.test_history" name="test_partial_or_corrupt_tail_keeps_prefix_but_refuses_mutation[{&quot;partial&quot;:]" time="0.014" /><testcase classname="image_caption.gender_fixer.tests.unit.test_history" name="test_partial_or_corrupt_tail_keeps_prefix_but_refuses_mutation[nonsense\n]" time="0.012" /><testcase classname="image_caption.gender_fixer.tests.unit.test_history" name="test_reordered_duplicate_and_changed_records_detected" time="0.013"><failure message="PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_reordered_duplicate_and_c0\\.history.icgf'">tmp_path = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_reordered_duplicate_and_c0')
+
+    def test_reordered_duplicate_and_changed_records_detected(tmp_path):
+        history=History(tmp_path);history.append("committed",**record())
+        lines=history.path.read_bytes().splitlines(keepends=True)
+&gt;       history.path.write_bytes(b"".join(reversed(lines)))
+
+bat\image_caption\gender_fixer\tests\unit\test_history.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\ProgramData\anaconda3\lib\pathlib.py:1143: in write_bytes
+    with self.open(mode='wb') as f:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/ClioC/AppData/Local/Temp/ICGFTests-fccfdbf387f042f184732b8fb633f41e/test_reordered_duplicate_and_c0/.history.icgf')
+mode = 'wb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+&gt;       return self._accessor.open(self, mode, buffering, encoding, errors,
+                                   newline)
+E       PermissionError: [Errno 13] Permission denied: 'C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGFTests-fccfdbf387f042f184732b8fb633f41e\\test_reordered_duplicate_and_c0\\.history.icgf'
+
+C:\ProgramData\anaconda3\lib\pathlib.py:1119: PermissionError</failure></testcase><testcase classname="image_caption.gender_fixer.tests.unit.test_history" name="test_unrelated_canonical_file_preserved" time="0.010" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_seeded_cascade[boi-girl]" time="0.043" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_seeded_cascade[good boi-good girl]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_seeded_cascade[good boy-good girl]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_seeded_cascade[man-woman]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_seeded_cascade[husband-wife]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_seeded_cascade[woman-woman]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_seeded_cascade[BOI-GIRL]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_seeded_cascade[Boi-Girl]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_seeded_cascade[a good boy!-a good girl!]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_seeded_cascade[human manpower-human manpower]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_cascade_provenance_and_phrase_precedence" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_generated_text_not_reprocessed_at_same_priority" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_literal_precedes_regex_and_folder_precedes_default" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_leftmost_overlap" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_casefold_unicode_and_punctuation" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_cycle_rejected[rules0]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_cycle_rejected[rules1]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_cycle_rejected[rules2]" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_regex_is_bounded" time="0.233" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_ignored_phrase_and_occurrence" time="0.001" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_rule_store_reports_bad_record_and_keeps_valid" time="0.019" /><testcase classname="image_caption.gender_fixer.tests.unit.test_rules" name="test_profiles" time="0.012" /></testsuite></testsuites>

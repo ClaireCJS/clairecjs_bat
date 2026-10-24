@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.replaced-by-chatgpt*.bak
+*-inspection.*
+test-artifacts*/
+clips4sale-run*.json
+clips4sale-plan*.json
+*.part

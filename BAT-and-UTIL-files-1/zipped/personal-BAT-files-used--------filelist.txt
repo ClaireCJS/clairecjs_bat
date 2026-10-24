@@ -82,7 +82,7 @@
 2025-03-27  18:13             41   -4%  ask-if-lyricless.bat
 2025-03-24  15:59             54    0%  ask-if-these-are-instrumentals.bat
 2025-03-26  15:39             40    0%  ask-if-these-are-lyricless.bat
-2026-07-17  01:38         43,430   79%  askYN.bat
+2026-10-19  14:42         43,358   79%  askYN.bat
 2024-11-19  07:37             37   -5%  asleep.bat
 2024-11-19  02:23          1,065   53%  assimilate-rookie-folders.bat
 2025-06-21  14:26         25,039   79%  assimilate.bat
@@ -93,7 +93,7 @@
 2024-11-19  02:23          5,089   78%  auto-clean.bat
 2025-01-05  12:11         13,972   74%  auto-process.bat
 2026-04-18  10:10          6,507   72%  autoexec-common.btm
-2026-09-25  04:57         44,431   77%  autoexec.ahk
+2026-10-21  15:54         44,905   77%  autoexec.ahk
 2024-11-19  02:23            917   52%  AutoHotKey-autoexec.bat
 2025-05-22  19:21          2,692   61%  AutoHotKey.bat
 2026-04-29  19:28          3,776   61%  autoname.bat
@@ -267,7 +267,7 @@
 2026-04-22  08:48          2,935   61%  create-missing-karaoke-files.bat
 2025-06-08  16:27          1,310   58%  create-srt-file-for-currently-playing-song.bat
 2025-01-13  11:49            220   38%  create-srt-for-soundclip.bat
-2026-08-11  00:06        270,466   79%  create-srt-from-file.bat
+2026-10-22  22:50        270,466   79%  create-srt-from-file.bat
 2025-07-29  09:48          1,265   51%  create-srt-from-playlist.bat
 2025-01-13  11:48          1,276   53%  create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat
 2026-05-02  10:50            386   47%  create-srt.bat
@@ -497,7 +497,7 @@
 2023-10-14  02:50            145   38%  fixtemp.bat
 2023-06-06  12:26             16  -12%  fixtmp.bat
 2023-08-29  06:34            162   25%  fix_taskbar_hidden_by_ctypes_call.py
-2026-06-20  20:12         96,802   76%  fix_unicode_filenames.py
+2026-10-18  16:39         96,482   76%  fix_unicode_filenames.py
 2023-07-10  10:39        519,397   45%  fix_unicode_filenames_every_char.py
 2025-01-17  21:55         10,570   70%  fix_wrong_image_extensions.py
 2024-11-19  07:47            499   45%  flac2wav.bat
@@ -647,14 +647,14 @@
 2026-09-10  01:36            730   55%  index-mp3-legacy-perl.bat
 2026-09-10  01:37            710   54%  index-MP3.bat
 2024-11-19  07:51          1,547   49%  index-video-playlists.bat
-2025-11-16  23:41         12,113   68%  ingest_ics.py
+2026-10-12  15:28         14,638   69%  ingest_ics.py
 2025-08-01  10:07         31,692   74%  ingest_youtube_album.py
 2025-01-24  16:03            842   50%  init-bat.bat
 2025-04-10  11:47          1,696   56%  inline-progress-bar.bat
 2025-01-12  16:40          1,904   59%  insert-after-each-filename.bat
 2024-11-04  21:51            200   26%  insert-after-each-line.pl
 2025-01-04  15:36          1,003   53%  insert-after-each-line.py
-2025-01-12  16:40          1,405   58%  insert-before-each-filename.bat
+2026-10-21  16:04          1,797   62%  insert-before-each-filename.bat
 2026-03-16  16:51            947   51%  insert-before-each-line.pl
 2026-03-16  16:51          1,087   56%  insert-before-each-line.py
 2025-10-24  20:02          1,972   62%  insert-foldername-into-end-of-filenames.bat
@@ -810,7 +810,7 @@
 2024-11-19  21:35             40   -5%  pendmoves.bat
 2024-11-19  21:35             42   -4%  pf.bat
 2024-11-19  20:25          2,116   44%  PhraseExpress-Claire.csv
-2026-10-07  22:34      1,183,744    0%  PhraseExpress-phrases.pexdb
+2026-10-24  14:09      1,183,744    0%  PhraseExpress-phrases.pexdb
 2023-04-28  14:03            627   51%  pickle_view.py
 2025-03-26  16:02          2,254   56%  play-m3u-with-VLC.bat
 2024-11-19  21:35             54   -3%  play-m3u-with-winamp.bat
@@ -993,7 +993,7 @@
 2024-11-19  15:17            177   28%  sayspeak.bat
 2024-11-19  15:17            181   23%  scream.bat
 2025-02-21  17:44             33   -6%  scrollback-erase.bat
-2026-01-19  04:56            602   50%  search-for-steam_etc-coupons-for-games.bat
+2026-10-15  13:41            641   51%  search-for-steam_etc-coupons-for-games.bat
 2024-11-19  21:35             31   -6%  search-music.bat
 2025-06-04  00:17          1,076   55%  see-latest-version-of-BAT-on-github.bat
 2024-11-19  21:35             43   -4%  see-which-songs-a-band-is-currently-playing-live.bat
@@ -1146,6 +1146,7 @@
 2024-11-19  21:35             29   -6%  symlink.bat
 2026-05-03  18:19         11,229   71%  sync-a-folder-somewhere.bat
 2026-04-13  05:12             38   -5%  sync-a-folder-to-somewhere.bat
+2026-10-24  14:44            928   65%  sync-bat-documentation.bat
 2024-11-19  15:05            343   38%  sync-bat-to-dropbox.bat
 2024-11-19  21:35             40   -5%  sync-cameras.bat
 2024-11-19  15:05          1,459   57%  sync-dropbox.bat

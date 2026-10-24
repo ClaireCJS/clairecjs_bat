@@ -1,0 +1,19 @@
+{
+  "application": "icgf",
+  "schema": 1,
+  "python": "CPython 3.10 x64 (interpreter supplied by the machine)",
+  "package_sources": {
+    "numpy": {"version": "1.26.4", "source": "https://pypi.org/project/numpy/1.26.4/", "wheel_sha256": "b97fe8060236edf3662adfc2c633f56a08ae30560c56310562cb4f95500022d5"},
+    "opencv-python-headless": {"version": "4.10.0.84", "source": "https://pypi.org/project/opencv-python-headless/4.10.0.84/", "wheel_sha256": "afcf28bd1209dd58810d33defb622b325d3cbe49dcd7a43a902982c33e5fad05"},
+    "other_python_packages": "Copied from the existing CPython 3.10 installation; versions and distribution notices are included under packages/*.dist-info.",
+    "clairecjs_utils.claire_progressbar": "Copied unchanged from C:\\clairecjs_utils\\claire_progressbar.py; shared library and mirrors were not changed."
+  },
+  "native_sources": {
+    "tesseract": {"version": "5.5.3.20260724", "source": "https://community.chocolatey.org/packages/tesseract/5.5.3.20260724", "installer_sha256": "bee9e3434bd94fd65387d9be28cd467a41f61b1275383b55b0f59a1331270ae4", "method": "Verified payload extracted privately; no installer executed."},
+    "english_tessdata_fast": {"commit": "923915d4ced2a7235221788285785a29c4a42d4a", "source": "https://github.com/tesseract-ocr/tessdata_fast", "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"},
+    "chafa": {"version": "1.18.2", "source": "Existing C:\\util\\Chafa.exe"},
+    "imagemagick": {"version": "7.1.1-10 Q16-HDRI", "source": "Existing C:\\Program Files\\ImageMagick-7.1.1-Q16-HDRI"},
+    "7zip": {"version": "23.01", "source": "Existing C:\\Program Files\\7-Zip; License.txt included."}
+  },
+  "scope": "Local development release; review native redistribution notices before wider distribution."
+}

@@ -1,0 +1,19 @@
+# Included private Windows x64 dependency bundle; CPython 3.10.
+# This is a provenance lock, not an instruction for users to run pip.
+pillow==10.3.0
+numpy==1.26.4
+opencv-python-headless==4.10.0.84
+regex==2024.4.16
+tqdm==4.66.2
+pytest==7.4.0
+pluggy==0.13.1
+packaging==24.0
+iniconfig==1.1.1
+tomli==2.0.1
+exceptiongroup==1.1.2
+colorama==0.4.6
+# clairecjs_utils.claire_progressbar copied unchanged from C:\clairecjs_utils.
+# Native tools: Tesseract 5.5.3.20260724; English tessdata_fast commit
+# 923915d4ced2a7235221788285785a29c4a42d4a; Chafa 1.18.2;
+# ImageMagick 7.1.1-10 Q16-HDRI; 7-Zip 23.01.
+# SHA-256 values for shipped environment members are in manifest.json.

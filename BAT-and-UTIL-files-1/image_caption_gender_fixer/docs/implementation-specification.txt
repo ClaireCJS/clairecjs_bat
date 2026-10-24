@@ -1,0 +1,2279 @@
+Use GPT-6.1 Sol with xhigh reasoning.
+
+Build and thoroughly test a Windows Python utility named:
+
+    image_caption_gender_fixer.py
+
+Implement the complete usable program, bundled Python dependencies, documentation,
+automated tests, safe image transactions, folder history, review workflow,
+sessions, recovery, and verification described below. Do not stop at a design,
+outline, sample code, or unpopulated dependency specification.
+
+Continue through implementation and verification. Make reasonable routine
+implementation decisions without repeatedly asking me. Ask only for the
+explicit dependency-installation confirmations required below or for a
+consequential choice that cannot safely be inferred.
+
+Do not weaken, silently omit, or mark requirements satisfied merely to finish
+faster. Track implementation and verification evidence in a requirements
+checklist. Passing mocked tests alone is not evidence that actual image editing,
+native tools, Windows attributes, recycling, or recovery work.
+
+"Portable" means the needed Python packages come with the tool and are selected
+automatically. End users must not manually install packages or set up an
+environment. It does not require transferring live jobs or guaranteeing undo
+between computers.
+
+Authoritative processed-image history belongs inside each image folder in a
+hidden, unencrypted .history.icgf file, so moving or renaming that folder does
+not lose recognition of processed images.
+
+Original-image preservation takes precedence over convenience or cleanup.
+If an exceptional failure prevents a safe requirement from being satisfied,
+retain recoverable data, report the exact failure, and do not claim successful
+conversion or completed verification.
+
+===============================================================================
+1. CANONICAL LOCATION AND CLEAN TOOL ROOT
+===============================================================================
+
+The canonical development/deployment directory is:
+
+    C:\BAT\image_caption_gender_fixer
+
+Only these regular files belong directly in the tool's project root:
+
+    image_caption_gender_fixer.py
+    README.md
+
+Subdirectories are permitted. Use an organization approximately like:
+
+    image_caption_gender_fixer\
+        image_caption_gender_fixer.py
+        README.md
+        src\
+            image_caption_gender_fixer\
+        environment\
+            requirements.lock
+            manifest.json
+            packages\
+            wheels\
+            tools\
+            tessdata\
+            cache\
+            metadata\
+            staging\
+        runtime\
+            state\
+                sessions\
+                transactions\
+            locks\
+            logs\
+            cache\
+            crash-reports\
+            backups\
+        tests\
+            unit\
+            integration\
+            fixtures\
+            output\
+        docs\
+
+This cleanliness requirement applies ONLY to the tool's own installation root.
+It does not restrict the contents of folders holding the user's images.
+Image previews and proposed renders belong beside their source images, as
+specified below.
+
+Do not introduce root-level pyproject.toml, requirements files, .python-version,
+.env, .gitignore, .pytest_cache, .coverage, __pycache__, pip caches, logs,
+temporary files, locks, history files, session files, journals, OCR output,
+generated images, test output, or backup files.
+
+Keep packaging configuration and build metadata in suitable subdirectories.
+Configure Python bytecode, pytest, coverage, pip, native-tool temporary paths,
+and other caches before importing project modules wherever technically possible.
+
+After every completed command, including handled failures and test runs, no
+new program-owned clutter may remain in the tool root. Crash recovery must
+report and safely resolve any interrupted program-owned operation.
+
+Inspect the destination before changing it. Preserve unrelated existing work.
+If unexpected user-owned items already exist, report them; do not automatically
+move, rename, recycle, or delete them to satisfy the allowlist.
+
+Implement doctor to check the allowlist and distinguish existing violations
+from artifacts introduced by this program.
+
+The production utility must refuse to process images inside its own project,
+environment, runtime, or fixture directories, and must exclude its generated
+internal products. When scanning a parent directory, prune these directories
+rather than entering them.
+
+End-to-end tests may use generated image copies in an explicitly created,
+isolated disposable target outside the installation directory. Do not add an
+unsafe production bypass for processing the installation itself.
+
+Resolve tool resources relative to __file__, not a hard-coded installation
+path. Treat the caller's current working directory as the default image
+target. Do not change the caller's working directory.
+
+Do not create target-folder history, rules, lock sidecars, or render files
+merely because the program starts. First identify a relevant candidate and
+create only the state actually needed. Read-only commands and dry runs must
+not create them.
+
+If standing development instructions require sibling backups while replacing
+existing tool source files, create and verify them as instructed, then move
+only those newly created implementation backups into runtime\backups\ with
+collision-safe names before the operation finishes. This does not relocate
+original-image backups, which belong beside their source images.
+
+===============================================================================
+2. ORIGINAL-IMAGE SAFETY, COLLISIONS, AND C:\BAT DISCLOSURE
+===============================================================================
+
+Keep the application's image-safety policy distinct from management of its
+own logs, caches, preferences, and journals.
+
+PROTECTED IMAGE FILES:
+
+- Never permanently delete an original image or its preserved original backup.
+- Never replace original pixels or original embedded metadata in place.
+- Render into a separate file. Preserve the original bytes before committing
+  any corrected replacement.
+- Cancellation, rejection, and skipping must leave the original image and its
+  filename unchanged.
+- Do not remove an original backup as part of ordinary cleanup, undo-archive
+  disposition, session abandonment, or cache cleanup.
+- If the user explicitly requests discarding a protected original or backup,
+  use the Windows Recycle Bin only. If recycling is unavailable or fails,
+  retain the item and report the failure. Never fall back to permanent deletion.
+- Corrected undo archives must follow the keep/recycle rules below and must
+  never be silently permanently deleted.
+
+For an original image being successfully replaced, use exactly this sibling
+backup convention:
+
+    <original-filename>.bak.YYYYMMDDHHMM.replaced-by-chatgpt.bak
+
+For example:
+
+    image.jpg.bak.202610231430.replaced-by-chatgpt.bak
+
+A verified, non-overwriting rename of the unchanged original into this backup
+name satisfies original preservation; a second full copy is not mandatory.
+Verify the backup against the original SHA-256 before declaring success.
+If verification fails or preservation cannot be completed, do not commit the
+corrected output. Never skip preservation because a file is large.
+
+The application's requirement for this image-style replacement backup applies
+to image files. It does not require a complete sibling backup before every
+append or update to history, logs, sessions, rules, preferences, or caches.
+Those state files still require appropriate locking, validation, and crash-safe
+writes. Honor applicable development-time instructions when editing existing
+source files; do not confuse those instructions with the application's runtime
+image-backup policy.
+
+COLLISIONS:
+
+Never silently overwrite a user file. Whenever a new, copied, moved, restored,
+or backup filename would collide, preserve both by adding a space followed by
+(1), (2), and so on immediately before the final filename extension:
+
+    image-gendeerfixed (1).jpg
+    image.jpg.bak.YYYYMMDDHHMM.replaced-by-chatgpt (1).bak
+
+Reserve destination names safely against concurrent creation. Do not rely on
+an existence check followed by an operation that can overwrite.
+
+Do not rename an existing canonical .history.icgf or rules sidecar merely to
+create an empty replacement. Validate and use the existing compatible file;
+if it is unrelated, incompatible, or ambiguous, retain it and stop or report
+the required decision.
+
+TEMPORARY AND APPLICATION-OWNED FILES:
+
+Dependency installers, test frameworks, and supporting native tools may manage
+and delete their own internal temporary files normally. This permission never
+extends to original images, original backups, unknown files, corrected undo
+archives, or ambiguous transaction artifacts.
+
+Visible program-owned image previews and discarded candidate renders must be
+identified precisely and recycled as described in the artifact-cleanup section.
+Do not use broad filename-pattern deletion against an image folder.
+
+C:\BAT DISCLOSURE DURING IMPLEMENTATION:
+
+Explicitly disclose every file created, modified, renamed, replaced, recycled,
+or deleted under C:\BAT, including dependency bundling, deployment,
+synchronization, and test artifacts located there.
+
+In the final implementation report, list every affected C:\BAT file path and
+label its action. For renames or moves, identify both the source and destination.
+Do not omit files merely because they were copied from tested workspace files.
+
+===============================================================================
+3. PURPOSE, COMMANDS, AND READ-ONLY OPERATIONS
+===============================================================================
+
+The utility edits visible text embedded in images and replaces configured
+gendered wording with user-preferred wording.
+
+Use this intentionally spelled corrected-output suffix:
+
+    -gendeerfixed
+
+Do not correct the spelling to genderfixed. Place it before the image extension:
+
+    picture.jpg
+    picture-gendeerfixed.jpg
+
+Support these primary command forms:
+
+    python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py *
+    python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py image.jpg
+
+    python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py undo *
+    python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py undo image.jpg
+    python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py undo image-gendeerfixed.jpg
+
+The script must also work from another installation location.
+
+With no explicit target, use the caller's current directory. Expand literal
+wildcards inside the program; do not rely on shell expansion of * or ?.
+Deduplicate overlapping arguments and resolved transaction targets. Provide a
+documented literal-path mechanism and support -- to end option parsing.
+
+Implement:
+
+    doctor
+    rules show
+    rules add
+    rules disable
+    rules enable
+    rules explain <text>
+    history status [target]
+    history verify [target]
+    history backup [target]
+    preferences show
+    preferences set undo-corrected ask|keep|recycle
+    preferences reset undo-corrected
+    environment status
+    environment repair
+    sessions list
+    sessions status <session-id>
+    sessions abandon <session-id>
+    recover
+    explain <file>
+
+registry status may be a compatibility alias for history status. It must use
+.history.icgf rather than creating an old encrypted registry.
+
+Support and document:
+
+    --help
+    --version
+    --dry-run
+    --recursive
+    --include-hidden
+    --include-system
+    --yes
+    --json
+    --no-preview
+    --eco
+    --verbose
+    --profile <name>
+    --resume
+    --resume <session-id>
+    --new-session
+    --review-no-match-images
+    --skip-reivew-for-confident-ones
+    --skip-review-for-confident-ones
+    --allow-network
+    --recover-from-backups
+    --ask-about-undo-archives
+    --keep-undo-archives
+    --recycle-undo-archives
+
+Do not recurse unless --recursive is supplied. Detect contradictory options
+and reject them with a useful message.
+
+--yes may answer documented routine confirmations only. It must not substitute
+for per-image approval, dependency-installation consent, old-session selection,
+ambiguous recovery decisions, a permanent preference change, approval to recycle
+a modified corrected archive, or acceptance of unsafe filesystem behavior.
+
+A dry run is a read-only analysis/report. It must not:
+
+- alter or rename images or their metadata;
+- write candidate renders or corrected images;
+- append history or commit transactions;
+- create target-folder files;
+- create, advance, abandon, or repair sessions;
+- change rules or preferences;
+- install packages or repair the environment;
+- recycle anything;
+- write persistent logs or update caches merely for the dry run.
+
+Use already available dependencies and in-memory analysis where practical.
+If a dependency or safe read-only analysis capability is unavailable, explain
+what would be needed. Do not install it or produce misleading confidence.
+
+--help and --version must work through the standard-library launcher without
+installing anything or prompting for old jobs. Administrative read-only
+commands must not force processing, installation, or recovery mutations.
+
+Doctor reports issues by default. Repairs or recycling require a separate,
+explicitly confirmed action and are forbidden with --dry-run.
+
+===============================================================================
+4. LOCAL IMPLEMENTATION PLATFORM AND EFFICIENCY
+===============================================================================
+
+Use Python as the coordinator and efficient native command-line tools for
+expensive operations.
+
+Prefer:
+
+- the Python standard library;
+- Tesseract 5 command-line OCR;
+- English tessdata_fast;
+- ImageMagick for inspection and rendering where useful;
+- Chafa for terminal previews;
+- argparse and subprocess;
+- SHA-256 through hashlib;
+- Windows-safe locking;
+- pytest;
+- Pillow where it provides clear value;
+- opencv-python-headless and NumPy for classical local photographic inpainting;
+- the required shared Claire progress-bar utility.
+
+There is no encryption requirement. Do not implement DPAPI, encrypted history,
+encrypted preferences, encrypted sessions, machine-bound history keys,
+password prompts, or encryption-key migration.
+
+Do not introduce PyTorch, EasyOCR, PaddleOCR, Electron, a web server, or a large
+neural image model unless a demonstrated requirement cannot be met otherwise.
+Any heavier optional model needs separate informed approval.
+
+Optimize speed and electricity use:
+
+- Recognize known products before decoding or OCR.
+- Hash before OCR when exact duplicate detection can settle the decision.
+- Use one OCR worker by default.
+- Use tessdata_fast.
+- OCR a sensibly downscaled image first.
+- Retry at higher resolution only when necessary.
+- Avoid repeated image decoding.
+- Generate Chafa previews when useful.
+- Rerender affected crops during adjustments and assemble the final composite.
+- Make --eco favor lower CPU use and sensible native-tool thread limits.
+- Never trade original-file safety for speed.
+
+All image analysis and processing must remain local. Do not upload images,
+crops, OCR text, filenames, paths, hashes, rules, history, or metadata.
+Do not add telemetry, analytics, crash uploads, or automatic update checks.
+
+Internet access is permitted only for an explicitly confirmed dependency
+download/installation or repair. Normal use with the delivered dependencies
+must not require an internet connection.
+
+--allow-network means permission to access image targets on network shares.
+It does not authorize internet downloads, uploads, or dependency installation.
+
+===============================================================================
+5. REQUIRED SHARED RAINBOW PROGRESS BAR
+===============================================================================
+
+Every progress bar must use:
+
+    clairecjs_utils.claire_progressbar
+
+Do not create a project-specific replacement. Rainbow cycling is the default.
+Do not pass rainbow=False.
+
+The canonical shared utility is under:
+
+    C:\clairecjs_utils
+
+It is currently a junction to:
+
+    T:\ProgramData.Demona.ssd-spillover\anaconda3\Lib\site-packages\clairecjs_utils
+
+There is a separate mirror at:
+
+    C:\BAT\clairecjs_utils
+
+and a corresponding clairecjs_bat repository copy.
+
+Inspect and use the existing utility's actual API. Prefer no shared-library
+modification. The delivered application must include the needed existing
+library code as a bundled dependency, preserving its module identity, so an
+end user does not need Claire's C: or T: directories. Do not copy it into a
+project-specific replacement implementation.
+
+Any reusable ClaireCJS Python utility developed for this task belongs in the
+canonical C:\clairecjs_utils library. If changing a shared library is necessary:
+
+- honor applicable replacement-backup instructions;
+- update the canonical copy;
+- synchronize the C:\BAT\clairecjs_utils mirror;
+- synchronize the corresponding repository copy;
+- refresh the application's bundled dependency;
+- test the shared change separately;
+- disclose every affected C:\BAT path.
+
+Use polished readable output with rainbow progress, tasteful emoji, clear
+status lines, and accessible plain-text meaning. Emoji must never carry
+important information alone.
+
+Disable animated progress for redirected output and JSON mode. Simplify ANSI
+output for unsupported terminals. Continue using the shared utility for any
+actual progress bar; use ordinary status text when animation is unsuitable.
+
+===============================================================================
+6. BUNDLED PYTHON PACKAGES AND AUTOMATIC DEPENDENCY SELECTION
+===============================================================================
+
+PORTABILITY MEANS THIS:
+
+The required third-party Python packages come with the tool, and the tool
+automatically uses them. The end user must not manually run pip, create a
+virtual environment, edit PYTHONPATH, or separately install Python packages.
+
+Deliver actual compatible bundled packages and their required native libraries,
+not merely requirements.lock plus a first-run internet installer. The normal
+delivered tool must work offline with those packages.
+
+Keeping the documented python image_caption_gender_fixer.py command is
+acceptable; bundling the Python interpreter itself is optional. Clearly state
+the supported Windows architecture and Python version when relying on an
+existing interpreter. Do not claim support for untested interpreter ABIs.
+
+Store application dependencies under environment\. Keep a locked reproducible
+definition in environment\requirements.lock and a version/hash/platform
+manifest under environment\. Include all transitive dependencies, the shared
+Claire progress utility, necessary package data, and compiled-package DLLs.
+
+The root entry point must use only the standard library until it has selected
+and validated the bundled environment. Keep its own imports independent of
+unrelated globally installed packages.
+
+A verified, directly usable bundled package tree is a suitable design. If a
+private virtual environment is needed, creation and population must be handled
+by the tool using bundled locked artifacts rather than manual user commands.
+
+Do not depend on creating a standard venv in one directory and blindly
+renaming it into another. Create any venv at its intended final absolute
+location under a build lock, verify it, and publish an atomic readiness marker.
+Never select a partially built environment.
+
+If a tool-folder move requires rebuilding a location-dependent environment,
+detect that condition and offer automatic reconstruction from bundled locked
+artifacts. Explain the action and request confirmation before installation
+or repair. No manual package-management steps should be required.
+
+For managed environments, key compatibility/selection by the dependency
+definition, Python compatibility, Windows architecture, and relevant bundled
+shared-library version. Reuse healthy completed environments. A dependency
+change creates a new managed environment; do not silently mutate a completed
+environment in place or check for upgrades on every run.
+
+Keep build staging, pip caches, wheels, metadata, and diagnostic output inside
+environment\ or appropriate runtime subdirectories. If using venv, detect
+whether venv support actually works and give a precise actionable failure.
+
+INSTALLATION AND REPAIR CONSENT:
+
+Before any required package installation, download, or dependency repair:
+
+1. Identify the exact dependency and planned action.
+2. Show its source, version, installation location, and relevant download size
+   when known.
+3. Clearly explain that image correction cannot proceed without the missing
+   required dependency.
+4. Request explicit confirmation for the displayed action. One confirmation
+   may cover a clearly enumerated dependency set.
+5. Allow declining and stop image processing cleanly.
+
+Do not prompt when the delivered dependencies are already healthy.
+--yes is not installation consent. In JSON/noninteractive mode, report the
+missing dependencies and required action without downloading or installing.
+
+NATIVE TOOLS:
+
+Prefer verified bundled portable native executables and OCR data where
+practical. Otherwise detect already installed Tesseract, ImageMagick, and
+Chafa through PATH and common locations, including candidates such as:
+
+    C:\util\Chafa.exe
+    C:\Program Files\ImageMagick-7.1.1-Q16-HDRI\magick.exe
+
+Verify candidates rather than assuming these exact paths exist. Document
+which native dependencies are bundled and which use an existing installation.
+
+If required native software is missing, offer automatic installation through
+a trusted package source, such as an appropriate verified winget package,
+after the explicit confirmation above. Do not silently install system-level
+software, change global PATH, or alter unrelated Python installations.
+
+After installation or repair, locate the dependency, verify its version and
+required functionality, and only then claim success. Do not download and run
+arbitrary unverified installers.
+
+Developer-time downloads to prepare the bundle require the same explicit
+consent. Tests must never cause real dependency installation or network access.
+
+The application does not need to transfer live sessions or guarantee cross-
+computer undo. Folder-based processed-image history must remain usable after
+a folder is renamed or moved, independently of this environment design.
+
+===============================================================================
+7. HIGH-QUALITY DYNAMIC CHAFA PREVIEWS
+===============================================================================
+
+Use Chafa for terminal image previews. This is a terminal application, not a
+GUI.
+
+Do not use a fixed `100x40` size.
+
+Before every preview, recalculate terminal dimensions with an approach such as:
+
+    shutil.get_terminal_size(fallback=(120, 40))
+
+The preview should occupy approximately:
+
+- 70% of current terminal height;
+- up to approximately 95% of current terminal width;
+- while reserving rows for titles, choices, OCR information, and prompts.
+
+Use sensible minimum sizes, such as about 12 rows and 40 columns, but adapt to
+small terminals.
+
+Preserve image aspect ratio. Never stretch the image.
+
+Prefer a high-quality invocation equivalent to:
+
+    chafa
+      --format symbols
+      --colors full
+      --work 9
+      --animate off
+      --scale max
+      --size <calculated-columns>x<calculated-rows>
+      <image>
+
+Use work factor 9 for detailed human review. `--eco` may use a lower work
+factor until detailed review is required.
+
+For a proposed edit, show:
+
+1. The complete original image.
+2. An enlarged original crop of each affected region.
+3. A numbered text-removal mask overlay.
+4. The repaired-background crop without replacement text.
+5. The final corrected crop.
+6. The complete proposed corrected image.
+
+Show before and after sequentially rather than squeezing them side by side.
+
+Disable previews automatically for:
+
+- redirected output;
+- `--json`;
+- `--no-preview`;
+- noninteractive operation where no decision is required.
+
+Pass filenames as safe subprocess argument arrays. Never interpolate them into
+a shell command string.
+
+Keep preview geometry within the actual terminal size even when it is smaller
+than the suggested minimum. Verify the available Chafa version's supported
+flags and use the closest equivalent high-quality invocation if necessary.
+
+Disabling previews does not authorize committing an otherwise unapproved
+image. In interactive --no-preview mode, still show the detected changes and
+request required approval. In noninteractive mode, follow the review and exit-
+code rules; never silently reinterpret missing previews as consent.
+
+===============================================================================
+8. TARGET DISCOVERY
+===============================================================================
+
+Process regular raster image files only. Determine support from actual verified
+decoders and image signatures rather than filename extensions alone.
+
+At minimum, support ordinary single-frame PNG and JPEG end to end. Clearly
+identify additional supported formats and safely defer unsupported features.
+
+Do not process PDFs, SVGs, videos, shortcuts, history files, rules sidecars,
+backups, undo archives, known corrected products, preview images, staging
+outputs, transaction files, or unrelated application state as ordinary inputs.
+
+Skip hidden and system images unless the corresponding explicit inclusion
+option is supplied. The program must still load its own hidden history file
+as history; it is never an image candidate.
+
+Do not follow symbolic links, junctions, mount points, or other reparse points
+by default, including when supplied explicitly as target arguments. Recursive
+traversal must not escape the selected tree. A future explicit follow option
+must not weaken this default or permit unnoticed escape.
+
+Resolve aliases and overlapping targets conservatively. Detect hard links and
+require explicit per-image review; a confidence bypass must not suppress this
+filesystem warning.
+
+Refuse network shares, including mapped network drives, unless --allow-network
+is supplied. Explain reduced locking, atomicity, and Recycle Bin guarantees.
+That flag does not waive integrity checks, approve unsafe operations, or
+authorize internet access.
+
+Do not recurse unless --recursive is supplied. Prune the tool's installation
+and internal directories, even when scanning their parent.
+
+Only images with proposed substitutions require individual approval by default.
+Count and skip no-match images without prompting. Provide
+--review-no-match-images for explicit inspection of those images.
+
+Do not create any sidecar or preview merely to count or report no-match images.
+
+===============================================================================
+9. DETERMINISTIC SUBSTITUTION ENGINE
+===============================================================================
+
+Support built-in rules, folder-specific learned rules, optional user-global
+rules, explicit numeric priorities, Unicode-aware case handling, word-aware
+literal matches, punctuation-aware phrases, explicitly enabled regex rules,
+and ignore/false-positive rules.
+
+Seed:
+
+    priority=100    boi       -> boy
+    priority=10     good boy  -> good girl
+    priority=10     boy       -> girl
+    priority=10     man       -> woman
+    priority=10     husband   -> wife
+
+Required final results:
+
+    boi       -> girl
+    good boi  -> good girl
+    good boy  -> good girl
+    man       -> woman
+    husband   -> wife
+
+Priority 100 is a normalization stage. Its output may match a lower-priority
+rule. Resolve the entire pipeline before changing pixels and render only the
+final result.
+
+For example:
+
+    Original OCR:     good boi
+    Priority 100:     boi -> boy
+    Intermediate:     good boy
+    Priority 10:      good boy -> good girl
+    Final rendering:  good girl
+
+ORDER AND OVERLAPS:
+
+1. Process priority levels in descending numeric order.
+2. At each priority, collect matches from a snapshot of the text entering
+   that stage. Do not rerun rules against text generated within that stage.
+3. Resolve overlapping candidates by longest normalized matched source span.
+   Use normalized literal phrase length for literals and actual matched text
+   length for regex, not the number of characters in regex syntax.
+4. At equal priority and match length, prefer in this order:
+   - literal over regex;
+   - folder-specific over global/default;
+   - explicit user rule over built-in;
+   - stable creation order.
+5. Resolve any remaining overlap tie by the leftmost match.
+6. Apply the selected nonoverlapping changes as one stage.
+
+Generated text may be processed only at lower priorities. Process each
+priority level once. Set and document a maximum stage count.
+
+Reject direct and indirect literal-rule cycles and invalid rule definitions.
+For explicitly enabled regex, validate the supported syntax, use bounded
+evaluation, reject detected repeated states/cycles, and prevent pathological
+regex execution from hanging a run. Do not claim complete static analysis of
+arbitrary regex programs. Restrict unsupported regex behavior rather than
+weakening the deterministic or bounded-processing guarantees.
+
+Maintain provenance from transformed characters/phrases back to original OCR
+word boxes, even when a normalization changes string length, whitespace
+grouping, or case-folding length. Phrase replacement must target the correct
+original pixels, not guessed intermediate coordinates.
+
+MATCH SAFETY:
+
+- Match whole words or phrases by default.
+- Do not replace substrings inside unrelated words.
+- man must not match inside woman.
+- Substring or regex matching needs explicit configuration.
+- Preserve surrounding punctuation and whitespace unless a rule changes them.
+- Transfer ordinary case sensibly: BOY -> GIRL, Boy -> Girl, boy -> girl.
+- Mixed or unusual capitalization requires review or an explicit policy.
+- Never alter low-confidence OCR merely because it resembles a known rule.
+
+Maintain an explainable trace of rule IDs, priorities, spans, intermediate
+transformations, and final text. Keep the necessary trace local in transaction
+state; do not put source/replacement text in image markers or processed history.
+
+===============================================================================
+10. LEARNED RULES, EXCLUSIONS, AND PROFILES
+===============================================================================
+
+Use a human-readable UTF-8 folder sidecar:
+
+    .image-gender-fixer.stt
+
+Prefer append-oriented JSON Lines.
+
+Each rule record should include:
+
+- schema version;
+- stable rule ID;
+- before text;
+- after text;
+- numeric priority;
+- match mode;
+- case policy;
+- punctuation policy;
+- scope;
+- enabled or ignored state;
+- creation order;
+- timestamp;
+- optional note.
+
+Validate every rule. A malformed record must be reported and logically
+quarantined without crashing the entire folder run.
+
+If the .stt file is compacted or rewritten, use a locked, validated,
+crash-safe state update. The application's image-style replacement-backup
+rule does not apply to routine rule-sidecar maintenance.
+
+Support exclusions for:
+
+- one occurrence;
+- one image hash;
+- one exact phrase;
+- surrounding context;
+- one folder;
+- one session;
+- all future processing.
+
+Support named rule profiles such as:
+
+    default
+    conservative
+    custom-project-name
+
+Record the selected profile and rules fingerprint in each transaction.
+
+Do not combine profiles unless precedence is explicitly defined and displayed.
+
+Provide:
+
+    rules explain <text>
+
+It must show without modifying anything:
+
+- matching rules;
+- priorities;
+- longest-match ordering;
+- shadowed rules;
+- intermediate transformations;
+- final text;
+- cycles or ambiguities.
+
+Do not erase learned substitutions during undo.
+
+Create or change learned rules only when the user explicitly requests saving
+them. A normal proposal, OCR correction, skip, or cancellation must not
+silently persist a new rule. A separately requested rule save may remain even
+if the image is subsequently skipped.
+
+Keep rules in .image-gender-fixer.stt, separate from .history.icgf. There is
+no encryption for either file. Expose documented command options for scopes,
+profiles, case/punctuation policy, and exclusions. Validate an existing file's
+format before writing to it.
+
+===============================================================================
+11. OCR CORRECTION WORKFLOW
+===============================================================================
+
+Do not interrupt ordinary processing to ask the user to correct OCR before the
+first rendering.
+
+For known rules:
+
+1. Perform OCR.
+2. Resolve the proposed substitutions.
+3. Render the proposed corrected image.
+4. Present the normal image-review screen.
+
+The review screen must then include an optional command such as:
+
+    Fix detected text / OCR
+
+Only if the user selects that option should the program ask them to correct:
+
+- recognized source text;
+- word boundaries;
+- reading order;
+- phrase grouping;
+- bounding boxes;
+- rotation;
+- which marks belong to an outline or shadow.
+
+After correction:
+
+1. Rerun rule matching.
+2. Show the updated rule trace.
+3. Rerender the affected region.
+4. Return to normal image review.
+
+Keep these separate:
+
+1. OCR correction:
+   “The image says boi, not bol.”
+
+2. Substitution rule:
+   “Replace boi with boy at priority 100.”
+
+3. Cascade:
+   “Then replace boy with girl at priority 10.”
+
+4. Visual styling:
+   “Render the final text this way.”
+
+An OCR correction must not automatically become a learned substitution.
+
+When no known substitution exists, it is permissible to ask for the desired
+replacement because rendering cannot proceed without one. Offer:
+
+- replacement text;
+- skip once;
+- persistent ignore;
+- folder rule;
+- global rule;
+- numeric priority;
+- cancel image.
+
+Show whether the new rule shadows an existing rule before saving it.
+
+The no-known-substitution replacement choices apply when the user explicitly
+reviews a no-match image or requests a manual edit. Do not prompt for every
+unmatched OCR word during ordinary runs.
+
+When safe proposal rendering is impossible, show the original and the specific
+blocking reason, then offer adjustment, OCR correction, skip, or cancel.
+Do not produce a known unsafe render merely to satisfy the usual render-first
+workflow.
+
+===============================================================================
+12. THREE VISUAL-CONFIDENCE LEVELS
+===============================================================================
+
+Classify each proposed image edit:
+
+LEVEL 1 — CONFIDENT:
+
+- high OCR confidence;
+- precise text mask;
+- flat or reconstructable background;
+- confidently estimated text styling;
+- replacement fits safely;
+- verification succeeds.
+
+LEVEL 2 — REVIEW REQUIRED:
+
+- mild texture or gradient;
+- approximate font match;
+- modest resizing or repositioning;
+- uncertain outline, shadow, spacing, or punctuation;
+- potentially visible but manageable repair seam.
+
+LEVEL 3 — DIFFICULT:
+
+- text over a photograph or detailed artwork;
+- text crossing a face, hand, object, or strong edge;
+- curved, rotated, perspective-distorted, or highly styled text;
+- complex outline, glow, transparency, or shadow;
+- uncertain background reconstruction;
+- inadequate safe space.
+
+These levels control warnings and tools. They do not normally bypass review.
+
+===============================================================================
+13. MANDATORY PER-IMAGE APPROVAL AND CANCELLATION
+===============================================================================
+
+Every image with a proposed change requires individual approval before commit,
+including Level 1 images by default.
+
+For an image containing multiple substitutions:
+
+1. Permit per-region adjustments.
+2. Assemble one composite final proposal.
+3. Show the complete proposal when previews are enabled.
+4. Request one final approval for that complete image.
+
+Only this explicit option may bypass review for an otherwise safe Level 1 edit:
+
+    --skip-reivew-for-confident-ones
+
+Support that exact spelling and the identical correctly spelled alias:
+
+    --skip-review-for-confident-ones
+
+Neither option may bypass Level 2 or Level 3 review, a hard-link warning,
+source-integrity failure, ambiguous history, unsafe placement, or other
+filesystem decisions requiring explicit approval.
+
+Without one of those aliases, --yes, remembered substitutions, a previous
+approval, and batch operation must not bypass per-image approval.
+
+Explain that visual editing remains beta-quality and deliberate individual
+approval is the default. File safety and recovery must still be engineered
+and tested to the acceptance standard.
+
+Provide review choices such as:
+
+    Approve and continue
+    Approve and pause
+    Skip and continue
+    Skip and pause
+    Defer until the end
+    Fix detected text / OCR
+    Adjust visual rendering
+    Compare background repairs
+    Cancel the current uncommitted edit
+
+Approval applies to the actual final proposal and validated source identity.
+Changing text, masks, styling, repair, placement, output pixels, or relevant
+metadata invalidates the previous approval and requires a new final approval,
+unless a freshly verified Level 1 proposal qualifies for the explicit bypass.
+
+SKIPPING AND CANCELLATION MEAN:
+
+- The source image bytes, metadata, and filename remain unchanged.
+- No corrected output is committed.
+- No successful conversion is written to .history.icgf.
+- No learned rule or visual preference is silently saved.
+- A rule the user separately requested saving may remain.
+- The session may remember skipped, deferred, failed, or canceled outcomes.
+- Necessary recovery bookkeeping may persist.
+- Program-owned candidate renders may be safely cleaned up.
+
+Remembering "this picture was skipped" is permitted and is needed for useful
+resume behavior. It does not mean that image was successfully processed.
+
+With --no-preview, retain the approval step and clearly summarize the changes.
+In JSON or other noninteractive operation, never prompt; return user-selection-
+required for an edit needing approval. Only an explicitly requested confident-
+review bypass can permit an otherwise fully verified Level 1 automatic commit.
+
+===============================================================================
+14. TEXT MASKS AND PHOTOGRAPHIC BACKGROUND REPAIR
+===============================================================================
+
+Do not erase an entire OCR rectangle when a more precise glyph mask can be
+built.
+
+Construct the smallest practical mask covering:
+
+- foreground glyphs;
+- antialiased edges;
+- outlines;
+- shadows;
+- glows;
+- other detected text effects.
+
+Dilate the mask only enough to remove visible remnants.
+
+Preserve every unaffected background pixel exactly where practical.
+
+Provide text-driven mask adjustments:
+
+    expand mask by one pixel
+    contract mask by one pixel
+    include or exclude shadow
+    include or exclude outline
+    extend left, right, up, or down
+    protect a neighboring region
+    reset mask
+    compare repair candidates
+
+Show:
+
+- original crop;
+- mask overlay;
+- repair-only crop;
+- final crop.
+
+Do not replace a photographic region with a flat rectangle unless the user
+explicitly chooses a solid caption-label treatment.
+
+Use progressively capable local repair strategies:
+
+1. Solid or nearly solid fill sampled from several surrounding regions.
+2. Directional interpolation for simple gradients.
+3. Classical local inpainting for textured or photographic backgrounds.
+4. Patch-based reconstruction using nearby visual material.
+5. Optional heavier local inpainting only with explicit approval.
+
+OpenCV native inpainting through `opencv-python-headless` and NumPy is
+permitted because photographic backgrounds are an explicit requirement.
+
+If multiple lightweight repairs are plausible, render candidates and allow the
+user to choose.
+
+Do not install or use a large neural inpainting model automatically.
+
+Before offering one, explain:
+
+- download size;
+- disk usage;
+- CPU or GPU use;
+- electricity implications;
+- license;
+- network requirements;
+- local privacy behavior.
+
+===============================================================================
+15. SOURCE-TEXT STYLE IMITATION
+===============================================================================
+
+Attempt to reproduce:
+
+- likely font family;
+- font weight;
+- italic or slant;
+- font size;
+- capitalization;
+- letter spacing;
+- word spacing;
+- baseline;
+- alignment;
+- foreground color;
+- opacity;
+- outline color and width;
+- shadow color;
+- shadow offset;
+- shadow blur;
+- simple glow or effects.
+
+Tesseract does not reliably identify exact fonts. Do not claim an exact match
+unless independently established.
+
+Rank plausible installed fonts by comparing rendered source characters against
+the extracted source mask.
+
+Do not install a new font automatically.
+
+For uncertain style matching, show labeled candidates.
+
+Allow adjustments including:
+
+    smaller or larger
+    move left, right, up, or down
+    narrower or wider tracking
+    choose another font
+    change foreground color
+    change outline
+    change shadow
+    choose background repair
+    show mask
+    render again
+    skip region
+    cancel image
+
+Remember a visual-style preference only when explicitly requested.
+
+Learning `boy -> girl` must not automatically authorize a particular font,
+color, placement, mask, or background-repair method.
+
+===============================================================================
+16. REPLACEMENT FITTING AND COLLISION SAFETY
+===============================================================================
+
+Before rendering:
+
+1. OCR and protect neighboring text regions.
+2. Determine image boundaries and safe placement.
+3. Measure the fully styled replacement, including:
+   - outline;
+   - shadow;
+   - glow;
+   - antialiasing margin.
+4. Verify it will not:
+   - overlap another protected word;
+   - obscure neighboring punctuation;
+   - unnecessarily cover an important image feature;
+   - extend beyond the image;
+   - be clipped.
+
+Attempt fitting in this order:
+
+1. Preserve original font size, baseline, and alignment.
+2. Expand into verified-safe adjacent background.
+3. Shift slightly into safe space while preserving reading order.
+4. Reduce letter spacing conservatively.
+5. Reduce font size by no more than approximately 15–20%.
+6. Require manual review and adjustment.
+
+Never silently:
+
+- overlap another word;
+- go outside the image;
+- clip the replacement;
+- cover neighboring punctuation;
+- stretch or squash letters;
+- wrap a single word;
+- make text unreadably small.
+
+If no safe placement exists, classify the edit as Level 3 and offer:
+
+- manual adjustment;
+- alternative wording;
+- solid caption label;
+- skip;
+- cancel.
+
+===============================================================================
+17. IMAGE AND PHOTOGRAPHIC VALIDATION
+===============================================================================
+
+Preserve where safely possible:
+
+- dimensions;
+- orientation;
+- alpha;
+- ICC profile;
+- relevant EXIF;
+- frame count;
+- animation;
+- image quality.
+
+Avoid unnecessary recompression.
+
+Do not silently edit only the first frame of an animated or multiframe image.
+Preserve the complete image or explicitly defer it.
+
+For photographic repairs:
+
+- compare repaired boundaries with nearby gradients and edges;
+- calculate a seam or discontinuity warning score;
+- detect obvious repetition or smearing where practical;
+- protect faces and important objects where detectable;
+- classify uncertain repairs as Level 3;
+- require review.
+
+Before final approval:
+
+- verify decoding;
+- verify dimensions;
+- verify orientation;
+- verify frame count;
+- verify metadata handling;
+- verify that rendered pixels remain inside the image;
+- verify that protected neighboring text boxes were not crossed;
+- rerun targeted OCR on corrected regions;
+- confirm the replacement where feasible;
+- confirm the source phrase is absent where feasible;
+- display every uncertain or failed check.
+
+Aesthetic quality cannot be proven numerically. Human approval remains required
+unless the confident-review bypass option was explicitly supplied and every
+Level 1 requirement is satisfied.
+
+If all candidate regions are rejected or skipped:
+
+- do not rename the source;
+- do not create a corrected output;
+- do not record a successful conversion.
+
+For lossless output, test that decoded pixels outside the affected repair/
+render region remain identical where no global transformation is required.
+JPEG re-encoding can change pixels outside that region; document this limitation
+and avoid claiming bit-identical unaffected pixels for lossy re-encoding.
+The preserved original backup must always remain byte-for-byte identical.
+
+Do not both bake an orientation transform into pixels and retain an EXIF value
+that would rotate the output again. Validate displayed orientation as well as
+stored dimensions. Preserve metadata deliberately rather than copying stale
+dimension/orientation tags blindly.
+
+===============================================================================
+18. OUTPUT AND ORIGINAL-BACKUP TRANSACTION
+===============================================================================
+
+A successful conversion of image.jpg produces these sibling files:
+
+    image.jpg.bak.YYYYMMDDHHMM.replaced-by-chatgpt.bak
+    image-gendeerfixed.jpg
+
+The original filename is absent after successful replacement because the
+unchanged original has been renamed to its verified backup. The corrected
+image uses the corrected suffix. Do not invent another backup convention.
+
+Use a recoverable multi-step transaction, not an unsupported claim that
+multiple separate file operations and history appends are one atomic action.
+
+1. Inspect the source, identify its format and file identity, and hash it.
+2. Consult folder history and product-detection checks before expensive OCR.
+3. Resolve OCR and the complete final substitution pipeline.
+4. Create uniquely named candidate/staging images directly beside the source.
+5. Validate decoding, dimensions, displayed orientation, frames, metadata,
+   protected regions, text fit, and other required checks.
+6. Obtain the required approval for the actual final proposal.
+7. Acquire appropriate source and folder-history locks. Use Windows sharing/
+   locking behavior that prevents source mutation through the final validation
+   and rename window where supported. If this cannot be made safe, stop.
+8. Revalidate source identity and rehash it immediately before commit. Abort
+   if it changed. Never treat a stale earlier hash as sufficient.
+9. Reserve collision-safe backup and corrected-output names without overwrites.
+10. Durably write a transaction intent/recovery journal before the first rename.
+11. Rename the original to its required sibling backup without overwriting.
+12. Verify the preserved original's identity/hash and journal the transition.
+13. Rename the approved, verified staging output to the corrected filename,
+    then verify its identity/hash and journal the transition.
+14. Append and flush the authoritative committed event to the source folder's
+    .history.icgf last. Use an idempotent transaction/event identity.
+15. Mark the local transaction and session committed. Update any derived
+    cross-folder cache only after the authoritative history commit.
+
+Never declare success before both the image transaction and the authoritative
+history event are durably committed. Failure to update a derived cache alone
+must not erase or invalidate a committed folder-history transaction.
+
+If an image commit step or the history commit fails, roll back safely where
+possible. Never overwrite a newly occupied path during rollback. If rollback
+cannot be completed, retain all recoverable originals and artifacts, journal
+the exact state, and report a recoverable partial failure.
+
+A crash after a valid history append but before a local "committed" marker
+must be recognized as the same already committed transaction on recovery.
+Do not duplicate it or undo it merely because local state lagged.
+
+Never overwrite an existing output or backup. Example output collisions:
+
+    image-gendeerfixed (1).jpg
+    image-gendeerfixed (2).jpg
+
+Use per-target locks and a folder-history write lock so concurrent cooperating
+instances cannot process the same file or corrupt .history.icgf.
+Recover stale locks conservatively and verify every rename or move.
+
+===============================================================================
+19. PREVIOUSLY PROCESSED IMAGES AND PRODUCT DETECTION
+===============================================================================
+
+Strongly avoid processing the same image or a program product twice.
+
+Use multiple layers:
+
+1. Recognize the -gendeerfixed suffix, including collision-numbered names.
+2. Recognize original replacement-backup names.
+3. Recognize corrected undo-archive names.
+4. Exclude known preview, crop, mask, and staging artifacts.
+5. Calculate original and corrected SHA-256 hashes.
+6. Consult active and undone transactions in the image folder's .history.icgf.
+7. Read a non-sensitive embedded application marker where the format supports it.
+8. Maintain a derived cross-folder hash cache from histories already observed.
+9. Optionally calculate perceptual hashes and normalized OCR fingerprints.
+
+An image marker may contain the application identifier, marker schema,
+transaction UUID, timestamp, original SHA-256, and rules fingerprint.
+Do not embed filenames, paths, OCR text, or replacement/substitution text.
+Hash the actual final output, including its final marker/metadata, for history.
+
+Skip an exact known corrected-output hash even when its filename changes.
+Skip or report an exact original hash belonging to an active conversion.
+Recognize hashes and transaction identities rather than relying on filenames
+alone. A misleading filename or conflicting marker/history must not justify
+silently skipping an ambiguous unrelated image.
+
+Perceptual similarity alone must not silently skip an image. Present probable
+re-encoded duplicates for review. If a filename, marker, and history disagree,
+report the ambiguity and require a safe explicit decision.
+
+After undo, identify the original as previously processed and undone. Permit
+deliberate reprocessing with explicit review rather than treating it as an
+already active conversion or silently converting it again.
+
+The per-folder .history.icgf is authoritative. The cross-folder cache under
+runtime\cache is only a derived accelerator; folder history must work with an
+empty, missing, stale, or unavailable cache.
+
+Renaming or moving the containing image folder together with its history must
+not defeat processed-image recognition. Use relative filenames, hashes, and
+transaction IDs, not absolute folder names or drive letters, as the basis.
+
+Document the limits honestly: folder-contained known hashes and markers can
+recognize copies and renames reliably within available history. Moving an
+image alone without its history or marker, using a different installation
+with no relevant history, arbitrary crops, screenshots, re-encoding, and heavy
+editing may evade detection. Do not claim a machine-global guarantee without
+available evidence.
+
+===============================================================================
+20. HIDDEN PER-FOLDER HISTORY: .history.icgf
+===============================================================================
+
+Store authoritative processing history in the actual folder containing each
+processed source image, under exactly:
+
+    .history.icgf
+
+For a recursive run, each image-containing directory records its own committed
+image transactions. Do not place the only history in the tool's installation
+or in one unrelated parent folder.
+
+Set the Windows Hidden attribute, preserving other appropriate attributes.
+A leading dot in the filename is not a substitute for explicitly setting
+that attribute. If the required attribute or safe history writes cannot be
+established, report the issue and do not silently claim full success.
+
+Use human-readable UTF-8, versioned, append-oriented JSON Lines or an equally
+transparent documented record format. Do not use DPAPI or any encryption.
+Sessions, journals, preferences, rules, and derived caches are also unencrypted.
+
+Include a recognizable application/schema header and stable history identity.
+Validate an existing file before writing. Preserve unrelated or unsupported
+files; do not overwrite them or create a numbered "fresh history" to ignore
+their contents.
+
+Transaction/event records should contain:
+
+- schema version;
+- unique event ID and cryptographically random transaction UUID;
+- event type and ordered sequence information;
+- timezone-aware timestamp;
+- original, corrected, original-backup, and undo-archive names as applicable,
+  stored relative to this image folder;
+- original and corrected SHA-256 hashes;
+- sizes and useful modification times;
+- rules/profile fingerprint and program version;
+- active, undone, recovered, or other documented transaction state;
+- enough integrity/recovery information to distinguish committed operations.
+
+Use relative paths only for records referring to files in this folder.
+Do not bind folder history to an absolute parent pathname, drive letter,
+computer, Windows user account, or machine-bound encryption key.
+
+Reject unsafe path components, absolute paths, traversal outside the recorded
+folder, and reparse-point escapes when resolving history references. Treat
+history as data to validate, not executable instructions or trusted arbitrary
+filesystem destinations.
+
+Do not put OCR text, replacement text, or full rule traces in processed-image
+history. Keep rules in the separate .image-gender-fixer.stt sidecar. A needed
+local rule trace may live in the transaction journal.
+
+Use locking and durable writes. Detect malformed/corrupted records, partial
+final writes, inconsistent sequence/order, duplicate event IDs, and
+inconsistent state transitions. Sequence information and a record-hash chain
+may detect accidental damage; do not describe unencrypted records as providing
+authenticated protection against a person deliberately rewriting the file.
+
+Retain readable history when a final record is incomplete. Do not append new
+records into a malformed tail or silently discard damaged bytes. Report the
+issue and use an explicit safe recovery path before further mutations.
+Recovery must preserve enough evidence to resolve interrupted transactions.
+
+Create .history.icgf only when meaningful transaction/recovery state actually
+needs recording. A canceled/skipped proposal does not require a successful
+conversion record. No-match scans and read-only commands must not create it.
+
+Successful image commits and undos are appended as events; do not erase the
+earlier conversion to record an undo. A transaction's latest validated state
+controls whether its original is eligible for deliberate reprocessing.
+
+History must survive a rename or move of the containing folder together with
+its contents. Existing local session portability and cross-computer undo are
+not required, but plain folder history must remain readable and useful for
+processed-image detection on another installation.
+
+Implement safe history status, verification, and explicitly requested backup
+commands. An explicit history backup must not overwrite anything and must
+not become a second competing authoritative history.
+
+Use restrictive Windows permissions where practical without binding records
+to a particular account. Do not add a separate .processed.enc registry or
+require a central index for normal folder-based recognition.
+
+===============================================================================
+21. AUTOMATIC OLD-JOB DISCOVERY, PAUSE, AND RESUME
+===============================================================================
+
+Large review runs must be safely resumable on the current installation.
+Store unencrypted session journals under:
+
+    runtime\state\sessions\
+
+Record completed/committed, skipped, deferred, failed, not-yet-reviewed,
+currently interrupted, and uncommitted states. Identify items by hashes,
+transaction identity, and validated file references, not queue positions alone.
+
+Never mark an image complete until its image transaction and authoritative
+.history.icgf event commit. Persisting a skipped/canceled session outcome is
+permitted; it must not create a successful image-history event.
+
+When an ordinary processing command starts, before creating a new job:
+
+1. Search automatically for resumable old jobs.
+2. Display each job's session ID, target description, creation/last-activity
+   times, completed/remaining/failed counts, and any interrupted transaction.
+3. Offer:
+   - resume a selected old job;
+   - inspect details;
+   - trash and forget it;
+   - leave it untouched and start a new job;
+   - cancel.
+4. Support selecting and handling multiple existing jobs individually.
+
+"Trash and forget" means:
+
+- recycle the session's uncommitted queue, session-owned state, and safely
+  disposable owned artifacts;
+- account for adjacent previews/staging images using the exact ownership
+  manifest rather than arbitrary filename patterns;
+- remove the job from future resume prompts only after successful abandonment;
+- preserve committed corrected images and original backups;
+- preserve .history.icgf and committed undo/conversion events;
+- preserve learned rules and user preferences;
+- explain that forgetting a job does not undo completed image changes.
+
+Do not abandon a job containing an interrupted filesystem transaction until
+recovery or rollback establishes a safe state. Explain the blocking state.
+Never discard an ambiguous image or its recovery evidence.
+
+If recycling abandonment data fails, retain the session and its recovery
+information, report the failure, and do not falsely mark it forgotten.
+
+Support:
+
+    --resume
+    --resume <session-id>
+    --new-session
+    sessions list
+    sessions status <session-id>
+    sessions abandon <session-id>
+
+--resume with one eligible job may select it; with multiple jobs it must ask
+for a selection, or report selection-required noninteractively. An explicit
+session ID must resolve uniquely.
+
+--new-session leaves old jobs untouched and reports that they remain.
+Revalidate sources, current rules, and already committed history when resuming;
+do not reuse a stale proposal's approval after material changes.
+
+Help, version, doctor, read-only rule/history/environment commands, and other
+administrative inspections must not force a resume prompt. A dry run may
+report old jobs without creating, advancing, or abandoning one.
+
+In JSON/noninteractive processing mode, do not prompt. Report existing jobs
+and require an explicit resume/new-session/abandon choice when necessary.
+--yes must not silently choose one.
+
+Ctrl+C or terminal closure must preserve the current session and leave the
+current image unchanged or recoverable. Do not promise recovery from physical
+storage failure; test interrupted operations and use durable journal writes.
+
+Moving live sessions between computers is not required. Folder-based
+processed-image recognition must not depend on those sessions being present.
+
+===============================================================================
+22. ADJACENT RENDERS AND OWNED TEMPORARY ARTIFACTS
+===============================================================================
+
+Write proposed image renders, repaired crops, mask overlays, previews, and the
+final staging image directly beside the source image. Do not place these
+image files under runtime\temp or another drive.
+
+Use collision-safe, recognizable names containing a random transaction UUID,
+for example:
+
+    .icgf-<uuid>-mask.png
+    .icgf-<uuid>-repair.png
+    .icgf-<uuid>-proposal.jpg
+
+Set Hidden attributes where appropriate. Naming alone is not sufficient proof
+of ownership: record exact artifact paths, identities, and transaction/session
+association. Never claim, replace, or recycle a pre-existing similarly named
+file merely because it matches a prefix.
+
+Minimize files by retaining small intermediates in memory where practical.
+Keep nonimage logs, locks, state, and caches in their designated tool
+subdirectories. Create no adjacent artifacts during dry runs or no-match scans.
+
+A candidate image is disposable only when the transaction no longer needs it.
+After commit, rejection, cancellation, or explicit safe session abandonment,
+recycle the exact known disposable image artifacts. Verify recycling; if it
+fails, retain the files and report their exact locations. Preserve anything
+needed for interrupted-transaction recovery.
+
+A file renamed into the final corrected output is no longer temporary.
+An original backup is never a disposable preview.
+Never delete or recycle an unknown file through wildcard cleanup.
+
+Installers and native tools may manage their own internal temporary files
+normally. That permission does not extend to the source, original backups,
+corrected undo archives, or ambiguous recovery artifacts.
+
+Doctor may identify abandoned owned previews and staging images and offer
+recycling, but must not recycle them without explicit confirmation. Ordinary
+cleanup of a current run's known disposable previews does not require repeated
+per-preview prompts.
+
+===============================================================================
+23. UNDO
+===============================================================================
+
+Support:
+
+    image_caption_gender_fixer.py undo *
+    image_caption_gender_fixer.py undo whatever.jpg
+
+A target may refer to:
+
+- original name;
+- corrected name;
+- original backup;
+- known transaction;
+
+provided resolution is unambiguous.
+
+Undo restores the original filename whenever safely possible.
+
+The corrected image must not initially be discarded. Rename it to:
+
+    <corrected-filename>.bak.YYYYMMDDHHMM.undone-by-image-caption-gender-fixer.bak
+
+Example before:
+
+    image.jpg.bak.202610221430.replaced-by-chatgpt.bak
+    image-gendeerfixed.jpg
+
+Example after:
+
+    image.jpg
+    image-gendeerfixed.jpg.bak.202610221455.undone-by-image-caption-gender-fixer.bak
+
+Apply collision numbering before the final `.bak`.
+
+Undo order:
+
+1. Resolve one unambiguous active transaction.
+2. Verify the original backup hash.
+3. Verify and classify the corrected file.
+4. Check whether the original path is occupied.
+5. Calculate the undo-archive name.
+6. Rename the corrected image to the undo archive.
+7. Rename the original backup to the original filename.
+8. Verify the restored original byte-for-byte.
+9. Roll back the corrected rename if restoration fails where safely possible.
+10. Durably append an idempotent undo event to the folder's .history.icgf,
+    using a journal so an interrupted restore/history update is recoverable.
+11. Apply the undo-archive disposition preference.
+
+Never overwrite a file occupying the original path.
+
+Refuse by default or offer an explicitly confirmed collision-safe alternate.
+
+If the corrected image has changed since creation:
+
+- always retain its undo archive initially;
+- never automatically recycle it;
+- require explicit per-file confirmation for any later recycling.
+
+If the folder's .history.icgf is missing, unreadable, incompatible, or
+ambiguous, normal undo must not guess.
+
+Provide explicit recovery through:
+
+    --recover-from-backups
+
+Show candidates and require confirmation.
+
+Undo must not remove learned rules.
+
+Undo lookup must use validated folder-relative history references, hashes, and
+transaction identity. Merely renaming or moving the containing folder must not
+invalidate those references. Cross-computer session migration and guaranteed
+cross-computer undo are not acceptance requirements.
+
+Journal intent before undo renames and verify the filesystem state after each
+transition. A successful undo consumes the active original-backup filename by
+renaming that preserved original back to its source filename; this is not a
+deletion of original content.
+
+Append the undo state only after the original is safely restored and verified.
+Keep conversion history rather than erasing it. If restoration succeeded but
+history update failed, retain recovery evidence and report a recoverable
+partial failure rather than inventing a clean state.
+
+The initial undo-archive rename preserves the corrected image without changing
+its bytes. A changed corrected image always requires its own explicit approval
+before any later recycling, regardless of --yes, remembered preferences, or
+a run-level "recycle all" answer.
+
+When undo resolves a transaction once through several wildcard/name arguments,
+perform it once. Never restore a different image merely because a filename
+resembles an expected backup.
+
+===============================================================================
+24. POST-UNDO KEEP OR RECYCLE PREFERENCE
+===============================================================================
+
+After safely creating the corrected undo archive, offer:
+
+1. Keep this undo archive.
+2. Recycle this undo archive.
+3. Keep all remaining undo archives this run.
+4. Recycle all remaining undo archives this run.
+5. Always keep future undo archives.
+6. Always recycle future undo archives.
+7. Cancel and keep it.
+
+Default to keep.
+
+Support persistent unencrypted preferences:
+
+    ask
+    keep
+    recycle
+
+Commands:
+
+    preferences show
+    preferences set undo-corrected ask
+    preferences set undo-corrected keep
+    preferences set undo-corrected recycle
+    preferences reset undo-corrected
+
+Per-run overrides:
+
+    --ask-about-undo-archives
+    --keep-undo-archives
+    --recycle-undo-archives
+
+A run-level “all remaining” answer applies only to that invocation.
+
+An “always” answer persists.
+
+Never apply automatic recycling to a corrected archive whose hash differs from
+the recorded corrected hash.
+
+If recycling fails, retain and report the archive.
+
+Never permanently delete it.
+
+Store preferences under the tool's runtime state directory, not in the image
+folder's history. Use a schema and safe state writes, without image-style
+backups on each update. Conflicting per-run archive-disposition flags are
+invalid arguments.
+
+In noninteractive/JSON mode, an unspecified ask preference must retain the
+archive safely and report that it was kept; it must not prompt or guess
+permission to recycle. An explicitly selected keep/recycle policy may be
+applied only where all changed-file protections permit it.
+
+===============================================================================
+25. FILESYSTEM AND CAPACITY CHECKS
+===============================================================================
+
+Before rendering or committing, check realistic available capacity on the
+source volume and on any volume holding required transaction state.
+
+Account for candidate/staging outputs, any actually required backup copies,
+history and journal growth, and rollback needs. A same-volume rename of an
+original into its backup normally does not need a second full image copy;
+do not invent unnecessary duplicate-storage requirements.
+
+Detect and handle:
+
+- read-only sources or folders;
+- access denial and unavailable history writes;
+- path-length limitations;
+- files in use;
+- unsupported or unreliable filesystem behavior;
+- network-drive semantics;
+- hard links and reparse points;
+- source changes;
+- collisions created by another process;
+- inability to retain a recoverable original.
+
+Use Windows extended-length-path-safe APIs where practical. Preserve legal
+Unicode and unusual filenames through argument arrays and explicit path APIs.
+
+All rendered/staging image files must be beside the source, keeping final
+rename operations on the same volume. Do not stage under the tool directory
+and then silently fall back to a cross-volume copy/delete.
+
+If the required atomic, non-overwriting operation is unavailable, explain the
+limitation and require an explicit safe decision, or defer the image. Never
+permanently delete an original or backup as a fallback.
+
+--allow-network only permits considering a remote target. Do not claim remote
+atomicity, locking, durability, or recycling is reliable without checking.
+Retain files and report when safe processing or recycling cannot be supported.
+
+After each move or rename, verify expected source/destination existence and
+the expected identity/hash. Detect an original-name collision during undo
+without overwriting it.
+
+Preserve useful timestamps and attributes where safe. Document timestamps or
+attributes that necessarily change because a new image was created or a file
+was renamed.
+
+===============================================================================
+26. CRASH RECOVERY, LOGGING, AND LOCKING
+===============================================================================
+
+Maintain unencrypted crash-safe transaction journals under:
+
+    runtime\state\transactions\
+
+Flush intent before protected filesystem mutations and record verified state
+transitions. Use the authoritative folder history to reconcile a journal that
+lags a committed transaction.
+
+For mutating processing/recovery commands, detect interrupted transactions and:
+
+- complete deterministic recovery;
+- roll back safely; or
+- stop and explain the specific decision required.
+
+Read-only commands, help/version, explain, and --dry-run may report pending
+recovery but must not perform mutations as a startup side effect.
+
+Recovery must be idempotent. Never duplicate a committed history event,
+overwrite an unrelated occupant, or classify an ambiguous source/backup/
+corrected file by timestamp alone. Preserve all original data and recovery
+evidence if the state cannot be resolved safely.
+
+A renamed folder may make a local session's old absolute target hint stale.
+Report that situation and use validated selected-folder history, hashes, and
+explicit user selection where needed; do not search arbitrary disks or guess
+a replacement target. Cross-computer live-session portability is not required.
+
+Use per-source Windows-safe locks and folder-history write locks.
+Different installations operating on the same folder must coordinate through
+filesystem locking, not only through installation-local lock filenames.
+Stale-lock handling must account for process identity and avoid stealing a
+live lock based only on age.
+
+Keep logs under runtime\logs\. Do not log complete histories, sensitive OCR
+text, substitution text, or confidential paths unnecessarily.
+Clearly document additional verbose diagnostics.
+
+Ctrl+C and terminal closure must leave original images unchanged or recoverable.
+Do not hide orphaned previews, staging files, backups, or ambiguous history.
+Use atomic operations where supported, and never let an internal state-file
+replacement overwrite an unrelated user file.
+
+===============================================================================
+27. JSON MODE, EXIT CODES, AND AUTOMATION
+===============================================================================
+
+Use stable documented exit codes for:
+
+- success;
+- success with skipped files;
+- nothing to process;
+- user cancellation;
+- user selection required;
+- dependency unavailable;
+- history or integrity failure;
+- unsafe filesystem condition;
+- partial failure with recoverable files;
+- invalid arguments.
+
+In `--json` mode:
+
+- write machine-readable JSON to stdout;
+- write human diagnostics to stderr;
+- emit no ANSI color;
+- emit no animated progress;
+- emit no Chafa output;
+- issue no interactive prompt;
+- fail safely when a decision requires interaction;
+- include transaction IDs and result states;
+- avoid exposing sensitive OCR text.
+
+Document whether JSON output is one object or a structured stream, and keep
+that contract stable. Include committed/skipped/deferred/canceled/failed
+states explicitly; a recoverable partial failure must not be reported as a
+successful image conversion.
+
+Do not let --yes authorize installation, per-image review, session selection,
+or any other protected decision in noninteractive mode.
+
+===============================================================================
+28. VERSIONING AND EXPLANATION
+===============================================================================
+
+Implement:
+
+    --version
+    explain <file>
+
+Give independent schema versions to:
+
+- program;
+- rule format;
+- metadata marker;
+- folder history (.history.icgf);
+- session journal;
+- transaction journal.
+
+`explain <file>` must report without changing anything:
+
+- why the file would be processed;
+- why it would be skipped;
+- whether it is a known product;
+- whether it is ambiguous;
+- applicable rules;
+- confidence level;
+- review requirement;
+- transaction history where safely available.
+
+Use timezone-aware timestamps internally.
+
+Preserve the required local backup filename timestamp format.
+
+Use cryptographically random transaction UUIDs.
+
+Do not rely on timestamps alone to associate images, outputs, and backups.
+
+Also version preferences and the environment/bundle manifest as appropriate.
+
+explain is read-only. Use available history and analysis; report unknown
+confidence or unavailable analysis when a dependency is missing instead of
+installing it, writing previews, or inventing a result. No command may execute
+code or arbitrary paths supplied by a history or rule record.
+
+Use timezone-aware UTC timestamps for stored events while rendering user-facing
+times appropriately. Backup filenames use the required local YYYYMMDDHHMM
+format, with collision numbering as specified.
+
+===============================================================================
+29. AUTOMATED TESTING
+===============================================================================
+
+Use generated disposable fixtures. Never modify real user images during tests.
+
+At minimum test:
+
+RULES:
+
+- priority-100 `boi -> boy`;
+- lower-priority `boy -> girl`;
+- final `boi -> girl`;
+- final `good boi -> good girl`;
+- longest phrase before shorter word;
+- literal before regex at an exact tie;
+- folder/user precedence;
+- stable leftmost overlap behavior;
+- cycle rejection;
+- no same-priority repeated processing;
+- no intermediate rendering;
+- `man` not matching inside `woman`;
+- BOI, Boi, and boi case behavior;
+- malformed rule records;
+- exclusions and profiles.
+
+OCR AND REVIEW:
+
+- ordinary flow does not stop for pre-render OCR correction;
+- post-render “Fix detected text / OCR” option;
+- OCR correction reruns rules and rendering;
+- OCR correction does not become a rule;
+- default approval for every proposed image;
+- Level 1 still requires approval;
+- exact `--skip-reivew-for-confident-ones`;
+- correctly spelled alias;
+- neither alias bypasses Level 2 or Level 3;
+- `--yes` does not bypass review;
+- composite approval for multiple regions;
+- cancel preserves the image and successful history while session bookkeeping may persist;
+- no-match images do not prompt by default;
+- `--review-no-match-images`.
+
+VISUAL EDITING:
+
+- wider replacement near neighboring text;
+- replacement at every image edge;
+- outline and shadow collision measurement;
+- mask minimization;
+- unaffected pixels remain unchanged where expected;
+- photographic background candidates;
+- repair-only preview;
+- rejection where no safe fit exists;
+- font and styling approximation;
+- multiframe preservation or explicit deferral;
+- metadata and orientation behavior.
+
+FILESYSTEM:
+
+- literal wildcard expansion;
+- overlapping argument deduplication;
+- nonrecursive and recursive behavior;
+- reparse-point refusal;
+- hard-link warning;
+- network refusal;
+- output collision numbering;
+- required backup names;
+- source changes during processing;
+- staging verification failure;
+- rename rollback;
+- lock contention;
+- stale-lock recovery;
+- insufficient disk space;
+- no permanent-delete fallback for originals, backups, or corrected undo archives.
+
+DUPLICATE DETECTION:
+
+- exact duplicate after rename;
+- corrected-product recognition;
+- backup recognition;
+- undo-archive recognition;
+- embedded marker recognition;
+- renamed corrected hash detection;
+- perceptual similarity requiring review;
+- history-marker disagreement.
+
+FOLDER HISTORY:
+
+- exact .history.icgf filename;
+- Windows Hidden attribute, including creation/attribute failure;
+- readable unencrypted versioned records;
+- history located in each actual image-containing folder;
+- recognition after renaming or moving the containing folder;
+- renamed original/corrected filenames identified by verified hashes;
+- independence from missing, stale, or empty central cache;
+- corrupt and malformed records;
+- partial final write with readable earlier history retained;
+- reordered or duplicated records and inconsistent transitions;
+- schema mismatch;
+- relative filenames without binding to absolute parents or drive letters;
+- path traversal and reparse-point escape rejection;
+- existing unrelated file at the canonical history name left intact;
+- no history creation for no-match scans, help, or dry runs;
+- no successful-conversion event for a canceled/skipped/rejected edit;
+- durable conversion and undo events with idempotent recovery;
+- no DPAPI, encryption keys, or account/machine dependency.
+
+SESSIONS:
+
+- automatic old-session discovery;
+- resume prompt before new processing;
+- multiple old sessions;
+- inspect session;
+- resume;
+- start new while retaining old;
+- trash and forget;
+- committed outputs preserved when a session is forgotten;
+- session data and exact adjacent owned artifacts recycled;
+- recycle failure retains session;
+- interrupted transaction prevents unsafe abandonment;
+- Ctrl+C preservation;
+- JSON mode requiring explicit selection.
+
+UNDO:
+
+- lookup by original name;
+- lookup by corrected name;
+- undo archive naming;
+- byte-for-byte restoration verification;
+- occupied original path refusal;
+- changed corrected file protection;
+- keep/recycle/ask preferences;
+- run-only “all remaining” behavior;
+- recycle failure retaining archive;
+- history-unavailable recovery requiring confirmation.
+
+PROJECT HYGIENE:
+
+- bundled dependency selection without unrelated global-package fallback;
+- incomplete environment creation and readiness-marker handling;
+- no real installation from tests;
+- Chafa terminal-size calculation;
+- approximately 70% preview height;
+- safe unusual filenames;
+- redirected output;
+- JSON output;
+- no-preview behavior;
+- clean root after success;
+- clean root after failure;
+- clean root after tests;
+- refusal to process project directory;
+- no sidecars when no candidates exist;
+- owned image-preview recycling and permitted native-tool/internal-temp cleanup.
+
+Use paths containing:
+
+- spaces;
+- Unicode;
+- apostrophes;
+- brackets;
+- legal Windows wildcard-like characters, such as brackets and leading dashes;
+- long path components.
+
+Run tests in layers:
+
+1. Pure unit tests.
+2. Filesystem transaction tests.
+3. Mocked external-tool tests.
+4. Real-tool smoke tests when dependencies are available.
+5. End-to-end processing of generated disposable images.
+6. End-to-end undo.
+7. Interrupted-session recovery.
+
+Test literal * and ? as command-line wildcard arguments; do not try to create
+ordinary Windows filenames containing characters forbidden by Windows.
+Test very long overall paths using legal component lengths, and report
+unsupported extended-path behavior honestly.
+
+BUNDLED DEPENDENCIES AND RELOCATION:
+
+- actual bundled Python packages and transitive/native package dependencies;
+- operation without those packages installed globally;
+- offline use of the delivered bundle;
+- bundled Claire progress utility without Claire's C:/T: library paths;
+- compatible and incompatible Python/architecture detection;
+- copied/moved tool directory with relative resource resolution;
+- safe detection of a location-dependent environment needing reconstruction;
+- explicit confirmation before installation/repair, and clean decline;
+- clear explanation that required missing dependencies block processing;
+- --yes and JSON mode not silently authorizing installation;
+- help/version remaining available without installing dependencies;
+- verification failure not reported as installation success;
+- no real network access or installations from tests.
+
+ADJACENT ARTIFACTS AND COMMIT BOUNDARIES:
+
+- all proposed renders, preview images, masks, repaired crops, and final image
+  staging paths beside the source;
+- no artifact creation on a read-only dry run;
+- collisions with similarly named user files preserved;
+- exact ownership needed before cleanup;
+- no originals or original backups treated as disposable previews;
+- crash/fault injection before and after each source rename, output rename,
+  journal transition, history append/flush, and local session commit;
+- failure between a committed history event and local cache/session updates;
+- two cooperating instances coordinating through source/folder locks;
+- a changed source between review and commit refused;
+- material proposal changes invalidating approval;
+- explicit archive policies never recycling a changed corrected file.
+
+At least one real PNG end-to-end test and one real JPEG end-to-end test must
+perform actual OCR/rendering using installed or bundled tools, exercise
+deterministic approval input on generated images, verify original preservation,
+validate the hidden folder history, and undo safely. Include a real generated
+photographic-background case with repair-only and corrected previews.
+
+Automated review input is acceptable for generated test images. It must not
+become a hidden default approval bypass for ordinary user runs.
+
+Test moving/renaming an entire generated image folder and confirm its
+.history.icgf still prevents a duplicate conversion with the central cache
+disabled. Also test undo history and deliberate reprocessing after undo.
+
+Maintain docs\requirements-checklist.md mapping requirements to implementation,
+tests, evidence, and status. Distinguish:
+
+- pure unit tests;
+- mocked native/OS tests;
+- real Windows API tests;
+- real-tool smoke tests;
+- real image end-to-end tests;
+- checks not run, with reasons.
+
+Do not equate passing mocks with working OCR, valid native dependencies,
+correct Hidden attributes, functioning Windows recycling, or usable image
+editing. If required real-tool tests cannot run, report the implementation
+as incomplete/unverified in those respects rather than declaring completion.
+
+===============================================================================
+30. README AND DOCUMENTATION
+===============================================================================
+
+Write a clear root `README.md` covering:
+
+- purpose;
+- bundled Python packages and automatic environment selection;
+- supported Python/Windows architecture and bundled versus external dependencies;
+- installation confirmation;
+- processing examples;
+- wildcard behavior;
+- recursion;
+- rule priorities;
+- longest-match ordering;
+- the confirmed `boi -> boy -> girl` cascade;
+- profiles and exclusions;
+- optional OCR correction after rendering;
+- three confidence levels;
+- mandatory per-image review;
+- both confident-review bypass spellings;
+- Chafa sizing;
+- photographic repair;
+- visual-quality limitations;
+- hidden per-folder .history.icgf and its authoritative role;
+- unencrypted relative-path history that survives folder renames/moves;
+- duplicate-detection guarantees and limitations;
+- corrected suffix spelling;
+- original backup naming;
+- pause and resume;
+- automatic old-job prompt;
+- trash-and-forget semantics;
+- undo;
+- keep/recycle preferences;
+- dry-run;
+- JSON mode;
+- eco mode;
+- project layout;
+- cleanliness of the tool's own root only;
+- privacy;
+- troubleshooting;
+- recovery;
+- `doctor`;
+- safe uninstall using the Recycle Bin, preserving original images and backups.
+
+Place deeper design and recovery documentation under `docs\`.
+
+Document third-party tools and licenses.
+
+Also document:
+
+- confirmation before missing-dependency installation or repair;
+- the fact that missing required dependencies block image correction;
+- normal offline operation and absence of manual pip setup;
+- how to build/reproduce the delivered dependency bundle;
+- relative resource selection and any automatic relocation repair;
+- adjacent render/staging filenames and ownership-safe cleanup;
+- the image-only runtime replacement-backup policy;
+- ordinary state updates not requiring a full image-style backup each time;
+- permitted installer/native-tool internal temporary-file cleanup;
+- source-preserving skip/cancel with persistent session bookkeeping;
+- history schemas, locking, partial-tail detection, recovery, and backup;
+- corruption detection limits of unencrypted history;
+- central-cache independence and limits of cross-folder duplicate detection;
+- no cross-computer live-session or undo requirement;
+- lossless versus lossy unaffected-pixel guarantees;
+- reapproval after changing a proposal;
+- exit-code/JSON contracts and explicit decisions --yes cannot approve;
+- exact tests executed, real versus mocked evidence, and unverified behavior.
+
+Keep requirements traceability and detailed recovery/state-transition design
+under docs\. Include third-party versions, licenses, redistribution notices,
+and package/tool provenance with the delivered bundle.
+
+Write instructions for end users using the provided dependencies. Manual pip
+installation must not be the ordinary end-user setup procedure.
+
+===============================================================================
+31. ACCEPTANCE STANDARD
+===============================================================================
+
+A successful edit requires:
+
+- a verified byte-for-byte original backup under the required sibling name;
+- a decodable corrected output with the -gendeerfixed suffix;
+- expected dimensions, displayed orientation, alpha/frames where supported,
+  and deliberate metadata handling;
+- no unresolved filename collision or silent overwrite;
+- no source change between approved analysis and protected commit;
+- no known overlap with protected neighboring text or out-of-bounds rendering;
+- completed required review of the actual final proposal;
+- consistent journal/filesystem state;
+- a durable committed event in the correct folder's hidden .history.icgf;
+- no new unexpected artifacts in the tool's own project root.
+
+"Processed successfully" means the corrected image and authoritative history
+event were actually committed. Skipped, rejected, deferred, canceled, failed,
+and merely rendered images are not successful conversions.
+
+Photographic reconstruction and font imitation are best-effort visual tasks.
+Implement the required local repair strategies and adjustment/review workflow,
+label uncertainty honestly, and permit safe explicit deferral when an image
+cannot be edited acceptably. Deferral is not successful conversion.
+
+Unsupported animation/multiframe cases may be explicitly deferred rather than
+silently losing frames. Ordinary PNG/JPEG editing, required safe transactions,
+folder history, review, sessions, and undo may not be replaced with stubs or
+blanket "unsupported" results.
+
+A useful dependency bundle must actually be present and validated. A lockfile,
+download offer, README installation instructions, or tests using globally
+installed packages alone do not establish bundled-dependency acceptance.
+
+===============================================================================
+32. REQUIRED COMPLETION AND FINAL IMPLEMENTATION REPORT
+===============================================================================
+
+Before declaring the implementation complete:
+
+1. Inspect all created/changed project files and dependency manifests.
+2. Run the required automated test layers and actual generated-image tests.
+3. Run doctor and report both new artifacts and pre-existing root violations.
+4. Run help/version smoke tests without triggering installation.
+5. Run read-only dry-run smoke tests and verify no image-folder mutations.
+6. Verify operation from a different current working directory.
+7. Verify bundled packages are used without unrelated global packages.
+8. Verify normal offline operation with the delivered dependency bundle.
+9. Verify relative resource selection from a copied/moved tool directory,
+   including any consent-based environment repair that is genuinely needed.
+10. Verify environment/bundle/cache files remain in designated subdirectories.
+11. Audit original-image and original-backup paths for permanent-delete
+    operations; none may exist. Verify corrected undo archives obey keep/
+    recycle protection. Do not misclassify installer/internal-temp cleanup
+    as deletion of an original image.
+12. Verify every collision preserves both user files.
+13. Verify the exact -gendeerfixed suffix and required backup/archive names.
+14. Verify the complete boi -> boy -> girl cascade and good boi -> good girl.
+15. Verify per-image review by default, both confidence-bypass spellings,
+    --yes restrictions, and Level 2/3 review protection.
+16. Verify .history.icgf is in each relevant image folder, has the Windows
+    Hidden attribute, contains no encryption, and uses relative references.
+17. Rename/move a generated target folder and verify processed-image detection
+    still works with no central cache.
+18. Verify renders, masks, crops, previews, and staging images are beside the
+    source, are excluded from discovery, and have ownership-safe cleanup.
+19. Verify old jobs are offered before creating a new ordinary processing job.
+20. Verify forgetting a session preserves committed images, original backups,
+    folder history, learned rules, and undo history.
+21. Verify skip/cancel preserves the source while allowing session bookkeeping.
+22. Verify undo archives corrected work before optional recycling and restores
+    the preserved original byte-for-byte.
+23. Verify interrupted commit/undo/history writes remain recoverable.
+24. Verify no real user image was modified during development or tests.
+25. Review docs\requirements-checklist.md and disclose incomplete/unrun items.
+
+In the final implementation response:
+
+- Lead with whether the utility is complete and usable.
+- Summarize actual test results, separating mocks from real tools/Windows APIs.
+- Disclose limitations and unverified behavior honestly.
+- Provide exact processing, resume, history-status, and undo commands.
+- Link the main Python file, README, requirements checklist, and bundle manifest.
+- List every affected C:\BAT file path and label created, modified, renamed,
+  replaced, recycled, or deleted; identify both paths for moves/renames.
+- Identify installed or bundled dependencies with versions and locations.
+- State which installation confirmations were obtained and whether any
+  system-level software was installed.
+- State whether anything was sent to the Recycle Bin and identify it.
+- Confirm original-image safety, the hidden folder-history filename, adjacent
+  render placement, and the intentionally spelled corrected suffix.
+
+Do not claim completion unless the implementation exists, the delivered
+dependencies are usable, the required actual tests pass, and the relevant
+acceptance requirements are demonstrated.
+
+If blocked by unavailable dependencies, consent, or platform capabilities,
+continue independent authorized work, then state precisely what remains
+blocked. Never invent successful verification or silently weaken a requirement.
