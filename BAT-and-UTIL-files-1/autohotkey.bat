@@ -41,6 +41,15 @@ rem Special "autohotkey restart" / "ahk restart" command to re-start it in case 
                         goto /i END
     endiff
 
+rem Special "autohotkey stop" / "ahk stop" command to stop it in case we need it stopped
+    iff "%PARAM_1%" == "stop" then
+                rem Let user know:
+                        echo %ANSI_COLOR_REMOVAL%Stopping %italics_on%AutoHotKey%italics_off%...%ANSI_RESET%
+                        set  PARAM_1=stop
+                        kill /f AutoHotKey*
+                        goto /i END
+    endiff
+
     rem our autoexec.ahk has a insert-status "tracker" that doesn’t really track, so best set insert to on coinciding with the loading of this:
             if "%PARAM_1%" == "start" .or. "%PARAM_1%" == "restart" .or. "%PARAM_1%" == "autoexec"     (set PARAM_1=%BAT%\autoexec.ahk %+ set PARAMS=%PARAM_1%)
             rem infinite loop oops if "%PARAM_1%" == "%bat%\autoexec.ahk"                  .or. "%PARAM_1%" == "autoexec.ahk" (call AutoHotKey-autoexec %bat%\autoexec.ahk %+ goto :END)

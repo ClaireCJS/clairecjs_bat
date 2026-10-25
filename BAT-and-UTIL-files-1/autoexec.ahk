@@ -656,3 +656,13 @@ ShowWinampState() {
 ^!Enter:: Click("left")
 ;;to simulate a doubleclick do it twice 50ms apart::{ click("left") sleep(50) click("left") }
 
+
+
+
+
+;;;; ChatGPT 2026 advice on disabling magnifier by overriding the keyboard shortcut:
+#HotIf
+#=::return          ; Win+Equals
+#+=::return        ; Win+Shift+Equals (Plus)
+#NumpadAdd::return  ; Win+Numpad Plus
+

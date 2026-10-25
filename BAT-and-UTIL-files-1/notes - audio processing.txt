@@ -12,6 +12,38 @@
 
 
 
+
+
+
+
+
+
+⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ POST-AI INSTRUCTIONS: ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+	- rename the files (see below)
+	- run “LRCget”    to get lyrics/LRC available from the internet (1st pass)
+	- run “sweep glh” to get lyrics     available from the internet (2nd pass) 
+	- run “sweep gkh” to generate karaokes via AI
+	- run “album_art_downloader.py” to get album art
+	- run “audit_music_batch.py” to find out what else needs to be done
+	- Tag it (see below)
+⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/identify-songs-music-recognition-online/
 
 
@@ -35,7 +67,14 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 - do all the renamings/pre-research of albums
-	- manually walk through all the folders in the batch to do this —— it's a detail-oriented task
+	- manually walk through all the folders in the batch to do this —— it’s a detail-oriented task
+	- non-music          needs “ [non-music]”
+	- sound effects      needs “ [sound effect]”
+	- chiptuns           needs “ [chiptune]” in the filename unless it’s in a folder that has “ [chiptunes]” in the name
+	- instrumentals      need  “ [instrumental]”
+	- semi-instrumentals need  “ [semi-instrumental]” with an additional clarification(s) of “ [no lyrics]” or “ [no vocals]”
+	- For merged tracks where only one section is instrumental/no-lyric, label the section with shorthand like `[semi-instr] [no-lyr]`; do not mark the whole active filename `[instrumental]` or `[no lyrics]`, because those mean whole-file suppression which would prevent AI from generating lyrics for the part(s) that have them
+
 	- albums should be FLAC, MP3, or WAV —— any other formats need to be converted to wav (extract-all-wavs.bat) and the original audio files trashed or archived
 	- DO NOT look at/deal with cover art, because later we will be downloading more, so this would end up making us do it twice!! 
 	- If every single mp3 has the artist and album nam e in it, there is a quick fix!
@@ -331,25 +370,31 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 - TAGGING: STEP 6: THE ACTUAL TAGGING: – Tag&Rename — finally giving up on id3v1 tags in 2023!
-    	- get all fields of all id3v2 tags right
-                - do not leave empty GENRE/TCON tags; either set a real genre or remove the genre tag entirely
-                - keep punk-family genre tags simple: Pop Punk, Post-Punk, Post-Hardcore, etc. should usually be collapsed to Punk
-GOATGOATADDEDBYCHATGPTBEGIN
-                - featured-artist tag convention, based on the manually corrected Lauren Sanderson batch:
-                    - Use lowercase `feat` in the artist string: `Main Artist feat Guest`.
-                    - For loose singles/MISC tracks, put that same full featured-artist string in both ARTIST and ALBUMARTIST.
-                    - Keep TITLE clean: do not put `(feat Guest)` in TITLE just because the artist has a featured guest.
-                    - If the release itself names a version/remix, put that version detail in TITLE, e.g. `Come Say Sum (Fred Durst version)`.
-                    - Examples:
-                        - `Lauren Sanderson feat Fred Durst - Come Say Sum.flac`: ARTIST/ALBUMARTIST=`Lauren Sanderson feat Fred Durst`, TITLE=`Come Say Sum (Fred Durst version)`.
-                        - `Stand Atlantic feat Lauren Sanderson - I’m The Man.flac`: ARTIST/ALBUMARTIST=`Stand Atlantic feat Lauren Sanderson`, TITLE=`I'm The Man`.
-GOATGOATADDEDBYCHATGPTEND
-                - cover songs: sometimes we like to mention original artists in the comments
-                - URL-only comments should be moved into URL tags, not left as comments:
-                    - e.g. COMMENT="Visit https://glassbeach.bandcamp.com" should become URL="https://glassbeach.bandcamp.com"
-                    - after moving the URL, remove the empty/fake COMMENT unless there is a real prose comment worth keeping
-                - if a single/loose copy is the same recording as the on-album copy, keep the on-album copy active and rename the redundant single/loose file to *.flac.deprecated.on-album or *.mp3.deprecated.on-album
+    	- Best practices:
+		- get all fields of all id3v2 tags right
+                
+		- do not leave empty GENRE/TCON tags; either set a real genre or remove the genre tag entirely
+                
+		- keep punk-family genre tags simple: Pop Punk, Post-Punk, Post-Hardcore, etc. should usually be collapsed to Punk
 
+	
+	- featured artists:	- Use lowercase `feat` w/o period in the artist string: `Main Artist feat Guest`.
+                    
+				- For loose singles/MISC tracks, put that same full featured-artist string in both ARTIST and ALBUMARTIST.
+                    
+				- Keep TITLE clean: do not put `(feat Guest)` in TITLE just because the artist has a featured guest.
+                    
+				- If the release itself names a version/remix, put that version detail in TITLE, e.g. `Come Say Sum (Fred Durst version)`.
+                    
+				- Examples:
+                        
+					- `Lauren Sanderson feat Fred Durst - Come Say Sum.flac`:    ARTIST/ALBUMARTIST=`Lauren Sanderson feat Fred Durst`,     TITLE=`Come Say Sum (Fred Durst version)`.
+                        
+					- `Stand Atlantic feat Lauren Sanderson - I’m The Man.flac`: ARTIST/ALBUMARTIST=`Stand Atlantic feat Lauren Sanderson`, TITLE=`I’m The Man`.
+	- cover songs: sometimes we like to mention original artists in the comments additionally, but the place they really need to go in is the Original Artists field. 
+			But if a file format doesn’t have an original artists field, then we put it after the title, like: "Plasticallica - One (by Metallica)"
+	- URLs: URL-only comments should be moved into URL tags, not left as comments:
+                    
 
 
 
@@ -398,27 +443,6 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
 
 
 
-
-GOATGOATADDEDBYCHATGPTBEGIN
-- AI/Codex audit automation: run `audit_music_batch.py` from the root of a music-processing batch when you want a broad proposal/audit pass before making changes.
-    - The tool is read-only: it does not edit tags, delete files, merge audio, or fetch art.
-    - Pre-audit karaoke sidecar fix: before `audit_music_batch.py`, run `lrc2srt.py MiniLyricsFix --recursive --automatic-overwrites` from the batch root.
-        - This creates a missing same-stem `.srt` only when a timestamped `.lrc` and matching `.txt` both already exist.
-        - Untimed/no-cue LRC files are skipped; bad empty SRT files are worse than no SRT.
-        - It should happen before the audit so MiniLyrics display compatibility is already normalized before the proposal pass.
-    - For merged tracks where only one section is instrumental/no-lyric, label the section with shorthand like `[semi-instr] [no-lyr]`; do not mark the whole active filename `[instrumental]` or `[no lyrics]`, because those mean whole-file suppression.
-    - Interactive mode is the default: plain `audit_music_batch.py .` prints the audit and then asks through the approval prompts.
-    - Typical commands:
-        - `lrc2srt.py MiniLyricsFix --recursive --automatic-overwrites`
-        - `audit_music_batch.py . --write-reports`
-        - `audit_music_batch.py . --no-interactive --write-reports`
-    - Interactive prompts use capitalized defaults: `[Y/n]` means Enter approves; `[y/N]` means Enter skips/rejects.
-    - Prompts use ANSI color by default; add `--no-color` if a terminal displays escape codes literally.
-    - The approval plan is written to `audit_music_batch_approval_plan.json`; reports are written to `audit_music_batch_report.json`, `.md`, and `.txt`.
-    - Good audit targets include missing ReplayGain, missing embedded art, missing/empty genres, URL-only comments, punk-family genre simplification, active TODO filenames, same-stem MP3/FLAC pairs, missing SRT when timestamped LRC+TXT exist, VAD scratch files, temp BATs, active WAVs, archive-folder `attrib.lst`, and sidecar preservation warnings.
-    - Guardrails: never default-delete `.bak`; never default-delete `__ something __` marker/comment files; do not treat logs as default-delete; same-stem MP3/FLAC deprecation must preserve MP3-only sidecars first.
-    - Full documentation lives at `C:\BAT\docs\audit-music-batch.md`.
-GOATGOATADDEDBYCHATGPTEND
 - Inside the batch, run: preprocess-audio-tagging-batch 
 		- this deletes some junk files
 

@@ -3,6 +3,12 @@
 @on break continue
 
 
+
+
+
+
+
+
 rem Only meant to be called by the various autoexec-<MACHINENAME>.BTM/.BATs
 
 
@@ -35,7 +41,7 @@ rem Initialize environment:
 if "%1" == "discord" goto :Discord
 
 
-rem Load our autohotkey script right away since it has winamp control aspects in it
+rem Load our autohotkey script right away since it has music control aspects in it
         echos %@ANSI_MOVE_TO_COL[1]``
         call less_important "Initializing %italics_on%AutoHotKey%italics_off%..."
         call AutoHotKey-autoexec.bat %*
@@ -63,10 +69,20 @@ rem Girder?
                 
 REM Above all else, the music must flow —— but only if it's the music server:
         iff "%MACHINENAME%" == "%MUSICSERVERMACHINENAME%" then
-            call winamp autoexec
-            rem call sleep 3
-            rem call fix-minilyrics-window-size-and-position
-            if isfunction randcursor (echos %@RANDCURSOR[])
+
+                iff "%MUSIC_PLAYER%" == "WINAMP" then
+                        call winamp autoexec
+                        rem call sleep 3
+                        rem call fix-minilyrics-window-size-and-position
+                        if isfunction randcursor (echos %@RANDCURSOR[])
+                elseif "%PLAYER%" == "PAFPlayer" then
+                        call PAFplayer resume
+                else
+                        call warning "MUSIC_PLAYER is not defined!!"
+                        repeat 5 pause
+                endiff
+        else
+
         endiff
 
 rem Things for our primary machines only:
