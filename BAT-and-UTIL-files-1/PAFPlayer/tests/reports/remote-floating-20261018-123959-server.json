@@ -1,0 +1,39 @@
+{
+  "role": "server",
+  "version": "V574",
+  "arguments": [
+    "--no-tray",
+    "--no-visualizers",
+    "--no-album-art",
+    "--no-external-album-art",
+    "--no-trim-edge-silence",
+    "--no-loop",
+    "--web-host=127.0.0.1",
+    "--web-port=19413",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261018-123959\\remote-test.wav"
+  ],
+  "seconds": 34.46899999998277,
+  "events": {},
+  "samples": [],
+  "errors": [],
+  "blocked_writes": [
+    "outbound socket",
+    "C:\\logs",
+    "C:\\logs",
+    "C:\\logs\\play_audio_file-lastfm.log",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt"
+  ]
+}

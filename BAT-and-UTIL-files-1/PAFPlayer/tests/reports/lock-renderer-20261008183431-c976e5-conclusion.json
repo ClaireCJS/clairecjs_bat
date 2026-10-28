@@ -1,0 +1,184 @@
+{
+  "created_at": "2026-10-08T22:58:51.737370-04:00",
+  "verdict": "Observed Windows LockApp activation rejected with E_UAC_DISABLED; native status rendering remains blocked. No supported workaround established with current session/UAC constraints.",
+  "error": {
+    "signed": -2144927150,
+    "hex": "0x80270252",
+    "symbol": "E_UAC_DISABLED",
+    "windows_message": "This app can't be activated when UAC is disabled."
+  },
+  "source_sha256": {
+    "tests\\reports\\lock-renderer-20261008183431-c976e5.etl": "ff7b6a4463788409b4d50653eef8fbcfa6fc470d1e4d7b79c29a2753913a1f98",
+    "tests\\reports\\lock-renderer-20261008183431-c976e5-decoded.xml": "0a664fc8223167a7090de572eaf286bbb0abd03aa46d80f9e7db294e2679f3c8",
+    "tests\\reports\\lock-renderer-20261008183431-c976e5.jsonl": "70db9e0fc961022498436547b4e7df1fd1d0fdcbd6120d9bb39a8a0e63126043"
+  },
+  "events": [
+    {
+      "time": "2026-10-08T18:34:58.648347700-04:00",
+      "provider": "Microsoft.Windows.LogonController",
+      "process_id": 217964,
+      "event": "BeginUserDesktopLock",
+      "data": {
+        "lockAppType": "1",
+        "aumid": "Microsoft.LockApp_cw5n1h2txyewy!WindowsDefaultLockScreen",
+        "isArsoLock": "0"
+      }
+    },
+    {
+      "time": "2026-10-08T18:34:58.934651200-04:00",
+      "provider": "Microsoft.Windows.Shell.LockAppHost",
+      "process_id": 227472,
+      "event": "AttemptingToActivateLockAppWhileElevated",
+      "data": {
+        "hr": "-2144927150",
+        "hr_hex": "0x80270252"
+      }
+    },
+    {
+      "time": "2026-10-08T18:34:58.934717400-04:00",
+      "provider": "Microsoft.Windows.Shell.LockScreenController",
+      "process_id": 227472,
+      "event": "FallbackError",
+      "data": {
+        "hresult": "2150039553",
+        "fileName": "pcshell\\shell\\lock\\controller\\lib\\lockscreencontrollerimpl.cpp",
+        "lineNumber": "1287",
+        "module": "lockcontroller.dll",
+        "hresult_hex": "0x80270001"
+      }
+    },
+    {
+      "time": "2026-10-08T18:34:58.934718900-04:00",
+      "provider": "Microsoft.Windows.Shell.LockScreenController",
+      "process_id": 227472,
+      "event": "FallbackError",
+      "data": {
+        "hresult": "2150039553",
+        "fileName": "pcshell\\shell\\lock\\controller\\lib\\lockscreencontrollerproxy.cpp",
+        "lineNumber": "374",
+        "module": "lockcontroller.dll",
+        "hresult_hex": "0x80270001"
+      }
+    },
+    {
+      "time": "2026-10-08T18:34:58.934754800-04:00",
+      "provider": "Microsoft.Windows.LogonController",
+      "process_id": 217964,
+      "event": "RPCTimeoutToLockScreenFailure",
+      "data": {
+        "HRESULT": "0x80270001",
+        "HRESULT_hex": "0x80270001"
+      }
+    },
+    {
+      "time": "2026-10-08T18:34:58.942299500-04:00",
+      "provider": "Microsoft.Windows.LogonController",
+      "process_id": 217964,
+      "event": "LockOnDesktop",
+      "data": {
+        "hr": "-2144927743",
+        "onSecureDesktop": "0",
+        "lockOptionsFlags": "64",
+        "isFallback": "0",
+        "hr_hex": "0x80270001"
+      }
+    },
+    {
+      "time": "2026-10-08T18:34:58.943406800-04:00",
+      "provider": "Microsoft.Windows.LogonController",
+      "process_id": 217964,
+      "event": "BeginSecureLock",
+      "data": {
+        "isUserPresent": "1"
+      }
+    },
+    {
+      "time": "2026-10-08T18:34:58.943492000-04:00",
+      "provider": "Microsoft.Windows.LogonController",
+      "process_id": 217964,
+      "event": "LockOnDesktop",
+      "data": {
+        "hr": "0",
+        "onSecureDesktop": "1",
+        "lockOptionsFlags": "65",
+        "isFallback": "0",
+        "hr_hex": "0x00000000"
+      }
+    }
+  ],
+  "observations": [
+    {
+      "time": "2026-10-08T18:34:32.564422-04:00",
+      "wts": {
+        "level": 1,
+        "session": 1,
+        "connection_state": 0,
+        "flags": 1
+      },
+      "processes": [
+        {
+          "name": "PAFPlayerLockScreen.exe",
+          "pid": 262036,
+          "session": 1
+        }
+      ]
+    },
+    {
+      "time": "2026-10-08T18:34:59.758088-04:00",
+      "wts": {
+        "level": 1,
+        "session": 1,
+        "connection_state": 0,
+        "flags": 0
+      },
+      "processes": [
+        {
+          "name": "LogonUI.exe",
+          "pid": 217964,
+          "session": 1
+        },
+        {
+          "name": "PAFPlayerLockScreen.exe",
+          "pid": 262036,
+          "session": 1
+        }
+      ]
+    },
+    {
+      "time": "2026-10-08T18:35:34.928196-04:00",
+      "wts": {
+        "level": 1,
+        "session": 1,
+        "connection_state": 0,
+        "flags": 1
+      },
+      "processes": [
+        {
+          "name": "PAFPlayerLockScreen.exe",
+          "pid": 262036,
+          "session": 1
+        }
+      ]
+    },
+    {
+      "time": "2026-10-08T18:35:40.028135-04:00",
+      "event": "stop",
+      "saw_lock": true,
+      "stop_code": 0,
+      "logman": "The command completed successfully.\n"
+    }
+  ],
+  "limits": [
+    "This establishes a rejection of Microsoft.LockApp, not a universal failure of UWP apps.",
+    "Secondary shell error 0x80270001 is preserved without treating its unrelated NAP FormatMessage text as the cause.",
+    "User reports blank status; secure desktop was not visually captured by the agent.",
+    "The publication process surviving and prior notification receipts do not prove pixels were displayed.",
+    "No UAC setting, authentication component, private notification store or playback state was changed."
+  ],
+  "sources": [
+    "https://github.com/microsoft/win32metadata/blob/main/generation/WinSDK/RecompiledIdlHeaders/shared/winerror.h",
+    "https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.lockscreen?view=winrt-28000",
+    "https://learn.microsoft.com/en-us/previous-versions/windows/apps/hh779720(v=win.10)"
+  ],
+  "literal_c_bat_changes": []
+}

@@ -25,8 +25,7 @@ def native(root, name):
     if found:
         candidates.append(Path(found))
     common = {"tesseract": [r"C:\Program Files\Tesseract-OCR\tesseract.exe"],
-              "magick": [r"C:\Program Files\ImageMagick-7.1.1-Q16-HDRI\magick.exe"],
-              "chafa": [r"C:\util\Chafa.exe"]}
+              "magick": [r"C:\Program Files\ImageMagick-7.1.1-Q16-HDRI\magick.exe"]}
     candidates += [Path(p) for p in common.get(name, [])]
     for candidate in candidates:
         if candidate.is_file():
@@ -41,13 +40,18 @@ def native(root, name):
     return None
 
 
-def status(root, imports=False):
-    result = {"native": {n: native(root, n) for n in ("tesseract", "magick", "chafa")},
+def status(root, imports=False, notify=None):
+    native_tools={}
+    for name in ('tesseract','magick'):
+        if notify:notify('Checking '+name+' executable…')
+        native_tools[name]=native(root,name)
+    result = {"native": native_tools,
               "english_fast": (Path(root) / "environment/tessdata/eng.traineddata").is_file()}
     if imports:
         result["packages"] = {}
         for name in ("PIL", "numpy", "cv2", "regex", "pytest", "tqdm", "clairecjs_utils.claire_progressbar"):
             try:
+                if notify:notify("Loading private package "+name+"…")
                 module = importlib.import_module(name)
                 result["packages"][name] = {"version": getattr(module, "__version__", None), "path": module.__file__}
             except Exception as error:

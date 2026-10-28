@@ -1,53 +1,84 @@
-# Release status: 0.2.0
+# Release 0.3.0
 
-This supersedes the earlier in-progress implementation checkpoint. The supported
-local Windows CPython 3.10 x64 PNG/JPEG workflow is implemented, including private
-dependencies, OCR/render/review, safe transactions, hidden folder history,
-session pause/resume/forget, exact undo, and crash recovery. The installation is
-`C:\BAT\image_caption_gender_fixer`; root files are only the launcher and README.
+The later 2026-10-28 OCR console update replaces per-image raw caption scrolling
+and terminal JSON dumps with compact progress and a human completion summary.
+It retains the shared Claire rainbow bar, keeps counters/ETA adjacent to a bounded
+bar and adapts to narrow/resized terminals. `-o --verbose` shows complete labeled
+caption blocks through tqdm's safe write path; warnings/errors use the same path.
+Structured JSON/redirected exports and hidden `.ocr` cache contents are unchanged.
+See `releases/ocr-console-20261028.md` for installed console validation.
 
-The requirement-by-requirement evidence is in `requirements-checklist.md`.
-Actual installed-location tests, hashes, smoke checks, and every affected C:\BAT
-path are recorded in `releases/completion-20261024.md`. The installed verification
-record is authoritative; earlier release reports describe earlier checkpoints.
+The 2026-10-28 update adds OCR prefetch and a numbered unfinished-job menu.
+`--ocr`, `--ocr-only` and `-o` save initial OCR in hidden folder-local `.ocr`
+files. This mode bypasses correction jobs and transaction recovery, writes no
+processed history and changes no image. Normal processing and dry runs reuse
+valid saved OCR but do not populate the cache. Image/model/engine/quality hashes
+prevent stale reuse; folder and image renames preserve matches. Saved text and
+word geometry are plaintext append-only records, separate from `.history.icgf`.
+Post-render verification remains live. The jobs menu shows folder/time/progress,
+uses job numbers, retries invalid input/help, and offers confirmed recycling of
+one or all jobs. Existing JSON/explicit --resume ID interfaces remain supported.
+See `releases/ocr-jobs-20261028.md` for installed validation and changed files.
 
-The completion pass added or strengthened:
+The supported Windows CPython 3.10 x64 PNG/JPEG workflow is installed at
+`C:\BAT\image_caption_gender_fixer`. Only the launcher and README are root
+files. Python must include Tcl/Tk for the image window; required Python packages
+and OCR/native tools remain private and already bundled.
 
-- Safe blocked-render adjustment instead of a forced failure or unsafe approval.
-- Context/phrase/original-occurrence exclusions across the complete cascade,
-  profile and exclusion IDs/administration, global opt-in positive rules, malformed
-  byte/record quarantine, bounded matching/output, and intermediate rule traces.
-- Resumable cancellation, selected-profile retention, JSON decision IDs, durable
-  session validation, mixed committed/uncommitted session forgetting.
-- Actual offline package reconstruction followed by relocation, clear ABI
-  rejection, early isolation from unrelated global imports, and terminal-preserving
-  restart after a verified package switch.
-- Source identity and approved-stage hash checks under Windows leases, rename
-  identity checks, local-state capacity checks, extended Unicode paths, and
-  committed-history/filesystem consistency before recovery acknowledgement.
-- All durable undo-boundary recovery paths; preserved partial atomic-state
-  staging is reported separately instead of hiding a recoverable canonical journal.
-- Actual repair comparisons, numbered masks, approximate bold/italic font
-  candidates, local face/edge/seam warnings, and bounded manual style controls.
-- Lossless outside-region/alpha checks, ICC/DPI preservation, baked orientation,
-  nested EXIF dimension handling, reserved-marker collision refusal, and output
-  extensions based on actual format.
-- Read-only bundle-hash doctor checks, selected repaired-tree inspection,
-  provisional read-only explain, redacted local operation/crash diagnostics,
-  complete README/recovery/JSON/dependency/license documentation.
+The 2026-10-27 release fixes early return to the calling shell: both the initial
+isolated launcher and an interactive package-repair restart wait for their worker.
+The `icgf` aliases explicitly run console Python instead of a `.py` association,
+and return its final exit status. `ICGF_PYTHON` selects an unregistered interpreter.
 
-The automatic setup-download cleanup remains: verified redundant archives are
-recycled after installation/repair or processing startup; working dependencies
-and the offline repair archive are kept. Recycled items still consume drive space
-in the Recycle Bin until it is emptied separately.
+Explicit directory junctions such as `C:\new` to `T:\new` resolve to physical
+targets before queuing. Linked image files and unknown reparse providers remain
+refused; recursive scans skip junction children and installation aliases remain
+excluded.
 
-No real user image is used in tests. Tests perform no internet installations.
-Download/control paths are mocked; installed OCR, Windows file APIs, image
-processing, undo, lock death, package reconstruction, and relocation are exercised
-with actual local components and generated disposable data.
+Image review now uses both PAFPlayer terminal Twin DRCS and a persistent floating
+artwork window following the last image rendered. The tool prefers artwork
+definitions loaded from the installed sibling `..\PAFPlayer\PAFPlayer.py`,
+without executing player startup, and preserves attributed internal copies as
+fallback. Doctor reports origin, version, path, and hash. Full detected/proposed
+captions include unchanged lines in the console and window. Console review remains
+authoritative; closing the window hides it and never approves an image. Exactly
+one GUI thread owns Tk, and program shutdown joins it before the shell returns.
+The DRCS pipeline reads current PAFPlayer settings without saving or migrating
+them: currently 2x Twin DRCS, detail mode 9 (2x4 subcells) for both selectors, and
+seam strategy 5. It uses PAFPlayer's bank definitions, quantization and cell
+styling directly; the selected profile calls no Chafa or SIXEL encoder.
 
-Deliberate limits remain those allowed by the specification: uncertain font/style
-and photographic repair require review; faces/edges are heuristics; animation and
-unvalidated formats defer; JPEG is lossy; the interpreter is not bundled; remote
-filesystem guarantees and cross-computer live jobs/undo are not promised.
-No neural model, font installation, telemetry, or image upload is introduced.
+Original backups, hidden folder history, undo, sessions, recovery, consent gates,
+and safe setup-download recycling retain their protections. Existing user jobs
+are preserved. Optional OCR/style controls use the same running console and then
+render a fresh proposal; the shell remains blocked until the job finishes.
+
+See `pafplayer-preview.md` for exact copy attribution and behavior,
+`requirements-checklist.md` for acceptance mapping, and
+`releases/pafplayer-previews-20261027.md` for actual installed tests, limitations,
+and every affected C:\BAT path. Earlier release reports remain historical records.
+
+Photographic reconstruction and font matching remain best-effort and reviewed.
+Animation/unvalidated formats defer; JPEG is lossy; the interpreter is not bundled.
+All test images are generated disposable data; no real user image is edited by
+validation. Dependency download/installer control tests remain mocked.
+
+
+## Review workflow update — 2026-10-28
+
+Portrait previews put the detected/proposed captions beside the full-height image.
+The passive artwork window now supports Approve, Reject/Skip, Add substitution
+with priority and keyboard ordering, and direct editing of the prefilled proposed
+caption followed by regeneration. Approval is invalidated by edits and tied to a
+single current proposal. Warnings appear in the window and in bright yellow in
+the terminal. Console choices are colored and show ENTER defaults; [y] approves,
+[a] adds a rule and [e] opens the prefilled caption editor. Detail terminal crops
+are one fifth of full preview dimensions. Startup status messages erase in place.
+
+Built-ins add `his wife` → `her wife` and a case-preserving protective `real man`
+identity rule. Ordered priorities persist in a single folder-rule append.
+OCR uses bounded higher-resolution/grayscale and caption-panel candidates;
+cache algorithm 2 requires a one-time refresh of older OCR results. New outputs
+use `-genderfixed`; legacy `-gendeerfixed` names receive verified non-overwriting
+renames with recoverable journals and history aliases that preserve undo.
+See `releases/review-workflow-20261028.md` for validation and file disclosures.

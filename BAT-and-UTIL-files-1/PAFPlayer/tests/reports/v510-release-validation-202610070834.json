@@ -1,0 +1,29 @@
+{
+  "python_compilation": [
+    "PAFPlayer.py",
+    "releases\\PAFPlayer_v510_lockscreen_identity_and_badges.py",
+    "lockscreen\\backup_for_v510.py",
+    "lockscreen\\capture_registration_diagnostics.py",
+    "lockscreen\\lockscreen_installer.py",
+    "lockscreen\\make_assets.py",
+    "lockscreen\\run_regression_checks.py",
+    "lockscreen\\write_v510_documentation.py"
+  ],
+  "player_changes": "exactly three build/version labels",
+  "snapshot_matches": true,
+  "bundle_members": [
+    "lockscreen/lockscreen_installer.py",
+    "lockscreen/README.md",
+    "lockscreen/dist/PAFPlayerLockScreen_v505.cer",
+    "docs/windows-lock-screen.md",
+    "lockscreen/dist/v510/PAFPlayerLockScreen_v510_x64.msix",
+    "lockscreen/dist/v510/runtime/PAFPlayerLockScreen.exe",
+    "lockscreen/dist/v510/runtime/Assets/PAFBadge.png",
+    "lockscreen/dist/v510/runtime/Assets/PAFIcon150.png",
+    "lockscreen/dist/v510/runtime/Assets/PAFIcon44.png",
+    "lockscreen/dist/v510/runtime/Assets/PAFSplash620.png",
+    "lockscreen/dist/v510/runtime/Assets/PAFStore50.png",
+    "lockscreen/dist/v510/runtime/Assets/PAFWide310.png"
+  ],
+  "bundle_integrity": true
+}

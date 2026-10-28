@@ -1,0 +1,58 @@
+test_package_contains_background_component_and_no_private_key (test_v505_lockscreen_package.LockScreenPackageTests) ... ok
+test_signed_package_declares_detailed_status_and_background_task (test_v505_lockscreen_package.LockScreenPackageTests) ... ok
+test_artifacts_include_packaged_runtime_and_lock_screen_manifest (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_changed_package_is_rejected_before_windows_changes (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_check_only_never_installs (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_disabled_uac_does_not_block_real_publication_test (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_explicit_trust_consent_then_registers_for_current_user (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_healthy_registration_cannot_hide_activation_failure (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_installed_package_is_not_replaced (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_manual_steps_identify_recovery_in_both_slots (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_no_consent_changes_nothing (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_notification_success_does_not_hide_background_failure (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_powershell_paths_are_literal_and_command_is_encoded (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_pretrusted_certificate_installs_without_prompt (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_previous_version_is_upgraded (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_read_only_check_never_publishes_even_when_installed (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_recovery_upgrade_targets_only_recovery_package (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_refuses_newer_version_downgrade (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_registered_task_does_not_hide_com_activation_failure (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_saved_disabled_setting_is_preserved (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_successful_activation_cannot_hide_publication_failure (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_unreachable_player_starts_offline_publisher (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_wrong_identity_in_receipt_is_rejected (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_release_package_has_native_entry_point_and_lockscreen_contract (test_v509_lockscreen_release.LockScreenReleaseTests) ... ok
+test_command_routing_is_owner_local_and_cleanup (test_PAFPlayer_v499_tray.TrayTests) ... ok
+test_default_cli_precedence_and_web_control (test_PAFPlayer_v499_tray.TrayTests) ... ok
+test_double_click_pauses_after_window_and_single_right_delays_menu (test_PAFPlayer_v499_tray.TrayTests) ... ok
+test_official_claim_explicit_handoff_and_stale_descriptor (test_PAFPlayer_v499_tray.TrayTests) ... ok
+test_only_official_starts_one_icon_and_shutdown_stops_thread (test_PAFPlayer_v499_tray.TrayTests) ... ok
+test_registry_default_and_saved_value (test_PAFPlayer_v499_tray.TrayTests) ... ok
+test_triple_left_previous_and_triple_right_next (test_PAFPlayer_v499_tray.TrayTests) ... ok
+test_triple_right_suppresses_menu (test_PAFPlayer_v499_tray.TrayTests) ... ok
+test_web_status_schema_and_saved_control_endpoint (test_PAFPlayer_v499_tray.TrayTests) ... ok
+test_artwork_generation_blocks_stale_or_wrong_track_images (test_v503_tray_track_details.TrackDetailsTests) ... ok
+test_missing_track_and_unavailable_ffprobe_are_reported (test_v503_tray_track_details.TrackDetailsTests) ... ok
+test_official_tray_launches_native_viewer_only_from_owner (test_v503_tray_track_details.TrackDetailsTests) ... ok
+test_one_remote_tray_per_target_and_stale_mutex_recovers (test_v503_tray_track_details.TrackDetailsTests) ... ok
+test_read_only_data_routes_are_available_to_household_clients (test_v503_tray_track_details.TrackDetailsTests) ... ok
+test_remote_client_verifies_server_and_routes_commands_to_it (test_v503_tray_track_details.TrackDetailsTests) ... ok
+test_server_address_and_non_pafplayer_heartbeat (test_v503_tray_track_details.TrackDetailsTests) ... ok
+test_snapshot_contains_tags_complete_lyrics_artwork_and_technical_data (test_v503_tray_track_details.TrackDetailsTests) ... ok
+test_tray_only_cli_bypasses_official_instance_and_viewer_has_native_tabs (test_v503_tray_track_details.TrackDetailsTests) ... ok
+test_defaults_off_and_machine_scoped_store (test_v504_tray_machine.TrayMachineTests) ... ok
+test_failed_new_art_restores_previous_track_background (test_v504_tray_machine.TrayMachineTests) ... ok
+test_lyric_tooltip_follows_current_line_and_remains_local (test_v504_tray_machine.TrayMachineTests) ... ok
+test_official_menu_exposes_both_machine_options (test_v504_tray_machine.TrayMachineTests) ... ok
+test_remote_bitmap_request_uses_verified_owner (test_v504_tray_machine.TrayMachineTests) ... ok
+test_tray_only_menu_has_local_options_without_starting_playback (test_v504_tray_machine.TrayMachineTests) ... ok
+test_wallpaper_bitmap_is_bounded_and_owner_change_during_render_is_rejected (test_v504_tray_machine.TrayMachineTests) ... ok
+test_wallpaper_does_not_replace_user_change_or_stale_owner (test_v504_tray_machine.TrayMachineTests) ... ok
+test_wallpaper_route_rejects_nonowner_then_serves_bmp (test_v504_tray_machine.TrayMachineTests) ... ok
+test_wallpaper_uses_current_owner_and_restores_on_disable (test_v504_tray_machine.TrayMachineTests) ... ok
+
+----------------------------------------------------------------------
+Ran 52 tests in 2.192s
+
+OK
+{"tests": 52, "failures": 0, "errors": 0, "skipped": 0}

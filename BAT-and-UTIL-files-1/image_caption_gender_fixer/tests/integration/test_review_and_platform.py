@@ -88,7 +88,7 @@ def test_growth_cascade_is_bounded():
 
 def test_changed_corrected_archive_is_kept_even_with_recycle_flag(tmp_path):
     source=tmp_path/"changed.png";make_image(source);original=sha256(source)
-    app=app_for(tmp_path,answers=iter(["a"]))
+    app=app_for(tmp_path,answers=iter(["y"]))
     result,code=app.process([str(source)]);assert code==0
     corrected=Path(result["results"][0]["corrected"])
     with corrected.open("ab") as output: output.write(b"generated later edit")
@@ -103,17 +103,17 @@ def test_changed_corrected_archive_is_kept_even_with_recycle_flag(tmp_path):
 def test_format_signature_controls_corrected_extension(tmp_path):
     source=tmp_path/"wrong.jpg"
     original=tmp_path/"original.png";make_image(original);original.rename(source)
-    app=app_for(tmp_path,answers=iter(["a"]))
+    app=app_for(tmp_path,answers=iter(["y"]))
     result,code=app.process([str(source)]);assert code==0
     corrected=Path(result["results"][0]["corrected"])
-    assert corrected.name=="wrong-gendeerfixed.png"
+    assert corrected.name=="wrong-genderfixed.png"
     _,_,Image,_,_,_,_,_=imaging.libraries()
     with Image.open(corrected) as image: assert image.format=="PNG"
 
 
 def test_state_volume_capacity_failure_precedes_original_rename(tmp_path,monkeypatch):
     source=tmp_path/"capacity.png";make_image(source);original=sha256(source)
-    app=app_for(tmp_path,answers=iter(["a"]))
+    app=app_for(tmp_path,answers=iter(["y"]))
     real=transactions.capacity
     def capacity(folder,needed):
         if Path(folder).is_relative_to(app.transactions.root): raise UnsafeFilesystem("Generated state-volume capacity failure")
@@ -151,7 +151,7 @@ def test_real_long_unicode_path_commit_and_undo(tmp_path):
     folder.mkdir(parents=True)
     source=folder/"source [é].png";make_image(source)
     original=sha256(source)
-    app=app_for(tmp_path,answers=iter(["a"]))
+    app=app_for(tmp_path,answers=iter(["y"]))
     result,code=app.process([str(source)])
     assert code==0,result
     event=next(iter(History(folder).transactions().values()))

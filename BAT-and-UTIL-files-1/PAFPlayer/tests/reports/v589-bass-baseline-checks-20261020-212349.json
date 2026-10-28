@@ -1,0 +1,78 @@
+{
+  "tests": 2,
+  "failures": 2,
+  "errors": 0,
+  "skipped": 0,
+  "successful": false,
+  "copies": [
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202610202118.replaced-by-chatgpt.bak",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\PAFPlayer.py",
+      "sha256": "1cf296273e10a999c30fc885e96968ec53cfd66ae014550d38a4741137063fd8"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v590_locked_bass.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\tests\\test_v590_locked_bass.py",
+      "sha256": "a3d2bb57ae3f2fbc907a39f0640ab1580f722e92056782702c3ac495ec72acad"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v485_bass_controls.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\tests\\test_v485_bass_controls.py",
+      "sha256": "6a99bc86e5bf795c8be3a4ec3b0e48399e16507fdd60442337403d605ef5c4b8"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v548_locked_bass.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\tests\\test_v548_locked_bass.py",
+      "sha256": "899575b676a50babf83d169d2053751ae6878556878b34c9fb1406ee082a284e"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v552_channels_and_locked_bass.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\tests\\test_v552_channels_and_locked_bass.py",
+      "sha256": "e95b03289132279edc9e2cc7e21aa83792b8267d4c0e3eddcee5506323ef56ac"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_v482_track_renderer.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\tests\\probe_v482_track_renderer.py",
+      "sha256": "1965d0005736edec4f40300eb53943db656cdc9caa3ef7e48aedc071a4ffd7a1"
+    }
+  ],
+  "blocked_writes": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "winreg.CreateKey",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs",
+    "C:\\logs",
+    "C:\\logs\\play_audio_file-lastfm.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log"
+  ],
+  "log": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v589-bass-baseline-checks-20261020-212349.log"
+}

@@ -1,0 +1,50 @@
+test_embedded_bridge_matches_source (test_PAFPlayer_screensaver.Compatibility) ... ERROR
+test_existing_configuration_constants_and_bundle_sources_unchanged (test_PAFPlayer_screensaver.Compatibility) ... ERROR
+test_short_text_and_no_control_escape_sequences (test_PAFPlayer_screensaver.Compatibility) ... ok
+test_ui_keeps_existing_windows_ids_and_adds_unique_sidecar_ids (test_PAFPlayer_screensaver.Compatibility) ... ok
+test_art_revision_prevents_old_track_cover (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_bad_settings_are_rejected_without_mutation (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_close_requests_normal_exit_without_killing_sidecar (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_close_revision_reaches_windows_started_sidecar (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_default_off_and_no_spectrum_or_audio_activity (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_disabled_art_does_not_leak_current_cover (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_failed_save_rolls_back_runtime (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_live_title_lyric_and_pause_updates (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_missing_executable_and_launch_error_leave_audio_untouched (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_missing_tags_and_lyrics_are_graceful (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_oversized_art_is_not_transferred (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_remote_reads_are_rejected (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_settings_persist_and_preserve_existing_namespaces_and_unknown_keys (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_sidecar_keeps_status_active_without_enabling_spectrum (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_start_is_explicit_and_duplicate_clicks_do_not_spawn_twice (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_stopped_clears_presentation (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+test_write_requires_pairing_token_and_same_origin (test_PAFPlayer_screensaver.ScreensaverHTTP) ... ok
+
+======================================================================
+ERROR: test_embedded_bridge_matches_source (test_PAFPlayer_screensaver.Compatibility)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\codex\clairevironment\bat\PAFPlayer\screensaver\testing\test_PAFPlayer_screensaver.py", line 205, in test_embedded_bridge_matches_source
+    self.assertEqual(app._PAF_BUNDLED_SOURCES['PAFPlayer_screensaver'], (SCREENSAVER / 'PAFPlayer_screensaver.py').read_text(encoding='utf-8'))
+  File "C:\ProgramData\anaconda3\lib\pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "C:\ProgramData\anaconda3\lib\pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver\\PAFPlayer_screensaver.py'
+
+======================================================================
+ERROR: test_existing_configuration_constants_and_bundle_sources_unchanged (test_PAFPlayer_screensaver.Compatibility)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\codex\clairevironment\bat\PAFPlayer\screensaver\testing\test_PAFPlayer_screensaver.py", line 194, in test_existing_configuration_constants_and_bundle_sources_unchanged
+    before = ast.parse((RELEASES / 'PAFPlayer_v506_floating_title_persistence.py').read_text(encoding='utf-8-sig'))
+  File "C:\ProgramData\anaconda3\lib\pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "C:\ProgramData\anaconda3\lib\pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v506_floating_title_persistence.py'
+
+----------------------------------------------------------------------
+Ran 21 tests in 4.534s
+
+FAILED (errors=2)

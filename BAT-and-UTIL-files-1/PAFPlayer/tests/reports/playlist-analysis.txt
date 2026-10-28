@@ -1,0 +1,8 @@
+Playlist analysis: C:\Users\ClioC\AppData\Local\Temp\tmplc9m2jzu\test.m3u
+Tracks: 1
+
+Last played          Full path
+-------------------  ---------
+NEVER                C:\Users\ClioC\AppData\Local\Temp\tmplc9m2jzu\This is a deliberately extremely long playlist filename that wraps.mp3
+
+1 playlist track(s): 1 never played; 0 with matched history.

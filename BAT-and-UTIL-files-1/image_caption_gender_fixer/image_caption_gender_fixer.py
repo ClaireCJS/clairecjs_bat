@@ -8,7 +8,14 @@ import os
 # Re-enter isolation before even importing pure standard-library modules that
 # an unrelated PYTHONPATH entry could shadow. Preserve the caller's directory.
 if not sys.flags.no_site or not sys.flags.isolated:
-    os.execv(sys.executable,[sys.executable,"-B","-I","-S",os.path.abspath(__file__),*sys.argv[1:]])
+    # On Windows execv can exit this process before its replacement finishes,
+    # releasing the invoking shell. P_WAIT inherits the terminal and keeps the
+    # original process alive through the child's complete review/session life.
+    raise SystemExit(os.spawnv(os.P_WAIT,sys.executable,[sys.executable,"-B","-I","-S",os.path.abspath(__file__),*sys.argv[1:]]))
+_startup=bool(sys.stderr.isatty() and '--json' not in sys.argv and not any(a in sys.argv for a in ('--help','--version')))
+def _status(message):
+    if _startup:sys.stderr.write('\r\x1b[2K⏳ '+message);sys.stderr.flush()
+_status('Initializing ICGF: selecting private packages…')
 import json
 from pathlib import Path
 
@@ -48,7 +55,9 @@ if os.name == "nt":
         if _directory.is_dir():
             _dll_handles.append(os.add_dll_directory(str(_directory)))
 
+_status('Initializing ICGF: loading review and recovery components…')
 from image_caption_gender_fixer.cli import main
+if _startup:sys.stderr.write('\r\x1b[2K');sys.stderr.flush()
 
 if __name__ == "__main__":
     raise SystemExit(main(ROOT))

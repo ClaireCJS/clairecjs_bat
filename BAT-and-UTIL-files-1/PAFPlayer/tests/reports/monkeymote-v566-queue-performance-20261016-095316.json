@@ -1,0 +1,7 @@
+{
+  "tracks": 5000,
+  "iterations": 100,
+  "refresh_median_ms": 2.344050008105114,
+  "refresh_max_ms": 4.900900006759912,
+  "note": "Worker refresh, labels already cached; no audio playback measured."
+}

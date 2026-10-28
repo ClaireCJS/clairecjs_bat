@@ -1,0 +1,13 @@
+{
+  "remote_uploads": true,
+  "library_roots": [],
+  "windows_media": {
+    "enabled": true,
+    "brightness": 83
+  },
+  "visual_screensaver": {
+    "future_option": "keep",
+    "enabled": true,
+    "brightness": 21
+  }
+}

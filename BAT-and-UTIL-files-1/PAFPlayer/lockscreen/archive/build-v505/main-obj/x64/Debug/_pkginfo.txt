@@ -1,0 +1,1 @@
+C:\codex\clairevironment\bat\PAFPlayer\lockscreen\AppPackages\PAFPlayerLockScreen_505.0.0.0_x64_Debug_Test\PAFPlayerLockScreen_505.0.0.0_x64_Debug.msix

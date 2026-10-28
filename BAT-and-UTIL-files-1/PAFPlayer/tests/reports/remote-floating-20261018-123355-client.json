@@ -1,0 +1,448 @@
+{
+  "role": "client",
+  "version": "V574",
+  "arguments": [
+    "--tray-only",
+    "127.0.0.1:19211"
+  ],
+  "seconds": 24.78100000001723,
+  "events": {
+    "render_floating_lyric": 12
+  },
+  "samples": [
+    {
+      "at": 407671.89,
+      "event": "render_floating_lyric",
+      "text": "",
+      "window": "normal"
+    },
+    {
+      "at": 407672.046,
+      "event": "render_floating_lyric",
+      "text": "",
+      "window": "normal"
+    },
+    {
+      "at": 407672.578,
+      "event": "render_floating_lyric",
+      "text": "remote-test",
+      "window": "normal"
+    },
+    {
+      "at": 407672.734,
+      "event": "render_floating_lyric",
+      "text": "\ud83e\udd47 steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407673.312,
+      "event": "process_commands",
+      "text": "\ud83e\udd47 steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407673.578,
+      "event": "process_commands",
+      "text": "\ud83e\udd47 steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407674.078,
+      "event": "render_floating_lyric",
+      "text": "\ud83e\udd47 steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407674.437,
+      "event": "process_commands",
+      "text": "\ud83e\udd47 steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407674.828,
+      "event": "process_commands",
+      "text": "\ud83e\udd47 steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407674.953,
+      "event": "process_commands",
+      "text": "\ud83e\udd47 steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407675.281,
+      "event": "process_commands",
+      "text": "\ud83e\udd47 steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407675.671,
+      "event": "render_floating_lyric",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407676.031,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407676.296,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407676.625,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407676.953,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407677.265,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407677.64,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407677.937,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407678.265,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407678.593,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407678.906,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407679.203,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407679.562,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407679.843,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407680.187,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407680.5,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407680.781,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407681.218,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407681.625,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407682.031,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407682.437,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407682.859,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it with a \ud83c\udf08",
+      "window": "normal"
+    },
+    {
+      "at": 407683.375,
+      "event": "render_floating_lyric",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407683.718,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407683.984,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407684.281,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407684.64,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407684.953,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407685.281,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407685.64,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407685.953,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407686.062,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407686.281,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407686.64,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407686.953,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407687.265,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407687.375,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407687.625,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407687.953,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407688.265,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407688.656,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407688.781,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407689.062,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407689.39,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407689.75,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407690.062,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407690.5,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407690.89,
+      "event": "process_commands",
+      "text": "Second steady lyric",
+      "window": "normal"
+    },
+    {
+      "at": 407691.406,
+      "event": "render_floating_lyric",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407691.843,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407692.187,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407692.562,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407692.921,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407693.234,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407693.578,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407693.89,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407694.203,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407694.546,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407694.859,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407695.171,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    },
+    {
+      "at": 407695.531,
+      "event": "process_commands",
+      "text": "\ud80c\udc13\ud80c\udc1d it again",
+      "window": "normal"
+    }
+  ],
+  "errors": [],
+  "blocked_writes": []
+}

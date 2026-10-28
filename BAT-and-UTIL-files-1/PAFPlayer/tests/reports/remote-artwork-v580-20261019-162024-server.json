@@ -1,0 +1,41 @@
+{
+  "role": "server",
+  "version": "V580",
+  "arguments": [
+    "--no-tray",
+    "--no-visualizers",
+    "--no-album-art",
+    "--no-external-album-art",
+    "--no-trim-edge-silence",
+    "--no-loop",
+    "--web-host=127.0.0.1",
+    "--web-port=27473",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-artwork-v580-20261019-162024\\remote-test.wav"
+  ],
+  "seconds": 35.10999999998603,
+  "events": {},
+  "samples": [],
+  "errors": [],
+  "blocked_writes": [
+    "outbound socket",
+    "C:\\mp3\\lists",
+    "T:\\mp3\\LISTS\\winamp_now_playing.jpg",
+    "C:\\logs",
+    "C:\\logs",
+    "C:\\logs\\play_audio_file-lastfm.log",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt",
+    "C:\\mp3\\lists",
+    "C:\\mp3\\lists\\winamp_now_playing.txt"
+  ]
+}

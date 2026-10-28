@@ -1,0 +1,396 @@
+{
+  "program": "PAFplayer",
+  "version": "V483",
+  "playing": true,
+  "paused": true,
+  "position_seconds": 149.58835416696095,
+  "duration_seconds": 158.93414900000002,
+  "progress": 0.9411970624825313,
+  "metadata": {
+    "Artist": "Hell Baby",
+    "Song": "Pink Convertible",
+    "Album": "All Babies Go To Hell",
+    "Year": "2022",
+    "Genre": "",
+    "Original artist": "",
+    "Composer": "",
+    "URL": "",
+    "Comment": "Visit https://hellbaby333.bandcamp.com",
+    "Bitrate": "1021kbps",
+    "Last play": "Sep 11"
+  },
+  "learned": false,
+  "claire_integrations_enabled": true,
+  "track": {
+    "path": "T:\\new\\MUSIC\\changerrecent\\Hell Baby [Mommy Long Legs-adjacent]\\2022 - All Babies Go To Hell [EP]\\1_Pink Convertible.flac",
+    "filename": "1_Pink Convertible.flac",
+    "directory": "T:\\new\\MUSIC\\changerrecent\\Hell Baby [Mommy Long Legs-adjacent]\\2022 - All Babies Go To Hell [EP]"
+  },
+  "lyric": "",
+  "volume": 95,
+  "speed": 1.0,
+  "balance": 0,
+  "reduce_bass_when_locked": false,
+  "locked_bass_reduction_percent": 50,
+  "bass_boost_enabled": false,
+  "bass_boost_percent": 0,
+  "output_channels": 7,
+  "output_rate": 96000,
+  "output_rate_hz": 96000,
+  "output_bit_depth": 24,
+  "output_device": -1,
+  "output_devices": [
+    -1
+  ],
+  "output_devices_mask": 1,
+  "output_device_label": "System default",
+  "mm_inspired_renderer_enabled": true,
+  "floating_lyrics_enabled": true,
+  "floating_track_intro_seconds": 2.5,
+  "art_topmost": false,
+  "floating_topmost": false,
+  "art_color_demo": false,
+  "drcs_enabled": true,
+  "visualizer_bars_enabled": true,
+  "visualizer_background_artwork_enabled": true,
+  "console_visualizer_volume_feedback_enabled": true,
+  "visualizer_input_source": 5,
+  "visualizer_input_status": "What You Hear + Microphone",
+  "web_visualizer_enabled": true,
+  "console_karaoke_enabled": true,
+  "console_alerts_enabled": true,
+  "decensor_console_karaoke": true,
+  "decensor_artwork_lyrics": true,
+  "decensor_floating_lyrics": true,
+  "alert_no_replaygain": true,
+  "alert_missing_artist": true,
+  "alert_missing_title": true,
+  "alert_missing_karaoke": false,
+  "alert_missing_lyrics": false,
+  "alert_missing_artwork": true,
+  "alert_unknown_year": false,
+  "alert_unknown_genre": true,
+  "alert_embedded_lyrics_mismatch": true,
+  "progress_bar_enabled": true,
+  "progress_style": 1,
+  "progress_color_mode": 2,
+  "progress_beat_reactive": true,
+  "external_media_auto_pause": true,
+  "external_media_loudness_match": true,
+  "external_media_loudness_status": "Manual pause: no automatic volume change",
+  "adaptive_frequency_enabled": true,
+  "adaptive_frequency_fraction": 1.0,
+  "external_media_resume_fade_seconds": 15,
+  "progress_beat_detector": 5,
+  "progress_beat_treatment": 3,
+  "progress_beat_visual_offset_ms": 35,
+  "cursive_fix": true,
+  "drcs_art_microtiles": true,
+  "drcs_art_bar_microtiles": true,
+  "drcs_art_microtile_mode": 9,
+  "drcs_art_bar_microtile_mode": 9,
+  "shuffle": true,
+  "loop": false,
+  "art_generation": 27,
+  "art_count": 1,
+  "art_popup_variant_index": 0,
+  "session_notice": {},
+  "lastfm_profile_url": "https://www.last.fm/user/ClioCJS",
+  "server": {
+    "host": "127.0.0.1",
+    "port": 666
+  },
+  "sequence": 18573,
+  "transport_stopped": false,
+  "replaygain": {
+    "enabled": true,
+    "mode": "track",
+    "source": "track",
+    "requested_db": -8.28,
+    "peak": 0.96640015,
+    "applied_db": -8.28,
+    "clipping_prevented": false
+  },
+  "urls": [
+    "https://hellbaby333.bandcamp.com"
+  ],
+  "lyric_timeline": [
+    [
+      0.0,
+      ""
+    ],
+    [
+      2.14,
+      "Contradicting"
+    ],
+    [
+      4.16,
+      "Pattern that keeps repeating"
+    ],
+    [
+      7.28,
+      "Stuck on a sentence"
+    ],
+    [
+      10.26,
+      "Not even worth completing"
+    ],
+    [
+      13.66,
+      "Idling mirror"
+    ],
+    [
+      16.5,
+      "Make the objective clearer"
+    ],
+    [
+      19.76,
+      "Boys in the backseat"
+    ],
+    [
+      23.18,
+      "Giving me bad ideas"
+    ],
+    [
+      25.32,
+      "You said you don’t lie but it"
+    ],
+    [
+      28.88,
+      "goes to show"
+    ],
+    [
+      31.58,
+      "I’m driving in my car alone"
+    ],
+    [
+      35.56,
+      "Contention on impact"
+    ],
+    [
+      38.8,
+      "When will my body come back?"
+    ],
+    [
+      42.12,
+      "Visible contrast"
+    ],
+    [
+      45.18,
+      "Drew my own line to cross it"
+    ],
+    [
+      47.54,
+      "You said you don’t lie but it"
+    ],
+    [
+      51.1,
+      "goes to show"
+    ],
+    [
+      54.04,
+      "I’m driving in my car alone"
+    ],
+    [
+      57.94,
+      "Oooo ooo"
+    ],
+    [
+      60.44,
+      "Driving in my car alone"
+    ],
+    [
+      65.0,
+      "Oooo ooo"
+    ],
+    [
+      67.12,
+      "I’ll be a pink convertible"
+    ],
+    [
+      69.76,
+      ""
+    ],
+    [
+      80.74,
+      "Out of focus"
+    ],
+    [
+      84.66,
+      "Out of context"
+    ],
+    [
+      87.86,
+      "Out of focus"
+    ],
+    [
+      91.1,
+      "Not a context"
+    ],
+    [
+      99.08,
+      ""
+    ],
+    [
+      104.5,
+      "Turning it around"
+    ],
+    [
+      108.4,
+      "I need to find a way out"
+    ],
+    [
+      111.68,
+      "Ride with the top down"
+    ],
+    [
+      114.6,
+      "Change my direction somehow"
+    ],
+    [
+      117.1,
+      "You said you don’t lie but it"
+    ],
+    [
+      120.56,
+      "goes to show"
+    ],
+    [
+      123.54,
+      "I’m driving in my car alone"
+    ],
+    [
+      127.4,
+      "Oooo ooo"
+    ],
+    [
+      130.38,
+      "Driving in my car alone"
+    ],
+    [
+      134.5,
+      "Oooo ooo"
+    ],
+    [
+      136.54,
+      "I’ll be a pink convertible"
+    ],
+    [
+      140.84,
+      "Oooo ooo"
+    ],
+    [
+      142.6,
+      "Driving in my car alone"
+    ],
+    [
+      147.28,
+      ""
+    ],
+    [
+      157.4,
+      "Oooo ooo"
+    ],
+    [
+      157.98,
+      ""
+    ]
+  ],
+  "lyric_position_seconds": 149.58835416696095,
+  "lyric_clock_epoch": 1790873927.2096887,
+  "playlist": "T:\\mp3\\LISTS\\changerrecent to learn only.m3u",
+  "playlist_track_count": 6054,
+  "has_lyr_txt": true,
+  "has_karaoke_sidecars": true,
+  "updated_at_epoch": 1790873927.2096887,
+  "visualizer_unicode_halfcell_forced": false,
+  "speed_index": 12,
+  "artist_throb_ms": 300,
+  "song_throb_ms": 1000,
+  "artwork_seam_strategy": 5,
+  "pause_reason": "web pause",
+  "external_media_auto_paused": false,
+  "external_media_decision": "manual-hold",
+  "external_media_active": [],
+  "external_media_acknowledged": [],
+  "external_media_monitor_known": true,
+  "external_media_monitor_degraded": false,
+  "external_media_smtc_error": "",
+  "external_media_monitor_status": "Native Windows audio + media sessions",
+  "external_media_fade_remaining": 0.0,
+  "repeat_mode": 2,
+  "repeat_mode_name": "Repeat playlist",
+  "shuffle_mode": 1,
+  "shuffle_mode_name": "Shuffle by history",
+  "visualizer_mode": 1,
+  "art_color_representation": 3,
+  "art_color_blackness": true,
+  "art_color_bars": true,
+  "art_color_karaoke_sides": false,
+  "art_color_karaoke": false,
+  "art_color_bar_strength": 100,
+  "art_color_bar_blend_mode": 1,
+  "art_color_bar_opacity": 64,
+  "audio_health": {
+    "isolated": true,
+    "queued_ms": 341.3333333333333,
+    "underruns": 0
+  },
+  "art_color_black_strength": 30,
+  "color_style": 1,
+  "color_reverse": true,
+  "processing_style": 63,
+  "persistence_mode": 2,
+  "visualizer_granularity": 3,
+  "visualizer_rows": 32,
+  "truncate_visualizer_rows": 0,
+  "karaoke_style": 1,
+  "karaoke_style_spaced": false,
+  "karaoke_style_framed": false,
+  "karaoke_style_frame": 0,
+  "karaoke_offset_seconds": 0.0,
+  "karaoke_treatment": 2,
+  "lyrics_mode": 2,
+  "artwork_karaoke_enabled": true,
+  "popup_emojimax_enabled": true,
+  "karaoke_emojimax": false,
+  "alert_non_default_speed": true,
+  "fade_style": 1,
+  "frequency_warp_enabled": false,
+  "frequency_warp_preset": 0,
+  "frequency_warp_custom_permille": [
+    306,
+    346,
+    356,
+    445
+  ],
+  "frequency_warp_custom_20": 306,
+  "frequency_warp_custom_40": 346,
+  "frequency_warp_custom_60": 356,
+  "frequency_warp_custom_80": 445,
+  "sixel_enabled": false,
+  "album_art_visualizer_enabled": false,
+  "external_album_art_enabled": true,
+  "karaoke_visualizer_expansion_enabled": true,
+  "karaoke_visualizer_overlay": false,
+  "karaoke_visualizer_height_mode": 0,
+  "background_status": null,
+  "visualizer_perf": {
+    "fps": 18.2,
+    "terminal_fps": 0.0,
+    "target_fps": 30.0,
+    "render_ms": 34.04,
+    "transport_ms": 0.0,
+    "bytes_per_second": 0.0,
+    "escapes_per_second": 0.0,
+    "runs_per_second": 0.0,
+    "transport_mode": "semantic-cell",
+    "cpu_percent": 135.3,
+    "missed": 0,
+    "profile_enabled": false,
+    "components": {},
+    "window_seconds": 5.0
+  },
+  "window_title": "⏸️  – Pink Convertible   •   Hell Baby – Pink Convertible",
+  "result": "completed"
+}

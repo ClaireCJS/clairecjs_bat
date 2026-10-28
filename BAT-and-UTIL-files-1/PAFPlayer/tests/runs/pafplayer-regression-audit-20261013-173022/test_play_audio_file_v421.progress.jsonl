@@ -1,0 +1,16 @@
+{"start": "test_play_audio_file_v421.OverrideTests.test_delayed_initial_monitor_sample_is_background_baseline"}
+{"test": "test_play_audio_file_v421.OverrideTests.test_delayed_initial_monitor_sample_is_background_baseline", "parent_test": "test_play_audio_file_v421.OverrideTests.test_delayed_initial_monitor_sample_is_background_baseline", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_play_audio_file_v421.OverrideTests.test_existing_background_media_does_not_pause_startup"}
+{"test": "test_play_audio_file_v421.OverrideTests.test_existing_background_media_does_not_pause_startup", "parent_test": "test_play_audio_file_v421.OverrideTests.test_existing_background_media_does_not_pause_startup", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_play_audio_file_v421.OverrideTests.test_manual_pause_remains_held_after_new_media_finishes"}
+{"test": "test_play_audio_file_v421.OverrideTests.test_manual_pause_remains_held_after_new_media_finishes", "parent_test": "test_play_audio_file_v421.OverrideTests.test_manual_pause_remains_held_after_new_media_finishes", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_play_audio_file_v421.OverrideTests.test_new_vlc_finishes_and_resumes_despite_acknowledged_chrome"}
+{"test": "test_play_audio_file_v421.OverrideTests.test_new_vlc_finishes_and_resumes_despite_acknowledged_chrome", "parent_test": "test_play_audio_file_v421.OverrideTests.test_new_vlc_finishes_and_resumes_despite_acknowledged_chrome", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_play_audio_file_v421.OverrideTests.test_play_and_space_always_release_hold_without_immediate_repause"}
+{"test": "test_play_audio_file_v421.OverrideTests.test_play_and_space_always_release_hold_without_immediate_repause", "parent_test": "test_play_audio_file_v421.OverrideTests.test_play_and_space_always_release_hold_without_immediate_repause", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_play_audio_file_v421.OverrideTests.test_short_gap_or_unknown_monitor_does_not_erase_override"}
+{"test": "test_play_audio_file_v421.OverrideTests.test_short_gap_or_unknown_monitor_does_not_erase_override", "parent_test": "test_play_audio_file_v421.OverrideTests.test_short_gap_or_unknown_monitor_does_not_erase_override", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_play_audio_file_v421.OverrideTests.test_source_rearms_independently_while_other_background_media_continues"}
+{"test": "test_play_audio_file_v421.OverrideTests.test_source_rearms_independently_while_other_background_media_continues", "parent_test": "test_play_audio_file_v421.OverrideTests.test_source_rearms_independently_while_other_background_media_continues", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_play_audio_file_v421.OverrideTests.test_unknown_monitor_never_blocks_manual_play"}
+{"test": "test_play_audio_file_v421.OverrideTests.test_unknown_monitor_never_blocks_manual_play", "parent_test": "test_play_audio_file_v421.OverrideTests.test_unknown_monitor_never_blocks_manual_play", "outcome": "pass", "seconds": 0.0, "detail": ""}

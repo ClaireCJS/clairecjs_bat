@@ -1,0 +1,18 @@
+{
+  "changedMainFunctionDefinitions": [
+    "_visualizer_packed_art_delta",
+    "_visualizer_packed_art_delta_python"
+  ],
+  "audioAndPlaybackFunctionBodiesUnchanged": true,
+  "nativeLumaCompositionUnchanged": true,
+  "bundledLockscreenMatches": true,
+  "pythonCompile": "passed",
+  "initialLiveV518Sample": {
+    "fps": 14.05,
+    "render_ms": 2.453,
+    "transport_ms": 63.31,
+    "transport_mode": "semantic-cell",
+    "note": "Observed via official local hello during investigation; game workload was not measured."
+  },
+  "literalCBatChanges": []
+}

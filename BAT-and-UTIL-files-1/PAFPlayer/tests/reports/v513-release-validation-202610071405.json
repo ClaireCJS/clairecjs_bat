@@ -1,0 +1,9 @@
+{
+  "version": "V513",
+  "displayName": "PAFPlayer Lock Screen V513",
+  "releaseHashes": "verified",
+  "bundleCrcAndContents": "verified",
+  "mainOnlyReleaseConstantsChanged": true,
+  "pythonCompilation": "passed",
+  "literalCBatChanges": []
+}

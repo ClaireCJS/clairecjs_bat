@@ -1,0 +1,9 @@
+{
+  "version": "V520",
+  "allMainFunctionsAndClassesUnchangedFromV519": true,
+  "nativeEncoderUnchanged": true,
+  "compiledPython": true,
+  "literalCBatChanges": [],
+  "packageSHA256": "10edf24364251be60943dd4f31b95e99b83f715300533e76697acfe09b463ba3",
+  "runtimeSHA256": "35c0bb2b72d3d22fb631ae06fe32bf13ae2b6d94a71a609c420bd30280d56f34"
+}

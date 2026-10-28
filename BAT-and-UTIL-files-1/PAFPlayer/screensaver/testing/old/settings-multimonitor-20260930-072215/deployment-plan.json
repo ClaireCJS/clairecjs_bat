@@ -1,0 +1,14 @@
+{
+  "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver\\settings-multimonitor-20260930-072215\\PAFPlayer.scr",
+  "sha256": "2db34c80587698a49e5f089432ccbd31cfc8ac6ba72e85e4725ab8007ba36fab",
+  "targets": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver\\PAFPlayer.scr",
+      "prior_sha256": "d9bcf725dcc466af055321b8aa63e2c113a1ae62e10ad9d721579d37cdeb074d"
+    },
+    {
+      "path": "C:\\BAT\\PAFPlayer.scr",
+      "prior_sha256": "d9bcf725dcc466af055321b8aa63e2c113a1ae62e10ad9d721579d37cdeb074d"
+    }
+  ]
+}

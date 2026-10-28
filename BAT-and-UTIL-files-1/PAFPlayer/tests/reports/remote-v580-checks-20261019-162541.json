@@ -1,0 +1,178 @@
+{
+  "tests": 172,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "successful": true,
+  "fixture_copies": [
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer.py",
+      "sha256": "10d30d37bca485700e4729fd88cd710cc75ee7af0f991c4b67af28e0086a5340"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_monkeymote.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer_monkeymote.py",
+      "sha256": "d147b88bd612b8f5e3c36f06d28d5895335b727a16afa26d286ebbcfae728393"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_web_workflows.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer_web_workflows.py",
+      "sha256": "b44f80df350bf32a40ceffc20f9ec9fbff3084d08b937a16d8511066ab20c8e7"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_workflows_ui.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer_workflows_ui.py",
+      "sha256": "50343dfaf1bb9bae87f7372d7225a0f2f7b862dcd94ac1e02cdee330c62b1e23"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_monkeymote_multi.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_PAFPlayer_monkeymote_multi.py",
+      "sha256": "73e0f0ae4c0e79f9c93ec992d4deb7297e3073d009549d6421b45abe8d02e212"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_monkeymote.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_PAFPlayer_monkeymote.py",
+      "sha256": "603033ae093ee44c149f914ec42a8514508a8b8293e48bc84005d2ce13db7ec2"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v522_remote_controls.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v522_remote_controls.py",
+      "sha256": "49732db3e3698a050c878a35fd53b40b9d46bc075c974c42d8082e94ab08c7be"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_workflows.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_PAFPlayer_workflows.py",
+      "sha256": "da1f1370a01866b3e236fd533555c5faa4408f5b12b139725bd3b4989e50d6ba"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_v499_tray.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_PAFPlayer_v499_tray.py",
+      "sha256": "b190b02c8fef75ca6671a4ddbd48b53d396609feea769a1473e23740251fe6f1"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_tray_options.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer_tray_options.py",
+      "sha256": "c8d92c39b5e5bea639cd0468096f1f76b22106487548ed36c55c5df021b88a76"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_steam.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer_steam.py",
+      "sha256": "0f08ac96db98329a70b37e093df31da906a2cd06929de6eaeabb02310c711c67"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_tray.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer_tray.py",
+      "sha256": "f301d9f847ba3c2136e2b966a0fb38f6d796265f57aba14aa722154a61a1cff6"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_tray_hover.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer_tray_hover.py",
+      "sha256": "ac7619448ccbba1bf3198ddcbaf454a793f0e89f3f36f9c46674635c975dce14"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_tray_machine.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer_tray_machine.py",
+      "sha256": "3bbf43bb52b506d4247d629ce452e0d7f450ba94efd1838171eca0d4c0d2e73e"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_remote_overlay.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer_remote_overlay.py",
+      "sha256": "5dd20220f10d015cc533ff9c337fb43a0cb3a94fc91fd77012b2ba20be3f66e9"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_remote_tray.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\PAFPlayer_remote_tray.py",
+      "sha256": "b07a0e3ddda0eea743093d1b619429d46982b449759d9c0e6be487a3e37bacc8"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v580_tray_and_steam.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v580_tray_and_steam.py",
+      "sha256": "90e146c7b6cf86b18fd553913d80775ae682346c2fdb0c55eea8658c0e0786e9"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v577_remote_save.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v577_remote_save.py",
+      "sha256": "13f1cf2cd3b8cbdae90df90c6b03d9469ebb51160ddac27a3afb93c9d34ecc05"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v503_tray_track_details.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v503_tray_track_details.py",
+      "sha256": "f28edef68a3ec1febe5a6d6e53222e1d3d2fde1708367b39f20b3ac4764f2864"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v504_tray_machine.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v504_tray_machine.py",
+      "sha256": "c92dc2c74d280907963940152d2041b779970eeee437a91bd769a6611057f9b7"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v551_tray_icon_matrix.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v551_tray_icon_matrix.py",
+      "sha256": "3ba229edb70533f5edcd6681f135367bba35da973f7b2a984b547b332c552199"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v556_tray_notifications_and_history.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v556_tray_notifications_and_history.py",
+      "sha256": "da842bb54ff3e31791a759f0f745282b0bb1b7b244dffabf9499c805b9a780eb"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v569_tray_api_isolation.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v569_tray_api_isolation.py",
+      "sha256": "3e2fdeead3857d2986e9c4388ec2c623b3a6da49ff498df3d42e05d1c25b46b1"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v574_remote_floating.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v574_remote_floating.py",
+      "sha256": "15e353b68a217340a399f823d09a2ec969e723bbfe246a8a8ef62ce82e1e2443"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v501_floating_title_duration_persistence.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v501_floating_title_duration_persistence.py",
+      "sha256": "f7a4155053f6dfd23c81ce48cc27c03a54e397dfa3fcd9509881347bb640f4d7"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v573_lyric_control_character_recovery.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v573_lyric_control_character_recovery.py",
+      "sha256": "8bac06dcb7aac60bec5408ed2e8205da7b5363c5af6bd7350561987b190bf533"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v477_floating_lyrics_center.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v477_floating_lyrics_center.py",
+      "sha256": "66cb27ff1966a9c7cd09f387e71320ba393bf8173ccec6c93cd2036aad4b2c6a"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v506_floating_title_persistence.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v506_floating_title_persistence.py",
+      "sha256": "5ec9d0c7311491f6bb375f7fb28cd6768fc8919ec3e1ad51b5ac8fb5c556c5f6"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v550_floating_hit_test.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v580-20261019-162541\\tests\\test_v550_floating_hit_test.py",
+      "sha256": "2ac658e9986084120e1b0962572ef7f228a7517865cda0afd14010f9b612bf4b"
+    }
+  ],
+  "blocked_writes": [
+    "winreg.CreateKey",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log"
+  ],
+  "log": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-v580-checks-20261019-162541.log"
+}

@@ -1,0 +1,7 @@
+{
+  "unrelated": true,
+  "monkeymote": {
+    "enabled": true,
+    "port": 64293
+  }
+}

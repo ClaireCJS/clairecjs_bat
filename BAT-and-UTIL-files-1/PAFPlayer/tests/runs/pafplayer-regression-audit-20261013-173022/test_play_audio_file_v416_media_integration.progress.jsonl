@@ -1,0 +1,2 @@
+{"start": "test_play_audio_file_v416_media_integration.PlayerIntegrationTests.test_automatic_pause_resumes_same_position_with_fade_on_both_backends"}
+{"test": "test_play_audio_file_v416_media_integration.PlayerIntegrationTests.test_automatic_pause_resumes_same_position_with_fade_on_both_backends", "parent_test": "test_play_audio_file_v416_media_integration.PlayerIntegrationTests.test_automatic_pause_resumes_same_position_with_fade_on_both_backends", "outcome": "pass", "seconds": 0.515, "detail": ""}

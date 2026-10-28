@@ -1,0 +1,10 @@
+{"start": "test_PAFPlayer_v456_integrations.IntegrationTests.test_benchmark_alternates_and_mismatch_keeps_cpu"}
+{"test": "test_PAFPlayer_v456_integrations.IntegrationTests.test_benchmark_alternates_and_mismatch_keeps_cpu", "parent_test": "test_PAFPlayer_v456_integrations.IntegrationTests.test_benchmark_alternates_and_mismatch_keeps_cpu", "outcome": "pass", "seconds": 0.125, "detail": ""}
+{"start": "test_PAFPlayer_v456_integrations.IntegrationTests.test_discord_optin_privacy_rate_limit_and_updates"}
+{"test": "test_PAFPlayer_v456_integrations.IntegrationTests.test_discord_optin_privacy_rate_limit_and_updates", "parent_test": "test_PAFPlayer_v456_integrations.IntegrationTests.test_discord_optin_privacy_rate_limit_and_updates", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v456_integrations.IntegrationTests.test_learned_final_component_and_hud_shortcuts"}
+{"test": "test_PAFPlayer_v456_integrations.IntegrationTests.test_learned_final_component_and_hud_shortcuts", "parent_test": "test_PAFPlayer_v456_integrations.IntegrationTests.test_learned_final_component_and_hud_shortcuts", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v456_integrations.IntegrationTests.test_monitor_mode_change_imports_existing_stable_file"}
+{"test": "test_PAFPlayer_v456_integrations.IntegrationTests.test_monitor_mode_change_imports_existing_stable_file", "parent_test": "test_PAFPlayer_v456_integrations.IntegrationTests.test_monitor_mode_change_imports_existing_stable_file", "outcome": "pass", "seconds": 0.047, "detail": ""}
+{"start": "test_PAFPlayer_v456_integrations.IntegrationTests.test_render_real_timestamps_self_contained_deterministic_and_recycle_decline"}
+{"test": "test_PAFPlayer_v456_integrations.IntegrationTests.test_render_real_timestamps_self_contained_deterministic_and_recycle_decline", "parent_test": "test_PAFPlayer_v456_integrations.IntegrationTests.test_render_real_timestamps_self_contained_deterministic_and_recycle_decline", "outcome": "pass", "seconds": 0.656, "detail": ""}

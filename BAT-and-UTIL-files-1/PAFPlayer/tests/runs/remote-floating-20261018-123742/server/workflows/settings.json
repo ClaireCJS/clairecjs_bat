@@ -1,0 +1,9 @@
+{
+  "remote_uploads": true,
+  "library_roots": [],
+  "monkeymote": {
+    "enabled": false,
+    "port": 19371
+  },
+  "PAFPlayerLockScreenEnabled": false
+}

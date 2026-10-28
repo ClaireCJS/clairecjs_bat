@@ -1,0 +1,2 @@
+using System; using PAFPlayerScreenSaver;
+class Probe { static int Main() { try { byte[] raw=Poller.Fetch("http://127.0.0.1:666/api/screensaver/state",32768); Console.WriteLine(System.Text.Encoding.UTF8.GetString(raw)); State state=State.Decode(raw); Console.WriteLine("Online="+state.Online+" Title="+state.Title); return 0; } catch(Exception ex) { Console.WriteLine(ex); return 1; } } }

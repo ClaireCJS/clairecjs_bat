@@ -1,0 +1,424 @@
+{
+  "version": "V590",
+  "workspace": "C:\\codex\\clairevironment\\bat\\PAFPlayer",
+  "literal_C_BAT_changes": [],
+  "moves_or_deletions": [],
+  "notes": [
+    "No permanent deletion. All test artifacts retained.",
+    "Existing files received hash-verified replacement backups.",
+    "User lock test changed only desktop session state; no UAC or settings change was made."
+  ],
+  "paths": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.md",
+      "status": "modified",
+      "sha256": "bb1fc9c022ac531d57c1bde9adfed01b25ffc3f99f1ed8e585fdbcb6b987d361"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+      "status": "modified",
+      "sha256": "6bf1a41c0dae1fb02572596beb61ffd1c801d4b0a08641a3b463da689e718aab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_changelog.md",
+      "status": "modified",
+      "sha256": "1a90cb24d164b6e1c81e253ce18e9b9cbde8821dc517139c031a5901afb494b9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\PAFPlayer_changelog.md.bak.202610202125.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "02acda166a9dae7a2df92d639e45006cffc1673ada229c302c49dcc1bdc69ce1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\PAFPlayer.md.bak.202610202125.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "c3f3d300f708410a1a37f847f92216953a53ef9976aea45fc52544f0665af5ef"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md",
+      "status": "modified",
+      "sha256": "bec200d84d2a89edab5df03acfee7fe1dc93b5ecad9247e22630e69d7f6f3a60"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md.bak.202610202125.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "3be5481d73b8f116145dafa30c5dda1197e8725c3bc6e0e086a9eea67ffe33b7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\playback-controls.md",
+      "status": "modified",
+      "sha256": "fad46e883b9888654da5db1eac6d5fe970e2980efa59c7961931265af1d2089e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\playback-controls.md.bak.202610202125.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "73b582c4203a656f29e704523eaf1055eff6a2ede0acbc247c11ed5c0f7ce382"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202610202118.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "1cf296273e10a999c30fc885e96968ec53cfd66ae014550d38a4741137063fd8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202610202126.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "2e9f8f61bb13ebbb00adc8973491fca9fb1bb9e4f06a997675ccc591ede22a01"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v590_locked_bass_session_detection.md",
+      "status": "created",
+      "sha256": "bb1fc9c022ac531d57c1bde9adfed01b25ffc3f99f1ed8e585fdbcb6b987d361"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v590_locked_bass_session_detection.py",
+      "status": "created",
+      "sha256": "6bf1a41c0dae1fb02572596beb61ffd1c801d4b0a08641a3b463da689e718aab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v590_locked_bass_session_detection_release_notes.md",
+      "status": "created",
+      "sha256": "056cd110516a955f084d5b3a9f28cefa7a655bbd26d2cb8de331004ab3759856"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\check_v590_build.py",
+      "status": "created",
+      "sha256": "5519dcd202419eab4a8572286babdec5e54ffb1912aebb9fcb3768a25f4f0689"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\prepare_v590_locked_bass.py",
+      "status": "created",
+      "sha256": "c848ba0856fdd398c3e08085a86d7efcaf311cd91619c230ccd3b2286d392ca4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_v590_lock_state.py",
+      "status": "created",
+      "sha256": "c84d3fb7a84182cf1680f78cdeb9c958f2c838f4aa78b2e91414a46f2f19ab4d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_v590_lock_state.py.bak.202610202126.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "7414f4bce1373af9aaf96a87affcb7051a5202829cfd9614ada5d95ee77c31fc"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v589-bass-baseline-checks-20261020-212349.json",
+      "status": "created",
+      "kind": "verification report",
+      "sha256": "267799e8ac1feaf45c6b376f67e6ca00a041a43391fc987dd36b7bae359b610f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v589-bass-baseline-checks-20261020-212349.log",
+      "status": "created",
+      "kind": "verification report",
+      "sha256": "41223f50d858b27ade955a031f0917c14f0c831fb3c0a9216a4dc10aec7e04ba"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v590-bass-checks-20261020-212301.json",
+      "status": "created",
+      "kind": "verification report",
+      "sha256": "0fedd60be63bf41447f0cbb8c8499031ef3fc5cb1303ac8684328d75a1746981"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v590-bass-checks-20261020-212301.log",
+      "status": "created",
+      "kind": "verification report",
+      "sha256": "9c97d3715d33bf6fc7333cdc4739fa4e8dc1a64f52f39b39494528ad2661789b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v590-bass-checks-20261020-212649.json",
+      "status": "created",
+      "kind": "verification report",
+      "sha256": "72ee6264fd4d3d33ca1e24d1f51157ba1f95b03e8de4a4b43d487dedbe994e82"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v590-bass-checks-20261020-212649.log",
+      "status": "created",
+      "kind": "verification report",
+      "sha256": "a116737fd4679c5ea2d20bf5d71b00debaab62cfe7e7ee5b16100372b1a8e8a6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v590-build-20261020-212522.json",
+      "status": "created",
+      "kind": "verification report",
+      "sha256": "f475823d6473d6f15308921404615123b007623c51ceac734e8c45fdc45068f5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v590-build-20261020-212658.json",
+      "status": "created",
+      "kind": "verification report",
+      "sha256": "f85fa0184e510a8fdefa79c8db5925869c77beb444c8b5c99592e1a268b3f880"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v590-change-manifest.json",
+      "status": "created",
+      "kind": "change manifest"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v590-native-cache-20261020-212733.json",
+      "status": "created",
+      "kind": "verification report",
+      "sha256": "bab63ecf1b196317dd7f1121d65248feb26db54a0b5d7f4c6f0db3b626fca5f3"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v590-native-lock-20261020-211846.jsonl",
+      "status": "created",
+      "kind": "verification report",
+      "sha256": "8d434753b9c179eff222e6a7be734b4d480e2fe919565e6d85e349c028e64ff4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1cf296273e10a999c30fc885e96968ec53cfd66ae014550d38a4741137063fd8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\tests\\probe_v482_track_renderer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1965d0005736edec4f40300eb53943db656cdc9caa3ef7e48aedc071a4ffd7a1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\tests\\test_v485_bass_controls.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6a99bc86e5bf795c8be3a4ec3b0e48399e16507fdd60442337403d605ef5c4b8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\tests\\test_v548_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "899575b676a50babf83d169d2053751ae6878556878b34c9fb1406ee082a284e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\tests\\test_v552_channels_and_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "e95b03289132279edc9e2cc7e21aa83792b8267d4c0e3eddcee5506323ef56ac"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\tests\\test_v590_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "a3d2bb57ae3f2fbc907a39f0640ab1580f722e92056782702c3ac495ec72acad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\work\\history.sqlite3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "8c566d01e635b49c23cf9ef9312d47e2429d0087ac36f13efcc3717d0a23f2f5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v589-baseline-20261020-212349\\work\\tmp3hbutc50\\fixture.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0b3829f6b98962087015c54b061dc68c7978d3d4d73329d224ad0a616a452ce8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212244\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2e9f8f61bb13ebbb00adc8973491fca9fb1bb9e4f06a997675ccc591ede22a01"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212244\\tests\\probe_v482_track_renderer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1965d0005736edec4f40300eb53943db656cdc9caa3ef7e48aedc071a4ffd7a1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212244\\tests\\test_v485_bass_controls.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6a99bc86e5bf795c8be3a4ec3b0e48399e16507fdd60442337403d605ef5c4b8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212244\\tests\\test_v548_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "899575b676a50babf83d169d2053751ae6878556878b34c9fb1406ee082a284e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212244\\tests\\test_v552_channels_and_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "e95b03289132279edc9e2cc7e21aa83792b8267d4c0e3eddcee5506323ef56ac"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212244\\tests\\test_v590_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "a3d2bb57ae3f2fbc907a39f0640ab1580f722e92056782702c3ac495ec72acad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2e9f8f61bb13ebbb00adc8973491fca9fb1bb9e4f06a997675ccc591ede22a01"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\tests\\probe_v482_track_renderer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1965d0005736edec4f40300eb53943db656cdc9caa3ef7e48aedc071a4ffd7a1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\tests\\test_v485_bass_controls.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6a99bc86e5bf795c8be3a4ec3b0e48399e16507fdd60442337403d605ef5c4b8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\tests\\test_v548_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "899575b676a50babf83d169d2053751ae6878556878b34c9fb1406ee082a284e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\tests\\test_v552_channels_and_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "e95b03289132279edc9e2cc7e21aa83792b8267d4c0e3eddcee5506323ef56ac"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\tests\\test_v590_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "a3d2bb57ae3f2fbc907a39f0640ab1580f722e92056782702c3ac495ec72acad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\work\\history.sqlite3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "8c566d01e635b49c23cf9ef9312d47e2429d0087ac36f13efcc3717d0a23f2f5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\work\\tmp6ui1fq9f\\fixture.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "116f73fd175603e05856954660be3d971eefeb4e771c73fc36dc72d3419c760b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\work\\tmp9lovfiqb\\fixture.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0b3829f6b98962087015c54b061dc68c7978d3d4d73329d224ad0a616a452ce8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\work\\tmpem5byrag\\tagged.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212301\\work\\v590-pcm-svylhytn\\bass-and-treble.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "da0203aa904515b0d41c8689cf09e61ca18d8a29c0086bc48cfbd42c09ee732e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6bf1a41c0dae1fb02572596beb61ffd1c801d4b0a08641a3b463da689e718aab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\tests\\probe_v482_track_renderer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1965d0005736edec4f40300eb53943db656cdc9caa3ef7e48aedc071a4ffd7a1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\tests\\test_v485_bass_controls.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6a99bc86e5bf795c8be3a4ec3b0e48399e16507fdd60442337403d605ef5c4b8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\tests\\test_v548_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "899575b676a50babf83d169d2053751ae6878556878b34c9fb1406ee082a284e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\tests\\test_v552_channels_and_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "e95b03289132279edc9e2cc7e21aa83792b8267d4c0e3eddcee5506323ef56ac"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\tests\\test_v590_locked_bass.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "3c25224794e7ce6fdc3b4d1d35830326109f4330bf89455d37ec10466ebb3b3d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\work\\history.sqlite3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "8c566d01e635b49c23cf9ef9312d47e2429d0087ac36f13efcc3717d0a23f2f5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\work\\tmpu50ejshl\\tagged.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\work\\tmpxfive9xk\\fixture.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0b3829f6b98962087015c54b061dc68c7978d3d4d73329d224ad0a616a452ce8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\work\\tmpyfq3r6xx\\fixture.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "116f73fd175603e05856954660be3d971eefeb4e771c73fc36dc72d3419c760b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v590-20261020-212649\\work\\v590-pcm-ohx5zsad\\bass-and-treble.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "da0203aa904515b0d41c8689cf09e61ca18d8a29c0086bc48cfbd42c09ee732e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v552_channels_and_locked_bass.py",
+      "status": "modified",
+      "sha256": "e95b03289132279edc9e2cc7e21aa83792b8267d4c0e3eddcee5506323ef56ac"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v552_channels_and_locked_bass.py.bak.202610202122.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "f3777927c6b893aed795c9e5037f45add4bf1ac7bf4a040c2da76a9c6550447a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v590_locked_bass.py",
+      "status": "created",
+      "sha256": "3c25224794e7ce6fdc3b4d1d35830326109f4330bf89455d37ec10466ebb3b3d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v590_locked_bass.py.bak.202610202126.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "a3d2bb57ae3f2fbc907a39f0640ab1580f722e92056782702c3ac495ec72acad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v590_locked_bass.py",
+      "status": "created",
+      "sha256": "f6b936a4e87759a682fb2e114f95cd4fb3a820853f307aeb19f735c0cf6211ef"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v590_locked_bass.py.bak.202610202123.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "93440d983a772c658cec9ac58410a46290e79a224404b37311b2bd7fae2d6ab9"
+    }
+  ]
+}

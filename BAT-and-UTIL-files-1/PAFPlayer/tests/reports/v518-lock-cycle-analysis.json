@@ -1,0 +1,1307 @@
+{
+  "version": "V518",
+  "sourceTrace": "lock-renderer-20261009150535-6f19df.etl",
+  "manualLockCycle": {
+    "locked": "2026-10-09T15:05:48.300525-04:00",
+    "unlocked": "2026-10-09T15:07:05.850589-04:00"
+  },
+  "summary": {
+    "detailedTextUpdates": 32,
+    "reason2Events": [
+      "2026-10-09T15:05:56.225287100-04:00"
+    ],
+    "steadyDetailedTextUpdates": 23,
+    "steadyReason2Events": 0
+  },
+  "interpretation": "Paired badge/text submissions eliminated the recurring badge-only reason=2 pattern in this sample. One explicit tile/badge clear at 15:05:56 coincided with the standalone-to-managed publisher handoff. Text returned about 0.56 seconds after reason=2. After 15:06:02, 23 text updates had no reason=2 removal. This does not visually verify clock position or every lyric.",
+  "traceLimitations": [
+    "Winlogon provider unavailable: access denied; lock-screen text and notification providers recorded successfully.",
+    "tracerpt reported some schema mismatches; named relevant events decoded."
+  ],
+  "events": [
+    {
+      "time": "2026-10-09T15:05:45.184655200-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457139",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:45.202945400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457140",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:45.695963000-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:45.695979300-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:48.256345800-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457141",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:48.264968900-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457142",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:48.476892600-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:48.476904300-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:50.260353400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457143",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:50.272943300-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457144",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:50.486663200-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:50.486675500-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:51.009667900-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457145",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:51.019019300-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457146",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:51.231136100-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:51.231148400-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:54.024470100-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457147",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:54.037314000-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457148",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:54.257858800-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:54.257877800-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:56.014545000-04:00",
+      "event": "NotificationClearedEvent",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "sessionId": "17"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:56.024510500-04:00",
+      "event": "NotificationClearedEvent",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "sessionId": "17"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:56.225287100-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "2",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:56.552497300-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457149",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:56.569170100-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457150",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:56.783851000-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:56.783866300-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:56.834034800-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457151",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:56.845069400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457152",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:57.057759300-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:57.057771400-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:59.150059800-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457153",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:59.159316800-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457154",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:59.371334900-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:05:59.371348500-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:01.212646000-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457157",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:01.226777600-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457158",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:01.443324400-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:01.443340000-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:03.275734800-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457159",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:03.291010000-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457160",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:03.511290400-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:03.511323500-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:06.329424600-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457161",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:06.342042000-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457162",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:06.556301300-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:06.556314200-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:07.626479400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457163",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:07.640814400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457164",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:07.852623600-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:07.852635900-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:09.678829700-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457165",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:09.688739100-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457166",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:09.900480000-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:09.900494000-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:12.484832400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457167",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:12.493462000-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457168",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:12.706752200-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:12.706793700-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:13.265223300-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457169",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:13.275311800-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457170",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:13.487181400-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:13.487200000-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:14.294105500-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457171",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:14.302068900-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457172",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:14.513718700-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:14.513735400-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:17.337483700-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457173",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:17.346793200-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457174",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:17.558389400-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:17.558402600-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:18.628094400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457175",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:18.636929700-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457176",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:18.848223100-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:18.848236200-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:20.425395100-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457177",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:20.434752300-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457178",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:20.645752600-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:20.645764700-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:23.218801500-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457179",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:23.231019400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457180",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:23.446168600-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:23.446182200-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:26.527732500-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457181",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:26.542127100-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457182",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:26.756761100-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:26.756775400-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:29.585219100-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457183",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:29.594220400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457184",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:29.806506500-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:29.806519600-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:32.153314200-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457185",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:32.163024000-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457186",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:32.380456600-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:32.380474300-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:35.468937700-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457187",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:35.477304200-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457188",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:35.687932100-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:35.687945100-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:37.246915800-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457189",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:37.256879700-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457190",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:37.470217500-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:37.470242600-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:40.312393900-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457191",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:40.325164700-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457192",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:40.537297800-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:40.537310400-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:43.136228100-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457193",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:43.144649800-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457194",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:43.355209300-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:43.355221700-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:45.200930200-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457195",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:45.210214300-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457196",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:45.424103700-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:45.424120700-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:47.485853400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457197",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:47.494267500-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457198",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:47.705138000-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:47.705150600-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:50.028634500-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457199",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:50.039094600-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457200",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:50.253772300-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:50.253793200-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:51.573266500-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457201",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:51.581673900-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457202",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:51.792218600-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:51.792231300-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:53.619576000-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457203",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:53.627947300-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457204",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:53.838933500-04:00",
+      "event": "DetailedStatusUpdated",
+      "data": {
+        "aumId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:53.838951700-04:00",
+      "event": "PublishDetailedStatusChanged",
+      "data": {
+        "reason": "1",
+        "PartA_PrivTags": "16777216"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:56.437218200-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457205",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:56.447847800-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457206",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:58.482668900-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457207",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:06:58.495437700-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457208",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:07:01.555697600-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457209",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:07:01.566507600-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457210",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:07:02.585496000-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457211",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:07:02.593265100-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457212",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:07:04.624415700-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457213",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:07:04.633676400-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457214",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:07:07.172407900-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457215",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:07:07.181775300-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457216",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:07:10.221621900-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "badge",
+        "TrackingId": "457217",
+        "NotificationSource": "0"
+      }
+    },
+    {
+      "time": "2026-10-09T15:07:10.230517100-04:00",
+      "event": "NewLocalNotificationArrival",
+      "data": {
+        "AppUserModelId": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+        "NotificationType": "tile",
+        "TrackingId": "457218",
+        "NotificationSource": "0"
+      }
+    }
+  ]
+}

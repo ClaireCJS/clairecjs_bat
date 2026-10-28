@@ -1,0 +1,51 @@
+{
+  "tests": 47,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "successful": true,
+  "fixture_copies": [
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\monkeymote-20261016-014139\\PAFPlayer.py",
+      "sha256": "629498b154330761c81e767287121d81f101c8373c3b0b03448e1a9f7351452e"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_monkeymote.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\monkeymote-20261016-014139\\PAFPlayer_monkeymote.py",
+      "sha256": "69fa9f1d1537204a25c5ef0097943ed35da91295f0348735ab42fdace94a1f2a"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_monkeymote.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\monkeymote-20261016-014139\\test_PAFPlayer_monkeymote.py",
+      "sha256": "b7384a51ded44fdc5f578365fa4a67e2232f0599cc7cd34eb604e1766923dcc1"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v522_remote_controls.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\monkeymote-20261016-014139\\test_v522_remote_controls.py",
+      "sha256": "49732db3e3698a050c878a35fd53b40b9d46bc075c974c42d8082e94ab08c7be"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_workflows.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\monkeymote-20261016-014139\\test_PAFPlayer_workflows.py",
+      "sha256": "00a947c46d6420ef6829ee9fcabae2aef78ee8f15c40e143a2c048b48fae7d4b"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_v499_tray.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\monkeymote-20261016-014139\\test_PAFPlayer_v499_tray.py",
+      "sha256": "b190b02c8fef75ca6671a4ddbd48b53d396609feea769a1473e23740251fe6f1"
+    }
+  ],
+  "blocked_writes": [
+    "winreg.CreateKey",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log"
+  ],
+  "log": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-checks-20261016-014139.log"
+}

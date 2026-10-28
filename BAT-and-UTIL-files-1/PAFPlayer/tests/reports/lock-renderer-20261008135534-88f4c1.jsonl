@@ -1,0 +1,2 @@
+{"time": "2026-10-08T13:55:34.616993-04:00", "event": "start", "trace": "PAFLockRenderer-20261008135534-88f4c1", "etl_started": false, "logman": "\nError:\nElement not found.\n", "session": 1}
+{"time": "2026-10-08T13:55:34.958790-04:00", "wts": {"level": 1, "session": 1, "connection_state": 0, "flags": 1}, "processes": [{"pid": 400864, "name": "PAFPlayerLockScreen.exe", "session": 1}]}

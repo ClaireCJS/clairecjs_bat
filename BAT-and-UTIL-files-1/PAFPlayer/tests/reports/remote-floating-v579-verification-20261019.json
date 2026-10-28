@@ -1,0 +1,602 @@
+{
+  "tested_version": "V579",
+  "date": "2026-10-19",
+  "source_sha256": "9a0cb3890c0ca59a73d26098a9ad2f0743e5a83ddfe5510594b0c34a6a997b1b",
+  "tests": 143,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "unit_report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-v574-checks-20261019-130132.json",
+  "compiled_player_and_fixture_copies": 25,
+  "compiled_embedded_modules": 22,
+  "runs": [
+    {
+      "process_report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130210-processes.json",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "client_report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130210-client.json",
+      "visibility": {
+        "normal": 70
+      },
+      "events": {
+        "tk_variables": 5,
+        "render_floating_lyric": 12
+      },
+      "errors": [],
+      "saved_mode": 0
+    },
+    {
+      "process_report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130313-processes.json",
+      "exit_codes": [
+        0,
+        0
+      ],
+      "client_report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130313-client.json",
+      "visibility": {
+        "normal": 75
+      },
+      "events": {
+        "tk_variables": 5,
+        "render_floating_lyric": 12
+      },
+      "errors": [],
+      "saved_mode": 2
+    }
+  ],
+  "visual_check": "Computer Use initialized, but its window listing exposed no new isolated test window. No screenshot was captured; actual remote-computer appearance remains unverified.",
+  "product_source_changes": [],
+  "literal_C_BAT_changes": [],
+  "changes": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130210-client.events.jsonl",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130210-client.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130210-client.log",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130210-processes.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130210-server.events.jsonl",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130210-server.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130210-server.log",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130313-client.events.jsonl",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130313-client.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130313-client.log",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130313-processes.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130313-server.events.jsonl",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130313-server.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261019-130313-server.log",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-v574-checks-20261019-130132.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-v574-checks-20261019-130132.log",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\PAFPlayer\\external_album_art_geometry.txt",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\PAFPlayer\\external_album_art_geometry.txt.bak.202610191302.replaced-by-chatgpt (1).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\PAFPlayer\\external_album_art_geometry.txt.bak.202610191302.replaced-by-chatgpt (2).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\PAFPlayer\\external_album_art_geometry.txt.bak.202610191302.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\PAFPlayer\\external_album_art_placement_v241.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\PAFPlayer\\external_album_art_placement_v241.json.bak.202610191302.replaced-by-chatgpt (1).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\PAFPlayer\\external_album_art_placement_v241.json.bak.202610191302.replaced-by-chatgpt (2).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\PAFPlayer\\external_album_art_placement_v241.json.bak.202610191302.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (1).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (10).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (11).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (12).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (13).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (2).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (3).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (4).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (5).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (6).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (7).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (8).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt (9).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\client\\settings\\tray-fdb3b547347634d47d3f2b7b.json.bak.202610191302.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\PAFPlayer.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\remote-test.lrc",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\remote-test.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\server\\history.sqlite3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\server\\history.sqlite3.bak.202610191302.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\server\\PAFPlayer\\lockscreen-auto-install-v529.attempted",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\server\\play_audio_file\\spectrum_cache\\39ced1f742c700b6f8e3a7d6e935d1e9ade62e5b56e6ab1cc5df3f4eb62c7e04.zlib",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\server\\settings\\tray-fdb3b547347634d47d3f2b7b.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\server\\workflows\\instance.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130210\\server\\workflows\\settings.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\PAFPlayer\\external_album_art_geometry.txt",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\PAFPlayer\\external_album_art_geometry.txt.bak.202610191303.replaced-by-chatgpt (1).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\PAFPlayer\\external_album_art_geometry.txt.bak.202610191303.replaced-by-chatgpt (2).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\PAFPlayer\\external_album_art_geometry.txt.bak.202610191303.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\PAFPlayer\\external_album_art_placement_v241.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\PAFPlayer\\external_album_art_placement_v241.json.bak.202610191303.replaced-by-chatgpt (1).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\PAFPlayer\\external_album_art_placement_v241.json.bak.202610191303.replaced-by-chatgpt (2).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\PAFPlayer\\external_album_art_placement_v241.json.bak.202610191303.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (1).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (10).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (11).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (12).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (2).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (3).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (4).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (5).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (6).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (7).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (8).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt (9).bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\client\\settings\\tray-689cf709e3d9b0da5163cc84.json.bak.202610191303.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\PAFPlayer.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\remote-test.lrc",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\remote-test.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\server\\history.sqlite3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\server\\history.sqlite3.bak.202610191303.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\server\\PAFPlayer\\lockscreen-auto-install-v529.attempted",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\server\\play_audio_file\\spectrum_cache\\e2cfd7b15a2e9b27f86669af7ade228d1f6d97c949d710a0c18f41f8d03ef5ce.zlib",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\server\\settings\\tray-689cf709e3d9b0da5163cc84.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\server\\workflows\\instance.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261019-130313\\server\\workflows\\settings.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\PAFPlayer.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\PAFPlayer_monkeymote.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\PAFPlayer_remote_overlay.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\PAFPlayer_remote_tray.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\PAFPlayer_tray.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\PAFPlayer_tray_hover.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\PAFPlayer_tray_machine.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\PAFPlayer_web_workflows.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\PAFPlayer_workflows_ui.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_PAFPlayer_monkeymote.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_PAFPlayer_monkeymote_multi.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_PAFPlayer_v499_tray.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_PAFPlayer_workflows.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v477_floating_lyrics_center.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v501_floating_title_duration_persistence.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v503_tray_track_details.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v504_tray_machine.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v506_floating_title_persistence.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v522_remote_controls.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v550_floating_hit_test.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v551_tray_icon_matrix.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v556_tray_notifications_and_history.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v569_tray_api_isolation.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v573_lyric_control_character_recovery.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\tests\\test_v574_remote_floating.py",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\mm-preferences-g30ub6in\\settings.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\mm-preferences-g30ub6in\\settings.json.bak.202610191301.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-hfgscxe8\\state\\library.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-hfgscxe8\\state\\uploads\\active.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-hfgscxe8\\state\\uploads\\old.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-hfgscxe8\\state\\uploads.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-mt5spt4i\\a.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-mt5spt4i\\b.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-mt5spt4i\\c.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-xknsrtap\\a.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-xknsrtap\\b.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-xknsrtap\\c.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-xknsrtap\\state\\playlists\\queue (1).m3u8",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\paf456-tests-xknsrtap\\state\\playlists\\queue.m3u8",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmp0fxrtdh4\\instance.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmp0fxrtdh4\\instance.json.bak.202610191301.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmp50qn48gl\\A.mp3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmp50qn48gl\\B.mp3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmp50qn48gl\\C.mp3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmp9f3suhr7\\tray-e98d17f7f8b8eb9e0247ecff.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmp9f3suhr7\\tray-e98d17f7f8b8eb9e0247ecff.json.bak.202610191301.replaced-by-chatgpt.bak",
+      "status": "copied (new)"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmp_iw5s006\\song.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmpamnftukw\\current.mp3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmpamnftukw\\old.mp3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmpamnftukw\\recent.mp3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmpamnftukw\\recent2.mp3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmpko8nozp6\\a.mp3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmpko8nozp6\\b.mp3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmpko8nozp6\\current.mp3",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261019-130132\\work\\tmpv6a0ydr5\\song.wav",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-v579-verification-20261019.json",
+      "status": "created"
+    }
+  ],
+  "remaining": "User verification on the actual remote computer after updating and restarting its tray-only client."
+}

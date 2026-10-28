@@ -1,0 +1,7 @@
+{
+  "time": "2026-10-08T07:59:31.439427-04:00",
+  "checks": [],
+  "success": false,
+  "error": "PermissionError(13, 'Access is denied', None, 5, None)",
+  "standalone_publisher_pid": 629440
+}

@@ -1223,6 +1223,7 @@
     ]
   },
   "player_settings": {
+    "AdaptiveFrequency": 1,
     "AlertEmbeddedLyricsMismatch": 1,
     "AlertMissingArtist": 1,
     "AlertMissingArtwork": 1,
@@ -1238,7 +1239,7 @@
     "ArtColorKaraoke": 0,
     "ArtColorKaraokeSides": 0,
     "ArtColorRepresentation": 3,
-    "ArtworkSeamStrategy": 0,
+    "ArtworkSeamStrategy": 5,
     "Balance": 0,
     "BarFadeStyle": 1,
     "ColorReverse": 0,
@@ -1256,8 +1257,14 @@
     "DrcsArtMicrotiles": 1,
     "DrcsEnabled": 1,
     "ExternalMediaAutoPause": 1,
+    "ExternalMediaLoudnessMatch": 1,
     "ExternalMediaResumeFadeSeconds": 15,
     "FrequencyWarp": 1,
+    "FrequencyWarpCustom20": 306,
+    "FrequencyWarpCustom40": 346,
+    "FrequencyWarpCustom60": 356,
+    "FrequencyWarpCustom80": 445,
+    "FrequencyWarpPreset": 1,
     "HudDetails": 0,
     "KaraokeEmojimax": 1,
     "KaraokeStyle": 1,
@@ -1267,7 +1274,7 @@
     "Looping": 0,
     "MMInspiredRenderer": 1,
     "OutputBitDepth": 24,
-    "OutputChannels": 5,
+    "OutputChannels": 7,
     "OutputDevice": -1,
     "OutputDevicesMask": 1,
     "OutputRate": 96000,
@@ -1278,7 +1285,8 @@
     "ProgressBeatDetector": 5,
     "ProgressBeatReactive": 1,
     "ProgressBeatTreatment": 3,
-    "ProgressStyle": 2,
+    "ProgressBeatVisualOffsetMs": 35,
+    "ProgressStyle": 1,
     "RepeatMode": 2,
     "Shuffle": 1,
     "ShuffleMode": 1,
@@ -1291,609 +1299,642 @@
     "VisualizerInputSource": 5,
     "VisualizerMode": 1,
     "VisualizerRows": 32,
-    "Volume": 20
+    "Volume": 75
   },
   "profile_name": "Developer's Choice",
-  "program_version": "V446",
+  "program_version": "V455",
   "registry_values": {
-    "AlertEmbeddedLyricsMismatch": {
+    "Alerts\\EmbeddedLyricsMismatch": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "AlertMissingArtist": {
+    "Alerts\\Enabled": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "AlertMissingArtwork": {
+    "Alerts\\MissingArtist": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "AlertMissingKaraoke": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "AlertMissingLyrics": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "AlertMissingTitle": {
+    "Alerts\\MissingArtwork": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "AlertNoReplayGain": {
+    "Alerts\\MissingKaraoke": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Alerts\\MissingLyrics": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Alerts\\MissingTitle": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "AlertUnknownGenre": {
+    "Alerts\\NoReplayGain": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "AlertUnknownYear": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ArtColorBarAutoslideEnabled": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ArtColorBarOpacity": {
-      "kind": "REG_DWORD",
-      "value": 64
-    },
-    "ArtColorBarStrength": {
-      "kind": "REG_DWORD",
-      "value": 100
-    },
-    "ArtColorBlackAutoslideEnabled": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ArtColorBlackStrength": {
-      "kind": "REG_DWORD",
-      "value": 30
-    },
-    "ArtColorKaraoke": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ArtColorKaraokeSides": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ArtColorRepresentation": {
-      "kind": "REG_DWORD",
-      "value": 3
-    },
-    "ArtworkSeamStrategy": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "Autoplay": {
+    "Alerts\\UnknownGenre": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "Balance": {
+    "Alerts\\UnknownYear": {
       "kind": "REG_DWORD",
       "value": 0
     },
-    "BarFadeStyle": {
+    "ArtworkPopup\\AlwaysOnTop": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "ArtworkPopup\\ColorEmojiEnabled": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "BarFadeStyleFavorites": {
+    "ArtworkPopup\\EmojimaxEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ArtworkPopup\\Geometry": {
       "kind": "REG_SZ",
-      "value": "1"
+      "value": "1297x1085+3729-1201"
     },
-    "ColorFavorites": {
-      "kind": "REG_SZ",
-      "value": "7,28,41,47,66,67,76,77,78,79,80"
-    },
-    "ColorReverse": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ColorStyle": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ConsoleAlertsEnabled": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ConsoleKaraokeEnabled": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ConsoleVisualizerOverlayMessagesEnabled": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "CursiveFix": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "DecensorArtworkLyrics": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "DecensorConsoleKaraoke": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "DecensorFloatingLyrics": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "DrcsArtBarMicrotileDetailModeV370": {
-      "kind": "REG_DWORD",
-      "value": 9
-    },
-    "DrcsArtBarMicrotileModeFavorites": {
-      "kind": "REG_SZ",
-      "value": "9"
-    },
-    "DrcsArtBarMicrotiles": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "DrcsArtMicrotileDetailModeV370": {
-      "kind": "REG_DWORD",
-      "value": 9
-    },
-    "DrcsArtMicrotileModeFavorites": {
-      "kind": "REG_SZ",
-      "value": "0,7,8,9,13"
-    },
-    "DrcsArtMicrotiles": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "DrcsEnabled": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalAlbumArtAlwaysOnTop": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ExternalAlbumArtGeometry": {
-      "kind": "REG_SZ",
-      "value": "1297x1085+2639-2144"
-    },
-    "ExternalAlbumArtKaraokeBrightnessesV192": {
+    "ArtworkPopup\\KaraokeBrightnesses": {
       "kind": "REG_SZ",
       "value": "[1.8,1.0,1.0]"
     },
-    "ExternalAlbumArtKaraokeColorDefaultMode": {
+    "ArtworkPopup\\KaraokeColorDefaultMode": {
       "kind": "REG_DWORD",
       "value": 9
     },
-    "ExternalAlbumArtKaraokeColorFavorites": {
+    "ArtworkPopup\\KaraokeColorFavorites": {
       "kind": "REG_DWORD",
       "value": 515
     },
-    "ExternalAlbumArtKaraokeColorMode": {
+    "ArtworkPopup\\KaraokeColorMode": {
       "kind": "REG_DWORD",
       "value": 9
     },
-    "ExternalAlbumArtKaraokeColorPalettes": {
+    "ArtworkPopup\\KaraokeColorPalettes": {
       "kind": "REG_SZ",
       "value": "[0,0,0,0,0,0,21,0,16,0,0,5,26,0,0]"
     },
-    "ExternalAlbumArtKaraokeColorSpeeds": {
+    "ArtworkPopup\\KaraokeColorSpeeds": {
       "kind": "REG_SZ",
       "value": "[1.0,1.0,1.0]"
     },
-    "ExternalAlbumArtKaraokeEnabledV336": {
+    "ArtworkPopup\\KaraokeEnabled": {
       "kind": "REG_DWORD",
-      "value": 1
+      "value": 0
     },
-    "ExternalAlbumArtKaraokePatternTreatmentsV192": {
+    "ArtworkPopup\\KaraokePatternTreatments": {
       "kind": "REG_SZ",
       "value": "[8,0,0]"
     },
-    "ExternalAlbumArtKaraokeSaturationsV192": {
+    "ArtworkPopup\\KaraokeSaturations": {
       "kind": "REG_SZ",
       "value": "[0.35,1.0,1.0]"
     },
-    "ExternalAlbumArtKaraokeShadowSizesV192": {
+    "ArtworkPopup\\KaraokeShadowSizes": {
       "kind": "REG_SZ",
       "value": "[0.045,0.045,0.045]"
     },
-    "ExternalAlbumArtKaraokeTimedEmphasis": {
+    "ArtworkPopup\\LegacyKaraokeTimedEmphasis": {
       "kind": "REG_DWORD",
       "value": 0
     },
-    "ExternalAlbumArtLyricFontScalePercent": {
+    "ArtworkPopup\\LegacyLyricsMode": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "ArtworkPopup\\LyricFontScalePercent": {
       "kind": "REG_DWORD",
       "value": 70
     },
-    "ExternalAlbumArtLyricsEnabled": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalAlbumArtLyricsMode": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalAlbumArtLyricsModeV180": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ExternalAlbumArtManualSize": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalAlbumArtPlacementV241": {
-      "kind": "REG_SZ",
-      "value": "{\"rect\":[2639,-2144,3960,-995],\"monitor_device\":\"\\\\\\\\.\\\\DISPLAY3\",\"monitor_work\":[1280,-2168,5120,-8]}"
-    },
-    "ExternalAlbumArtPopupColorEmojiV287": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ExternalAlbumArtPopupColorEmojiV295": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalAlbumArtPopupEmojimaxV287": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ExternalAlbumArtPopupEmojimaxV295": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalFloatingLyricsAlwaysOnTop": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ExternalFloatingLyricsAutosizeV366": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalFloatingLyricsEmojimax": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalFloatingLyricsEnabled": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalFloatingLyricsFontScalePercentV366": {
-      "kind": "REG_DWORD",
-      "value": 113
-    },
-    "ExternalFloatingLyricsGeometry": {
-      "kind": "REG_SZ",
-      "value": "3409x582+1580-1980"
-    },
-    "ExternalFloatingLyricsKaraokeBrightnessesV192": {
-      "kind": "REG_SZ",
-      "value": "[1.0,1.0,1.0]"
-    },
-    "ExternalFloatingLyricsKaraokeColorDefaultMode": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalFloatingLyricsKaraokeColorFavorites": {
-      "kind": "REG_DWORD",
-      "value": 3
-    },
-    "ExternalFloatingLyricsKaraokeColorMode": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ExternalFloatingLyricsKaraokeColorPalettes": {
-      "kind": "REG_SZ",
-      "value": "[1,0,6]"
-    },
-    "ExternalFloatingLyricsKaraokeColorSpeeds": {
-      "kind": "REG_SZ",
-      "value": "[1.0,4.2,1.0]"
-    },
-    "ExternalFloatingLyricsKaraokeSaturationsV192": {
-      "kind": "REG_SZ",
-      "value": "[1.0,1.0,1.0]"
-    },
-    "ExternalFloatingLyricsKaraokeShadowSizesV192": {
-      "kind": "REG_SZ",
-      "value": "[0.045,0.045,0.045]"
-    },
-    "ExternalFloatingLyricsKaraokeTimingsV192": {
-      "kind": "REG_SZ",
-      "value": "[6,0,0]"
-    },
-    "ExternalFloatingLyricsLayoutSizeV197": {
-      "kind": "REG_SZ",
-      "value": "3409x582"
-    },
-    "ExternalFloatingLyricsNeighbors": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalFloatingLyricsPositionV302": {
-      "kind": "REG_SZ",
-      "value": "1580,-1980"
-    },
-    "ExternalMediaAutoPause": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ExternalMediaResumeFadeSeconds": {
-      "kind": "REG_DWORD",
-      "value": 15
-    },
-    "FrequencyWarp": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "GranularityFavorites": {
-      "kind": "REG_SZ",
-      "value": "3"
-    },
-    "HudDetails": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "KaraokeEmojimax": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "KaraokeEmojimaxFavorites": {
-      "kind": "REG_SZ",
-      "value": "1"
-    },
-    "KaraokeFavorites": {
-      "kind": "REG_SZ",
-      "value": "2,95"
-    },
-    "KaraokeStyle": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "KaraokeStyleFavorites": {
-      "kind": "REG_SZ",
-      "value": "1,7"
-    },
-    "KaraokeTreatment": {
+    "ArtworkPopup\\LyricsMode": {
       "kind": "REG_DWORD",
       "value": 2
     },
-    "KaraokeTreatmentFavorites": {
-      "kind": "REG_SZ",
-      "value": "2"
-    },
-    "KaraokeVisualizerCompositingFavorites": {
-      "kind": "REG_SZ",
-      "value": "0"
-    },
-    "KaraokeVisualizerExpansion": {
+    "ArtworkPopup\\ManualSize": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "KaraokeVisualizerHeightMode": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "Looping": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "MMInspiredMatrix51": {
+    "ArtworkPopup\\Placement": {
       "kind": "REG_SZ",
-      "value": "[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]]"
+      "value": "{\"rect\":[3729,-1201,5050,-52],\"monitor_device\":\"\\\\\\\\.\\\\DISPLAY3\",\"monitor_work\":[1280,-2168,5120,-8]}"
     },
-    "MMInspiredMatrix71": {
-      "kind": "REG_SZ",
-      "value": "[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.1,1.1],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",1.75,0.0],[\"BR\",0.0,1.75]]"
-    },
-    "MMInspiredMatrixAtmos714": {
-      "kind": "REG_SZ",
-      "value": "[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]]"
-    },
-    "MMInspiredMatrixProfiles": {
-      "kind": "REG_SZ",
-      "value": "{\"default\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":60.0},\"crossover7\":{\"enabled\":true,\"hz\":60.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"test1\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",2.0,0.0],[\"SR\",0.0,2.0],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":73.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"testing2\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",3.0,0.0],[\"BR\",0.0,3.0]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":73.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"testing3\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",4.0,0.0],[\"BR\",0.0,4.0]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":73.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"testing 4\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.1,1.1],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",1.75,0.0],[\"BR\",0.0,1.75]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":83.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"before 7.1 factory reset\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.1,1.1],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",1.75,0.0],[\"BR\",0.0,1.75]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":83.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[\"FR\"],\"mutes12\":[]}}"
-    },
-    "MMInspiredMutes51": {
-      "kind": "REG_SZ",
-      "value": "[]"
-    },
-    "MMInspiredMutes71": {
-      "kind": "REG_SZ",
-      "value": "[\"FR\"]"
-    },
-    "MMInspiredMutesAtmos714": {
-      "kind": "REG_SZ",
-      "value": "[]"
-    },
-    "MMInspiredRenderer": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "MMInspiredSubCrossover51": {
-      "kind": "REG_SZ",
-      "value": "{\"enabled\":true,\"hz\":66.0}"
-    },
-    "MMInspiredSubCrossover71": {
-      "kind": "REG_SZ",
-      "value": "{\"enabled\":true,\"hz\":83.0}"
-    },
-    "MMInspiredSubCrossoverAtmos714": {
-      "kind": "REG_SZ",
-      "value": "{\"enabled\":true,\"hz\":60.0}"
-    },
-    "OutputBitDepth": {
-      "kind": "REG_DWORD",
-      "value": 24
-    },
-    "OutputChannels": {
+    "Defaults\\BeatDetector": {
       "kind": "REG_DWORD",
       "value": 5
     },
-    "OutputDevice": {
-      "kind": "REG_DWORD",
-      "value": 4294967295
-    },
-    "OutputDeviceFavorites": {
-      "kind": "REG_SZ",
-      "value": "0"
-    },
-    "OutputDevicesMask": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "OutputRate": {
-      "kind": "REG_DWORD",
-      "value": 96000
-    },
-    "PaletteFavorites": {
-      "kind": "REG_SZ",
-      "value": "1"
-    },
-    "PersistenceFavorites": {
-      "kind": "REG_SZ",
-      "value": "2,3,12"
-    },
-    "PersistenceMode": {
-      "kind": "REG_DWORD",
-      "value": 2
-    },
-    "PlaybackPaused": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "ProcessingFavorites": {
-      "kind": "REG_SZ",
-      "value": "62"
-    },
-    "ProcessingStyle": {
-      "kind": "REG_DWORD",
-      "value": 62
-    },
-    "ProgressBarEnabled": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ProgressBeatDetector": {
-      "kind": "REG_DWORD",
-      "value": 5
-    },
-    "ProgressBeatDetectorFavorites": {
-      "kind": "REG_SZ",
-      "value": "1,4,5"
-    },
-    "ProgressBeatReactive": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ProgressBeatTreatment": {
-      "kind": "REG_DWORD",
-      "value": 3
-    },
-    "ProgressBeatTreatmentFavorites": {
-      "kind": "REG_SZ",
-      "value": "3"
-    },
-    "ProgressStyle": {
-      "kind": "REG_DWORD",
-      "value": 2
-    },
-    "ProgressStyleFavorites": {
-      "kind": "REG_SZ",
-      "value": "1,2,9"
-    },
-    "RepeatMode": {
-      "kind": "REG_DWORD",
-      "value": 2
-    },
-    "Shuffle": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "ShuffleMode": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "SixelEnabled": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "SpeedIndex": {
-      "kind": "REG_DWORD",
-      "value": 12
-    },
-    "TruncateTopVisualizerLines": {
-      "kind": "REG_DWORD",
-      "value": 0
-    },
-    "UserDefault_ColorStyle": {
-      "kind": "REG_DWORD",
-      "value": 1
-    },
-    "UserDefault_DrcsArtMicrotileDetailModeV370": {
+    "Defaults\\MicrotileDetailMode": {
       "kind": "REG_DWORD",
       "value": 9
     },
-    "UserDefault_OutputDevice": {
+    "Defaults\\OutputDevice": {
       "kind": "REG_DWORD",
       "value": 0
     },
-    "UserDefault_ProgressBeatDetector": {
-      "kind": "REG_DWORD",
-      "value": 5
-    },
-    "UserDefault_VisualizerMode": {
+    "Defaults\\Palette": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "VisualizerBackgroundArtworkEnabled": {
+    "Defaults\\VisualizerMode": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "VisualizerBarsEnabled": {
+    "ExternalMedia\\AutoPauseEnabled": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "VisualizerFavorites": {
-      "kind": "REG_SZ",
-      "value": "1,15"
-    },
-    "VisualizerGranularity": {
-      "kind": "REG_DWORD",
-      "value": 3
-    },
-    "VisualizerInputSource": {
-      "kind": "REG_DWORD",
-      "value": 5
-    },
-    "VisualizerMode": {
+    "ExternalMedia\\MatchLoudnessEnabled": {
       "kind": "REG_DWORD",
       "value": 1
     },
-    "VisualizerRows": {
+    "ExternalMedia\\ResumeFadeSeconds": {
       "kind": "REG_DWORD",
-      "value": 32
+      "value": 15
     },
-    "VisualizerStyleFavorites": {
-      "kind": "REG_SZ",
-      "value": "1,25"
-    },
-    "VisualizerTreatmentFavorites": {
+    "Favorites\\BarFadeStyleFavorites": {
       "kind": "REG_SZ",
       "value": "1"
     },
-    "Volume": {
-      "kind": "REG_DWORD",
-      "value": 20
+    "Favorites\\ColorFavorites": {
+      "kind": "REG_SZ",
+      "value": "7,28,41,47,66,67,76,77,78,79,80"
     },
-    "WebUiPreferencesV241": {
+    "Favorites\\DrcsArtBarMicrotileModeFavorites": {
+      "kind": "REG_SZ",
+      "value": "9"
+    },
+    "Favorites\\DrcsArtMicrotileModeFavorites": {
+      "kind": "REG_SZ",
+      "value": "0,7,8,9,13"
+    },
+    "Favorites\\GranularityFavorites": {
+      "kind": "REG_SZ",
+      "value": "3"
+    },
+    "Favorites\\KaraokeEmojimaxFavorites": {
+      "kind": "REG_SZ",
+      "value": "1"
+    },
+    "Favorites\\KaraokeFavorites": {
+      "kind": "REG_SZ",
+      "value": "2,95"
+    },
+    "Favorites\\KaraokeStyleFavorites": {
+      "kind": "REG_SZ",
+      "value": "1,7"
+    },
+    "Favorites\\KaraokeTreatmentFavorites": {
+      "kind": "REG_SZ",
+      "value": "2"
+    },
+    "Favorites\\KaraokeVisualizerCompositingFavorites": {
+      "kind": "REG_SZ",
+      "value": "0"
+    },
+    "Favorites\\OutputDeviceFavorites": {
+      "kind": "REG_SZ",
+      "value": "0"
+    },
+    "Favorites\\PaletteFavorites": {
+      "kind": "REG_SZ",
+      "value": "1"
+    },
+    "Favorites\\PersistenceFavorites": {
+      "kind": "REG_SZ",
+      "value": "2,3,12"
+    },
+    "Favorites\\ProcessingFavorites": {
+      "kind": "REG_SZ",
+      "value": "62"
+    },
+    "Favorites\\ProgressBeatDetectorFavorites": {
+      "kind": "REG_SZ",
+      "value": "1,4,5"
+    },
+    "Favorites\\ProgressBeatTreatmentFavorites": {
+      "kind": "REG_SZ",
+      "value": "3"
+    },
+    "Favorites\\ProgressStyleFavorites": {
+      "kind": "REG_SZ",
+      "value": "1,2,9"
+    },
+    "Favorites\\VisualizerFavorites": {
+      "kind": "REG_SZ",
+      "value": "1,15"
+    },
+    "Favorites\\VisualizerStyleFavorites": {
+      "kind": "REG_SZ",
+      "value": "1,25"
+    },
+    "Favorites\\VisualizerTreatmentFavorites": {
+      "kind": "REG_SZ",
+      "value": "1"
+    },
+    "FloatingLyrics\\AlwaysOnTop": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "FloatingLyrics\\Autosize": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "FloatingLyrics\\FontScalePercent": {
+      "kind": "REG_DWORD",
+      "value": 113
+    },
+    "FloatingLyrics\\Geometry": {
+      "kind": "REG_SZ",
+      "value": "1619x582-622-640"
+    },
+    "FloatingLyrics\\KaraokeBrightnesses": {
+      "kind": "REG_SZ",
+      "value": "[1.0,1.0,1.0]"
+    },
+    "FloatingLyrics\\KaraokeColorDefaultMode": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "FloatingLyrics\\KaraokeColorFavorites": {
+      "kind": "REG_DWORD",
+      "value": 3
+    },
+    "FloatingLyrics\\KaraokeColorMode": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "FloatingLyrics\\KaraokeColorPalettes": {
+      "kind": "REG_SZ",
+      "value": "[1,0,6]"
+    },
+    "FloatingLyrics\\KaraokeColorSpeeds": {
+      "kind": "REG_SZ",
+      "value": "[1.0,4.2,1.0]"
+    },
+    "FloatingLyrics\\KaraokeSaturations": {
+      "kind": "REG_SZ",
+      "value": "[1.0,1.0,1.0]"
+    },
+    "FloatingLyrics\\KaraokeShadowSizes": {
+      "kind": "REG_SZ",
+      "value": "[0.045,0.045,0.045]"
+    },
+    "FloatingLyrics\\KaraokeTimings": {
+      "kind": "REG_SZ",
+      "value": "[6,0,0]"
+    },
+    "FloatingLyrics\\LayoutSize": {
+      "kind": "REG_SZ",
+      "value": "1619x582"
+    },
+    "FloatingLyrics\\Position": {
+      "kind": "REG_SZ",
+      "value": "-622,-640"
+    },
+    "Karaoke\\ConsoleEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Karaoke\\CursiveFix": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Karaoke\\DecensorArtworkLyrics": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Karaoke\\DecensorConsoleKaraoke": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Karaoke\\DecensorFloatingLyrics": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Karaoke\\EmojimaxEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Karaoke\\KaraokeStyle": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Karaoke\\KaraokeTreatment": {
+      "kind": "REG_DWORD",
+      "value": 2
+    },
+    "Karaoke\\KaraokeVisualizerExpansion": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Karaoke\\KaraokeVisualizerHeightMode": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Playback\\Balance": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Playback\\Looping": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Playback\\OutputBitDepth": {
+      "kind": "REG_DWORD",
+      "value": 24
+    },
+    "Playback\\OutputChannels": {
+      "kind": "REG_DWORD",
+      "value": 7
+    },
+    "Playback\\OutputDevice": {
+      "kind": "REG_DWORD",
+      "value": 4294967295
+    },
+    "Playback\\OutputDevicesMask": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Playback\\OutputSampleRateHz": {
+      "kind": "REG_DWORD",
+      "value": 96000
+    },
+    "Playback\\Paused": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Playback\\RepeatMode": {
+      "kind": "REG_DWORD",
+      "value": 2
+    },
+    "Playback\\Shuffle": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Playback\\ShuffleMode": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Playback\\SpeedIndex": {
+      "kind": "REG_DWORD",
+      "value": 12
+    },
+    "Playback\\Volume": {
+      "kind": "REG_DWORD",
+      "value": 75
+    },
+    "Progress\\BarEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Progress\\BeatDetector": {
+      "kind": "REG_DWORD",
+      "value": 5
+    },
+    "Progress\\BeatReactive": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Progress\\BeatTreatment": {
+      "kind": "REG_DWORD",
+      "value": 3
+    },
+    "Progress\\BeatVisualOffsetMs": {
+      "kind": "REG_DWORD",
+      "value": 35
+    },
+    "Progress\\Style": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Settings\\ArtColorBarAutoslideEnabled": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Settings\\ArtColorBlackAutoslideEnabled": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Settings\\Autoplay": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Settings\\ExternalAlbumArtLyricsEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Settings\\ExternalAlbumArtPopupColorEmojiV287": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Settings\\ExternalAlbumArtPopupEmojimaxV287": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Settings\\ExternalFloatingLyricsEmojimax": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Settings\\ExternalFloatingLyricsEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Settings\\ExternalFloatingLyricsNeighbors": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "SpeakerExpansion\\Matrix51": {
+      "kind": "REG_SZ",
+      "value": "[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]]"
+    },
+    "SpeakerExpansion\\Matrix71": {
+      "kind": "REG_SZ",
+      "value": "[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.1,1.1],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",1.75,0.0],[\"BR\",0.0,1.75]]"
+    },
+    "SpeakerExpansion\\MatrixAtmos714": {
+      "kind": "REG_SZ",
+      "value": "[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]]"
+    },
+    "SpeakerExpansion\\Mutes51": {
+      "kind": "REG_SZ",
+      "value": "[]"
+    },
+    "SpeakerExpansion\\Mutes71": {
+      "kind": "REG_SZ",
+      "value": "[\"FR\"]"
+    },
+    "SpeakerExpansion\\MutesAtmos714": {
+      "kind": "REG_SZ",
+      "value": "[]"
+    },
+    "SpeakerExpansion\\Profiles": {
+      "kind": "REG_SZ",
+      "value": "{\"default\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":60.0},\"crossover7\":{\"enabled\":true,\"hz\":60.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"test1\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",2.0,0.0],[\"SR\",0.0,2.0],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":73.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"testing2\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",3.0,0.0],[\"BR\",0.0,3.0]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":73.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"testing3\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",4.0,0.0],[\"BR\",0.0,4.0]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":73.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"testing 4\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.1,1.1],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",1.75,0.0],[\"BR\",0.0,1.75]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":83.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[],\"mutes12\":[]},\"before 7.1 factory reset\":{\"5\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7]],\"7\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.1,1.1],[\"SL\",1.0,0.0],[\"SR\",0.0,1.0],[\"BL\",1.75,0.0],[\"BR\",0.0,1.75]],\"12\":[[\"FL\",1.0,0.0],[\"FR\",0.0,1.0],[\"FC\",0.4,0.4],[\"LFE\",1.0,1.0],[\"SL\",0.7,0.0],[\"SR\",0.0,0.7],[\"BL\",0.55,0.0],[\"BR\",0.0,0.55],[\"TFL\",0.38,0.0],[\"TFR\",0.0,0.38],[\"TBL\",0.28,0.0],[\"TBR\",0.0,0.28]],\"crossover5\":{\"enabled\":true,\"hz\":66.0},\"crossover7\":{\"enabled\":true,\"hz\":83.0},\"crossover12\":{\"enabled\":true,\"hz\":60.0},\"mutes5\":[],\"mutes7\":[\"FR\"],\"mutes12\":[]}}"
+    },
+    "SpeakerExpansion\\RendererEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "SpeakerExpansion\\SubCrossover51": {
+      "kind": "REG_SZ",
+      "value": "{\"enabled\":true,\"hz\":66.0}"
+    },
+    "SpeakerExpansion\\SubCrossover71": {
+      "kind": "REG_SZ",
+      "value": "{\"enabled\":true,\"hz\":83.0}"
+    },
+    "SpeakerExpansion\\SubCrossoverAtmos714": {
+      "kind": "REG_SZ",
+      "value": "{\"enabled\":true,\"hz\":60.0}"
+    },
+    "Visualizer\\AdaptiveFrequencyEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\ArtColorBarOpacity": {
+      "kind": "REG_DWORD",
+      "value": 64
+    },
+    "Visualizer\\ArtColorBarStrength": {
+      "kind": "REG_DWORD",
+      "value": 100
+    },
+    "Visualizer\\ArtColorBlackStrength": {
+      "kind": "REG_DWORD",
+      "value": 30
+    },
+    "Visualizer\\ArtColorKaraoke": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Visualizer\\ArtColorKaraokeSides": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Visualizer\\ArtColorRepresentation": {
+      "kind": "REG_DWORD",
+      "value": 3
+    },
+    "Visualizer\\ArtworkSeamStrategy": {
+      "kind": "REG_DWORD",
+      "value": 5
+    },
+    "Visualizer\\BarFadeStyle": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\BarMicrotileDetailMode": {
+      "kind": "REG_DWORD",
+      "value": 9
+    },
+    "Visualizer\\ConsoleVisualizerOverlayMessagesEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\DrcsArtBarMicrotiles": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\DrcsArtMicrotiles": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\DrcsEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\FrequencyWarpCustom20": {
+      "kind": "REG_DWORD",
+      "value": 306
+    },
+    "Visualizer\\FrequencyWarpCustom40": {
+      "kind": "REG_DWORD",
+      "value": 346
+    },
+    "Visualizer\\FrequencyWarpCustom60": {
+      "kind": "REG_DWORD",
+      "value": 356
+    },
+    "Visualizer\\FrequencyWarpCustom80": {
+      "kind": "REG_DWORD",
+      "value": 445
+    },
+    "Visualizer\\FrequencyWarpEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\FrequencyWarpPreset": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\HudDetailsEnabled": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Visualizer\\MicrotileDetailMode": {
+      "kind": "REG_DWORD",
+      "value": 9
+    },
+    "Visualizer\\Palette": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\PersistenceMode": {
+      "kind": "REG_DWORD",
+      "value": 2
+    },
+    "Visualizer\\ProcessingStyle": {
+      "kind": "REG_DWORD",
+      "value": 62
+    },
+    "Visualizer\\ReverseColors": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Visualizer\\SixelEnabled": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Visualizer\\TruncateTopVisualizerLines": {
+      "kind": "REG_DWORD",
+      "value": 0
+    },
+    "Visualizer\\VisualizerBackgroundArtworkEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\VisualizerBarsEnabled": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\VisualizerGranularity": {
+      "kind": "REG_DWORD",
+      "value": 3
+    },
+    "Visualizer\\VisualizerInputSource": {
+      "kind": "REG_DWORD",
+      "value": 5
+    },
+    "Visualizer\\VisualizerMode": {
+      "kind": "REG_DWORD",
+      "value": 1
+    },
+    "Visualizer\\VisualizerRows": {
+      "kind": "REG_DWORD",
+      "value": 32
+    },
+    "Web\\UiPreferences": {
       "kind": "REG_SZ",
       "value": "{\"paf-web-background-config-v238\":{\"enabled\":true,\"first\":\"back\",\"second\":\"inlay\",\"third\":\"cover\",\"final\":\"any\",\"saturation\":20,\"brightness\":85,\"alpha\":14,\"titleBleed\":20,\"aspect\":\"fit\",\"scale\":0.4443458300156051,\"tiling\":\"all\",\"checkerboard\":true},\"paf-web-karaoke-v238\":{\"enabled\":true,\"style\":1,\"treatment\":2,\"emojimax\":true,\"decensor\":true,\"glow\":true,\"glowColor\":\"#000000\",\"glowSize\":68,\"styleFav\":[1],\"treatmentFav\":[2],\"styleDefault\":1,\"treatmentDefault\":2},\"paf-art-bars-autoslide-min\":0,\"paf-art-bars-autoslide-max\":100,\"paf-art-bars-autoslide-enabled\":0,\"paf-art-black-autoslide-min\":0,\"paf-art-black-autoslide-max\":25,\"paf-art-black-autoslide-enabled\":0,\"paf-art-autoslides-locked\":0,\"paf-art-autoslides-lock-interval\":32.15017200264428,\"paf-art-bars-autoslide-interval\":1.2951324838722384,\"paf-art-black-autoslide-interval\":1.8858658765082084,\"paf-web-background-profiles-v252\":{\"test1\":{\"enabled\":true,\"first\":\"back\",\"second\":\"inlay\",\"third\":\"cover\",\"final\":\"any\",\"saturation\":20,\"brightness\":85,\"alpha\":14,\"titleBleed\":20,\"aspect\":\"fit\",\"tiling\":\"all\",\"checkerboard\":true,\"scale\":0.31593944275926195}}}"
     }
   },
   "runtime_state": {
+    "adaptive_frequency_enabled": true,
     "alert_embedded_lyrics_mismatch": true,
     "alert_missing_artist": true,
     "alert_missing_artwork": true,
@@ -1912,7 +1953,7 @@
     "art_color_karaoke_sides": false,
     "art_color_representation": 3,
     "art_topmost": false,
-    "artwork_seam_strategy": 0,
+    "artwork_seam_strategy": 5,
     "balance": 0,
     "color_reverse": false,
     "color_style": 1,
@@ -1928,11 +1969,17 @@
     "drcs_enabled": true,
     "external_album_art_enabled": true,
     "external_media_auto_pause": true,
+    "external_media_loudness_match": true,
     "external_media_resume_fade_seconds": 15,
     "fade_style": 1,
-    "floating_lyrics_enabled": false,
+    "floating_lyrics_enabled": true,
     "floating_topmost": false,
+    "frequency_warp_custom_20": 306,
+    "frequency_warp_custom_40": 346,
+    "frequency_warp_custom_60": 356,
+    "frequency_warp_custom_80": 445,
     "frequency_warp_enabled": true,
+    "frequency_warp_preset": 1,
     "karaoke_emojimax": true,
     "karaoke_style": 1,
     "karaoke_treatment": 2,
@@ -1942,7 +1989,7 @@
     "loop": false,
     "mm_inspired_renderer_enabled": true,
     "output_bit_depth": 24,
-    "output_channels": 5,
+    "output_channels": 7,
     "output_device": -1,
     "output_devices_mask": 1,
     "output_rate": 96000,
@@ -1953,7 +2000,7 @@
     "progress_beat_detector": 5,
     "progress_beat_reactive": true,
     "progress_beat_treatment": 3,
-    "progress_style": 2,
+    "progress_style": 1,
     "repeat_mode": 2,
     "shuffle": true,
     "shuffle_mode": 1,
@@ -1966,9 +2013,9 @@
     "visualizer_input_source": 5,
     "visualizer_mode": 1,
     "visualizer_rows": 32,
-    "volume": 20
+    "volume": 75
   },
-  "saved_at": "2026-09-24T20:18:24.822266+00:00",
+  "saved_at": "2026-09-25T12:30:07.936710+00:00",
   "web_preferences": {
     "paf-art-autoslides-lock-interval": 32.15017200264428,
     "paf-art-autoslides-locked": 0,

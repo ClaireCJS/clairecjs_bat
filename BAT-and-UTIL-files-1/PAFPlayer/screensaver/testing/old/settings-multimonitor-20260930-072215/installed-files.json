@@ -1,0 +1,22 @@
+[
+  {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver\\PAFPlayer.scr.bak.202609300723.replaced-by-chatgpt.bak",
+    "operation": "created",
+    "purpose": "verified replacement backup"
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer.scr.bak.202609300723.replaced-by-chatgpt.bak",
+    "operation": "created",
+    "purpose": "verified replacement backup"
+  },
+  {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver\\PAFPlayer.scr",
+    "operation": "modified",
+    "sha256": "2db34c80587698a49e5f089432ccbd31cfc8ac6ba72e85e4725ab8007ba36fab"
+  },
+  {
+    "path": "C:\\BAT\\PAFPlayer.scr",
+    "operation": "modified",
+    "sha256": "2db34c80587698a49e5f089432ccbd31cfc8ac6ba72e85e4725ab8007ba36fab"
+  }
+]

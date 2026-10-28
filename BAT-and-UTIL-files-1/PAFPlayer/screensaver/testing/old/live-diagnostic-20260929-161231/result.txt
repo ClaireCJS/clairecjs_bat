@@ -1,0 +1,2 @@
+{"protocol": 1, "session": "d2006dfd126248f294b4e83460d0c8ee", "close_revision": 0, "enabled": false, "brightness": 50, "title": "", "lyric": "", "status": "Disabled", "art_revision": "", "has_art": false}
+Online=True Enabled=False Status=Disabled

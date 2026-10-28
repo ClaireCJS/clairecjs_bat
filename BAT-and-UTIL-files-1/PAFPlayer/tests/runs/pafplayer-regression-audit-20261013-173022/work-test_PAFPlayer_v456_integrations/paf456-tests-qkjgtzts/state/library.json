@@ -1,0 +1,21 @@
+{
+  "c:\\codex\\clairevironment\\bat\\pafplayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\work-test_pafplayer_v456_integrations\\paf456-tests-qkjgtzts\\song.wav": {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\work-test_PAFPlayer_v456_integrations\\paf456-tests-qkjgtzts\\song.wav",
+    "signature": [
+      32044,
+      1791927169062804800
+    ],
+    "identity": [
+      2496473913,
+      1970324839096599
+    ],
+    "size": 32044,
+    "duration": 2.0,
+    "tags": {
+      "Artist": "Test"
+    },
+    "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f",
+    "source": "monitored",
+    "library_member": false
+  }
+}

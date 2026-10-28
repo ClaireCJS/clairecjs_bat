@@ -1,0 +1,3 @@
+EnableLUA=0; no UAC setting will be changed.
+PAFPlayer Lock Screen currently registered: 510.0.0.5.
+Installer stopped: This app does not support the contract specified or is not installed. (Exception from HRESULT: 0x80270254)

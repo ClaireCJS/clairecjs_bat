@@ -1,0 +1,16 @@
+{
+  "releaseHashes": "verified",
+  "bundleCrc": "verified",
+  "bundleFilesMatchSource": true,
+  "noPrivateKeys": true,
+  "mainChanges": [
+    "-PLAYER_BUILD_ID                 = \"2026-10-07-v511-lockscreen-recovery-publisher\"",
+    "+PLAYER_BUILD_ID                 = \"2026-10-07-v512-lockscreen-visible-status\"",
+    "-PROGRAM_VERSION                 = \"V511\"",
+    "-PROGRAM_RELEASE_LABEL           = \"V511\"",
+    "+PROGRAM_VERSION                 = \"V512\"",
+    "+PROGRAM_RELEASE_LABEL           = \"V512\""
+  ],
+  "pythonCompilation": "passed",
+  "literalCBatChanges": []
+}

@@ -1,0 +1,9 @@
+Playlist analysis: T:\lists\test.m3u
+Tracks: 2
+
+Last played          Full path
+-------------------  ---------
+NEVER                T:\music\A.mp3
+1969-12-31 07:02PM   T:\music\B.mp3
+
+2 playlist track(s): 1 never played; 1 with matched history.

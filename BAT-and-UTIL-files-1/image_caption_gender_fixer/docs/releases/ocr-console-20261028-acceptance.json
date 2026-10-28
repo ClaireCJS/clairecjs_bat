@@ -1,0 +1,23 @@
+{
+  "live_terminal": {
+    "stdin_tty": true,
+    "stdout_tty": true,
+    "default_exit": 0,
+    "verbose_exit": 0,
+    "images": 3,
+    "cache_unchanged_on_verbose_reuse": true,
+    "originals_unchanged": true,
+    "history_created": false,
+    "production_state_unchanged": true,
+    "existing_resumable_jobs": 2,
+    "bundle_verified": 2022,
+    "created_cbat_logs": [
+      "C:\\BAT\\image_caption_gender_fixer\\runtime\\logs\\a76de0f0-94e3-48b9-ade7-956eeadd0b9a.jsonl",
+      "C:\\BAT\\image_caption_gender_fixer\\runtime\\logs\\dcd8a673-aa5c-47c9-b189-34ab94dfa6c9.jsonl"
+    ]
+  },
+  "installed_tests": 220,
+  "test_seconds": "90.059",
+  "production_state_matches_before": true,
+  "installed_cli_sha256": "8e02e121678802e93a0370b701b6cee1f61ca9dd6b21bc389af82a67d9330a01"
+}

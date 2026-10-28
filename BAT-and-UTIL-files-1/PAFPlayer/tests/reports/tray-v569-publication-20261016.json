@@ -1,0 +1,21 @@
+{
+  "version": "V569",
+  "artifacts": [
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v569_tray_popup_api_isolation.py",
+      "sha256": "5fb8e7a398cdb314e9d6a86cc927389a0497c2f1debff0547b43f4a62604619b"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.md",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\PAFPlayer_v569_tray_popup_api_isolation.md",
+      "sha256": "1cb080b290bd07e9e86b314b52d077ad4efc9ce099796d1e261a2351ff57dfc9"
+    }
+  ],
+  "release_notes": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v569_tray_popup_api_isolation_release_notes.md",
+  "focused_tests": 116,
+  "failed": 0,
+  "skipped": 0,
+  "literal_C_BAT_changes": [],
+  "live_player_restarted": false
+}

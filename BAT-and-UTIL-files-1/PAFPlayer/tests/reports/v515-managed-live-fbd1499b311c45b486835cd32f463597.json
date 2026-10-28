@@ -1,0 +1,35 @@
+{
+  "time": "2026-10-08T08:04:22.784954-04:00",
+  "checks": [
+    "Installed signed EXE launched headlessly and remained alive",
+    "Owner stop event caused graceful exit with no playback commands",
+    "Different official session rejected with exit code 4"
+  ],
+  "publisher_pid": 533260,
+  "official_identity": "3f520d30e86dd639",
+  "receipt": {
+    "time": "2026-10-08T12:04:34.3009757+00:00",
+    "package": "ClaireCJS.PAFPlayer.LockScreen.Recovery_515.0.0.1_x64__vz06efybxc4j2",
+    "user": "DEMONA\\Claire",
+    "session": 1,
+    "server": "http://127.0.0.1:666",
+    "officialVerified": true,
+    "identity": "3f520d30e86dd639",
+    "published": true,
+    "enabled": true,
+    "badge": "playing",
+    "summary": "Playing: Blah \u2014 Vial",
+    "lyric": "blah Blah blah blah blah",
+    "tileXml": "<tile><visual version=\"4\"><binding template=\"TileWide310x150Text01\" fallback=\"TileWideText01\" hint-lockDetailedStatus1=\"Blah\" hint-lockDetailedStatus2=\"Vial \u00b7 Playing\" hint-lockDetailedStatus3=\"blah Blah blah blah blah\"><text id=\"1\">Blah</text><text id=\"2\">Vial \u00b7 Playing</text><text id=\"3\">blah Blah blah blah blah</text><text id=\"4\"></text><text id=\"5\"></text></binding></visual></tile>",
+    "badgeXml": "<badge value=\"playing\"/>",
+    "tileNotificationSetting": "Enabled",
+    "backgroundAccess": "AllowedSubjectToSystemPolicy",
+    "backgroundRegistered": true,
+    "backgroundTaskIds": "93c5e77a-39ba-47ed-8854-b56429272f66",
+    "backgroundRegistrationError": "",
+    "error": "",
+    "reportPath": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v515-publication-f5a5e29a9a494379b335f9463176ec70.json"
+  },
+  "success": true,
+  "standalone_publisher_pid": 612144
+}

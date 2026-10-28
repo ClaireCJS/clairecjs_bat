@@ -1,0 +1,35 @@
+{
+  "time": "2026-10-08T10:35:29.287051-04:00",
+  "checks": [
+    "Installed signed EXE launched headlessly and remained alive",
+    "Owner stop event caused graceful exit with no playback commands",
+    "Different official session rejected with exit code 4"
+  ],
+  "publisher_pid": 706100,
+  "official_identity": "3f520d30e86dd639",
+  "receipt": {
+    "time": "2026-10-08T14:35:41.2960016+00:00",
+    "package": "ClaireCJS.PAFPlayer.LockScreen.Recovery_515.0.0.1_x64__vz06efybxc4j2",
+    "user": "DEMONA\\Claire",
+    "session": 1,
+    "server": "http://127.0.0.1:666",
+    "officialVerified": true,
+    "identity": "3f520d30e86dd639",
+    "published": true,
+    "enabled": true,
+    "badge": "playing",
+    "summary": "Playing: Pollo Asado \u2014 Fork Of Loss",
+    "lyric": "",
+    "tileXml": "<tile><visual version=\"4\"><binding template=\"TileWide310x150Text01\" fallback=\"TileWideText01\" hint-lockDetailedStatus1=\"Pollo Asado\" hint-lockDetailedStatus2=\"Fork Of Loss \u00b7 Playing\" hint-lockDetailedStatus3=\"\"><text id=\"1\">Pollo Asado</text><text id=\"2\">Fork Of Loss \u00b7 Playing</text><text id=\"3\"></text><text id=\"4\"></text><text id=\"5\"></text></binding></visual></tile>",
+    "badgeXml": "<badge value=\"playing\"/>",
+    "tileNotificationSetting": "Enabled",
+    "backgroundAccess": "AllowedSubjectToSystemPolicy",
+    "backgroundRegistered": true,
+    "backgroundTaskIds": "666183e0-7ffe-4188-968b-10e305a97e52",
+    "backgroundRegistrationError": "",
+    "error": "",
+    "reportPath": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v515-publication-f9a040c3fa174449848de5f6a5a7c0f0.json"
+  },
+  "success": true,
+  "standalone_publisher_pid": 505484
+}

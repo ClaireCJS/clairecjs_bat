@@ -1,0 +1,4 @@
+# Emojimaxx candidates from 1 selected lyric sidecar(s) under C:\codex\clairevironment\bat\PAFPlayer\tests\runs\pafplayer-regression-audit-20261012-134951\work-PAFPlayer\tmpaor4jrsj\music
+# SRT > LRC > TXT, except newer LRC beats SRT; minimum collection count = 25
+
+  "zeppelin" : "❓",    #used 30 times in music collection

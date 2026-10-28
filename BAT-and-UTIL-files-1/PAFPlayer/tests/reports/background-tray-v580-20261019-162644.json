@@ -1,0 +1,31 @@
+{
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\background-tray-v580-20261019-162644",
+  "source_sha256": "10d30d37bca485700e4729fd88cd710cc75ee7af0f991c4b67af28e0086a5340",
+  "parent_seconds": 1.797000000020489,
+  "parent_exit": 0,
+  "parent_stdout": "PAFPlayer tray starting in background (PID 60088).\nTray diagnostics: C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\background-tray-v580-20261019-162644\\settings\\PAFPlayer\\RemoteTray\\logs\\tray-20261019-162645.log\n",
+  "parent_stderr": "",
+  "child": {
+    "exit_code": 0,
+    "seconds": 5.032000000006519,
+    "events": [
+      {
+        "native_started": true,
+        "at": 1792441610.4112203,
+        "console_window": 2883666
+      }
+    ]
+  },
+  "child_report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\background-tray-v580-20261019-162644-child.json",
+  "logs": [
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\background-tray-v580-20261019-162644\\settings\\PAFPlayer\\RemoteTray\\logs\\tray-20261019-162645.log"
+  ],
+  "before_reload": [
+    {
+      "native_started": true,
+      "at": 1792441607.6484177,
+      "console_window": 0
+    }
+  ],
+  "successful": false
+}

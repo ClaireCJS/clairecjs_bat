@@ -1,0 +1,443 @@
+{
+  "live_cli": {
+    "commands": [
+      {
+        "arguments": [
+          "--ocr-only",
+          "--json",
+          "--literal-path",
+          "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-LiveOCR-253dca5a928d49a4a9aa67ff9e0d67b2\\generated images"
+        ],
+        "seconds": 1.248,
+        "exit_code": 0,
+        "result": {
+          "state": "ocr_only",
+          "results": [
+            {
+              "file": "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-LiveOCR-253dca5a928d49a4a9aa67ff9e0d67b2\\generated images\\caption with spaces.png",
+              "state": "ocr_cached",
+              "reused": false,
+              "cache": "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-LiveOCR-253dca5a928d49a4a9aa67ff9e0d67b2\\generated images\\.ocr",
+              "caption": "good boi\nAll the rest of this caption stays here.",
+              "lines": 2
+            }
+          ],
+          "summary": {
+            "ocr_cached": 1,
+            "deferred": 0,
+            "failed": 0,
+            "reused": 0
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "arguments": [
+          "-o",
+          "--json",
+          "--literal-path",
+          "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-LiveOCR-253dca5a928d49a4a9aa67ff9e0d67b2\\renamed image folder"
+        ],
+        "seconds": 1.085,
+        "exit_code": 0,
+        "result": {
+          "state": "ocr_only",
+          "results": [
+            {
+              "file": "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-LiveOCR-253dca5a928d49a4a9aa67ff9e0d67b2\\renamed image folder\\caption with spaces.png",
+              "state": "ocr_cached",
+              "reused": true,
+              "cache": "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-LiveOCR-253dca5a928d49a4a9aa67ff9e0d67b2\\renamed image folder\\.ocr",
+              "caption": "good boi\nAll the rest of this caption stays here.",
+              "lines": 2
+            }
+          ],
+          "summary": {
+            "ocr_cached": 1,
+            "deferred": 0,
+            "failed": 0,
+            "reused": 1
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "arguments": [
+          "--dry-run",
+          "--json",
+          "--literal-path",
+          "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-LiveOCR-253dca5a928d49a4a9aa67ff9e0d67b2\\renamed image folder"
+        ],
+        "seconds": 0.7,
+        "exit_code": 0,
+        "result": {
+          "state": "dry_run",
+          "results": [
+            {
+              "file": "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-LiveOCR-253dca5a928d49a4a9aa67ff9e0d67b2\\renamed image folder\\caption with spaces.png",
+              "state": "dry_run",
+              "proposed_regions": 1,
+              "review_required": true
+            }
+          ],
+          "resumable_sessions": [
+            {
+              "id": "16b26c39-47ef-49b7-90a5-a315ad154fa4",
+              "created": "2026-10-27T20:53:39.697469+00:00",
+              "updated": "2026-10-27T20:55:02.788364+00:00",
+              "target": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\152009157707_p0-CensoredSissy (tumblr_censoredsissy).jpg",
+              "counts": {
+                "skipped": 139,
+                "canceled": 1,
+                "deferred": 7,
+                "interrupted": 1,
+                "pending": 676
+              },
+              "completed": 0,
+              "failed": 0,
+              "remaining": 685
+            },
+            {
+              "id": "1dd27f00-ed20-4657-a46f-4137ad567649",
+              "created": "2026-10-27T20:53:39.647662+00:00",
+              "updated": "2026-10-27T20:53:57.176500+00:00",
+              "target": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\152009157707_p0-CensoredSissy (tumblr_censoredsissy).jpg",
+              "counts": {
+                "skipped": 11,
+                "interrupted": 1,
+                "pending": 771
+              },
+              "completed": 0,
+              "failed": 0,
+              "remaining": 772
+            }
+          ]
+        },
+        "stderr": ""
+      },
+      {
+        "arguments": [
+          "doctor",
+          "--json"
+        ],
+        "seconds": 9.756,
+        "exit_code": 0,
+        "result": {
+          "root": "C:\\bat\\image_caption_gender_fixer",
+          "unexpected_items": [],
+          "missing_root_files": [],
+          "pre_existing_at_inspection": [],
+          "introduced_by_doctor": [],
+          "bundle": {
+            "checked": 2022,
+            "optional_absent": [
+              "wheels/numpy-1.26.4-cp310-cp310-win_amd64.whl",
+              "wheels/opencv_python_headless-4.10.0.84-cp37-abi3-win_amd64.whl"
+            ],
+            "errors": []
+          },
+          "environment": {
+            "native": {
+              "tesseract": {
+                "path": "C:\\bat\\image_caption_gender_fixer\\environment\\tools\\tesseract\\tesseract.exe",
+                "version": "tesseract v5.5.3.20260724"
+              },
+              "magick": {
+                "path": "C:\\bat\\image_caption_gender_fixer\\environment\\tools\\magick\\magick.exe",
+                "version": "Version: ImageMagick 7.1.1-10 Q16-HDRI x64 fa1d7e6:20230521 https://imagemagick.org"
+              }
+            },
+            "english_fast": true,
+            "packages": {
+              "PIL": {
+                "version": "10.3.0",
+                "path": "C:\\bat\\image_caption_gender_fixer\\environment\\packages\\PIL\\__init__.py"
+              },
+              "numpy": {
+                "version": "1.26.4",
+                "path": "C:\\bat\\image_caption_gender_fixer\\environment\\packages\\numpy\\__init__.py"
+              },
+              "cv2": {
+                "version": "4.10.0",
+                "path": "C:\\bat\\image_caption_gender_fixer\\environment\\packages\\cv2\\__init__.py"
+              },
+              "regex": {
+                "version": "2.5.141",
+                "path": "C:\\bat\\image_caption_gender_fixer\\environment\\packages\\regex\\__init__.py"
+              },
+              "pytest": {
+                "version": "7.4.0",
+                "path": "C:\\bat\\image_caption_gender_fixer\\environment\\packages\\pytest\\__init__.py"
+              },
+              "tqdm": {
+                "version": "4.66.2",
+                "path": "C:\\bat\\image_caption_gender_fixer\\environment\\packages\\tqdm\\__init__.py"
+              },
+              "clairecjs_utils.claire_progressbar": {
+                "version": null,
+                "path": "C:\\bat\\image_caption_gender_fixer\\environment\\packages\\clairecjs_utils\\claire_progressbar.py"
+              }
+            }
+          },
+          "preview": {
+            "renderer": "pafplayer-dual-preview",
+            "module": "C:\\bat\\image_caption_gender_fixer\\src\\image_caption_gender_fixer\\paf_album_art.py",
+            "available": true,
+            "tk_version": 8.6,
+            "artwork_backend": {
+              "origin": "installed-pafplayer",
+              "source": "C:\\bat\\PAFPlayer\\PAFPlayer.py",
+              "source_sha256": "fc6e7301f3aef7515be171bdccf62f2ed30a11581f24280b372e90f90de49e97",
+              "pafplayer_version": "V628",
+              "fallback_reason": null,
+              "terminal": {
+                "origin": "installed-pafplayer",
+                "source": "C:\\bat\\PAFPlayer\\PAFPlayer.py",
+                "source_sha256": "fc6e7301f3aef7515be171bdccf62f2ed30a11581f24280b372e90f90de49e97",
+                "version": "V628",
+                "renderer": "pafplayer-twin-drcs",
+                "settings": {
+                  "DrcsEnabled": 1,
+                  "VisualizerGranularity": 3,
+                  "DrcsArtMicrotileDetailModeV370": 9,
+                  "DrcsArtBarMicrotileDetailModeV370": 9,
+                  "ArtworkSeamStrategy": 5
+                },
+                "setting_sources": {
+                  "DrcsEnabled": "HKCU\\Software\\ClaireCJS\\PAFPlayer\\Visualizer\\DrcsEnabled",
+                  "VisualizerGranularity": "HKCU\\Software\\ClaireCJS\\PAFPlayer\\Visualizer\\VisualizerGranularity",
+                  "DrcsArtMicrotileDetailModeV370": "HKCU\\Software\\ClaireCJS\\PAFPlayer\\Visualizer\\MicrotileDetailMode",
+                  "DrcsArtBarMicrotileDetailModeV370": "HKCU\\Software\\ClaireCJS\\PAFPlayer\\Visualizer\\BarMicrotileDetailMode",
+                  "ArtworkSeamStrategy": "HKCU\\Software\\ClaireCJS\\PAFPlayer\\Visualizer\\ArtworkSeamStrategy"
+                },
+                "detail_name": "2\u00d74 octant hybrid (8 subcells \u2014 100% exact \u2014 Unicode mosaics ON; Unicode+DRCS)",
+                "subcells": [
+                  2,
+                  4
+                ],
+                "bank_layout": 3
+              }
+            }
+          },
+          "pending_transactions": [],
+          "state_staging_retained": [],
+          "resumable_sessions": [
+            {
+              "id": "16b26c39-47ef-49b7-90a5-a315ad154fa4",
+              "created": "2026-10-27T20:53:39.697469+00:00",
+              "updated": "2026-10-27T20:55:02.788364+00:00",
+              "target": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\152009157707_p0-CensoredSissy (tumblr_censoredsissy).jpg",
+              "counts": {
+                "skipped": 139,
+                "canceled": 1,
+                "deferred": 7,
+                "interrupted": 1,
+                "pending": 676
+              },
+              "completed": 0,
+              "failed": 0,
+              "remaining": 685
+            },
+            {
+              "id": "1dd27f00-ed20-4657-a46f-4137ad567649",
+              "created": "2026-10-27T20:53:39.647662+00:00",
+              "updated": "2026-10-27T20:53:57.176500+00:00",
+              "target": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\152009157707_p0-CensoredSissy (tumblr_censoredsissy).jpg",
+              "counts": {
+                "skipped": 11,
+                "interrupted": 1,
+                "pending": 771
+              },
+              "completed": 0,
+              "failed": 0,
+              "remaining": 772
+            }
+          ],
+          "session_issues": [],
+          "retained_artifacts": [
+            {
+              "session": "16b26c39-47ef-49b7-90a5-a315ad154fa4",
+              "transaction": "2ae16f0f-62b4-4ff0-a3fc-96042256fe7d",
+              "artifacts": [
+                {
+                  "hash": "68787ff93d0708d30d835f7c02637c3028edb673b4fb68a99ec535095cfaa952",
+                  "identity": [
+                    2319435489,
+                    1125899907889545
+                  ],
+                  "kind": "original",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-2ae16f0f-62b4-4ff0-a3fc-96042256fe7d-1-original.png",
+                  "region": 0
+                },
+                {
+                  "hash": "b393fe85bd4a1805356b4c90aa3d42befd4a6eb5c63673b501fe842311957ff7",
+                  "identity": [
+                    2319435489,
+                    1125899907889546
+                  ],
+                  "kind": "mask",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-2ae16f0f-62b4-4ff0-a3fc-96042256fe7d-1-mask.png",
+                  "region": 0
+                },
+                {
+                  "hash": "eef2b150663a6867efee17f091ce8e630deec2ce56393918316275f5d116602e",
+                  "identity": [
+                    2319435489,
+                    1125899907889547
+                  ],
+                  "kind": "repair",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-2ae16f0f-62b4-4ff0-a3fc-96042256fe7d-1-repair.png",
+                  "region": 0
+                },
+                {
+                  "hash": "1b95c02862b3e1cd20307dbf6ef2263b93aa39d3d17657d59bcecaa583a58201",
+                  "identity": [
+                    2319435489,
+                    1125899907889548
+                  ],
+                  "kind": "corrected",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-2ae16f0f-62b4-4ff0-a3fc-96042256fe7d-1-corrected.png",
+                  "region": 0
+                },
+                {
+                  "hash": "0fba19a57c6643ad86f4f0cefe33b1e6eff7b5749e1eda2b31e605349f09a06e",
+                  "identity": [
+                    2319435489,
+                    1125899907889549
+                  ],
+                  "kind": "original",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-2ae16f0f-62b4-4ff0-a3fc-96042256fe7d-2-original.png",
+                  "region": 1
+                },
+                {
+                  "hash": "f31aa2811c5aa32068c8fcef4264f054c4c9ff579a21740b079e9fa62bda0d8a",
+                  "identity": [
+                    2319435489,
+                    1125899907889550
+                  ],
+                  "kind": "mask",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-2ae16f0f-62b4-4ff0-a3fc-96042256fe7d-2-mask.png",
+                  "region": 1
+                },
+                {
+                  "hash": "ca91e6fa447458be710cdb1942cf7f0abdafd8127e63c68deb4cde032734829b",
+                  "identity": [
+                    2319435489,
+                    1125899907889551
+                  ],
+                  "kind": "repair",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-2ae16f0f-62b4-4ff0-a3fc-96042256fe7d-2-repair.png",
+                  "region": 1
+                },
+                {
+                  "hash": "b438a110e84dbfd300733c758a7507a73790335b6bdf73673f06b0412123b656",
+                  "identity": [
+                    2319435489,
+                    1125899907889552
+                  ],
+                  "kind": "corrected",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-2ae16f0f-62b4-4ff0-a3fc-96042256fe7d-2-corrected.png",
+                  "region": 1
+                },
+                {
+                  "hash": "b976b025527b7c50d55122288fe2ca9e8488143ee549ae3a9798bc259230afb7",
+                  "identity": [
+                    2319435489,
+                    1125899907889553
+                  ],
+                  "kind": "proposal",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-2ae16f0f-62b4-4ff0-a3fc-96042256fe7d-proposal.jpg"
+                }
+              ]
+            },
+            {
+              "session": "1dd27f00-ed20-4657-a46f-4137ad567649",
+              "transaction": "1df59c51-d520-49f3-96b4-17979fc227fe",
+              "artifacts": [
+                {
+                  "hash": "a991b3e7314518fe1230548336ddbac638c965e0246153d24d7a233f3ff3831b",
+                  "identity": [
+                    2319435489,
+                    1688849861310843
+                  ],
+                  "kind": "original",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-1df59c51-d520-49f3-96b4-17979fc227fe-1-original.png",
+                  "region": 0
+                },
+                {
+                  "hash": "aa9c76895d6a7d9a402a7b58376c2fce4da90a87fd4e9116a54215f7d9d12e30",
+                  "identity": [
+                    2319435489,
+                    1125899907889532
+                  ],
+                  "kind": "mask",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-1df59c51-d520-49f3-96b4-17979fc227fe-1-mask.png",
+                  "region": 0
+                },
+                {
+                  "hash": "c754bf63d7a00565cbe2561944425c140803f46ddae5070360d46e1a1af8e6af",
+                  "identity": [
+                    2319435489,
+                    1125899907889534
+                  ],
+                  "kind": "repair",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-1df59c51-d520-49f3-96b4-17979fc227fe-1-repair.png",
+                  "region": 0
+                },
+                {
+                  "hash": "0f625f41a589133d472fd26c62ac802e8325a9d91af76dcd9d9e60bcc23b3a1a",
+                  "identity": [
+                    2319435489,
+                    1125899907889536
+                  ],
+                  "kind": "corrected",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-1df59c51-d520-49f3-96b4-17979fc227fe-1-corrected.png",
+                  "region": 0
+                },
+                {
+                  "hash": "92abbc13e6fd94f64a5d81a57d71cc470012cc93b066af62b219a4d1a7f8c3d3",
+                  "identity": [
+                    2319435489,
+                    1125899907889539
+                  ],
+                  "kind": "proposal",
+                  "path": "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)\\.icgf-1df59c51-d520-49f3-96b4-17979fc227fe-proposal.jpg"
+                }
+              ]
+            }
+          ]
+        },
+        "stderr": ""
+      }
+    ],
+    "source_unchanged": true,
+    "hidden_folder_cache": "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-LiveOCR-253dca5a928d49a4a9aa67ff9e0d67b2\\renamed image folder\\.ocr",
+    "folder_rename_reuses_without_cache_rewrite": true,
+    "history_created": false,
+    "production_state_unchanged": true,
+    "existing_resumable_jobs": 2,
+    "root_files": [
+      "README.md",
+      "image_caption_gender_fixer.py"
+    ],
+    "created_cbat_logs": [
+      "C:\\BAT\\image_caption_gender_fixer\\runtime\\logs\\0411925a-e2cb-4b2e-bc4c-29c365d0750f.jsonl",
+      "C:\\BAT\\image_caption_gender_fixer\\runtime\\logs\\25fe76d0-77bb-4872-a990-34950ab34b7c.jsonl"
+    ]
+  },
+  "live_menu": {
+    "stdin_tty": true,
+    "stdout_tty": true,
+    "invalid_selection_help_returned_to_menu": true,
+    "new_job_selected": true,
+    "old_jobs_preserved": true,
+    "source_unchanged": true
+  },
+  "installed_tests": 210,
+  "test_seconds": "89.663",
+  "production_state_matches_before": true,
+  "source_hashes": {
+    "C:\\BAT\\image_caption_gender_fixer\\src\\image_caption_gender_fixer\\cli.py": "ae7a7a0c38662598d52a9eb9469a26ea7b21edf73820f81e60ac42d816c8b000",
+    "C:\\BAT\\image_caption_gender_fixer\\src\\image_caption_gender_fixer\\ocr_cache.py": "062c3ce7807068d8887e50386c91764c3e372189c4c938c16fcc2eda700f27b9"
+  }
+}

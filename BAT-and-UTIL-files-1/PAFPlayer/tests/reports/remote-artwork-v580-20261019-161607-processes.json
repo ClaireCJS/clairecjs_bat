@@ -1,0 +1,24 @@
+{
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-artwork-v580-20261019-161607",
+  "address": "127.0.0.1:58261",
+  "processes": [
+    {
+      "role": "server",
+      "pid": 132812,
+      "report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-artwork-v580-20261019-161607-server.json",
+      "log": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-artwork-v580-20261019-161607-server.log",
+      "verified_official": true
+    },
+    {
+      "role": "client",
+      "pid": 11324,
+      "report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-artwork-v580-20261019-161607-client.json",
+      "log": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-artwork-v580-20261019-161607-client.log"
+    }
+  ],
+  "source_sha256": "9a6aa1673e068aa7523a84919f04920833b75f55213a2400d446defdd93f66b0",
+  "exit_codes": [
+    0,
+    2147483651
+  ]
+}

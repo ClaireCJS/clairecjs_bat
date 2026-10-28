@@ -1,0 +1,620 @@
+[
+  {
+    "module": "test_PAFPlayer_screensaver",
+    "count": 20,
+    "successful": true,
+    "entries": [
+      {
+        "test": "test_PAFPlayer_screensaver.Compatibility.test_embedded_bridge_matches_source",
+        "parent_test": "test_PAFPlayer_screensaver.Compatibility.test_embedded_bridge_matches_source",
+        "outcome": "pass",
+        "seconds": 0.015,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.Compatibility.test_existing_configuration_constants_and_bundle_sources_unchanged",
+        "parent_test": "test_PAFPlayer_screensaver.Compatibility.test_existing_configuration_constants_and_bundle_sources_unchanged",
+        "outcome": "pass",
+        "seconds": 3.282,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.Compatibility.test_short_text_and_no_control_escape_sequences",
+        "parent_test": "test_PAFPlayer_screensaver.Compatibility.test_short_text_and_no_control_escape_sequences",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.Compatibility.test_ui_keeps_existing_windows_ids_and_adds_unique_sidecar_ids",
+        "parent_test": "test_PAFPlayer_screensaver.Compatibility.test_ui_keeps_existing_windows_ids_and_adds_unique_sidecar_ids",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_art_revision_prevents_old_track_cover",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_art_revision_prevents_old_track_cover",
+        "outcome": "pass",
+        "seconds": 0.312,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_bad_settings_are_rejected_without_mutation",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_bad_settings_are_rejected_without_mutation",
+        "outcome": "pass",
+        "seconds": 0.281,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_close_revision_reaches_windows_started_sidecar",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_close_revision_reaches_windows_started_sidecar",
+        "outcome": "pass",
+        "seconds": 0.266,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_default_off_and_no_spectrum_or_audio_activity",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_default_off_and_no_spectrum_or_audio_activity",
+        "outcome": "pass",
+        "seconds": 0.25,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_disabled_art_does_not_leak_current_cover",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_disabled_art_does_not_leak_current_cover",
+        "outcome": "pass",
+        "seconds": 0.25,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_failed_save_rolls_back_runtime",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_failed_save_rolls_back_runtime",
+        "outcome": "pass",
+        "seconds": 0.266,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_live_title_lyric_and_pause_updates",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_live_title_lyric_and_pause_updates",
+        "outcome": "pass",
+        "seconds": 0.25,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_missing_executable_and_launch_error_leave_audio_untouched",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_missing_executable_and_launch_error_leave_audio_untouched",
+        "outcome": "pass",
+        "seconds": 0.265,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_missing_tags_and_lyrics_are_graceful",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_missing_tags_and_lyrics_are_graceful",
+        "outcome": "pass",
+        "seconds": 0.266,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_oversized_art_is_not_transferred",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_oversized_art_is_not_transferred",
+        "outcome": "pass",
+        "seconds": 0.266,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_remote_reads_are_rejected",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_remote_reads_are_rejected",
+        "outcome": "pass",
+        "seconds": 0.25,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_settings_persist_and_preserve_existing_namespaces_and_unknown_keys",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_settings_persist_and_preserve_existing_namespaces_and_unknown_keys",
+        "outcome": "pass",
+        "seconds": 0.265,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_sidecar_keeps_status_active_without_enabling_spectrum",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_sidecar_keeps_status_active_without_enabling_spectrum",
+        "outcome": "pass",
+        "seconds": 0.266,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_start_is_explicit_and_duplicate_clicks_do_not_spawn_twice",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_start_is_explicit_and_duplicate_clicks_do_not_spawn_twice",
+        "outcome": "pass",
+        "seconds": 0.265,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_stopped_clears_presentation",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_stopped_clears_presentation",
+        "outcome": "pass",
+        "seconds": 0.25,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_write_requires_pairing_token_and_same_origin",
+        "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_write_requires_pairing_token_and_same_origin",
+        "outcome": "pass",
+        "seconds": 0.266,
+        "detail": ""
+      }
+    ],
+    "blocks": [
+      "C:\\logs\\PAFPlayer",
+      "C:\\logs\\PAFPlayer\\errors.log",
+      "C:\\logs\\PAFPlayer\\trace.log",
+      "winreg.CreateKey"
+    ],
+    "seconds": 8.41
+  },
+  {
+    "module": "test_PAFPlayer_v458",
+    "count": 21,
+    "successful": true,
+    "entries": [
+      {
+        "test": "test_PAFPlayer_v458.ArtworkRetention.test_hit_refreshes_lru_and_preserves_sidecar_policy",
+        "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_hit_refreshes_lru_and_preserves_sidecar_policy",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ArtworkRetention.test_large_covers_obey_byte_budget",
+        "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_large_covers_obey_byte_budget",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ArtworkRetention.test_negative_lookups_are_bounded",
+        "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_negative_lookups_are_bounded",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ArtworkRetention.test_oversized_cover_does_not_flush_working_set",
+        "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_oversized_cover_does_not_flush_working_set",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ArtworkRetention.test_revised_file_replaces_stale_payload",
+        "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_revised_file_replaces_stale_payload",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ArtworkRetention.test_simultaneous_consumers_keep_caches_consistent",
+        "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_simultaneous_consumers_keep_caches_consistent",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ArtworkRetention.test_track_churn_bounds_entries_and_sources",
+        "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_track_churn_bounds_entries_and_sources",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.PopupBacklog.test_closed_popup_does_not_retain_work",
+        "parent_test": "test_PAFPlayer_v458.PopupBacklog.test_closed_popup_does_not_retain_work",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.PopupBacklog.test_latest_art_releases_obsolete_payload_and_keeps_controls",
+        "parent_test": "test_PAFPlayer_v458.PopupBacklog.test_latest_art_releases_obsolete_payload_and_keeps_controls",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.PopupBacklog.test_slow_gui_retains_latest_title_only",
+        "parent_test": "test_PAFPlayer_v458.PopupBacklog.test_slow_gui_retains_latest_title_only",
+        "outcome": "pass",
+        "seconds": 1.265,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.PopupBacklog.test_unchanged_title_does_not_schedule_another_update",
+        "parent_test": "test_PAFPlayer_v458.PopupBacklog.test_unchanged_title_does_not_schedule_another_update",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ReleaseIdentity.test_legacy_entry_point_executes_canonical_functions",
+        "parent_test": "test_PAFPlayer_v458.ReleaseIdentity.test_legacy_entry_point_executes_canonical_functions",
+        "outcome": "pass",
+        "seconds": 0.86,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_diagnostics_are_available_over_real_local_http",
+        "parent_test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_diagnostics_are_available_over_real_local_http",
+        "outcome": "pass",
+        "seconds": 0.281,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_snapshot_reports_limits_without_collecting_or_exposing_paths",
+        "parent_test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_snapshot_reports_limits_without_collecting_or_exposing_paths",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_snapshot_reports_popup_backlog",
+        "parent_test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_snapshot_reports_popup_backlog",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_windows_memory_snapshot_is_available",
+        "parent_test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_windows_memory_snapshot_is_available",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ShortWrites.test_completes_text_and_bytes_without_repeating_prefix",
+        "parent_test": "test_PAFPlayer_v458.ShortWrites.test_completes_text_and_bytes_without_repeating_prefix",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ShortWrites.test_empty_payload_needs_no_write",
+        "parent_test": "test_PAFPlayer_v458.ShortWrites.test_empty_payload_needs_no_write",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ShortWrites.test_failure_after_prefix_does_not_retry_prefix",
+        "parent_test": "test_PAFPlayer_v458.ShortWrites.test_failure_after_prefix_does_not_retry_prefix",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ShortWrites.test_no_progress_raises_instead_of_spinning",
+        "parent_test": "test_PAFPlayer_v458.ShortWrites.test_no_progress_raises_instead_of_spinning",
+        "outcome": "pass",
+        "seconds": 0.015,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v458.ShortWrites.test_none_returning_adapter_is_written_once",
+        "parent_test": "test_PAFPlayer_v458.ShortWrites.test_none_returning_adapter_is_written_once",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      }
+    ],
+    "blocks": [
+      "C:\\logs\\PAFPlayer",
+      "C:\\logs\\PAFPlayer\\errors.log",
+      "C:\\logs\\PAFPlayer\\trace.log",
+      "winreg.CreateKey"
+    ],
+    "seconds": 3.31
+  },
+  {
+    "module": "test_PAFPlayer_v459",
+    "count": 11,
+    "successful": true,
+    "entries": [
+      {
+        "test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_fast_bounded_segment_excludes_audio_beyond_source_end",
+        "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_fast_bounded_segment_excludes_audio_beyond_source_end",
+        "outcome": "pass",
+        "seconds": 0.093,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_fast_speed_keeps_final_tone",
+        "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_fast_speed_keeps_final_tone",
+        "outcome": "pass",
+        "seconds": 0.11,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_half_speed_keeps_final_tone",
+        "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_half_speed_keeps_final_tone",
+        "outcome": "pass",
+        "seconds": 0.125,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_ninety_percent_speed_keeps_final_tone",
+        "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_ninety_percent_speed_keeps_final_tone",
+        "outcome": "pass",
+        "seconds": 0.109,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_normal_speed_keeps_final_tone",
+        "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_normal_speed_keeps_final_tone",
+        "outcome": "pass",
+        "seconds": 0.078,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_seek_near_ending_at_slow_speed_keeps_tail",
+        "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_seek_near_ending_at_slow_speed_keeps_tail",
+        "outcome": "pass",
+        "seconds": 0.094,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_surround_96khz_24bit_keeps_final_tone",
+        "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_surround_96khz_24bit_keeps_final_tone",
+        "outcome": "pass",
+        "seconds": 0.359,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_unknown_duration_decodes_to_eof",
+        "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_unknown_duration_decodes_to_eof",
+        "outcome": "pass",
+        "seconds": 0.094,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v459.NaturalCompletion.test_decoder_eof_does_not_finish_until_queued_pcm_drains",
+        "parent_test": "test_PAFPlayer_v459.NaturalCompletion.test_decoder_eof_does_not_finish_until_queued_pcm_drains",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v459.NaturalCompletion.test_natural_close_does_not_reset_device",
+        "parent_test": "test_PAFPlayer_v459.NaturalCompletion.test_natural_close_does_not_reset_device",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v459.NaturalCompletion.test_next_song_waits_for_every_output_endpoint",
+        "parent_test": "test_PAFPlayer_v459.NaturalCompletion.test_next_song_waits_for_every_output_endpoint",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      }
+    ],
+    "blocks": [
+      "C:\\logs\\PAFPlayer",
+      "C:\\logs\\PAFPlayer\\errors.log",
+      "C:\\logs\\PAFPlayer\\trace.log",
+      "winreg.CreateKey"
+    ],
+    "seconds": 2.08
+  },
+  {
+    "module": "test_PAFPlayer_v456",
+    "count": 6,
+    "successful": true,
+    "entries": [
+      {
+        "test": "test_PAFPlayer_v456.PersistenceTests.test_backup_corruption_prevents_overwrite",
+        "parent_test": "test_PAFPlayer_v456.PersistenceTests.test_backup_corruption_prevents_overwrite",
+        "outcome": "pass",
+        "seconds": 0.016,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v456.PersistenceTests.test_cursor_reset_uses_terminal_default_in_interrupt_cleanup",
+        "parent_test": "test_PAFPlayer_v456.PersistenceTests.test_cursor_reset_uses_terminal_default_in_interrupt_cleanup",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v456.PersistenceTests.test_dcc_backup_is_byte_verified_and_reported",
+        "parent_test": "test_PAFPlayer_v456.PersistenceTests.test_dcc_backup_is_byte_verified_and_reported",
+        "outcome": "pass",
+        "seconds": 0.015,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v456.PersistenceTests.test_dcc_prefers_canonical_script",
+        "parent_test": "test_PAFPlayer_v456.PersistenceTests.test_dcc_prefers_canonical_script",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v456.WebTests.test_complete_javascript_parses",
+        "parent_test": "test_PAFPlayer_v456.WebTests.test_complete_javascript_parses",
+        "outcome": "pass",
+        "seconds": 0.063,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v456.WebTests.test_teeny_controls_and_css_keep_solution_out_of_lyric_text",
+        "parent_test": "test_PAFPlayer_v456.WebTests.test_teeny_controls_and_css_keep_solution_out_of_lyric_text",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      }
+    ],
+    "blocks": [],
+    "seconds": 0.98
+  },
+  {
+    "module": "test_PAFPlayer_v456_release",
+    "count": 4,
+    "successful": true,
+    "entries": [
+      {
+        "test": "test_PAFPlayer_v456_release.ReleaseTests.test_instance_acknowledges_files_folders_regex_playlist_and_rejects_invalid",
+        "parent_test": "test_PAFPlayer_v456_release.ReleaseTests.test_instance_acknowledges_files_folders_regex_playlist_and_rejects_invalid",
+        "outcome": "pass",
+        "seconds": 0.234,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v456_release.ReleaseTests.test_throb_action_validation_and_tooltip_newlines",
+        "parent_test": "test_PAFPlayer_v456_release.ReleaseTests.test_throb_action_validation_and_tooltip_newlines",
+        "outcome": "pass",
+        "seconds": 0.453,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v456_release.ReleaseTests.test_windows_settings_titles_transport_and_derived_artwork",
+        "parent_test": "test_PAFPlayer_v456_release.ReleaseTests.test_windows_settings_titles_transport_and_derived_artwork",
+        "outcome": "pass",
+        "seconds": 0.032,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_v456_release.ReleaseTests.test_windows_unavailable_is_clear_and_does_not_change_console",
+        "parent_test": "test_PAFPlayer_v456_release.ReleaseTests.test_windows_unavailable_is_clear_and_does_not_change_console",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      }
+    ],
+    "blocks": [
+      "C:\\logs\\PAFPlayer",
+      "C:\\logs\\PAFPlayer\\errors.log",
+      "C:\\logs\\PAFPlayer\\trace.log",
+      "winreg.CreateKey"
+    ],
+    "seconds": 1.69
+  },
+  {
+    "module": "test_PAFPlayer_workflows",
+    "count": 15,
+    "successful": true,
+    "entries": [
+      {
+        "test": "test_PAFPlayer_workflows.HttpTests.test_security_settings_and_token_validation",
+        "parent_test": "test_PAFPlayer_workflows.HttpTests.test_security_settings_and_token_validation",
+        "outcome": "pass",
+        "seconds": 0.312,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.HttpTests.test_upload_content_is_validated_not_just_extension",
+        "parent_test": "test_PAFPlayer_workflows.HttpTests.test_upload_content_is_validated_not_just_extension",
+        "outcome": "pass",
+        "seconds": 0.344,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.MonitorTests.test_dry_run_changes_no_files_or_membership",
+        "parent_test": "test_PAFPlayer_workflows.MonitorTests.test_dry_run_changes_no_files_or_membership",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.MonitorTests.test_playlist_import_is_deduplicated_and_backs_up",
+        "parent_test": "test_PAFPlayer_workflows.MonitorTests.test_playlist_import_is_deduplicated_and_backs_up",
+        "outcome": "pass",
+        "seconds": 0.047,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.MonitorTests.test_stability_restart_rename_and_hidden_backup_exclusion",
+        "parent_test": "test_PAFPlayer_workflows.MonitorTests.test_stability_restart_rename_and_hidden_backup_exclusion",
+        "outcome": "pass",
+        "seconds": 0.047,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.QueueTests.test_next_remove_undo_move_and_conflict",
+        "parent_test": "test_PAFPlayer_workflows.QueueTests.test_next_remove_undo_move_and_conflict",
+        "outcome": "pass",
+        "seconds": 0.015,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.QueueTests.test_save_new_playlist_never_overwrites",
+        "parent_test": "test_PAFPlayer_workflows.QueueTests.test_save_new_playlist_never_overwrites",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.RepairTests.test_approval_must_select_previewed_unchanged_candidate",
+        "parent_test": "test_PAFPlayer_workflows.RepairTests.test_approval_must_select_previewed_unchanged_candidate",
+        "outcome": "pass",
+        "seconds": 0.031,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.RepairTests.test_encoding_newlines_comments_and_verified_backup",
+        "parent_test": "test_PAFPlayer_workflows.RepairTests.test_encoding_newlines_comments_and_verified_backup",
+        "outcome": "pass",
+        "seconds": 0.032,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.RepairTests.test_hash_evidence_is_high_confidence_but_name_alone_is_not",
+        "parent_test": "test_PAFPlayer_workflows.RepairTests.test_hash_evidence_is_high_confidence_but_name_alone_is_not",
+        "outcome": "pass",
+        "seconds": 0.015,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.RepairTests.test_playlist_conflict_does_not_overwrite",
+        "parent_test": "test_PAFPlayer_workflows.RepairTests.test_playlist_conflict_does_not_overwrite",
+        "outcome": "pass",
+        "seconds": 0.016,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.SecurityTests.test_policy_one_shared_machine_list_and_user_or_host",
+        "parent_test": "test_PAFPlayer_workflows.SecurityTests.test_policy_one_shared_machine_list_and_user_or_host",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.SecurityTests.test_redaction",
+        "parent_test": "test_PAFPlayer_workflows.SecurityTests.test_redaction",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.SecurityTests.test_upload_filename_rejections",
+        "parent_test": "test_PAFPlayer_workflows.SecurityTests.test_upload_filename_rejections",
+        "outcome": "pass",
+        "seconds": 0.0,
+        "detail": ""
+      },
+      {
+        "test": "test_PAFPlayer_workflows.SecurityTests.test_upload_ttl_retains_queued_files_and_recycles_only_managed_files",
+        "parent_test": "test_PAFPlayer_workflows.SecurityTests.test_upload_ttl_retains_queued_files_and_recycles_only_managed_files",
+        "outcome": "pass",
+        "seconds": 0.016,
+        "detail": ""
+      }
+    ],
+    "blocks": [
+      "C:\\logs\\PAFPlayer",
+      "C:\\logs\\PAFPlayer\\errors.log",
+      "C:\\logs\\PAFPlayer\\trace.log",
+      "winreg.CreateKey"
+    ],
+    "seconds": 1.77
+  }
+]

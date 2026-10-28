@@ -1,0 +1,59 @@
+V249	Merged companion playlist-history databases forked by filename, backfilled legacy rows into the full Artist/Title identity table, and refined idle/table progress.
+V248	Removed an obsolete last-play regex option and made plain last-play search Unicode-casefolded and insensitive to smart-quote differences.
+V247	Made web progress dropdowns update the active owner state through its action queue; kept their diagnostic mode available only for tests.
+V246	Corrected 7.1 MatrixMixer channel ordering so muting back speakers uses the native PCM channel positions.
+V245	Blended bar microtiles at the requested strength over the live visualizer bar color instead of replacing it with an incorrectly weighted result.
+V244	Applied web MatrixMixer edits through the native speaker-mapped renderer and made the bar-microtile switch explicit and reflected in status.
+V243	Reorganized web controls for progress, autoslide, and playlists, and made manual idle motion use the current four screen corners without reloading the track.
+V242	Applied MatrixMixer coefficient and final-mute edits live, and drove progress activity from cached visualizer levels with an adaptive demo path.
+V241	Matched play-history identities across case, smart quotes, and duration differences; imported Artist/Title history becomes a normal playback fallback. The same source adds multimonitor and web-persistence work.
+V240	Saved popup geometry from the native window origin and a signal-safe snapshot so placement survives exit and restart.
+V239	Made last-play search cover complete Artist/Title history, rescaled artwork across all visible rows when the visualizer is truncated, and refined autoslide, geometry, and web transport.
+V238	Added a MatrixMixer factory layout with side-surround channels and future Atmos slots, plus web matrix playback and experimental controls.
+V237	Added resizable web splitters, output-depth/background controls, and semantic style mapping for browser karaoke.
+V235	Added MatrixMixer subwoofer crossover profiles and guarded registry writes, with web layout and geometry changes. The archived build is marked buggy, so these are implementation changes rather than verified working behavior.
+V234	Added opt-in progress beats and DRCS microtile artwork using spare soft-font slots, exposed through web controls. The archived build is marked buggy.
+V233	Added a web editor for MatrixMixer, history, and audio settings; it normalizes matrix coefficients and preserves front-channel identity.
+V231	Cached scaled artwork for each track and geometry instead of recomputing static color transforms inside the visualizer's per-cell path.
+V230	Buffered short MMInspo pipe reads until a complete audio block is available and added master switches for console karaoke and progress sections in the web UI.
+V229	Kept the two artwork samples in Twin DRCS blackness cells, capped browser artwork work, and ordered transport before visualizer controls in the compact web layout.
+V228	Added experimental MMInspo audio rendering with WAVEFORMATEXTENSIBLE channel masks and a PCM command, plus matching web and visualizer controls.
+V226	Constrained the web document title to the Act/Title heading with cover credit rather than letting it expand into a long multi-line heading.
+V225	Added HDMI PCM routing and stereo-copy pan filters for multichannel output, along with web karaoke controls. The archived test also checks the Act/Title document heading.
+V220	Cached ANSI foreground/background sequences for tall Twin DRCS visualizer rows to reduce repeated terminal-string construction.
+V208	Sampled artwork background color for console cover compositing so the image can bleed into unused visualizer cells.
+V204	Added a configurable web-interface URL link and default-choice handling for artwork and web controls.
+V203	Added an experimental album-art color grid that maps cover colors onto visualizer geometry.
+V188	Gave coloring-style controls more table width and made row previews use a consistent height-driven text size.
+V187	Separated each coloring mode's live sample from its controls and kept solid palettes spatially uniform while allowing them to animate over time.
+V186	Moved the coloring-configurator header outside the scroller, fixed palette selection behavior, and added a working preview selector.
+V185	Rebuilt the coloring configurator as one aligned five-column table with compact centered row samples and hover tooltips.
+V184	Made coloring rows compact while giving the sample column flexible width; visible row samples continue animating during scrolling.
+V183	Distributed free HUD space more evenly without disturbing established colon anchors; the source also includes artwork topmost state and controls carried across the archive gap.
+V178	Clipped coloring previews to their rows and adapted row-preview scheduling under load without slowing the large hero preview; simplified the artwork border.
+V177	Added twelve karaoke lettering modes for fifteen total and allowed independent, persisted palettes per mode.
+V176	Made the coloring configurator responsive with a large live hero preview, TV-show style controls, and a maximized layout that uses available space.
+V174	Debounced native album-art border changes to avoid reentrant UI work and persisted the last clean play/pause state, defaulting to playing when absent.
+V173	Changed configurator animation to incremental, cancelable work and restored console focus after Tk artwork startup could steal it.
+V172	Added a scrollable, persistent karaoke color configurator, 20 Hz web spectrum endpoint, real web pause toggle, and artwork-window chrome controls.
+V171	Persisted multiple favorite karaoke-color modes and one startup default, with controls to mark and select them.
+V170	Added artwork-window focus transparency and zoom controls, plus spatially varied, time-changing plasma karaoke coloring.
+V169	Added a smart HUD placement optimizer and toggle that aligns semantic colon pairs when row space permits.
+V168	Aligned inline Last play with nearby metadata colons using available row width and exposed a toggle for the layout.
+V167	Recovered Unicode source text from inherited mojibake while retaining single-cell progress-bar glyphs.
+V166	Replaced progress-bar characters with terminal-safe single-cell glyphs so the bar width remains stable.
+V119	Let the private-screen visualizer adapt frame rate from generation cost without throttling itself on terminal transport time.
+V118	Moved the player renderer into an alternate terminal screen with fixed coordinates and made floating-lyrics opacity/geometry updates nonblinking.
+V117	Restored the complete V113 terminal transaction after V114–V116 experiments while keeping persistent floating-lyrics geometry and shared audio bootstrap.
+V116	Anchored redraws to the bottom of the visible viewport so reflow does not scroll or delete terminal lines; persisted floating-lyrics geometry and focus border state.
+V115	Added a fixed viewport and sectioned adaptive HUD, including the full web-visible processing name, with reflow constrained to owned terminal rows.
+V113	Separated lyric windows, added an interactive playlist queue browser and tag view, and refined inline Last play/Album/Comment HUD placement.
+V51	Tested safer FFmpeg launch approaches through theories 46–49, including direct executable resolution and a suspended-process probe without hidden/detached launch flags.
+V50	Added FFmpeg child-process detachment diagnostics in theories 41–45, including a suspended-launch probe for comparing Windows startup behavior.
+V47	Added window-output and visualizer-frequency diagnostics for theories 25–31, including a measured visualizer origin.
+V44	Added diagnostic theories 17–20 for window-query bandwidth and visualizer writes, with ordered help text and bottom-trim checks.
+V42	Added renderer theories 13–16 to compare console-window drawing approaches and expose progress-reading behavior.
+V39	Guarded playlist startup so a positional M3U stays in playlist mode instead of falling into the single-track ffplay path.
+V38	Added theory-12 help/layout diagnostics and nonintrusive terminal-cell measurements; the archived diff also tightens majority-play and Last.fm eligibility checks.
+V24	Added bootstrap checks and download progress for missing Claire helper modules, along with an initial color-system path.
+V20	The surviving V20 source adds karaoke centering and a persistent playlist-shuffle cache, plus tag-recovery tests. Because V14–V19 full sources are absent, this comparison cannot isolate every intervening change.

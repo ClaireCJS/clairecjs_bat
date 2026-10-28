@@ -1,0 +1,38 @@
+{
+  "compiled": [
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-v574-20261018-124206\\PAFPlayer.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_remote_overlay.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_tray.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v574_remote_floating.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_remote_floating.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v574_remote.py"
+  ],
+  "bundled_module_counts": {
+    "baseline": 21,
+    "tested": 21,
+    "current": 21
+  },
+  "sha256": {
+    "baseline": "d42c071991d31b70221390e20332fc847122843311f2dca41bac834357fd66ba",
+    "tested": "325715bef38e48dba2b465edc6c1a0de11d60052453350526ab0a3eb931f0596",
+    "current": "0457fe7b4065003711302d443bf1904a895e4b5dc0508471272e26bb15d34849"
+  },
+  "our_function_changes": [
+    "ExternalAlbumArtWindow._gui_main",
+    "ExternalAlbumArtWindow.set_floating_lyrics_enabled"
+  ],
+  "our_bundled_changes": [
+    "PAFPlayer_remote_overlay",
+    "PAFPlayer_tray"
+  ],
+  "subsequent_function_changes": [
+    "PlayWaveFileTests.test_stop_and_seek_key_mappings",
+    "PlayWaveFileTests.test_v575_volume_rainbow_is_readable_at_every_level",
+    "readable_volume_rgb",
+    "volume_status"
+  ],
+  "subsequent_bundled_changes": [],
+  "external_and_embedded_sources_match": true,
+  "current_retains_lyric_fixes": true
+}

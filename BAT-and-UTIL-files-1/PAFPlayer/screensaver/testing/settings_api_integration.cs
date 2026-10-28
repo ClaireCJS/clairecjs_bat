@@ -1,0 +1,2 @@
+using System; using System.Collections.Generic; using PAFPlayerScreenSaver;
+class SettingsIntegration { static int Main(string[] args) { try { var saved=SettingsApi.Save(int.Parse(args[0]),new Dictionary<string,object>{{"enabled",true},{"brightness",37}}); if(!saved.Enabled || saved.Brightness!=37) return 2; Console.WriteLine("Authenticated settings saved through real PAFPlayer HTTP server."); return 0; } catch(Exception ex){Console.WriteLine(ex);return 1;} } }

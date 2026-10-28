@@ -1,0 +1,119 @@
+{
+  "module": "test_PAFPlayer_workflows",
+  "count": 15,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_PAFPlayer_workflows.HttpTests.test_security_settings_and_token_validation",
+      "parent_test": "test_PAFPlayer_workflows.HttpTests.test_security_settings_and_token_validation",
+      "outcome": "pass",
+      "seconds": 0.312,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.HttpTests.test_upload_content_is_validated_not_just_extension",
+      "parent_test": "test_PAFPlayer_workflows.HttpTests.test_upload_content_is_validated_not_just_extension",
+      "outcome": "pass",
+      "seconds": 0.344,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.MonitorTests.test_dry_run_changes_no_files_or_membership",
+      "parent_test": "test_PAFPlayer_workflows.MonitorTests.test_dry_run_changes_no_files_or_membership",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.MonitorTests.test_playlist_import_is_deduplicated_and_backs_up",
+      "parent_test": "test_PAFPlayer_workflows.MonitorTests.test_playlist_import_is_deduplicated_and_backs_up",
+      "outcome": "pass",
+      "seconds": 0.047,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.MonitorTests.test_stability_restart_rename_and_hidden_backup_exclusion",
+      "parent_test": "test_PAFPlayer_workflows.MonitorTests.test_stability_restart_rename_and_hidden_backup_exclusion",
+      "outcome": "pass",
+      "seconds": 0.047,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.QueueTests.test_next_remove_undo_move_and_conflict",
+      "parent_test": "test_PAFPlayer_workflows.QueueTests.test_next_remove_undo_move_and_conflict",
+      "outcome": "pass",
+      "seconds": 0.015,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.QueueTests.test_save_new_playlist_never_overwrites",
+      "parent_test": "test_PAFPlayer_workflows.QueueTests.test_save_new_playlist_never_overwrites",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.RepairTests.test_approval_must_select_previewed_unchanged_candidate",
+      "parent_test": "test_PAFPlayer_workflows.RepairTests.test_approval_must_select_previewed_unchanged_candidate",
+      "outcome": "pass",
+      "seconds": 0.031,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.RepairTests.test_encoding_newlines_comments_and_verified_backup",
+      "parent_test": "test_PAFPlayer_workflows.RepairTests.test_encoding_newlines_comments_and_verified_backup",
+      "outcome": "pass",
+      "seconds": 0.032,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.RepairTests.test_hash_evidence_is_high_confidence_but_name_alone_is_not",
+      "parent_test": "test_PAFPlayer_workflows.RepairTests.test_hash_evidence_is_high_confidence_but_name_alone_is_not",
+      "outcome": "pass",
+      "seconds": 0.015,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.RepairTests.test_playlist_conflict_does_not_overwrite",
+      "parent_test": "test_PAFPlayer_workflows.RepairTests.test_playlist_conflict_does_not_overwrite",
+      "outcome": "pass",
+      "seconds": 0.016,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.SecurityTests.test_policy_one_shared_machine_list_and_user_or_host",
+      "parent_test": "test_PAFPlayer_workflows.SecurityTests.test_policy_one_shared_machine_list_and_user_or_host",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.SecurityTests.test_redaction",
+      "parent_test": "test_PAFPlayer_workflows.SecurityTests.test_redaction",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.SecurityTests.test_upload_filename_rejections",
+      "parent_test": "test_PAFPlayer_workflows.SecurityTests.test_upload_filename_rejections",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_workflows.SecurityTests.test_upload_ttl_retains_queued_files_and_recycles_only_managed_files",
+      "parent_test": "test_PAFPlayer_workflows.SecurityTests.test_upload_ttl_retains_queued_files_and_recycles_only_managed_files",
+      "outcome": "pass",
+      "seconds": 0.016,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 1.77
+}

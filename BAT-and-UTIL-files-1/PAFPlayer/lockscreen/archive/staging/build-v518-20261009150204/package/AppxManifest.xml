@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+ xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+ xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+ xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+ IgnorableNamespaces="uap uap10 rescap com">
+ <Identity Name="ClaireCJS.PAFPlayer.LockScreen.Recovery" Publisher="CN=PAFPlayerLocal" Version="518.0.0.0" ProcessorArchitecture="x64" />
+ <Properties><DisplayName>PAFPlayer Lock Screen V518</DisplayName><PublisherDisplayName>PAFPlayer</PublisherDisplayName><Logo>Assets\PAFStore50.png</Logo></Properties>
+ <Dependencies><TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.19045.0" /></Dependencies>
+ <Resources><Resource Language="en-US" /></Resources>
+ <Applications>
+  <Application Id="App" Executable="PAFPlayerLockScreen.exe" uap10:RuntimeBehavior="packagedClassicApp" uap10:TrustLevel="mediumIL">
+   <uap:VisualElements DisplayName="PAFPlayer Lock Screen V518" Description="Read-only official PAFPlayer lock-screen status"
+    Square150x150Logo="Assets\PAFIcon150.png" Square44x44Logo="Assets\PAFIcon44.png" BackgroundColor="transparent">
+    <uap:DefaultTile Wide310x150Logo="Assets\PAFWide310.png" />
+    <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="Assets\PAFBadge.png" />
+   </uap:VisualElements>
+   <Extensions>
+    <com:Extension Category="windows.comServer">
+     <com:ComServer>
+      <com:ExeServer Executable="PAFPlayerLockScreen.exe" DisplayName="PAFPlayer Lock Screen V518 background refresh" Arguments="--background-task" LaunchAndActivationPermission="O:PSG:BUD:(A;;11;;;IU)(A;;11;;;S-1-15-2-1)S:(ML;;NX;;;LW)">
+       <com:Class Id="12BF3FEC-09DF-41BB-BB38-9881E610AA91" DisplayName="PAFPlayer lock-screen refresh" />
+      </com:ExeServer>
+     </com:ComServer>
+    </com:Extension>
+   </Extensions>
+  </Application>
+ </Applications>
+ <Capabilities><rescap:Capability Name="runFullTrust" /><rescap:Capability Name="unvirtualizedResources" /></Capabilities>
+</Package>

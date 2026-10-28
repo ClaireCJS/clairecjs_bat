@@ -1,0 +1,33 @@
+{
+  "embedded": {
+    "tests": 16,
+    "failures": [
+      "test_v382_microtile_favorite_cycle_and_persistent_tooltip_contract (PAFPlayer.PlayWaveFileTests)",
+      "test_v386_microtile_cards_hug_content_and_recycle_right_clicks_backwards (PAFPlayer.PlayWaveFileTests)"
+    ],
+    "errors": []
+  },
+  "baseline_same_failures": {
+    "tests": 2,
+    "failures": [
+      "test_v382_microtile_favorite_cycle_and_persistent_tooltip_contract (baseline485.PlayWaveFileTests)",
+      "test_v386_microtile_cards_hug_content_and_recycle_right_clicks_backwards (baseline485.PlayWaveFileTests)"
+    ],
+    "errors": []
+  },
+  "test_v485_exact_frames": {
+    "tests": 4,
+    "failures": [],
+    "errors": []
+  },
+  "test_v485_bass_controls": {
+    "tests": 2,
+    "failures": [],
+    "errors": []
+  },
+  "test_v482_console_and_windows_media": {
+    "tests": 2,
+    "failures": [],
+    "errors": []
+  }
+}

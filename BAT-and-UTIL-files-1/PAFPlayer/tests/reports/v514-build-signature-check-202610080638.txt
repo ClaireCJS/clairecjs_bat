@@ -1,0 +1,56 @@
+PAFPlayer\lockscreen\DesktopBackground.cs(46,78): warning CS0618: 'Windows.ApplicationModel.Background.BackgroundAccessStatus.Denied' is obsolete: 'Use DeniedByUser or DeniedBySystemPolicy instead of Denied. For more info, see MSDN.'
+Done Adding Additional Store
+Successfully signed: C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\runtime\PAFPlayerLockScreen.exe
+
+File: C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\runtime\PAFPlayerLockScreen.exe
+Index  Algorithm  Timestamp    
+========================================
+0      sha256     None         
+
+Successfully verified: C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\runtime\PAFPlayerLockScreen.exe
+
+Microsoft (R) MakeAppx Tool
+
+Copyright (C) 2013 Microsoft.  All rights reserved.
+
+
+
+The path (/p) parameter is: "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\PAFPlayerLockScreen_v514_x64.msix"
+
+The content directory (/d) parameter is: "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package"
+
+Enumerating files from directory "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package"
+
+Packing 8 file(s) in "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package" (content directory) to "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\PAFPlayerLockScreen_v514_x64.msix" (output file name).
+
+Memory limit defaulting to 68677750784 bytes.
+
+Using "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package\AppxManifest.xml" as the manifest for the package.
+
+Processing "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package\Assets\PAFBadge.png" as a payload file.  Its path in the package will be "Assets\PAFBadge.png".
+
+Processing "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package\Assets\PAFIcon44.png" as a payload file.  Its path in the package will be "Assets\PAFIcon44.png".
+
+Processing "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package\Assets\PAFIcon150.png" as a payload file.  Its path in the package will be "Assets\PAFIcon150.png".
+
+Processing "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package\Assets\PAFStore50.png" as a payload file.  Its path in the package will be "Assets\PAFStore50.png".
+
+Processing "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package\Assets\PAFWide310.png" as a payload file.  Its path in the package will be "Assets\PAFWide310.png".
+
+Processing "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package\Assets\PAFSplash620.png" as a payload file.  Its path in the package will be "Assets\PAFSplash620.png".
+
+Processing "\\?\C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\package\PAFPlayerLockScreen.exe" as a payload file.  Its path in the package will be "PAFPlayerLockScreen.exe".
+
+Package creation succeeded.
+
+Done Adding Additional Store
+Successfully signed: C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\PAFPlayerLockScreen_v514_x64.msix
+
+File: C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\PAFPlayerLockScreen_v514_x64.msix
+Index  Algorithm  Timestamp    
+========================================
+0      sha256     None         
+
+Successfully verified: C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\PAFPlayerLockScreen_v514_x64.msix
+
+C:\codex\clairevironment\bat\PAFPlayer\lockscreen\build-v514-20261008063958\PAFPlayerLockScreen_v514_x64.msix

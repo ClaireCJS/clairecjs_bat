@@ -1,0 +1,5 @@
+"Microsoft-Windows-Shell-LockScreenContent" 0xffffffffffffffff 5
+"{3D14CA27-6EB2-4789-9B52-33EC88ECF5B0}" 0xffffffffffffffff 5
+"Microsoft-Windows-PushNotifications-Platform" 0xffffffffffffffff 5
+"Microsoft-Windows-Winlogon" 0xffffffffffffffff 5
+"Microsoft-Windows-TWinUI" 0xffffffffffffffff 5

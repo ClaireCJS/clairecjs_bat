@@ -1,0 +1,8 @@
+Playlist analysis: C:\codex\clairevironment\bat\PAFPlayer\lockscreen\embedded-staging-20261008080519\tmpqah_ssz3\test.m3u
+Tracks: 1
+
+Last played          Full path
+-------------------  ---------
+1969-12-31 07:02PM   C:\codex\clairevironment\bat\PAFPlayer\lockscreen\embedded-staging-20261008080519\tmpqah_ssz3\Artist\Album\A ridiculously long filename that must remain one physical export line.mp3
+
+1 playlist track(s): 0 never played; 1 with matched history.

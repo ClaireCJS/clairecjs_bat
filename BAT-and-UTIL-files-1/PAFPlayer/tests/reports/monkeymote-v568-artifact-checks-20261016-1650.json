@@ -1,0 +1,17 @@
+{
+  "compiled": [
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_monkeymote.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_web_workflows.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_workflows_ui.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_monkeymote.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_monkeymote_multi.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\monkeymote\\research\\edit_v568.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\monkeymote\\research\\probe.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\monkeymote\\research\\sync_v568_bundle.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\monkeymote\\research\\verify.py"
+  ],
+  "bundled_modules": 21,
+  "ui": "7 UI flows passed: session/save/cancel port; cancel/confirm permanent disable; enable; session disable.",
+  "source_sha256": "1e6a616434261fb7e06822b7e490aa6a22216e516cc2188e63b27cbdd25976a7"
+}

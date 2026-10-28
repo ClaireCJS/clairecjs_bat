@@ -82,7 +82,7 @@ def test_blocked_render_offers_adjustment_and_cannot_be_approved(tmp_path,monkey
         if region.after=="good girl": raise RenderBlocked("Generated no-fit condition")
         return real(image,region,protected)
     monkeypatch.setattr(imaging,"render_region",blocked)
-    app=app_for(tmp_path,answers=iter(["a","v","0","1","wording girl","a"]))
+    app=app_for(tmp_path,answers=iter(["y","v","0","1","wording girl","y"]))
     result,code=app.process([str(source)])
     assert code==0,result
     event=next(iter(History(tmp_path).transactions().values()))
@@ -110,7 +110,7 @@ def test_cancel_is_resumable_and_then_commits_with_fresh_approval(tmp_path):
     assert code==20 and sha256(source)==original and not(tmp_path/".history.icgf").exists()
     pending=app.sessions.unfinished()
     assert len(pending)==1 and pending[0]["items"][0]["state"]=="canceled"
-    resumed=app_for(tmp_path,answers=iter(["a"]))
+    resumed=app_for(tmp_path,answers=iter(["y"]))
     resumed.args.resume=pending[0]["id"];resumed.args.new_session=False
     result,code=resumed.process([])
     assert code==0 and result["results"][0]["state"]=="committed"
@@ -241,7 +241,7 @@ def test_json_review_selection_has_session_and_transaction_ids(tmp_path,monkeypa
 
 def test_forgetting_session_preserves_committed_outputs_rules_and_preferences(tmp_path):
     source=tmp_path/"first.png";make_image(source)
-    app=app_for(tmp_path,answers=iter(["a"]))
+    app=app_for(tmp_path,answers=iter(["y"]))
     result,code=app.process([str(source)]);assert code==0
     corrected=Path(result["results"][0]["corrected"])
     event=next(iter(History(tmp_path).transactions().values()))

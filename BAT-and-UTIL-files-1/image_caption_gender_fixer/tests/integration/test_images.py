@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import os
 import shutil
 import pytest
 from image_caption_gender_fixer import imaging
@@ -11,7 +12,7 @@ from image_caption_gender_fixer.sessions import Sessions
 from image_caption_gender_fixer.transactions import Transactions
 from image_caption_gender_fixer.cache import HashCache
 
-ROOT=Path(__file__).resolve().parents[2]
+ROOT=Path(os.environ.get("ICGF_TEST_INSTALLATION",Path(__file__).resolve().parents[2]))
 
 
 def make_image(path,text="good boi",photo=False):
@@ -47,7 +48,7 @@ def test_real_ocr_render_commit_then_exact_undo(tmp_path,extension):
     source=tmp_path/("source é [1]."+extension)
     make_image(source)
     original_hash=sha256(source)
-    app=app_for(tmp_path,answers=iter(["a"]))
+    app=app_for(tmp_path,answers=iter(["y"]))
     result,code=app.process([str(source)])
     assert code==0,result
     converted=result["results"][0]
@@ -123,7 +124,7 @@ def test_aliases_same_gate_and_cannot_bypass_level_two(tmp_path,alias,monkeypatc
 def test_hidden_history_still_skips_after_folder_rename(tmp_path):
     folder=tmp_path/"initial";folder.mkdir()
     source=folder/"input.png";make_image(source)
-    app=app_for(tmp_path,answers=iter(["a"]))
+    app=app_for(tmp_path,answers=iter(["y"]))
     result,_=app.process([str(source)])
     corrected=Path(result["results"][0]["corrected"])
     # Rename the corrected file as well: exact hash detection must work.

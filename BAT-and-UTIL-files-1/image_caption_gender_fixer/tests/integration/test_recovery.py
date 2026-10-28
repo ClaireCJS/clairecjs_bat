@@ -13,7 +13,7 @@ def interrupted(tmp_path,step):
     tx=str(uuid.uuid4())
     source=folder/"original.png";source.write_bytes(b"generated original"*100)
     stage=folder/(".icgf-"+tx+"-proposal.png");stage.write_bytes(b"generated corrected"*100)
-    backup=available(backup_name(source));corrected=folder/"original-gendeerfixed.png"
+    backup=available(backup_name(source));corrected=folder/"original-genderfixed.png"
     record={"operation":"convert","transaction":tx,"folder":str(folder),"original":source.name,
             "stage":stage.name,"backup":backup.name,"corrected":corrected.name,"original_hash":sha256(source),
             "corrected_hash":sha256(stage),"rules_fingerprint":"r","profile":"default","program_version":"test"}

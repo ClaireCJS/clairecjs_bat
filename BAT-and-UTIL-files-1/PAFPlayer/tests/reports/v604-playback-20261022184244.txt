@@ -1,0 +1,10 @@
+test_held_seek_repeats_and_legacy_sum_still_works (test_v601_responsive_global_seek.ResponsiveGlobalSeekTests) ... ok
+test_live_renderer_reuses_worker_for_seek (test_v601_responsive_global_seek.ResponsiveGlobalSeekTests) ... ok
+test_rapid_taps_and_reversal_keep_order (test_v601_responsive_global_seek.ResponsiveGlobalSeekTests) ... ok
+test_seek_failure_preserves_old_output (test_v601_responsive_global_seek.ResponsiveGlobalSeekTests) ... ok
+test_worker_reuses_process_and_keeps_old_audio_until_ready (test_v601_responsive_global_seek.ResponsiveGlobalSeekTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.032s
+
+OK

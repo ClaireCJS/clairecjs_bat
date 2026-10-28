@@ -9,13 +9,24 @@ are `image_caption_gender_fixer.py` and `README.md`; dependencies, source, state
 tests, and documentation live in subdirectories. Move the entire directory
 together. The caller's working directory remains the default image target.
 
+Startup uses a single self-erasing status line for package selection/imports,
+discovery counts, source hashing, recovery checks, OCR preparation and rendering.
+JSON and redirected output remain free of terminal animation and ANSI colors.
+
 ## Requirements and first run
 
-Use **Windows CPython 3.10 x64**. Python itself is a prerequisite; required Python
-packages, their DLLs, Tesseract, English fast OCR data, Chafa, ImageMagick, and
-7-Zip are included. No pip command, environment activation, or global package
+Use **Windows CPython 3.10 x64 with Tcl/Tk**. Python itself is a prerequisite;
+required Python packages, their DLLs, Tesseract, English fast OCR data,
+ImageMagick, and 7-Zip are included. No pip command, environment activation, or global package
 change is needed. The launcher re-enters isolated mode before application imports.
 Unsupported interpreter ABIs are rejected clearly; help/version still work.
+
+The `icgf` / `image-caption-gender-fixer.bat` aliases explicitly run console
+Python through Windows `py -3.10`, wait until the complete job finishes, and
+return its exit status. An unregistered interpreter can be selected through
+the `ICGF_PYTHON` environment variable (the full path to `python.exe`). Direct
+launcher use also waits for its isolated child. No `.py` file association or
+detached `execv` restart is used.
 
 ```powershell
 python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py doctor
@@ -50,9 +61,65 @@ path when a filename could be confused with an administrative command.
 
 The tool refuses images inside its installation, prunes its installation from
 parent scans, and excludes its outputs, backups, undo archives, and previews.
-Reparse points are refused. Hard links require review. Network targets require
+Explicit directory junctions such as `C:\new` → `T:\new` resolve to physical
+paths before discovery and journaling. Linked image files and unknown reparse
+providers are refused; recursive scans skip junction children to avoid cycles.
+Installation aliases remain excluded. Hard links require review. Network targets require
 `--allow-network`; that flag does not authorize downloads or promise reliable
 remote locking, atomicity, durability, or recycling. Unsafe operations stop.
+
+## Prepare OCR ahead of time
+
+Run `icgf --ocr`, `icgf --ocr-only`, or `icgf -o` in the image folder. All three
+options do the same thing. Targets and `--recursive` work as usual, for example:
+
+```text
+icgf --ocr-only "*.jpg"
+icgf -o . --recursive
+```
+
+Normal-quality OCR now compares a bounded number of grayscale/upscaled scans
+and caption-panel scans, maps words back to source coordinates, and retains
+confident existing words when considering alternate results. It suppresses
+isolated low-confidence photo fragments without inventing or correcting wording.
+`--eco` uses fewer passes. The stronger OCR policy has a new cache key: older
+results are retained in `.ocr`, but need one fresh pass before reuse under this
+policy. Afterward `-o` continues to reuse completed results across interruptions.
+
+OCR-only saves recognized text and word positions in a **hidden `.ocr` file in
+each image folder**. It opens no review window, creates no correction job or
+proposal, changes no original image, and writes no processed-image history.
+Existing unfinished jobs are left alone and their menu is bypassed. JSON output
+includes the full caption and cache path. Normal terminal output uses one compact
+shared rainbow progress bar with completed/total counts, percentage, ETA and a
+shortened current filename. Counts stay beside a bounded-width bar rather than
+at the far edge of a wide terminal. A short completion summary reports newly
+saved, reused, deferred and failed images; successful images do not flood the
+scrollback with OCR fragments or a second JSON dump.
+
+Use `icgf -o --verbose` to show every complete caption in labeled, wrapped blocks
+above the bar. Warnings and errors also print above it. Narrow windows use a
+shorter layout, and resizing does not pad to the old terminal width. Terminal
+control characters in displayed OCR are escaped; saved text is preserved. Use
+`--json` or redirect stdout for complete structured results, including captions.
+An already running batch keeps its original layout until the next launch;
+completed OCR remains cached when you interrupt and rerun `-o`.
+
+Later, ordinary `icgf` automatically reuses matching saved initial OCR. Cache
+entries match image bytes, OCR engine, English model and quality settings, so
+renaming an image or folder preserves reuse; changed images or `--eco` settings
+get fresh OCR. Rules and profiles are applied afresh. Rendering and verification
+of proposed corrections still run normally. Ordinary processing and dry runs
+read `.ocr` but do not create or update it; only OCR-only fills the cache.
+
+The cache is local, unencrypted text with word geometry. Updates append checked
+records without replacing older entries; a hidden `.icgf.lock` serializes folder
+writes. Interrupted batches retain completed records: rerunning OCR-only skips
+them. Invalid/incomplete records are ignored with a warning; their bytes and all
+valid completed entries are retained, and new results append safely. An unrelated
+or unrecognized `.ocr` file is never replaced: normal processing recognizes again,
+while OCR-only reports that it could not save.
+Do not combine OCR-only with `--resume` or `--dry-run`.
 
 ## Rules, profiles, and exclusions
 
@@ -60,11 +127,13 @@ The built-ins run in descending numeric priority:
 
 | Priority | Rule |
 | ---: | --- |
+| 200 | `real man` → itself; protects the phrase, preserving exact case |
 | 100 | `boi` → `boy` |
 | 10 | `good boy` → `good girl` |
 | 10 | `boy` → `girl` |
 | 10 | `man` → `woman` |
 | 10 | `husband` → `wife` |
+| 10 | `his wife` → `her wife` |
 
 Thus **`good boi` → `good boy` → `good girl`**, with only the final wording
 rendered. At a priority, matches use one snapshot; longest normalized match wins,
@@ -103,11 +172,51 @@ Malformed records are reported and quarantined; unrelated files are preserved.
 ## Review and visual correction
 
 Every proposed image requires one final approval by default, including level 1.
-Chafa shows the original, each original crop, numbered mask, repair-only crop,
-corrected crop, and complete proposal sequentially. Geometry is recalculated
-before each preview, using roughly 70% of terminal height and 95% of width.
-`--no-preview` retains review questions. Redirected/JSON output contains no
-terminal images, ANSI, or animated progress. Interactive progress uses the shared
+Review uses **both PAFPlayer terminal artwork and its floating-artwork rendering
+routines**. The tool first looks beside itself in `..\PAFPlayer\PAFPlayer.py` and
+loads only the relevant installed artwork definitions, without importing/starting
+the player. Its own explicitly attributed copies remain the fallback when that
+source is absent/incompatible. `doctor` reports the actual source/version/hash.
+
+The terminal shows the original, crops, masks, repair-only views, and complete
+proposal through PAFPlayer's **Twin DRCS** artwork pipeline. It reads PAFPlayer's
+current detail/seam preferences without changing them. The current saved profile
+is 2x Twin DRCS (granularity 3), detail mode 9 with 2x4 subcells for both artwork
+selectors, and seam strategy 5. This path uses no Chafa or SIXEL encoder.
+A persistent floating window follows the **last image rendered**; it ends on the
+complete proposal while the console awaits your review decision. Resizing keeps
+the full aspect ratio. Transparency uses a checkerboard in the window. Complete
+detected/proposed captions, including unchanged lines, appear in both the console
+and selectable, scrollable caption panes. Portrait previews place detected text on
+the left and proposed text on the right, giving the image the body’s full height.
+Wide terminals also compare captions side by side. Detected text is green and
+proposed text is bright yellow; warnings begin with ⚠️ in bright yellow.
+Detail crops use one fifth of the full terminal preview dimensions. No-match images also report their full
+detected caption. OCR can be wrong; verify it against the image.
+
+The floating window provides **Approve**, **Reject / Skip**, **Add substitution**,
+and **Regenerate from edits**. The yellow proposed-caption pane is already filled
+in: edit it directly, then regenerate. Typing disables approval until the edited
+proposal has been rendered and reviewed. Line insertions/deletions are reflowed
+within the detected caption footprint; excessive wording can still require a
+visual adjustment. Window controls and console choices act on the same proposal.
+Automatic display and updates leave keyboard focus in the console; a deliberate
+click permits interaction with the window. Warnings also appear in the window.
+
+The console uses **[y] approve**, **[a] add rule**, **[e] edit caption**, and
+**ENTER=skip**, with the other review actions retained. Add substitution asks for
+source, replacement and numeric priority. Preview the ordered rule list, select
+any rule and use Up/Down or PgUp/PgDn to move it. Higher entries have higher
+numeric priority; reordering assigns descending priorities in steps of ten.
+The console rule editor supports the same keys. One folder-rule append saves
+the new substitution and ordering; the current image is then regenerated.
+Adding a rule preserves prior manual caption edits. Intentional identity rules
+reserve their matching original spans across lower priorities, preventing an
+inner rule from changing “real man.” Hiding/closing the floating window does not approve or cancel an
+image; the next preview can reveal it again. The window is owned by one GUI thread
+and cleanly joined at program shutdown, before the shell returns. `--no-preview`
+retains console questions and full captions. Redirected/JSON output opens no image
+window and contains no ANSI or animated progress. Interactive progress uses the shared
 Claire rainbow progress bar. `--eco` reduces initial OCR resolution and CPU use.
 
 Confidence levels:
@@ -154,7 +263,10 @@ files **beside the source**. Exact ownership, identity, and hashes govern cleanu
 Changed or ambiguous artifacts are retained and reported. On approval:
 
 - Original: `image.jpg` → `image.jpg.bak.YYYYMMDDHHMM.replaced-by-chatgpt.bak`.
-- Corrected: `image-gendeerfixed.jpg` (intentional suffix spelling).
+- Corrected: `image-genderfixed.jpg`. Encountered legacy `-gendeerfixed` output names
+  are corrected without overwriting collisions. Durable rename journals and
+  append-only history aliases preserve undo; image bytes remain unchanged.
+  Dry runs only report the planned rename.
 - Collisions: numbered before the final extension, preserving both files.
 
 Source identity, size/time, and SHA-256 are rechecked under Windows leases;
@@ -173,7 +285,7 @@ checksums. There is no encryption or machine-bound key.
 ```powershell
 python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py history status .
 python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py history verify .
-python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py undo 'image-gendeerfixed.jpg'
+python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py undo 'image-genderfixed.jpg'
 python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py undo '*' --keep-undo-archives
 ```
 
@@ -188,6 +300,11 @@ Recycling failures retain data; there is no permanent-delete fallback.
 
 Ordinary processing offers unfinished jobs before creating a new job. Inspect,
 resume, forget, retain-and-start-new, or cancel; `--yes` selects none of these.
+The interactive menu shows numbered jobs with folder, update time and progress.
+Choose a number rather than copying an internal ID. `?` explains the choices;
+invalid input is retried. Trash-and-forget offers one job or `a` for all jobs,
+then asks for confirmation; originals are retained. A single job needs no second
+selection prompt. OCR-only bypasses this menu entirely.
 JSON mode reports the required choice and job IDs. Cancellation preserves the
 current source and a resumable job. Deferred work is revisited at most once
 per run; approval-and-pause preserves pending work.
@@ -234,7 +351,8 @@ remain. Use `environment cleanup --dry-run --json` or `environment cleanup --jso
 Recycled files still occupy drive space until the Windows Recycle Bin is emptied
 separately. No unrelated, changed, linked, or busy download is silently discarded.
 
-`doctor` checks the two-file root, required imports/tools, selected bundle hashes,
+`doctor` checks the two-file root, required imports/tools, the PAFPlayer-copy
+renderer and Tcl/Tk availability, selected bundle hashes,
 pending journals, malformed sessions, and retained artifacts without repairing.
 For dependency issues, use the consent-based `environment repair` workflow.
 Never remove original image backups or `.history.icgf` to resolve a warning.
@@ -259,5 +377,6 @@ internet or install global software.
 - [Recovery, history, and state design](docs/recovery.md)
 - [JSON and exit-code contract](docs/json-and-exit-codes.md)
 - [Dependency versions, provenance, licenses, and reproduction](docs/bundled-dependencies.md)
-- [Full specification](docs/implementation-specification.txt)
+- [PAFPlayer-copy attribution and review-window behavior](docs/pafplayer-preview.md)
+- [Full specification](docs/implementation-specification.txt) (the 0.3.0 preview/junction/launcher changes supersede its older Chafa/reparse wording)
 - `docs/releases`: exact validation results and every affected `C:\BAT` path.

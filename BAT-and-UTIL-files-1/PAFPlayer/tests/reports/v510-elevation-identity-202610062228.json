@@ -1,0 +1,1 @@
+{"startupError":"System.InvalidOperationException: The process has no package identity. (Exception from HRESULT: 0x80073D54)\r\n   at Windows.ApplicationModel.Package.get_Current()\r\n   at PAFPlayerLockScreen.DesktopHost.Main(String[] args)"}

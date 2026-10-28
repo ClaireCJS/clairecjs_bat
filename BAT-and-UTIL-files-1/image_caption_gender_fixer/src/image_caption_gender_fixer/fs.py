@@ -84,8 +84,21 @@ def reparse(path):
 def validate_path(path, root=None):
     path = Path(os.path.abspath(path))
     for part in [path, *path.parents]:
-        if part.exists() and reparse(part):
-            raise UnsafeFilesystem(f"Reparse-point path refused: {part}")
+        if os.path.lexists(part) and reparse(part):
+            # Explicit directory junctions (including C:\new -> T:\new) are
+            # normal user paths. Resolve them once to a physical target before
+            # discovery/journaling. Never follow a linked image or an unknown
+            # reparse provider, and never traverse junction children recursively.
+            tag=getattr(part.lstat(),"st_reparse_tag",None)
+            if not part.is_dir() or tag!=0xA0000003:
+                raise UnsafeFilesystem(f"Reparse-point path refused: {part}")
+    try:
+        path=path.resolve()
+    except (OSError,RuntimeError) as error:
+        raise UnsafeFilesystem("Directory junction could not be resolved safely.") from error
+    for part in [path,*path.parents]:
+        if os.path.lexists(part) and reparse(part):
+            raise UnsafeFilesystem(f"Unresolved reparse-point path refused: {part}")
     if root is not None and path.is_relative_to(Path(root).resolve()):
         raise UnsafeFilesystem("The tool's installation directory is not an image target.")
     return path

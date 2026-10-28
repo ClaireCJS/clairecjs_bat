@@ -1,0 +1,2 @@
+{"application": "icgf", "schema": 1, "program": "0.3.0", "time": "2026-10-28T20:39:01.045848+00:00", "run": "de42d796-ce0b-47b9-9b40-07839e43b706", "event": "started", "command": "process"}
+{"application": "icgf", "schema": 1, "program": "0.3.0", "time": "2026-10-28T20:39:21.208132+00:00", "run": "de42d796-ce0b-47b9-9b40-07839e43b706", "event": "finished", "code": 20, "session": "a6581bc0-d8c0-4835-8a7b-d8ed87501305", "transaction": "d6e5b86f-c7ab-46e7-9987-e6601782d510"}

@@ -1,0 +1,154 @@
+{
+  "module": "test_PAFPlayer_screensaver",
+  "count": 20,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_PAFPlayer_screensaver.Compatibility.test_embedded_bridge_matches_source",
+      "parent_test": "test_PAFPlayer_screensaver.Compatibility.test_embedded_bridge_matches_source",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.Compatibility.test_existing_configuration_constants_and_bundle_sources_unchanged",
+      "parent_test": "test_PAFPlayer_screensaver.Compatibility.test_existing_configuration_constants_and_bundle_sources_unchanged",
+      "outcome": "pass",
+      "seconds": 3.687,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.Compatibility.test_short_text_and_no_control_escape_sequences",
+      "parent_test": "test_PAFPlayer_screensaver.Compatibility.test_short_text_and_no_control_escape_sequences",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.Compatibility.test_ui_keeps_existing_windows_ids_and_adds_unique_sidecar_ids",
+      "parent_test": "test_PAFPlayer_screensaver.Compatibility.test_ui_keeps_existing_windows_ids_and_adds_unique_sidecar_ids",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_art_revision_prevents_old_track_cover",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_art_revision_prevents_old_track_cover",
+      "outcome": "pass",
+      "seconds": 0.313,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_bad_settings_are_rejected_without_mutation",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_bad_settings_are_rejected_without_mutation",
+      "outcome": "pass",
+      "seconds": 0.265,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_close_revision_reaches_windows_started_sidecar",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_close_revision_reaches_windows_started_sidecar",
+      "outcome": "pass",
+      "seconds": 0.266,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_default_off_and_no_spectrum_or_audio_activity",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_default_off_and_no_spectrum_or_audio_activity",
+      "outcome": "pass",
+      "seconds": 0.266,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_disabled_art_does_not_leak_current_cover",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_disabled_art_does_not_leak_current_cover",
+      "outcome": "pass",
+      "seconds": 0.25,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_failed_save_rolls_back_runtime",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_failed_save_rolls_back_runtime",
+      "outcome": "pass",
+      "seconds": 0.25,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_live_title_lyric_and_pause_updates",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_live_title_lyric_and_pause_updates",
+      "outcome": "pass",
+      "seconds": 0.265,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_missing_executable_and_launch_error_leave_audio_untouched",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_missing_executable_and_launch_error_leave_audio_untouched",
+      "outcome": "pass",
+      "seconds": 0.266,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_missing_tags_and_lyrics_are_graceful",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_missing_tags_and_lyrics_are_graceful",
+      "outcome": "pass",
+      "seconds": 0.265,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_oversized_art_is_not_transferred",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_oversized_art_is_not_transferred",
+      "outcome": "pass",
+      "seconds": 0.266,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_remote_reads_are_rejected",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_remote_reads_are_rejected",
+      "outcome": "pass",
+      "seconds": 0.25,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_settings_persist_and_preserve_existing_namespaces_and_unknown_keys",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_settings_persist_and_preserve_existing_namespaces_and_unknown_keys",
+      "outcome": "pass",
+      "seconds": 0.266,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_sidecar_keeps_status_active_without_enabling_spectrum",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_sidecar_keeps_status_active_without_enabling_spectrum",
+      "outcome": "pass",
+      "seconds": 0.25,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_start_is_explicit_and_duplicate_clicks_do_not_spawn_twice",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_start_is_explicit_and_duplicate_clicks_do_not_spawn_twice",
+      "outcome": "pass",
+      "seconds": 0.281,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_stopped_clears_presentation",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_stopped_clears_presentation",
+      "outcome": "pass",
+      "seconds": 0.25,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_write_requires_pairing_token_and_same_origin",
+      "parent_test": "test_PAFPlayer_screensaver.ScreensaverHTTP.test_write_requires_pairing_token_and_same_origin",
+      "outcome": "pass",
+      "seconds": 0.266,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 8.88
+}

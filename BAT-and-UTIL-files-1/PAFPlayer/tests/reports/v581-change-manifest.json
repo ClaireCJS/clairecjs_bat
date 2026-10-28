@@ -1,0 +1,1326 @@
+{
+  "version": "V581",
+  "workspace": "C:\\codex\\clairevironment\\bat\\PAFPlayer",
+  "literal_C_BAT_changes": [],
+  "production_moves_or_deletions": [],
+  "renamed_test_directories": [
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpe0yhtxww\\USB",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpe0yhtxww\\USB-offline",
+      "status": "renamed",
+      "kind": "new empty test directory; simulated unplugged media"
+    },
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpz_mw17aq\\USB",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpz_mw17aq\\USB-offline",
+      "status": "renamed",
+      "kind": "new empty test directory; simulated unplugged media"
+    }
+  ],
+  "notes": [
+    "All replacement backups were created and hash-verified before replacement.",
+    "Test fixtures retained; no permanent deletion."
+  ],
+  "paths": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.md",
+      "status": "modified",
+      "sha256": "c17c7e53ef1e0edcac8dbf10060ae2ab0f6f6280d42c816a08c449126dc11ffa"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+      "status": "modified",
+      "sha256": "ba09645ba79357716358c3c9c6d51ac0dd3352f8f9ed8bdb97b3249f2c44f5e5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_changelog.md",
+      "status": "modified",
+      "sha256": "6142d62683eeaf6d8479a2392d3932ffb1cba8b431e7a4004de794fc5923cf11"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_steam.py",
+      "status": "modified",
+      "sha256": "9d043f260afea43fcd607932c780b16af2e9fdc02222f1ec70a3b4681865b378"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_steam.py.bak.202610200649.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "6fa29cfcaa41b99d10f9ac40f376fa29dc7e9886672561d701a3a18adbcf1f81"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_steam.py.bak.202610200649.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "0f08ac96db98329a70b37e093df31da906a2cd06929de6eaeabb02310c711c67"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_steam.py.bak.202610200651.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "515f6872c4682febdf28c1eaffb14d3ed840ca92b3b1af635ffc8216f45f8c42"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_steam.py.bak.202610200653.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "72e7d01d720e3357a81f8fdd391d273e34ee0a9293b63934eeba0da178252c8a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\PAFPlayer_changelog.md.bak.202610200650.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "8d820ffb90e2cc5ee1ccd8964f7037e9595d693497e068e55b32060ebed98689"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\PAFPlayer.md.bak.202610200650.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "790f148e811ee6d5551a7a5ed134916b41bef0eed7782fef9edd0eb7dbfdd4be"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md",
+      "status": "modified",
+      "sha256": "864f68a62c332b9f769a26ffb610e274ba215f34897c6ad3bfce81e08763e54d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md.bak.202610200650.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "1dd984b81cc36103f2af3d987b618cfb329cc345c38a0da648d575fea5bcdb2d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\steam.md",
+      "status": "modified",
+      "sha256": "838fc124b632a367b7005a4000a303a4db7200a01688520b00c58d1e0e432f78"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\steam.md.bak.202610200650.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "4036105c2a27c45dcbfbac50b98a2c6d237f88217f4a1271fc664e3f7d07ba8e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202610200650.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "d265292c5b18f3f0d916bf889fe896b3aab5eef78627e2e38852f492c273c215"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202610200651.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "2a1bc642bb48b877669dd5632dc26ec2e6feb2f5df19dc2d25d7f621cbb7ea12"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202610200653.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "69d049dfdc124e8fcd71333f6f0b99b1bfd700eed5b2fb68aa3570eb278151f7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v581_steam_activity_notices.md",
+      "status": "created",
+      "sha256": "c17c7e53ef1e0edcac8dbf10060ae2ab0f6f6280d42c816a08c449126dc11ffa"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v581_steam_activity_notices.py",
+      "status": "created",
+      "sha256": "ba09645ba79357716358c3c9c6d51ac0dd3352f8f9ed8bdb97b3249f2c44f5e5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v581_steam_activity_notices_release_notes.md",
+      "status": "created",
+      "sha256": "72d2cc5cafe670f31fefd55caf7107243994754ca564d6a74149445887af4a60"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\check_v581_build.py",
+      "status": "created",
+      "sha256": "a479c644d9991412e4ef678e7b331cd94dbaccc2307ce036efe72d44c03e85cd"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\check_v581_build.py.bak.202610200655.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "84cd5b6a9793511d98bcd6f0f47e7edcb9fe1c5ab168c994254c12c436ccb537"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\check_v581_build.py.bak.202610200657.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "1a089c4f5c2bbba2f771162a6df2168356f262f62a64b77ab5a1b45ac2018035"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\prepare_v581_steam_notices.py",
+      "status": "created",
+      "sha256": "15bf09e416eade05781f14304a29c0b052b5a196ee9441a26bec1a681d50e81c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\prepare_v581_steam_notices.py.bak.202610200649.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "6e929412b81b0e7953c2ffe28c8fb2a8cf00f7156646cb6fb8e457b24ca8dd51"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\prepare_v581_steam_notices.py.bak.202610200649.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "4cc73740e3de0b7b188b579e5344d5f5c6eb14f070b4b8b8069bf1881c760b6d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\baseline-v580-historical-checks-20261020-065617.json",
+      "status": "created",
+      "kind": "test report",
+      "sha256": "1859b6260e4d3c1a628ea517e164f1f269b4b7d6f9d94db610477cf8d20eff2b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\baseline-v580-historical-checks-20261020-065617.log",
+      "status": "created",
+      "kind": "test report",
+      "sha256": "4ec6fae2a7c1ccbf83a4836775cf1ddc8a6a2644c3cb6135724fb2a496d69072"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\steam-v581-checks-20261020-065239.json",
+      "status": "created",
+      "kind": "test report",
+      "sha256": "e441b92e4276bb2ade0ea6bad1330b797346110b42107a7a71c8c21c3d1aef4c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\steam-v581-checks-20261020-065239.log",
+      "status": "created",
+      "kind": "test report",
+      "sha256": "09e905eed2d07282603ee2bc9bd7466062c2d2e85f025f4f9ce872318d519f9f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\steam-v581-checks-20261020-065345.json",
+      "status": "created",
+      "kind": "test report",
+      "sha256": "15d11fe13b3d07b0dde5be351f2f57267aa0f42c69100d82d1a1d4d48e838276"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\steam-v581-checks-20261020-065345.log",
+      "status": "created",
+      "kind": "test report",
+      "sha256": "2262b7795d5bd5359fee20f97f75710aac5dfada25ca9bbfb7bd284cc502451d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v581-build-20261020-065617.json",
+      "status": "created",
+      "kind": "test report",
+      "sha256": "7ea50d2d18687f923faf1f56cee974e0f6e0b8b4e5020122ba462bd9dc8c2973"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v581-build-20261020-065738.json",
+      "status": "created",
+      "kind": "test report",
+      "sha256": "0a45c5a001cb198176e2204ac9bd373d5558161db591bd9bd4ef4624b44a94c4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v581-change-manifest.json",
+      "status": "created",
+      "kind": "change manifest"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "d265292c5b18f3f0d916bf889fe896b3aab5eef78627e2e38852f492c273c215"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer_monkeymote.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "d147b88bd612b8f5e3c36f06d28d5895335b727a16afa26d286ebbcfae728393"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer_remote_overlay.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "5dd20220f10d015cc533ff9c337fb43a0cb3a94fc91fd77012b2ba20be3f66e9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer_remote_tray.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "5f33ea84877fc8e59edca7e2e8a30a4f85f1422bcad9ccc9525326ec2dca18d2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer_steam.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "9d043f260afea43fcd607932c780b16af2e9fdc02222f1ec70a3b4681865b378"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer_tray.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "f301d9f847ba3c2136e2b966a0fb38f6d796265f57aba14aa722154a61a1cff6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer_tray_hover.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "ac7619448ccbba1bf3198ddcbaf454a793f0e89f3f36f9c46674635c975dce14"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer_tray_machine.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "3bbf43bb52b506d4247d629ce452e0d7f450ba94efd1838171eca0d4c0d2e73e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer_tray_options.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "c8d92c39b5e5bea639cd0468096f1f76b22106487548ed36c55c5df021b88a76"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer_web_workflows.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "b44f80df350bf32a40ceffc20f9ec9fbff3084d08b937a16d8511066ab20c8e7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\PAFPlayer_workflows_ui.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "50343dfaf1bb9bae87f7372d7225a0f2f7b862dcd94ac1e02cdee330c62b1e23"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_PAFPlayer_monkeymote.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "603033ae093ee44c149f914ec42a8514508a8b8293e48bc84005d2ce13db7ec2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_PAFPlayer_monkeymote_multi.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "73e0f0ae4c0e79f9c93ec992d4deb7297e3073d009549d6421b45abe8d02e212"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_PAFPlayer_v499_tray.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "b190b02c8fef75ca6671a4ddbd48b53d396609feea769a1473e23740251fe6f1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_PAFPlayer_workflows.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "da1f1370a01866b3e236fd533555c5faa4408f5b12b139725bd3b4989e50d6ba"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v477_floating_lyrics_center.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "66cb27ff1966a9c7cd09f387e71320ba393bf8173ccec6c93cd2036aad4b2c6a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v501_floating_title_duration_persistence.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "f7a4155053f6dfd23c81ce48cc27c03a54e397dfa3fcd9509881347bb640f4d7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v503_tray_track_details.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "f28edef68a3ec1febe5a6d6e53222e1d3d2fde1708367b39f20b3ac4764f2864"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v504_tray_machine.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "c92dc2c74d280907963940152d2041b779970eeee437a91bd769a6611057f9b7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v506_floating_title_persistence.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "5ec9d0c7311491f6bb375f7fb28cd6768fc8919ec3e1ad51b5ac8fb5c556c5f6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v522_remote_controls.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "49732db3e3698a050c878a35fd53b40b9d46bc075c974c42d8082e94ab08c7be"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v550_floating_hit_test.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2ac658e9986084120e1b0962572ef7f228a7517865cda0afd14010f9b612bf4b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v551_tray_icon_matrix.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "3ba229edb70533f5edcd6681f135367bba35da973f7b2a984b547b332c552199"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v556_tray_notifications_and_history.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "da842bb54ff3e31791a759f0f745282b0bb1b7b244dffabf9499c805b9a780eb"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v569_tray_api_isolation.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "3e2fdeead3857d2986e9c4388ec2c623b3a6da49ff498df3d42e05d1c25b46b1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v573_lyric_control_character_recovery.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "8bac06dcb7aac60bec5408ed2e8205da7b5363c5af6bd7350561987b190bf533"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v574_remote_floating.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "15e353b68a217340a399f823d09a2ec969e723bbfe246a8a8ef62ce82e1e2443"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v577_remote_save.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "13f1cf2cd3b8cbdae90df90c6b03d9469ebb51160ddac27a3afb93c9d34ecc05"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v580_tray_and_steam.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1f324f1984fc153c26f93fb8547c59294c7599a7f61b637084342903932369c9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\baseline-v580-historical-20261020-065617\\tests\\test_v581_steam_notices.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "dd4b21862cdad9a6f00846c26c67af84bcf5ef3913fe1eafec5d9c7cfcde89e4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "69d049dfdc124e8fcd71333f6f0b99b1bfd700eed5b2fb68aa3570eb278151f7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer_monkeymote.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "d147b88bd612b8f5e3c36f06d28d5895335b727a16afa26d286ebbcfae728393"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer_remote_overlay.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "5dd20220f10d015cc533ff9c337fb43a0cb3a94fc91fd77012b2ba20be3f66e9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer_remote_tray.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "5f33ea84877fc8e59edca7e2e8a30a4f85f1422bcad9ccc9525326ec2dca18d2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer_steam.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "72e7d01d720e3357a81f8fdd391d273e34ee0a9293b63934eeba0da178252c8a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer_tray.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "f301d9f847ba3c2136e2b966a0fb38f6d796265f57aba14aa722154a61a1cff6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer_tray_hover.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "ac7619448ccbba1bf3198ddcbaf454a793f0e89f3f36f9c46674635c975dce14"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer_tray_machine.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "3bbf43bb52b506d4247d629ce452e0d7f450ba94efd1838171eca0d4c0d2e73e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer_tray_options.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "c8d92c39b5e5bea639cd0468096f1f76b22106487548ed36c55c5df021b88a76"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer_web_workflows.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "b44f80df350bf32a40ceffc20f9ec9fbff3084d08b937a16d8511066ab20c8e7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\PAFPlayer_workflows_ui.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "50343dfaf1bb9bae87f7372d7225a0f2f7b862dcd94ac1e02cdee330c62b1e23"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_PAFPlayer_monkeymote.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "603033ae093ee44c149f914ec42a8514508a8b8293e48bc84005d2ce13db7ec2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_PAFPlayer_monkeymote_multi.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "73e0f0ae4c0e79f9c93ec992d4deb7297e3073d009549d6421b45abe8d02e212"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_PAFPlayer_v499_tray.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "b190b02c8fef75ca6671a4ddbd48b53d396609feea769a1473e23740251fe6f1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_PAFPlayer_workflows.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "da1f1370a01866b3e236fd533555c5faa4408f5b12b139725bd3b4989e50d6ba"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v477_floating_lyrics_center.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "66cb27ff1966a9c7cd09f387e71320ba393bf8173ccec6c93cd2036aad4b2c6a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v501_floating_title_duration_persistence.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "f7a4155053f6dfd23c81ce48cc27c03a54e397dfa3fcd9509881347bb640f4d7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v503_tray_track_details.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "f28edef68a3ec1febe5a6d6e53222e1d3d2fde1708367b39f20b3ac4764f2864"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v504_tray_machine.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "c92dc2c74d280907963940152d2041b779970eeee437a91bd769a6611057f9b7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v506_floating_title_persistence.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "5ec9d0c7311491f6bb375f7fb28cd6768fc8919ec3e1ad51b5ac8fb5c556c5f6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v522_remote_controls.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "49732db3e3698a050c878a35fd53b40b9d46bc075c974c42d8082e94ab08c7be"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v550_floating_hit_test.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2ac658e9986084120e1b0962572ef7f228a7517865cda0afd14010f9b612bf4b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v551_tray_icon_matrix.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "3ba229edb70533f5edcd6681f135367bba35da973f7b2a984b547b332c552199"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v556_tray_notifications_and_history.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "da842bb54ff3e31791a759f0f745282b0bb1b7b244dffabf9499c805b9a780eb"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v569_tray_api_isolation.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "3e2fdeead3857d2986e9c4388ec2c623b3a6da49ff498df3d42e05d1c25b46b1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v573_lyric_control_character_recovery.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "8bac06dcb7aac60bec5408ed2e8205da7b5363c5af6bd7350561987b190bf533"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v574_remote_floating.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "15e353b68a217340a399f823d09a2ec969e723bbfe246a8a8ef62ce82e1e2443"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v577_remote_save.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "13f1cf2cd3b8cbdae90df90c6b03d9469ebb51160ddac27a3afb93c9d34ecc05"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v580_tray_and_steam.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1f324f1984fc153c26f93fb8547c59294c7599a7f61b637084342903932369c9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\tests\\test_v581_steam_notices.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "dd4b21862cdad9a6f00846c26c67af84bcf5ef3913fe1eafec5d9c7cfcde89e4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\PAFPlayer\\workflows\\settings.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "fea4d049ef75fcd84ea8c97db7c739b39aedc3bb51b9bfe9bbdcaef3c43dc1a6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\mm-preferences-yk_gel_n\\settings.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "f255f1364f1fdaa8cc2e32d6e7abe0796dbb4c355dd35e656636ea98f46ec11d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\mm-preferences-yk_gel_n\\settings.json.bak.202610200652.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "a3cfdc1e253fcd0c31f6408d211c2fe3d2920773c88307f263957d64a10bffe2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-3gkirgeu\\a.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-3gkirgeu\\b.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-3gkirgeu\\c.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-8t_eyj0g\\a.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-8t_eyj0g\\b.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-8t_eyj0g\\c.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-8t_eyj0g\\state\\playlists\\queue (1).m3u8",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "260cc4dc073c1aba5e0c71432fa467e4bd5abfe80411227b5c0fef3e2c4262d8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-8t_eyj0g\\state\\playlists\\queue.m3u8",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "260cc4dc073c1aba5e0c71432fa467e4bd5abfe80411227b5c0fef3e2c4262d8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-dygcj8ap\\state\\library.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-dygcj8ap\\state\\uploads.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "9b7490ef8a47a226dc4802e47212b6f12bac850185b50f87d02ef10091db6c78"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-dygcj8ap\\state\\uploads\\active.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\paf456-tests-dygcj8ap\\state\\uploads\\old.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp00q_h4y_\\A.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp00q_h4y_\\B.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp00q_h4y_\\C.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp51841vbw\\instance.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "ae05a4f9774ffeca975a9f978d490c60d94ee04b27d6b9aaa27cceb650047fdb"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp51841vbw\\instance.json.bak.202610200652.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "781f993080d254d9b6c4741599219bb53d46744830acabcd735982b3e477ce83"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp6lrxl5sl\\copy.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6cc3cd50131658c66f8750e0dab1150ef6748528f09b71c2dc81a22a5eea8b80"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp6lrxl5sl\\playing.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6cc3cd50131658c66f8750e0dab1150ef6748528f09b71c2dc81a22a5eea8b80"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp77do89tj\\Second Library\\steamapps\\appmanifest_42.acf",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "05a80d75228100e05cf3bd0e31ef6e1ddfd3729ec05c43f4a672bc4cc5b29ac0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp77do89tj\\Second Library\\steamapps\\appmanifest_43.acf",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0ded624ee11e9375af53cd180f354df21ce638fbf6cfdceffaa12096a4720003"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp77do89tj\\steamapps\\libraryfolders.vdf",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "88d681503b1e2ee9f6fb78e0e0b92fc361124080ac9133ef81fe4974ff969bdb"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp886kqny0\\tray-e6adfddf3df0a31361584b1c.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "8a834e2f78500db882e7a10b470a7b9f1f7d0eb91e503ac4614f8dfbf0463a42"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp886kqny0\\tray-e6adfddf3df0a31361584b1c.json.bak.202610200652.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6ee0addfb1e53524eb6b188502f3ac1130907f72b28974bb8c3c84fb3e665cd1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmp9ygspm7_\\song.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "d1b9373112ce666cc3efa04f91c1ef4b836ccf5413ced782f26d885577f4fd77"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpe0yhtxww\\settings\\tray-c79fd8b45f66a93dc1bd3832.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "399c7a1fb3867e53ecedca8d8385643fefa273e189671ce942ac54f56c93056e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpe0yhtxww\\settings\\tray-c79fd8b45f66a93dc1bd3832.json.bak.202610200652.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "26f9cb823b1a648b00f821136de294f403fb36ef4fc71fbc2f4fca4885ec2548"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpeveuhu8t\\a.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpeveuhu8t\\b.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpeveuhu8t\\current.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpi49k4wrj\\tray-e98d17f7f8b8eb9e0247ecff.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "bf45b208f65abe0961c627f1889eca2265285a0861bbe8a7c367452191d0b1ed"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpi49k4wrj\\tray-e98d17f7f8b8eb9e0247ecff.json.bak.202610200652.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d7b6a121dff45a93a473db04316cbff333419bc86272450a5310e0c22e80a6c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmplqypa6yl\\tray-e6adfddf3df0a31361584b1c.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "be2219639ff516f3acde22eaede4abbb83c5712226426ad69f6b8ebb646023bb"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpunz4zdni\\song.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "d1b9373112ce666cc3efa04f91c1ef4b836ccf5413ced782f26d885577f4fd77"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpuq0mp1rq\\tray-e6adfddf3df0a31361584b1c.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2788932c950d401b5d236eb47d606f506b7a0e91c7714e3b387c1692cbebc6ba"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpuq0mp1rq\\tray-e6adfddf3df0a31361584b1c.json.bak.202610200652.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "9d06c4f37622c76432c3dcca3646c70078c5064c12c89f4c2819e362aa2b374b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpwnfef8qo\\current.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpwnfef8qo\\old.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpwnfef8qo\\recent.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpwnfef8qo\\recent2.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpydd2rg4q\\a.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1ee2706df560ff67e5c539a4a4d8d4ec12c92b18d6d544bfe424981811ae90d1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065239\\work\\tmpyt8j31ox\\logs\\tray-20261020-065244.log",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "ba09645ba79357716358c3c9c6d51ac0dd3352f8f9ed8bdb97b3249f2c44f5e5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer_monkeymote.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "d147b88bd612b8f5e3c36f06d28d5895335b727a16afa26d286ebbcfae728393"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer_remote_overlay.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "5dd20220f10d015cc533ff9c337fb43a0cb3a94fc91fd77012b2ba20be3f66e9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer_remote_tray.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "5f33ea84877fc8e59edca7e2e8a30a4f85f1422bcad9ccc9525326ec2dca18d2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer_steam.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "9d043f260afea43fcd607932c780b16af2e9fdc02222f1ec70a3b4681865b378"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer_tray.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "f301d9f847ba3c2136e2b966a0fb38f6d796265f57aba14aa722154a61a1cff6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer_tray_hover.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "ac7619448ccbba1bf3198ddcbaf454a793f0e89f3f36f9c46674635c975dce14"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer_tray_machine.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "3bbf43bb52b506d4247d629ce452e0d7f450ba94efd1838171eca0d4c0d2e73e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer_tray_options.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "c8d92c39b5e5bea639cd0468096f1f76b22106487548ed36c55c5df021b88a76"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer_web_workflows.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "b44f80df350bf32a40ceffc20f9ec9fbff3084d08b937a16d8511066ab20c8e7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\PAFPlayer_workflows_ui.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "50343dfaf1bb9bae87f7372d7225a0f2f7b862dcd94ac1e02cdee330c62b1e23"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_PAFPlayer_monkeymote.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "603033ae093ee44c149f914ec42a8514508a8b8293e48bc84005d2ce13db7ec2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_PAFPlayer_monkeymote_multi.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "73e0f0ae4c0e79f9c93ec992d4deb7297e3073d009549d6421b45abe8d02e212"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_PAFPlayer_v499_tray.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "b190b02c8fef75ca6671a4ddbd48b53d396609feea769a1473e23740251fe6f1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_PAFPlayer_workflows.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "da1f1370a01866b3e236fd533555c5faa4408f5b12b139725bd3b4989e50d6ba"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v477_floating_lyrics_center.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "66cb27ff1966a9c7cd09f387e71320ba393bf8173ccec6c93cd2036aad4b2c6a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v501_floating_title_duration_persistence.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "f7a4155053f6dfd23c81ce48cc27c03a54e397dfa3fcd9509881347bb640f4d7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v503_tray_track_details.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "f28edef68a3ec1febe5a6d6e53222e1d3d2fde1708367b39f20b3ac4764f2864"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v504_tray_machine.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "c92dc2c74d280907963940152d2041b779970eeee437a91bd769a6611057f9b7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v506_floating_title_persistence.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "5ec9d0c7311491f6bb375f7fb28cd6768fc8919ec3e1ad51b5ac8fb5c556c5f6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v522_remote_controls.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "49732db3e3698a050c878a35fd53b40b9d46bc075c974c42d8082e94ab08c7be"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v550_floating_hit_test.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2ac658e9986084120e1b0962572ef7f228a7517865cda0afd14010f9b612bf4b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v551_tray_icon_matrix.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "3ba229edb70533f5edcd6681f135367bba35da973f7b2a984b547b332c552199"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v556_tray_notifications_and_history.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "da842bb54ff3e31791a759f0f745282b0bb1b7b244dffabf9499c805b9a780eb"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v569_tray_api_isolation.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "3e2fdeead3857d2986e9c4388ec2c623b3a6da49ff498df3d42e05d1c25b46b1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v573_lyric_control_character_recovery.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "8bac06dcb7aac60bec5408ed2e8205da7b5363c5af6bd7350561987b190bf533"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v574_remote_floating.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "15e353b68a217340a399f823d09a2ec969e723bbfe246a8a8ef62ce82e1e2443"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v577_remote_save.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "13f1cf2cd3b8cbdae90df90c6b03d9469ebb51160ddac27a3afb93c9d34ecc05"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v580_tray_and_steam.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1f324f1984fc153c26f93fb8547c59294c7599a7f61b637084342903932369c9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\tests\\test_v581_steam_notices.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "dd4b21862cdad9a6f00846c26c67af84bcf5ef3913fe1eafec5d9c7cfcde89e4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\PAFPlayer\\workflows\\settings.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "fea4d049ef75fcd84ea8c97db7c739b39aedc3bb51b9bfe9bbdcaef3c43dc1a6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\mm-preferences-bzm2cj37\\settings.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "a48f8df13b321e350e2b61823c62c8cfa845c3beb96b4108e270cb6de18ccaed"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\mm-preferences-bzm2cj37\\settings.json.bak.202610200654.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "a3cfdc1e253fcd0c31f6408d211c2fe3d2920773c88307f263957d64a10bffe2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-mgz7no_1\\state\\library.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-mgz7no_1\\state\\uploads.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "04a8e57aa3fd47d637468b5569d33257abd993888b6cca0d41224c3e7a09773b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-mgz7no_1\\state\\uploads\\active.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-mgz7no_1\\state\\uploads\\old.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-pic7kaje\\a.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-pic7kaje\\b.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-pic7kaje\\c.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-q09rt8cj\\a.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-q09rt8cj\\b.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-q09rt8cj\\c.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-q09rt8cj\\state\\playlists\\queue (1).m3u8",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "d4f854e43fdbd48c1ae615d33075bae44059a7e7d3b917be52ee870a5e80b96b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\paf456-tests-q09rt8cj\\state\\playlists\\queue.m3u8",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "d4f854e43fdbd48c1ae615d33075bae44059a7e7d3b917be52ee870a5e80b96b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp1s1qp3uu\\tray-e6adfddf3df0a31361584b1c.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "be2219639ff516f3acde22eaede4abbb83c5712226426ad69f6b8ebb646023bb"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp3pnp1oj6\\A.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp3pnp1oj6\\B.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp3pnp1oj6\\C.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp4yczw6w9\\current.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp4yczw6w9\\old.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp4yczw6w9\\recent.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp4yczw6w9\\recent2.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp6k1dw8o6\\song.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "d1b9373112ce666cc3efa04f91c1ef4b836ccf5413ced782f26d885577f4fd77"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp8wr_19ym\\copy.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6cc3cd50131658c66f8750e0dab1150ef6748528f09b71c2dc81a22a5eea8b80"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp8wr_19ym\\playing.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6cc3cd50131658c66f8750e0dab1150ef6748528f09b71c2dc81a22a5eea8b80"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp_dbpvjrk\\Second Library\\steamapps\\appmanifest_42.acf",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "05a80d75228100e05cf3bd0e31ef6e1ddfd3729ec05c43f4a672bc4cc5b29ac0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp_dbpvjrk\\Second Library\\steamapps\\appmanifest_43.acf",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0ded624ee11e9375af53cd180f354df21ce638fbf6cfdceffaa12096a4720003"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmp_dbpvjrk\\steamapps\\libraryfolders.vdf",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "80f0fbf5b4da803af8eeefe4873d53af1caf528e34990d043b2dacd8375876a2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpa93a5umy\\logs\\tray-20261020-065349.log",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpbd3plk5h\\instance.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1902cd01bb7cceb8e3b62feda266d68756d4d0a0caf595172a2ec6f632969182"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpbd3plk5h\\instance.json.bak.202610200654.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "e0de4be29fa9b17d51e1ac18885f0930a937537c1db0cd9eac58fd762539bfbe"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpmth7266f\\tray-e98d17f7f8b8eb9e0247ecff.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "bf45b208f65abe0961c627f1889eca2265285a0861bbe8a7c367452191d0b1ed"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpmth7266f\\tray-e98d17f7f8b8eb9e0247ecff.json.bak.202610200654.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d7b6a121dff45a93a473db04316cbff333419bc86272450a5310e0c22e80a6c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpq_rgk00r\\tray-e6adfddf3df0a31361584b1c.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2788932c950d401b5d236eb47d606f506b7a0e91c7714e3b387c1692cbebc6ba"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpq_rgk00r\\tray-e6adfddf3df0a31361584b1c.json.bak.202610200653.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "9d06c4f37622c76432c3dcca3646c70078c5064c12c89f4c2819e362aa2b374b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmptqphz76i\\song.wav",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "d1b9373112ce666cc3efa04f91c1ef4b836ccf5413ced782f26d885577f4fd77"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpvon4ty6z\\tray-e6adfddf3df0a31361584b1c.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "8a834e2f78500db882e7a10b470a7b9f1f7d0eb91e503ac4614f8dfbf0463a42"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpvon4ty6z\\tray-e6adfddf3df0a31361584b1c.json.bak.202610200653.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "6ee0addfb1e53524eb6b188502f3ac1130907f72b28974bb8c3c84fb3e665cd1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpxqqls9z1\\a.flac",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1ee2706df560ff67e5c539a4a4d8d4ec12c92b18d6d544bfe424981811ae90d1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpz_mw17aq\\settings\\tray-c79fd8b45f66a93dc1bd3832.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "b11ef577874724391660a6f4f7ed96dab4da3fc9000116a6d1825b840eab0971"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpz_mw17aq\\settings\\tray-c79fd8b45f66a93dc1bd3832.json.bak.202610200653.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "c8de3adbe8b6017a0f7b2a497a236547002deeec54b1028b1e38c209d018832c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpzg7sxhft\\a.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpzg7sxhft\\b.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\steam-v581-20261020-065345\\work\\tmpzg7sxhft\\current.mp3",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v581_steam_notices.py",
+      "status": "created",
+      "sha256": "dd4b21862cdad9a6f00846c26c67af84bcf5ef3913fe1eafec5d9c7cfcde89e4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v581_steam_notices.py",
+      "status": "created",
+      "sha256": "02f10cf2297675dcb090af693c4161104fc93efda6e41f0e6400895a72579b2e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v581_steam_notices.py.bak.202610200653.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "cb7ee9d8028193c04e3bcb71c13b098330426963003051f1d43644b8eb9c1a40"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v581_steam_notices.py.bak.202610200659.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "4225afb32e2305e5ca0db19849ac3c4e7cd8f2c3b9da3dace95668e638245c5a"
+    }
+  ]
+}

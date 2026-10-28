@@ -1,0 +1,62 @@
+{
+  "module": "test_play_audio_file_v420",
+  "count": 7,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v420.FullPlayerLoopTests.test_chrome_play_attempt_vlc_quiet_fade_and_manual_hold",
+      "parent_test": "test_play_audio_file_v420.FullPlayerLoopTests.test_chrome_play_attempt_vlc_quiet_fade_and_manual_hold",
+      "outcome": "pass",
+      "seconds": 0.312,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v420.PriorityTests.test_disabling_setting_allows_new_media_until_reenabled",
+      "parent_test": "test_play_audio_file_v420.PriorityTests.test_disabling_setting_allows_new_media_until_reenabled",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v420.PriorityTests.test_manual_stop_stays_stopped_when_media_finishes",
+      "parent_test": "test_play_audio_file_v420.PriorityTests.test_manual_stop_stays_stopped_when_media_finishes",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v420.PriorityTests.test_play_after_manual_pause_immediately_resumes",
+      "parent_test": "test_play_audio_file_v420.PriorityTests.test_play_after_manual_pause_immediately_resumes",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v420.PriorityTests.test_play_during_monitor_startup_does_not_disable_first_detection",
+      "parent_test": "test_play_audio_file_v420.PriorityTests.test_play_during_monitor_startup_does_not_disable_first_detection",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v420.PriorityTests.test_redundant_play_acknowledges_current_media",
+      "parent_test": "test_play_audio_file_v420.PriorityTests.test_redundant_play_acknowledges_current_media",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v420.PriorityTests.test_resume_overrides_chrome_but_new_vlc_cannot_be_ignored",
+      "parent_test": "test_play_audio_file_v420.PriorityTests.test_resume_overrides_chrome_but_new_vlc_cannot_be_ignored",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 1.11
+}

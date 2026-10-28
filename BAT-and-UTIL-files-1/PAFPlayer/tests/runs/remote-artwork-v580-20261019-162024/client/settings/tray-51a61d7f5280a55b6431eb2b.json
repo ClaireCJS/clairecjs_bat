@@ -1,0 +1,74 @@
+{
+  "MachineOptions": {
+    "remote_floating_lyrics": true,
+    "remote_hotkeys": false,
+    "remote_album_art": true,
+    "album_wallpaper": false
+  },
+  "RendererPreferences": {
+    "ExternalAlbumArtLyricsModeV180": {
+      "type": 4,
+      "value": 2
+    },
+    "Looping": {
+      "type": 4,
+      "value": 0
+    },
+    "RepeatMode": {
+      "type": 4,
+      "value": 3
+    },
+    "ExternalFloatingLyricsGeometry": {
+      "type": 1,
+      "value": "960x300+120+60"
+    },
+    "ExternalFloatingLyricsKaraokeColorMode": {
+      "type": 4,
+      "value": 1
+    },
+    "ExternalAlbumArtPopupEmojimaxV295": {
+      "type": 4,
+      "value": 1
+    },
+    "ExternalAlbumArtKaraokeEnabledV336": {
+      "type": 4,
+      "value": 1
+    },
+    "ExternalAlbumArtPopupColorEmojiV295": {
+      "type": 4,
+      "value": 0
+    },
+    "ExternalAlbumArtKaraokeColorMode": {
+      "type": 4,
+      "value": 2
+    },
+    "KaraokeEmojimax": {
+      "type": 4,
+      "value": 1
+    },
+    "FloatingLyricsTrackIntroSeconds": {
+      "type": 1,
+      "value": "0.25"
+    },
+    "ExternalFloatingLyricsLayoutSizeV197": {
+      "type": 1,
+      "value": "960x300"
+    },
+    "ExternalAlbumArtPlacementV241": {
+      "type": 1,
+      "value": "{\"rect\":[3312,8,3856,592],\"monitor_device\":\"\\\\\\\\.\\\\DISPLAY1\",\"monitor_work\":[0,0,3840,2108]}"
+    },
+    "ExternalAlbumArtGeometry": {
+      "type": 1,
+      "value": "520x520+3312+8"
+    },
+    "ExternalAlbumArtManualSize": {
+      "type": 4,
+      "value": 1
+    },
+    "ExternalFloatingLyricsPositionV302": {
+      "type": 1,
+      "value": "120,60"
+    }
+  }
+}

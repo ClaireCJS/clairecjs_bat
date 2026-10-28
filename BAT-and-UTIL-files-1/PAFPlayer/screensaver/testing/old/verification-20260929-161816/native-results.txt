@@ -1,0 +1,31 @@
+PASS default configuration mode
+PASS fullscreen and explicit port
+PASS colon preview handle
+PASS separate preview handle
+PASS configuration handle
+PASS reject invalid preview handles
+PASS reject ambiguous mode and bad port
+PASS Unicode title and timed lyric JSON
+PASS reject incompatible protocol
+PASS offline clears presentation
+PASS 100000 updates retain one state and its pending image
+PASS discarded images disposed on disconnect
+PASS shutdown disposes late image results
+PASS art decode bounded to 1024 pixels
+PASS bad artwork fails gracefully
+PASS never connects off loopback
+PASS HTTP size cap
+PASS redirect rejected
+PASS unresponsive server timeout
+PASS live polling caches unchanged artwork
+PASS live disable observed
+PASS disconnect clears old song and artwork
+PASS malformed server state becomes waiting view
+PASS corrupt artwork is not downloaded repeatedly
+PASS preview embeds as child before display
+PASS real .scr preview process starts and polls
+PASS real .scr exits when preview parent closes
+PASS brightness changes only artwork
+PASS brightness does not dim title or lyric
+COMPLETE: 29 checks passed
+

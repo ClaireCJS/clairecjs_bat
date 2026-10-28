@@ -1,0 +1,14 @@
+{
+  "version": "V568",
+  "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+  "release": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v568_monkeymote_multiple_clients.py",
+  "sha256": "1e6a616434261fb7e06822b7e490aa6a22216e516cc2188e63b27cbdd25976a7",
+  "focused_tests": 81,
+  "ui_flows": 7,
+  "bundled_modules_compiled": 21,
+  "http_port_handoff": "passed with two emulated TCP clients",
+  "real_two_device_test": "pending",
+  "C_BAT_paths_changed": [],
+  "affected_file_count": 158,
+  "inventory": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-v568-change-inventory-20261016.md"
+}

@@ -1,0 +1,56 @@
+{
+  "module": "test_play_audio_file_v395_resilience",
+  "count": 6,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v395_resilience.FloatingLyricsPerformanceTests.test_active_playback_freezes_only_unsafe_decorative_animation",
+      "parent_test": "test_play_audio_file_v395_resilience.FloatingLyricsPerformanceTests.test_active_playback_freezes_only_unsafe_decorative_animation",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v395_resilience.FloatingLyricsPerformanceTests.test_large_glyph_projection_uses_native_pillow_operation",
+      "parent_test": "test_play_audio_file_v395_resilience.FloatingLyricsPerformanceTests.test_large_glyph_projection_uses_native_pillow_operation",
+      "outcome": "pass",
+      "seconds": 0.032,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v395_resilience.FloatingLyricsPerformanceTests.test_measured_cost_gets_a_real_audio_safe_backoff",
+      "parent_test": "test_play_audio_file_v395_resilience.FloatingLyricsPerformanceTests.test_measured_cost_gets_a_real_audio_safe_backoff",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v395_resilience.MissingPlaylistEntryWarningTests.test_all_three_warning_surfaces_are_wired",
+      "parent_test": "test_play_audio_file_v395_resilience.MissingPlaylistEntryWarningTests.test_all_three_warning_surfaces_are_wired",
+      "outcome": "pass",
+      "seconds": 0.031,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v395_resilience.MissingPlaylistEntryWarningTests.test_browser_notice_is_expiring_and_preencoded",
+      "parent_test": "test_play_audio_file_v395_resilience.MissingPlaylistEntryWarningTests.test_browser_notice_is_expiring_and_preencoded",
+      "outcome": "pass",
+      "seconds": 0.015,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v395_resilience.MissingPlaylistEntryWarningTests.test_missing_slot_advances_to_next_existing_slot",
+      "parent_test": "test_play_audio_file_v395_resilience.MissingPlaylistEntryWarningTests.test_missing_slot_advances_to_next_existing_slot",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 0.89
+}

@@ -1,0 +1,9 @@
+{"time": "2026-10-08T17:37:26.711430-04:00", "event": "start", "trace": "PAFLockRenderer-20261008173726-5f560f", "etl_started": true, "logman": "The command completed successfully.\n", "session": 1}
+{"time": "2026-10-08T17:37:26.790999-04:00", "event": "provider", "provider": "{3D14CA27-6EB2-4789-9B52-33EC88ECF5B0}", "code": 0, "logman": "The command completed successfully.\n"}
+{"time": "2026-10-08T17:37:27.010691-04:00", "event": "provider", "provider": "Microsoft-Windows-PushNotifications-Platform", "code": 0, "logman": "The command completed successfully.\n"}
+{"time": "2026-10-08T17:37:27.229381-04:00", "event": "provider", "provider": "Microsoft-Windows-Winlogon", "code": 0, "logman": "The command completed successfully.\n"}
+{"time": "2026-10-08T17:37:27.426052-04:00", "event": "provider", "provider": "Microsoft-Windows-TWinUI", "code": 2147943568, "logman": "\nError:\nElement not found.\n"}
+{"time": "2026-10-08T17:37:28.243263-04:00", "wts": {"level": 1, "session": 1, "connection_state": 0, "flags": 1}, "processes": [{"pid": 262036, "name": "PAFPlayerLockScreen.exe", "session": 1}]}
+{"time": "2026-10-08T17:43:40.913595-04:00", "wts": {"level": 1, "session": 1, "connection_state": 0, "flags": 0}, "processes": [{"pid": 59292, "name": "LogonUI.exe", "session": 1}, {"pid": 262036, "name": "PAFPlayerLockScreen.exe", "session": 1}]}
+{"time": "2026-10-08T17:44:39.696753-04:00", "wts": {"level": 1, "session": 1, "connection_state": 0, "flags": 1}, "processes": [{"pid": 262036, "name": "PAFPlayerLockScreen.exe", "session": 1}]}
+{"time": "2026-10-08T17:44:45.808072-04:00", "event": "stop", "saw_lock": true, "stop_code": 0, "logman": "The command completed successfully.\n"}

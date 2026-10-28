@@ -1,0 +1,2 @@
+C:\codex\clairevironment\bat\PAFPlayer\lockscreen\BackgroundTasks\PAFPlayerLockScreen.BackgroundTasks.csproj;x64
+C:\codex\clairevironment\bat\PAFPlayer\lockscreen\PAFPlayerLockScreen.csproj;x64

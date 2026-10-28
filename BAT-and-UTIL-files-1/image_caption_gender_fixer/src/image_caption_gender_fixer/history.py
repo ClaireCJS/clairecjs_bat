@@ -46,10 +46,11 @@ class History:
                 if index == 0 and record.get("event") != "header":
                     raise ValueError("missing history header")
                 if index > 0:
-                    if record.get("event") not in ("committed", "undone", "recovered"):
+                    if record.get("event") not in ("committed", "undone", "recovered", "renamed"):
                         raise ValueError("unknown history event")
                     uuid.UUID(record["transaction"])
-                    for key in ("original", "corrected", "backup", "archive"):
+                    if record["event"]=="renamed":uuid.UUID(record["migration"])
+                    for key in ("original", "corrected", "backup", "archive", "previous_corrected"):
                         if record.get(key):
                             relative_file(self.folder, record[key])
                     for key in ("original_hash", "corrected_hash"):
@@ -77,7 +78,7 @@ class History:
             self._append("header", history_id=str(uuid.uuid4()))
         hide(self.path)
         for record in self.records:
-            if event != "header" and record.get("transaction") == values.get("transaction") and record["event"] == event:
+            if event != "header" and record.get("transaction") == values.get("transaction") and record["event"] == event and (event!="renamed" or record.get("migration")==values.get("migration")):
                 for key, value in values.items():
                     if record.get(key) != value:
                         raise IntegrityError("Idempotent event disagrees with committed history.")
@@ -106,7 +107,11 @@ class History:
                     raise IntegrityError("Repeated conversion event for one transaction.")
                 if record["event"] == "undone" and (not previous or previous["event"] == "undone"):
                     raise IntegrityError("Undo event has no active conversion.")
-                result[record["transaction"]] = record
+                if record['event']=='renamed':
+                    if not previous or previous['event']=='undone' or previous['corrected']!=record['previous_corrected'] or previous['corrected_hash']!=record['corrected_hash']:
+                        raise IntegrityError('Filename migration disagrees with active conversion.')
+                    result[record['transaction']]=dict(previous,corrected=record['corrected'])
+                else:result[record["transaction"]] = record
         return result
 
     def recognize(self, digest):

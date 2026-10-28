@@ -1,0 +1,118 @@
+{
+  "tests": 116,
+  "failures": 1,
+  "errors": 1,
+  "skipped": 0,
+  "successful": false,
+  "fixture_copies": [
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\PAFPlayer.py",
+      "sha256": "5fb8e7a398cdb314e9d6a86cc927389a0497c2f1debff0547b43f4a62604619b"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_monkeymote.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\PAFPlayer_monkeymote.py",
+      "sha256": "d147b88bd612b8f5e3c36f06d28d5895335b727a16afa26d286ebbcfae728393"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_web_workflows.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\PAFPlayer_web_workflows.py",
+      "sha256": "6c2ac1bc18e84d43f45a99524c7c3a3df293e782696f92645a7d0cf6fd7ad609"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_workflows_ui.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\PAFPlayer_workflows_ui.py",
+      "sha256": "50343dfaf1bb9bae87f7372d7225a0f2f7b862dcd94ac1e02cdee330c62b1e23"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_monkeymote_multi.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\tests\\test_PAFPlayer_monkeymote_multi.py",
+      "sha256": "73e0f0ae4c0e79f9c93ec992d4deb7297e3073d009549d6421b45abe8d02e212"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_monkeymote.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\tests\\test_PAFPlayer_monkeymote.py",
+      "sha256": "603033ae093ee44c149f914ec42a8514508a8b8293e48bc84005d2ce13db7ec2"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v522_remote_controls.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\tests\\test_v522_remote_controls.py",
+      "sha256": "49732db3e3698a050c878a35fd53b40b9d46bc075c974c42d8082e94ab08c7be"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_workflows.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\tests\\test_PAFPlayer_workflows.py",
+      "sha256": "00a947c46d6420ef6829ee9fcabae2aef78ee8f15c40e143a2c048b48fae7d4b"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_v499_tray.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\tests\\test_PAFPlayer_v499_tray.py",
+      "sha256": "b190b02c8fef75ca6671a4ddbd48b53d396609feea769a1473e23740251fe6f1"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_tray.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\PAFPlayer_tray.py",
+      "sha256": "5fcc698d09bca6edb5e30dcbfe64f1aaec5c4363539a2a5292ecf5b420dad0c5"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_tray_hover.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\PAFPlayer_tray_hover.py",
+      "sha256": "ac7619448ccbba1bf3198ddcbaf454a793f0e89f3f36f9c46674635c975dce14"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_tray_machine.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\PAFPlayer_tray_machine.py",
+      "sha256": "3bbf43bb52b506d4247d629ce452e0d7f450ba94efd1838171eca0d4c0d2e73e"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v503_tray_track_details.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\tests\\test_v503_tray_track_details.py",
+      "sha256": "6a098b24660848c7f5500ab412281458eccb3b64c2f60bbcd55e9a2fc31f1aaa"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v504_tray_machine.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\tests\\test_v504_tray_machine.py",
+      "sha256": "ab62fc6d8a28b9e2f74c3fcc149c0d19c27290f9da5b61ca1f71ce57866ebdc1"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v551_tray_icon_matrix.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\tests\\test_v551_tray_icon_matrix.py",
+      "sha256": "3ba229edb70533f5edcd6681f135367bba35da973f7b2a984b547b332c552199"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v556_tray_notifications_and_history.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\tests\\test_v556_tray_notifications_and_history.py",
+      "sha256": "da842bb54ff3e31791a759f0f745282b0bb1b7b244dffabf9499c805b9a780eb"
+    },
+    {
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v569_tray_api_isolation.py",
+      "copy": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\tray-v569-20261016-221545\\tests\\test_v569_tray_api_isolation.py",
+      "sha256": "548b83ba357537280dff088b6c65c17811195db5020360e798e917e0d274a1dd"
+    }
+  ],
+  "blocked_writes": [
+    "winreg.CreateKey",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log"
+  ],
+  "log": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\tray-v569-checks-20261016-221545.log"
+}

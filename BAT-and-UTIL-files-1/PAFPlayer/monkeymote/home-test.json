@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "host": "192.168.0.17",
+  "trusted_subnet": "192.168.0.0/24",
+  "port": 19371,
+  "password": ""
+}

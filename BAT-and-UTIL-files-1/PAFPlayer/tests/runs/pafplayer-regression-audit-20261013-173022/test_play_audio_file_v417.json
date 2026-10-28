@@ -1,0 +1,105 @@
+{
+  "module": "test_play_audio_file_v417",
+  "count": 13,
+  "successful": false,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v417.ClientTests.test_browser_link_behavior_and_all_javascript_parses",
+      "parent_test": "test_play_audio_file_v417.ClientTests.test_browser_link_behavior_and_all_javascript_parses",
+      "outcome": "failure",
+      "seconds": 0.063,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\test_play_audio_file_v417.py\", line 145, in test_browser_link_behavior_and_all_javascript_parses\n    self.assertEqual(0, parsed.returncode, parsed.stderr)\nAssertionError: 0 != 1 : [stdin]:1694\n(()=>{const box=document.getElementById('controlHotkeysEnabled'),status=document.getElementById('controlHotkeysStatus');let token='',busy=false;\\nasync function poll(){if(busy)return;try{const r=await fetch('/api/workflows/status',{cache:'no-store'}),v=await r.json();if(!r.ok)throw Error(v.error);token=v.local?v.token:'';box.checked=!!v.control.hotkeys_enabled;box.disabled=!v.local;status.textContent=v.local?'Saved on this player':'Change this on the player computer'}catch(e){status.textContent=String(e)}}\\nbox.onchange=async()=>{busy=true;try{const r=await fetch('/api/workflows/control',{method:'POST',headers:{'Content-Type':'application/json','X-PAF-Workflow-Token':token},body:JSON.stringify({hotkeys_enabled:box.checked})}),v=await r.json();if(!r.ok)throw Error(v.error);box.checked=v.hotkeys_enabled;status.textContent='Setting saved'}catch(e){status.textContent=String(e)}finally{busy=false}};poll();setInterval(()=>{if(!document.hidden)poll()},3000)})();\n                                                                                                                                                ^\n\nSyntaxError: Invalid or unexpected token\n    at wrapSafe (node:internal/modules/cjs/loader:1743:18)\n    at checkSyntax (node:internal/main/check_syntax:76:3)\n    at node:internal/main/check_syntax:45:5\n    at Socket.<anonymous> (node:internal/process/execution:205:5)\n    at Socket.emit (node:events:520:35)\n    at endReadableNT (node:internal/streams/readable:1729:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n\nNode.js v24.14.0\n\n"
+    },
+    {
+      "test": "test_play_audio_file_v417.ClientTests.test_client_addresses",
+      "parent_test": "test_play_audio_file_v417.ClientTests.test_client_addresses",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.ClientTests.test_unicode_and_header_injection_filename",
+      "parent_test": "test_play_audio_file_v417.ClientTests.test_unicode_and_header_injection_filename",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.HTTPTests.test_download_exact_bytes_head_and_persistent_connection",
+      "parent_test": "test_play_audio_file_v417.HTTPTests.test_download_exact_bytes_head_and_persistent_connection",
+      "outcome": "pass",
+      "seconds": 0.281,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.HTTPTests.test_download_missing_and_no_current_track",
+      "parent_test": "test_play_audio_file_v417.HTTPTests.test_download_missing_and_no_current_track",
+      "outcome": "pass",
+      "seconds": 0.25,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.HTTPTests.test_download_tracks_open_file_even_when_playlist_advances",
+      "parent_test": "test_play_audio_file_v417.HTTPTests.test_download_tracks_open_file_even_when_playlist_advances",
+      "outcome": "pass",
+      "seconds": 0.25,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.HTTPTests.test_get_and_head_legacy_controls_execute_once_and_preserve_order",
+      "parent_test": "test_play_audio_file_v417.HTTPTests.test_get_and_head_legacy_controls_execute_once_and_preserve_order",
+      "outcome": "pass",
+      "seconds": 0.765,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.HTTPTests.test_main_matches_both_existing_status_parsers",
+      "parent_test": "test_play_audio_file_v417.HTTPTests.test_main_matches_both_existing_status_parsers",
+      "outcome": "pass",
+      "seconds": 0.5,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.HTTPTests.test_per_connection_local_header_and_folder_authorization",
+      "parent_test": "test_play_audio_file_v417.HTTPTests.test_per_connection_local_header_and_folder_authorization",
+      "outcome": "pass",
+      "seconds": 0.25,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.HTTPTests.test_real_wget32_spider_does_not_toggle_twice",
+      "parent_test": "test_play_audio_file_v417.HTTPTests.test_real_wget32_spider_does_not_toggle_twice",
+      "outcome": "pass",
+      "seconds": 0.407,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.HTTPTests.test_stopped_state_survives_pause_refresh_then_play_clears_it",
+      "parent_test": "test_play_audio_file_v417.HTTPTests.test_stopped_state_survives_pause_refresh_then_play_clears_it",
+      "outcome": "pass",
+      "seconds": 0.25,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.PlayerTests.test_stop_cancels_automatic_resume",
+      "parent_test": "test_play_audio_file_v417.PlayerTests.test_stop_cancels_automatic_resume",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v417.PlayerTests.test_stop_play_stop_while_paused_then_toggle_keep_server_and_reset_position",
+      "parent_test": "test_play_audio_file_v417.PlayerTests.test_stop_play_stop_while_paused_then_toggle_keep_server_and_reset_position",
+      "outcome": "pass",
+      "seconds": 0.203,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 4.08
+}

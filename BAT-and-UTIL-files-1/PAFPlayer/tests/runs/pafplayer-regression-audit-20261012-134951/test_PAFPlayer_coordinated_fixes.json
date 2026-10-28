@@ -1,0 +1,56 @@
+{
+  "module": "test_PAFPlayer_coordinated_fixes",
+  "count": 6,
+  "successful": false,
+  "entries": [
+    {
+      "test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_floating_pentagram_uses_console_compatible_rendering_contract",
+      "parent_test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_floating_pentagram_uses_console_compatible_rendering_contract",
+      "outcome": "pass",
+      "seconds": 1.531,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_hud_bubbles_keep_requested_order",
+      "parent_test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_hud_bubbles_keep_requested_order",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_playback_sliders_and_visualizer_height_presets",
+      "parent_test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_playback_sliders_and_visualizer_height_presets",
+      "outcome": "pass",
+      "seconds": 0.11,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_popup_and_floating_controls_have_shared_order",
+      "parent_test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_popup_and_floating_controls_have_shared_order",
+      "outcome": "failure",
+      "seconds": 0.0,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_PAFPlayer_coordinated_fixes.py\", line 33, in test_popup_and_floating_controls_have_shared_order\n    self.assertEqual(positions, sorted(positions), prefix)\nAssertionError: Lists differ: [40215, 40458, 40531, 40726, 41280, 41033] != [40215, 40458, 40531, 40726, 41033, 41280]\n\nFirst differing element 4:\n41280\n41033\n\nFirst differing diagnostic line: 0\n- [40215, 40458, 40531, 40726, 41280, 41033]\n+ [40215, 40458, 40531, 40726, 41033, 41280] : artworkPopup\n"
+    },
+    {
+      "test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_rapid_seek_requests_are_cumulative_and_not_dropped",
+      "parent_test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_rapid_seek_requests_are_cumulative_and_not_dropped",
+      "outcome": "pass",
+      "seconds": 3.578,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_topmost_can_disable_visual_button_without_removing_action",
+      "parent_test": "test_PAFPlayer_coordinated_fixes.CoordinatedFixRegressionTests.test_topmost_can_disable_visual_button_without_removing_action",
+      "outcome": "pass",
+      "seconds": 0.078,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 6.11
+}

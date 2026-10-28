@@ -1,0 +1,22 @@
+test_artifacts_include_signed_external_runtime_and_lock_screen_manifest (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_changed_dependency_is_rejected_before_windows_changes (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_check_only_never_installs (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_disabled_uac_does_not_block_real_publication_test (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_explicit_trust_consent_then_registers_for_current_user (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_healthy_registration_cannot_hide_activation_failure (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_installed_package_is_not_replaced (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_no_consent_changes_nothing (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_powershell_paths_are_literal_and_command_is_encoded (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_pretrusted_certificate_installs_without_prompt (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_previous_version_is_upgraded (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_read_only_check_never_publishes_even_when_installed (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_refuses_newer_version_downgrade (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_saved_disabled_setting_is_preserved (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_successful_activation_cannot_hide_publication_failure (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_unreachable_player_starts_offline_publisher (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+test_wrong_identity_in_receipt_is_rejected (test_v508_lockscreen_installer.LockScreenInstallerTests) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.069s
+
+OK

@@ -1,0 +1,41 @@
+test_actual_activation_error_is_preserved_and_handles_closed (test_managed_publisher.ManagedPublisherTests) ... ok
+test_bad_types_rejected (test_managed_publisher.ManagedPublisherTests) ... ok
+test_bundled_source_matches_module (test_managed_publisher.ManagedPublisherTests) ... ok
+test_compact_counter_preserves_pause_seek_and_missing_time (test_managed_publisher.ManagedPublisherTests) ... ok
+test_compact_reply_includes_previous_cue_but_no_timeline (test_managed_publisher.ManagedPublisherTests) ... ok
+test_compact_status_includes_album_year_and_unshifted_playback_counter (test_managed_publisher.ManagedPublisherTests) ... ok
+test_disable_closes_pipe_without_killing_player (test_managed_publisher.ManagedPublisherTests) ... ok
+test_disabled_never_launches (test_managed_publisher.ManagedPublisherTests) ... ok
+test_embedded_payload_extracts_with_verified_hashes (test_managed_publisher.ManagedPublisherTests) ... ok
+test_endpoint_leads_lock_lyrics_without_mutating_other_displays (test_managed_publisher.ManagedPublisherTests) ... ok
+test_failed_settings_write_preserves_previous_choice (test_managed_publisher.ManagedPublisherTests) ... ok
+test_first_run_install_attempt_is_recorded_once (test_managed_publisher.ManagedPublisherTests) ... ok
+test_large_shell_environment_is_not_inherited_or_modified (test_managed_publisher.ManagedPublisherTests) ... ok
+test_lock_lyric_lead_is_exactly_250ms_before_boundary (test_managed_publisher.ManagedPublisherTests) ... ok
+test_lock_lyric_lead_respects_speed_offset_seek_and_fallback (test_managed_publisher.ManagedPublisherTests) ... ok
+test_lyric_poll_is_compact_official_and_does_not_activate_spectrum (test_managed_publisher.ManagedPublisherTests) ... ok
+test_lyric_poll_rejects_remote_and_mutating_requests (test_managed_publisher.ManagedPublisherTests) ... ok
+test_migration_only_boolean_true (test_managed_publisher.ManagedPublisherTests) ... ok
+test_new_web_section_keeps_existing_ids (test_managed_publisher.ManagedPublisherTests) ... ok
+test_no_duplicate_launch_when_running (test_managed_publisher.ManagedPublisherTests) ... ok
+test_off_by_default (test_managed_publisher.ManagedPublisherTests) ... ok
+test_official_launch_pins_identity_and_actual_port (test_managed_publisher.ManagedPublisherTests) ... ok
+test_ownership_loss_closes_pipe (test_managed_publisher.ManagedPublisherTests) ... ok
+test_previous_cue_does_not_leak_into_gap_or_next_track (test_managed_publisher.ManagedPublisherTests) ... ok
+test_previous_cue_follows_seek_and_offset (test_managed_publisher.ManagedPublisherTests) ... ok
+test_previous_cue_recovers_a_line_shorter_than_poll_interval (test_managed_publisher.ManagedPublisherTests) ... ok
+test_real_http_settings_require_token_and_stop_on_server_close (test_managed_publisher.ManagedPublisherTests) ... ok
+test_real_launcher_receives_bounded_environment (test_managed_publisher.ManagedPublisherTests) ... ok
+test_real_lyric_http_keeps_status_active_with_browser_closed (test_managed_publisher.ManagedPublisherTests) ... ok
+test_regular_tray_request_keeps_existing_handler (test_managed_publisher.ManagedPublisherTests) ... ok
+test_remote_http_cannot_read_or_change_settings (test_managed_publisher.ManagedPublisherTests) ... ok
+test_retry_backoff_after_activation_failure (test_managed_publisher.ManagedPublisherTests) ... ok
+test_retry_backoff_after_crash (test_managed_publisher.ManagedPublisherTests) ... ok
+test_secondary_instance_never_launches (test_managed_publisher.ManagedPublisherTests) ... ok
+test_shutdown_is_nonblocking_and_wakes_worker (test_managed_publisher.ManagedPublisherTests) ... ok
+test_unofficial_lyric_poll_has_no_state_or_activity (test_managed_publisher.ManagedPublisherTests) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 4.203s
+
+OK

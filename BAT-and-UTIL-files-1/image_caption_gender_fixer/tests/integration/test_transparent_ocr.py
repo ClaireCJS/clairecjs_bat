@@ -13,7 +13,7 @@ def test_fully_transparent_png_ocr_edit_preserves_alpha_and_original(tmp_path,fo
     image=Image.new("RGBA",(1000,300),(0,0,0,0))
     Draw.Draw(image).text((70,100),"good boi",font=Font.truetype(r"C:\Windows\Fonts\arial.ttf",72),fill=foreground)
     image.save(source);original=sha256(source)
-    app=app_for(tmp_path,answers=iter(["a"]))
+    app=app_for(tmp_path,answers=iter(["y"]))
     result,code=app.process([str(source)])
     assert code==0 and result["results"][0]["state"]=="committed",result
     event=next(iter(History(tmp_path).transactions().values()))

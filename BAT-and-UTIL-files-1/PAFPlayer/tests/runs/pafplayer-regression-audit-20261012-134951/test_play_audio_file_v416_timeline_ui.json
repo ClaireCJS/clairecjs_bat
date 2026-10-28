@@ -1,0 +1,44 @@
+{
+  "module": "test_play_audio_file_v416_timeline_ui",
+  "count": 5,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v416_timeline_ui.PickerTests.test_ctrl_arrow_prefix_is_not_mistaken_for_ctrl_space",
+      "parent_test": "test_play_audio_file_v416_timeline_ui.PickerTests.test_ctrl_arrow_prefix_is_not_mistaken_for_ctrl_space",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_timeline_ui.PickerTests.test_enter_queues_and_shift_enter_jumps",
+      "parent_test": "test_play_audio_file_v416_timeline_ui.PickerTests.test_enter_queues_and_shift_enter_jumps",
+      "outcome": "pass",
+      "seconds": 0.016,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_timeline_ui.PickerTests.test_multiselect_retains_both_rows_for_enter",
+      "parent_test": "test_play_audio_file_v416_timeline_ui.PickerTests.test_multiselect_retains_both_rows_for_enter",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_timeline_ui.PickerTests.test_shift_insert_keeps_all_dialog_selections",
+      "parent_test": "test_play_audio_file_v416_timeline_ui.PickerTests.test_shift_insert_keeps_all_dialog_selections",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_timeline_ui.PopupTimelineTests.test_full_future_timeline_advances_without_owner_repainting",
+      "parent_test": "test_play_audio_file_v416_timeline_ui.PopupTimelineTests.test_full_future_timeline_advances_without_owner_repainting",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [],
+  "seconds": 0.8
+}

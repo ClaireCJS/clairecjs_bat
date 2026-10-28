@@ -1,0 +1,335 @@
+{
+  "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer_v457_single_file.py",
+  "sha256": "a5f955023ccfe9a973e3bd36bcee7b04c6a76a1b54fd205f387e2d2b4ec29143",
+  "initial": {
+    "private_mib": 49.24,
+    "rss_mib": 57.45
+  },
+  "artwork": [
+    {
+      "tracks": 64,
+      "entries": 64,
+      "payload_mib": 64.0,
+      "private_mib": 113.61,
+      "rss_mib": 121.71
+    },
+    {
+      "tracks": 128,
+      "entries": 128,
+      "payload_mib": 128.0,
+      "private_mib": 177.99,
+      "rss_mib": 185.96
+    },
+    {
+      "tracks": 192,
+      "entries": 192,
+      "payload_mib": 192.0,
+      "private_mib": 242.37,
+      "rss_mib": 250.21
+    },
+    {
+      "tracks": 256,
+      "entries": 256,
+      "payload_mib": 256.0,
+      "private_mib": 306.75,
+      "rss_mib": 314.46
+    },
+    {
+      "tracks": 320,
+      "entries": 320,
+      "payload_mib": 320.0,
+      "private_mib": 371.14,
+      "rss_mib": 378.71
+    },
+    {
+      "tracks": 384,
+      "entries": 384,
+      "payload_mib": 384.0,
+      "private_mib": 435.52,
+      "rss_mib": 442.98
+    },
+    {
+      "tracks": 448,
+      "entries": 448,
+      "payload_mib": 448.0,
+      "private_mib": 499.91,
+      "rss_mib": 507.23
+    },
+    {
+      "tracks": 512,
+      "entries": 512,
+      "payload_mib": 512.0,
+      "private_mib": 564.41,
+      "rss_mib": 571.59
+    }
+  ],
+  "popup": {
+    "title_updates": 100000,
+    "queued": 100000,
+    "private_mib": 655.43,
+    "rss_mib": 663.15
+  },
+  "render_options": {
+    "columns": 200,
+    "rows": 32,
+    "truncate_top_lines": 0,
+    "granularity": 3,
+    "mode": 1,
+    "color_style": 1,
+    "processing_style": 62,
+    "fade_style": 1,
+    "artwork_bar_strength": 1.0,
+    "artwork_bar_blend_mode": 1,
+    "artwork_bar_opacity": 0.64,
+    "artwork_background_strength": 0.3,
+    "artwork_microtiles_enabled": true,
+    "artwork_bar_microtiles_enabled": true,
+    "artwork_microtile_detail_mode": 9,
+    "artwork_bar_microtile_detail_mode": 9
+  },
+  "renderer": [
+    {
+      "frames": 400,
+      "median_ms": 12.358,
+      "p95_ms": 17.327,
+      "private_mib": 905.97,
+      "rss_mib": 179.02
+    },
+    {
+      "frames": 800,
+      "median_ms": 12.792,
+      "p95_ms": 18.268,
+      "private_mib": 907.98,
+      "rss_mib": 180.97
+    },
+    {
+      "frames": 1200,
+      "median_ms": 10.927,
+      "p95_ms": 15.669,
+      "private_mib": 907.98,
+      "rss_mib": 181.35
+    },
+    {
+      "frames": 1600,
+      "median_ms": 10.856,
+      "p95_ms": 15.045,
+      "private_mib": 908.98,
+      "rss_mib": 181.52
+    },
+    {
+      "frames": 2000,
+      "median_ms": 11.147,
+      "p95_ms": 15.36,
+      "private_mib": 908.98,
+      "rss_mib": 181.7
+    },
+    {
+      "frames": 2400,
+      "median_ms": 11.363,
+      "p95_ms": 15.312,
+      "private_mib": 909.04,
+      "rss_mib": 181.82
+    }
+  ],
+  "sampled_frame_sha256": "098504f60b76891d9d4caabd99c04f7f9c61b205510866995b088bd4f0ae2d48",
+  "caches": {
+    "_emojimax_phrase_items": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 1,
+      "currsize": 0
+    },
+    "stylize_karaoke_text": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 8192,
+      "currsize": 0
+    },
+    "_stylize_karaoke_with_emojimax_uncached": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 4096,
+      "currsize": 0
+    },
+    "de_censor_production": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 8192,
+      "currsize": 0
+    },
+    "optimize_hud_field_positions": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 512,
+      "currsize": 0
+    },
+    "_k_weighting_impulse": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 16,
+      "currsize": 0
+    },
+    "waveout_output_devices": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 1,
+      "currsize": 0
+    },
+    "windows_default_render_device_name": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 1,
+      "currsize": 0
+    },
+    "windows_render_endpoint_names": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 1,
+      "currsize": 0
+    },
+    "art_detail_drcs_codebook": {
+      "hits": 38,
+      "misses": 1,
+      "maxsize": null,
+      "currsize": 1
+    },
+    "_art_detail_fixed_drcs_char_by_mask": {
+      "hits": 36,
+      "misses": 1,
+      "maxsize": null,
+      "currsize": 1
+    },
+    "dense_art_drcs_char": {
+      "hits": 8155,
+      "misses": 37,
+      "maxsize": 32768,
+      "currsize": 37
+    },
+    "_art_detail_quantize_hybrid_cached": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 262144,
+      "currsize": 0
+    },
+    "_art_detail_quantize_seamless_cached": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 262144,
+      "currsize": 0
+    },
+    "_art_detail_quantize_adaptive_exact_cached": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 262144,
+      "currsize": 0
+    },
+    "_art_detail_quantize_cached": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 131072,
+      "currsize": 0
+    },
+    "_art_detail_quantize_drcs_cached": {
+      "hits": 4608,
+      "misses": 8192,
+      "maxsize": 262144,
+      "currsize": 8192
+    },
+    "_live_pcm_fft_geometry": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 32,
+      "currsize": 0
+    },
+    "_visualizer_mode_geometry": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 512,
+      "currsize": 0
+    },
+    "_spatial_processing_phase_grid": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 256,
+      "currsize": 0
+    },
+    "_spatial_processing_rgb_grid": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 256,
+      "currsize": 0
+    },
+    "_palette_lut": {
+      "hits": 959999,
+      "misses": 1,
+      "maxsize": 128,
+      "currsize": 1
+    },
+    "_visualizer_ansi_rgb_cached": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 16384,
+      "currsize": 0
+    },
+    "_visualizer_ansi_fg_bg_cached": {
+      "hits": 86656,
+      "misses": 684098,
+      "maxsize": 16384,
+      "currsize": 16384
+    },
+    "_visualizer_packed_art_sgr": {
+      "hits": 4869080,
+      "misses": 2430328,
+      "maxsize": 16384,
+      "currsize": 16384
+    },
+    "_art_microtile_quantize_cached": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 65536,
+      "currsize": 0
+    },
+    "_visualizer_blend_bar_art_cached": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 131072,
+      "currsize": 0
+    },
+    "_visualizer_numpy": {
+      "hits": 4799,
+      "misses": 1,
+      "maxsize": 1,
+      "currsize": 1
+    },
+    "_visualizer_bar_opacity_color": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 16384,
+      "currsize": 0
+    },
+    "_visualizer_scale_rgb_cached": {
+      "hits": 957633,
+      "misses": 2367,
+      "maxsize": 65536,
+      "currsize": 2367
+    },
+    "_visualizer_twin_blend_cached": {
+      "hits": 1179340,
+      "misses": 58614,
+      "maxsize": 65536,
+      "currsize": 58614
+    },
+    "_windows_console_text_api": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 1,
+      "currsize": 0
+    },
+    "album_art_visualizer_color_grid": {
+      "hits": 0,
+      "misses": 0,
+      "maxsize": 24,
+      "currsize": 0
+    }
+  }
+}

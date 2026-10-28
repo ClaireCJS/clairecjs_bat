@@ -1,0 +1,42 @@
+{
+  "version": "V591",
+  "source_sha256": "6a10c89e52cbb7d569ea8d2ca13f268cc2d68ae851addba84de82037cec4deec",
+  "compiled_python": [
+    "PAFPlayer.py",
+    "tests/test_v591_live_bass.py",
+    "tests/verify_v591_live_bass.py",
+    "tests/check_v591_native_audio.py",
+    "tests/prepare_v591_live_bass.py",
+    "tests/publish_v591_live_bass.py",
+    "tests/probe_v591_ffmpeg_live_bass.py",
+    "tests/check_v591_build.py"
+  ],
+  "compiled_bundles": [
+    "PAFPlayer_cli_workflows",
+    "PAFPlayer_cuda_benchmarks",
+    "PAFPlayer_discord",
+    "PAFPlayer_ffmpeg_setup",
+    "PAFPlayer_instance",
+    "PAFPlayer_lockscreen",
+    "PAFPlayer_lockscreen_installer",
+    "PAFPlayer_lockscreen_payload",
+    "PAFPlayer_monkeymote",
+    "PAFPlayer_remote_overlay",
+    "PAFPlayer_remote_tray",
+    "PAFPlayer_render_book",
+    "PAFPlayer_screensaver",
+    "PAFPlayer_steam",
+    "PAFPlayer_track_details",
+    "PAFPlayer_tray",
+    "PAFPlayer_tray_hover",
+    "PAFPlayer_tray_machine",
+    "PAFPlayer_tray_options",
+    "PAFPlayer_web_workflows",
+    "PAFPlayer_windows_media",
+    "PAFPlayer_windows_ui",
+    "PAFPlayer_workflows",
+    "PAFPlayer_workflows_ui"
+  ],
+  "javascript_blocks_checked": 8,
+  "native_muted_audio": "tests/reports/v591-native-muted-20261021-104335.json"
+}

@@ -1,0 +1,8 @@
+{"start": "test_PAFPlayer_v456_release.ReleaseTests.test_instance_acknowledges_files_folders_regex_playlist_and_rejects_invalid"}
+{"test": "test_PAFPlayer_v456_release.ReleaseTests.test_instance_acknowledges_files_folders_regex_playlist_and_rejects_invalid", "parent_test": "test_PAFPlayer_v456_release.ReleaseTests.test_instance_acknowledges_files_folders_regex_playlist_and_rejects_invalid", "outcome": "pass", "seconds": 0.25, "detail": ""}
+{"start": "test_PAFPlayer_v456_release.ReleaseTests.test_throb_action_validation_and_tooltip_newlines"}
+{"test": "test_PAFPlayer_v456_release.ReleaseTests.test_throb_action_validation_and_tooltip_newlines", "parent_test": "test_PAFPlayer_v456_release.ReleaseTests.test_throb_action_validation_and_tooltip_newlines", "outcome": "pass", "seconds": 0.469, "detail": ""}
+{"start": "test_PAFPlayer_v456_release.ReleaseTests.test_windows_settings_titles_transport_and_derived_artwork"}
+{"test": "test_PAFPlayer_v456_release.ReleaseTests.test_windows_settings_titles_transport_and_derived_artwork", "parent_test": "test_PAFPlayer_v456_release.ReleaseTests.test_windows_settings_titles_transport_and_derived_artwork", "outcome": "pass", "seconds": 0.047, "detail": ""}
+{"start": "test_PAFPlayer_v456_release.ReleaseTests.test_windows_unavailable_is_clear_and_does_not_change_console"}
+{"test": "test_PAFPlayer_v456_release.ReleaseTests.test_windows_unavailable_is_clear_and_does_not_change_console", "parent_test": "test_PAFPlayer_v456_release.ReleaseTests.test_windows_unavailable_is_clear_and_does_not_change_console", "outcome": "pass", "seconds": 0.0, "detail": ""}

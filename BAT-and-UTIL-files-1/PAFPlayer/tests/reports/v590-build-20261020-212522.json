@@ -1,0 +1,40 @@
+{
+  "version": "V590",
+  "source_sha256": "2e9f8f61bb13ebbb00adc8973491fca9fb1bb9e4f06a997675ccc591ede22a01",
+  "compiled_python": [
+    "PAFPlayer.py",
+    "tests/test_v590_locked_bass.py",
+    "tests/verify_v590_locked_bass.py",
+    "tests/probe_v590_lock_state.py",
+    "tests/test_v552_channels_and_locked_bass.py",
+    "tests/check_v590_build.py"
+  ],
+  "compiled_bundles": [
+    "PAFPlayer_cli_workflows",
+    "PAFPlayer_cuda_benchmarks",
+    "PAFPlayer_discord",
+    "PAFPlayer_ffmpeg_setup",
+    "PAFPlayer_instance",
+    "PAFPlayer_lockscreen",
+    "PAFPlayer_lockscreen_installer",
+    "PAFPlayer_lockscreen_payload",
+    "PAFPlayer_monkeymote",
+    "PAFPlayer_remote_overlay",
+    "PAFPlayer_remote_tray",
+    "PAFPlayer_render_book",
+    "PAFPlayer_screensaver",
+    "PAFPlayer_steam",
+    "PAFPlayer_track_details",
+    "PAFPlayer_tray",
+    "PAFPlayer_tray_hover",
+    "PAFPlayer_tray_machine",
+    "PAFPlayer_tray_options",
+    "PAFPlayer_web_workflows",
+    "PAFPlayer_windows_media",
+    "PAFPlayer_windows_ui",
+    "PAFPlayer_workflows",
+    "PAFPlayer_workflows_ui"
+  ],
+  "javascript_blocks_checked": 8,
+  "live_lock_trace": "tests/reports/v590-native-lock-20261020-211846.jsonl"
+}

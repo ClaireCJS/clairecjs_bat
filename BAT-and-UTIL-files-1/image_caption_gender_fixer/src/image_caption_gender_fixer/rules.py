@@ -45,14 +45,15 @@ class Rule:
 def builtins():
     return [Rule(a, b, p, id="builtin-" + str(i), order=i) for i, (a, b, p) in enumerate([
         ("boi", "boy", 100), ("good boy", "good girl", 10), ("boy", "girl", 10),
-        ("man", "woman", 10), ("husband", "wife", 10)])]
+        ("man", "woman", 10), ("husband", "wife", 10),
+        ("real man", "real man", 200), ("his wife", "her wife", 10)])]
 
 
 def reject_cycles(rules):
     graph = {}
     for rule in rules:
         rule.validate()
-        if rule.enabled and rule.mode == "literal":
+        if rule.enabled and rule.mode == "literal" and rule.before.casefold()!=rule.after.casefold():
             graph.setdefault(rule.before.casefold(), set()).add(rule.after.casefold())
     def visit(node, active, done):
         if node in active:
@@ -111,6 +112,7 @@ def transform(text, rules, ignores=()):
     # Each output character carries the original character indexes it replaces.
     chars = [(char, frozenset([i]), False) for i, char in enumerate(text)]
     trace, shadowed, stages, states = [], [], [], {text}
+    protected=set()
     for priority in priorities:
         snapshot = "".join(c[0] for c in chars)
         candidates = []
@@ -130,6 +132,8 @@ def transform(text, rules, ignores=()):
                 a, b = match.span()
                 if a == b:
                     raise IntegrityError("Zero-width substitution rules are unsupported.")
+                if any(c[1] & protected for c in chars[a:b]):
+                    continue
                 if any(excluded(ignored, match.group(), a, b, snapshot, chars, text) for ignored in prepared):
                     continue
                 replacement = rule.after if rule.mode == "literal" else match.expand(rule.after)
@@ -138,6 +142,14 @@ def transform(text, rules, ignores=()):
                         replacement = replacement.upper()
                     elif match.group().istitle():
                         replacement = replacement.title()
+                    else:
+                        source_words=match.group().split();parts=regex.split(r'(\s+)',replacement)
+                        positions=[i for i,part in enumerate(parts) if part and not part.isspace()]
+                        if len(source_words)==len(positions):
+                            for word,i in zip(source_words,positions):
+                                if word.isupper():parts[i]=parts[i].upper()
+                                elif word.istitle():parts[i]=parts[i].title()
+                            replacement=''.join(parts)
                 candidates.append((a, b, replacement, rule))
         def length(candidate):
             value=unicodedata.normalize("NFC",snapshot[candidate[0]:candidate[1]])
@@ -158,7 +170,13 @@ def transform(text, rules, ignores=()):
         for a, b, replacement, rule in sorted(selected, key=lambda c: c[0]):
             result.extend(chars[offset:a])
             origins = frozenset().union(*(c[1] for c in chars[a:b]))
-            result.extend((c, origins, True) for c in replacement)
+            if rule.mode=="literal" and rule.before.casefold()==rule.after.casefold():
+                # Identity rules reserve the original span, preserving every case.
+                replacement=snapshot[a:b]
+                protected.update(origins)
+                result.extend(chars[a:b])
+            else:
+                result.extend((c, origins, True) for c in replacement)
             trace.append({"rule": rule.id, "priority": priority, "before": snapshot[a:b],
                           "after": replacement, "original_span": [min(origins), max(origins)+1]})
             offset = b
@@ -166,7 +184,7 @@ def transform(text, rules, ignores=()):
         chars = result
         intermediate = "".join(c[0] for c in chars)
         stages.append({"priority":priority,"before":snapshot,"after":intermediate,"selected_rules":[c[3].id for c in selected]})
-        if intermediate in states:
+        if intermediate != snapshot and intermediate in states:
             raise IntegrityError("Repeated cascade state rejected.")
         states.add(intermediate)
     edits = []
@@ -199,9 +217,10 @@ class RuleStore:
         self.warnings = []
         self.ignores = []
         self.toggles = {}
+        self.priorities = {}
 
     def load(self, profile="default", image_hash=None, session=None):
-        self.warnings=[];self.ignores=[];self.toggles={}
+        self.warnings=[];self.ignores=[];self.toggles={};self.priorities={}
         found = {}; ignored = {}
         if not self.path.exists():
             return []
@@ -217,6 +236,22 @@ class RuleStore:
                     rule = Rule(**fields)
                     rule.validate()
                     found[rule.id] = rule
+                elif data["event"] == "rule-order":
+                    if data.get("profile","default")!=profile: continue
+                    priorities=data["priorities"]
+                    if not isinstance(priorities,dict) or len(priorities)>512:
+                        raise ValueError("Invalid ordered rules")
+                    for key,value in priorities.items():
+                        if not isinstance(key,str) or type(value) is not int or not -1000000<=value<=1000000:
+                            raise ValueError("Invalid rule priority")
+                    extra=data.get("new_rule")
+                    rule=Rule(**extra) if extra else None
+                    if rule: rule.validate()
+                    trial=list(found.values())+([rule] if rule else [])
+                    reject_cycles(builtins()+trial)
+                    if len(set(priorities.values()))>64: raise ValueError("More than 64 priority stages")
+                    if rule: found[rule.id]=rule
+                    self.priorities.update(priorities)
                 elif data["event"] in ("enable", "disable"):
                     if data.get("profile","default")!=profile: continue
                     if not isinstance(data.get("id"),str): raise ValueError("toggle ID must be text")
@@ -240,6 +275,8 @@ class RuleStore:
             except (KeyError, TypeError, ValueError, IntegrityError) as error:
                 self.warnings.append(f"Rule line {index+1} quarantined: {error}")
         self.ignores=list(ignored.values())
+        for rule in found.values():
+            rule.priority=self.priorities.get(rule.id,rule.priority)
         return [r for r in found.values() if r.profile == profile]
 
     @staticmethod
@@ -301,6 +338,15 @@ class RuleStore:
             handle.write(canonical(data) + "\n")
             handle.flush()
             os.fsync(handle.fileno())
+
+    def save_order(self, ordered, new_rule=None, profile="default"):
+        """One durable append publishes a new rule and its entire priority order."""
+        reject_cycles(ordered)
+        if len({r.priority for r in ordered if r.enabled})>64:
+            raise IntegrityError("At most 64 distinct priority levels are supported.")
+        self.append("rule-order", profile=profile,
+                    priorities={r.id:r.priority for r in ordered},
+                    new_rule=asdict(new_rule) if new_rule else None)
 
     def add(self, before, after, priority=10, profile="default", mode="literal", case="transfer", punctuation="whitespace", note=""):
         existing = self.load(profile)

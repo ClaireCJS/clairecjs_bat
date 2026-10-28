@@ -1,0 +1,16 @@
+{
+  "RendererPreferences": {
+    "ExternalAlbumArtGeometry": {
+      "type": 1,
+      "value": "500x400+10+20"
+    },
+    "ExternalAlbumArtKaraokeColorMode": {
+      "type": 4,
+      "value": 3
+    }
+  },
+  "PresentationOptions": {
+    "inherit": false,
+    "artwork_lyrics": "server"
+  }
+}

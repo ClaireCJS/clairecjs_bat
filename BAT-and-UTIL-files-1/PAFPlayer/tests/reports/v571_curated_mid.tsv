@@ -1,0 +1,57 @@
+V320	Added a red HUD alert when the active track lacks ReplayGain data, with a setting to disable that alert.
+V319	Changed volume feedback so the readout blinks three times and the visualizer briefly throbs; adjusted karaoke fading and retained only the reviewed EmojiMaxx removals.
+V318	Made the volume readout inverse-blink exactly twice after an adjustment.
+V317	Counted a short track played cleanly from start to end as a full play for local history and scrobbling even when its reported duration is bad; rejected three unclear EmojiMaxx substitutions.
+V316	Recorded a clean natural end of malformed short audio in local history without treating it as a Last.fm scrobble.
+V314	Cached shuffle metadata across process-cache resets and invalidated it when needed; rows with the same known filename identity avoid redundant metadata probes.
+V311	Added dependency lookup and compatibility checks for Claire utility modules while carrying forward artwork motion, frozen-state, and learned-glyph work from the intervening snapshots. The archived predecessor gap prevents attributing every carried-forward change to V311 alone.
+V308	Unified shuffle-history identity resolution: bulk history can use Artist/Title when a filename bucket is missing, and the newest safe source wins when records disagree.
+V307	Placed never-played tracks in bucket zero and known play dates into ten age deciles; recent-avoidance is disabled by default.
+V305	Added an experimental choice for how cover-art detail blends into filled visualizer bars: legacy color mix, luminance detail, or a hybrid.
+V304	Repaired structured Last.fm history aliases only when Album and track-number evidence confirms a polluted pipeline suffix, avoiding unsafe Artist/Title merges.
+V303	Added tenths-of-a-second karaoke offset controls and history-database merge/archival helpers; the diff also adjusts EmojiMaxx spacing.
+V302	Shared karaoke state and playlist last-play dates with the browser while persisting floating-lyrics position independently of edit-window size.
+V301	Published MatrixMixer meter levels from the final PCM output for web polling, stabilized justified floating lyrics, and repaired playlist-history handling.
+V300	Made MatrixMixer factory reset section-scoped with a save prompt and added priority loading of a preferred emoji font across output surfaces.
+V299	Reset incremental visualizer transport when karaoke reclaims the screen, made F5 a true transport redraw, and kept shuffle state continuous on the V266-derived trunk.
+V298	Added an A/B switch for prequantized Twin DRCS rendering so the visualizer path can be compared without changing the normal mode by default.
+V297	Added a runtime Ctrl+Z undo stack and fast visualizer paths intended to preserve output while reducing generation cost; the regression check covers both.
+V295	Salvaged nonvisual features onto the V266-derived trunk, including playlist-history scoring, monochrome EmojiMaxx handling, and low-rate detection of edits to the active playlist. The archive gap prevents assigning every carried-forward change solely to V295.
+V293	Restored the V266 visualizer's generation-only governor budget and related renderer settings after the intervening experimental branch.
+V291	Applied visualizer persistence/brightness every display frame while keeping expensive palette changes slower, and wrote related semantic rows coherently to reduce tearing.
+V290	Placed the album-art title in its own row above popup controls and curated popup EmojiMaxx behavior; continued playlist-worker adjustments.
+V289	Kept playlist startup from waiting for history shuffle, added popup EmojiMaxx/monochrome controls, and carried the V285 semantic visualizer repair behavior.
+V287	Made playlist startup independent of history-shuffle completion and exposed popup EmojiMaxx and monochrome filters while refining semantic presentation.
+V286	Replaced periodic replay of cached semantic rows with authoritative transition bootstraps, aligned HUD colons, and corrected selected EmojiMaxx night/plural mappings.
+V285	Hardened playlist-history identity checks so a unique filename does not override conflicting Artist/Title evidence; added a semantic-row repair path.
+V284	Compiled artwork lookup tables for the visualizer and made NumPy/CUDA acceleration optional, asynchronous after the first snapshot, and output-equivalent to the existing renderer.
+V283	Added source-aware multichannel handling that preserves native 5.1 and synthesizes only missing 7.1 rear channels, plus progressive history shuffle and native metadata probing. The archived build notes visualizer banding.
+V282	Changed history shuffle from 15% groups to global ten-percent deciles, placing never-played items oldest, and reloaded file-backed playlists when their source signature changed.
+V281	Added a compiled artwork-color mixer with an F8 toggle and lazy scaling of only accessed art cells; repaired visualizer bootstrap after leaving the playlist view.
+V280	Isolated transport benchmarks from mode-change settling, removed the unwanted ‘always’ EmojiMaxx substitution, and kept web artwork navigation from moving its background.
+V279	Made the rendering benchmark report persistent, extended collection and log migration, and interleaved artwork-style refreshes for smoother visualizer cadence. The archived build still notes banding.
+V278	Served web status only when clients need it and changed visualizer deadline pacing to reduce jitter; the source adds a focused lazy-web/smooth-pacing regression check.
+V277	Protected the transport benchmark from shuffle work, constrained quality choices, and gave Act/Song visual feedback its own light cadence while updating color deltas.
+V276	Added a native Windows waitable timer for 120 Hz visualizer pacing and bounded color-update frequency when frame rate drops, with quality-safe transport modes.
+V273	Bootstrapped semantic rendering at defined geometry-frame boundaries and capped profiler pages to visible rows. The archived build reports faster output but visible banding.
+V272	Added exact incremental Twin DRCS artwork rendering with a cached microtile container and split the profiler into terminal-sized pages.
+V271	Moved the visualizer toward incremental 120 Hz frames, added artwork-color autoslide controls on Ctrl+B, kept Ctrl+U for URL choice, and updated F1 help accordingly.
+V270	Isolated the web gateway in a separate process and attributed complete visualizer frame time in the profiler, including transport and waiting costs.
+V269	Expanded transport profiling with observation and cost metrics and isolated web startup more carefully; --no-webserver avoids creating an alias server object. The archived build notes an unresolved visual feel.
+V268	Made the transport benchmark wait for live spectrum data, run candidate modes in forward and reverse order, and show a second profiler row for benchmark results.
+V267	Added faster parser-light row transport choices for a 60 fps visualizer target and made the physical Ctrl+Alt+F profiler hotkey reliable.
+V266	Restored a transport-independent visualizer governor that budgets generation work rather than terminal write time, with real transport-mode choices. The archived release was marked a candidate after earlier speed/banding regressions.
+V265	Made the browser own its visualizer rendering and gated its updates to active clients so console rendering does not have to drive an idle web view.
+V264	Cached and throttled browser status/spectrum updates on demand, reducing contention with the console visualizer while keeping direct transport POST actions immediate.
+V263	Split heavy karaoke and HUD updates from the higher-rate spectrum schedule, added profiler measurements, and constrained idle artwork motion to one monitor.
+V262	Exposed semantic visualizer cells for delta-cell transport without changing full-frame output and moved geometry toward a five-second maintenance cadence.
+V261	Restored a lower-cost visualizer hot loop after a throughput regression, with a dedicated regression check for the active render path.
+V260	Applied the longest matching EmojiMaxx phrase first so a shorter mapping cannot consume text meant for a longer replacement.
+V259	Added an F5 live-fps HUD and let Windows input polling go dormant when idle; rolled back a direct high-rate terminal write path that had regressed measured output.
+V258	Added a direct fast path for visualizer spectrum writes and adjusted karaoke autosizing, while ordinary HUD writes still use the normal console path.
+V257	Bound Alt+F to the floating-lyrics action with a key latch that prevents repeated toggles from one press.
+V256	Added shuffle/performance profiling and steadier idle-art positioning, together with saved per-output latency settings for multi-output playback.
+V253	Added live visualizer inputs from what-you-hear and microphone capture, with an auto-pause policy and bounded mixing/silence handling.
+V252	Expanded web title and multi-output controls, artwork profiles, EmojiMaxx synchronization, and related hotkeys in one combined release.
+V251	Added web karaoke tooltips and checkerboard layout, extended artwork-color autoslide timing, and kept autoslide control local to the console.
+V250	Kept web artwork from covering the resize gutter and added a microtile opt-out group with matching CLI control; this archived build was labeled a beta candidate.

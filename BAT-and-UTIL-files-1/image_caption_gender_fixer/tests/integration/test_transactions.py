@@ -30,9 +30,9 @@ def test_real_windows_commit_and_undo_restores_exact_bytes(tmp_path):
 
 def test_output_collision_preserves_both(tmp_path):
     root,folder,source,stage,tx=prepared(tmp_path)
-    occupied=folder/"original-gendeerfixed.jpg";occupied.write_bytes(b"unrelated")
+    occupied=folder/"original-genderfixed.jpg";occupied.write_bytes(b"unrelated")
     event=Transactions(root).commit(source,stage,sha256(source),tx,"rules","default",[])
-    assert occupied.read_bytes()==b"unrelated" and event["corrected"]=="original-gendeerfixed (1).jpg"
+    assert occupied.read_bytes()==b"unrelated" and event["corrected"]=="original-genderfixed (1).jpg"
 
 
 def test_changed_source_refused(tmp_path):

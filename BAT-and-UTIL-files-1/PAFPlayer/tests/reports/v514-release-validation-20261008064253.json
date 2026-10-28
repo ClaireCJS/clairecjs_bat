@@ -1,0 +1,14 @@
+{
+  "release": "V514",
+  "package": "514.0.0.2",
+  "immutable_release_hashes": "verified",
+  "bundle_crc": "verified",
+  "private_keys": "absent",
+  "task_main_player_changes": "three release constants",
+  "separate_existing_edit_preserved": "WEB_SERVER_HOST = 0.0.0.0",
+  "documentation_correction": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v514_lockscreen_background_registration_addendum.md",
+  "python_checks": 52,
+  "csharp_checks": 47,
+  "visual_status": "unresolved, final self-contained package awaiting confirmation",
+  "literal_c_bat_changes": []
+}

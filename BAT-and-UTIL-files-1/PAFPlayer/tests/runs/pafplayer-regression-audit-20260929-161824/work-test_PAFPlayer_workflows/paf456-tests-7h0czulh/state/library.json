@@ -1,0 +1,21 @@
+{
+  "c:\\codex\\clairevironment\\bat\\pafplayer\\tests\\runs\\pafplayer-regression-audit-20260929-161824\\work-test_pafplayer_workflows\\paf456-tests-7h0czulh\\music\\renamed.wav": {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20260929-161824\\work-test_PAFPlayer_workflows\\paf456-tests-7h0czulh\\music\\renamed.wav",
+    "signature": [
+      32044,
+      1790713129192893300
+    ],
+    "identity": [
+      2496473913,
+      14918173767136792
+    ],
+    "size": 32044,
+    "duration": 2.0,
+    "tags": {
+      "Artist": "Test"
+    },
+    "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f",
+    "source": "monitored",
+    "library_member": false
+  }
+}

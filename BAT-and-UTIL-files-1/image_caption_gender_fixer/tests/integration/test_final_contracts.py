@@ -55,13 +55,13 @@ def test_repair_restart_preserves_interactive_terminal(tmp_path,monkeypatch):
     app=app_for(tmp_path)
     app.interactive=True;app.ask_callback=None
     monkeypatch.setattr(cli,"repair_packages",lambda app:True)
-    class RestartCaptured(BaseException): pass
     captured=[]
-    def restart(executable,arguments):
-        captured.append((executable,arguments));raise RestartCaptured
-    monkeypatch.setattr(cli.os,"execv",restart)
-    with pytest.raises(RestartCaptured): app.process([str(source)])
-    assert captured and "--resume" in captured[0][1] and source.exists()
+    def restart(mode,executable,arguments):
+        captured.append((mode,executable,arguments));return 21
+    monkeypatch.setattr(cli.os,"spawnv",restart)
+    with pytest.raises(SystemExit) as exit: app.process([str(source)])
+    assert exit.value.code==21 and captured[0][0]==os.P_WAIT
+    assert "--resume" in captured[0][2] and source.exists()
 
 
 def test_plain_launcher_isolates_before_shadowable_standard_library_imports(tmp_path):
@@ -71,4 +71,4 @@ def test_plain_launcher_isolates_before_shadowable_standard_library_imports(tmp_
     (shadow/"json.py").write_text('raise RuntimeError("Unrelated PYTHONPATH json module was loaded")',encoding="utf-8")
     env=dict(os.environ,PYTHONPATH=str(shadow))
     result=subprocess.run([sys.executable,str(launcher),"--version","--json"],cwd=tmp_path,env=env,capture_output=True,text=True,timeout=30)
-    assert result.returncode==0 and json.loads(result.stdout)["version"]=="0.2.0"
+    assert result.returncode==0 and json.loads(result.stdout)["version"]=="0.3.0"

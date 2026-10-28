@@ -1,0 +1,62 @@
+{
+  "module": "test_play_audio_file_v445",
+  "count": 7,
+  "successful": false,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v445.ArtworkApplicability.test_disabled_controls_explanation_and_reenable_in_actual_javascript",
+      "parent_test": "test_play_audio_file_v445.ArtworkApplicability.test_disabled_controls_explanation_and_reenable_in_actual_javascript",
+      "outcome": "failure",
+      "seconds": 0.078,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v445.py\", line 131, in test_disabled_controls_explanation_and_reenable_in_actual_javascript\n    self.assertEqual(0, syntax.returncode, syntax.stderr)\nAssertionError: 0 != 1 : [stdin]:1692\n(()=>{const box=document.getElementById('controlHotkeysEnabled'),status=document.getElementById('controlHotkeysStatus');let token='',busy=false;\\nasync function poll(){if(busy)return;try{const r=await fetch('/api/workflows/status',{cache:'no-store'}),v=await r.json();if(!r.ok)throw Error(v.error);token=v.local?v.token:'';box.checked=!!v.control.hotkeys_enabled;box.disabled=!v.local;status.textContent=v.local?'Saved on this player':'Change this on the player computer'}catch(e){status.textContent=String(e)}}\\nbox.onchange=async()=>{busy=true;try{const r=await fetch('/api/workflows/control',{method:'POST',headers:{'Content-Type':'application/json','X-PAF-Workflow-Token':token},body:JSON.stringify({hotkeys_enabled:box.checked})}),v=await r.json();if(!r.ok)throw Error(v.error);box.checked=v.hotkeys_enabled;status.textContent='Setting saved'}catch(e){status.textContent=String(e)}finally{busy=false}};poll();setInterval(()=>{if(!document.hidden)poll()},3000)})();\n                                                                                                                                                ^\n\nSyntaxError: Invalid or unexpected token\n    at wrapSafe (node:internal/modules/cjs/loader:1743:18)\n    at checkSyntax (node:internal/main/check_syntax:76:3)\n    at node:internal/main/check_syntax:45:5\n    at Socket.<anonymous> (node:internal/process/execution:205:5)\n    at Socket.emit (node:events:520:35)\n    at endReadableNT (node:internal/streams/readable:1729:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n\nNode.js v24.14.0\n\n"
+    },
+    {
+      "test": "test_play_audio_file_v445.ArtworkApplicability.test_rendering_and_row_fix_are_identical_to_v444",
+      "parent_test": "test_play_audio_file_v445.ArtworkApplicability.test_rendering_and_row_fix_are_identical_to_v444",
+      "outcome": "failure",
+      "seconds": 2.859,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v445.py\", line 173, in test_rendering_and_row_fix_are_identical_to_v444\n    self.assertEqual(selected(old), selected(new))\nAssertionError: {'ren[35959 chars][]), Assign(targets=[Name(id=\\'batched_half_ar[452072 chars])))'} != {'ren[35959 chars][]), If(test=BoolOp(op=And(), values=[Compare([511258 chars])))'}\nFirst differing diagnostic line: 227\n-          \"AnnAssign(target=Name(id='cleaned_arguments', ctx=Store()), \"\n+          \"If(test=Compare(left=Subscript(value=Name(id='arguments', \"\n"
+    },
+    {
+      "test": "test_play_audio_file_v445.PauseReasons.test_detected_source_reason_survives_monitor_loss_and_quiet_period",
+      "parent_test": "test_play_audio_file_v445.PauseReasons.test_detected_source_reason_survives_monitor_loss_and_quiet_period",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v445.PauseReasons.test_keyboard_and_web_reasons_survive_idle_and_clear_on_play",
+      "parent_test": "test_play_audio_file_v445.PauseReasons.test_keyboard_and_web_reasons_survive_idle_and_clear_on_play",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v445.PauseReasons.test_manual_pause_replaces_auto_reason_and_keeps_hold",
+      "parent_test": "test_play_audio_file_v445.PauseReasons.test_manual_pause_replaces_auto_reason_and_keeps_hold",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v445.PauseReasons.test_real_player_help_shows_restored_keyboard_and_web_pause_reasons",
+      "parent_test": "test_play_audio_file_v445.PauseReasons.test_real_player_help_shows_restored_keyboard_and_web_pause_reasons",
+      "outcome": "pass",
+      "seconds": 4.296,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v445.PauseReasons.test_reason_names_only_new_sources_and_does_not_guess_browser_site",
+      "parent_test": "test_play_audio_file_v445.PauseReasons.test_reason_names_only_new_sources_and_does_not_guess_browser_site",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 8.14
+}

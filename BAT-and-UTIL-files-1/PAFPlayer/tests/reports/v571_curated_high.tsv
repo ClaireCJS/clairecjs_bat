@@ -1,0 +1,63 @@
+V455	Reorganized the web configuration into tabs and adjusted artwork controls and beat-timing presentation; the added regression check covers the tab layout and those controls.
+V454	Made Ctrl+Break restore the console cursor promptly and skip shutdown waits that delayed interruption; close paths received the same cleanup handling.
+V453	Expanded the web configuration tabs and frequency-warp presets, with additional layout and control polish; the diff includes a dedicated web-tab regression check.
+V452	Added guarded, bidirectional loudness matching for external media so PAFPlayer volume can track external playback without an unsafe feedback loop.
+V450	Curated EmojiMaxx cow and lotus substitutions; the archived source adds a regression check for the selected replacements.
+V448	Reordered web playback controls into the requested rows. This archived source still used the pre-migration registry values; it is the last comparable snapshot before the registry change.
+V447	Fixed native audio endpoint mute probing to read the mute state without invoking SetMute; a regression check guards that read-only behavior.
+V400	Expanded help output to resolve named/default audio endpoints, depth and multi-output options, and to wrap long playlist details cleanly.
+V399	Changed EmojiMaxx directional replacements to the requested heavy arrows.
+V398	Added one Windows Terminal safety cell after EmojiMaxx glyphs written through the console path to prevent adjacent text from visually crowding them.
+V397	Added a faster artwork-color lookup for visualizer bars so the 60 fps bar path can reuse its color result.
+V395	Made a missing playlist produce a warning and tightened floating-lyrics animation safety and render debouncing, reducing work on the playback path.
+V393	Moved selected DRCS twin-glyph table construction out of the per-cell path and into one per-frame build for the console artwork visualizer.
+V390	Kept EmojiMaxx numbers out of unsupported chess-symbol glyphs, preserved spacing in compound replacements, and used spare HUD cells to align metadata colons.
+V389	Staged a new microtile DRCS bank with its first target frame in one atomic terminal transaction, avoiding visible cells being redefined mid-transition.
+V388	Added web controls for artwork and floating-lyrics window order, including bring-to-front and persistent topmost settings.
+V387	Prioritized local artwork fallbacks by cover/folder/disc/band names and made floating-lyrics animation safer; Ctrl+Home/End no longer arms an unrelated visualizer overlay.
+V386	Added web controls for floating-lyrics topmost state and a separate visualizer bar-artwork switch with its dependency reflected in the UI.
+V385	Persisted the visualizer overlay-message switch, enabled by default, and curated EmojiMaxx replacements by removing shovel and using sunrise for daylight.
+V384	Split visualizer layer switches from alert controls, added an alert master control, and separated artwork-detail choices from the broken/experimental section.
+V383	Grouped exact artwork-detail modes before approximate ones and spent adaptive 2×4 DRCS slots on glyphs needed by the current artwork for smoother transitions.
+V382	Added selectable/favorite microtile detail modes with explicit default markings; adaptive exact modes avoid substituting a merely near mask for a requested mask.
+V381	Placed an absolute cursor fence after each hybrid Unicode artwork cell to keep the next cell aligned, and removed interaction feedback from the help overlay.
+V380	Added hybrid Unicode/DRCS artwork-detail modes and a glyph pool able to emit either representation while preserving exact selections.
+V379	Expanded microtile artwork detail to seven density choices and packed their masks into fixed-cell DRCS glyphs.
+V378	Completed the dense-art soft-font codebook and constrained mask approximation to at most one subcell, keeping DRCS cells safe for terminal rendering.
+V377	Switched to the normal Unicode character set only for dense-art modes that actually emit Unicode mosaics, leaving pure DRCS modes in their expected set.
+V376	Made row-delta artwork repaints use absolute, wrap-safe positioning; retained multi-art strip tiling and removed dither work from the hot path.
+V374	Published offset-adjusted karaoke cue deadlines with artwork frames and prepared the next artwork cue early without advancing the other lyric surfaces.
+V373	Added a solid octant artwork-detail mode and RGB dithering that breaks up flat quantization bands in dense artwork.
+V372	Added a native vector path for large artwork-window lyrics, logarithmic font fitting, and cached Pillow fonts to reduce 4K text-rendering cost.
+V371	Fixed smooth-audio settings ownership in play_audio_file and passed those settings from main dispatch to the renderer.
+V370	Reconciled track duration metadata, compacted URL display without losing its link target, and used available HUD space rather than a separate URL row where possible.
+V369	Used a global count for plural EmojiMaxx substitutions and adjusted the stereo waveOut format/command path for smoother audio playback.
+V368	Kept floating-window outer geometry fixed in edit mode, stopped a focus loop, and added a foreground fail-safe when focus is lost.
+V367	Curated EmojiMaxx symbols and spacing, including circled-number safety cells, while refining HUD alignment and floating-window controls.
+V366	Expanded the EmojiMaxx CLI preview into three stages, adjusted floating-lyrics sizing controls, and kept dense Album/Comment HUD rows right-aligned.
+V364	Pruned the early EmojiMaxx survey mappings so the reviewed words remain literal lyric text instead of receiving uncertain substitutions.
+V361	Rendered eighteen as two circled digit glyphs and removed the unwanted ‘seem’ EmojiMaxx replacement.
+V359	Added an EmojiMaxx command-line preview that takes one text argument, prints the transformed text, and exits without starting playback.
+V358	Extended enclosed-number handling through fifty, including the reviewed eighteen glyph, and removed the unwanted ‘seem’ replacement.
+V357	Applied user-reviewed EmojiMaxx survey curation for entries 001–020 and recorded rejected mappings so they do not return accidentally.
+V356	Made the web karaoke line auto-expand for the anniversary presentation and added readable descriptions for Unicode survey sequences.
+V355	Inserted the circled-number spacing workaround only for Windows Terminal substitutions, avoiding extra spaces in unrelated lyric text.
+V347	Added alignment of HUD labels to reference columns. The archived filename flags this artwork-window build as unusable; the source diff alone does not establish a safe release.
+V346	Added popup focus chrome that can be set without relying on implicit window-state changes, alongside popup-control adjustments.
+V344	Routed web actions for popup karaoke through the playback action queue so the owner applies them in order.
+V337	Shortened web karaoke status polling to 200 ms so browser lyrics follow the shared playback clock more closely.
+V336	Persisted the album-art popup karaoke enable switch and added helpers to apply its current state.
+V335	Added live web sections for artwork and floating lyrics, including controls that open their local configurators.
+V334	Made a missing playlist a warning followed by a clean return rather than an unhandled playback failure.
+V333	Moved decensor controls into the web sections for the windows they affect.
+V332	Made the removal of the EmojiMaxx ‘forget’ mapping explicit and reversible.
+V331	Compacted the low end of the frequency warp and repeated the interaction feedback while the setting changes.
+V330	Suppressed track artwork for live visualizer inputs while retaining the user's stored artwork preferences for ordinary tracks.
+V329	Added an HUD layout survey limited to colored placement algorithms so alternative arrangements can be compared without changing other presentation behavior.
+V328	Added a paged emoji-word survey with word/color listings and an export path for reviewing replacements.
+V327	Curated EmojiMaxx 16-symbol mappings and added an interaction-feedback box with survey aliases.
+V326	Changed HUD row finalization to anchor each completed row's last field, with survey support for placement choices.
+V324	Capped the EmojiMaxx symbol set to retain the most useful common replacements instead of allowing hundreds of low-value substitutions.
+V323	Preserved internal spaces in learned extra-tag values rather than collapsing distinct tag text.
+V322	Added a callable emoji-symbol survey and removed or adjusted selected EmojiMaxx mappings.
+V321	Removed four reviewed EmojiMaxx associations that produced unwanted lyric substitutions.

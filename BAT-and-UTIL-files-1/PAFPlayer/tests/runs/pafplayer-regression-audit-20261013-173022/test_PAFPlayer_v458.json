@@ -1,0 +1,161 @@
+{
+  "module": "test_PAFPlayer_v458",
+  "count": 21,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_PAFPlayer_v458.ArtworkRetention.test_hit_refreshes_lru_and_preserves_sidecar_policy",
+      "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_hit_refreshes_lru_and_preserves_sidecar_policy",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ArtworkRetention.test_large_covers_obey_byte_budget",
+      "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_large_covers_obey_byte_budget",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ArtworkRetention.test_negative_lookups_are_bounded",
+      "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_negative_lookups_are_bounded",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ArtworkRetention.test_oversized_cover_does_not_flush_working_set",
+      "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_oversized_cover_does_not_flush_working_set",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ArtworkRetention.test_revised_file_replaces_stale_payload",
+      "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_revised_file_replaces_stale_payload",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ArtworkRetention.test_simultaneous_consumers_keep_caches_consistent",
+      "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_simultaneous_consumers_keep_caches_consistent",
+      "outcome": "pass",
+      "seconds": 0.015,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ArtworkRetention.test_track_churn_bounds_entries_and_sources",
+      "parent_test": "test_PAFPlayer_v458.ArtworkRetention.test_track_churn_bounds_entries_and_sources",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.PopupBacklog.test_closed_popup_does_not_retain_work",
+      "parent_test": "test_PAFPlayer_v458.PopupBacklog.test_closed_popup_does_not_retain_work",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.PopupBacklog.test_latest_art_releases_obsolete_payload_and_keeps_controls",
+      "parent_test": "test_PAFPlayer_v458.PopupBacklog.test_latest_art_releases_obsolete_payload_and_keeps_controls",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.PopupBacklog.test_slow_gui_retains_latest_title_only",
+      "parent_test": "test_PAFPlayer_v458.PopupBacklog.test_slow_gui_retains_latest_title_only",
+      "outcome": "pass",
+      "seconds": 1.188,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.PopupBacklog.test_unchanged_title_does_not_schedule_another_update",
+      "parent_test": "test_PAFPlayer_v458.PopupBacklog.test_unchanged_title_does_not_schedule_another_update",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ReleaseIdentity.test_legacy_entry_point_executes_canonical_functions",
+      "parent_test": "test_PAFPlayer_v458.ReleaseIdentity.test_legacy_entry_point_executes_canonical_functions",
+      "outcome": "pass",
+      "seconds": 0.765,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_diagnostics_are_available_over_real_local_http",
+      "parent_test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_diagnostics_are_available_over_real_local_http",
+      "outcome": "pass",
+      "seconds": 0.297,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_snapshot_reports_limits_without_collecting_or_exposing_paths",
+      "parent_test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_snapshot_reports_limits_without_collecting_or_exposing_paths",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_snapshot_reports_popup_backlog",
+      "parent_test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_snapshot_reports_popup_backlog",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_windows_memory_snapshot_is_available",
+      "parent_test": "test_PAFPlayer_v458.RuntimeDiagnostics.test_windows_memory_snapshot_is_available",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ShortWrites.test_completes_text_and_bytes_without_repeating_prefix",
+      "parent_test": "test_PAFPlayer_v458.ShortWrites.test_completes_text_and_bytes_without_repeating_prefix",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ShortWrites.test_empty_payload_needs_no_write",
+      "parent_test": "test_PAFPlayer_v458.ShortWrites.test_empty_payload_needs_no_write",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ShortWrites.test_failure_after_prefix_does_not_retry_prefix",
+      "parent_test": "test_PAFPlayer_v458.ShortWrites.test_failure_after_prefix_does_not_retry_prefix",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ShortWrites.test_no_progress_raises_instead_of_spinning",
+      "parent_test": "test_PAFPlayer_v458.ShortWrites.test_no_progress_raises_instead_of_spinning",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_PAFPlayer_v458.ShortWrites.test_none_returning_adapter_is_written_once",
+      "parent_test": "test_PAFPlayer_v458.ShortWrites.test_none_returning_adapter_is_written_once",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 3.11
+}

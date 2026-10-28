@@ -1,0 +1,65 @@
+{
+  "module": "test_play_audio_file_v430",
+  "count": 8,
+  "successful": false,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_binary_terminal_payloads_are_not_decoded_and_partial_writes_continue",
+      "parent_test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_binary_terminal_payloads_are_not_decoded_and_partial_writes_continue",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_console_adapter_returning_none_is_treated_as_a_completed_write",
+      "parent_test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_console_adapter_returning_none_is_treated_as_a_completed_write",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_large_real_windows_console_text_is_bounded_and_flushed",
+      "parent_test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_large_real_windows_console_text_is_bounded_and_flushed",
+      "outcome": "error",
+      "seconds": 0.015,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\test_play_audio_file_v430.py\", line 77, in test_large_real_windows_console_text_is_bounded_and_flushed\n    p.write_console(payload)\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\PAFPlayer.py\", line 33656, in write_console\n    if len(text) > 4096 and not text.isascii() and _write_large_windows_console_text(sys.stdout, text):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\PAFPlayer.py\", line 33615, in _write_large_windows_console_text\n    handle = msvcrt.get_osfhandle(stream.fileno())\nAttributeError: 'FakeTextStream' object has no attribute 'fileno'\n"
+    },
+    {
+      "test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_redirected_output_keeps_the_short_write_fast_path",
+      "parent_test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_redirected_output_keeps_the_short_write_fast_path",
+      "outcome": "error",
+      "seconds": 0.0,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\test_play_audio_file_v430.py\", line 96, in test_redirected_output_keeps_the_short_write_fast_path\n    p.write_console(payload)\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\PAFPlayer.py\", line 33656, in write_console\n    if len(text) > 4096 and not text.isascii() and _write_large_windows_console_text(sys.stdout, text):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\PAFPlayer.py\", line 33615, in _write_large_windows_console_text\n    handle = msvcrt.get_osfhandle(stream.fileno())\nAttributeError: 'FakeTextStream' object has no attribute 'fileno'\n"
+    },
+    {
+      "test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_surrogate_pair_is_not_split_at_a_chunk_boundary",
+      "parent_test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_surrogate_pair_is_not_split_at_a_chunk_boundary",
+      "outcome": "error",
+      "seconds": 0.0,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\test_play_audio_file_v430.py\", line 87, in test_surrogate_pair_is_not_split_at_a_chunk_boundary\n    p.write_console(payload)\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\PAFPlayer.py\", line 33656, in write_console\n    if len(text) > 4096 and not text.isascii() and _write_large_windows_console_text(sys.stdout, text):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\PAFPlayer.py\", line 33615, in _write_large_windows_console_text\n    handle = msvcrt.get_osfhandle(stream.fileno())\nAttributeError: 'FakeTextStream' object has no attribute 'fileno'\n"
+    },
+    {
+      "test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_text_stream_partial_writes_are_completed",
+      "parent_test": "test_play_audio_file_v430.V430ConsoleTransportTests.test_text_stream_partial_writes_are_completed",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v430.V430EmojimaxTests.test_final_cleanup_removes_requested_exact_word_mappings",
+      "parent_test": "test_play_audio_file_v430.V430EmojimaxTests.test_final_cleanup_removes_requested_exact_word_mappings",
+      "outcome": "error",
+      "seconds": 0.0,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261013-173022\\stage\\test_play_audio_file_v430.py\", line 58, in test_final_cleanup_removes_requested_exact_word_mappings\n    for word in p.EMOJIMAX_V430_REMOVED:\nAttributeError: module 'play_audio_file' has no attribute 'EMOJIMAX_V430_REMOVED'\n"
+    },
+    {
+      "test": "test_play_audio_file_v430.V430EmojimaxTests.test_ladies_has_a_distinct_feminine_mapping",
+      "parent_test": "test_play_audio_file_v430.V430EmojimaxTests.test_ladies_has_a_distinct_feminine_mapping",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [],
+  "seconds": 0.88
+}

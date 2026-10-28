@@ -1,0 +1,18 @@
+{"start": "test_PAFPlayer_v499_tray.TrayTests.test_command_routing_is_owner_local_and_cleanup"}
+{"test": "test_PAFPlayer_v499_tray.TrayTests.test_command_routing_is_owner_local_and_cleanup", "parent_test": "test_PAFPlayer_v499_tray.TrayTests.test_command_routing_is_owner_local_and_cleanup", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v499_tray.TrayTests.test_default_cli_precedence_and_web_control"}
+{"test": "test_PAFPlayer_v499_tray.TrayTests.test_default_cli_precedence_and_web_control", "parent_test": "test_PAFPlayer_v499_tray.TrayTests.test_default_cli_precedence_and_web_control", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v499_tray.TrayTests.test_double_click_pauses_after_window_and_single_right_delays_menu"}
+{"test": "test_PAFPlayer_v499_tray.TrayTests.test_double_click_pauses_after_window_and_single_right_delays_menu", "parent_test": "test_PAFPlayer_v499_tray.TrayTests.test_double_click_pauses_after_window_and_single_right_delays_menu", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v499_tray.TrayTests.test_official_claim_explicit_handoff_and_stale_descriptor"}
+{"test": "test_PAFPlayer_v499_tray.TrayTests.test_official_claim_explicit_handoff_and_stale_descriptor", "parent_test": "test_PAFPlayer_v499_tray.TrayTests.test_official_claim_explicit_handoff_and_stale_descriptor", "outcome": "pass", "seconds": 1.219, "detail": ""}
+{"start": "test_PAFPlayer_v499_tray.TrayTests.test_only_official_starts_one_icon_and_shutdown_stops_thread"}
+{"test": "test_PAFPlayer_v499_tray.TrayTests.test_only_official_starts_one_icon_and_shutdown_stops_thread", "parent_test": "test_PAFPlayer_v499_tray.TrayTests.test_only_official_starts_one_icon_and_shutdown_stops_thread", "outcome": "pass", "seconds": 0.016, "detail": ""}
+{"start": "test_PAFPlayer_v499_tray.TrayTests.test_registry_default_and_saved_value"}
+{"test": "test_PAFPlayer_v499_tray.TrayTests.test_registry_default_and_saved_value", "parent_test": "test_PAFPlayer_v499_tray.TrayTests.test_registry_default_and_saved_value", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v499_tray.TrayTests.test_triple_left_previous_and_triple_right_next"}
+{"test": "test_PAFPlayer_v499_tray.TrayTests.test_triple_left_previous_and_triple_right_next", "parent_test": "test_PAFPlayer_v499_tray.TrayTests.test_triple_left_previous_and_triple_right_next", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v499_tray.TrayTests.test_triple_right_suppresses_menu"}
+{"test": "test_PAFPlayer_v499_tray.TrayTests.test_triple_right_suppresses_menu", "parent_test": "test_PAFPlayer_v499_tray.TrayTests.test_triple_right_suppresses_menu", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v499_tray.TrayTests.test_web_status_schema_and_saved_control_endpoint"}
+{"test": "test_PAFPlayer_v499_tray.TrayTests.test_web_status_schema_and_saved_control_endpoint", "parent_test": "test_PAFPlayer_v499_tray.TrayTests.test_web_status_schema_and_saved_control_endpoint", "outcome": "pass", "seconds": 0.0, "detail": ""}

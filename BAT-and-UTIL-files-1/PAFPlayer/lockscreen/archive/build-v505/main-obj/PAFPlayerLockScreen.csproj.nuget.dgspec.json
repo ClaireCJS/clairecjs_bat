@@ -1,0 +1,158 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\PAFPlayerLockScreen.csproj": {}
+  },
+  "projects": {
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\BackgroundTasks\\PAFPlayerLockScreen.BackgroundTasks.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\BackgroundTasks\\PAFPlayerLockScreen.BackgroundTasks.csproj",
+        "projectName": "PAFPlayerLockScreen.BackgroundTasks",
+        "projectPath": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\BackgroundTasks\\PAFPlayerLockScreen.BackgroundTasks.csproj",
+        "packagesPath": "C:\\Users\\ClioC\\.nuget\\packages\\",
+        "outputPath": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\BackgroundTasks\\obj\\",
+        "projectStyle": "PackageReference",
+        "skipContentFileWrite": true,
+        "UsingMicrosoftNETSdk": false,
+        "fallbackFolders": [
+          "C:\\Users\\ClioC\\AppData\\Local\\Temp\\paf-lockscreen-v505-build\\fallback"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\ClioC\\AppData\\Local\\Temp\\paf-lockscreen-v505-build\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "uap10.0.19041"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "uap10.0.19041": {
+            "projectReferences": {}
+          }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "uap10.0.19041": {
+          "dependencies": {
+            "Microsoft.NETCore.UniversalWindowsPlatform": {
+              "target": "Package",
+              "version": "[6.2.14, )"
+            }
+          },
+          "imports": [
+            "net461"
+          ],
+          "assetTargetFallback": true,
+          "warn": true
+        }
+      },
+      "runtimes": {
+        "win10-arm": {
+          "#import": []
+        },
+        "win10-arm-aot": {
+          "#import": []
+        },
+        "win10-arm64-aot": {
+          "#import": []
+        },
+        "win10-x64": {
+          "#import": []
+        },
+        "win10-x64-aot": {
+          "#import": []
+        },
+        "win10-x86": {
+          "#import": []
+        },
+        "win10-x86-aot": {
+          "#import": []
+        }
+      }
+    },
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\PAFPlayerLockScreen.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\PAFPlayerLockScreen.csproj",
+        "projectName": "PAFPlayerLockScreen",
+        "projectPath": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\PAFPlayerLockScreen.csproj",
+        "packagesPath": "C:\\Users\\ClioC\\.nuget\\packages\\",
+        "outputPath": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\obj\\",
+        "projectStyle": "PackageReference",
+        "skipContentFileWrite": true,
+        "UsingMicrosoftNETSdk": false,
+        "fallbackFolders": [
+          "C:\\Users\\ClioC\\AppData\\Local\\Temp\\paf-lockscreen-v505-build\\fallback"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\ClioC\\AppData\\Local\\Temp\\paf-lockscreen-v505-build\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "uap10.0.19041"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "uap10.0.19041": {
+            "projectReferences": {
+              "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\BackgroundTasks\\PAFPlayerLockScreen.BackgroundTasks.csproj": {
+                "projectPath": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen\\BackgroundTasks\\PAFPlayerLockScreen.BackgroundTasks.csproj"
+              }
+            }
+          }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "uap10.0.19041": {
+          "dependencies": {
+            "Microsoft.NETCore.UniversalWindowsPlatform": {
+              "target": "Package",
+              "version": "[6.2.14, )"
+            }
+          },
+          "imports": [
+            "net461"
+          ],
+          "assetTargetFallback": true,
+          "warn": true
+        }
+      },
+      "runtimes": {
+        "win10-arm": {
+          "#import": []
+        },
+        "win10-arm-aot": {
+          "#import": []
+        },
+        "win10-arm64-aot": {
+          "#import": []
+        },
+        "win10-x64": {
+          "#import": []
+        },
+        "win10-x64-aot": {
+          "#import": []
+        },
+        "win10-x86": {
+          "#import": []
+        },
+        "win10-x86-aot": {
+          "#import": []
+        }
+      }
+    }
+  }
+}

@@ -75,7 +75,7 @@ class Transactions:
                 raise IntegrityError("Source became a known processed image before commit.")
             jpeg={".jpg",".jpeg",".jpe"}
             suffix=source.suffix if (source.suffix.lower() in jpeg and stage.suffix.lower() in jpeg) or source.suffix.lower()==stage.suffix.lower() else stage.suffix
-            corrected = available(source.with_name(source.stem + "-gendeerfixed" + suffix))
+            corrected = available(source.with_name(source.stem + "-genderfixed" + suffix))
             backup = available(backup_name(source))
             record.update(corrected=corrected.name, backup=backup.name,
                           original_identity=current_identity,stage_identity=identity(stage),
@@ -195,6 +195,7 @@ class Transactions:
                 corrected = relative_file(folder, record["corrected"])
                 backup = relative_file(folder, record["backup"])
                 known = history.transactions().get(record["transaction"])
+                if known:corrected=relative_file(folder,known["corrected"])
                 if record["operation"] == "convert":
                     if known and known["event"] in ("committed", "recovered", "undone"):
                         if known["original_hash"]!=record["original_hash"] or known["corrected_hash"]!=record["corrected_hash"]:

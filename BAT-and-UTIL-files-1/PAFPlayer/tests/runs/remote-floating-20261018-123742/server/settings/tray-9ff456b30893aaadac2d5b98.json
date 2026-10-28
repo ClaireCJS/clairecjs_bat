@@ -1,0 +1,42 @@
+{
+  "MachineOptions": {
+    "remote_floating_lyrics": true,
+    "remote_hotkeys": false,
+    "remote_album_art": false,
+    "album_wallpaper": false
+  },
+  "RendererPreferences": {
+    "ExternalAlbumArtLyricsModeV180": {
+      "type": 4,
+      "value": 0
+    },
+    "Looping": {
+      "type": 4,
+      "value": 0
+    },
+    "RepeatMode": {
+      "type": 4,
+      "value": 3
+    },
+    "ExternalFloatingLyricsGeometry": {
+      "type": 1,
+      "value": "1000x220+100+100"
+    },
+    "ExternalFloatingLyricsKaraokeColorMode": {
+      "type": 4,
+      "value": 1
+    },
+    "ExternalAlbumArtPopupEmojimaxV295": {
+      "type": 4,
+      "value": 1
+    },
+    "KaraokeEmojimax": {
+      "type": 4,
+      "value": 1
+    },
+    "FloatingLyricsTrackIntroSeconds": {
+      "type": 1,
+      "value": "0.25"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "audit": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20260929-161824",
+  "native_checks": 29,
+  "python_tests": 77,
+  "successful": true,
+  "modules": [
+    "test_PAFPlayer_screensaver",
+    "test_PAFPlayer_v458",
+    "test_PAFPlayer_v459",
+    "test_PAFPlayer_v456",
+    "test_PAFPlayer_v456_release",
+    "test_PAFPlayer_workflows"
+  ],
+  "player_sha256": "d576dc17ee1b5f7f0107d612cd9b421b0bc627705199fdcd84218fcb0a6e3474",
+  "screensaver_sha256": "d754ff24f45d02f5e75ce645f0d68ec6f27d5a3bd834ecff5f7a9f5d26ff5c0f"
+}

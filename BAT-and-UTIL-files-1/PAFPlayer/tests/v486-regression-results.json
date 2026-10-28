@@ -1,0 +1,19 @@
+{
+  "v486": {
+    "tests": 4,
+    "failures": [],
+    "errors": [],
+    "ansi_and_semantic_frame_cases": 72,
+    "persistence_frames": 180,
+    "lyric_mask_cases": 24,
+    "fallback": "native unavailable compared to V485 for all 72 cases",
+    "timer": "prior cue animation cancelled before new upload"
+  },
+  "retained_v485": {
+    "tests": 6,
+    "failures": [],
+    "errors": []
+  },
+  "full_suite_run": false,
+  "full_player_v486_fps_verified": false
+}

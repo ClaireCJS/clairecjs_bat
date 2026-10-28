@@ -1,0 +1,21 @@
+﻿<Page x:Class="PAFPlayerLockScreen.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+  <ScrollViewer>
+    <StackPanel Margin="32" MaxWidth="680" HorizontalAlignment="Left" Spacing="12">
+      <TextBlock Text="PAFPlayer Lock Screen" FontSize="28" FontWeight="SemiBold" />
+      <TextBlock Text="Show the official PAFPlayer instance in Windows 10's lock-screen detailed-status slot."
+                 TextWrapping="Wrap" />
+      <TextBlock Text="PAFPlayer server (machine name and port)" />
+      <TextBox x:ConnectionId='2' x:Name="ServerBox" PlaceholderText="machineservername:666" />
+      <Button x:ConnectionId='3' x:Name="ConnectButton" Content="Connect and refresh"                             />
+      <TextBlock x:ConnectionId='4' x:Name="StatusText" Text="Enter the PAFPlayer server address." TextWrapping="Wrap" />
+      <TextBlock Text="After connecting, choose PAFPlayer Lock Screen under Settings → Personalization → Lock screen → Choose one app to show detailed status. Windows controls that selection."
+                 TextWrapping="Wrap" />
+      <TextBlock Text="Track, artist and the current lyric can be visible to anyone at the lock screen. Background refresh is limited by Windows scheduling; leave PAFPlayer's server running."
+                 TextWrapping="Wrap" Opacity="0.7" />
+    </StackPanel>
+  </ScrollViewer>
+</Page>
+

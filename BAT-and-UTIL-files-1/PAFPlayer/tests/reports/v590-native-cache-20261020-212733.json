@@ -1,0 +1,13 @@
+{
+  "calls": 500,
+  "seconds": 0.24672529997769743,
+  "handles_before": 128,
+  "handles_after": 128,
+  "pointer_types_before": 21,
+  "pointer_types_after": 21,
+  "locked_now": false,
+  "user_lock_trace_samples": 597,
+  "locked_samples": 49,
+  "access_denied_with_stale_error": 8,
+  "input_desktop_accessible_while_locked": 41
+}

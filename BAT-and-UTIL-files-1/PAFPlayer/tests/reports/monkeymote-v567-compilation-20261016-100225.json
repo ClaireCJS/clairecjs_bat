@@ -1,0 +1,22 @@
+[
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-v567-compile-20261016-100225-0.pyc"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_monkeymote.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-v567-compile-20261016-100225-1.pyc"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_monkeymote.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-v567-compile-20261016-100225-2.pyc"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\monkeymote\\research\\verify.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-v567-compile-20261016-100225-3.pyc"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\monkeymote\\research\\probe.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-v567-compile-20261016-100225-4.pyc"
+  }
+]

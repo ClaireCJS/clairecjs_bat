@@ -1,0 +1,31 @@
+{
+  "version": "V580",
+  "sha256": "d265292c5b18f3f0d916bf889fe896b3aab5eef78627e2e38852f492c273c215",
+  "bundled_modules_compiled": 24,
+  "matching_modified_modules": [
+    "PAFPlayer_remote_tray",
+    "PAFPlayer_remote_overlay",
+    "PAFPlayer_tray",
+    "PAFPlayer_tray_options",
+    "PAFPlayer_web_workflows",
+    "PAFPlayer_steam"
+  ],
+  "files_compiled": [
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_remote_tray.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_remote_overlay.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_tray.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_tray_options.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_web_workflows.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_steam.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_v580_background_tray.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_v580_remote_artwork.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v580_tray_and_steam.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v580_tray_and_steam.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v504_tray_machine.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v577_remote_save.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_remote_floating.py"
+  ],
+  "javascript_blocks_checked": 8,
+  "successful": true
+}

@@ -1,0 +1,87 @@
+PASS counter and lyric share middle row while album and year use third row
+PASS lowercase album compatibility
+PASS date metadata supplies a four digit album year
+PASS album alone remains visible for older status
+PASS counter alone does not invent an album
+PASS whole-second counter boundary and duplicate polls
+PASS timer does not delay a lyric within the same second
+PASS unchanged detail ignores hidden previous lyric
+PASS changed album republishes the displayed row
+PASS changed year republishes the displayed album row
+PASS counter follows backwards seek immediately
+PASS paused counter does not extrapolate
+PASS stopped discards elapsed counter
+PASS offline has no stale album or counter
+PASS hours and zero position format correctly
+PASS position beyond duration clamps to song end
+PASS missing zero or invalid duration remains unknown
+PASS invalid and missing position do not fabricate elapsed time
+PASS long album cannot push counter beyond clip limit
+PASS unchanged lyric does not resubmit notifications
+PASS next lyric submits text and badge together
+PASS seek backwards republishes the earlier line
+PASS instrumental gap clears the lyric
+PASS pause changes badge and retains current line
+PASS offline removes stale lyric and changes badge promptly
+PASS unchanged notifications renew before expiration
+PASS frequent lyric changes keep both Windows surfaces coherent
+PASS failed publication is retried
+PASS reenabling immediately republishes unchanged content
+PASS lyric refresh moves both heartbeat deadlines together
+PASS new server previous cue survives even if never polled as current
+PASS old server retains previous observed lyric
+PASS old server track change does not retain unrelated lyric
+PASS hidden previous cue change does not republish current layout
+PASS blank lyric and offline payloads keep three nonempty rows
+PASS managed accepts only its launching session
+PASS managed rejects another official session
+PASS managed rejects empty launch identity
+PASS managed rejects unverified data
+PASS official PAFplayer capitalization and canonical metadata
+PASS playing badge
+PASS paused takes precedence over playing
+PASS stopped clears lyrics
+PASS waiting badge
+PASS offline badge and no stale track
+PASS reject unofficial server
+PASS reject string official flag
+PASS reject another program
+PASS reject missing instance identity
+PASS reject different state program
+PASS reject state version mismatch
+PASS old state-change timestamp does not mark live official player offline
+PASS long paused state remains paused
+PASS server clock difference is not an identity failure
+PASS reject malformed JSON
+PASS legacy metadata remains supported
+PASS missing metadata uses idle title
+PASS filename fallback
+PASS tile contains actual lyric text and XML escaping
+PASS lock-screen lines belong to wide binding and survive XML roundtrip
+PASS badge XML playing
+PASS badge XML paused
+PASS badge XML available
+PASS badge XML unavailable
+PASS XML controls removed
+PASS valid Unicode retained
+PASS unpaired surrogates removed
+PASS truncation preserves surrogate pair
+PASS maximum output length
+PASS valid server 127.0.0.1:666
+PASS valid server http://localhost:666
+PASS valid server http://[::1]:666
+PASS valid server http://music-server:666/
+PASS reject server 
+PASS reject server file:///tmp
+PASS reject server https://localhost:666
+PASS reject server http://user:secret@localhost
+PASS reject server http://localhost/path
+PASS reject server http://localhost?x=1
+PASS reject server http://localhost#fragment
+PASS reject server http://localhost:0
+PASS reject server http://localhost:65536
+PASS read-only GET verifies official server
+PASS redirect rejected without contacting target
+PASS invalid network response becomes offline
+PASS connection refusal becomes offline
+RESULT: 86 passed, 0 failed

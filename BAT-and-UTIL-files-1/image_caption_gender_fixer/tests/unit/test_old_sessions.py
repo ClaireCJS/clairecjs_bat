@@ -39,3 +39,37 @@ def test_old_job_menu_preserves_sources_and_unselected_jobs(tmp_path,choice):
     if choice=="resume": assert selected["id"]==second["id"] and len(ids)==2
     elif choice=="forget_then_new": assert first["id"] not in ids and len(ids)==2
     else: assert first["id"] in ids and len(ids)==3
+
+
+def test_numbered_menu_repompts_for_help_and_invalid_job_instead_of_crashing(tmp_path,capsys):
+    app,source,first,second=old_jobs(tmp_path,answers=iter([]))
+    replies=iter(['?','t','?','999','b','r','1'])
+    app.ask_callback=lambda prompt:next(replies)
+    selected=app.select_session([source])
+    assert selected['id']==second['id']
+    output=capsys.readouterr().err
+    assert '1.' in output and '2.' in output and 'No session ID is needed' in output
+    assert first['id'] not in output and second['id'] not in output
+    assert len(app.sessions.list())==2
+
+
+@pytest.mark.parametrize('confirm',['y','n'])
+def test_trash_all_requires_confirmation_and_preserves_originals(tmp_path,confirm):
+    app,source,first,second=old_jobs(tmp_path,answers=iter([]))
+    prompts=[];replies=iter(['t','a',confirm]+(['n'] if confirm=='n' else []))
+    def answer(prompt): prompts.append(prompt);return next(replies)
+    app.ask_callback=answer
+    before=sha256(source)
+    selected=app.select_session([source])
+    assert selected['id'] not in (first['id'],second['id']) and sha256(source)==before
+    assert len(app.sessions.list())==(1 if confirm=='y' else 3)
+    assert any('Recycle 2 selected job' in prompt for prompt in prompts)
+
+
+def test_single_job_resume_needs_no_internal_identifier(tmp_path):
+    app,source,first,second=old_jobs(tmp_path,answers=iter([]))
+    app.sessions.abandon(first,[])
+    prompts=[]
+    def answer(prompt): prompts.append(prompt);return 'r'
+    app.ask_callback=answer
+    assert app.select_session([source])['id']==second['id'] and len(prompts)==1

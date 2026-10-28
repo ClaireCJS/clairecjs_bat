@@ -1,0 +1,30 @@
+{
+  "module": "test_paf_nest_exclusion",
+  "count": 3,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_paf_nest_exclusion.NestExclusionTests.test_nest_including_nonbreaking_space_and_audio_is_excluded",
+      "parent_test": "test_paf_nest_exclusion.NestExclusionTests.test_nest_including_nonbreaking_space_and_audio_is_excluded",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_paf_nest_exclusion.NestExclusionTests.test_other_chrome_media_still_interrupts",
+      "parent_test": "test_paf_nest_exclusion.NestExclusionTests.test_other_chrome_media_still_interrupts",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_paf_nest_exclusion.NestExclusionTests.test_unknown_title_is_not_exempted",
+      "parent_test": "test_paf_nest_exclusion.NestExclusionTests.test_unknown_title_is_not_exempted",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [],
+  "seconds": 0.83
+}

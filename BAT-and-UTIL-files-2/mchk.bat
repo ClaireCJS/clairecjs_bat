@@ -112,6 +112,8 @@ goto :theend
 		:Publish_To_Cloud
 			%COLOR_RUN% %+ echo yryryr | *copy /r "%EVERYTHING%" "%INDEXFILE_DROPBOX%"
 
+
+      gosub :checkindexfile
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

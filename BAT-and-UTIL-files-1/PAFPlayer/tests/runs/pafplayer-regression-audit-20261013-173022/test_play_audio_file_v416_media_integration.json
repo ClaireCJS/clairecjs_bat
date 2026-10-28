@@ -1,0 +1,20 @@
+{
+  "module": "test_play_audio_file_v416_media_integration",
+  "count": 1,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v416_media_integration.PlayerIntegrationTests.test_automatic_pause_resumes_same_position_with_fade_on_both_backends",
+      "parent_test": "test_play_audio_file_v416_media_integration.PlayerIntegrationTests.test_automatic_pause_resumes_same_position_with_fade_on_both_backends",
+      "outcome": "pass",
+      "seconds": 0.515,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 1.34
+}

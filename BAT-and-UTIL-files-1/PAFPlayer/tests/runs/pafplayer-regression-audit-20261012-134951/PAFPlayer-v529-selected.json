@@ -1,0 +1,16 @@
+{
+  "module": "PAFPlayer",
+  "count": 1,
+  "successful": true,
+  "entries": [
+    {
+      "test": "PAFPlayer.PlayWaveFileTests.test_v529_solution_labels_have_small_rightward_optical_nudge",
+      "parent_test": "PAFPlayer.PlayWaveFileTests.test_v529_solution_labels_have_small_rightward_optical_nudge",
+      "outcome": "pass",
+      "seconds": 0.047,
+      "detail": ""
+    }
+  ],
+  "blocks": [],
+  "seconds": 1.09
+}

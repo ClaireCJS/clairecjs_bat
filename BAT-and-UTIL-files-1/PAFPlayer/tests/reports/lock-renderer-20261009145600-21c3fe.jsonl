@@ -1,0 +1,13 @@
+{"time": "2026-10-09T14:56:00.607527-04:00", "event": "start", "trace": "PAFLockRenderer-20261009145600-21c3fe", "etl_started": true, "logman": "The command completed successfully.\n", "session": 1}
+{"time": "2026-10-09T14:56:00.643821-04:00", "event": "provider", "provider": "{3D14CA27-6EB2-4789-9B52-33EC88ECF5B0}", "code": 0, "logman": "The command completed successfully.\n"}
+{"time": "2026-10-09T14:56:00.683742-04:00", "event": "provider", "provider": "{2D710779-B24B-4ADB-81EF-CD6DED5A9B2A}", "code": 0, "logman": "The command completed successfully.\n"}
+{"time": "2026-10-09T14:56:00.719723-04:00", "event": "provider", "provider": "{74CC4A0B-F577-5929-ABCB-AA4BEA374CB3}", "code": 0, "logman": "The command completed successfully.\n"}
+{"time": "2026-10-09T14:56:00.759678-04:00", "event": "provider", "provider": "{4F7C073A-65BF-5045-7651-CC53BB272DB5}", "code": 0, "logman": "The command completed successfully.\n"}
+{"time": "2026-10-09T14:56:00.799825-04:00", "event": "provider", "provider": "{75816B5C-ECD1-4DBC-B38A-47A9646E60BE}", "code": 0, "logman": "The command completed successfully.\n"}
+{"time": "2026-10-09T14:56:00.916483-04:00", "event": "provider", "provider": "Microsoft-Windows-PushNotifications-Platform", "code": 0, "logman": "The command completed successfully.\n"}
+{"time": "2026-10-09T14:56:01.027012-04:00", "event": "provider", "provider": "Microsoft-Windows-Winlogon", "code": 2147942405, "logman": "\nError:\nAccess is denied.\nTry running this command as an administrator.\n"}
+{"time": "2026-10-09T14:56:01.134161-04:00", "event": "provider", "provider": "Microsoft-Windows-Immersive-Shell", "code": 0, "logman": "The command completed successfully.\n"}
+{"time": "2026-10-09T14:56:03.953732-04:00", "wts": {"level": 1, "session": 1, "connection_state": 0, "flags": 1}, "processes": [{"name": "LockApp.exe", "pid": 30872, "session": 1}, {"name": "PAFPlayerLockScreen.exe", "pid": 59968, "session": 1}]}
+{"time": "2026-10-09T14:56:29.593116-04:00", "wts": {"level": 1, "session": 1, "connection_state": 0, "flags": 0}, "processes": [{"name": "LockApp.exe", "pid": 30872, "session": 1}, {"name": "LogonUI.exe", "pid": 44896, "session": 0}, {"name": "PAFPlayerLockScreen.exe", "pid": 59968, "session": 1}]}
+{"time": "2026-10-09T14:57:32.661550-04:00", "wts": {"level": 1, "session": 1, "connection_state": 0, "flags": 1}, "processes": [{"name": "LockApp.exe", "pid": 30872, "session": 1}, {"name": "PAFPlayerLockScreen.exe", "pid": 59968, "session": 1}]}
+{"time": "2026-10-09T14:57:37.699132-04:00", "event": "stop", "saw_lock": true, "stop_code": 0, "logman": "The command completed successfully.\n"}

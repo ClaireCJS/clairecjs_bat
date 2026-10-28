@@ -45,6 +45,8 @@ class Region:
     trace: list
     settings: dict = field(default_factory=dict)
     skipped: bool = False
+    line_index: int | None = None
+    ocr_span: tuple | None = None
 
 
 def decode(path):
@@ -124,7 +126,7 @@ def ocr(image, executable, tessdata, eco=False, full=False, psm=11):
 
 def regions(lines, rules, ignores=()):
     answer, protected = [], [w.box for line in lines for w in line["words"]]
-    for line in lines:
+    for line_index,line in enumerate(lines):
         result = transform(line["text"], rules, ignores)
         groups = []
         for edit in result["edits"]:
@@ -148,8 +150,24 @@ def regions(lines, rules, ignores=()):
             box = (min(w.box[0] for w in words), min(w.box[1] for w in words),
                    max(w.box[2] for w in words), max(w.box[3] for w in words))
             trace=[t for t in result["trace"] if t["original_span"][0] < b and a < t["original_span"][1]]
-            answer.append(Region(source, replacement, box, min(w.confidence for w in words), words, trace))
+            answer.append(Region(source, replacement, box, min(w.confidence for w in words), words, trace,
+                                 line_index=line_index,ocr_span=(a,b)))
     return answer, protected
+
+
+def full_captions(lines,regions):
+    """Retain every OCR line; apply reviewed region wording at original spans."""
+    detected=[];proposed=[]
+    for index,line in enumerate(lines):
+        before=after=line["text"]
+        changes=[region for region in regions if region.line_index==index and region.ocr_span is not None]
+        for region in sorted(changes,key=lambda region:region.ocr_span[0],reverse=True):
+            start,end=region.ocr_span
+            before=before[:start]+region.before+before[end:]
+            after=after[:start]+(region.before if region.skipped else region.after)+after[end:]
+        detected.append(before);proposed.append(after)
+    return {"detected":"\n".join(detected) or "(No text recognized)",
+            "proposed":"\n".join(proposed) or "(No text recognized)"}
 
 
 def overlaps(a, b):

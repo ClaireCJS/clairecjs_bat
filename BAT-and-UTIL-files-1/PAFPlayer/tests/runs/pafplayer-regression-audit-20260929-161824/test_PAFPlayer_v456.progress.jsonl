@@ -1,0 +1,12 @@
+{"start": "test_PAFPlayer_v456.PersistenceTests.test_backup_corruption_prevents_overwrite"}
+{"test": "test_PAFPlayer_v456.PersistenceTests.test_backup_corruption_prevents_overwrite", "parent_test": "test_PAFPlayer_v456.PersistenceTests.test_backup_corruption_prevents_overwrite", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v456.PersistenceTests.test_cursor_reset_uses_terminal_default_in_interrupt_cleanup"}
+{"test": "test_PAFPlayer_v456.PersistenceTests.test_cursor_reset_uses_terminal_default_in_interrupt_cleanup", "parent_test": "test_PAFPlayer_v456.PersistenceTests.test_cursor_reset_uses_terminal_default_in_interrupt_cleanup", "outcome": "pass", "seconds": 0.015, "detail": ""}
+{"start": "test_PAFPlayer_v456.PersistenceTests.test_dcc_backup_is_byte_verified_and_reported"}
+{"test": "test_PAFPlayer_v456.PersistenceTests.test_dcc_backup_is_byte_verified_and_reported", "parent_test": "test_PAFPlayer_v456.PersistenceTests.test_dcc_backup_is_byte_verified_and_reported", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v456.PersistenceTests.test_dcc_prefers_canonical_script"}
+{"test": "test_PAFPlayer_v456.PersistenceTests.test_dcc_prefers_canonical_script", "parent_test": "test_PAFPlayer_v456.PersistenceTests.test_dcc_prefers_canonical_script", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v456.WebTests.test_complete_javascript_parses"}
+{"test": "test_PAFPlayer_v456.WebTests.test_complete_javascript_parses", "parent_test": "test_PAFPlayer_v456.WebTests.test_complete_javascript_parses", "outcome": "pass", "seconds": 0.063, "detail": ""}
+{"start": "test_PAFPlayer_v456.WebTests.test_teeny_controls_and_css_keep_solution_out_of_lyric_text"}
+{"test": "test_PAFPlayer_v456.WebTests.test_teeny_controls_and_css_keep_solution_out_of_lyric_text", "parent_test": "test_PAFPlayer_v456.WebTests.test_teeny_controls_and_css_keep_solution_out_of_lyric_text", "outcome": "pass", "seconds": 0.016, "detail": ""}

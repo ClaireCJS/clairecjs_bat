@@ -1,0 +1,474 @@
+{
+  "program": "PAFplayer",
+  "version": "V485",
+  "playing": true,
+  "paused": false,
+  "position_seconds": 72.936,
+  "duration_seconds": 123.790748,
+  "progress": 0.5891878123234219,
+  "metadata": {
+    "Artist": "Julia Larson",
+    "Song": "Ocean Man",
+    "Album": "Ween Appreciation Society - Mutilated Hits (Vol. 4)",
+    "Year": "",
+    "Genre": "Psychedelic Rock",
+    "Original artist": "Ween",
+    "Composer": "Ween",
+    "URL": "",
+    "Comment": "Ween cover",
+    "Bitrate": "955kbps",
+    "Last play": "Sep 15"
+  },
+  "learned": false,
+  "claire_integrations_enabled": true,
+  "track": {
+    "path": "T:\\mp3\\Ween\\TRIBUTES\\Ween Appreciation Society - Mutilated Hits (Vol. 4)\\05_Ocean Man - Julia Larson.flac",
+    "filename": "05_Ocean Man - Julia Larson.flac",
+    "directory": "T:\\mp3\\Ween\\TRIBUTES\\Ween Appreciation Society - Mutilated Hits (Vol. 4)"
+  },
+  "lyric": "",
+  "volume": 1,
+  "speed": 1.0,
+  "balance": 0,
+  "reduce_bass_when_locked": false,
+  "locked_bass_reduction_percent": 50,
+  "bass_boost_enabled": false,
+  "bass_boost_percent": 0,
+  "output_channels": 7,
+  "output_rate": 96000,
+  "output_rate_hz": 96000,
+  "output_bit_depth": 24,
+  "output_device": -1,
+  "output_devices": [
+    -1
+  ],
+  "output_devices_mask": 1,
+  "output_device_label": "System default",
+  "mm_inspired_renderer_enabled": true,
+  "floating_lyrics_enabled": true,
+  "floating_track_intro_seconds": 2.5,
+  "art_topmost": false,
+  "floating_topmost": false,
+  "art_color_demo": false,
+  "drcs_enabled": true,
+  "visualizer_bars_enabled": true,
+  "visualizer_background_artwork_enabled": true,
+  "console_visualizer_volume_feedback_enabled": true,
+  "visualizer_input_source": 5,
+  "visualizer_input_status": "PAFPlayer audio",
+  "web_visualizer_enabled": true,
+  "console_karaoke_enabled": true,
+  "console_alerts_enabled": true,
+  "decensor_console_karaoke": true,
+  "decensor_artwork_lyrics": true,
+  "decensor_floating_lyrics": true,
+  "alert_no_replaygain": true,
+  "alert_missing_artist": true,
+  "alert_missing_title": true,
+  "alert_missing_karaoke": false,
+  "alert_missing_lyrics": false,
+  "alert_missing_artwork": true,
+  "alert_unknown_year": false,
+  "alert_unknown_genre": true,
+  "alert_embedded_lyrics_mismatch": true,
+  "progress_bar_enabled": true,
+  "progress_style": 1,
+  "progress_color_mode": 2,
+  "progress_beat_reactive": true,
+  "external_media_auto_pause": true,
+  "external_media_loudness_match": true,
+  "external_media_loudness_status": "Waiting for a fresh, uninterrupted audio sample",
+  "adaptive_frequency_enabled": true,
+  "adaptive_frequency_fraction": 1.0,
+  "external_media_resume_fade_seconds": 15,
+  "progress_beat_detector": 5,
+  "progress_beat_treatment": 3,
+  "progress_beat_visual_offset_ms": 35,
+  "cursive_fix": true,
+  "drcs_art_microtiles": true,
+  "drcs_art_bar_microtiles": true,
+  "drcs_art_microtile_mode": 9,
+  "drcs_art_bar_microtile_mode": 9,
+  "shuffle": true,
+  "loop": false,
+  "art_generation": 12,
+  "art_count": 1,
+  "art_popup_variant_index": 0,
+  "session_notice": {},
+  "lastfm_profile_url": "https://www.last.fm/user/ClioCJS",
+  "server": {
+    "host": "127.0.0.1",
+    "port": 666
+  },
+  "sequence": 13733,
+  "transport_stopped": false,
+  "replaygain": {
+    "enabled": true,
+    "mode": "track",
+    "source": "track",
+    "requested_db": -8.71,
+    "peak": 0.98855591,
+    "applied_db": -8.71,
+    "clipping_prevented": false
+  },
+  "urls": [],
+  "lyric_timeline": [
+    [
+      0.0,
+      ""
+    ],
+    [
+      6.71,
+      "Ocean man, take me"
+    ],
+    [
+      9.11,
+      "by the hand, lead me"
+    ],
+    [
+      10.53,
+      "to the land"
+    ],
+    [
+      11.79,
+      "That you understand"
+    ],
+    [
+      14.57,
+      "Ocean man, the"
+    ],
+    [
+      16.21,
+      "voyage to the corner"
+    ],
+    [
+      17.53,
+      "of the globe"
+    ],
+    [
+      18.69,
+      "Is a real trip"
+    ],
+    [
+      22.17,
+      "Ocean man, the crust"
+    ],
+    [
+      24.21,
+      "of a tan man imbibed"
+    ],
+    [
+      25.95,
+      "by the sand"
+    ],
+    [
+      27.57,
+      "Soaking up the"
+    ],
+    [
+      28.51,
+      "thirst of the land"
+    ],
+    [
+      30.07,
+      "Ocean man, can you"
+    ],
+    [
+      31.85,
+      "see through the"
+    ],
+    [
+      32.79,
+      "wonder of amazement"
+    ],
+    [
+      34.47,
+      "At the Oberman?"
+    ],
+    [
+      36.95,
+      "Ocean man, the crust"
+    ],
+    [
+      39.23,
+      "is elusive when it"
+    ],
+    [
+      40.77,
+      "casts forth"
+    ],
+    [
+      42.21,
+      "To the childlike"
+    ],
+    [
+      43.35,
+      "man"
+    ],
+    [
+      44.57,
+      "Ocean man, the"
+    ],
+    [
+      46.41,
+      "sequence of a life"
+    ],
+    [
+      47.89,
+      "form braised in the"
+    ],
+    [
+      49.03,
+      "sand"
+    ],
+    [
+      50.23,
+      "Soaking up the"
+    ],
+    [
+      51.17,
+      "thirst of the land"
+    ],
+    [
+      52.69,
+      "Ocean man"
+    ],
+    [
+      53.73,
+      ""
+    ],
+    [
+      59.83,
+      "Ocean man"
+    ],
+    [
+      61.19,
+      ""
+    ],
+    [
+      67.14,
+      "Ocean man"
+    ],
+    [
+      68.68,
+      ""
+    ],
+    [
+      75.12,
+      "Ocean man, take me"
+    ],
+    [
+      77.18,
+      "by the hand, lead me"
+    ],
+    [
+      78.56,
+      "to the land"
+    ],
+    [
+      79.84,
+      "That you understand"
+    ],
+    [
+      82.64,
+      "Ocean man, the"
+    ],
+    [
+      84.24,
+      "voyage to the corner"
+    ],
+    [
+      85.53999999999999,
+      "of the globe"
+    ],
+    [
+      86.7,
+      "Is a real trip"
+    ],
+    [
+      90.14,
+      "Ocean man, the crust"
+    ],
+    [
+      92.22,
+      "of a tan man imbibed"
+    ],
+    [
+      93.96000000000001,
+      "by the sand"
+    ],
+    [
+      95.58,
+      "Soaking up the"
+    ],
+    [
+      96.5,
+      "thirst of the land"
+    ],
+    [
+      97.88,
+      "Ocean man, can you"
+    ],
+    [
+      99.84,
+      "see through the"
+    ],
+    [
+      100.8,
+      "wonder of amazement"
+    ],
+    [
+      102.7,
+      "At the Oberman?"
+    ],
+    [
+      105.22,
+      "Ocean man, the crust"
+    ],
+    [
+      107.36,
+      "is elusive when it"
+    ],
+    [
+      108.8,
+      "casts forth"
+    ],
+    [
+      110.28,
+      "To the childlike"
+    ],
+    [
+      111.36,
+      "man"
+    ],
+    [
+      112.88,
+      "Ocean man, the"
+    ],
+    [
+      114.47999999999999,
+      "sequence of a life"
+    ],
+    [
+      115.88,
+      "form braised in the"
+    ],
+    [
+      117.08,
+      "sand"
+    ],
+    [
+      118.22,
+      "Soaking up the"
+    ],
+    [
+      119.22,
+      "thirst of the land"
+    ],
+    [
+      120.6,
+      "Ocean man"
+    ],
+    [
+      122.4,
+      ""
+    ]
+  ],
+  "lyric_position_seconds": 72.936,
+  "lyric_clock_epoch": 1790890776.1426716,
+  "playlist": "T:\\mp3\\LISTS\\changerrecent to learn only.m3u",
+  "playlist_track_count": 6054,
+  "has_lyr_txt": true,
+  "has_karaoke_sidecars": true,
+  "visualizer_unicode_halfcell_forced": false,
+  "speed_index": 12,
+  "artist_throb_ms": 300,
+  "song_throb_ms": 1000,
+  "artwork_seam_strategy": 5,
+  "pause_reason": "",
+  "external_media_auto_paused": false,
+  "external_media_decision": "watching",
+  "external_media_active": [],
+  "external_media_acknowledged": [],
+  "external_media_monitor_known": true,
+  "external_media_monitor_degraded": false,
+  "external_media_smtc_error": "",
+  "external_media_monitor_status": "Native Windows audio + media sessions",
+  "external_media_fade_remaining": 0.0,
+  "repeat_mode": 2,
+  "repeat_mode_name": "Repeat playlist",
+  "shuffle_mode": 1,
+  "shuffle_mode_name": "Shuffle by history",
+  "visualizer_mode": 1,
+  "art_color_representation": 3,
+  "art_color_blackness": true,
+  "art_color_bars": true,
+  "art_color_karaoke_sides": false,
+  "art_color_karaoke": false,
+  "art_color_bar_strength": 100,
+  "art_color_bar_blend_mode": 1,
+  "art_color_bar_opacity": 64,
+  "audio_health": {
+    "isolated": true,
+    "queued_ms": 298.6666666666667,
+    "underruns": 0
+  },
+  "art_color_black_strength": 30,
+  "color_style": 1,
+  "color_reverse": true,
+  "processing_style": 63,
+  "persistence_mode": 2,
+  "visualizer_granularity": 3,
+  "visualizer_rows": 32,
+  "truncate_visualizer_rows": 0,
+  "karaoke_style": 1,
+  "karaoke_style_spaced": false,
+  "karaoke_style_framed": false,
+  "karaoke_style_frame": 0,
+  "karaoke_offset_seconds": 0.0,
+  "karaoke_treatment": 2,
+  "lyrics_mode": 2,
+  "artwork_karaoke_enabled": true,
+  "popup_emojimax_enabled": true,
+  "karaoke_emojimax": false,
+  "alert_non_default_speed": true,
+  "fade_style": 1,
+  "frequency_warp_enabled": false,
+  "frequency_warp_preset": 0,
+  "frequency_warp_custom_permille": [
+    306,
+    346,
+    356,
+    445
+  ],
+  "frequency_warp_custom_20": 306,
+  "frequency_warp_custom_40": 346,
+  "frequency_warp_custom_60": 356,
+  "frequency_warp_custom_80": 445,
+  "sixel_enabled": false,
+  "album_art_visualizer_enabled": false,
+  "external_album_art_enabled": true,
+  "karaoke_visualizer_expansion_enabled": true,
+  "karaoke_visualizer_overlay": false,
+  "karaoke_visualizer_height_mode": 0,
+  "background_status": null,
+  "visualizer_perf": {
+    "fps": 35.6,
+    "terminal_fps": 35.6,
+    "target_fps": 41.44,
+    "render_ms": 18.605,
+    "transport_ms": 3.929,
+    "bytes_per_second": 0.0,
+    "escapes_per_second": 0.0,
+    "runs_per_second": 0.0,
+    "transport_mode": "semantic-cell",
+    "cpu_percent": 94.7,
+    "missed": 83,
+    "profile_enabled": false,
+    "components": {},
+    "window_seconds": 5.0
+  },
+  "updated_at_epoch": 1790890776.1426716,
+  "window_title": "▶️    •   Julia Larson – Ocean Man   •   Julia Larson – O",
+  "result": "completed"
+}

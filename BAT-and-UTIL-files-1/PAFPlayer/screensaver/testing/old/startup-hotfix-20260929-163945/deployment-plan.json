@@ -1,0 +1,14 @@
+{
+  "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver\\startup-hotfix-20260929-163945\\PAFPlayer.scr",
+  "sha256": "d9bcf725dcc466af055321b8aa63e2c113a1ae62e10ad9d721579d37cdeb074d",
+  "targets": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver\\PAFPlayer.scr",
+      "prior_sha256": "d754ff24f45d02f5e75ce645f0d68ec6f27d5a3bd834ecff5f7a9f5d26ff5c0f"
+    },
+    {
+      "path": "C:\\BAT\\PAFPlayer.scr",
+      "prior_sha256": "d754ff24f45d02f5e75ce645f0d68ec6f27d5a3bd834ecff5f7a9f5d26ff5c0f"
+    }
+  ]
+}

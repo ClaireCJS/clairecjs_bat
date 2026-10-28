@@ -1,0 +1,9 @@
+{
+  "v515_report": "tests\\reports\\v515-embedded-20261008080519.txt",
+  "v514_report": "tests\\reports\\v515-baseline-v514-20261008103131.txt",
+  "tests_each": 678,
+  "v515_nonpassing": 64,
+  "v514_nonpassing": 64,
+  "new_failures": [],
+  "removed_failures": []
+}

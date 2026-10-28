@@ -1,0 +1,753 @@
+# PAFPlayer
+
+## Current release — V517
+
+**Source:** `PAFPlayer.py`  
+**Snapshot:** `releases/PAFPlayer_v517_lockscreen_live_lyrics.py`  
+**Build ID:** `2026-10-09-v517-lockscreen-live-lyrics`  
+**Updated:** 2026-10-09
+
+The lock-screen companion now follows the current lyric line with 250 ms checks.
+A compact status request keeps lyrics current when the web player is closed,
+without activating the browser spectrum. Only changed content is submitted;
+unchanged tile/badge notifications renew every 30 seconds. Pauses, seeks and lyric
+gaps follow PAFPlayer's existing current-line state.
+
+Launch V517 to load the player-side fix. The installed companion is named
+PAFPlayer Lock Screen V517; the existing identity and saved settings are preserved.
+138 focused tests passed, along with compilation, signature/package validation
+and real interactive activation/publication. V517 locked-screen lyric timing
+still needs the manual visual check. Native status was confirmed by the user.
+
+See the [guide and manual verification](../docs/windows-lock-screen.md) and
+[release history](PAFPlayer_changelog.md).
+The [visual screensaver](../docs/visual-screensaver.md) remains separate.
+UAC, playback code and play_audio_file.py were not changed. No literal C:\BAT paths changed.
+
+## Historical comprehensive manual — V448
+
+**Historical release:** PAFPlayer V448  
+**Build ID:** `2026-09-24-v448-playback-config-layout`  
+**Historical source name:** `PAFPlayer.py` / `PAFPlayer_v448.py`  
+**Updated:** 2026-09-24  
+**Platform:** Windows-first; Windows Terminal is the intended console host.
+
+> The V448 material below is historical coverage. For current behavior, use the current source and the linked project documentation and release notes above.
+
+---
+
+## What PAFPlayer is
+
+PAFPlayer is a Windows-first music player that treats the terminal, artwork window, floating-lyrics window, and browser page as four coordinated views of one player. It is not just a wrapper around FFplay anymore. V448 combines its own buffered Windows audio path, FFmpeg/FFprobe analysis, playlist/history logic, Last.fm integration, karaoke, EmojiMaxx, console visualizers, artwork compositing, a persistent web controller, speaker-expansion matrices, and multi-output playback.
+
+PAFPlayer is designed around one principle: **music should keep playing while expensive work happens elsewhere**. Playlist history scoring, shuffling, metadata work, artwork work, Last.fm network calls, visual analysis, and most GUI work are moved off the critical playback path whenever possible.
+
+### The four user surfaces
+
+```mermaid
+flowchart LR
+    A[PAFPlayer playback core] --> T[Windows Terminal\nHUD + karaoke + visualizer]
+    A --> P[Artwork pop-up\ncover art + over-art karaoke]
+    A --> F[Floating lyrics\nindependent position + size]
+    A --> W[Web controller\nlocalhost:666 by default]
+    T --> A
+    P --> A
+    F --> A
+    W --> A
+```
+
+The **terminal** is the primary keyboard-driven interface. The **artwork pop-up** is a persistent movable/resizable cover-art surface with optional karaoke. **Floating Lyrics** is a separate lyric-only window. The **web controller** exposes transport, configuration, artwork, karaoke, visualizer, speaker expansion, and diagnostics in a browser.
+
+---
+
+# 1. Quick start
+
+The documentation uses the modern program name `PAFPlayer.py`. Some compatibility strings inside the source and its built-in usage screen still say `play_audio_file.py`; those are historical names, not a second product.
+
+```text
+python PAFPlayer.py C:\mp3\Artist\Album\Song.mp3
+python PAFPlayer.py --playlist C:\mp3\lists\favorites.m3u
+python PAFPlayer.py C:\mp3\lists\favorites.m3u
+python PAFPlayer.py --random-file C:\mp3\PUNK
+python PAFPlayer.py --random-file-recursive C:\mp3
+python PAFPlayer.py --simple C:\mp3\Artist\Album\Song.mp3
+python PAFPlayer.py --version
+python PAFPlayer.py --unit-tests
+```
+
+If `C:\mp3` does not exist on first Windows use, PAFPlayer can ask where the real music collection lives and establish the expected `C:\mp3` / `C:\music` aliases and `C:\mp3\lists` structure without silently replacing existing paths.
+
+### Core external tools
+
+PAFPlayer expects FFmpeg-family tools to be available in `PATH` for full operation: `ffmpeg`, `ffplay`, and `ffprobe`. Chafa is used for console artwork when available. Python packages are loaded opportunistically: `mutagen` expands metadata/art/embedded-lyric support; `wcwidth` improves terminal-width accounting; `pyaudiowpatch` is used for selected WASAPI loopback/microphone features. Claire helper modules can live in `C:\clairecjs_utils`, an importable package location, beside PAFPlayer, or in its supported helper subfolder.
+
+---
+
+# 2. Mental model: one player, several pipelines
+
+```mermaid
+flowchart TD
+    File[Audio file] --> Probe[FFprobe metadata + duration]
+    File --> Trim[Optional edge-silence bounds]
+    File --> Decode[FFmpeg / decoder path]
+    Probe --> Gain[ReplayGain decision]
+    Trim --> Decode
+    Gain --> Decode
+    Decode --> Speed[Speed / balance / matrix processing]
+    Speed --> Stereo[Buffered WaveOut + MMCSS\ndefault stereo path]
+    Speed --> Multi[Native speaker-mapped WaveOut\n5.1 / 7.1 / 7.1.4 + multi-output]
+    Speed --> Legacy[Legacy FFplay fallback]
+    Decode --> Analysis[Spectrum / beat / visual analysis]
+    Probe --> HUD[HUD + web metadata]
+    Analysis --> Visuals[Console + web visualizers]
+    Probe --> Lyrics[Lyrics / karaoke / artwork]
+```
+
+The audio path and presentation path are deliberately separate. Turning on artwork, web controls, karaoke, or visualizer effects should not change the underlying track identity/history semantics. Likewise, visualizer features do not rewrite the music.
+
+---
+
+# 3. Audio playback
+
+## 3.1 Default stereo renderer
+
+V447 defaults to **Smooth Audio**, PAFPlayer's buffered Windows WaveOut renderer with an MMCSS audio pump. The normal safety reservoir is **250 ms**. Its purpose is to protect playback from short CPU/GIL/UI spikes while avoiding the much larger latency of older experiments. Pause/resume uses a shorter one-shot reservoir so Space does not wait for the entire normal buffer to refill.
+
+Use:
+
+```text
+--smooth-audio
+--legacy-ffplay-audio
+--audio-buffer-ms=MS
+```
+
+The legacy FFplay path remains available as a fallback and diagnostic comparison.
+
+## 3.2 ReplayGain
+
+ReplayGain is enabled by default in **track-preference** mode:
+
+```text
+--replaygain=track
+--replaygain=album
+--replaygain=off
+```
+
+Track mode prefers track gain and falls back to album gain; album mode reverses that preference. ReplayGain is playback-time normalization. It does **not** bake gain into the source file. PAFPlayer constrains positive gain when peak data says the requested boost would clip.
+
+## 3.3 Edge-silence trimming
+
+Edge trimming is on by default. It is deliberately conservative and only targets sufficiently quiet audio at the **beginning and end** of a track; it does not remove silence in the middle.
+
+Current defaults:
+
+| Setting | Default |
+| --- | ---: |
+| Silence threshold | `-43 dBFS` |
+| Minimum continuous quiet | `0.35 s` |
+| Quiet material retained at boundary | `0.08 s` |
+| Maximum scan from each edge | `60 s` |
+
+Useful switches:
+
+```text
+--trim-edge-silence
+--no-trim-edge-silence
+--trim-silence-threshold-db=-43
+--trim-silence-min-duration=0.35
+--trim-silence-keep=0.08
+```
+
+## 3.4 Volume, speed, balance
+
+The most important controls are:
+
+| Control | Action |
+| --- | --- |
+| `Up / Down` | volume ±5% |
+| `Shift+Up / Shift+Down` | volume ±20% |
+| `Ctrl+Alt+Up / Ctrl+Alt+Down` | global PAFPlayer volume hotkeys |
+| `+ / -` | playback speed |
+| `=` | reset volume to 100% **and** speed to 1× |
+| Numpad balance controls | move/center balance where supported |
+
+Speed is reset to 1× at startup, playlist load, and after successful INS additions.
+
+## 3.5 Stereo, 5.1, 7.1, and 7.1.4
+
+`2`, `5`, and `7` select stereo, 5.1 expansion, and 7.1 expansion. The web UI also exposes **Dolby Atmos 7.1.4** where the Windows/HDMI endpoint can accept it.
+
+The multichannel renderer is not a generic “duplicate stereo everywhere” switch. PAFPlayer maintains an editable **Speaker Expansion Matrix** with per-speaker left/right coefficients, subwoofer crossover, persistent mutes, named profiles, and final-PCM level meters. The native Windows path uses explicit speaker mapping so channel edits reach the intended physical channels.
+
+### Speaker Expansion Matrix
+
+The web controller contains an editor for:
+
+- 5.1
+- 7.1
+- Dolby Atmos 7.1.4
+- per-speaker mute state
+- per-speaker L/R coefficients
+- sub crossover
+- named profiles
+- restore-to-factory per section
+
+## 3.6 Multiple simultaneous output devices
+
+PAFPlayer can select more than one WaveOut endpoint. The **Multi-Out Latency** dialog provides per-endpoint timing from **−2000 ms to +2000 ms**. Positive values delay that endpoint. A negative value means “make this endpoint earlier relative to its peers,” implemented by delaying the other outputs because audio cannot be sent into the past.
+
+An experimental microphone-assisted acoustic auto-sync mode can emit test tones and estimate relative delay.
+
+## 3.7 Other media takes priority
+
+V447 can automatically pause PAFPlayer when **new** VLC, Winamp, or browser playback becomes active. Existing background media at PAFPlayer startup is ignored. Once the other media is quiet, PAFPlayer can resume with a configurable fade; the default is **15 seconds**.
+
+The optional loudness matcher can use recent clean measurements to adjust PAFPlayer's resumed volume to resemble the external media. It requires sufficient clean samples and leaves volume unchanged if the measurement is ambiguous or contaminated.
+
+The relevant web Playback controls are:
+
+- **Pause for VLC, Winamp and browser media**
+- **Match external playback loudness**
+- **Automatic resume fade-in**
+
+### V448 Playback configuration layout
+
+The Playback section is deliberately grouped into four visual rows:
+
+1. **Device → Channels → Speaker Expansion Matrix → Disable speaker expansion**
+2. **Rate + bit depth → Playback speed → Balance**
+3. **Pause for VLC/Winamp/browser media → Match external playback loudness → Automatic resume fade-in**
+4. **Visualizer input**
+
+The rows remain flex-wrapped on narrow browser windows, so the semantic order is preserved even when a row has to wrap. **Multi-Out Latency** remains conditionally visible next to the Device control when multiple outputs make it relevant.
+
+### V447 audio safety fix
+
+V446 contained a serious endpoint-probe bug: a COM vtable index intended to read mute state called `SetMute` instead of `GetMute`, which could mute every active Windows render endpoint and therefore silence browsers as well as PAFPlayer. V447 corrects the probe to call `GetMute` and contains a regression guard for that mistake.
+
+---
+
+# 4. Transport and navigation
+
+| Key | Current behavior |
+| --- | --- |
+| `Space` | pause/resume |
+| `< / >` | previous/next track |
+| `{ / }` | previous/next directory containing audio |
+| `Left / Right` | seek −/+5 s |
+| `Shift+Left / Shift+Right` | seek −/+15 s |
+| `Ctrl+Left / Ctrl+Right` | seek −/+60 s |
+| `PgUp / PgDn` | browse previous visits / future playlist; Enter jumps |
+| `J`, `INS`, or bare `Q` | open audio search/queue picker |
+| `Shift+INS` | Windows multi-select file picker; add and queue next |
+| `DEL` | remove current entry from playlist after confirmation; never deletes the audio file |
+| `Ctrl+O` | choose a different playlist and cleanly relaunch it in the same console |
+| `Ctrl+R` / `Ctrl+Alt+R` | reread playlist, reload lyrics, rebuild shuffle/cache |
+| `QQQ` | quit from the Q command flow |
+| `Ctrl+Q`, `Alt+Q`, `Ctrl+Alt+Q` | immediate quit |
+| `X`, `Ctrl+W`, `Alt+F4`, `Ctrl+C`, `Ctrl+Break` | immediate stop/exit path |
+
+Media Previous/Next keys have separate seek/track semantics depending on modifiers; the built-in `?`/F1 help is the best place to check the exact modifier combination while running.
+
+---
+
+# 5. Playlist mode: no waiting in silence
+
+Playlist startup follows this order:
+
+1. Read the playlist file into an N-slot working set.
+2. If a saved resume track exists, start there.
+3. Otherwise choose a starting track randomly.
+4. **Start playback immediately.**
+5. Score history and build the authoritative history shuffle on a session-scoped background thread.
+6. Never cancel that shuffle merely because the song changes.
+
+```mermaid
+flowchart LR
+    P[Open playlist] --> R{Saved resume?}
+    R -- yes --> S[Resume saved song]
+    R -- no --> X[Choose random first song]
+    S --> PLAY[PLAY NOW]
+    X --> PLAY
+    PLAY --> BG[Background history scoring + shuffle]
+    BG --> Q[Authoritative N-slot queue]
+```
+
+This is intentional: PAFPlayer should not make you wait silently for a large history shuffle before the first song begins.
+
+## 5.1 History-biased shuffle
+
+The normal history shuffle is:
+
+- one randomized **Never / unknown-history bucket** first;
+- followed by **10 known-history deciles**, oldest to newest;
+- randomized within each bucket/decile.
+
+The V448 source keeps the old 3-hour “recent visit avoidance” machinery behind `SHUFFLE_RECENT_AVOID_ENABLED`, but that switch is **off by default**. Some older help text still mentions the old 3-hour behavior; the V448 code is authoritative.
+
+## 5.2 Persistent shuffle cache
+
+A completed shuffle can be reused for up to **5 hours** by default. Queue rotation does not reset the original cache age. Writes are coalesced asynchronously so a cache write does not compete with the next song's audio startup.
+
+## 5.3 INS is a real play-next queue
+
+INS/Shift+INS additions are both playlist edits and explicit **play-next** requests. They are kept separately from the long-lived history shuffle until they have played. If several tracks are added while shuffle is active, those manually requested tracks are randomized **among themselves**, but ordinary shuffle does not jump ahead of them.
+
+## 5.4 Live playlist edits are protected against stale workers
+
+PAFPlayer uses runtime addition overlays and deletion tombstones so a slower background loader cannot accidentally resurrect a track you removed or erase a track you just added. `Ctrl+R` performs a true disk reread and rebuild.
+
+---
+
+# 6. Search, playlist browser, and tags
+
+## Search / queue picker
+
+`J`, `INS`, or bare `Q` opens the search interface.
+
+- `Enter`: queue selected result(s)
+- `Shift+Enter`: jump directly
+- `Ctrl+Space`: multi-select rows
+- `Shift+INS`: use the Windows picker instead
+
+The master catalog is prepared in the background. Large collections avoid doing filesystem work on every keystroke.
+
+## Playlist browser
+
+`PgUp` / `PgDn` opens the visit/future browser. Navigation keys move the selection, Enter jumps to the selected track, and Esc closes it.
+
+## Tag view
+
+`Alt+3` opens the live tag view. It updates as tracks change, prioritizes HUD-equivalent fields, translates common metadata/ID3 identifiers, and keeps each field to one terminal row. `PgUp/PgDn` pages it; `Alt+3`, Esc, or Q returns to the normal HUD.
+
+---
+
+# 7. Local history and Last.fm
+
+PAFPlayer deliberately separates **local Last play** from a **Last.fm scrobble**.
+
+- Local history is earned after **one third (33⅓%)** of the unique track timeline has genuinely been heard.
+- Last.fm normally requires **more than 50%**.
+- Repeated seeking over the same segment does not manufacture progress because heard ranges are merged.
+- A clean natural EOF can count as conclusive local-history evidence when malformed duration metadata makes the percentage threshold unreachable.
+- Last.fm **Now Playing** is sent once at the beginning of a logical track visit and is not itself a scrobble.
+
+`Ctrl+Alt+S` force-writes local history and requests a Last.fm scrobble. A visit already scrobbled requires a confirming second press before a duplicate is forced.
+
+The historical local database filename remains:
+
+```text
+C:\bat\play_audio_file-play-history.sqlite3
+```
+
+That old filename is retained for **data compatibility**; renaming a Library artifact does not migrate the database or split decades of history.
+
+---
+
+# 8. Terminal HUD
+
+The HUD is not ordinary wrapped console output. It is a width-aware layout engine that tries to maximize information density while keeping important colon stops aligned when space permits.
+
+Typical fields include:
+
+- Act / Artist
+- Song
+- Album
+- Year
+- Genre
+- Comment
+- Composer
+- URL
+- Last play
+- playback path / state
+- ReplayGain and optional diagnostic rows
+
+`Ctrl+Alt+Numpad1` toggles smart HUD packing/alignment for the current session. `Ctrl+Alt+/` toggles extra ReplayGain/playlist/effective-tag detail rows borrowed from visualizer space.
+
+`F5` toggles the 1-second FPS HUD and redraws. `Ctrl+Alt+F` toggles the shorter visualizer performance overlay.
+
+---
+
+# 9. Console visualizer
+
+The console spectrum targets **120 Hz presentation** while its FFT analysis remains much lower-rate (normally 30 Hz). PAFPlayer interpolates presentation frames, suppresses duplicates, and adapts when the terminal cannot sustain the target.
+
+Current defaults include:
+
+- DRCS visualizer: on
+- SIXEL visualizer: off
+- target presentation rate: 120 fps
+- analysis rate: 30 Hz
+- top visualizer rows hidden: 1
+- default persistence: Waterfall Smear
+- default granularity: Twin DRCS
+- frequency warp: off / experimental
+
+The renderer explicitly anchors rows to terminal column 1, suppresses autowrap during paints, and can use synchronized-output commits to reduce tearing.
+
+### Main visualizer controls
+
+| Control | Action |
+| --- | --- |
+| `V / Shift+V` | next/previous visualizer mode |
+| `F6 / F7` | glyph style |
+| `Shift+F6 / Shift+F7` | visualizer treatment |
+| `Alt+F6 / Alt+F7` | processing style |
+| `Shift+F4` | granularity |
+| `C / Shift+C` | palette next/previous |
+| `C`, then number | jump to palette number |
+| `C`, then `?` | palette catalog |
+| `Alt+Shift+C` | reverse palette |
+| `Ctrl+G / Ctrl+Shift+G` | persistence next/previous |
+| `Alt+G` | persistence favorites |
+| `Ctrl+Alt+G` | toggle current persistence favorite |
+| `Ctrl+Alt+F8` | use blank karaoke rows for visualizer |
+| `Ctrl+Alt+F9` | experimental frequency warp |
+| `Shift+F10` | experimental karaoke-over-visualizer overlay |
+
+### Artwork inside the visualizer
+
+The web controller can independently enable artwork in:
+
+- filled bars
+- black/background cells
+- karaoke-side regions
+- karaoke regions (experimental)
+
+Microtile detail modes range from simple per-cell color through quadrant/sextant/octet and adaptive hybrid modes. The current default is a 2×4 exact hybrid mode with Unicode mosaics allowed where needed. The `--no-microtile-detail...` switches force simpler single-character detail for diagnostics.
+
+---
+
+# 10. Karaoke, lyrics, EmojiMaxx, and de-censoring
+
+PAFPlayer can display timed lyrics in the console, over artwork, in the floating-lyrics window, and in the browser. Sidecar formats and embedded lyric metadata are both supported where the installed metadata stack permits it.
+
+`Ctrl+E` opens exact-stem lyric/subtitle sidecars. `D` finishes an edit cycle by reloading the files and attempting embedded lyric write-back/read-back verification.
+
+## Karaoke controls
+
+| Control | Action |
+| --- | --- |
+| `F2 / F3` | previous/next karaoke style |
+| `Shift+F2 / Shift+F3` | previous/next treatment |
+| `F4` | EmojiMaxx on/off |
+| `Ctrl+Numpad+ / Ctrl+Numpad-` | adjust karaoke offset where supported |
+
+PAFPlayer keeps a track-local karaoke timing offset and can offer to bake timing changes into timed lyric data/metadata at the end of the song.
+
+## EmojiMaxx
+
+EmojiMaxx replaces selected lyric words/phrases with semantic emoji or symbols while preserving special terminal-width behavior needed by Windows Terminal. Mappings are curated, and low-quality/ambiguous substitutions are deliberately removed rather than treated as a goal in themselves.
+
+**V516/V517 change:** low-value `answer`, `job`, `creep`, `halo`, `speck`, and `goddamn` substitutions were removed. `guys` now uses a people-group symbol without a handshake sequence. There is no exact `lightly` mapping; nearby `light`, `slightly`, and compound-word mappings remain unchanged.
+
+**V447 change:** `beast` / `beasts` are explicitly excluded from EmojiMaxx.
+
+The CLI preview is useful for testing substitutions without playing music:
+
+```text
+python PAFPlayer.py --emojimaxx "your sample lyric here"
+```
+
+It prints the ordinary transformed form and a Windows-Terminal double-height preview.
+
+## De-censoring
+
+De-censoring is display-only and off by default. The three destinations are independently controllable:
+
+- Console Karaoke
+- Artwork lyrics
+- Floating lyrics
+
+The browser has its own web-karaoke de-censor control as well. The mechanism restores profanity only when it recognizes supported asterisk-masked forms; it does not rewrite the source lyric file merely because display de-censoring is enabled.
+
+---
+
+# 11. Artwork pop-up
+
+The artwork pop-up is a persistent Tk window. It is hidden when no usable art exists and can reappear automatically on a later song with art.
+
+Important current behavior:
+
+- changing tracks/art does **not** resize the popup;
+- complete artwork is contained without cropping;
+- unused aspect-ratio gutters are transparent;
+- position and manually chosen size persist;
+- ordinary resize is free-form;
+- hold **Ctrl while resizing** to force a square;
+- the monitor-scaled grab border is shown while the window is focused;
+- Ctrl+wheel / Ctrl− / Ctrl= changes over-art lyric size;
+- active art can crossfade among related images;
+- idle art/gallery behavior is separate from active playback behavior.
+
+The web controller exposes the artwork controls in this order:
+
+1. **⬆ Bring to top** — one-time raise without changing persistence
+2. **📌 Always on top** — persistent topmost state
+3. **🎨 Configure artwork karaoke**
+4. **De-censor profanity**
+5. Popup Karaoke enable/disable
+
+`Alt+A` or `Ctrl+Alt+Numpad8` toggles the artwork window. `Ctrl+Alt+A` brings it to the foreground. `Ctrl+Alt+I` manually starts the idle artwork routine after its input grace period.
+
+Artwork lookup can use embedded art, exact-stem sidecars, conventional cover/back/disc/inlay images, and selected cache fallbacks according to the track/folder rules. Missing-art downloading is explicit, not automatic: `Ctrl+Alt+D` downloads when art is missing; otherwise that key retains its visualizer-related behavior.
+
+---
+
+# 12. Floating Lyrics
+
+Floating Lyrics is a genuinely separate destination, not merely artwork karaoke with the image hidden.
+
+When you reveal/click it for editing, the window becomes opaque enough to work with and grows a thick border so it is easy to grab. You can drag it, resize it from the border, and then return to its normal presentation state.
+
+Current controls include:
+
+- **⬆ Bring to top**
+- **📌 Always on top**
+- **💬 Configure floating lyrics**
+- **De-censor profanity**
+- `Ctrl+mousewheel` for manual text sizing
+- **Autosize** to fit each sung line as large as possible within the current box
+- persistent justification, position, size, color/treatment settings, and topmost state
+
+`Alt+F` or `Ctrl+Alt+Shift+F` toggles floating lyrics.
+
+---
+
+# 13. Web controller
+
+The web server is enabled by default on:
+
+```text
+http://127.0.0.1:666/
+```
+
+The default bind is loopback-only. Using `0.0.0.0` explicitly exposes the controller to other clients allowed by the host firewall/network and should be treated as a trusted-LAN decision; PAFPlayer does not add TLS/authentication merely because you change the bind address.
+
+Useful CLI switches:
+
+```text
+--web-server
+--no-web-server
+--web-host=127.0.0.1
+--web-port=666
+```
+
+### Main web sections
+
+The present V448 page is organized around functional groups rather than one giant flat control panel:
+
+- Playback / transport
+- Artwork and current-track information
+- Web Karaoke
+- Artwork Pop-Up
+- Floating Lyrics
+- Console Karaoke
+- Console Visualizer
+- Progress Bar
+- Speaker Expansion Matrix
+- Multi-Out Latency
+- Experimental
+- metadata / maintenance actions
+
+The web page is a controller for the same playback owner used by the keyboard. HTTP request threads queue semantic actions rather than directly taking over track state.
+
+---
+
+# 14. Saved settings, defaults, and undo
+
+Command-line switches are **session-only** unless a feature explicitly says otherwise. Persistent choices are stored through PAFPlayer's settings layer, historically under the registry branch:
+
+```text
+HKEY_CURRENT_USER\Software\ClaireCJS\play_audio_file
+```
+
+That branch retains the old product name for compatibility with existing settings. Renaming it casually would make a mature installation appear to “forget” years of preferences, so the documentation treats it as a compatibility identifier rather than a user-facing product name.
+
+Important controls:
+
+| Control | Action |
+| --- | --- |
+| `*` | saved-default manager |
+| `* → R → A` | restore all saved defaults |
+| `Ctrl+Alt+F1` | restore all saved defaults directly |
+| `Alt+F1` | undo the most recent defaults restore |
+| `Ctrl+Z` | undo runtime setting changes, repeatedly, from the in-session undo stack |
+
+---
+
+# 15. Console Alerts and maintenance
+
+The web settings include a master **Console Alerts** switch and individual warnings for things such as:
+
+- missing ReplayGain
+- missing artist/title
+- missing karaoke/lyrics
+- missing artwork
+- unknown year/genre
+- embedded lyrics differing from sidecar lyrics
+
+The ReplayGain alert is intentionally more persistent than one-shot metadata notices.
+
+Claire-specific attribute-management features can be disabled for a run with:
+
+```text
+--suppress-attribute-management
+```
+
+`Alt+L` toggles the effective learned state quickly. `Ctrl+Alt+L` runs the richer learned/extras workflow. `Ctrl+A` opens the applicable `attrib.lst` path according to local/inherited rules.
+
+---
+
+# 16. Files, logs, and compatibility paths
+
+Important current locations include:
+
+| Purpose | Path / location |
+| --- | --- |
+| Error log | `C:\logs\PAFPlayer\errors.log` |
+| Trace log | `C:\logs\PAFPlayer\trace.log` |
+| Error/trace rollover | one `.bak` generation at 100 MiB |
+| Internal play history | `C:\bat\play_audio_file-play-history.sqlite3` |
+| Default catalog | `C:\mp3\lists\everything.m3u` |
+| Catalog fallback | `C:\mp3\filelist.txt` |
+| Global base attributes | `C:\mp3\mp3-base-attributes.lst` |
+| Winamp-compatible now-playing text | `C:\mp3\lists\winamp_now_playing.txt` |
+| Winamp-compatible now-playing art | `C:\mp3\lists\winamp_now_playing.jpg` |
+| Preferred private emoji font | `C:\util\fonts\seguiemj.ttf` |
+
+The remaining `play_audio_file` strings in persistence paths are compatibility names. The **Library/document/source artifact naming** is PAFPlayer; old storage identifiers should be migrated only with an explicit data migration plan.
+
+---
+
+# 17. Diagnostics and special modes
+
+Useful diagnostic commands include:
+
+```text
+python PAFPlayer.py --version
+python PAFPlayer.py --unit-tests
+python PAFPlayer.py --emoji-display-test
+python PAFPlayer.py --emojimaxx "text"
+python PAFPlayer.py --emoji-symbol-survey
+python PAFPlayer.py --hud-layout-survey
+python PAFPlayer.py --speaker-test-5.1
+python PAFPlayer.py --speaker-test-7.1
+python PAFPlayer.py --speaker-test-suite
+python PAFPlayer.py --last-played REGEX
+python PAFPlayer.py --display-last-played-date-for-playlist playlist.m3u
+```
+
+`--simple` / `--light` is the useful “strip the fancy stuff away” diagnostic preset: it disables console/popup art, the web server, now-playing sidecar output, and visualizers for that process.
+
+---
+
+# 18. Troubleshooting
+
+## No audio anywhere after starting an older V446 build
+
+Exit V446 completely, unmute the affected Windows render endpoint(s), and use V447 or newer. V446's endpoint probe could mute the system outputs themselves, which is why browsers could go silent too. V447 fixes that probe.
+
+## PAFPlayer audio is choppy under heavy visuals
+
+Try, in order:
+
+1. confirm Smooth Audio is enabled;
+2. increase `--audio-buffer-ms` moderately;
+3. turn off console artwork or visualizer components temporarily;
+4. use `--simple` to establish an audio-only baseline;
+5. compare `--legacy-ffplay-audio` as a diagnostic, not automatically as the preferred permanent solution;
+6. use F5 / the performance HUD to determine whether the terminal renderer is the bottleneck.
+
+## Visualizer tears or looks horizontally shifted
+
+The current renderer already uses absolute column-one anchoring, autowrap suppression, explicit row movement, synchronized-output support, and several transport modes. If a regression appears, capture the active transport/microtile mode and F5/performance data rather than assuming the FFT itself is slow.
+
+## Playlist startup appears to be “shuffling forever”
+
+Playback should already have begun. The initial song is selected/resumed before historical scoring completes. The background status can continue across track changes; that is expected. Silence while waiting for the shuffle is not.
+
+## `Last play: Never` disagrees with known history
+
+The current design uses a canonical SQLite history source plus repaired Artist+Song/duration/filename identity paths. A provisional lookup should not be treated as a definitive Never. Use `--last-played REGEX` or playlist history analysis to inspect the stored match.
+
+## Artwork or lyrics window is hard to grab
+
+Reveal/focus the window. Floating lyrics enters an opaque thick-border editor state specifically so it can be moved/resized. The artwork border is focus-visible and DPI-scaled.
+
+---
+
+# 19. Current control cheat sheet
+
+This is intentionally the **high-value** set, not every experimental chord.
+
+| Area | Keys |
+| --- | --- |
+| Help | `?` or `F1` |
+| Pause | `Space` |
+| Track | `<` / `>` |
+| Seek | arrows; Shift=15s; Ctrl=60s |
+| Search / queue | `J`, `INS`, bare `Q` |
+| File picker add | `Shift+INS` |
+| Playlist browse | `PgUp` / `PgDn` |
+| Remove playlist entry | `DEL` |
+| Reload playlist + lyrics | `Ctrl+R` / `Ctrl+Alt+R` |
+| New playlist | `Ctrl+O` |
+| Speed | `+` / `-` |
+| Reset volume + speed | `=` |
+| Volume | `Up` / `Down`; Shift for ±20% |
+| Output layout | `2` / `5` / `7` |
+| Karaoke style | `F2` / `F3` |
+| Karaoke treatment | `Shift+F2` / `Shift+F3` |
+| EmojiMaxx | `F4` |
+| Visualizer mode | `V` / `Shift+V` |
+| Palette | `C` / `Shift+C` |
+| Persistence | `Ctrl+G` / `Ctrl+Shift+G` |
+| FPS | `F5` |
+| Performance overlay | `Ctrl+Alt+F` |
+| Artwork popup | `Alt+A` |
+| Raise artwork | `Ctrl+Alt+A` |
+| Floating lyrics | `Alt+F` |
+| Edit lyrics | `Ctrl+E`, then `D` when finished |
+| Tag view | `Alt+3` |
+| Force history + scrobble | `Ctrl+Alt+S` |
+| Undo runtime setting | `Ctrl+Z` |
+| Quit | `QQQ`, `Ctrl+Q`, `Alt+Q`, or `Ctrl+Alt+Q` |
+
+For the full current key matrix, press **? / F1 inside PAFPlayer**. That runtime help is generated from the same source tree and is the right place for obscure experimental chords.
+
+---
+
+# 20. What “current documentation” means now
+
+The Library should use **PAFPlayer** as the user-facing artifact name. `PAFPlayer.md` is the canonical current manual. Historical manuals remain useful for design archaeology and regression tracing, but they are named by PAFPlayer version and are no longer concatenated into the current manual.
+
+The old name still appears in some **internal compatibility identifiers**—notably the registry branch, history database filename, and a few source-level function/CLI strings. Those do not mean the product is still named `play_audio_file`; they are retained because changing persistent identifiers without migration can lose settings/history or break scripts.
+
+---
+
+# 21. V448 release note
+
+V448 is a focused web-configuration layout release on top of V447:
+
+- rearranges Playback controls into four explicit semantic rows matching the requested workflow;
+- keeps the conditional **Multi-Out Latency** button associated with Device;
+- preserves the V447 Windows endpoint `GetMute` safety fix and the `beast` / `beasts` EmojiMaxx removal;
+- adds a regression test for the Playback control ordering;
+- remains responsive by allowing each semantic row to wrap on narrow browser widths.
+
+### V447 historical note
+
+V447 fixed the Windows endpoint mute-state probe so it calls `IAudioEndpointVolume::GetMute` rather than accidentally invoking `SetMute`, added a regression guard for that error, and removed `beast` / `beasts` from EmojiMaxx.
+
+---
+
+## Documentation policy going forward
+
+When PAFPlayer changes substantially, update **this** file rather than cloning another “canonical merged documentation” file with an incremented parenthesized filename. Version-specific manuals can be archived when useful, but the current user entry point stays:
+
+```text
+PAFPlayer.md
+```
+
+That keeps one obvious answer to the question: **“What does PAFPlayer do right now?”**

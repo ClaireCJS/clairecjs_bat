@@ -60,9 +60,13 @@ class Sessions:
         session["updated"] = now()
         state_write(self.directory / (session["id"] + ".json"), session)
 
-    def create(self, paths, profile):
+    def create(self, paths, profile, notify=None):
+        items=[]
+        for index,path in enumerate(paths):
+            if notify:notify(f'Hashing source images {index+1:,}/{len(paths):,}: '+Path(path).name)
+            items.append({"path":str(path),"hash":sha256(path),"state":"pending","artifacts":[]})
         session = {"id": str(uuid.uuid4()), "created": now(), "updated": now(), "profile": profile,
-                   "items": [{"path": str(p), "hash": sha256(p), "state": "pending", "artifacts": []} for p in paths]}
+                   "items": items}
         self.save(session)
         return session
 

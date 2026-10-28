@@ -27,7 +27,7 @@ def launch(cwd, *arguments):
 def test_resources_resolve_from_tool_root_with_minimal_path(tmp_path):
     result = json.loads(launch(tmp_path, "environment", "status", "--json").stdout)
     assert result["english_fast"]
-    for tool in ("tesseract", "magick", "chafa"):
+    for tool in ("tesseract", "magick"):
         assert Path(result["native"][tool]["path"]).is_relative_to(ROOT / "environment")
     for package in result["packages"].values():
         assert "error" not in package, package
@@ -48,17 +48,11 @@ def test_root_stays_minimal_after_read_only_commands(tmp_path):
     assert list(tmp_path.iterdir()) == []
 
 
-def test_bundled_terminal_renderer_runs_without_global_tools(tmp_path):
-    from PIL import Image
-    image = tmp_path / "generated-preview.png"
-    Image.new("RGB", (80, 40), "purple").save(image)
-    result = subprocess.run(
-        [str(ROOT / "environment/tools/chafa/chafa.exe"), "--format", "symbols",
-         "--colors", "none", "--size", "20x6", str(image)],
-        env=isolated_environment(), cwd=tmp_path, capture_output=True,
-        timeout=30, check=True,
-    )
-    assert result.stdout
+def test_private_paf_renderer_is_available_without_global_tools(tmp_path):
+    result=json.loads(launch(tmp_path,"doctor","--json").stdout)
+    assert result['preview']['available']
+    assert result['preview']['renderer']=='pafplayer-dual-preview'
+    assert Path(result['preview']['module']).is_relative_to(ROOT/'src')
 
 
 def test_offline_package_archive_matches_manifest():

@@ -1,0 +1,22 @@
+{"start": "test_PAFPlayer_v459.CompleteDecodedEnding.test_fast_bounded_segment_excludes_audio_beyond_source_end"}
+{"test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_fast_bounded_segment_excludes_audio_beyond_source_end", "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_fast_bounded_segment_excludes_audio_beyond_source_end", "outcome": "pass", "seconds": 0.094, "detail": ""}
+{"start": "test_PAFPlayer_v459.CompleteDecodedEnding.test_fast_speed_keeps_final_tone"}
+{"test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_fast_speed_keeps_final_tone", "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_fast_speed_keeps_final_tone", "outcome": "pass", "seconds": 0.078, "detail": ""}
+{"start": "test_PAFPlayer_v459.CompleteDecodedEnding.test_half_speed_keeps_final_tone"}
+{"test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_half_speed_keeps_final_tone", "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_half_speed_keeps_final_tone", "outcome": "pass", "seconds": 0.11, "detail": ""}
+{"start": "test_PAFPlayer_v459.CompleteDecodedEnding.test_ninety_percent_speed_keeps_final_tone"}
+{"test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_ninety_percent_speed_keeps_final_tone", "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_ninety_percent_speed_keeps_final_tone", "outcome": "pass", "seconds": 0.109, "detail": ""}
+{"start": "test_PAFPlayer_v459.CompleteDecodedEnding.test_normal_speed_keeps_final_tone"}
+{"test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_normal_speed_keeps_final_tone", "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_normal_speed_keeps_final_tone", "outcome": "pass", "seconds": 0.078, "detail": ""}
+{"start": "test_PAFPlayer_v459.CompleteDecodedEnding.test_seek_near_ending_at_slow_speed_keeps_tail"}
+{"test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_seek_near_ending_at_slow_speed_keeps_tail", "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_seek_near_ending_at_slow_speed_keeps_tail", "outcome": "pass", "seconds": 0.078, "detail": ""}
+{"start": "test_PAFPlayer_v459.CompleteDecodedEnding.test_surround_96khz_24bit_keeps_final_tone"}
+{"test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_surround_96khz_24bit_keeps_final_tone", "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_surround_96khz_24bit_keeps_final_tone", "outcome": "pass", "seconds": 0.328, "detail": ""}
+{"start": "test_PAFPlayer_v459.CompleteDecodedEnding.test_unknown_duration_decodes_to_eof"}
+{"test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_unknown_duration_decodes_to_eof", "parent_test": "test_PAFPlayer_v459.CompleteDecodedEnding.test_unknown_duration_decodes_to_eof", "outcome": "pass", "seconds": 0.078, "detail": ""}
+{"start": "test_PAFPlayer_v459.NaturalCompletion.test_decoder_eof_does_not_finish_until_queued_pcm_drains"}
+{"test": "test_PAFPlayer_v459.NaturalCompletion.test_decoder_eof_does_not_finish_until_queued_pcm_drains", "parent_test": "test_PAFPlayer_v459.NaturalCompletion.test_decoder_eof_does_not_finish_until_queued_pcm_drains", "outcome": "failure", "seconds": 3.0, "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_PAFPlayer_v459.py\", line 121, in test_decoder_eof_does_not_finish_until_queued_pcm_drains\n    self.assertTrue(draining.wait(3))\nAssertionError: False is not true\n"}
+{"start": "test_PAFPlayer_v459.NaturalCompletion.test_natural_close_does_not_reset_device"}
+{"test": "test_PAFPlayer_v459.NaturalCompletion.test_natural_close_does_not_reset_device", "parent_test": "test_PAFPlayer_v459.NaturalCompletion.test_natural_close_does_not_reset_device", "outcome": "pass", "seconds": 0.0, "detail": ""}
+{"start": "test_PAFPlayer_v459.NaturalCompletion.test_next_song_waits_for_every_output_endpoint"}
+{"test": "test_PAFPlayer_v459.NaturalCompletion.test_next_song_waits_for_every_output_endpoint", "parent_test": "test_PAFPlayer_v459.NaturalCompletion.test_next_song_waits_for_every_output_endpoint", "outcome": "pass", "seconds": 0.0, "detail": ""}

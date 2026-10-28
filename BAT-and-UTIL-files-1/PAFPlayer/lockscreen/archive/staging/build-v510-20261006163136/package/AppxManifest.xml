@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+ xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+ IgnorableNamespaces="uap rescap">
+ <Identity Name="ClaireCJS.PAFPlayer.LockScreen" Publisher="CN=PAFPlayerLocal" Version="510.0.0.1" ProcessorArchitecture="x64" />
+ <Properties><DisplayName>PAFPlayer Lock Screen</DisplayName><PublisherDisplayName>PAFPlayer</PublisherDisplayName><Logo>Assets\PAFStore50.png</Logo></Properties>
+ <Dependencies><TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.19045.0" /></Dependencies>
+ <Resources><Resource Language="en-US" /></Resources>
+ <Applications>
+  <Application Id="App" Executable="PAFPlayerLockScreen.exe" EntryPoint="Windows.FullTrustApplication">
+   <uap:VisualElements DisplayName="PAFPlayer Lock Screen" Description="Read-only official PAFPlayer lock-screen status"
+    Square150x150Logo="Assets\PAFIcon150.png" Square44x44Logo="Assets\PAFIcon44.png" BackgroundColor="transparent">
+    <uap:DefaultTile Wide310x150Logo="Assets\PAFWide310.png" />
+    <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="Assets\PAFBadge.png" />
+   </uap:VisualElements>
+  </Application>
+ </Applications>
+ <Capabilities><rescap:Capability Name="runFullTrust" /></Capabilities>
+</Package>

@@ -1,0 +1,45 @@
+{
+  "scope": "Synthetic artwork/bar movement, exact final cells checked. No console output, no claim of in-game FPS improvement.",
+  "python": "3.10.9 | packaged by Anaconda, Inc. | (main, Mar  1 2023, 18:18:15) [MSC v.1916 64 bit (AMD64)]",
+  "results": [
+    {
+      "input_fps": 30,
+      "width": 170,
+      "rows": 32,
+      "frames": 120,
+      "v518_mean_bytes": 148261.83333333334,
+      "v519_mean_bytes": 85367.34166666666,
+      "bytes_reduction_percent": 42.421228884484776,
+      "v518_mean_csi": 4705.391666666666,
+      "v519_mean_csi": 2813.075,
+      "v518_encode_median_ms": 0.22980000358074903,
+      "v519_encode_median_ms": 0.20029999723192304
+    },
+    {
+      "input_fps": 60,
+      "width": 170,
+      "rows": 32,
+      "frames": 120,
+      "v518_mean_bytes": 158228.475,
+      "v519_mean_bytes": 79936.63333333333,
+      "bytes_reduction_percent": 49.48024789259118,
+      "v518_mean_csi": 5006.183333333333,
+      "v519_mean_csi": 2777.0333333333333,
+      "v518_encode_median_ms": 0.2378999997745268,
+      "v519_encode_median_ms": 0.1994499980355613
+    },
+    {
+      "input_fps": 120,
+      "width": 170,
+      "rows": 32,
+      "frames": 120,
+      "v518_mean_bytes": 160085.14166666666,
+      "v519_mean_bytes": 57100.058333333334,
+      "bytes_reduction_percent": 64.33144404355244,
+      "v518_mean_csi": 5054.308333333333,
+      "v519_mean_csi": 2306.825,
+      "v518_encode_median_ms": 0.23629999850527383,
+      "v519_encode_median_ms": 0.185349999810569
+    }
+  ]
+}

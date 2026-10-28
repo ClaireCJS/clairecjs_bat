@@ -1,0 +1,14 @@
+{
+  "role": "client",
+  "version": "V580",
+  "arguments": [
+    "--tray-only",
+    "127.0.0.1:29839",
+    "--foreground"
+  ],
+  "seconds": 0.0,
+  "events": {},
+  "samples": [],
+  "errors": [],
+  "blocked_writes": []
+}

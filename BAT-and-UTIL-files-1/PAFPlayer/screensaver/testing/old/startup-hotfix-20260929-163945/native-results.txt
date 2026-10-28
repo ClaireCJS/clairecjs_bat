@@ -1,0 +1,42 @@
+PASS default configuration mode
+PASS fullscreen and explicit port
+PASS colon preview handle
+PASS separate preview handle
+PASS configuration handle
+PASS reject invalid preview handles
+PASS reject ambiguous mode and bad port
+PASS no input dismissal before display
+PASS three-second grace begins at display, not construction
+PASS launch mouse motion ignored
+PASS mouse motion near grace deadline ignored
+PASS arming discards startup movement
+PASS small pointer jitter tolerated
+PASS deliberate new movement dismisses after grace
+PASS Unicode title and timed lyric JSON
+PASS reject incompatible protocol
+PASS offline clears presentation
+PASS 100000 updates retain one state and its pending image
+PASS discarded images disposed on disconnect
+PASS shutdown disposes late image results
+PASS art decode bounded to 1024 pixels
+PASS bad artwork fails gracefully
+PASS never connects off loopback
+PASS HTTP size cap
+PASS redirect rejected
+PASS unresponsive server timeout
+PASS live polling caches unchanged artwork
+PASS live disable observed
+PASS disconnect clears old song and artwork
+PASS failed connection names endpoint while waiting and retrying
+PASS corrupt artwork is not downloaded repeatedly
+PASS real fullscreen launch key/click do not dismiss
+PASS initially disabled player remains visible with instructions
+PASS real fullscreen key dismisses after grace
+PASS explicit disable of active saver still closes it
+PASS preview embeds as child before display
+PASS real .scr preview process starts and polls
+PASS real .scr exits when preview parent closes
+PASS brightness changes only artwork
+PASS brightness does not dim title or lyric
+COMPLETE: 40 checks passed
+

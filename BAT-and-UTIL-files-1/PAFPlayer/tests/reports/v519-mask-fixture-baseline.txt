@@ -1,0 +1,22 @@
+.E
+======================================================================
+ERROR: test_masks_and_layout_match_v485 (test_v486_lyrics.CueMasks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\codex\clairevironment\bat\PAFPlayer\tests\v519-validation-20261010025119\mask-baseline\tests\test_v486_lyrics.py", line 34, in test_masks_and_layout_match_v485
+    ns['state'].update(state);start=time.perf_counter();v=ns['build_floating_lyric_mask'](*args);timing[key].append((time.perf_counter()-start)*1000);out.append(v)
+  File "C:\codex\clairevironment\bat\PAFPlayer\tests\v519-validation-20261010025119\mask-baseline\PAFPlayer.py", line 42009, in build_floating_lyric_mask
+    chosen, _fits = layout_for_pixel_size(round(base_size * scale))
+  File "C:\codex\clairevironment\bat\PAFPlayer\tests\v519-validation-20261010025119\mask-baseline\PAFPlayer.py", line 41961, in layout_for_pixel_size
+    if current and measure(candidate) > max_width:
+  File "C:\codex\clairevironment\bat\PAFPlayer\tests\v519-validation-20261010025119\mask-baseline\PAFPlayer.py", line 41955, in measure
+    return max(0, int(round(_pillow_mixed_text_width(draw, value, font, emoji_font))))
+  File "C:\codex\clairevironment\bat\PAFPlayer\tests\v519-validation-20261010025119\mask-baseline\PAFPlayer.py", line 44556, in _pillow_mixed_text_width
+    for run,is_emoji in _pillow_render_runs(text,primary_font,emoji_font):
+NameError: name '_pillow_render_runs' is not defined
+
+----------------------------------------------------------------------
+Ran 2 tests in 4.169s
+
+FAILED (errors=1)
+RESULT_JSON {"mode": "focused", "tests": 2, "failures": [], "errors": ["test_masks_and_layout_match_v485 (test_v486_lyrics.CueMasks)"], "skipped": []}

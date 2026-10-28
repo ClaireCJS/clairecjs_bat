@@ -1,0 +1,24 @@
+{
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\remote-floating-20261018-123156",
+  "address": "127.0.0.1:17880",
+  "processes": [
+    {
+      "role": "server",
+      "pid": 37192,
+      "report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261018-123156-server.json",
+      "log": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261018-123156-server.log",
+      "verified_official": true
+    },
+    {
+      "role": "client",
+      "pid": 120320,
+      "report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261018-123156-client.json",
+      "log": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\remote-floating-20261018-123156-client.log"
+    }
+  ],
+  "source_sha256": "d42c071991d31b70221390e20332fc847122843311f2dca41bac834357fd66ba",
+  "exit_codes": [
+    1,
+    1
+  ]
+}

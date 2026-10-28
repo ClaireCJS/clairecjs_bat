@@ -1,0 +1,37 @@
+{
+  "caller_path": "C:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)",
+  "discovery_only": true,
+  "patterns": {
+    "no arguments": {
+      "count": 543,
+      "physical_folders": [
+        "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)"
+      ]
+    },
+    "dot": {
+      "count": 543,
+      "physical_folders": [
+        "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)"
+      ]
+    },
+    "all": {
+      "count": 543,
+      "physical_folders": [
+        "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)"
+      ]
+    },
+    "jpg": {
+      "count": 516,
+      "physical_folders": [
+        "T:\\new\\p\\accounts.overflow.tmp\\CensoredSissy (tumblr_censoredsissy)"
+      ]
+    }
+  },
+  "preview": {
+    "renderer": "pafplayer-album-art-copy",
+    "module": "C:\\codex\\clairevironment\\release-output\\image-caption-gender-fixer\\paf-previews-20261027\\src\\image_caption_gender_fixer\\paf_album_art.py",
+    "available": true,
+    "tk_version": 8.6
+  },
+  "target_unchanged": true
+}

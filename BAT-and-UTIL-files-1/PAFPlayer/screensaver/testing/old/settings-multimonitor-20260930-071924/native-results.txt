@@ -1,0 +1,64 @@
+PASS default configuration mode
+PASS fullscreen and explicit port
+PASS colon preview handle
+PASS separate preview handle
+PASS configuration handle
+PASS reject invalid preview handles
+PASS reject ambiguous mode and bad port
+PASS no input dismissal before display
+PASS three-second grace begins at display, not construction
+PASS launch mouse motion ignored
+PASS mouse motion near grace deadline ignored
+PASS arming discards startup movement
+PASS small pointer jitter tolerated
+PASS deliberate new movement dismisses after grace
+PASS Unicode title and timed lyric JSON
+PASS reject incompatible protocol
+PASS offline clears presentation
+PASS 100000 updates retain one state and its pending image
+PASS discarded images disposed on disconnect
+PASS shutdown disposes late image results
+PASS art decode bounded to 1024 pixels
+PASS bad artwork fails gracefully
+PASS never connects off loopback
+PASS HTTP size cap
+PASS redirect rejected
+PASS unresponsive server timeout
+PASS live polling caches unchanged artwork
+PASS live disable observed
+PASS disconnect clears old song and artwork
+PASS failed connection names endpoint while waiting and retrying
+PASS corrupt artwork is not downloaded repeatedly
+PASS real fullscreen launch key/click do not dismiss
+PASS initially disabled player remains visible with instructions
+PASS real fullscreen key dismisses after grace
+PASS explicit disable of active saver still closes it
+PASS preview embeds as child before display
+PASS real .scr preview process starts and polls
+PASS real .scr exits when preview parent closes
+PASS native settings authenticate and save enable/brightness
+PASS only settings are submitted
+PASS save rejection is reported rather than claiming success
+PASS blackouts cover all secondary monitors including negative coordinates
+PASS secondary monitor is black edge to edge
+PASS secondary monitor is black edge to edge
+PASS closing saver releases every blackout
+PASS hold preview starts immediately
+PASS hold preview release bypasses three-second saver grace
+PASS preview cleanup cannot leave covered monitors
+PASS settings window loads actual player values
+PASS button mouse release ends preview without saving draft
+PASS lost mouse capture ends preview
+PASS switching away from settings ends preview
+PASS Apply persists only edited fields through the real HTTP client
+
+System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'CoverForm'.
+   at System.Windows.Forms.Control.CreateHandle()
+   at System.Windows.Forms.Form.CreateHandle()
+   at System.Windows.Forms.Control.get_Handle()
+   at System.Windows.Forms.Form.SetVisibleCore(Boolean value)
+   at System.Windows.Forms.Control.Show()
+   at PAFPlayerScreenSaver.DisplayCover.Show()
+   at PAFPlayerScreenSaver.HoldPreview.Start(Rectangle[] monitors, Rectangle primary, Action`2 draw, Boolean show)
+   at SaverTests.Main(String[] args)

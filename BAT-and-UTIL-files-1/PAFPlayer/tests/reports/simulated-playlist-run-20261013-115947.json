@@ -1,0 +1,19 @@
+{
+  "version": "V534",
+  "playlist": "T:\\mp3\\LISTS\\concertnext not learned.m3u",
+  "duration_seconds": 0.5,
+  "playlist_tracks": 177,
+  "transitions": 163,
+  "transitions_per_second": 326.0,
+  "cooldown_seconds": 10800.0,
+  "cooldown_replacements": 127,
+  "forced_fallbacks_all_tracks_recent": 2,
+  "avoidable_cooldown_violations": 0,
+  "immediate_path_repeats": 0,
+  "immediate_artist_song_repeats": 0,
+  "immediate_artist_song_repeat_examples": [],
+  "minimum_path_gap_transitions": null,
+  "minimum_artist_song_gap_transitions": 129,
+  "maximum_bounded_scan_slots": 177,
+  "passed": true
+}

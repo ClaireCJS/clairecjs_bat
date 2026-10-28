@@ -1,0 +1,8 @@
+Playlist analysis: C:\codex\clairevironment\bat\PAFPlayer\tests\runs\pafplayer-regression-audit-20261012-134951\work-PAFPlayer\tmp3hr2z4jf\test.m3u
+Tracks: 1
+
+Last played          Full path
+-------------------  ---------
+1969-12-31 07:02PM   C:\codex\clairevironment\bat\PAFPlayer\tests\runs\pafplayer-regression-audit-20261012-134951\work-PAFPlayer\tmp3hr2z4jf\Artist\Album\A ridiculously long filename that must remain one physical export line.mp3
+
+1 playlist track(s): 0 never played; 1 with matched history.

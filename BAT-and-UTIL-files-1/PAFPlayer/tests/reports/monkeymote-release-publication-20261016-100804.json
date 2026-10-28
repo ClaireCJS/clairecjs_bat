@@ -1,0 +1,30 @@
+[
+  {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v565_monkeymote_manual_control.py",
+    "sha256": "ce5793d75af85bab8f7a633e5cf777d08bb91638340ea6d4b3a715bef341d8f8"
+  },
+  {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v565_monkeymote_manual_control_release_notes.md",
+    "sha256": "36c703c5c1e78f87b0b3d3b04474c96d3cda98f760fce3ceea5b7cd521b99cb4"
+  },
+  {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v566_monkeymote_queue_media.py",
+    "sha256": "7055fbd03035cba9d9c09636dd5e2887eb81a82a105683e6f04086cb153f3abd"
+  },
+  {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v566_monkeymote_queue_media_release_notes.md",
+    "sha256": "effe5d0cc09314474f0bcaa95903287c15cb595e758d543fe7aea9de0fdfd41e"
+  },
+  {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v567_monkeymote_details_lyrics.py",
+    "sha256": "9ddb9ba5f0dce14303d6c209cb03ba0c5e1b8aed796e71852b4e9c98baf644a1"
+  },
+  {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v567_monkeymote_details_lyrics_release_notes.md",
+    "sha256": "c25df4ed3db8c98f6a4cbc2344bf308a86ef7617132fe8b171741df9f8268854"
+  },
+  {
+    "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\PAFPlayer_v567_monkeymote.md",
+    "sha256": "6e53ce2d5de71a1523cacda5eba094af3eafe16f3cce0d90910d7b4d2a845e52"
+  }
+]

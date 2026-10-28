@@ -1,0 +1,39 @@
+{
+  "time": "2026-10-07T17:51:10.551426+00:00",
+  "app": "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2!App",
+  "visualConfirmation": "User confirmed Recovery selected in both slots and now visible before the V512 upgrade.",
+  "settings": [
+    {
+      "SettingKey": "s:badge",
+      "Value": 1
+    },
+    {
+      "SettingKey": "s:lock:badge",
+      "Value": 0
+    },
+    {
+      "SettingKey": "s:lock:tile",
+      "Value": 0
+    },
+    {
+      "SettingKey": "s:tile",
+      "Value": 1
+    }
+  ],
+  "notifications": [
+    {
+      "Id": 387427,
+      "Type": "badge",
+      "Payload": "<badge value=\"playing\"/>",
+      "ArrivalTime": 134358690674401929,
+      "ExpiryTime": 134358691574286824
+    },
+    {
+      "Id": 387424,
+      "Type": "tile",
+      "Payload": "<tile><visual version=\"4\"><binding template=\"TileWide310x150Text01\" fallback=\"TileWideText01\" hint-lockDetailedStatus1=\"Live Fast Die Young\" hint-lockDetailedStatus2=\"Circle Jerks · Playing\" hint-lockDetailedStatus3=\"To your favorite\"><text id=\"1\">Live Fast Die Young</text><text id=\"2\">Circle Jerks · Playing</text><text id=\"3\">To your favorite</text><text id=\"4\"></text><text id=\"5\"></text></binding></visual></tile>",
+      "ArrivalTime": 134358690674331863,
+      "ExpiryTime": 134358691574286824
+    }
+  ]
+}

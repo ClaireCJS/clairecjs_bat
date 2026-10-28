@@ -1,0 +1,12 @@
+{
+  "bundled_modules_compiled": 21,
+  "changed_bundles": [
+    "PAFPlayer_tray",
+    "PAFPlayer_tray_machine",
+    "PAFPlayer_tray_hover"
+  ],
+  "main_ast_only_version_and_three_tray_modules": true,
+  "external_modules_and_tests_compiled": 6,
+  "main_compiled": true,
+  "main_sha256": "5fb8e7a398cdb314e9d6a86cc927389a0497c2f1debff0547b43f4a62604619b"
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-compile-20261016-014229-0.pyc",
+    "sha256": "629498b154330761c81e767287121d81f101c8373c3b0b03448e1a9f7351452e"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer_monkeymote.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-compile-20261016-014229-1.pyc",
+    "sha256": "69fa9f1d1537204a25c5ef0097943ed35da91295f0348735ab42fdace94a1f2a"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_monkeymote.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-compile-20261016-014229-2.pyc",
+    "sha256": "b7384a51ded44fdc5f578365fa4a67e2232f0599cc7cd34eb604e1766923dcc1"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\monkeymote\\research\\probe.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-compile-20261016-014229-3.pyc",
+    "sha256": "22bf313a9ce0313bd487437ae04a6dea29fe2cb1a1f6f656f91b1d1954c2190c"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\monkeymote\\research\\verify.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-compile-20261016-014229-4.pyc",
+    "sha256": "ed375f0b15b9b82927a970d460275635772dd6e2fe9c433a31cefa2eff0b7aa3"
+  }
+]

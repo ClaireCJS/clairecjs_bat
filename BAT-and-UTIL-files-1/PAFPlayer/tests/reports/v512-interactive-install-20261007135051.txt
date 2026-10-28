@@ -1,0 +1,18 @@
+EnableLUA=0; no UAC setting will be changed.
+PAFPlayer Lock Screen currently registered: 511.0.0.1.
+Installing the V512 desktop publisher's signed Recovery identity package...
+Only an existing Recovery publisher may close during this upgrade; PAFPlayer keeps playing.
+Verified: V512 activated and submitted a tile and badge to Windows.
+Locked-screen appearance still requires the visual check below.
+
+Finish these steps in your Windows account:
+  1. Start PAFPlayer with its web server reachable from this computer.
+  2. The companion defaults to http://127.0.0.1:666 and refreshes every 5 seconds.
+     Use its tray settings for another server, or to disable publishing.
+  3. Open Settings > Personalization > Lock screen. Under
+     'Choose one app to show detailed status', select PAFPlayer Lock Screen Recovery.
+     Select Recovery again for a quick-status slot to see the playing/paused/offline badge.
+     The old music-note entry belongs to a different app. Open each picker to check the name.
+  4. Keep the companion running. Lock with Win+L and visually check both slots.
+     Windows controls rendering and truncation; publication is not visual proof.
+

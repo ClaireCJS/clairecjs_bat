@@ -1,0 +1,3562 @@
+{
+  "version": "V591",
+  "volume": 0,
+  "audible_output": false,
+  "real_waveout": true,
+  "pid": 74572,
+  "rate": 96000,
+  "channels": 8,
+  "bit_depth": 24,
+  "changes": [
+    {
+      "at": 1.008,
+      "gain": -14,
+      "pid": 74572
+    },
+    {
+      "at": 3.0046666666666666,
+      "gain": 0,
+      "pid": 74572
+    }
+  ],
+  "samples": [
+    {
+      "clock": {
+        "seconds": 0.0005416666666666666,
+        "at": 660243.546,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.021,
+        "at": 660243.562,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.04164583333333333,
+        "at": 660243.593,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.06208333333333333,
+        "at": 660243.609,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.0825625,
+        "at": 660243.625,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.1030625,
+        "at": 660243.656,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.12352083333333333,
+        "at": 660243.671,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.14395833333333333,
+        "at": 660243.687,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.186,
+        "at": 660243.734,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.2068125,
+        "at": 660243.75,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.22729166666666667,
+        "at": 660243.781,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.24783333333333332,
+        "at": 660243.796,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.2684166666666667,
+        "at": 660243.812,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.28889583333333335,
+        "at": 660243.843,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.309375,
+        "at": 660243.859,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.32989583333333333,
+        "at": 660243.875,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.35052083333333334,
+        "at": 660243.906,
+        "queued_seconds": 0.2986666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 298.6666666666667,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.3716041666666667,
+        "at": 660243.921,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.39308333333333334,
+        "at": 660243.937,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.4136458333333333,
+        "at": 660243.968,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.4340833333333333,
+        "at": 660243.984,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.45458333333333334,
+        "at": 660244.0,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.4751458333333333,
+        "at": 660244.031,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.4956041666666667,
+        "at": 660244.046,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.51625,
+        "at": 660244.062,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.5367708333333333,
+        "at": 660244.078,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.5573333333333333,
+        "at": 660244.109,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.5778333333333333,
+        "at": 660244.125,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.5982291666666667,
+        "at": 660244.14,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.6187291666666667,
+        "at": 660244.171,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.6392083333333334,
+        "at": 660244.187,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.6596875,
+        "at": 660244.203,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.6801458333333333,
+        "at": 660244.234,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.7005416666666666,
+        "at": 660244.25,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.7209583333333334,
+        "at": 660244.265,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.7209583333333334,
+        "at": 660244.265,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.7414583333333333,
+        "at": 660244.296,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.7828541666666666,
+        "at": 660244.328,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.8033125,
+        "at": 660244.359,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.82375,
+        "at": 660244.375,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.8441666666666666,
+        "at": 660244.39,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.8646666666666667,
+        "at": 660244.406,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.8851666666666667,
+        "at": 660244.437,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.9056041666666667,
+        "at": 660244.453,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.926,
+        "at": 660244.468,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.9464166666666667,
+        "at": 660244.5,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.9670833333333333,
+        "at": 660244.515,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 0.9875,
+        "at": 660244.531,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.008,
+        "at": 660244.562,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.0285416666666667,
+        "at": 660244.578,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.0491041666666667,
+        "at": 660244.593,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.0696666666666668,
+        "at": 660244.625,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.0903125,
+        "at": 660244.64,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.1108958333333334,
+        "at": 660244.656,
+        "queued_seconds": 0.2986666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 298.6666666666667,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.1314166666666667,
+        "at": 660244.687,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.1519375,
+        "at": 660244.703,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.1724166666666667,
+        "at": 660244.718,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.1930625,
+        "at": 660244.734,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.2135416666666667,
+        "at": 660244.765,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.2340416666666667,
+        "at": 660244.781,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.2545625,
+        "at": 660244.796,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.2750625,
+        "at": 660244.828,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.2954791666666667,
+        "at": 660244.843,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.3159791666666667,
+        "at": 660244.859,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.336875,
+        "at": 660244.89,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.3574583333333334,
+        "at": 660244.906,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.3779375,
+        "at": 660244.921,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.3986041666666666,
+        "at": 660244.953,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.4191041666666666,
+        "at": 660244.968,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.4395416666666667,
+        "at": 660244.984,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.4601041666666668,
+        "at": 660245.015,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.4806458333333334,
+        "at": 660245.031,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.5011041666666667,
+        "at": 660245.046,
+        "queued_seconds": 0.2986666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 298.6666666666667,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.5216041666666666,
+        "at": 660245.078,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.5433541666666666,
+        "at": 660245.093,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.5638958333333333,
+        "at": 660245.109,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.5638958333333333,
+        "at": 660245.109,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.5849375,
+        "at": 660245.14,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.6055416666666666,
+        "at": 660245.156,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.6260416666666666,
+        "at": 660245.171,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.6466041666666666,
+        "at": 660245.203,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.6679583333333334,
+        "at": 660245.218,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.6884166666666667,
+        "at": 660245.234,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.7090208333333334,
+        "at": 660245.265,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.7295625,
+        "at": 660245.281,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.75,
+        "at": 660245.296,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.7707083333333333,
+        "at": 660245.312,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.7911875,
+        "at": 660245.343,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.8116875,
+        "at": 660245.359,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.8324375,
+        "at": 660245.375,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.8529583333333333,
+        "at": 660245.406,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.8735625,
+        "at": 660245.421,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.8941041666666667,
+        "at": 660245.437,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.9145625,
+        "at": 660245.468,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.9349583333333333,
+        "at": 660245.484,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.955625,
+        "at": 660245.5,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.9765625,
+        "at": 660245.531,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 1.9970416666666666,
+        "at": 660245.546,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.0175625,
+        "at": 660245.562,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.0380625,
+        "at": 660245.593,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.0586458333333333,
+        "at": 660245.609,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.0791041666666668,
+        "at": 660245.625,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.0996041666666665,
+        "at": 660245.656,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.1201041666666667,
+        "at": 660245.671,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.1405625,
+        "at": 660245.687,
+        "queued_seconds": 0.2986666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 298.6666666666667,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.1610625,
+        "at": 660245.703,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.183104166666667,
+        "at": 660245.734,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.2034583333333333,
+        "at": 660245.75,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.2243333333333335,
+        "at": 660245.765,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.244854166666667,
+        "at": 660245.796,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.2653541666666666,
+        "at": 660245.812,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.286,
+        "at": 660245.828,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.306604166666667,
+        "at": 660245.859,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.3271458333333332,
+        "at": 660245.875,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.3477916666666667,
+        "at": 660245.89,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.3681875,
+        "at": 660245.921,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.3886875,
+        "at": 660245.937,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.4091666666666667,
+        "at": 660245.953,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.4296041666666666,
+        "at": 660245.984,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.4500416666666665,
+        "at": 660246.0,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.4706041666666665,
+        "at": 660246.015,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.4911666666666665,
+        "at": 660246.046,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.5116875,
+        "at": 660246.062,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.5321041666666666,
+        "at": 660246.078,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.5729375,
+        "at": 660246.125,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.593541666666667,
+        "at": 660246.14,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.6139791666666667,
+        "at": 660246.156,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.634541666666667,
+        "at": 660246.187,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.655125,
+        "at": 660246.203,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.655125,
+        "at": 660246.203,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.6762083333333333,
+        "at": 660246.218,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.6966041666666665,
+        "at": 660246.25,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.717125,
+        "at": 660246.265,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.7582291666666667,
+        "at": 660246.312,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.7582291666666667,
+        "at": 660246.312,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.7787083333333333,
+        "at": 660246.328,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.7993125,
+        "at": 660246.343,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.840625,
+        "at": 660246.39,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.8610416666666665,
+        "at": 660246.406,
+        "queued_seconds": 0.2986666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 298.6666666666667,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.881666666666667,
+        "at": 660246.437,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.9021041666666667,
+        "at": 660246.453,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.9225416666666666,
+        "at": 660246.468,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.9431458333333333,
+        "at": 660246.484,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.9637083333333334,
+        "at": 660246.515,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 2.984125,
+        "at": 660246.531,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.0046666666666666,
+        "at": 660246.546,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.025166666666667,
+        "at": 660246.578,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.04575,
+        "at": 660246.593,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.0662083333333334,
+        "at": 660246.609,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.0866458333333333,
+        "at": 660246.64,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.1071666666666666,
+        "at": 660246.656,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.1275833333333334,
+        "at": 660246.671,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.148270833333333,
+        "at": 660246.703,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.168875,
+        "at": 660246.718,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.1896875,
+        "at": 660246.734,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.2100833333333334,
+        "at": 660246.765,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.230770833333333,
+        "at": 660246.781,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.2512083333333335,
+        "at": 660246.796,
+        "queued_seconds": 0.2986666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 298.6666666666667,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.2718125,
+        "at": 660246.828,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.29225,
+        "at": 660246.843,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.3132083333333333,
+        "at": 660246.859,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.333645833333333,
+        "at": 660246.875,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.354229166666667,
+        "at": 660246.906,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.3746875,
+        "at": 660246.921,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.3951041666666666,
+        "at": 660246.937,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.4156875,
+        "at": 660246.968,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.436166666666667,
+        "at": 660246.984,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.45675,
+        "at": 660247.0,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.47725,
+        "at": 660247.031,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.497729166666667,
+        "at": 660247.046,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.5182083333333334,
+        "at": 660247.062,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.538625,
+        "at": 660247.093,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.5589583333333334,
+        "at": 660247.109,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.5793958333333333,
+        "at": 660247.125,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.6000208333333332,
+        "at": 660247.156,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.620875,
+        "at": 660247.171,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.641395833333333,
+        "at": 660247.187,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.6619166666666665,
+        "at": 660247.203,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.6823958333333335,
+        "at": 660247.234,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.702958333333333,
+        "at": 660247.25,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.7234166666666666,
+        "at": 660247.265,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.7439375,
+        "at": 660247.296,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.7644375,
+        "at": 660247.312,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.7849583333333334,
+        "at": 660247.328,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.8059583333333333,
+        "at": 660247.359,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.8264791666666667,
+        "at": 660247.375,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.84725,
+        "at": 660247.39,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.8678125,
+        "at": 660247.421,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.8884166666666666,
+        "at": 660247.437,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.9090416666666665,
+        "at": 660247.453,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.9296041666666666,
+        "at": 660247.484,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.9505416666666666,
+        "at": 660247.5,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.9709583333333334,
+        "at": 660247.515,
+        "queued_seconds": 0.2986666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 298.6666666666667,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 3.9914583333333336,
+        "at": 660247.546,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.012104166666667,
+        "at": 660247.562,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.0325625,
+        "at": 660247.578,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.053145833333334,
+        "at": 660247.609,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.073604166666667,
+        "at": 660247.625,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.094125,
+        "at": 660247.64,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.1145,
+        "at": 660247.656,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.1145,
+        "at": 660247.656,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.135729166666667,
+        "at": 660247.687,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.1570833333333335,
+        "at": 660247.703,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.177854166666667,
+        "at": 660247.734,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.1983958333333335,
+        "at": 660247.75,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.218958333333333,
+        "at": 660247.765,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.2395,
+        "at": 660247.781,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.259916666666666,
+        "at": 660247.812,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.280395833333333,
+        "at": 660247.828,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.300895833333334,
+        "at": 660247.843,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.321375,
+        "at": 660247.875,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.341875,
+        "at": 660247.89,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.363125,
+        "at": 660247.906,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.383875,
+        "at": 660247.937,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.404375,
+        "at": 660247.953,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.424895833333333,
+        "at": 660247.968,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.445333333333333,
+        "at": 660248.0,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.466020833333333,
+        "at": 660248.015,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.486416666666667,
+        "at": 660248.031,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.507,
+        "at": 660248.062,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.527520833333333,
+        "at": 660248.078,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.548125,
+        "at": 660248.093,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.5687291666666665,
+        "at": 660248.125,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.589229166666667,
+        "at": 660248.14,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.609666666666667,
+        "at": 660248.156,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.6301875,
+        "at": 660248.171,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.650666666666667,
+        "at": 660248.203,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.671125,
+        "at": 660248.218,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.6921875,
+        "at": 660248.234,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.712625,
+        "at": 660248.265,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.73325,
+        "at": 660248.281,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.753729166666667,
+        "at": 660248.296,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.774291666666667,
+        "at": 660248.328,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.794791666666667,
+        "at": 660248.343,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.81525,
+        "at": 660248.359,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.835666666666667,
+        "at": 660248.39,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.856416666666667,
+        "at": 660248.406,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.8769375,
+        "at": 660248.421,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.8974166666666665,
+        "at": 660248.453,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.917833333333333,
+        "at": 660248.468,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.938375,
+        "at": 660248.484,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.958770833333333,
+        "at": 660248.5,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.9791875,
+        "at": 660248.531,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 4.999958333333334,
+        "at": 660248.546,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.020520833333333,
+        "at": 660248.562,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.040895833333333,
+        "at": 660248.593,
+        "queued_seconds": 0.2986666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 298.6666666666667,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.081875,
+        "at": 660248.625,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.081875,
+        "at": 660248.625,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.1025,
+        "at": 660248.656,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.1231875,
+        "at": 660248.671,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.143583333333333,
+        "at": 660248.687,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.164104166666666,
+        "at": 660248.718,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.184666666666667,
+        "at": 660248.734,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.2255416666666665,
+        "at": 660248.781,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.2460625,
+        "at": 660248.796,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.2460625,
+        "at": 660248.796,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.2872916666666665,
+        "at": 660248.843,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.2872916666666665,
+        "at": 660248.843,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.307833333333333,
+        "at": 660248.859,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.328395833333333,
+        "at": 660248.875,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.349291666666667,
+        "at": 660248.89,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.369770833333333,
+        "at": 660248.921,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.39025,
+        "at": 660248.937,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.410833333333334,
+        "at": 660248.953,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.431208333333333,
+        "at": 660248.984,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.452020833333333,
+        "at": 660249.0,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.472583333333334,
+        "at": 660249.015,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.493104166666667,
+        "at": 660249.046,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.513541666666667,
+        "at": 660249.062,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.5340625,
+        "at": 660249.078,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.554479166666667,
+        "at": 660249.109,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.576895833333333,
+        "at": 660249.125,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.597520833333333,
+        "at": 660249.14,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.618145833333333,
+        "at": 660249.171,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.638645833333333,
+        "at": 660249.187,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.659041666666667,
+        "at": 660249.203,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.679666666666667,
+        "at": 660249.234,
+        "queued_seconds": 0.3413333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 341.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.7001875,
+        "at": 660249.25,
+        "queued_seconds": 0.3253333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 325.3333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.7207083333333335,
+        "at": 660249.265,
+        "queued_seconds": 0.2826666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 282.6666666666667,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.7411666666666665,
+        "at": 660249.296,
+        "queued_seconds": 0.2826666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 282.6666666666667,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.761604166666666,
+        "at": 660249.312,
+        "queued_seconds": 0.24
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 240.0,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.782145833333334,
+        "at": 660249.328,
+        "queued_seconds": 0.24
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 240.0,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.8025625,
+        "at": 660249.343,
+        "queued_seconds": 0.24
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 240.0,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.823041666666667,
+        "at": 660249.375,
+        "queued_seconds": 0.19733333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 197.33333333333334,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.843979166666666,
+        "at": 660249.39,
+        "queued_seconds": 0.19733333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 197.33333333333334,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.864458333333333,
+        "at": 660249.406,
+        "queued_seconds": 0.15466666666666665
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 154.66666666666666,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.885,
+        "at": 660249.437,
+        "queued_seconds": 0.15466666666666665
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 154.66666666666666,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.9056041666666665,
+        "at": 660249.453,
+        "queued_seconds": 0.112
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 112.0,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.926166666666667,
+        "at": 660249.468,
+        "queued_seconds": 0.112
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 112.0,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.9466875,
+        "at": 660249.5,
+        "queued_seconds": 0.06933333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 69.33333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.9671666666666665,
+        "at": 660249.515,
+        "queued_seconds": 0.06933333333333333
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 69.33333333333333,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 5.987770833333333,
+        "at": 660249.531,
+        "queued_seconds": 0.02666666666666667
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 26.666666666666668,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 6.0,
+        "at": 660249.546,
+        "queued_seconds": 0.0
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 0.0,
+        "underruns": 0
+      }
+    },
+    {
+      "clock": {
+        "seconds": 6.0,
+        "at": 660249.546,
+        "queued_seconds": 0.0
+      },
+      "health": {
+        "isolated": true,
+        "queued_ms": 0.0,
+        "underruns": 0
+      }
+    }
+  ],
+  "source_sha256": "6a10c89e52cbb7d569ea8d2ca13f268cc2d68ae851addba84de82037cec4deec",
+  "blocked_writes": [
+    "winreg.CreateKey",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "winreg.CreateKey"
+  ],
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\bass-v591-20261021-104335"
+}

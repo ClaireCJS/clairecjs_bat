@@ -35,7 +35,7 @@ def test_casefold_unicode_and_punctuation():
     assert transform("good, boy",[Rule("good boy","friend",id="punct",punctuation="flex")])["final"]=="friend"
 
 
-@pytest.mark.parametrize("rules",[[Rule("a","a")],[Rule("a","b"),Rule("b","a")],[Rule("a","b"),Rule("b","c"),Rule("c","a")]])
+@pytest.mark.parametrize("rules",[[Rule("a","b"),Rule("b","a")],[Rule("a","b"),Rule("b","c"),Rule("c","a")]])
 def test_cycle_rejected(rules):
     with pytest.raises(IntegrityError): reject_cycles(rules)
 

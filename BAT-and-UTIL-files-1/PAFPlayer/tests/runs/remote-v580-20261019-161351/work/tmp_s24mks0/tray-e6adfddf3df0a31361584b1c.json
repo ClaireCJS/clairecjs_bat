@@ -1,0 +1,12 @@
+{
+  "RendererPreferences": {
+    "ExternalFloatingLyricsGeometry": {
+      "type": 1,
+      "value": "300x100+4+5"
+    }
+  },
+  "PresentationOptions": {
+    "inherit": false,
+    "artwork_lyrics": "server"
+  }
+}

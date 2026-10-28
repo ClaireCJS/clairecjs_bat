@@ -1,0 +1,8 @@
+Playlist analysis: C:\codex\clairevironment\bat\PAFPlayer\lockscreen\embedded-staging-20261008080519\tmpbvlp17c0\test.m3u
+Tracks: 1
+
+Last played          Full path
+-------------------  ---------
+NEVER                C:\codex\clairevironment\bat\PAFPlayer\lockscreen\embedded-staging-20261008080519\tmpbvlp17c0\Song.mp3
+
+1 playlist track(s): 1 never played; 0 with matched history.

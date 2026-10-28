@@ -1,0 +1,44 @@
+{
+  "module": "test_play_audio_file_v429",
+  "count": 5,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v429.CircledTenSpacingTests.test_all_ten_negative_digits_share_sung_and_neighbor_geometry",
+      "parent_test": "test_play_audio_file_v429.CircledTenSpacingTests.test_all_ten_negative_digits_share_sung_and_neighbor_geometry",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v429.CircledTenSpacingTests.test_other_surfaces_literal_numbers_and_compounds_keep_their_behavior",
+      "parent_test": "test_play_audio_file_v429.CircledTenSpacingTests.test_other_surfaces_literal_numbers_and_compounds_keep_their_behavior",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v429.CircledTenSpacingTests.test_safety_cells_count_when_wrapping_at_exact_boundary",
+      "parent_test": "test_play_audio_file_v429.CircledTenSpacingTests.test_safety_cells_count_when_wrapping_at_exact_boundary",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v429.CircledTenSpacingTests.test_screenshot_phrase_preserves_gap_through_wrap_and_color",
+      "parent_test": "test_play_audio_file_v429.CircledTenSpacingTests.test_screenshot_phrase_preserves_gap_through_wrap_and_color",
+      "outcome": "pass",
+      "seconds": 0.015,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v429.CircledTenSpacingTests.test_spelled_numeric_and_plural_ten_get_terminal_safety_cells",
+      "parent_test": "test_play_audio_file_v429.CircledTenSpacingTests.test_spelled_numeric_and_plural_ten_get_terminal_safety_cells",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [],
+  "seconds": 0.83
+}

@@ -1,0 +1,67 @@
+{
+  "stdin_tty": true,
+  "stdout_tty": true,
+  "source": "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-DualPreview-697b2b68c75f4cebb75cf0fc93c29bae\\images\\generated full caption.png",
+  "original_sha256": "385b99f44c13ed7d910a075abece67637951faed0954f2a19261d3bd17828378",
+  "backend": {
+    "origin": "installed-pafplayer",
+    "source": "C:\\bat\\PAFPlayer\\PAFPlayer.py",
+    "source_sha256": "fc6e7301f3aef7515be171bdccf62f2ed30a11581f24280b372e90f90de49e97",
+    "pafplayer_version": "V628",
+    "fallback_reason": null,
+    "terminal": {
+      "origin": "installed-pafplayer",
+      "source": "C:\\bat\\PAFPlayer\\PAFPlayer.py",
+      "source_sha256": "fc6e7301f3aef7515be171bdccf62f2ed30a11581f24280b372e90f90de49e97",
+      "version": "V628",
+      "renderer": "pafplayer-twin-drcs",
+      "settings": {
+        "DrcsEnabled": 1,
+        "VisualizerGranularity": 3,
+        "DrcsArtMicrotileDetailModeV370": 9,
+        "DrcsArtBarMicrotileDetailModeV370": 9,
+        "ArtworkSeamStrategy": 5
+      },
+      "setting_sources": {
+        "DrcsEnabled": "HKCU\\Software\\ClaireCJS\\PAFPlayer\\Visualizer\\DrcsEnabled",
+        "VisualizerGranularity": "HKCU\\Software\\ClaireCJS\\PAFPlayer\\Visualizer\\VisualizerGranularity",
+        "DrcsArtMicrotileDetailModeV370": "HKCU\\Software\\ClaireCJS\\PAFPlayer\\Visualizer\\MicrotileDetailMode",
+        "DrcsArtBarMicrotileDetailModeV370": "HKCU\\Software\\ClaireCJS\\PAFPlayer\\Visualizer\\BarMicrotileDetailMode",
+        "ArtworkSeamStrategy": "HKCU\\Software\\ClaireCJS\\PAFPlayer\\Visualizer\\ArtworkSeamStrategy"
+      },
+      "detail_name": "2\u00d74 octant hybrid (8 subcells \u2014 100% exact \u2014 Unicode mosaics ON; Unicode+DRCS)",
+      "subcells": [
+        2,
+        4
+      ],
+      "bank_layout": 3
+    }
+  },
+  "exit_code": 10,
+  "result": {
+    "session": "9f051c77-d93d-404b-b99d-e1994b0e35af",
+    "results": [
+      {
+        "file": "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-DualPreview-697b2b68c75f4cebb75cf0fc93c29bae\\images\\generated full caption.png",
+        "state": "skipped"
+      }
+    ],
+    "summary": {
+      "id": "9f051c77-d93d-404b-b99d-e1994b0e35af",
+      "created": "2026-10-27T21:56:21.001460+00:00",
+      "updated": "2026-10-27T21:56:33.744965+00:00",
+      "target": "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-DualPreview-697b2b68c75f4cebb75cf0fc93c29bae\\images\\generated full caption.png",
+      "counts": {
+        "skipped": 1
+      },
+      "completed": 0,
+      "failed": 0,
+      "remaining": 0
+    }
+  },
+  "last_floating_path": "C:\\Users\\ClioC\\AppData\\Local\\Temp\\ICGF-DualPreview-697b2b68c75f4cebb75cf0fc93c29bae\\images\\.icgf-ee895739-c00f-4497-8fdb-2ad2d619a31f-proposal.png",
+  "original_unchanged": true,
+  "history_created": false,
+  "remaining_previews": [],
+  "floating_closed": true
+}

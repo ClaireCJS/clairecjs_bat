@@ -1,0 +1,8 @@
+Playlist analysis: C:\codex\clairevironment\bat\PAFPlayer\tests\v519-validation-20261010025119\candidate\tmpph29fbyj\test.m3u
+Tracks: 1
+
+Last played          Full path
+-------------------  ---------
+NEVER                C:\codex\clairevironment\bat\PAFPlayer\tests\v519-validation-20261010025119\candidate\tmpph29fbyj\Song.mp3
+
+1 playlist track(s): 1 never played; 0 with matched history.

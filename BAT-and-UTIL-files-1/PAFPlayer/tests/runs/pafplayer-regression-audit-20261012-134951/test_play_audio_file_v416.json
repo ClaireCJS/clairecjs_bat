@@ -1,0 +1,105 @@
+{
+  "module": "test_play_audio_file_v416",
+  "count": 13,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v416.BufferedWebAndArtworkTests.test_artwork_choices_and_real_gap_cleanup",
+      "parent_test": "test_play_audio_file_v416.BufferedWebAndArtworkTests.test_artwork_choices_and_real_gap_cleanup",
+      "outcome": "pass",
+      "seconds": 0.359,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.BufferedWebAndArtworkTests.test_web_paused_live_and_stopped_do_not_replay_track_frames",
+      "parent_test": "test_play_audio_file_v416.BufferedWebAndArtworkTests.test_web_paused_live_and_stopped_do_not_replay_track_frames",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.BufferedWebAndArtworkTests.test_web_window_includes_future_frames_with_clock_anchor",
+      "parent_test": "test_play_audio_file_v416.BufferedWebAndArtworkTests.test_web_window_includes_future_frames_with_clock_anchor",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.ClockAndPulseTests.test_device_timestamp_not_arrival_time_or_decoder_start_is_the_clock",
+      "parent_test": "test_play_audio_file_v416.ClockAndPulseTests.test_device_timestamp_not_arrival_time_or_decoder_start_is_the_clock",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.ClockAndPulseTests.test_global_seek_capture_retains_rapid_presses_during_restart",
+      "parent_test": "test_play_audio_file_v416.ClockAndPulseTests.test_global_seek_capture_retains_rapid_presses_during_restart",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.ClockAndPulseTests.test_prescheduled_pulses_do_not_depend_on_fps_seeks_or_paint_stalls",
+      "parent_test": "test_play_audio_file_v416.ClockAndPulseTests.test_prescheduled_pulses_do_not_depend_on_fps_seeks_or_paint_stalls",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.ClockAndPulseTests.test_silence_clears_all_detectors_without_a_falling_edge_beat",
+      "parent_test": "test_play_audio_file_v416.ClockAndPulseTests.test_silence_clears_all_detectors_without_a_falling_edge_beat",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.ClockAndPulseTests.test_winmm_returns_samples_ms_or_bytes",
+      "parent_test": "test_play_audio_file_v416.ClockAndPulseTests.test_winmm_returns_samples_ms_or_bytes",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.KaraokeAndCurationTests.test_final_semantics_and_inflections",
+      "parent_test": "test_play_audio_file_v416.KaraokeAndCurationTests.test_final_semantics_and_inflections",
+      "outcome": "pass",
+      "seconds": 0.016,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.KaraokeAndCurationTests.test_j_and_url_display",
+      "parent_test": "test_play_audio_file_v416.KaraokeAndCurationTests.test_j_and_url_display",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.KaraokeAndCurationTests.test_sung_wrapper_preserves_exact_generated_spacing_for_every_digit",
+      "parent_test": "test_play_audio_file_v416.KaraokeAndCurationTests.test_sung_wrapper_preserves_exact_generated_spacing_for_every_digit",
+      "outcome": "pass",
+      "seconds": 0.078,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.KaraokeAndCurationTests.test_up_is_generated_only_and_play_has_no_extra_space",
+      "parent_test": "test_play_audio_file_v416.KaraokeAndCurationTests.test_up_is_generated_only_and_play_has_no_extra_space",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416.KaraokeAndCurationTests.test_wrapping_counts_safety_cells_and_keeps_literal_glyphs_untouched",
+      "parent_test": "test_play_audio_file_v416.KaraokeAndCurationTests.test_wrapping_counts_safety_cells_and_keeps_literal_glyphs_untouched",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 1.23
+}

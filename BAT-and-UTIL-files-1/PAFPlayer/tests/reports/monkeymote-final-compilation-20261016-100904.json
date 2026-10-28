@@ -1,0 +1,18 @@
+[
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_PAFPlayer_monkeymote.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-final-compile-20261016-100904-0.pyc"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v565_monkeymote_manual_control.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-final-compile-20261016-100904-1.pyc"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v566_monkeymote_queue_media.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-final-compile-20261016-100904-2.pyc"
+  },
+  {
+    "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v567_monkeymote_details_lyrics.py",
+    "compiled": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\monkeymote-final-compile-20261016-100904-3.pyc"
+  }
+]

@@ -1,0 +1,2 @@
+using System; using System.Threading; using System.Drawing; using PAFPlayerScreenSaver;
+class LiveProbe { static int Main() { using(var box=new Mailbox()) using(var poll=new Poller(box,666)) { for(int i=0;i<50;i++){Thread.Sleep(100);var p=box.Take(); if(p==null)continue; Console.WriteLine("Online="+p.State.Online+" Enabled="+p.State.Enabled+" Title="+p.State.Title+" Status="+p.State.Status+" Art="+(p.Artwork!=null)); if(p.Artwork!=null){ Console.WriteLine(p.Artwork.Size); p.Artwork.Dispose(); return 0; }} } return 1; } }

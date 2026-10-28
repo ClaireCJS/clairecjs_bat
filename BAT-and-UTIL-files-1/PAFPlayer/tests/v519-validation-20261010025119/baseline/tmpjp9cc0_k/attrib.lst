@@ -1,0 +1,5 @@
+# attrib.lst created by PAFPlayer (play_audio_file.py) v518 at 2026-10-10
+
+### Marked:   “6_Test.mp3”   as  “learned”    [2026-10-10 at 02:52:37]:
+^6.*:learned
+

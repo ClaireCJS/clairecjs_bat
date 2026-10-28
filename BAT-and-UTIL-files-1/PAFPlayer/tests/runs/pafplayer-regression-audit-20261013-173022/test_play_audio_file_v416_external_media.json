@@ -1,0 +1,77 @@
+{
+  "module": "test_play_audio_file_v416_external_media",
+  "count": 9,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_detect_transport_state_and_active_audio_not_merely_open_processes",
+      "parent_test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_detect_transport_state_and_active_audio_not_merely_open_processes",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_explicit_play_overrides_current_media",
+      "parent_test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_explicit_play_overrides_current_media",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_manual_pause_is_never_automatically_resumed",
+      "parent_test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_manual_pause_is_never_automatically_resumed",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_multiple_players_hold_until_all_stop_and_quiet_period_elapses",
+      "parent_test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_multiple_players_hold_until_all_stop_and_quiet_period_elapses",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_pause_during_automatic_hold_cancels_automatic_resume",
+      "parent_test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_pause_during_automatic_hold_cancels_automatic_resume",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_playback_web_settings_and_ranges",
+      "parent_test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_playback_web_settings_and_ranges",
+      "outcome": "pass",
+      "seconds": 0.313,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_real_ffmpeg_fade_has_fifteen_seconds_and_preserves_selected_gain",
+      "parent_test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_real_ffmpeg_fade_has_fifteen_seconds_and_preserves_selected_gain",
+      "outcome": "pass",
+      "seconds": 0.078,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_short_gap_repeated_interruption_and_fade_restart",
+      "parent_test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_short_gap_repeated_interruption_and_fade_restart",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_unknown_monitor_state_does_not_release_automatic_hold",
+      "parent_test": "test_play_audio_file_v416_external_media.ExternalMediaTests.test_unknown_monitor_state_does_not_release_automatic_hold",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer\\trace.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 1.23
+}

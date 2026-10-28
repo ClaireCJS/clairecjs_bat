@@ -1,0 +1,1094 @@
+{
+  "module": "test_play_audio_file_v401_bar_art",
+  "count": 7,
+  "successful": false,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_artwork_bar_fill_rounding_ties",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_artwork_bar_fill_rounding_ties",
+      "outcome": "pass",
+      "seconds": 0.453,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.0004, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7797 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[6995 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3455 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3054 chars][?7h\"\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.0006, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7797 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[6995 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3455 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3054 chars][?7h\"\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.0505, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7806 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[7004 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3458 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3057 chars][?7h\"\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.3333333333333333, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7821 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[7019 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3463 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3062 chars][?7h\"\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.5, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7788 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[6986 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3452 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3051 chars][?7h\"\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.9995, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7833 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[7031 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3467 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3066 chars][?7h\"\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.0004, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7854 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7052 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3477 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3076 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.0006, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7854 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7052 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3477 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3076 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.0505, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7857 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7055 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3478 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3077 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.3333333333333333, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7857 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7055 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3478 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3077 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.5, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7857 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7055 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3478 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3077 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.9995, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7851 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7049 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3476 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3075 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.0004, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7854 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7052 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3477 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3076 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.0006, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7854 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7052 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3477 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3076 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.0505, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7857 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7055 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3478 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3077 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.3333333333333333, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7890 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7088 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3489 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3088 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.5, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7902 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7100 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3493 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3092 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.9995, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7944 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7142 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3507 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3106 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.0004, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7842 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[7010 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3482 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3066 chars][?7h\"\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.0006, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7842 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[7010 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3482 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3066 chars][?7h\"\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.0505, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7852 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[7020 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3486 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3070 chars][?7h\"\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.3333333333333333, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7867 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[7035 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3491 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3075 chars][?7h\"\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.5, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.36,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7832 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[7000 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3479 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3063 chars][?7h\"\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=0, strength=0.9995, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[7879 chars], []) != (\"\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[7047 chars], [])\n\nFirst differing element 0:\n\"\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[3495 chars][?7h\"\n\"\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[3079 chars][?7h\"\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.0004, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7900 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7068 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3505 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3089 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.0006, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7900 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7068 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3505 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3089 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.0505, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7903 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7071 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3506 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3090 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.3333333333333333, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7903 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7071 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3506 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3090 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.5, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7903 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7071 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3506 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3090 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=1, strength=0.9995, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7897 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7065 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3504 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3088 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.0004, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7900 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7068 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3505 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3089 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.0006, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7900 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7068 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3505 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3089 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.0505, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7903 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7071 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3506 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3090 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.3333333333333333, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7936 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7104 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3517 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3101 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.5, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7948 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7116 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3521 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3105 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=7, crop=0, mode=2, strength=0.9995, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: (\"\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[7989 chars], []) != (\"\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[7157 chars], [])\n\nFirst differing element 0:\n\"\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[3535 chars][?7h\"\n\"\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[3119 chars][?7h\"\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.0004, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[22530 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[19994 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[9961 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[8693 chars][?7h'\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.0006, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[22530 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[19994 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[9961 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[8693 chars][?7h'\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.0505, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[22593 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[20057 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[9982 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[8714 chars][?7h'\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.3333333333333333, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[22701 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[20165 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[10018 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[8750 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.5, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[22748 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[20212 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[10026 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[8758 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.9995, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[23079 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[20543 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[10144 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[8876 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.0004, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[22671 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20135 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10015 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8747 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.0006, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[22716 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20180 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10030 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8762 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.0505, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[22797 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20261 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10057 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8789 chars][?7h'\n\nDiff is 891 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.3333333333333333, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[22974 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20438 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10116 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8848 chars][?7h'\n\nDiff is 891 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.5, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[23007 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20471 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10127 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8859 chars][?7h'\n\nDiff is 891 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.9995, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[23070 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20534 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10148 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8880 chars][?7h'\n\nDiff is 891 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.0004, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[22671 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20135 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10015 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8747 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.0006, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[22716 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20180 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10030 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8762 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.0505, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[22836 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20300 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10070 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8802 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.3333333333333333, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[23094 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20558 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10156 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8888 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.5, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[23166 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20630 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10180 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8912 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.9995, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[23283 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[20747 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[10219 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[8951 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.0004, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[25814 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[21544 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[12067 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[9932 chars][?7h'\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.0006, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[25814 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[21544 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[12067 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[9932 chars][?7h'\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.0505, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[25927 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[21657 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[12121 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[9986 chars][?7h'\n\nDiff is 882 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.3333333333333333, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[26030 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[21760 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[12168 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[10033 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.5, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[26121 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[21851 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[12214 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[10079 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=0, strength=0.9995, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[26239 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[21969 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[12266 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[10131 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.0004, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26111 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[21841 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12211 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10076 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.0006, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26114 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[21844 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12211 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10076 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.0505, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26189 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[21919 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12245 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10110 chars][?7h'\n\nDiff is 891 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.3333333333333333, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26325 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[22055 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12307 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10172 chars][?7h'\n\nDiff is 891 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.5, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26383 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[22113 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12335 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10200 chars][?7h'\n\nDiff is 891 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=1, strength=0.9995, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26435 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[22165 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12358 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10223 chars][?7h'\n\nDiff is 891 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.0004, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26111 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[21841 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12211 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10076 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.0006, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26114 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[21844 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12211 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10076 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.0505, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26207 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[21937 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12252 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10117 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.3333333333333333, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26450 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[22180 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12366 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10231 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.5, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26533 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[22263 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12405 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10270 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=24, crop=2, mode=2, strength=0.9995, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[26652 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[22382 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[12458 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[10323 chars][?7h'\n\nDiff is 892 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.0004, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[32849 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[28867 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[14635 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[12644 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.0006, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[32849 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[28867 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[14635 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[12644 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.0505, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[32936 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[28954 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[14664 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[12673 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.3333333333333333, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[32999 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[29017 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[14685 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[12694 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.5, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[33133 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[29151 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[14722 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[12731 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.9995, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[33467 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[29485 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[14841 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[12850 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.0004, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33058 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29076 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14717 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12726 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.0006, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33079 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29097 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14724 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12733 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.0505, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33154 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29172 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14749 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12758 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.3333333333333333, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33238 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29256 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14777 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12786 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.5, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33232 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29250 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14775 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12784 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.9995, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33280 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29298 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14791 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12800 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.0004, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33058 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29076 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14717 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12726 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.0006, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33079 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29097 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14724 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12733 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.0505, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33211 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29229 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14768 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12777 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.3333333333333333, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33415 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29433 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14836 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12845 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.5, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33496 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29514 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14863 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12872 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.9995, microtiles=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[33781 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[29799 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[14958 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[12967 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.0004, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[37559 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[31135 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[17671 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[14459 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.0006, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.375,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[37559 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[31135 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[17671 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[14459 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.0505, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[37727 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[31303 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[17753 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[14541 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.3333333333333333, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[37849 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[31425 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[17809 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[14597 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.5, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[37994 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[31570 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[17879 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[14667 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=0, strength=0.9995, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[48 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[38205 chars], []) != ('\\x1[48 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[31781 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]8;12m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;3;4;10;48;2;7;10;[17973 chars][?7h'\n'\\x1b[47 chars]8;12mF\\x1b[38;2;3;4;10;48;2;7;10;19mF\\x1b[38;2[14761 chars][?7h'\n\nDiff is 880 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.0004, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[37999 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[31575 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[17886 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14674 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.0006, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[37990 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[31566 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[17880 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14668 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.0505, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[38099 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[31675 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[17929 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14717 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.3333333333333333, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[38244 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[31820 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[17997 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14785 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.5, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[38325 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[31901 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[18037 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14825 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=1, strength=0.9995, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[38419 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[31995 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[18079 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14867 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.0004, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[37999 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[31575 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[17886 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14674 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.0006, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[37990 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[31566 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[17880 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14668 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.0505, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[38103 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[31679 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[17931 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14719 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.3333333333333333, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[38421 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[31997 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[18083 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14871 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.5, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[38549 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[32125 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[18142 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[14930 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop (rows=32, crop=0, mode=2, strength=0.9995, microtiles=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_edge_blend_rounding_resize_and_crop",
+      "outcome": "subtest-failure",
+      "seconds": 1.391,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 150, in test_edge_blend_rounding_resize_and_crop\n    self.assertEqual(render(OLD, options, True), render(NEW, options, True))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[38722 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[32298 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[18222 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[15010 chars][?7h'\n\nDiff is 890 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_equal_colors_at_full_empty_and_partial_run_boundaries",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_equal_colors_at_full_empty_and_partial_run_boundaries",
+      "outcome": "pass",
+      "seconds": 0.078,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_fallbacks_and_layer_changes",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_fallbacks_and_layer_changes",
+      "outcome": "failure",
+      "seconds": 0.109,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 116, in test_fallbacks_and_layer_changes\n    self.assertEqual(render(OLD, options), render(NEW, options))\nAssertionError: Tuples differ: ('\\x1[48 chars]9;14m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;4;5;12;48;2;8;12;[40409 chars], []) != ('\\x1[48 chars]9;14mF\\x1b[38;2;4;5;12;48;2;8;12;22mF\\x1b[38;2[32823 chars], [])\n\nFirst differing element 0:\n'\\x1b[47 chars]9;14m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;4;5;12;48;2;8;12;[20345 chars][?7h'\n'\\x1b[47 chars]9;14mF\\x1b[38;2;4;5;12;48;2;8;12;22mF\\x1b[38;2[16552 chars][?7h'\n\nDiff is 1093 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=7, mode=0, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.313,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[92 chars]38;2;7;12;24;48;2;3;6;15m\\x1b(B\u2584\\x1b[4G\\x1b[38[21677 chars], []) != (\"\\x1[92 chars]38;2;3;6;15;48;2;7;12;24mu\\x1b[38;2;5;8;21;48;[18185 chars], [])\n\nFirst differing element 0:\n\"\\x1b[91 chars]38;2;7;12;24;48;2;3;6;15m\\x1b(B\u2584\\x1b[4G\\x1b[38[10877 chars][?7h\"\n\"\\x1b[91 chars]38;2;3;6;15;48;2;7;12;24mu\\x1b[38;2;5;8;21;48;[9131 chars][?7h\"\n\nDiff is 1286 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=7, mode=0, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.313,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[92 chars]38;2;7;12;24;48;2;3;6;15m\\x1b(B\u2584\\x1b[4G\\x1b[38[24038 chars], []) != (\"\\x1[92 chars]38;2;3;6;15;48;2;7;12;24mu\\x1b[38;2;5;8;21;48;[20546 chars], [])\n\nFirst differing element 0:\n\"\\x1b[91 chars]38;2;7;12;24;48;2;3;6;15m\\x1b(B\u2584\\x1b[4G\\x1b[38[10877 chars][?7h\"\n\"\\x1b[91 chars]38;2;3;6;15;48;2;7;12;24mu\\x1b[38;2;5;8;21;48;[9131 chars][?7h\"\n\nDiff is 1286 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=7, mode=1, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[30 chars]38;2;3;7;10;48;2;0;1;2m\\x1b(B\u2584\\x1b[2G\\x1b[38;2[21633 chars], []) != (\"\\x1[30 chars]38;2;0;1;2;48;2;3;7;10mu\\x1b[38;2;2;3;8;48;2;5[18253 chars], [])\n\nFirst differing element 0:\n\"\\x1b[29 chars]38;2;3;7;10;48;2;0;1;2m\\x1b(B\u2584\\x1b[2G\\x1b[38;2[10886 chars][?7h\"\n\"\\x1b[29 chars]38;2;0;1;2;48;2;3;7;10mu\\x1b[38;2;2;3;8;48;2;5[9196 chars][?7h\"\n\nDiff is 921 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=7, mode=1, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[30 chars]38;2;3;7;10;48;2;0;1;2m\\x1b(B\u2584\\x1b[2G\\x1b[38;2[24273 chars], []) != (\"\\x1[30 chars]38;2;0;1;2;48;2;3;7;10mu\\x1b[38;2;2;3;8;48;2;5[20893 chars], [])\n\nFirst differing element 0:\n\"\\x1b[29 chars]38;2;3;7;10;48;2;0;1;2m\\x1b(B\u2584\\x1b[2G\\x1b[38;2[10886 chars][?7h\"\n\"\\x1b[29 chars]38;2;0;1;2;48;2;3;7;10mu\\x1b[38;2;2;3;8;48;2;5[9196 chars][?7h\"\n\nDiff is 921 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=7, mode=2, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[30 chars]38;2;5;9;14;48;2;0;1;2m\\x1b(B\u2584\\x1b[2G\\x1b[38;2[75501 chars], []) != ('\\x1[30 chars]38;2;0;1;2;48;2;5;9;14mu\\x1b[38;2;2;5;12;48;2;[62755 chars], [])\n\nFirst differing element 0:\n'\\x1b[29 chars]38;2;5;9;14;48;2;0;1;2m\\x1b(B\u2584\\x1b[2G\\x1b[38;2[38076 chars][?7h'\n'\\x1b[29 chars]38;2;0;1;2;48;2;5;9;14mu\\x1b[38;2;2;5;12;48;2;[31703 chars][?7h'\n\nDiff is 818 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=7, mode=2, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[30 chars]38;2;5;9;14;48;2;0;1;2m\\x1b(B\u2584\\x1b[2G\\x1b[38;2[83664 chars], []) != ('\\x1[30 chars]38;2;0;1;2;48;2;5;9;14mu\\x1b[38;2;2;5;12;48;2;[70918 chars], [])\n\nFirst differing element 0:\n'\\x1b[29 chars]38;2;5;9;14;48;2;0;1;2m\\x1b(B\u2584\\x1b[2G\\x1b[38;2[38076 chars][?7h'\n'\\x1b[29 chars]38;2;0;1;2;48;2;5;9;14mu\\x1b[38;2;2;5;12;48;2;[31703 chars][?7h'\n\nDiff is 818 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=8, mode=0, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[286 chars]41;2m\\x1b(B\ud83e\udf1d\\x1b[9G\\x1b[38;2;43;62;227;48;2;16[6606 chars], []) != ('\\x1[286 chars]41;2mq\\x1b[38;2;43;62;227;48;2;16;28;71m\\'\\x1b[6242 chars], [])\n\nFirst differing element 0:\n'\\x1b[285 chars]41;2m\\x1b(B\ud83e\udf1d\\x1b[9G\\x1b[38;2;43;62;227;48;2;16[3181 chars][?7h'\n'\\x1b[285 chars]41;2mq\\x1b[38;2;43;62;227;48;2;16;28;71m\\'\\x1b[2999 chars][?7h'\n\nDiff is 1019 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=8, mode=0, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[286 chars]41;2m\\x1b(B\ud83e\udf1d\\x1b[9G\\x1b[38;2;43;62;227;48;2;16[7576 chars], []) != ('\\x1[286 chars]41;2mq\\x1b[38;2;43;62;227;48;2;16;28;71m\\'\\x1b[7212 chars], [])\n\nFirst differing element 0:\n'\\x1b[285 chars]41;2m\\x1b(B\ud83e\udf1d\\x1b[9G\\x1b[38;2;43;62;227;48;2;16[3181 chars][?7h'\n'\\x1b[285 chars]41;2mq\\x1b[38;2;43;62;227;48;2;16;28;71m\\'\\x1b[2999 chars][?7h'\n\nDiff is 1019 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=8, mode=1, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[59 chars]38;2;9;14;25;48;2;2;5;12m\\x1b(B\ud83e\udf39\\x1b[3G\\x1b[38[47486 chars], []) != (\"\\x1[59 chars]38;2;2;5;12;48;2;9;14;25mU\\x1b[38;2;5;8;21;48;[40080 chars], [])\n\nFirst differing element 0:\n\"\\x1b[58 chars]38;2;9;14;25;48;2;2;5;12m\\x1b(B\ud83e\udf39\\x1b[3G\\x1b[38[23926 chars][?7h\"\n\"\\x1b[58 chars]38;2;2;5;12;48;2;9;14;25mU\\x1b[38;2;5;8;21;48;[20223 chars][?7h\"\n\nDiff is 1174 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=8, mode=1, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[59 chars]38;2;9;14;25;48;2;2;5;12m\\x1b(B\ud83e\udf39\\x1b[3G\\x1b[38[52645 chars], []) != (\"\\x1[59 chars]38;2;2;5;12;48;2;9;14;25mU\\x1b[38;2;5;8;21;48;[45239 chars], [])\n\nFirst differing element 0:\n\"\\x1b[58 chars]38;2;9;14;25;48;2;2;5;12m\\x1b(B\ud83e\udf39\\x1b[3G\\x1b[38[23926 chars][?7h\"\n\"\\x1b[58 chars]38;2;2;5;12;48;2;9;14;25mU\\x1b[38;2;5;8;21;48;[20223 chars][?7h\"\n\nDiff is 1174 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=8, mode=2, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[290 chars]41;2m\\x1b(B\ud83e\udf1d\\x1b[9G\\x1b[38;2;28;44;9;48;2;20;3[6811 chars], []) != (\"\\x1[290 chars]41;2mq\\x1b[38;2;20;32;79;48;2;28;44;9ma\\x1b[38[6377 chars], [])\n\nFirst differing element 0:\n\"\\x1b[289 chars]41;2m\\x1b(B\ud83e\udf1d\\x1b[9G\\x1b[38;2;28;44;9;48;2;20;3[3273 chars][?7h\"\n\"\\x1b[289 chars]41;2mq\\x1b[38;2;20;32;79;48;2;28;44;9ma\\x1b[38[3056 chars][?7h\"\n\nDiff is 1110 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=8, mode=2, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[290 chars]41;2m\\x1b(B\ud83e\udf1d\\x1b[9G\\x1b[38;2;28;44;9;48;2;20;3[7761 chars], []) != (\"\\x1[290 chars]41;2mq\\x1b[38;2;20;32;79;48;2;28;44;9ma\\x1b[38[7327 chars], [])\n\nFirst differing element 0:\n\"\\x1b[289 chars]41;2m\\x1b(B\ud83e\udf1d\\x1b[9G\\x1b[38;2;28;44;9;48;2;20;3[3273 chars][?7h\"\n\"\\x1b[289 chars]41;2mq\\x1b[38;2;20;32;79;48;2;28;44;9ma\\x1b[38[3056 chars][?7h\"\n\nDiff is 1110 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=9, mode=0, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[80 chars]0;19m\\x1b(B\u2580\\x1b[3G\\x1b[38;2;4;7;17;48;2;8;13;[21977 chars], []) != (\"\\x1[80 chars]0;19mF\\x1b[38;2;4;7;17;48;2;8;13;26mF\\x1b[38;2[18073 chars], [])\n\nFirst differing element 0:\n\"\\x1b[79 chars]0;19m\\x1b(B\u2580\\x1b[3G\\x1b[38;2;4;7;17;48;2;8;13;[11033 chars][?7h\"\n\"\\x1b[79 chars]0;19mF\\x1b[38;2;4;7;17;48;2;8;13;26mF\\x1b[38;2[9081 chars][?7h\"\n\nDiff is 916 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=9, mode=0, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[80 chars]0;19m\\x1b(B\u2580\\x1b[3G\\x1b[38;2;4;7;17;48;2;8;13;[24423 chars], []) != (\"\\x1[80 chars]0;19mF\\x1b[38;2;4;7;17;48;2;8;13;26mF\\x1b[38;2[20519 chars], [])\n\nFirst differing element 0:\n\"\\x1b[79 chars]0;19m\\x1b(B\u2580\\x1b[3G\\x1b[38;2;4;7;17;48;2;8;13;[11033 chars][?7h\"\n\"\\x1b[79 chars]0;19mF\\x1b[38;2;4;7;17;48;2;8;13;26mF\\x1b[38;2[9081 chars][?7h\"\n\nDiff is 916 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=9, mode=1, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[22263 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[18583 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[11192 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[9352 chars][?7h'\n\nDiff is 850 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=9, mode=1, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[24709 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[21029 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[11192 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[9352 chars][?7h'\n\nDiff is 850 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=9, mode=2, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[48064 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[39532 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[24220 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[19954 chars][?7h'\n\nDiff is 850 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=9, mode=2, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[49 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[53278 chars], []) != ('\\x1[49 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[44746 chars], [])\n\nFirst differing element 0:\n'\\x1b[48 chars]0;16m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;5;6;14;48;2;9;14;[24220 chars][?7h'\n'\\x1b[48 chars]0;16mF\\x1b[38;2;5;6;14;48;2;9;14;25mF\\x1b[38;2[19954 chars][?7h'\n\nDiff is 850 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=10, mode=0, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[192 chars]8;2;21;33;80;48;2;25;40;6m\\x1b(B\\U0001cd70\\x1b[44592 chars], []) != ('\\x1[192 chars]8;2;20;32;78;48;2;25;39;3mI\\x1b[38;2;18;32;83;[40364 chars], [])\n\nFirst differing element 0:\n'\\x1b[191 chars]8;2;21;33;80;48;2;25;40;6m\\x1b(B\\U0001cd70\\x1b[22413 chars][?7h'\n'\\x1b[191 chars]8;2;20;32;78;48;2;25;39;3mI\\x1b[38;2;18;32;83;[20299 chars][?7h'\n\nDiff is 1000 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=10, mode=0, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[192 chars]8;2;21;33;80;48;2;25;40;6m\\x1b(B\\U0001cd70\\x1b[49813 chars], []) != ('\\x1[192 chars]8;2;20;32;78;48;2;25;39;3mI\\x1b[38;2;18;32;83;[45585 chars], [])\n\nFirst differing element 0:\n'\\x1b[191 chars]8;2;21;33;80;48;2;25;40;6m\\x1b(B\\U0001cd70\\x1b[22413 chars][?7h'\n'\\x1b[191 chars]8;2;20;32;78;48;2;25;39;3mI\\x1b[38;2;18;32;83;[20299 chars][?7h'\n\nDiff is 1000 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=10, mode=1, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[197 chars]8;2;21;33;80;48;2;25;40;6m\\x1b(B\\U0001cd70\\x1b[68206 chars], []) != ('\\x1[197 chars]8;2;20;32;78;48;2;25;39;3mI\\x1b[38;2;18;32;83;[61180 chars], [])\n\nFirst differing element 0:\n'\\x1b[196 chars]8;2;21;33;80;48;2;25;40;6m\\x1b(B\\U0001cd70\\x1b[34345 chars][?7h'\n'\\x1b[196 chars]8;2;20;32;78;48;2;25;39;3mI\\x1b[38;2;18;32;83;[30832 chars][?7h'\n\nDiff is 1006 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=10, mode=1, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[197 chars]8;2;21;33;80;48;2;25;40;6m\\x1b(B\\U0001cd70\\x1b[75654 chars], []) != ('\\x1[197 chars]8;2;20;32;78;48;2;25;39;3mI\\x1b[38;2;18;32;83;[68628 chars], [])\n\nFirst differing element 0:\n'\\x1b[196 chars]8;2;21;33;80;48;2;25;40;6m\\x1b(B\\U0001cd70\\x1b[34345 chars][?7h'\n'\\x1b[196 chars]8;2;20;32;78;48;2;25;39;3mI\\x1b[38;2;18;32;83;[30832 chars][?7h'\n\nDiff is 1006 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=10, mode=2, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[226 chars]38;2;21;36;8;48;2;16;27;70m\\x1b(B\\U0001cde5\\x1[20493 chars], []) != (\"\\x1[226 chars]38;2;16;28;72;48;2;21;36;9mF\\x1b[38;2;9;62;52;[18571 chars], [])\n\nFirst differing element 0:\n\"\\x1b[225 chars]38;2;21;36;8;48;2;16;27;70m\\x1b(B\\U0001cde5\\x1[10218 chars][?7h\"\n\"\\x1b[225 chars]38;2;16;28;72;48;2;21;36;9mF\\x1b[38;2;9;62;52;[9257 chars][?7h\"\n\nDiff is 987 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=10, mode=2, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: (\"\\x1[226 chars]38;2;21;36;8;48;2;16;27;70m\\x1b(B\\U0001cde5\\x1[22880 chars], []) != (\"\\x1[226 chars]38;2;16;28;72;48;2;21;36;9mF\\x1b[38;2;9;62;52;[20958 chars], [])\n\nFirst differing element 0:\n\"\\x1b[225 chars]38;2;21;36;8;48;2;16;27;70m\\x1b(B\\U0001cde5\\x1[10218 chars][?7h\"\n\"\\x1b[225 chars]38;2;16;28;72;48;2;21;36;9mF\\x1b[38;2;9;62;52;[9257 chars][?7h\"\n\nDiff is 987 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=11, mode=0, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[30 chars]38;2;2;4;7;48;2;11;17;27m\\x1b(B\u2580\\x1b[2G\\x1b[38[7825 chars], []) != ('\\x1[30 chars]38;2;3;5;9;48;2;10;16;26mF\\x1b[38;2;5;8;17;48;[6465 chars], [])\n\nFirst differing element 0:\n'\\x1b[29 chars]38;2;2;4;7;48;2;11;17;27m\\x1b(B\u2580\\x1b[2G\\x1b[38[3910 chars][?7h'\n'\\x1b[29 chars]38;2;3;5;9;48;2;10;16;26mF\\x1b[38;2;5;8;17;48;[3230 chars][?7h'\n\nDiff is 821 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=11, mode=0, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[30 chars]38;2;2;4;7;48;2;11;17;27m\\x1b(B\u2580\\x1b[2G\\x1b[38[8745 chars], []) != ('\\x1[30 chars]38;2;3;5;9;48;2;10;16;26mF\\x1b[38;2;5;8;17;48;[7385 chars], [])\n\nFirst differing element 0:\n'\\x1b[29 chars]38;2;2;4;7;48;2;11;17;27m\\x1b(B\u2580\\x1b[2G\\x1b[38[3910 chars][?7h'\n'\\x1b[29 chars]38;2;3;5;9;48;2;10;16;26mF\\x1b[38;2;5;8;17;48;[3230 chars][?7h'\n\nDiff is 821 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=11, mode=1, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[60 chars]38;2;5;8;17;48;2;14;23;40m\\x1b(B\u2580\\x1b[3G\\x1b[3[7514 chars], []) != ('\\x1[60 chars]38;2;6;9;20;48;2;14;22;38mF\\x1b[38;2;8;13;29;4[6462 chars], [])\n\nFirst differing element 0:\n'\\x1b[59 chars]38;2;5;8;17;48;2;14;23;40m\\x1b(B\u2580\\x1b[3G\\x1b[3[3740 chars][?7h'\n'\\x1b[59 chars]38;2;6;9;20;48;2;14;22;38mF\\x1b[38;2;8;13;29;4[3214 chars][?7h'\n\nDiff is 851 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=11, mode=1, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[60 chars]38;2;5;8;17;48;2;14;23;40m\\x1b(B\u2580\\x1b[3G\\x1b[3[8457 chars], []) != ('\\x1[60 chars]38;2;6;9;20;48;2;14;22;38mF\\x1b[38;2;8;13;29;4[7405 chars], [])\n\nFirst differing element 0:\n'\\x1b[59 chars]38;2;5;8;17;48;2;14;23;40m\\x1b(B\u2580\\x1b[3G\\x1b[3[3740 chars][?7h'\n'\\x1b[59 chars]38;2;6;9;20;48;2;14;22;38mF\\x1b[38;2;8;13;29;4[3214 chars][?7h'\n\nDiff is 851 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=11, mode=2, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[30 chars]38;2;2;5;8;48;2;13;20;31m\\x1b(B\u2580\\x1b[2G\\x1b[38[7363 chars], []) != ('\\x1[30 chars]38;2;3;6;10;48;2;12;18;30mF\\x1b[38;2;6;9;20;48[6487 chars], [])\n\nFirst differing element 0:\n'\\x1b[29 chars]38;2;2;5;8;48;2;13;20;31m\\x1b(B\u2580\\x1b[2G\\x1b[38[3679 chars][?7h'\n'\\x1b[29 chars]38;2;3;6;10;48;2;12;18;30mF\\x1b[38;2;6;9;20;48[3241 chars][?7h'\n\nDiff is 862 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=11, mode=2, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[30 chars]38;2;2;5;8;48;2;13;20;31m\\x1b(B\u2580\\x1b[2G\\x1b[38[8334 chars], []) != ('\\x1[30 chars]38;2;3;6;10;48;2;12;18;30mF\\x1b[38;2;6;9;20;48[7458 chars], [])\n\nFirst differing element 0:\n'\\x1b[29 chars]38;2;2;5;8;48;2;13;20;31m\\x1b(B\u2580\\x1b[2G\\x1b[38[3679 chars][?7h'\n'\\x1b[29 chars]38;2;3;6;10;48;2;12;18;30mF\\x1b[38;2;6;9;20;48[3241 chars][?7h'\n\nDiff is 862 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=12, mode=0, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[30 chars]38;2;5;8;14;48;2;2;3;5m\\x1b(B\\U0001cdd3\\x1b[2G[23851 chars], []) != ('\\x1[30 chars]38;2;2;3;5;48;2;5;8;14mh\\x1b[38;2;4;7;15;48;2;[18105 chars], [])\n\nFirst differing element 0:\n'\\x1b[29 chars]38;2;5;8;14;48;2;2;3;5m\\x1b(B\\U0001cdd3\\x1b[2G[11995 chars][?7h'\n'\\x1b[29 chars]38;2;2;3;5;48;2;5;8;14mh\\x1b[38;2;4;7;15;48;2;[9122 chars][?7h'\n\nDiff is 874 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=12, mode=0, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[30 chars]38;2;5;8;14;48;2;2;3;5m\\x1b(B\\U0001cdd3\\x1b[2G[26304 chars], []) != ('\\x1[30 chars]38;2;2;3;5;48;2;5;8;14mh\\x1b[38;2;4;7;15;48;2;[20558 chars], [])\n\nFirst differing element 0:\n'\\x1b[29 chars]38;2;5;8;14;48;2;2;3;5m\\x1b(B\\U0001cdd3\\x1b[2G[11995 chars][?7h'\n'\\x1b[29 chars]38;2;2;3;5;48;2;5;8;14mh\\x1b[38;2;4;7;15;48;2;[9122 chars][?7h'\n\nDiff is 874 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=12, mode=1, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[30 chars]38;2;5;8;14;48;2;2;3;5m\\x1b(B\\U0001cdd3\\x1b[2G[51943 chars], []) != ('\\x1[30 chars]38;2;2;3;5;48;2;5;8;14mh\\x1b[38;2;4;7;15;48;2;[38987 chars], [])\n\nFirst differing element 0:\n'\\x1b[29 chars]38;2;5;8;14;48;2;2;3;5m\\x1b(B\\U0001cdd3\\x1b[2G[26169 chars][?7h'\n'\\x1b[29 chars]38;2;2;3;5;48;2;5;8;14mh\\x1b[38;2;4;7;15;48;2;[19691 chars][?7h'\n\nDiff is 976 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=12, mode=1, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[30 chars]38;2;5;8;14;48;2;2;3;5m\\x1b(B\\U0001cdd3\\x1b[2G[56764 chars], []) != ('\\x1[30 chars]38;2;2;3;5;48;2;5;8;14mh\\x1b[38;2;4;7;15;48;2;[43808 chars], [])\n\nFirst differing element 0:\n'\\x1b[29 chars]38;2;5;8;14;48;2;2;3;5m\\x1b(B\\U0001cdd3\\x1b[2G[26169 chars][?7h'\n'\\x1b[29 chars]38;2;2;3;5;48;2;5;8;14mh\\x1b[38;2;4;7;15;48;2;[19691 chars][?7h'\n\nDiff is 976 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=12, mode=2, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[60 chars]38;2;9;14;29;48;2;5;8;18m\\x1b(B\\U0001cdd3\\x1b[[81103 chars], []) != ('\\x1[60 chars]38;2;5;8;18;48;2;9;14;29mh\\x1b[38;2;7;12;29;48[61375 chars], [])\n\nFirst differing element 0:\n'\\x1b[59 chars]38;2;9;14;29;48;2;5;8;18m\\x1b(B\\U0001cdd3\\x1b[[40863 chars][?7h'\n'\\x1b[59 chars]38;2;5;8;18;48;2;9;14;29mh\\x1b[38;2;7;12;29;48[30999 chars][?7h'\n\nDiff is 1204 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=12, mode=2, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[60 chars]38;2;9;14;29;48;2;5;8;18m\\x1b(B\\U0001cdd3\\x1b[[89066 chars], []) != ('\\x1[60 chars]38;2;5;8;18;48;2;9;14;29mh\\x1b[38;2;7;12;29;48[69338 chars], [])\n\nFirst differing element 0:\n'\\x1b[59 chars]38;2;9;14;29;48;2;5;8;18m\\x1b(B\\U0001cdd3\\x1b[[40863 chars][?7h'\n'\\x1b[59 chars]38;2;5;8;18;48;2;9;14;29mh\\x1b[38;2;7;12;29;48[30999 chars][?7h'\n\nDiff is 1204 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=13, mode=0, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[1836 chars]43;9m\\x1b(B\\U0001cd30\\x1b[16G\\x1b[38;2;98;164;[38753 chars], []) != ('\\x1[1836 chars]43;9m{\\x1b[38;2;98;164;164;48;2;37;55;55m?\\x1b[38603 chars], [])\n\nFirst differing element 0:\n'\\x1b[1835 chars]43;9m\\x1b(B\\U0001cd30\\x1b[16G\\x1b[38;2;98;164;[18671 chars][?7h'\n'\\x1b[1835 chars]43;9m{\\x1b[38;2;98;164;164;48;2;37;55;55m?\\x1b[18596 chars][?7h'\n\nDiff is 1278 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=13, mode=0, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[1836 chars]43;9m\\x1b(B\\U0001cd30\\x1b[16G\\x1b[38;2;98;164;[44190 chars], []) != ('\\x1[1836 chars]43;9m{\\x1b[38;2;98;164;164;48;2;37;55;55m?\\x1b[44040 chars], [])\n\nFirst differing element 0:\n'\\x1b[1835 chars]43;9m\\x1b(B\\U0001cd30\\x1b[16G\\x1b[38;2;98;164;[18671 chars][?7h'\n'\\x1b[1835 chars]43;9m{\\x1b[38;2;98;164;164;48;2;37;55;55m?\\x1b[18596 chars][?7h'\n\nDiff is 1278 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=13, mode=1, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[1810 chars]37;8m\\x1b(B\\U0001cd30\\x1b[16G\\x1b[38;2;46;74;8[37817 chars], []) != ('\\x1[1810 chars]37;8m{\\x1b[38;2;46;74;8;48;2;50;4;19mF\\x1b[38;[37579 chars], [])\n\nFirst differing element 0:\n'\\x1b[1809 chars]37;8m\\x1b(B\\U0001cd30\\x1b[16G\\x1b[38;2;46;74;8[18217 chars][?7h'\n'\\x1b[1809 chars]37;8m{\\x1b[38;2;46;74;8;48;2;50;4;19mF\\x1b[38;[18098 chars][?7h'\n\nDiff is 1250 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=13, mode=1, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[1810 chars]37;8m\\x1b(B\\U0001cd30\\x1b[16G\\x1b[38;2;46;74;8[43233 chars], []) != ('\\x1[1810 chars]37;8m{\\x1b[38;2;46;74;8;48;2;50;4;19mF\\x1b[38;[42995 chars], [])\n\nFirst differing element 0:\n'\\x1b[1809 chars]37;8m\\x1b(B\\U0001cd30\\x1b[16G\\x1b[38;2;46;74;8[18217 chars][?7h'\n'\\x1b[1809 chars]37;8m{\\x1b[38;2;46;74;8;48;2;50;4;19mF\\x1b[38;[18098 chars][?7h'\n\nDiff is 1250 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=13, mode=2, captures=False)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[7283 chars]52;7m\\x1b(B\\U0001cd2e\\x1b[2G\\x1b[38;2;116;194;[32794 chars], []) != ('\\x1[7283 chars]52;7mH\\x1b[38;2;116;194;86;48;2;60;138;32mF\\x1[32676 chars], [])\n\nFirst differing element 0:\n'\\x1b[7282 chars]52;7m\\x1b(B\\U0001cd2e\\x1b[2G\\x1b[38;2;116;194;[12969 chars][?7h'\n'\\x1b[7282 chars]52;7mH\\x1b[38;2;116;194;86;48;2;60;138;32mF\\x1[12910 chars][?7h'\n\nDiff is 790 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match (detail=13, mode=2, captures=True)",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_full_output_and_captures_match",
+      "outcome": "subtest-failure",
+      "seconds": 6.329,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 111, in test_full_output_and_captures_match\n    self.assertEqual(render(OLD, options, captures), render(NEW, options, captures))\nAssertionError: Tuples differ: ('\\x1[7283 chars]52;7m\\x1b(B\\U0001cd2e\\x1b[2G\\x1b[38;2;116;194;[38152 chars], []) != ('\\x1[7283 chars]52;7mH\\x1b[38;2;116;194;86;48;2;60;138;32mF\\x1[38034 chars], [])\n\nFirst differing element 0:\n'\\x1b[7282 chars]52;7m\\x1b(B\\U0001cd2e\\x1b[2G\\x1b[38;2;116;194;[12969 chars][?7h'\n'\\x1b[7282 chars]52;7mH\\x1b[38;2;116;194;86;48;2;60;138;32mF\\x1[12910 chars][?7h'\n\nDiff is 790 characters long. Set self.maxDiff to None to see it.\n"
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_rgb_arithmetic_matches_scalar",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_rgb_arithmetic_matches_scalar",
+      "outcome": "pass",
+      "seconds": 0.812,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_warm_full_cells_do_not_use_scalar_blends",
+      "parent_test": "test_play_audio_file_v401_bar_art.BatchedBarArtwork.test_warm_full_cells_do_not_use_scalar_blends",
+      "outcome": "failure",
+      "seconds": 0.266,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_play_audio_file_v401_bar_art.py\", line 133, in test_warm_full_cells_do_not_use_scalar_blends\n    self.assertEqual(render(OLD, options), render(NEW, options))\nAssertionError: Tuples differ: ('\\x1[51 chars]25;0m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;33;140;10;48;2;42[96244 chars], []) != ('\\x1[51 chars]25;0mF\\x1b[38;2;33;140;10;48;2;42;140;13mF\\x1b[77352 chars], [])\n\nFirst differing element 0:\n'\\x1b[50 chars]25;0m\\x1b(B\u2580\\x1b[2G\\x1b[38;2;33;140;10;48;2;42[48325 chars][?7h'\n'\\x1b[50 chars]25;0mF\\x1b[38;2;33;140;10;48;2;42;140;13mF\\x1b[38879 chars][?7h'\n\nDiff is 1664 characters long. Set self.maxDiff to None to see it.\n"
+    }
+  ],
+  "blocks": [],
+  "seconds": 10.81
+}

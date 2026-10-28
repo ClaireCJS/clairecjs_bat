@@ -1,0 +1,36 @@
+{
+  "command": [
+    "C:\\Program Files\\ImageMagick-7.1.1-Q16-HDRI\\ffmpeg.exe",
+    "-hide_banner",
+    "-loglevel",
+    "error",
+    "-stdin",
+    "-re",
+    "-f",
+    "lavfi",
+    "-i",
+    "aevalsrc=0.08*sin(2*PI*40*t)+0.08*sin(2*PI*1000*t):s=48000:d=7",
+    "-af",
+    "bass@paf_bass=g=0:f=120:w=0.7",
+    "-f",
+    "s16le",
+    "pipe:1"
+  ],
+  "returncode": 0,
+  "frames": 336000,
+  "levels": {
+    "0.5": {
+      "40": 1310.7171227247184,
+      "1000": 1310.7029928749255
+    },
+    "3": {
+      "40": 242.21077133301569,
+      "1000": 1326.980234702334
+    },
+    "5.5": {
+      "40": 1310.7171227247184,
+      "1000": 1310.7029928749255
+    }
+  },
+  "stderr": "\r\nEnter command: <target>|all <time>|-1 <command>[ <argument>]\r\n\r\nCommand reply for stream 0: ret:0 res:\r\n\r\nEnter command: <target>|all <time>|-1 <command>[ <argument>]\r\n\r\nCommand reply for stream 0: ret:0 res:\r\n"
+}

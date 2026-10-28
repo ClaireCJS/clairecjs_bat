@@ -1,0 +1,8 @@
+{
+  "http_get_status": "passed",
+  "http_post_live_port_change_with_two_clients": "passed",
+  "session_only_did_not_save": true,
+  "rendered_inline_scripts_compiled": 7,
+  "node": "All inline scripts compiled",
+  "source_sha256": "1e6a616434261fb7e06822b7e490aa6a22216e516cc2188e63b27cbdd25976a7"
+}

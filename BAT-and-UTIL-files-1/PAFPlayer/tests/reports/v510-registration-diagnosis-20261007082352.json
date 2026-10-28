@@ -1,0 +1,45 @@
+{
+  "time": "2026-10-07T12:23:50.853841+00:00",
+  "uacEnabled": false,
+  "families": [
+    {
+      "databaseId": 143,
+      "name": "ClaireCJS.PAFPlayer.LockScreen_vz06efybxc4j2",
+      "cacheData": {
+        "present": false
+      },
+      "cacheIndex": {
+        "present": false
+      }
+    },
+    {
+      "databaseId": 76,
+      "name": "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+      "cacheData": {
+        "present": true,
+        "values": {
+          "PackageFamilyName": "Microsoft.WindowsCalculator_8wekyb3d8bbwe",
+          "PackageSID": "S-1-15-2-466767348-3739614953-2700836392-1801644223-4227750657-1087833535-2488631167",
+          "Publisher": "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US",
+          "_IndexKeys": [
+            "PackageFamilyName\\Microsoft.WindowsCalculator_8wekyb3d8bbwe"
+          ]
+        }
+      },
+      "cacheIndex": {
+        "present": true,
+        "values": {}
+      }
+    }
+  ],
+  "activation": {
+    "time": "2026-10-07T08:23:51.9873280-04:00",
+    "user": "DEMONA\\Claire",
+    "sid": "S-1-5-21-3128192790-4281937657-805238717-1002",
+    "session": 1,
+    "enableLUA": 0,
+    "package": "ClaireCJS.PAFPlayer.LockScreen_510.0.0.5_x64__vz06efybxc4j2",
+    "status": "Ok",
+    "activation": "HRESULT=0x80270254; PID=0"
+  }
+}

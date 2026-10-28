@@ -1,0 +1,37 @@
+{
+  "module": "test_play_audio_file_v416_delivery",
+  "count": 4,
+  "successful": true,
+  "entries": [
+    {
+      "test": "test_play_audio_file_v416_delivery.DeliveryTests.test_browser_timeline_first_response_does_not_lose_status_metadata",
+      "parent_test": "test_play_audio_file_v416_delivery.DeliveryTests.test_browser_timeline_first_response_does_not_lose_status_metadata",
+      "outcome": "pass",
+      "seconds": 0.062,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_delivery.DeliveryTests.test_chafa_fallback_retains_drcs_charset",
+      "parent_test": "test_play_audio_file_v416_delivery.DeliveryTests.test_chafa_fallback_retains_drcs_charset",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_delivery.DeliveryTests.test_tabs_and_newlines_do_not_escape_wrapped_terminal_rows",
+      "parent_test": "test_play_audio_file_v416_delivery.DeliveryTests.test_tabs_and_newlines_do_not_escape_wrapped_terminal_rows",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_play_audio_file_v416_delivery.DeliveryTests.test_web_clock_keeps_advancing_while_console_is_busy",
+      "parent_test": "test_play_audio_file_v416_delivery.DeliveryTests.test_web_clock_keeps_advancing_while_console_is_busy",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    }
+  ],
+  "blocks": [],
+  "seconds": 0.88
+}

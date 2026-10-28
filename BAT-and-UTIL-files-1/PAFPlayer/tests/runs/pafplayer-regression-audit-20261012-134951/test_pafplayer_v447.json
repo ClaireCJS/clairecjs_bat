@@ -1,0 +1,111 @@
+{
+  "module": "test_pafplayer_v447",
+  "count": 14,
+  "successful": false,
+  "entries": [
+    {
+      "test": "test_pafplayer_v447.AdaptiveFrequencyTests.test_opt_in_delay_smooth_contraction_expansion_and_reset",
+      "parent_test": "test_pafplayer_v447.AdaptiveFrequencyTests.test_opt_in_delay_smooth_contraction_expansion_and_reset",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.AdaptiveFrequencyTests.test_silence_no_op_and_browser_equivalence",
+      "parent_test": "test_pafplayer_v447.AdaptiveFrequencyTests.test_silence_no_op_and_browser_equivalence",
+      "outcome": "pass",
+      "seconds": 0.235,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.CurationTests.test_rejected_words_stay_text_in_actual_lookup",
+      "parent_test": "test_pafplayer_v447.CurationTests.test_rejected_words_stay_text_in_actual_lookup",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.HudAnchorTests.test_shared_play_value_anchor_and_balanced_intermediate_fields",
+      "parent_test": "test_pafplayer_v447.HudAnchorTests.test_shared_play_value_anchor_and_balanced_intermediate_fields",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.HudAnchorTests.test_unavailable_or_impossible_anchor_keeps_all_fields",
+      "parent_test": "test_pafplayer_v447.HudAnchorTests.test_unavailable_or_impossible_anchor_keeps_all_fields",
+      "outcome": "pass",
+      "seconds": 0.031,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.LearnedSelectorTests.test_apostrophes_and_regex_metacharacters",
+      "parent_test": "test_pafplayer_v447.LearnedSelectorTests.test_apostrophes_and_regex_metacharacters",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.LearnedSelectorTests.test_normalized_selector_and_real_neighbor_collisions",
+      "parent_test": "test_pafplayer_v447.LearnedSelectorTests.test_normalized_selector_and_real_neighbor_collisions",
+      "outcome": "pass",
+      "seconds": 0.016,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.LoudnessTests.test_episode_result_manual_override_and_output_change",
+      "parent_test": "test_pafplayer_v447.LoudnessTests.test_episode_result_manual_override_and_output_change",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.LoudnessTests.test_gate_minimum_and_bounded_storage",
+      "parent_test": "test_pafplayer_v447.LoudnessTests.test_gate_minimum_and_bounded_storage",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.LoudnessTests.test_k_weighting_level_scale_chunk_continuity_and_lfe",
+      "parent_test": "test_pafplayer_v447.LoudnessTests.test_k_weighting_level_scale_chunk_continuity_and_lfe",
+      "outcome": "pass",
+      "seconds": 0.125,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.LoudnessTests.test_raise_reduce_master_compensation_and_existing_limits",
+      "parent_test": "test_pafplayer_v447.LoudnessTests.test_raise_reduce_master_compensation_and_existing_limits",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.LoudnessTests.test_real_player_applies_visible_volume_only_on_automatic_resume",
+      "parent_test": "test_pafplayer_v447.LoudnessTests.test_real_player_applies_visible_volume_only_on_automatic_resume",
+      "outcome": "pass",
+      "seconds": 0.375,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.LoudnessTests.test_rejects_notifications_nest_wrong_outputs_and_manual_pause",
+      "parent_test": "test_pafplayer_v447.LoudnessTests.test_rejects_notifications_nest_wrong_outputs_and_manual_pause",
+      "outcome": "pass",
+      "seconds": 0.0,
+      "detail": ""
+    },
+    {
+      "test": "test_pafplayer_v447.WebConfigurationTests.test_javascript_syntax_and_setting_routes",
+      "parent_test": "test_pafplayer_v447.WebConfigurationTests.test_javascript_syntax_and_setting_routes",
+      "outcome": "failure",
+      "seconds": 0.078,
+      "detail": "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pafplayer-regression-audit-20261012-134951\\stage\\test_pafplayer_v447.py\", line 234, in test_javascript_syntax_and_setting_routes\n    self.assertEqual(0, result.returncode, result.stderr)\nAssertionError: 0 != 1 : [stdin]:1692\n(()=>{const box=document.getElementById('controlHotkeysEnabled'),status=document.getElementById('controlHotkeysStatus');let token='',busy=false;\\nasync function poll(){if(busy)return;try{const r=await fetch('/api/workflows/status',{cache:'no-store'}),v=await r.json();if(!r.ok)throw Error(v.error);token=v.local?v.token:'';box.checked=!!v.control.hotkeys_enabled;box.disabled=!v.local;status.textContent=v.local?'Saved on this player':'Change this on the player computer'}catch(e){status.textContent=String(e)}}\\nbox.onchange=async()=>{busy=true;try{const r=await fetch('/api/workflows/control',{method:'POST',headers:{'Content-Type':'application/json','X-PAF-Workflow-Token':token},body:JSON.stringify({hotkeys_enabled:box.checked})}),v=await r.json();if(!r.ok)throw Error(v.error);box.checked=v.hotkeys_enabled;status.textContent='Setting saved'}catch(e){status.textContent=String(e)}finally{busy=false}};poll();setInterval(()=>{if(!document.hidden)poll()},3000)})();\n                                                                                                                                                ^\n\nSyntaxError: Invalid or unexpected token\n    at wrapSafe (node:internal/modules/cjs/loader:1743:18)\n    at checkSyntax (node:internal/main/check_syntax:76:3)\n    at node:internal/main/check_syntax:45:5\n    at Socket.<anonymous> (node:internal/process/execution:205:5)\n    at Socket.emit (node:events:520:35)\n    at endReadableNT (node:internal/streams/readable:1729:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n\nNode.js v24.14.0\n\n"
+    }
+  ],
+  "blocks": [
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "winreg.CreateKey"
+  ],
+  "seconds": 1.69
+}

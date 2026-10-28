@@ -1,0 +1,49 @@
+{
+  "version": "V581",
+  "source_sha256": "ba09645ba79357716358c3c9c6d51ac0dd3352f8f9ed8bdb97b3249f2c44f5e5",
+  "compiled_python": [
+    "PAFPlayer.py",
+    "PAFPlayer_steam.py",
+    "tests/test_v581_steam_notices.py",
+    "tests/verify_v581_steam_notices.py",
+    "tests/check_v581_build.py"
+  ],
+  "compiled_bundles": [
+    "PAFPlayer_cli_workflows",
+    "PAFPlayer_cuda_benchmarks",
+    "PAFPlayer_discord",
+    "PAFPlayer_ffmpeg_setup",
+    "PAFPlayer_instance",
+    "PAFPlayer_lockscreen",
+    "PAFPlayer_lockscreen_installer",
+    "PAFPlayer_lockscreen_payload",
+    "PAFPlayer_monkeymote",
+    "PAFPlayer_remote_overlay",
+    "PAFPlayer_remote_tray",
+    "PAFPlayer_render_book",
+    "PAFPlayer_screensaver",
+    "PAFPlayer_steam",
+    "PAFPlayer_track_details",
+    "PAFPlayer_tray",
+    "PAFPlayer_tray_hover",
+    "PAFPlayer_tray_machine",
+    "PAFPlayer_tray_options",
+    "PAFPlayer_web_workflows",
+    "PAFPlayer_windows_media",
+    "PAFPlayer_windows_ui",
+    "PAFPlayer_workflows",
+    "PAFPlayer_workflows_ui"
+  ],
+  "javascript_blocks_checked": 4,
+  "native_read_only_scan": {
+    "settings": {
+      "SteamReduceVisualizerLoad": true,
+      "SteamDisableIdleGallery": true
+    },
+    "playing": false,
+    "games": [],
+    "status": "No running Steam game detected",
+    "notice": {}
+  },
+  "manual_hud_and_browser_visual_check": "Not performed on the live player; use docs/steam.md."
+}

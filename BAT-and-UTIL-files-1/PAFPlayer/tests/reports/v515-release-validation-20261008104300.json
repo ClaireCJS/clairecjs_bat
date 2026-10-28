@@ -1,0 +1,11 @@
+{
+  "releaseIntegrity": "passed",
+  "sourceCompilation": "passed",
+  "changedTopLevelFunctionsOrClasses": [
+    "PAFWebServer",
+    "_paf_web_html"
+  ],
+  "packageVersion": "515.0.0.1",
+  "literalCBatChanges": [],
+  "visualRendering": "unconfirmed"
+}

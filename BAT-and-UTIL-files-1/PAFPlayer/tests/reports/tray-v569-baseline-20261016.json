@@ -1,0 +1,5 @@
+{
+  "reproduced": true,
+  "error": "argument 3: TypeError: wrong type",
+  "cause": "current_wallpaper sets global pvParam type to LPWSTR; work-area query supplies RECT"
+}
