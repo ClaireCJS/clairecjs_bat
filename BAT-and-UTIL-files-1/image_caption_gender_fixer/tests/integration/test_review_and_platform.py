@@ -45,7 +45,7 @@ def test_post_render_ocr_correction_rerenders_without_saving_rules(tmp_path,monk
 
 def test_repair_comparison_artifacts_are_adjacent_owned_and_recycled(tmp_path):
     source=tmp_path/"compare.png";make_image(source);before=sha256(source)
-    app=app_for(tmp_path,answers=iter(["b","1","telea","s"]))
+    app=app_for(tmp_path,answers=iter(["b","t","s"]))
     result,code=app.process([str(source)])
     assert code==10 and sha256(source)==before and not(tmp_path/".history.icgf").exists()
     assert not list(tmp_path.glob(".icgf-*.png"))

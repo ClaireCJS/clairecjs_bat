@@ -61,7 +61,7 @@ def test_verbose_caption_is_wrapped_and_cannot_interpret_terminal_controls(tmp_p
     assert all(disp_len(frame)<=79 for frame in re.split('[\r\n]',output) if frame)
 
 
-@pytest.mark.parametrize('columns',[40,80,120,240])
+@pytest.mark.parametrize('columns',[40,80,120,240,400])
 def test_shared_progress_frames_stay_bounded_and_keep_counts_visible(tmp_path,monkeypatch,capsys,columns):
     width=console(monkeypatch,columns)
     app,_source=fixture_app(tmp_path,monkeypatch)
@@ -79,10 +79,15 @@ def test_shared_progress_frames_stay_bounded_and_keep_counts_visible(tmp_path,mo
         progress.refresh()
     resized=capsys.readouterr().err;output=initial+resized
     frames=[ANSI.sub('',frame) for frame in re.split('[\r\n]',output) if frame]
-    assert all(disp_len(ANSI.sub('',frame))<=min(columns,140) for frame in re.split('[\r\n]',initial) if frame)
+    assert all(disp_len(ANSI.sub('',frame))<=columns-1 for frame in re.split('[\r\n]',initial) if frame)
     assert all(disp_len(ANSI.sub('',frame))<=80 for frame in re.split('[\r\n]',resized) if frame)
     assert any('92/543' in frame for frame in frames)
     assert 'One cache warning' in output
+    bar_frames=[frame for frame in frames if frame.startswith('OCR 92/543') and '|' in frame]
+    assert bar_frames
+    initial_bars=[ANSI.sub('',frame) for frame in re.split('[\r\n]',initial) if '92/543' in ANSI.sub('',frame) and '|' in frame]
+    assert any(disp_len(frame)==columns-1 for frame in initial_bars)
+    if columns>=240:assert any(len(frame.split('|')[1])>columns//2 for frame in initial_bars)
     assert any('ETA' in frame for frame in frames if len(frame)>30)
 
 

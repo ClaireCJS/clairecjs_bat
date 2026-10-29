@@ -34,7 +34,12 @@ def test_passive_window_keeps_foreground_and_approve_requires_current_render(tmp
     def check():
         try:
             if not viewer._has_drawn:viewer.root.after(40,check);return
-            assert api.GetForegroundWindow()==foreground
+            _,own_window,getter,_=viewer._native_window()
+            current=api.GetForegroundWindow()
+            # A human can switch applications during this desktop test. The
+            # preview itself must never be the newly activated window.
+            assert current!=own_window or foreground==own_window,(foreground,current,own_window)
+            assert getter(own_window,-20)&0x08000000
             viewer.set_review(results.append,[],False);viewer.buttons['a'].invoke()
             viewer.buttons['a'].invoke();assert results==['a']
         except BaseException as error:errors.append(error)

@@ -9,14 +9,15 @@ from .errors import IntegrityError
 from .fs import canonical, folder_lock, hide, identity, now, reparse, sha256
 
 HEADER={"application":"icgf","schema":1,"kind":"ocr-cache"}
-ALGORITHM=2
+ALGORITHM=3
 
 
 def signature(root,executable,eco):
     """Invalidate when OCR code policy, engine, model or quality changes."""
+    from .ocr_quality import POLICY
     return {"algorithm":ALGORITHM,"engine":sha256(executable),
             "english":sha256(Path(root)/"environment/tessdata/eng.traineddata"),
-            "eco":bool(eco),"quality_policy":"panel-gray-upscale-v2","psm":11,"full_retry_below_confidence":80}
+            "eco":bool(eco),"quality_policy":POLICY,"psm":11,"full_retry_below_confidence":80}
 
 
 def key_for(digest,settings,size):
@@ -103,7 +104,7 @@ class OCRCache:
             self.warning='Saved OCR entry is invalid; .ocr retained: '+str(error)
             return None
 
-    def put(self,source,digest,settings,size,lines):
+    def put(self,source,digest,settings,size,lines,force=False):
         packed=pack_lines(lines,size)
         key=key_for(digest,settings,size)
         with folder_lock(self.path.parent):
@@ -111,12 +112,14 @@ class OCRCache:
             # writer changed the file, rather than once per image in a batch.
             self.refresh()
             if self.blocked: raise IntegrityError(self.warning)
-            if key in self.entries:
+            if key in self.entries and not force:
                 unpack_lines(self.entries[key]['lines'],size)
                 hide(self.path);return
             record={'key':key,'image_hash':digest,'settings':settings,'size':list(size),
                     'filename':Path(source).name,'created':now(),'lines':packed}
             record['checksum']=hashlib.sha256(canonical(record).encode('utf-8')).hexdigest()
+            # Forced scans append the same key again; the newest valid record
+            # wins on reload, retaining every previous result.
             # Append rather than replace: old entries and interrupted evidence
             # are preserved, with no per-image copies of the whole cache.
             exists=self.path.exists()

@@ -1,0 +1,74 @@
+{
+  "installed_tests": 241,
+  "seconds": "94.998",
+  "live_terminal": {
+    "stdin_tty": true,
+    "stdout_tty": true,
+    "default_exit": 0,
+    "verbose_exit": 0,
+    "images": 3,
+    "cache_unchanged_on_verbose_reuse": true,
+    "originals_unchanged": true,
+    "history_created": false,
+    "production_state_unchanged": true,
+    "existing_resumable_jobs": 3,
+    "bundle_verified": 2022,
+    "created_cbat_logs": [
+      "C:\\BAT\\image_caption_gender_fixer\\runtime\\logs\\30e41b3c-a5bb-4351-af42-9d0894634452.jsonl",
+      "C:\\BAT\\image_caption_gender_fixer\\runtime\\logs\\496cbbfb-20c5-455b-b629-5bb249b9fdf3.jsonl",
+      "C:\\BAT\\image_caption_gender_fixer\\runtime\\logs\\9ff12929-bd74-494c-8f7e-d2f1e3c897fa.jsonl"
+    ]
+  },
+  "audit_logs": [
+    {
+      "path": "C:\\BAT\\image_caption_gender_fixer\\runtime\\logs\\30e41b3c-a5bb-4351-af42-9d0894634452.jsonl",
+      "kind": "generated-image smoke log"
+    },
+    {
+      "path": "C:\\BAT\\image_caption_gender_fixer\\runtime\\logs\\496cbbfb-20c5-455b-b629-5bb249b9fdf3.jsonl",
+      "kind": "separate concurrent interactive run (observed only)"
+    },
+    {
+      "path": "C:\\BAT\\image_caption_gender_fixer\\runtime\\logs\\9ff12929-bd74-494c-8f7e-d2f1e3c897fa.jsonl",
+      "kind": "generated-image smoke log"
+    }
+  ],
+  "pre_existing_state_changes_during_separate_interactive_activity": [
+    "C:\\bat\\image_caption_gender_fixer\\runtime\\state\\sessions\\d947422b-7e6e-45ba-9b1d-ae69544374c8.json"
+  ],
+  "validation_processed_only_generated_images": true,
+  "code_hashes": {
+    "README.md": "afdf041447e6f9d5ecd52fd32eaf036b4b16661d6b6902a89c6303c0aa99a9fc",
+    "image_caption_gender_fixer.py": "0656a78e62880920bb878b1b94ed34748e271dfad47295b531817eb029158b7b",
+    "src/image_caption_gender_fixer/caption_editor.py": "8c4c8f6b3305ec40ffeb9ae8518af8071359aeb4d8fdfb7a78a3167bee42ce8b",
+    "src/image_caption_gender_fixer/cli.py": "396404899fff54c9789fb46d048ad80bd42a252e9caaabdf795fd8afc13f9f8f",
+    "src/image_caption_gender_fixer/dependencies.py": "3c2ffd04238a3c650e847858c366602222a6cf6278854089674278824584367b",
+    "src/image_caption_gender_fixer/floating_artwork.py": "43d4028e06c7140ab8e1614e1174f7a9fb8a6758a6442be32efa9725dc43c453",
+    "src/image_caption_gender_fixer/history.py": "b487fb16f61cfc877fd67524b28bade1ab94288276d9e1117f2459167a8b6b35",
+    "src/image_caption_gender_fixer/name_migration.py": "01fbc8ce169111a6c34364989373a557ac523bf5a989a318f9b1649581ef2319",
+    "src/image_caption_gender_fixer/ocr_cache.py": "1d1c1d1120b2a815de82c5477da8435e5d4ada1c54f14d1267dbef880caad061",
+    "src/image_caption_gender_fixer/ocr_quality.py": "01fbdadf441d62512c70ee7694c1bb15129b6cf3c613325b195376dee56ec622",
+    "src/image_caption_gender_fixer/paf_album_art.py": "1dbc49a06236c29123db5179091b96a9e6cb2524a3aeac2acf2a7a141bf06223",
+    "src/image_caption_gender_fixer/presentation.py": "e5df3dbc2a624c699bbdb6bab172bc2c6a97beec7a848058918a5ec7387db1f9",
+    "src/image_caption_gender_fixer/rules.py": "dc6123baf31a09e278437aa6c0eaac2ffab78a231e18d50c579700c704930a5e",
+    "src/image_caption_gender_fixer/rule_editor.py": "fc9b913ce713ed3fb58fd87227aec186b341566432cf41a2fb6601957cf0e44c",
+    "src/image_caption_gender_fixer/sessions.py": "1b665fb76bf092ae3e75ba915bdbc0a43df76e7be3ffb281cfbaacbbf1a4262d",
+    "src/image_caption_gender_fixer/transactions.py": "ef8604bd40efaa9fa08df61c93c4ba0074e793c23ee6d3639935f8b3f094441c",
+    "tests/integration/test_artwork_controls.py": "d1975c05c82b694698ab80753a393b7ba35414a69d25914d92e29fca30b16bbc",
+    "tests/integration/test_completion.py": "3e0a0334a52e69fca9cca1cd2676a7817c94afb5c09059c3925dc6e6c9705f06",
+    "tests/integration/test_images.py": "aad797e1bb7d00c07c8a977e8634fc1efb4c1ca5a0a208f81713bf3cf16180e1",
+    "tests/integration/test_ocr_prefetch.py": "ac6f345432c141df29a53cd190a7f14b415acf0a22ed24c485ed3b31a26c9235",
+    "tests/integration/test_ocr_quality.py": "9beb84fa0e1454bd1941629ae2b101bc7706ee45ef67f475f0dfa0c79b3338b8",
+    "tests/integration/test_paf_album_art.py": "542e49dca4029c19b252bd973291433aafc540d0d48d4991dce3d694c241b136",
+    "tests/integration/test_recovery.py": "d0f09f1a0ae6b60eb581a3eb53f96b76e7422b7064a276946c72958f78214306",
+    "tests/integration/test_review_and_platform.py": "526c0b21ba06963352b3ac119659d3c2d105f3abe68e547e929cc54512728e6b",
+    "tests/integration/test_review_workflow.py": "3b051fef75a1d1447139a976d796109cecff15a1138ac7d5bb08d3c6431a0643",
+    "tests/integration/test_transactions.py": "7ccc48b585d510eb640e09da775ee2953b53e615fde065ca418bd1aaa5cef684",
+    "tests/integration/test_transparent_ocr.py": "1cdafa0507b745d53ac58a5fcd35a00da0c28370b3107fb3ee8041be74701a58",
+    "tests/unit/test_review_rules.py": "03cde4f307782a4f355e539f1f7c089aeb169d814e0a192f8bb1a1d683b939ef",
+    "tests/unit/test_rules.py": "c2353cd3bbba0b951aec94f2e1386c8f09392c926651edeb51091fe3af8f3edd",
+    "docs/implementation-status.md": "774160f71194452bb5662f4386f2f9394a0339ab7e9faebce71de87284815a6f",
+    "docs/pafplayer-preview.md": "d56369f4d337063067de51b230ac4a9d248bba517017189a35fff6e1f136c3ea",
+    "docs/requirements-checklist.md": "fe5d2378d3fa02270d90001b78a83a67349aaf4c67cbc15b915523b37fe5e302"
+  }
+}

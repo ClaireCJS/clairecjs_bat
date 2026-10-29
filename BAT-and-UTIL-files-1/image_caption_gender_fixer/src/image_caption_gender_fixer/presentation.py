@@ -23,21 +23,9 @@ def prompt(message,default=''):
     return message.rstrip()+' '+color('('+hint+')',CYAN)+' '
 
 def comparison(detected,proposed,width=None,enabled=None):
-    width=width or shutil.get_terminal_size((120,40)).columns
-    if width<64:
-        return color('📖 Detected caption\n'+detected,GREEN,enabled)+'\n'+color('✨ Proposed caption\n'+proposed,YELLOW,enabled)
-    col=max(12,(width-5)//2)
-    out=[color('📖 Detected caption'.ljust(col),GREEN,enabled)+'  │  '+color('✨ Proposed caption',YELLOW,enabled)]
-    left=detected.splitlines();right=proposed.splitlines()
-    for kind,a,b,c,d in SequenceMatcher(None,left,right,autojunk=False).get_opcodes():
-        for i in range(max(b-a,d-c)):
-            old=left[a+i] if a+i<b else '';new=right[c+i] if c+i<d else ''
-            ls=textwrap.wrap(old,col,replace_whitespace=True) or ['']
-            rs=textwrap.wrap(new,col,replace_whitespace=True) or ['']
-            for j in range(max(len(ls),len(rs))):
-                l=ls[j] if j<len(ls) else '';r=rs[j] if j<len(rs) else ''
-                out.append(color(l.ljust(col),GREEN,enabled)+'  │  '+color(r,YELLOW,enabled))
-    return '\n'.join(out)
+    """Aligned old/new columns flow down and across like newspaper output."""
+    from .newspaper_columns import compare_columns
+    return compare_columns(detected,proposed,width=width,enabled=enabled)
 
 class Initializing:
     """A single bounded status line; never leaves ANSI in pipes or JSON."""

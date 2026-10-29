@@ -41,8 +41,11 @@ class Parser(argparse.ArgumentParser):
             end=args.index("--")
             parsed=super().parse_intermixed_args(args[:end],namespace)
             parsed.items.extend(args[end+1:])
+            parsed.ocr_only=parsed.ocr_only or parsed.ocr_force
             return parsed
-        return super().parse_intermixed_args(args,namespace)
+        parsed=super().parse_intermixed_args(args,namespace)
+        parsed.ocr_only=parsed.ocr_only or parsed.ocr_force
+        return parsed
 
 
 def product_name(path):
@@ -58,6 +61,8 @@ def parser():
         p.add_argument("--"+flag, action="store_true")
     p.add_argument('--ocr','--ocr-only','-o',dest='ocr_only',action='store_true',
                    help='Save OCR ahead of time in hidden .ocr files beside images; no image edits or job selection.')
+    p.add_argument('-of','--ocr-force',dest='ocr_force',action='store_true',
+                   help='Force fresh OCR-only results for all matching images, including processed outputs and image backups; append refreshed cache records.')
     p.add_argument("--skip-reivew-for-confident-ones", "--skip-review-for-confident-ones", dest="skip_confident",action="store_true")
     disposition = p.add_mutually_exclusive_group()
     for flag in ("ask-about-undo-archives", "keep-undo-archives", "recycle-undo-archives"):
@@ -102,7 +107,7 @@ class App:
         self.ocr_caches={};self.ocr_signatures={};self.ocr_warnings=set()
         self._ocr_progress=None;self._ocr_columns=80
         self.initializing=Initializing(self.interactive and sys.stderr.isatty() and not args.json)
-        self.review_rules=[];self.legacy_outputs=[]
+        self.review_rules=[];self.legacy_outputs=[];self.last_preview=None
         if self.cache.warning: self.diagnostics(self.cache.warning)
 
     def observe_history(self,folder):
@@ -117,7 +122,11 @@ class App:
         self.initializing.clear()
         message=prompt(message,default)
         try:
-            answer = self.ask_callback(message) if self.ask_callback else input(message)
+            if self.ask_callback:answer=self.ask_callback(message)
+            elif os.name=='nt' and (self.floating_artwork is not None or self.last_preview is not None):
+                from .adjustment_menu import ask_value
+                answer=ask_value(self,message,default)
+            else:answer=input(message)
         except EOFError as error:
             raise Cancelled("Input closed; current image and resumable job retained.",**self.context) from error
         return str(answer).strip() or default
@@ -168,20 +177,44 @@ class App:
         return combined,store
 
     def preview(self, path, title, detail=False):
-        if self.args.no_preview or self.args.json or not sys.stdout.isatty():
-            return
-        from .paf_backend import terminal_image
+        self.last_preview=(str(path),str(title),dict(self.preview_captions))
+        if self.args.no_preview or self.args.json:return
         from .floating_artwork import FloatingArtwork
-        cols,rows=shutil.get_terminal_size(fallback=(120,40))
         self.initializing.update("Preparing "+title.lower()+"…")
-        width,height=preview_size(cols,rows)
+        # The native artwork remains useful if the terminal renderer fails or
+        # stdout is redirected. Give it its own startup/error path.
+        try:
+            if self.floating_artwork is None:self.floating_artwork=FloatingArtwork(self.root)
+            self.floating_artwork.update(path,title,self.preview_captions)
+        except (ICGFError,OSError,ValueError) as error:
+            self.diagnostics('⚠️ Artwork preview unavailable: '+str(error)+' · Ctrl+A retries; Ctrl+Alt+A brings it forward.')
+        if not sys.stdout.isatty():self.initializing.clear();return
+        from .paf_backend import terminal_image
+        cols,rows=shutil.get_terminal_size(fallback=(120,40));width,height=preview_size(cols,rows)
         if detail:width,height=max(1,width//5),max(1,height//5)
-        payload=terminal_image(self.root,path,width,height)
-        self.initializing.clear()
-        print("\n"+color(title,CYAN),flush=True)
-        self.write_terminal_image(payload)
-        if self.floating_artwork is None: self.floating_artwork=FloatingArtwork(self.root)
-        self.floating_artwork.update(path,title,self.preview_captions)
+        try:payload=terminal_image(self.root,path,width,height)
+        except (ICGFError,OSError,ValueError,subprocess.SubprocessError) as error:
+            self.diagnostics('⚠️ Terminal preview unavailable: '+str(error));return
+        self.initializing.clear();print("\n"+color(title,CYAN),flush=True);self.write_terminal_image(payload)
+
+    def reopen_artwork(self,activate=False):
+        from .floating_artwork import FloatingArtwork
+        if self.args.json:return
+        try:
+            if self.floating_artwork is None:
+                if self.last_preview is None:
+                    self.diagnostics('No image has been previewed yet.');return
+                self.floating_artwork=FloatingArtwork(self.root)
+                path,title,captions=self.last_preview
+                self.floating_artwork.update(path,title,captions)
+            self.floating_artwork.reopen(activate=activate)
+            self.args.no_preview=False
+        except (ICGFError,OSError,ValueError) as error:self.diagnostics('⚠️ Artwork could not reopen: '+str(error))
+        finally:
+            if activate:
+                from .artwork_shell import reveal_all
+                try:reveal_all(exclude_pid=os.getpid())
+                except OSError as error:self.diagnostics('⚠️ Other artwork windows could not be shown: '+str(error))
 
     @staticmethod
     def write_terminal_image(payload):
@@ -204,6 +237,7 @@ class App:
             if item["kind"]!="proposal":
                 self.preview(item["path"],f"Region {item.get('region',0)+1}: {item['kind']}",detail=True)
         if proposal.get("stage"): self.preview(proposal["stage"],"Complete proposed corrected image")
+        else:self.preview(source,"Original image — fitting needs review")
         self.diagnostics("\n"+comparison(captions["detected"],captions["proposed"])+"\n")
         if proposal.get("blocked"):
             self.diagnostics("Rendering blocked for region "+str(proposal["blocked"]["region"]+1)+": "+proposal["blocked"]["reason"])
@@ -219,41 +253,19 @@ class App:
                              "; fit "+str(round(diagnostic["fit_scale"]*100))+"%; repair "+diagnostic["repair"])
             for warning in diagnostic.get("warnings",[]): self.diagnostics(color("⚠️ "+warning,YELLOW))
             self.diagnostics("Font candidates: "+", ".join(Path(c["font"]).name+" ("+str(round(c["score"]*100))+"%)" for c in diagnostic["style"].get("font_candidates",[])))
-        menu=('[y]approve, approve+[p]ause, ' if not proposal.get('blocked') else '')+'[a]dd rule, [e]dit caption, [s]kip, skip+[q]pause, [d]efer, fix [o]CR, [v]isual adjustment, [b]ackground repairs, [i]gnore, [c]ancel: '
+        menu=('[y]approve, ' if not proposal.get('blocked') else '[m]ove/squeeze text to fit, ')+'[a]dd rule, [e]dit caption, [r]eject changes, [s]kip, [d]efer, fix [o]CR, [v]isual adjustment, [b]ackground repairs, [i]gnore text change, [c]ancel: '
+        self.review_source=str(source)
+        self.review_changes=[dict(index=i,before=r.before,after=r.after) for i,r in enumerate(regions) if not r.skipped]
         self.review_notes=[warning for diagnostic in proposal['diagnostics'] for warning in diagnostic.get('warnings',[])]
         if proposal.get('blocked'):self.review_notes.insert(0,proposal['blocked']['reason'])
+        if getattr(self,'file_action_notice',None):
+            self.review_notes.insert(0,self.file_action_notice);self.file_action_notice=None
         if any(not check['replacement_confirmed'] for check in proposal['verification']):self.review_notes.append('Targeted OCR did not confirm every replacement; inspect the rendered image.')
         return self.review_question(menu,proposal.get('blocked'))
 
     def review_question(self,message,blocked):
-        artwork=self.floating_artwork
-        if artwork is None or self.ask_callback is not None or os.name!='nt':
-            answer=self.question(message,'s').lower()
-            return {'y':'a','a':'add_rule','e':'edit_caption'}.get(answer,answer)
-        import msvcrt,time
-        token=artwork.begin_review(blocked,self.review_rules,getattr(self,"review_notes",[]))
-        sys.stderr.write(prompt(message,'s'));sys.stderr.flush();typed=''
-        try:
-            while True:
-                action=artwork.review_action(token)
-                if action is not None:
-                    while msvcrt.kbhit():msvcrt.getwch()
-                    sys.stderr.write('\n');sys.stderr.flush();return action
-                if artwork.stopped.is_set():raise DependencyUnavailable('Artwork window stopped during review; proposal retained.')
-                if msvcrt.kbhit():
-                    key=msvcrt.getwch()
-                    if key=='\x03':raise KeyboardInterrupt
-                    if key in ('\x00','\xe0'):msvcrt.getwch();continue
-                    if key=='\r':
-                        sys.stderr.write('\n');sys.stderr.flush()
-                        answer=typed.strip().lower() or 's'
-                        return {'y':'a','a':'add_rule','e':'edit_caption'}.get(answer,answer)
-                    if key=='\b':
-                        if typed:typed=typed[:-1];sys.stderr.write('\b \b')
-                    elif key.isprintable():typed+=key;sys.stderr.write(key)
-                    sys.stderr.flush()
-                time.sleep(.03)
-        finally:artwork.end_review(token)
+        from .adjustment_menu import review
+        return review(self,message,blocked)
 
     def edit_caption(self):
         # Prefilled native editor, also available when terminal previews are off.
@@ -261,26 +273,8 @@ class App:
         return edit_caption(self.preview_captions.get('proposed',''))
 
     def compare_repairs(self,source,image,region,protected,proposal,remember,index):
-        from . import imaging
-        from dataclasses import replace
-        available=[]
-        for method in ("fill","gradient","telea","navier","patch"):
-            candidate=replace(region,settings=dict(region.settings,repair=method))
-            try:
-                _,diagnostic,crops=imaging.render_region(image,candidate,protected)
-            except ICGFError as error:
-                self.diagnostics(method+": unavailable — "+str(error));continue
-            available.append(method)
-            for kind in ("repair","corrected"):
-                path=Path(source).parent/(".icgf-"+proposal["transaction"]+"-compare-"+str(index+1)+"-"+method+"-"+kind+".png")
-                imaging.review_crop(path,crops[kind],"comparison-"+kind,proposal["artifacts"],remember,index)
-                self.preview(path,method+": "+kind+"; confidence "+str(diagnostic["level"]),detail=True)
-        while True:
-            selected=self.question("Choose repair "+"|".join(available)+", or Enter to retain current: ")
-            if not selected: return
-            if selected in available:
-                region.settings["repair"]=selected;return
-            self.diagnostics("Choose one of the displayed repair methods.")
+        from .adjustment_menu import background
+        return background(self,source,image,region,protected,proposal,remember,index)
 
     def cleanup(self, artifacts):
         retained=[]
@@ -342,7 +336,8 @@ class App:
                 return
             name=path.name.casefold()
             if name=='.ocr': return
-            if product_name(path):
+            forced_image=self.args.ocr_force and not name.startswith(('.icgf-','.history.icgf','.image-gender-fixer'))
+            if product_name(path) and not forced_image:
                 from .name_migration import corrected_name
                 if corrected_name(path) and path not in self.legacy_outputs:self.legacy_outputs.append(path)
                 return
@@ -380,11 +375,19 @@ class App:
             self.diagnostics(f"     Updated {updated}; {len(session['items'])} images; {summary['remaining']} remaining; "+
                              f"{summary['completed']} corrected; {summary['counts'].get('skipped',0)} skipped; profile {session['profile']}")
 
+    def jobs_help(self):
+        self.diagnostics('Resume continues a selected unfinished job. Inspect shows its queued images. '
+            'Trash recycles selected queues/previews and preserves originals. New starts on the current folder and retains old jobs. '
+            'Choose a job by its displayed number; no session ID is needed. '
+            'Explicit targets such as icgf . or icgf "*.*" or icgf image.jpg start directly on those files. '
+            'Run icgf without a target to return to these jobs. Cancel leaves all jobs intact.')
+
     def pick_jobs(self,pending,allow_all=False):
         if len(pending)==1: return [pending[0]]
         while True:
-            answer=self.question(f"Job number [1-{len(pending)}]"+(' or [a]ll' if allow_all else '')+", [b]ack, [?]help: ").casefold()
+            answer=self.question(f"Job number [1-{len(pending)}]"+(' or [a]ll' if allow_all else '')+", [b]ack, [h]elp: ").casefold()
             if answer in ('b','back','c','cancel'): return []
+            if answer in ('h','help','?'):self.jobs_help();continue
             if allow_all and answer in ('a','all'): return pending
             if answer.isdecimal() and 1<=int(answer)<=len(pending): return [pending[int(answer)-1]]
             # Existing scripted callers may still supply the stable ID.
@@ -392,12 +395,16 @@ class App:
             if selected: return [selected]
             self.diagnostics('Choose the number beside the job'+(' or a for all jobs' if allow_all else '')+'. No session ID is needed. Use b to go back.')
 
-    def select_session(self, paths):
+    def select_session(self, paths, explicit_targets=False):
         while True:
-            selected=self._select_session_once(paths)
+            selected=self._select_session_once(paths,explicit_targets)
             if selected is not False: return selected
 
-    def _select_session_once(self, paths):
+    def _select_session_once(self, paths, explicit_targets=False):
+        # A named target means a new batch of exactly those images. Do not
+        # inspect unrelated queues or require --new-session to avoid their menu.
+        if explicit_targets and not self.args.resume:
+            return self.sessions.create(paths,self.args.profile,self.initializing.update) if paths else None
         pending=self.sessions.unfinished()
         pending.sort(key=lambda session:(session['updated'],session['created'],session['id']),reverse=True)
         if self.sessions.issues:
@@ -416,8 +423,9 @@ class App:
             if not self.interactive:
                 raise SelectionRequired("Resumable sessions exist; select --resume <id> or --new-session.",sessions=summaries)
             self.show_jobs(pending)
-            choice=self.question("Jobs: [r]esume, [i]nspect, [t]rash-and-forget, [n]ew while retaining old, [c]ancel, [?]help: ","c").casefold()
+            choice=self.question("Jobs: [r]esume, [i]nspect, [t]rash-and-forget, [n]ew while retaining old, [c]ancel, [h]elp: ","c").casefold()
             choice={'resume':'r','inspect':'i','trash':'t','new':'n','cancel':'c'}.get(choice,choice)
+            if choice in ('h','help','?'):self.jobs_help();return False
             if choice.isdecimal() and 1<=int(choice)<=len(pending): return pending[int(choice)-1]
             if choice=="n":
                 self.diagnostics("Existing jobs retained.")
@@ -456,7 +464,7 @@ class App:
         if restarted.stderr: print(restarted.stderr,file=sys.stderr,end='')
         return json.loads(restarted.stdout),restarted.returncode
 
-    def ocr_lines(self,source,image,digest,executable,persist=False,expected_identity=None):
+    def ocr_lines(self,source,image,digest,executable,persist=False,expected_identity=None,force=False):
         from .ocr_cache import OCRCache,signature,recognize
         folder=Path(source).parent
         cache=self.ocr_caches.setdefault(folder,OCRCache(folder))
@@ -469,16 +477,20 @@ class App:
                 lines=cache.get(digest,settings,image.size)
                 if cache.warning and folder not in self.ocr_warnings:
                     self.diagnostics(cache.warning);self.ocr_warnings.add(folder)
-                if lines is not None: return lines,True
+                if lines is not None and not force: return lines,True
             except (ICGFError,OSError,ValueError) as error:
-                if persist: raise
+                if persist and self.args.ocr_only: raise
                 if folder not in self.ocr_warnings:
                     self.diagnostics('Saved OCR unavailable; recognizing again: '+str(error));self.ocr_warnings.add(folder)
         lines=recognize(image,executable['path'],self.root/'environment/tessdata',self.args.eco)
         if persist:
             if identity(source)!=expected_identity or sha256(source)!=digest:
                 raise IntegrityError('Image changed during OCR; result was not cached. Run OCR again for this image.')
-            cache.put(source,digest,settings,image.size,lines)
+            try:
+                cache.put(source,digest,settings,image.size,lines,force=force)
+            except (ICGFError,OSError,ValueError) as error:
+                if self.args.ocr_only: raise
+                self.diagnostics('OCR cache could not be saved; continuing review: '+str(error))
         return lines,False
 
     def ocr_console_enabled(self):
@@ -489,9 +501,16 @@ class App:
         if progress is None: return
         from tqdm.utils import disp_len
         columns=progress.ncols or 80
-        if callable(progress.dynamic_ncols):
-            columns=progress.dynamic_ncols(progress.fp)[0] or columns
-        width=min(140,max(1,int(columns)-1))
+        if not hasattr(progress,'_icgf_terminal_shape'):progress._icgf_terminal_shape=progress.dynamic_ncols
+        actual_shape=progress._icgf_terminal_shape
+        if callable(actual_shape):
+            columns=actual_shape(progress.fp)[0] or columns
+            def bounded_shape(stream):
+                cols,rows=actual_shape(stream)
+                return max(1,int(cols or columns)-1),rows
+            progress.dynamic_ncols=bounded_shape
+        width=max(1,int(columns)-1)
+        progress.ncols=width
         if width<self._ocr_columns:
             # tqdm's old-width padding can wrap after a console is narrowed.
             # Reset its own line printer and erase only the current line.
@@ -499,18 +518,20 @@ class App:
             progress.sp=progress.status_printer(progress.fp)
         self._ocr_columns=width
         if width>=110:
-            layout='OCR {n_fmt}/{total_fmt} {percentage:3.0f}% |{bar:20}| {elapsed}<{remaining} {rate_fmt}{postfix}'
+            layout='OCR {n_fmt}/{total_fmt} {percentage:3.0f}% |{bar}| {elapsed}<{remaining} {rate_fmt}{postfix}'
         elif width>=75:
-            layout='OCR {n_fmt}/{total_fmt} {percentage:3.0f}% |{bar:12}| ETA {remaining}{postfix}'
+            layout='OCR {n_fmt}/{total_fmt} {percentage:3.0f}% |{bar}| ETA {remaining}{postfix}'
         elif width>=40:
-            layout='OCR {n_fmt}/{total_fmt} {percentage:3.0f}% ETA {remaining}{postfix}'
+            layout='OCR {n_fmt}/{total_fmt} {percentage:3.0f}% |{bar}|{postfix}'
         else:
-            layout='{n_fmt}/{total_fmt} {percentage:3.0f}%'
+            layout='{n_fmt}/{total_fmt} {percentage:3.0f}% |{bar}|'
         progress.bar_format=layout
-        info=dict(progress.format_dict,bar_format=layout,postfix='',ncols=None)
+        # Measure metadata with a one-cell bar, then give the real bar all
+        # remaining columns. Filename length must not swallow a wide bar.
+        info=dict(progress.format_dict,bar_format=layout.replace('{bar}','{bar:1}'),postfix='',ncols=None)
         fixed=disp_len(progress.format_meter(**info))
         # Leave room for the next counter digit and a newly estimated rate.
-        filename=ocr_fit_text(ocr_display_text(Path(source).name),max(0,width-fixed-14),ellipsis=True)
+        filename=ocr_fit_text(ocr_display_text(Path(source).name),max(0,min(48,width//4,width-fixed-14)),ellipsis=True)
         progress.set_postfix_str(filename,refresh=refresh)
 
     def print_ocr_summary(self,result):
@@ -540,7 +561,7 @@ class App:
         if not paths: return {'state':'nothing_to_ocr','results':[]},11
         self.initializing.update("Checking private dependency bundle…")
         if repair_packages(self):
-            options=['--ocr-only']
+            options=['--ocr-force' if self.args.ocr_force else '--ocr-only']
             for path in paths: options.extend(['--literal-path',str(path)])
             return self.restart_repaired(options)
         executable=dependencies.require_ocr(self.root,self.interactive,False,self.confirm)
@@ -551,7 +572,7 @@ class App:
                 f'Preparing OCR for {len(paths):,} images. Results stay in hidden .ocr files beside the images.',self._ocr_columns)))
         from clairecjs_utils.claire_progressbar import progress_bar
         with progress_bar(total=len(paths),description='OCR',unit='image',enabled=console,
-                          bar_format='OCR {n_fmt}/{total_fmt} {percentage:3.0f}% |{bar:12}| ETA {remaining}') as progress:
+                          bar_format='OCR {n_fmt}/{total_fmt} {percentage:3.0f}% |{bar:-1}| ETA {remaining}') as progress:
             self._ocr_progress=progress
             try:
                 for source in paths:
@@ -560,7 +581,7 @@ class App:
                     try:
                         original_identity=identity(source);digest=sha256(source)
                         image,_metadata=imaging.decode(source)
-                        lines,reused=self.ocr_lines(source,image,digest,executable,True,original_identity)
+                        lines,reused=self.ocr_lines(source,image,digest,executable,True,original_identity,force=self.args.ocr_force)
                         if identity(source)!=original_identity or sha256(source)!=digest:
                             raise IntegrityError('Image changed during OCR; rerun OCR before using its result.')
                         caption=imaging.full_captions(lines,[])['detected']
@@ -570,7 +591,9 @@ class App:
                             heading=f"[{len(results)}/{len(paths)}] "+('REUSED' if reused else 'SAVED')+'  '+source.name
                             block=list(ocr_output_lines(heading,self._ocr_columns))
                             block.append('  Entire detected caption:')
-                            block.extend(ocr_output_lines(caption or '(No text detected)',self._ocr_columns,indent='    '))
+                            from .newspaper_columns import newspaper
+                            caption_rows=newspaper(caption or '(No text detected)',width=max(8,self._ocr_columns-5))
+                            block.extend('    '+row for row in caption_rows)
                             self.diagnostics('\n'.join(block)+'\n')
                     except ImageDeferred as error:
                         results.append({'file':str(source),'state':'deferred','reason':str(error)})
@@ -589,6 +612,7 @@ class App:
         return {'state':'ocr_only','results':results,'summary':counts},50 if counts['failed'] else 10 if counts['deferred'] else 0
 
     def process(self, targets):
+        explicit_targets=bool(targets or self.args.literal_path)
         self.initializing.update("Loading image processing libraries…")
         from . import imaging
         if self.args.ocr_only: return self.prefetch_ocr(targets)
@@ -611,10 +635,10 @@ class App:
                 lines,_=self.ocr_lines(source,image,digest,executable)
                 regions,_=imaging.regions(lines,rules,store.ignores)
                 result.append({"file":str(source),"state":"dry_run","proposed_regions":len(regions),"review_required":bool(regions)})
-            return {"state":"dry_run","results":result,"resumable_sessions":[self.sessions.summary(s) for s in self.sessions.unfinished()]},0 if paths else 11
+            return {"state":"dry_run","results":result,"resumable_sessions":[] if explicit_targets else [self.sessions.summary(s) for s in self.sessions.unfinished()]},0 if paths else 11
         self.initializing.update("Checking interrupted transactions…")
         self.transactions.recover()
-        session=self.select_session(paths)
+        session=self.select_session(paths,explicit_targets=explicit_targets)
         if not session:
             return {"state":"nothing_to_process","results":[]},11
         if not self.args.profile_explicit:
@@ -641,6 +665,10 @@ class App:
                             self.diagnostics("Earlier previews retained: "+", ".join(retained))
                             item.setdefault("retained_artifacts",[]).extend(a for a in item["artifacts"] if a["path"] in retained)
                         item["artifacts"]=[]
+                    from . import file_actions
+                    file_actions.reconcile(self,item,session);source=Path(item['path'])
+                    if item.get('disposition')=='recycled':
+                        self.results.append({'file':str(source),'state':'recycled'});continue
                     if not source.exists():
                         # Reconcile a durable conversion whose session update lagged.
                         if item.get("transaction") and any(r.get("transaction")==item["transaction"] for r in History(source.parent).records):
@@ -675,7 +703,7 @@ class App:
                         self.sessions.save(session)
                         continue
                     self.initializing.update("Loading saved OCR / recognizing caption…")
-                    lines,reused_ocr=self.ocr_lines(source,image,digest,executable)
+                    lines,reused_ocr=self.ocr_lines(source,image,digest,executable,persist=True,expected_identity=analysis_identity)
                     if reused_ocr and self.interactive: self.diagnostics('Using saved OCR: '+source.name)
                     self.caption_lines=lines
                     regions,protected=imaging.regions(lines,rules,store.ignores)
@@ -719,7 +747,7 @@ class App:
                         self.initializing.update("Rendering and verifying proposed caption…")
                         self.review_rules=rules
                         proposed=imaging.proposal(source,image,metadata,regions,protected,self.root,executable["path"],digest,
-                                                   fingerprint(rules,store.ignores),self.args.eco,transaction,artifact_callback=remember)
+                                                   fingerprint(rules,store.ignores),self.args.eco,transaction,artifact_callback=remember,caption_lines=self.caption_lines)
                         self.initializing.clear()
                         if not proposed:
                             action="s"
@@ -733,9 +761,17 @@ class App:
                             action="a"
                         else:
                             action=self.review(source,proposed,regions)
-                        while proposed.get("blocked") and isinstance(action,str) and action in ("a","approve","p","approve and pause"):
-                            self.diagnostics("A blocked proposal cannot be approved; correct it, skip, or cancel.")
-                            action=self.review(source,proposed,regions)
+                        while True:
+                            if proposed.get("blocked") and isinstance(action,str) and action in ("a","approve","p","approve and pause"):
+                                self.diagnostics("A blocked proposal cannot be approved; correct it, skip, or cancel.")
+                                action=self.review(source,proposed,regions);continue
+                            if isinstance(action,str) and action in ("v","visual","b","background"):
+                                from .adjustment_menu import route
+                                adjustment=route(self,action,source,image,regions,protected,proposed,remember)
+                                if adjustment=="back":
+                                    action=self.review(source,proposed,regions);continue
+                                action="c" if adjustment=="cancel" else "adjusted"
+                            break
                         if action in ("a","approve","p","approve and pause"):
                             approved_stage=next(a for a in proposed["artifacts"] if a["kind"]=="proposal")
                             event=self.transactions.commit(source,proposed["stage"],digest,transaction,fingerprint(rules,store.ignores),self.args.profile,proposed["trace"],
@@ -750,7 +786,17 @@ class App:
                                                  "corrected":str(source.parent/event["corrected"]),"retained_artifacts":retained})
                             break
                         payload=action if isinstance(action,dict) else {'action':action}
-                        if payload['action']=='add_rule':
+                        if payload['action'] in ('rename_image','recycle_image'):
+                            try:
+                                destination=file_actions.apply(self,source,item,session,payload,analysis_identity)
+                                if destination is None:
+                                    action='s';break
+                                source=destination
+                                self.diagnostics('📝 Renamed image to '+source.name+'; rebuilding the proposal for review.')
+                            except (ICGFError,OSError,ValueError) as error:
+                                self.file_action_notice='File action was not completed: '+str(error)
+                                self.diagnostics(self.file_action_notice)
+                        elif payload['action']=='add_rule':
                             from .rule_editor import console_editor,validate_payload
                             try:
                                 values=payload.get('payload') or console_editor(self,rules)
@@ -772,6 +818,28 @@ class App:
                                 try:
                                     regions,protected=caption_regions(self.caption_lines,text);manual_caption=text
                                 except IntegrityError as error:self.diagnostics('Caption was not changed: '+str(error))
+                        elif payload['action']=='fit_all':
+                            for region in regions:
+                                if not region.skipped:region.settings['move_squeeze']=True
+                            self.diagnostics('↔ Trying fit alternatives for all changes; rebuilding for review.')
+                        elif payload['action']=='ignore':
+                            number=int(payload['index'])
+                            if not 0<=number<len(regions):raise ArgumentsError('Invalid substitution selection.')
+                            scope=payload.get('scope','once')
+                            if scope not in ('once','folder','image_run','image','session','global'):raise ArgumentsError('Invalid ignore scope.')
+                            ignored={'image_hash':digest} if scope in ('image_run','image') else {'phrase':regions[number].before}
+                            if scope=='session':ignored['session']=session['id']
+                            if scope not in ('once','image_run'):
+                                destination=RuleStore(self.root/'runtime/state/global-rules.stt','global') if scope=='global' else store
+                                with folder_lock(source.parent):destination.append('ignore',ignore=ignored)
+                            if scope in ('image_run','image'):
+                                for region in regions:region.skipped=True
+                            else:regions[number].skipped=True
+                            self.diagnostics('🚫 Substitution ignored ('+scope+').')
+                        elif action=='m':
+                            number=proposed['blocked']['region'] if proposed.get('blocked') else self.region_number(regions)
+                            regions[number].settings['move_squeeze']=True
+                            self.diagnostics('↔ Trying right, then left, then a mild squeeze with nearby unchanged words. Review the new render before approval.')
                         elif action in ("o","ocr"):
                             number=self.region_number(regions)
                             region=regions[number]
@@ -801,31 +869,23 @@ class App:
                                     region.settings["rotation"]=angle;break
                                 except ValueError: self.diagnostics("Use a finite rotation between -180 and 180 degrees.")
                             self.diagnostics("Updated local OCR rule trace: "+json.dumps(transform(region.before,rules),ensure_ascii=False))
-                        elif action in ("b","background"):
-                            number=self.region_number(regions)
-                            self.compare_repairs(source,image,regions[number],protected,proposed,remember,number)
-                        elif action in ("v","visual"):
-                            number=self.region_number(regions)
-                            region=regions[number]
-                            while True:
-                                command=self.question("Adjustment: smaller/larger; move dx,dy; tracking n; font PATH; color #RRGGBB; outline n; shadow dx,dy,blur; mask +/-n; box x1,y1,x2,y2; rotation n; repair fill|gradient|telea|navier|patch; wording TEXT; skip; reset: ")
-                                try:
-                                    adjust(region,command,image.size);break
-                                except (ArgumentsError,ValueError,OSError) as error:
-                                    self.diagnostics("Adjustment was not applied: "+str(error))
+                        elif action=="adjusted":
+                            pass # The single-key menu already applied this change.
                         elif action=="i":
                             number=self.region_number(regions)
-                            choice=self.question("Ignore [o]nce, [p]hrase in folder, whole [i]mage, this [s]ession, or [g]lobal phrase: ","o")
+                            choice=self.question("Ignore substitution [o]nce, [p]hrase in folder, image for this [r]un, image for all future runs [i], phrase for this [s]ession, or [g]lobal phrase: ","o")
                             ignored={"phrase":regions[number].before}
-                            if choice=="i":
+                            if choice in ("r","i"):
                                 ignored={"image_hash":digest}
                             elif choice=="s":
                                 ignored["session"]=session["id"]
-                            if choice!="o":
+                            if choice not in ("o","r"):
                                 destination=RuleStore(self.root/"runtime/state/global-rules.stt","global") if choice=="g" else store
                                 with folder_lock(source.parent):
                                     destination.append("ignore",ignore=ignored)
-                            regions[number].skipped=True
+                            if choice in ("r","i"):
+                                for region in regions:region.skipped=True
+                            else:regions[number].skipped=True
                         else:
                             break
                         retained=self.cleanup(proposed["artifacts"])
@@ -844,7 +904,7 @@ class App:
                             item["state"]="skipped"
                         else:
                             item["state"]="canceled"
-                        self.results.append({"file":str(source),"state":item["state"]})
+                        self.results.append({"file":str(source),"state":item.get("disposition",item["state"])})
                         retained=self.cleanup(item.get("artifacts",[]))
                         item["artifacts"]=[a for a in item.get("artifacts",[]) if a["path"] in retained]
                         self.sessions.save(session)

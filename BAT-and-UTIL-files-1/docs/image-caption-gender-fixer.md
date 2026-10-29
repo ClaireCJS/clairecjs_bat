@@ -76,7 +76,18 @@ options do the same thing. Targets and `--recursive` work as usual, for example:
 ```text
 icgf --ocr-only "*.jpg"
 icgf -o . --recursive
+icgf -of .
 ```
+
+Use **`-of`** (also `--ocr-force`) to force OCR-only across all matching images,
+including previously processed/corrected files, preserved image backups and undo
+archives. It recognizes them again even when matching OCR is already cached,
+then appends refreshed results to `.ocr`; older records remain preserved and
+later ordinary runs reuse the newest result. It opens no review window or jobs
+menu and does not edit/rename images or change processed-image history.
+Internal preview/mask files and state files remain excluded. Existing recursion,
+hidden/system-file and network options still apply. Like `-o`, it cannot be
+combined with `--resume` or `--dry-run`.
 
 Normal-quality OCR now compares a bounded number of grayscale/upscaled scans
 and caption-panel scans, maps words back to source coordinates, and retains
@@ -109,8 +120,12 @@ Later, ordinary `icgf` automatically reuses matching saved initial OCR. Cache
 entries match image bytes, OCR engine, English model and quality settings, so
 renaming an image or folder preserves reuse; changed images or `--eco` settings
 get fresh OCR. Rules and profiles are applied afresh. Rendering and verification
-of proposed corrections still run normally. Ordinary processing and dry runs
-read `.ocr` but do not create or update it; only OCR-only fills the cache.
+of proposed corrections still run normally. Ordinary processing also saves newly
+recognized initial OCR to hidden `.ocr` files, before review, including images
+you skip or cancel and images with no substitutions. A later normal run or `-o`
+reuses those results. Dry runs and read-only analysis never create or update
+the cache. A cache write failure warns and allows ordinary review to continue;
+OCR-only still reports failure if it cannot save its requested results.
 
 The cache is local, unencrypted text with word geometry. Updates append checked
 records without replacing older entries; a hidden `.icgf.lock` serializes folder
@@ -230,7 +245,7 @@ Only explicit `--skip-review-for-confident-ones` may bypass a safe level 1
 proposal. The original spelling `--skip-reivew-for-confident-ones` is also accepted.
 Neither alias nor `--yes` bypasses levels 2/3 or a blocked proposal.
 
-Review choices include approve/pause, skip/pause, defer, cancel, **fix OCR**,
+Review choices include approve, skip, defer, cancel, **fix OCR**,
 visual adjustment, background comparison, and ignore. OCR correction happens
 after the first proposal; it changes detected text, grouping/reading order,
 bounds, or rotation, then reruns the rules and rendering. It never silently
@@ -307,7 +322,7 @@ then asks for confirmation; originals are retained. A single job needs no second
 selection prompt. OCR-only bypasses this menu entirely.
 JSON mode reports the required choice and job IDs. Cancellation preserves the
 current source and a resumable job. Deferred work is revisited at most once
-per run; approval-and-pause preserves pending work.
+per run; cancellation preserves pending work.
 
 ```powershell
 python C:\BAT\image_caption_gender_fixer\image_caption_gender_fixer.py sessions list
@@ -380,3 +395,173 @@ internet or install global software.
 - [PAFPlayer-copy attribution and review-window behavior](docs/pafplayer-preview.md)
 - [Full specification](docs/implementation-specification.txt) (the 0.3.0 preview/junction/launcher changes supersede its older Chafa/reparse wording)
 - `docs/releases`: exact validation results and every affected `C:\BAT` path.
+
+
+## Single-key review and visual adjustments
+
+Review, region selection, visual adjustment and background-repair menus act on
+one displayed key without ENTER. H explains the current menu; ESC goes back
+(or cancels at image review). ENTER uses the displayed contextual default.
+For a blocked text fit, ENTER opens visual adjustment, then tries text 5% smaller;
+at minimum size it opens the prefilled wording editor instead. A valid proposal
+defaults to Skip at review and Back within visual adjustment.
+
+W edits the existing replacement wording without retyping the caption. Numeric,
+color and font values have separate prefilled fields. A successful adjustment
+regenerates the proposal and still requires image approval.
+
+Background repair is checked independently from replacement text placement.
+Gray choices give the actual failure reason, such as no safe neighboring donor
+patch; a text-fit failure does not make a working background repair unavailable.
+ENTER selects the available background with the lowest boundary/artifact score;
+this is a visual heuristic, so inspect the preview before approving the image.
+
+
+## Artwork review and fitting — 2026-10-29
+
+Close (X), Escape, and Hide only hide the artwork window. The next image update
+shows it again without activating it. A cleanly stopped preview worker restarts
+on the next update and discards stale review decisions. Automatic initialization,
+caption updates, redraws and image changes have a thread-local native activation
+guard, including after the user has clicked in the window. Intentional clicks
+can still activate its controls. Restart a running ICGF process to load this fix.
+
+Portrait images use the full available image-panel height with detected/proposed
+captions beside them (including narrower windows at least 680 pixels wide).
+Blocked previews return to the full original after showing detail crops. Changed
+caption characters pulse their background in both panes every 650 ms;
+they stay visible and retain the green/yellow colors. Caption edits remain filled
+in, and Regenerate builds a fresh proposal before approval.
+
+When ordinary fitting fails, ICGF automatically tries safe rightward placement,
+then leftward placement, then redrawing one or two nearby unchanged words on each
+side with at most 20% horizontal compression. Whole edited lines can be squeezed
+within their existing footprint. It never moves across neighboring text, absorbs
+another edit, changes the original caption spans or approves an alternative for
+you. Fitting diagnostics explain any movement/compression. If still blocked,
+**[m]ove/squeeze text to fit** is the default console action. The artwork button
+retries all current changes without a console region-number question.
+
+The artwork **Ignore substitution** button lets you select a change and either
+remember a phrase exception in the folder or ignore it once. **Reject / Skip**
+only leaves the current image unchanged. **Defer** and **Cancel job** are also
+available in the artwork window. The existing rule/priority and caption editors
+remain available there.
+
+Explicit targets (`icgf .`, `icgf "*.*"`, a filename, or `--literal-path PATH`)
+start directly on those images and retain unrelated unfinished queues. No-match
+targets also bypass those queues. An explicit `--resume` still resumes the chosen
+job. Run bare `icgf` to manage old jobs; the numbered menus offer **[h]elp**
+(`help` and `?` work too).
+
+
+The artwork window also provides **Rename image** and **Delete / Recycle**.
+These act on the current source image, never the temporary proposal or crop.
+Rename prefills its existing name, keeps the image extension, preserves filename
+collisions with ` (1)`, ` (2)`, etc., updates the resumable queue, and rebuilds the
+proposal for review. File-action bookkeeping is journaled before the move so an
+interruption can be reconciled on resume. Recycle displays the full source path
+and requires a separate confirmation (default No), discards the pending correction,
+and uses only the Windows Recycle Bin; failure retains the file. No image is
+recycled automatically during ordinary caption correction.
+
+
+## OCR quality and caption-column fitting — 2026-10-29
+
+Normal OCR now adds targeted retries for weak photo-overlay text, not just solid
+caption panels: nearby lines are grouped, enlarged, padded, contrast-normalized,
+and tested with bright-ink, dark-ink, Otsu and adaptive threshold alternatives.
+Single-line and text-block segmentation are chosen from the detected layout.
+Extra retry calls are limited to eight per image and clean captions bypass them.
+Strong recognized words are retained when choosing alternatives. Eco mode keeps
+its lighter scan path. OCR uses actual engine results and does not invent prose.
+Literal quotation marks in Tesseract TSV are now read as text; a leading quote
+can no longer consume subsequent word records as if they were quoted CSV fields.
+
+The OCR cache algorithm is now version 3. Old hidden `.ocr` records stay intact;
+the first scan with this policy appends improved results, and subsequent runs
+reuse them. No extra model, Python package, or global installation was added.
+On four neutral synthetic caption fixtures, word errors dropped from 15 to 2;
+the outlined-photo case improved from 5 errors to zero. These are fixture results,
+not a guarantee for every photograph. The two difficult photo examples took about
+1.3–1.6 seconds each in the measured run, compared with about 0.9 seconds before.
+
+Rendered replacements stay within their source caption panel/column. Automatic
+left/right movement is limited to a small local shift (at most 32 pixels), and
+text that still does not fit is compressed with nearby words within its footprint.
+Modest font-size and horizontal adjustments can be combined; an edit remains
+blocked if no safe fit exists. The repair mask is also clipped to the caption
+lane, so fitting cannot erase the adjacent photograph. This restriction concerns
+text inside the image; portrait review panes remain beside the displayed image.
+
+## Console menus and artwork controls — 2026-10-29
+
+Console menus adapt to one through four columns, with shared unavailable-action
+reasons printed once below the choices. ENTER uses the highlighted default.
+Every review choice is available in the artwork window, including
+OCR correction, visual adjustment, background comparison,
+ignore scopes, help and cancel. Submenus and prefilled value fields also appear
+in the window, so these adjustments can be completed there. Editing a caption
+keeps adjustment actions disabled until Regenerate applies the draft, preventing
+an unrelated adjustment from silently discarding it.
+
+While the console is waiting for a menu choice or text value, **Ctrl+A** restores
+the latest artwork window without changing focus. **Ctrl+Alt+A** explicitly
+restores it and requests that Windows bring it to the foreground. Closing or
+hiding the window retains the pending review; the shortcuts also recover a
+stopped preview worker. These are console-local shortcuts, not system hotkeys.
+Automatic image updates continue to avoid activating the window.
+
+Artwork startup is independent of terminal preview rendering: a terminal-render
+failure or redirected console output no longer prevents the artwork preview.
+Preview errors include their diagnostic message and keep console review usable.
+Double-click the displayed artwork to open that exact image, proposal or detail
+crop with the Windows default image viewer.
+
+Restart a running ICGF process to load these changes. This release does not
+change the OCR engine, trained data or OCR cache policy.
+
+
+## Image-first adaptive layout and artwork keys — 2026-10-29
+
+The review window compares the displayed image size for bottom and side layouts,
+using the current window, image shape and button sizes. When side controls leave
+a larger image, both caption panes and the review buttons move into the gutters,
+leaving the image the full available height. This applies to square images too.
+Button columns adapt to the available side width. Wide images keep controls below
+when that gives the image more space. Resizing and switching images recompute
+the layout without discarding caption edits or the current review.
+
+The displayed letter keys activate their artwork buttons, including I for Ignore,
+A for Approve, N for New substitution and G for Regenerate. Keys typed inside a
+caption, value field or separate dialog remain text input. Active adjustment
+submenus use their own displayed keys. F2 renames the image, Delete opens
+the Recycle confirmation, and Escape hides the window. Disabled actions stay disabled.
+
+Changed text now pulses its background only, retaining the same font, foreground
+color, line breaks and character positions in both phases. Approve-and-pause and
+Skip-and-pause actions have been removed from the console and artwork window.
+Use Cancel or interrupt the console to leave the remaining queue for later.
+
+
+## Multiple artwork windows and Windows shell — 2026-10-29
+
+Each running ICGF process owns a separate artwork window, taskbar identity and
+notification-area (tray) icon. Tray tooltips identify the process and current
+image. Closing/ hiding artwork retains its tray icon; clicking that icon restores
+its window. Right-click offers Show this artwork, Show all ICGF artwork and Hide.
+Windows controls whether a notification icon appears on the visible tray row or
+in its overflow. ICGF restores its icons if Windows Explorer restarts.
+
+Ctrl+A in an ICGF console restores its own artwork without activation.
+Ctrl+Alt+A in any ICGF console, or its artwork window, restores and raises all
+active ICGF artwork windows on the same desktop. Each instance must be restarted
+after this update to participate. No system-wide hotkey registration is needed.
+Automatic image changes remain passive. Native window messages reveal artwork
+only; they cannot approve a proposal or perform an image file action.
+
+Artwork review keys are A = Approve, G = Regenerate, R = Reject changes,
+I = Ignore and N = New substitution. Console review retains its displayed keys.
+Delete opens a confirmation for recycling the current SOURCE image; declining
+keeps it. F2 opens Rename with the current source filename prefilled and editable.
+Typing and Delete inside a caption or filename field remain normal editing.

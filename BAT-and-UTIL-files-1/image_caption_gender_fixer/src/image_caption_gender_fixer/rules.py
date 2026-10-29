@@ -26,6 +26,7 @@ class Rule:
     order: int = 0
     user: bool = False
     note: str = ""
+    protect: bool = False
 
     def validate(self):
         if not isinstance(self.before,str) or not isinstance(self.after,str) or not self.before or len(self.before) > 4096 or len(self.after) > 4096:
@@ -38,15 +39,48 @@ class Rule:
             raise IntegrityError("Rule priority is invalid.")
         if self.scope not in ("default","folder","global") or not isinstance(self.profile,str) or not self.profile or len(self.profile)>64:
             raise IntegrityError("Rule scope/profile is invalid.")
-        if not isinstance(self.enabled,bool) or not isinstance(self.user,bool) or not isinstance(self.order,int) or not isinstance(self.note,str):
+        if not isinstance(self.protect,bool) or not isinstance(self.enabled,bool) or not isinstance(self.user,bool) or not isinstance(self.order,int) or not isinstance(self.note,str):
             raise IntegrityError("Rule state/order/note is invalid.")
 
 
 def builtins():
-    return [Rule(a, b, p, id="builtin-" + str(i), order=i) for i, (a, b, p) in enumerate([
+    result = [Rule(a, b, p, id="builtin-" + str(i), order=i) for i, (a, b, p) in enumerate([
         ("boi", "boy", 100), ("good boy", "good girl", 10), ("boy", "girl", 10),
         ("man", "woman", 10), ("husband", "wife", 10),
         ("real man", "real man", 200), ("his wife", "her wife", 10)])]
+    # Keep existing built-in IDs stable for saved toggles/history.
+    additions=[
+        ("black man", "black man", 405, True),
+        ("another man’s", "a man’s", 405, True),
+        ("another man's", "a man's", 405, True),
+        ("boys who aren't locked", "girls who aren't locked", 405, True),
+        ("boys who aren’t locked", "girls who aren’t locked", 405, True),
+        ("another man", "a man", 400, True),
+        ("my hubby", "my wife", 300, False),
+        ("he has no idea", "she has no idea", 300, False),
+        ("not with his cock", "not with her cock", 300, False),
+        ("not with his", "not with her", 150, False),
+        ("white boys", "sissies", 150, False),
+        ("tease him", "tease her", 150, False),
+        ("teasing him", "teasing her", 150, False),
+        ("tie him", "tie her", 150, False),
+        ("cuffs him", "cuffs her", 150, False),
+        ("his lock", "her lock", 150, False),
+        ("tying him", "tying her", 150, False),
+        ("allow him", "allow her", 150, False),
+        ("tieing him", "tieing her", 150, False),
+        ("his little", "her little", 150, False),
+        ("keep him", "keep her", 150, False),
+        ("his wife", "her wife", 150, False),
+        ("locked husband", "locked sissy", 150, False),
+        ("his chastity", "her chastity", 150, False),
+        ("hubby", "wifey", 6, False),
+        ("faggot", "sissy", 6, False),
+    ]
+    for before,after,priority,protect in additions:
+        index=len(result)
+        result.append(Rule(before,after,priority,id="builtin-"+str(index),order=index,protect=protect))
+    return result
 
 
 def reject_cycles(rules):
@@ -176,6 +210,7 @@ def transform(text, rules, ignores=()):
                 protected.update(origins)
                 result.extend(chars[a:b])
             else:
+                if rule.protect:protected.update(origins)
                 result.extend((c, origins, True) for c in replacement)
             trace.append({"rule": rule.id, "priority": priority, "before": snapshot[a:b],
                           "after": replacement, "original_span": [min(origins), max(origins)+1]})

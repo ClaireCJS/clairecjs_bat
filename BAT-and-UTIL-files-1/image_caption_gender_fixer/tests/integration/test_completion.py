@@ -82,7 +82,9 @@ def test_blocked_render_offers_adjustment_and_cannot_be_approved(tmp_path,monkey
         if region.after=="good girl": raise RenderBlocked("Generated no-fit condition")
         return real(image,region,protected)
     monkeypatch.setattr(imaging,"render_region",blocked)
-    app=app_for(tmp_path,answers=iter(["y","v","0","1","wording girl","y"]))
+    from image_caption_gender_fixer import adjustment_menu
+    monkeypatch.setattr(adjustment_menu,"edit_wording",lambda current: "girl")
+    app=app_for(tmp_path,answers=iter(["y","v","w","y"]))
     result,code=app.process([str(source)])
     assert code==0,result
     event=next(iter(History(tmp_path).transactions().values()))

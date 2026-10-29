@@ -81,13 +81,13 @@ def test_skip_keeps_source_and_only_session_bookkeeping(tmp_path):
     assert not list(tmp_path.glob(".icgf-*.png"))
 
 
-def test_no_match_does_not_prompt_or_create_folder_sidecars(tmp_path):
+def test_no_match_caches_ocr_without_prompting_or_creating_correction_sidecars(tmp_path):
     source=tmp_path/"no-match.png";make_image(source,"hello friend")
     def fail(prompt): raise AssertionError("No-match image must not prompt")
     app=app_for(tmp_path);app.ask_callback=fail;app.interactive=True
     result,code=app.process([str(source)])
     assert result["results"][0]["reason"]=="no_substitution"
-    assert sorted(p.name for p in tmp_path.iterdir())==["no-match.png","test-tool-state"]
+    assert sorted(p.name for p in tmp_path.iterdir())==[".icgf.lock",".ocr","no-match.png","test-tool-state"]
 
 
 def test_read_only_dry_run_creates_nothing(tmp_path):
