@@ -14,6 +14,7 @@ Keep this attribution when editing this ICGF-owned copy.
 from __future__ import annotations
 import io
 import os
+import time
 import re
 from pathlib import Path
 
@@ -271,6 +272,7 @@ def _passive_artwork_update(method):
     from functools import wraps
     @wraps(method)
     def protected(self,*args,**kwargs):
+        position=self.passive_position() if self._activation.depth==0 else None
         with self._activation:
             self.keep_passive()
             result=method(self,*args,**kwargs)
@@ -280,26 +282,28 @@ def _passive_artwork_update(method):
             self.keep_passive()
             shell=getattr(self,'window_shell',None)
             if shell is not None:shell.refresh()
+            if position is not None:self.restore_passive_position(position)
             return result
     return protected
 
 
 class AlbumArtReview:
     """PAFPlayer image pipeline with ICGF review controls, owned by one Tk thread."""
-    def __init__(self,views,captions=None,*,blocked=False,warnings=(),inspect_only=False,backend=None,floating=False,shell_group=None):
+    def __init__(self,views,captions=None,*,blocked=False,warnings=(),inspect_only=False,backend=None,floating=False,shell_group=None,activate_first=False):
         import tkinter as tk
         from tkinter import ttk
         self.tk=tk;self.views=list(views);self.captions=captions or {}
         from .paf_backend import get_backend
-        self.backend=backend or get_backend();self.floating=bool(floating)
+        self.backend=backend or get_backend();self.floating=bool(floating);self._activate_first=bool(activate_first)
         self.blocked=bool(blocked);self.inspect_only=inspect_only
         self.result=None;self._photo=None;self._draw_after=None;self._data={};self._has_drawn=False
         self._callback_error=None;self._poll_after=None;self._review_callback=None;self._review_rules=[]
         self._editing=False;self._portrait=None;self._layout_key=None;self._layout_plan=None;self._dialog=None;self._notes=[]
         self._review_changes=[];self._review_source=None;self._pulse_after=None;self._pulse_highlight=False
+        self._work_message=None;self._work_started=0;self._work_seconds=-1
         self._activation=_ArtworkActivation(self.floating)
         self._activation.__enter__()
-        self.root=None;self.window_shell=None
+        self.root=None;self.window_shell=None;self.repair_picker=None
         try:
             if self.floating and os.name=='nt':
                 from .artwork_shell import prepare_instance
@@ -333,7 +337,7 @@ class AlbumArtReview:
             from .artwork_clicks import ArtworkClicks
             self.artwork_clicks=ArtworkClicks(self)
             self.caption_frames=[];texts=[]
-            for label,fg in [('📖 Detected caption','#8bff9a'),('✨ Proposed caption — edit, then Regenerate','#ffff58')]:
+            for label,fg in [('📖 Detected OCR — edit mistakes; keep line breaks','#8bff9a'),('✨ Proposed caption — edit, then Regenerate','#ffff58')]:
                 frame=ttk.LabelFrame(self.body,padding=4);frame.columnconfigure(0,weight=1);frame.rowconfigure(0,weight=1)
                 heading=ttk.Label(frame,text=label,wraplength=250);frame.configure(labelwidget=heading)
                 frame.heading=heading;frame.grid_propagate(False)
@@ -343,12 +347,13 @@ class AlbumArtReview:
                 self.caption_frames.append(frame);texts.append(text)
             self.caption,self.proposed_caption=texts
             self.proposed_caption.bind('<<Modified>>',self.caption_modified)
+            self.caption.bind('<<Modified>>',self.caption_modified)
             self.buttons={}
             controls=ttk.Frame(self.root,padding=4);self.controls=controls
             self.control_banks=[ttk.Frame(self.root,padding=2),ttk.Frame(self.root,padding=2)]
             controls.columnconfigure(0,weight=1);controls.columnconfigure(1,weight=1)
             actions=([('✅ [A] Approve','a'),('[R] Reject changes','r'),('[S] Skip image','s'),('[D] Defer','d'),
-                ('➕ [N] New substitution','add_rule'),('✏ [G] Regenerate edits','edit_caption'),('↔ [M] Move/squeeze','m'),('[O] Correct OCR','o'),('[V] Adjust text/image','v'),('[B] Background repairs','b'),
+                ('➕ [N] New substitution','add_rule'),('✏ [G] Regenerate edits','edit_caption'),('♀ [F] his → her','pronouns'),('↔ [M] Move/squeeze','m'),('[O] Correct OCR','o'),('[V] Adjust text/image','v'),('[B] Background repairs','b'),
                 ('🚫 [I] Ignore substitution…','ignore'),('[C] Cancel job','c'),('[H] Help','help'),('📝 [F2] Rename image…','rename_image'),('🗑 [Del] Delete / Recycle…','recycle_image'),('[Esc] Hide window','hide')] if floating else
                 [('Continue','continue')] if inspect_only else [('Approve','a'),('Skip','s'),('Cancel job','c')])
             split=(len(actions)+1)//2
@@ -356,7 +361,10 @@ class AlbumArtReview:
                 bank=self.control_banks[int(index>=split)]
                 button=ttk.Button(bank,text=label,command=lambda action=action:self.review_button(action))
                 self.buttons[action]=button
-            self._hotkeys={'a':'a','r':'r','s':'s','d':'d','n':'add_rule','g':'edit_caption','m':'m','o':'o','v':'v','b':'b','i':'ignore','c':'c','h':'help'}
+            if floating:
+                from .repair_modes import RepairPicker
+                self.repair_picker=RepairPicker(self,self.control_banks[1])
+            self._hotkeys={'a':'a','r':'r','s':'s','d':'d','n':'add_rule','g':'edit_caption','m':'m','o':'o','v':'v','b':'b','i':'ignore','c':'c','h':'help','f':'pronouns'}
             self.root.bind('<KeyPress>',self.button_hotkey,add='+')
             from .popup_controls import ControlPanel
             self.control_panel=ControlPanel(self,controls)
@@ -384,34 +392,45 @@ class AlbumArtReview:
             widget.configure(state='normal');widget.delete('1.0','end');widget.insert('1.0',self.captions.get(key,'(No text supplied)'))
             widget.edit_modified(False)
         self.caption.configure(state='disabled');self.proposed_caption.configure(state='disabled')
-        self._editing=False;self._dirty=False
+        self._editing=False;self._dirty=False;self._ocr_dirty=False;self._caption_dirty=False
         self.mark_caption_changes()
 
     def caption_modified(self,event=None):
-        if self._editing or not self.proposed_caption.edit_modified():return
-        self._dirty=True;self.proposed_caption.edit_modified(False)
+        widget=event.widget if event is not None else self.proposed_caption
+        if self._editing or not widget.edit_modified():return
+        if widget is self.caption:self._ocr_dirty=True
+        else:self._caption_dirty=True
+        self._dirty=True;widget.edit_modified(False)
         self.mark_caption_changes()
-        self.notice.configure(text='✏️ Caption edited — click Regenerate from edits before approving.')
+        self.notice.configure(text='✏️ OCR / caption edited — Regenerate applies edits and keeps visual adjustments. Keep green OCR line breaks.')
         for key in ('a','p','m','ignore','o','v','b','add_rule','rename_image'):
             if key in self.buttons:self.buttons[key].configure(state='disabled')
 
     @_passive_artwork_update
     def set_review(self,callback,rules,blocked=False,notes=None,changes=None,source=None):
         self._review_callback=callback;self._review_rules=rules;self.blocked=bool(blocked)
+        if callback:self.work_status(None)
         if notes is not None:self._notes=notes
         if changes is not None:self._review_changes=list(changes);self._review_source=source
         if self._review_source:self.root.title('ICGF — '+Path(self._review_source).name)
         if source is not None:self.artwork_clicks.comparison(source,self.blocked)
-        if not self._dirty:self.notice.configure(text='  |  '.join('⚠️ '+n for n in self._notes) or ('Edit the yellow caption, then Regenerate; Approve applies the rendered proposal.' if callback else 'Preparing preview…'),wraplength=self.notice.cget('wraplength') or max(160,self.root.winfo_width()-24))
+        if self._work_message:self.refresh_work_status(force=True)
+        elif not self._dirty:self.notice.configure(text='  |  '.join('⚠️ '+n for n in self._notes) or ('Edit the yellow caption, then Regenerate; Approve applies the rendered proposal.' if callback else 'Preparing preview…'),wraplength=self.notice.cget('wraplength') or max(160,self.root.winfo_width()-24))
         active=bool(callback) if self.floating else not self.inspect_only
         self.proposed_caption.configure(state='normal' if active else 'disabled')
+        self.caption.configure(state='normal' if active else 'disabled')
         for key,button in self.buttons.items():
             if key in ('hide','continue','help'):continue
             enabled=active and (key not in ('a','p') or (not self.blocked and self._has_drawn and not self._dirty))
             if key in ('m','ignore'):enabled=active and bool(self._review_changes) and not self._dirty
+            if key=='m':
+                exhausted=any(change.get('fit_exhausted') for change in self._review_changes)
+                button.configure(text='↔ Auto-fit exhausted' if exhausted else '↔ [M] Move/squeeze')
+                if exhausted:enabled=False
             if key in ('rename_image','recycle_image'):enabled=active and bool(self._review_source)
             if key in ('o','v','b','add_rule','rename_image') and self._dirty:enabled=False
             button.configure(state='normal' if enabled else 'disabled')
+        if self.repair_picker is not None:self.repair_picker.update(self._review_changes,active)
 
     def _native_window(self):
         import ctypes
@@ -424,6 +443,26 @@ class AlbumArtReview:
         getter.argtypes=[wintypes.HWND,ctypes.c_int];getter.restype=ctypes.c_ssize_t
         setter.argtypes=[wintypes.HWND,ctypes.c_int,ctypes.c_ssize_t];setter.restype=ctypes.c_ssize_t
         return api,hwnd,getter,setter
+
+    def passive_position(self):
+        if not self.floating or os.name!='nt' or self.root is None:return None
+        from ctypes import wintypes
+        api,hwnd,_,_=self._native_window()
+        api.IsWindowVisible.argtypes=[wintypes.HWND];api.IsWindowVisible.restype=wintypes.BOOL
+        if not api.IsWindowVisible(hwnd):return None
+        api.GetWindow.argtypes=[wintypes.HWND,wintypes.UINT];api.GetWindow.restype=wintypes.HWND
+        return hwnd,api.GetWindow(hwnd,3)
+
+    def restore_passive_position(self,position):
+        from ctypes import wintypes
+        previous,above=position;api,hwnd,_,_=self._native_window()
+        api.GetWindow.argtypes=[wintypes.HWND,wintypes.UINT];api.GetWindow.restype=wintypes.HWND
+        if hwnd==previous and api.GetWindow(hwnd,3)==above:return
+        api.IsWindow.argtypes=[wintypes.HWND];api.IsWindow.restype=wintypes.BOOL
+        if above and not api.IsWindow(above):above=1 # HWND_BOTTOM
+        api.SetWindowPos.argtypes=[wintypes.HWND,wintypes.HWND,wintypes.INT,wintypes.INT,wintypes.INT,wintypes.INT,wintypes.UINT]
+        api.SetWindowPos.restype=wintypes.BOOL
+        api.SetWindowPos(hwnd,above or 0,0,0,0,0,0x0010|0x0001|0x0002|0x0200)
 
     def keep_passive(self):
         if self.floating and os.name=='nt' and self.root is not None:
@@ -445,17 +484,18 @@ class AlbumArtReview:
         if self.floating and os.name=='nt':
             import ctypes
             from ctypes import wintypes
+            show=4 if self.root.state()=='iconic' else 8
             self.root.update_idletasks();api,hwnd,getter,setter=self._native_window()
             setter(hwnd,-20,getter(hwnd,-20)|0x08000000)
             # Tk's deiconify explicitly calls SetForegroundWindow even when
             # NOACTIVATE is set. Show both its client and wrapper directly;
             # WM_SHOWWINDOW synchronizes Tk's normal/withdrawn state.
             api.ShowWindow.argtypes=[wintypes.HWND,ctypes.c_int];api.ShowWindow.restype=wintypes.BOOL
-            api.ShowWindow(self.root.winfo_id(),4)
+            api.ShowWindow(self.root.winfo_id(),show)
             api.SetWindowPos.argtypes=[wintypes.HWND,wintypes.HWND,ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int,wintypes.UINT]
             api.SetWindowPos.restype=wintypes.BOOL
-            api.ShowWindow(hwnd,4) # SW_SHOWNOACTIVATE; restore without activation
-            api.SetWindowPos(hwnd,0,0,0,0,0,0x0010|0x0001|0x0002|0x0004)
+            api.ShowWindow(hwnd,show) # Restore iconic windows only for an explicit shortcut; then lower.
+            api.SetWindowPos(hwnd,1,0,0,0,0,0x0010|0x0001|0x0002|0x0200)
         else:self.root.deiconify()
 
     def navigate(self,offset):
@@ -480,8 +520,23 @@ class AlbumArtReview:
         if self._draw_after is not None:self.root.after_cancel(self._draw_after)
         self._draw_after=self.root.after(60,self.draw)
 
+    @_passive_artwork_update
+    def work_status(self,message):
+        self._work_message=str(message) if message else None
+        self._work_started=time.monotonic();self._work_seconds=-1
+        self.refresh_work_status(force=True)
+
+    @_passive_artwork_update
+    def refresh_work_status(self,force=False):
+        if not self._work_message:return
+        elapsed=max(0,int(time.monotonic()-self._work_started))
+        if force or elapsed!=self._work_seconds:
+            self._work_seconds=elapsed
+            self.notice.configure(text=self._work_message+' · '+str(elapsed)+'s')
+
     def poll_interrupts(self):
         if self.window_shell is not None:self.window_shell.poll()
+        self.refresh_work_status()
         self._poll_after=self.root.after(100,self.poll_interrupts)
 
     def callback_exception(self,kind,error,traceback):
@@ -624,7 +679,7 @@ class AlbumArtReview:
 
     def review_button(self,action):
         if action=='help':
-            self.notice.configure(text='Approve applies the rendered proposal. Edit the yellow caption and Regenerate before approving edits. '
+            self.notice.configure(text='Approve applies the rendered proposal. Correct green OCR (keep line breaks) or edit yellow wording, then Regenerate. F converts he/him/his in the proposed caption. '
                 'Move/squeeze retries fitting; Correct OCR, Adjust and Background expose the same menus as the console. '
                 'Ignore can save an exception; Reject/Skip leaves the image unchanged. Letter keys activate buttons outside text fields. '
                 'Single-click artwork to toggle Before/After; triple-click opens the displayed version in your default viewer. Hover for two seconds for click help. Console: Ctrl+A shows artwork; Ctrl+Alt+A shows all ICGF artwork windows.',wraplength=self.notice.cget('wraplength') or max(160,self.root.winfo_width()-24));return
@@ -673,10 +728,10 @@ class AlbumArtReview:
         if not self._review_changes:return
         dialog=self.tk.Toplevel(self.root);self._dialog=dialog
         dialog.title('Ignore substitution');dialog.transient(self.root)
-        ttk.Label(dialog,text='Ignore a substitution; Skip only skips this image.').grid(row=0,column=0,columnspan=2,padx=12,pady=8)
+        ttk.Label(dialog,text='Default: ignore this image for this run. Choose another scope if needed.').grid(row=0,column=0,columnspan=2,padx=12,pady=8)
         choices=ttk.Combobox(dialog,state='readonly',width=60,values=[r['before']+' ➜ '+r['after'] for r in self._review_changes])
         choices.grid(row=1,column=0,columnspan=2,padx=12,pady=8);choices.current(0)
-        scope=self.tk.StringVar(master=dialog,value='folder')
+        scope=self.tk.StringVar(master=dialog,value='image_run')
         for row,(label,value) in enumerate([('Remember phrase exception in this folder','folder'),('Ignore this substitution once','once'),('Ignore this image for this run','image_run'),('Ignore this image for all future runs','image'),('Ignore this phrase for this job','session'),('Remember a global phrase exception','global')],2):
             ttk.Radiobutton(dialog,text=label,value=value,variable=scope).grid(row=row,column=0,columnspan=2,sticky='w',padx=12)
         def cancel_ignore(event=None):
@@ -747,7 +802,16 @@ class AlbumArtReview:
     def emit(self,action):
         callback=self._review_callback
         if not callback:return
-        self.set_review(None,[],self.blocked);callback(action)
+        # Latch and deliver first. A slow/failing Tk refresh must never swallow
+        # approval, and a second click cannot send a second decision.
+        self._review_callback=None;callback(action)
+        kind=action.get('action') if isinstance(action,dict) else action
+        message={'a':'💾 Approval received; waiting to save…','approve':'💾 Approval received; waiting to save…',
+            'edit_caption':'✏ Regenerating your caption edits…','edit_ocr':'📖 Correcting OCR and rebuilding substitutions…','repair_mode':'🩹 Applying background repair…',
+            'fit_all':'↔ Fitting the replacement text…','recycle_image':'🗑 Recycling the image…',
+            'rename_image':'📝 Renaming the image…','s':'⏭ Skipping image; continuing the queue…',
+            'd':'⏭ Deferring image; continuing the queue…','c':'Stopping the job…'}.get(kind,'Processing your selection…')
+        self.work_status(message);self.set_review(None,[],self.blocked)
 
     def choose(self,action):
         if action=='hide':self.hide();return
@@ -758,13 +822,28 @@ class AlbumArtReview:
             if action=='ignore':self.ignore_substitution();return
             if action in ('rename_image','recycle_image'):self.source_file_action(action);return
             if action=='m':self.emit({'action':'fit_all'});return
-            if action=='edit_caption':self.emit({'action':'edit_caption','text':self.proposed_caption.get('1.0','end-1c')});return
+            if action in ('edit_caption','pronouns'):
+                text=self.proposed_caption.get('1.0','end-1c')
+                if action=='pronouns':
+                    from .ocr_editor import feminize_pronouns
+                    converted=feminize_pronouns(text)
+                    if converted==text and not self._ocr_dirty:
+                        self.notice.configure(text='No he / him / his pronouns in this proposed caption.');return
+                    text=converted
+                if self._ocr_dirty:
+                    payload={'action':'edit_ocr','text':self.caption.get('1.0','end-1c'),'source':self._review_source}
+                    if self._caption_dirty or action=='pronouns':payload['proposed_text']=text
+                    self.emit(payload)
+                else:self.emit({'action':'edit_caption','text':text})
+                return
             self.emit(action);return
         self.result=action;self.root.quit()
 
     def show(self):
         try:
-            self.passive_show();self.root.mainloop()
+            self.passive_show()
+            if self._activate_first:self.reopen(True);self._activate_first=False
+            self.root.mainloop()
             if self._callback_error is not None:raise self._callback_error
             return self.result or ('continue' if self.inspect_only else 'c')
         finally:
@@ -774,8 +853,14 @@ class AlbumArtReview:
                 if self._pulse_after is not None:self.root.after_cancel(self._pulse_after)
                 self.artwork_clicks.close();self.artwork_clicks=None
                 self.control_panel.clear()
+                if self.repair_picker is not None:self.repair_picker.close();self.repair_picker=None
                 if self.window_shell is not None:self.window_shell.close();self.window_shell=None
                 self._photo=None;self.root.destroy();self.selection=None;self.buttons.clear()
+                # LabelFrame.heading and Label.master otherwise retain each
+                # other (and Tcl) after destroy. A later worker-thread garbage
+                # collection can then destroy that interpreter on the wrong
+                # thread. Release these owner-thread references explicitly.
+                for frame in self.caption_frames:frame.heading=None
                 self._dialog=None;self.caption_frames.clear();self._review_callback=None
                 self.control_panel=None
                 self.selector=self.canvas=self.caption=self.proposed_caption=self.body=self.notice=self.toolbar=self.controls=None

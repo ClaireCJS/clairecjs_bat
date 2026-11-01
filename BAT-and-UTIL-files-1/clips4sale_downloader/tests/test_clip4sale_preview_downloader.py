@@ -14,6 +14,7 @@ import shutil
 import sqlite3
 import subprocess
 import threading
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
@@ -846,10 +847,13 @@ class LogicTests(unittest.TestCase):
         finally:
             destination.close()
 
-    def test_history_database_and_reports_live_under_appdata_root(self):
+    def test_history_database_and_reports_are_portable_and_profile_stays_in_appdata(self):
         self.assertEqual(d.PRIVATE_DATABASE_PATH.parent, d.HISTORY_ROOT)
         self.assertEqual(d.PRIVATE_REPORT_ROOT.parent, d.HISTORY_ROOT)
-        self.assertEqual(d.HISTORY_ROOT.parent, d.APP_DATA_ROOT)
+        self.assertEqual(d.HISTORY_ROOT.parent, d.PRIVATE_ROOT)
+        self.assertEqual(d.PRIVATE_ROOT.parent, d.TOOL_ROOT)
+        self.assertEqual(d.CONFIG_PATH.parent, d.CONFIG_ROOT)
+        self.assertEqual(d.CONFIG_ROOT.parent, d.TOOL_ROOT)
         self.assertNotEqual(d.HISTORY_ROOT.parent, d.TEMP_PROFILE_ROOT)
         self.assertEqual(d.DEFAULT_PROFILE_DIR.parent, d.APP_DATA_ROOT)
 
@@ -1171,6 +1175,168 @@ class LogicTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'no alternative'):
             pacer.pause(2, (2, 2))
 
+    def test_portable_config_is_created_beside_tool_with_editable_defaults(self):
+        root = Path.cwd() / ('portable-config-' + uuid.uuid4().hex)
+        config_root = root / 'config'
+        config_path = config_root / 'clips4sale_downloader.json'
+        with patch.object(d, 'CONFIG_ROOT', config_root), patch.object(d, 'CONFIG_PATH', config_path):
+            config = d.load_config(create=True)
+            loaded = json.loads(config_path.read_text(encoding='utf-8'))
+        self.assertEqual(config['category_prefixes'], d.DEFAULT_CONFIG['category_prefixes'])
+        self.assertEqual(loaded['shared_pacing']['minimum_seconds'], d.DEFAULT_SHARED_PACING_RANGE[0])
+        self.assertNotIn('retention', loaded)
+
+    def test_existing_database_schema_gains_verification_and_preference_fields(self):
+        root = Path.cwd() / ('schema-upgrade-' + uuid.uuid4().hex)
+        root.mkdir()
+        path = root / 'old.db'
+        with sqlite3.connect(path) as connection:
+            connection.executescript('''
+                CREATE TABLE media (
+                    studio_id TEXT, clip_id TEXT, role TEXT, url TEXT, status TEXT,
+                    path TEXT, bytes INTEGER, duration REAL, width INTEGER, height INTEGER,
+                    attempts INTEGER, owner_pid INTEGER, error TEXT, updated_at TEXT,
+                    PRIMARY KEY (studio_id, clip_id, role, url));
+            ''')
+        database = d.DownloadDatabase(path)
+        try:
+            columns = {row[1] for row in database.connection.execute('PRAGMA table_info(media)')}
+            tables = {row[0] for row in database.connection.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")}
+        finally:
+            database.close()
+        self.assertTrue({'sha256', 'content_hash', 'verified_at', 'mtime_ns', 'visual_hashes'} <= columns)
+        self.assertTrue({'category_preferences', 'duplicate_decisions', 'shared_pacing'} <= tables)
+
+    def test_shared_pacing_reserves_later_slot_for_second_process(self):
+        root = Path.cwd() / ('shared-pacing-' + uuid.uuid4().hex)
+        database = d.DownloadDatabase(root / 'history.db')
+        database.close()
+        first = d.SharedPacingGate(root / 'history.db', .2, .2)
+        second = d.SharedPacingGate(root / 'history.db', .2, .2)
+        self.assertLess(first.reserve(), .1)
+        self.assertGreater(second.reserve(), .1)
+
+    def test_crop_aware_hash_matches_four_by_three_crop_of_widescreen_image(self):
+        from PIL import Image, ImageDraw
+        root = Path.cwd() / ('crop-hash-' + uuid.uuid4().hex)
+        root.mkdir()
+        wide_path, crop_path = root / 'wide.png', root / 'crop.png'
+        wide = Image.new('RGB', (160, 90), 'navy')
+        draw = ImageDraw.Draw(wide)
+        draw.rectangle((30, 8, 130, 82), fill='orange')
+        draw.ellipse((65, 25, 95, 55), fill='white')
+        wide.save(wide_path)
+        wide.crop((20, 0, 140, 90)).save(crop_path)
+        wide_hashes = d.image_visual_hashes(wide_path)
+        crop_hashes = d.image_visual_hashes(crop_path)
+        self.assertEqual(wide_hashes['4x3@0.50'], crop_hashes['4x3@0.00'])
+        self.assertEqual(d.visual_hash_distance(wide_hashes, crop_hashes), 0)
+
+    def test_cleanup_plan_groups_crop_variants_with_different_url_families(self):
+        from PIL import Image, ImageDraw
+        root = Path.cwd() / ('crop-cleanup-' + uuid.uuid4().hex)
+        root.mkdir()
+        wide_path, crop_path = root / 'wide.jpg', root / 'crop.jpg'
+        wide = Image.new('RGB', (320, 180), 'black')
+        draw = ImageDraw.Draw(wide)
+        draw.rectangle((60, 20, 260, 160), fill='yellow')
+        wide.save(wide_path, quality=100, subsampling=0)
+        wide.crop((40, 0, 280, 180)).save(crop_path, quality=100, subsampling=0)
+        database = d.DownloadDatabase(root / 'history.db')
+        try:
+            now = database._now()
+            for role, url, path in (
+                    ('thumbnail', 'https://assets.example/first-unique.jpg', wide_path),
+                    ('image-1', 'https://assets.example/second-unique.jpg', crop_path)):
+                database.connection.execute(
+                    "INSERT INTO media(studio_id, clip_id, role, url, status, path, updated_at) "
+                    "VALUES('100', 'crop', ?, ?, 'success', ?, ?)", (role, url, str(path), now))
+            plan = d.old_variant_cleanup_plan(database, root, max_hash_distance=18)
+            with patch.object(d, 'choose_duplicate_keep', return_value=0), \
+                    patch('send2trash.send2trash', side_effect=lambda path: Path(path).rename(
+                        Path(path).with_suffix(Path(path).suffix + '.recycled'))):
+                recycled = d.resolve_clip_image_variants(
+                    database, root, SimpleNamespace(studio_id='100', id='crop'), QuietPanel()
+                )
+        finally:
+            database.close()
+        self.assertEqual(len(plan), 1)
+        self.assertEqual(plan[0]['matched_by'], 'crop-aware visual hash')
+        self.assertEqual(Path(plan[0]['keep']['path']), wide_path.resolve())
+        self.assertEqual(recycled, [str(crop_path.resolve())])
+        self.assertTrue(wide_path.is_file())
+        self.assertFalse(crop_path.is_file())
+
+    def test_verified_image_manifest_and_learned_exact_duplicate_choice(self):
+        from PIL import Image
+        root = Path.cwd() / ('exact-duplicate-' + uuid.uuid4().hex)
+        root.mkdir()
+        first_path, second_path = root / 'first.jpg', root / 'second.jpg'
+        image = Image.new('RGB', (80, 60), 'teal')
+        image.save(first_path, quality=95)
+        second_path.write_bytes(first_path.read_bytes())
+        database = d.DownloadDatabase(root / 'history.db')
+        clips = [d.Clip.from_raw(record(801, 'First'), LISTING),
+                 d.Clip.from_raw(record(802, 'Second'), LISTING)]
+        categories = ['Category A', 'Category B']
+        try:
+            for index, (clip, category, path) in enumerate(zip(clips, categories, (first_path, second_path))):
+                media = d.Media(f'https://assets.example/{index}.jpg', 'thumbnail')
+                database.upsert_clip(clip, category)
+                self.assertFalse(database.claim_media(clip, media, path))
+                info = d.verify_saved_file(path, media.role, 'ffprobe', 'ffmpeg')
+                database.record_success(clip, media, {'path': str(path), 'role': media.role, **info})
+            saved = {'path': str(second_path), 'role': 'thumbnail',
+                     **d.verify_saved_file(second_path, 'thumbnail', 'ffprobe', 'ffmpeg')}
+            recycled = []
+            def recycle(path):
+                source = Path(path)
+                source.rename(source.with_suffix(source.suffix + '.recycled'))
+                recycled.append(source)
+            with patch.object(d, 'choose_duplicate_keep', return_value=1), \
+                    patch('send2trash.send2trash', side_effect=recycle):
+                result = d.resolve_exact_duplicates(database, saved, QuietPanel())
+            rows = database.connection.execute(
+                'SELECT DISTINCT path FROM media WHERE content_hash=?', (saved['content_hash'],)
+            ).fetchall()
+            self.assertEqual(database.category_preference('Category B'), 1)
+            self.assertEqual(database.category_preference('Category A'), -1)
+        finally:
+            database.close()
+        self.assertEqual(recycled, [first_path])
+        self.assertEqual(result['path'], str(second_path))
+        self.assertEqual([row[0] for row in rows], [str(second_path)])
+
+    def test_daily_doctor_records_date_and_skips_second_check(self):
+        root = Path.cwd() / ('daily-doctor-' + uuid.uuid4().hex)
+        output = root / 'output'; output.mkdir(parents=True)
+        executable = root / 'chrome.exe'; executable.write_bytes(b'fixture')
+        history = root / 'private' / 'history'
+        args = SimpleNamespace(ffprobe='ffprobe', ffmpeg='ffmpeg', browser='chrome')
+        config = d._merged_config({'daily_doctor': True})
+        with patch.object(d, 'CONFIG_ROOT', root / 'config'), \
+                patch.object(d, 'HISTORY_ROOT', history), \
+                patch.object(d, 'private_database_path', return_value=history / 'history.db'), \
+                patch.object(d, 'browser_executable_for', return_value=executable), \
+                patch.object(d.shutil, 'which', side_effect=lambda name: str(executable)):
+            with redirect_stdout(io.StringIO()):
+                first = d.run_doctor(config, args, output, force=True)
+                second = d.run_doctor(config, args, output)
+        self.assertFalse(first['skipped'])
+        self.assertTrue(first['ok'])
+        self.assertTrue(second['skipped'])
+
+    def test_pause_and_safe_stop_controls_checkpoint_without_interrupting_files(self):
+        controls = d.RunControls()
+        controls.paused.set()
+        thread = threading.Thread(target=lambda: (time.sleep(.05), controls.paused.clear()))
+        thread.start()
+        self.assertTrue(controls.checkpoint(QuietPanel(), 'test checkpoint'))
+        thread.join()
+        controls.stop_requested.set()
+        self.assertFalse(controls.checkpoint(QuietPanel(), 'test checkpoint'))
+
     def test_hydration_is_parsed_without_execution(self):
         self.assertEqual(d.hydration_from_html('<script>window.__remixContext = {"x": 7}; alert(1)</script>'), {'x': 7})
         self.assertEqual(d.hydration_from_html('<script>window.__remixContext = evil()</script>'), {})
@@ -1194,6 +1360,13 @@ class IntegrationTests(unittest.TestCase):
                         '-i', 'color=c=blue:s=160x90:r=10', '-t', '1.2', '-c:v', 'mpeg4',
                         str(cls.video)], check=True, capture_output=True)
         cls.media = cls.video.read_bytes()
+        from PIL import Image
+        jpeg = io.BytesIO()
+        Image.new('RGB', (48, 32), 'orange').save(jpeg, format='JPEG')
+        cls.jpg_media = jpeg.getvalue()
+        gif = io.BytesIO()
+        Image.new('RGB', (32, 24), 'purple').save(gif, format='GIF')
+        cls.gif_media = gif.getvalue()
         cls.requests = []
 
         class Handler(BaseHTTPRequestHandler):
@@ -1209,8 +1382,8 @@ class IntegrationTests(unittest.TestCase):
                 if self.path == '/stale.jpg':
                     self.send_response(404); self.end_headers(); return
                 if self.path in ('/fallback.jpg', '/sidecar.gif'):
-                    body, kind = ((b'GIF89a-fixture', 'image/gif') if self.path.endswith('.gif')
-                                  else (b'fallback-jpeg', 'image/jpeg'))
+                    body, kind = ((cls.gif_media, 'image/gif') if self.path.endswith('.gif')
+                                  else (cls.jpg_media, 'image/jpeg'))
                     self.send_response(200)
                     self.send_header('Content-Type', kind)
                     self.send_header('Content-Length', str(len(body)))
@@ -1370,7 +1543,7 @@ class IntegrationTests(unittest.TestCase):
         with requests.Session() as session:
             path = d.download_media(session, media, output, 'best-image', LISTING, QuietPanel())
         self.assertEqual(path.name, 'best-image.jpg')
-        self.assertEqual(path.read_bytes(), b'fallback-jpeg')
+        self.assertEqual(path.read_bytes(), self.jpg_media)
 
     def test_full_run_saves_preview_and_waits_measured_duration(self):
         records = [record(101), record(102)]
@@ -1396,7 +1569,8 @@ class IntegrationTests(unittest.TestCase):
         output = self.root / 'full-run'; output.mkdir()
         log_directory = self.root / 'logs'
         args = d.parser().parse_args([LISTING, '--headless', '--no-persistent-login', '--scroll-delay', '.02',
-                                     '--stable-rounds', '3', '--page-delay', '.02'])
+                                     '--stable-rounds', '3', '--page-delay', '.02',
+                                     '--shared-pacing-min', '0', '--shared-pacing-max', '0'])
         panel = QuietPanel()
         with patch('playwright.sync_api.sync_playwright', playwright_factory), patch.object(d, 'ProgressPanel', return_value=panel), \
                 patch.object(d, 'LOG_DIRECTORY', log_directory), \
@@ -1442,7 +1616,8 @@ class IntegrationTests(unittest.TestCase):
         def playwright_factory():
             yield SimpleNamespace(chromium=SimpleNamespace(launch=lambda **kwargs: browser))
 
-        args = d.parser().parse_args([LISTING, '--headless', '--no-persistent-login', '--page-delay', '.01'])
+        args = d.parser().parse_args([LISTING, '--headless', '--no-persistent-login', '--page-delay', '.01',
+                                     '--shared-pacing-min', '0', '--shared-pacing-max', '0'])
         panel = panel or QuietPanel()
         with patch('playwright.sync_api.sync_playwright', playwright_factory), \
                 patch.object(d, 'ProgressPanel', return_value=panel), \

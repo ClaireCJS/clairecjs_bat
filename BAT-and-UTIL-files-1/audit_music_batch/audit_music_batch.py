@@ -55,34 +55,48 @@ def closing_database(*args, **kwargs):
 
 
 class BatchFolderLock:
-    """OS-owned mutex: crashes release ownership, so stale lock files cannot block runs."""
+    """Shared ancestor locks plus an exclusive root lock; siblings may run concurrently."""
     def __init__(self, root):
-        self.handle = None
-        key = hashlib.sha256(os.path.normcase(str(Path(root).resolve())).encode()).hexdigest()
+        self.handles = []
         if os.name != "nt":
             raise RuntimeError("Batch folder locking currently requires Windows")
         import ctypes
+        import msvcrt
         from ctypes import wintypes
+        class Overlapped(ctypes.Structure):
+            _fields_ = [("Internal", ctypes.c_size_t), ("InternalHigh", ctypes.c_size_t),
+                        ("Offset", wintypes.DWORD), ("OffsetHigh", wintypes.DWORD),
+                        ("hEvent", wintypes.HANDLE)]
         self.api = ctypes.WinDLL("kernel32", use_last_error=True)
-        self.api.CreateMutexW.argtypes = [ctypes.c_void_p, wintypes.BOOL, wintypes.LPCWSTR]
-        self.api.CreateMutexW.restype = wintypes.HANDLE
-        self.api.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
-        self.api.ReleaseMutex.argtypes = [wintypes.HANDLE]
-        self.api.CloseHandle.argtypes = [wintypes.HANDLE]
-        handle = self.api.CreateMutexW(None, False, "Global\\ClaireAuditMusicBatch_" + key)
-        if not handle:
-            raise ctypes.WinError(ctypes.get_last_error())
-        result = self.api.WaitForSingleObject(handle, 0)
-        if result not in (0, 0x80):  # acquired or abandoned by a crashed process
-            self.api.CloseHandle(handle)
-            raise RuntimeError(f"Another audit is already modifying this folder: {root}")
-        self.handle = handle
+        self.api.LockFileEx.argtypes = [wintypes.HANDLE, wintypes.DWORD, wintypes.DWORD,
+                                       wintypes.DWORD, wintypes.DWORD, ctypes.POINTER(Overlapped)]
+        self.api.UnlockFileEx.argtypes = [wintypes.HANDLE, wintypes.DWORD, wintypes.DWORD,
+                                         wintypes.DWORD, ctypes.POINTER(Overlapped)]
+        self.overlapped_type = Overlapped
+        root = Path(root).resolve()
+        lock_dir = Path(tempfile.gettempdir()) / "audit_music_batch" / "locks"
+        lock_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            for path in [*reversed(root.parents), root]:
+                key = hashlib.sha256(os.path.normcase(str(path)).encode()).hexdigest()
+                stream = (lock_dir / (key + ".lock")).open("a+b")
+                handle = msvcrt.get_osfhandle(stream.fileno())
+                state = Overlapped()
+                flags = 1 | (2 if path == root else 0)
+                if not self.api.LockFileEx(handle, flags, 0, 1, 0, ctypes.byref(state)):
+                    stream.close()
+                    raise RuntimeError(f"Another audit is already modifying this folder or an overlapping folder: {root}")
+                self.handles.append((stream, handle, state))
+        except BaseException:
+            self.close()
+            raise
 
     def close(self):
-        if self.handle is not None:
-            self.api.ReleaseMutex(self.handle)
-            self.api.CloseHandle(self.handle)
-            self.handle = None
+        import ctypes
+        for stream, handle, state in reversed(self.handles):
+            self.api.UnlockFileEx(handle, 0, 1, 0, ctypes.byref(state))
+            stream.close()
+        self.handles.clear()
 
 
 def preflight_audio_replacement(source, *, copies=4):
@@ -125,12 +139,15 @@ class BatchSession:
         self.run_id = run_id or uuid.uuid4().hex
         self.resuming = run_id is not None
         self.has_failures = False
+        self.failure_keys = set()
         with self.connect() as db:
             db.executescript('''
                 CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY, root TEXT, status TEXT, started REAL);
                 CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY, run TEXT, time REAL, kind TEXT, data TEXT);
                 CREATE TABLE IF NOT EXISTS checkpoints(run TEXT, category TEXT, path TEXT, fingerprint TEXT,
                     outcome TEXT, PRIMARY KEY(run, category, path));
+                CREATE TABLE IF NOT EXISTS folder_choices(run TEXT, category TEXT, folder TEXT, choice TEXT,
+                    PRIMARY KEY(run, category, folder));
             ''')
             db.execute("INSERT OR IGNORE INTO runs VALUES(?,?,?,?)", (self.run_id, self.root, "running", time.time()))
             db.execute("UPDATE runs SET status='running' WHERE id=?", (self.run_id,))
@@ -152,13 +169,31 @@ class BatchSession:
             db.execute("INSERT INTO events(run,time,kind,data) VALUES(?,?,?,?)",
                        (self.run_id, time.time(), kind, json.dumps(data, ensure_ascii=False, default=str)))
         if kind == "failure":
+            finding = data.get("finding") or {}
+            self.failure_keys.add((data.get("operation") or finding.get("category") or "batch",
+                                   str(data.get("path") or finding.get("path") or "")))
             self.has_failures = True
+
+    def resolve_failure(self, operation, path=""):
+        self.failure_keys.discard((operation, str(path)))
+        self.has_failures = bool(self.failure_keys)
+        self.event("failure_resolved", operation=operation, path=str(path))
 
     def remember(self, category, path, outcome):
         path = str(Path(path).resolve())
         with self.connect() as db:
             db.execute("INSERT OR REPLACE INTO checkpoints VALUES(?,?,?,?,?)",
                        (self.run_id, category, path, json.dumps(fingerprint(path)), outcome))
+
+    def remember_folder(self, category, folder, choice):
+        with self.connect() as db:
+            db.execute("INSERT OR REPLACE INTO folder_choices VALUES(?,?,?,?)",
+                       (self.run_id, category, str(Path(folder).resolve()).casefold(), choice))
+
+    def folder_choices(self):
+        with self.connect() as db:
+            return {(category, folder): choice for category, folder, choice in db.execute(
+                "SELECT category,folder,choice FROM folder_choices WHERE run=?", (self.run_id,))}
 
     def previous(self, category, path):
         if not self.resuming:
@@ -247,10 +282,63 @@ def monitored_process(command, *, cwd=None, timeout=300, cancel_event=None, on_t
 
 _BATCH_SESSION = None
 _BATCH_FOLDER_LOCK = None
+_ACTIVE_CHANGE_GUARD = None
 _RENAMED_PATHS = []
 
 
+class ExternalFileChange(RuntimeError):
+    pass
+
+
+def action_file_state(path):
+    try:
+        info = Path(path).stat()
+        return [info.st_size, info.st_mtime_ns, info.st_ctime_ns, info.st_ino]
+    except FileNotFoundError:
+        return None
+
+
+def folder_file_states(folder):
+    return {str(p.resolve()): action_file_state(p) for p in Path(folder).rglob("*") if p.is_file()}
+
+
+class ActionChangeGuard:
+    def __init__(self, folder, observed=None):
+        self.folder = Path(folder)
+        self.expected = folder_file_states(folder)
+        self.checked = False
+        self.touched = set()
+        if observed is not None:
+            for name, signature in observed.items():
+                if Path(name).is_relative_to(self.folder.resolve()) and self.expected.get(name) != signature:
+                    raise ExternalFileChange(f"File changed since audit: {name}. Refresh this proposal before approval.")
+
+    def check(self, path, consume=True):
+        name = str(Path(path).resolve())
+        if not self.checked:
+            if folder_file_states(self.folder) != self.expected:
+                raise ExternalFileChange("Files changed while this proposal was displayed. No stale approval will be applied; refresh the proposal.")
+            self.checked = True
+        if Path(path).is_dir():
+            # Folder actions are guarded by their enumerated files above;
+            # directory metadata is not part of the file snapshot.
+            return
+        if name not in self.touched and action_file_state(path) != self.expected.get(name):
+            raise ExternalFileChange(f"File changed before write: {path}. Refresh the proposal.")
+        if consume:
+            self.touched.add(name)
+
+
+def check_pending_change(path, consume=True):
+    if (_ACTIVE_CHANGE_GUARD is not None
+            and threading.current_thread() is threading.main_thread()
+            and Path(path).resolve().is_relative_to(_ACTIVE_CHANGE_GUARD.folder.resolve())):
+        _ACTIVE_CHANGE_GUARD.check(path, consume=consume)
+
+
 def tracked_rename(source, destination):
+    check_pending_change(source)
+    check_pending_change(destination)
     batch_event("rename_intent", source=str(source), destination=str(destination))
     source.rename(destination)
     batch_event("rename_complete", source=str(source), destination=str(destination))
@@ -315,6 +403,14 @@ class BatchDecisions(list):
 
     def append(self, decision):
         super().append(decision)
+        if _ACTIVE_CHANGE_GUARD is not None:
+            for path in _ACTIVE_CHANGE_GUARD.touched:
+                if hasattr(self, "observed"):
+                    state = action_file_state(path)
+                    if state is None:
+                        self.observed.pop(path, None)
+                    else:
+                        self.observed[path] = state
         batch_event("failure" if decision.get("error") else "decision", **decision)
         if _BATCH_SESSION is not None and not decision.get("error"):
             finding = decision.get("finding")
@@ -338,6 +434,8 @@ def supervised_audio_command(command, *, cwd=None, operation="Audio processing",
         batch_event("failure", operation=operation, error=str(exc), command=command)
         raise
     batch_event("command_finished", operation=operation, returncode=result.returncode)
+    if result.returncode == 0 and _BATCH_SESSION is not None:
+        _BATCH_SESSION.resolve_failure(operation)
     return result
 
 
@@ -354,9 +452,9 @@ def validate_audio_decode(source, ffmpeg, *, visible=True):
 # Published releases are deliberately separate from the timestamped safety
 # backups that the auditor makes before replacements. Update both values only
 # when publishing a new named release.
-AUDIT_MUSIC_BATCH_VERSION = "v164"
-AUDIT_MUSIC_BATCH_RELEASE_NAME = "single-file-runtime"
-AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-10-24"
+AUDIT_MUSIC_BATCH_VERSION = "v165"
+AUDIT_MUSIC_BATCH_RELEASE_NAME = "safer-batches-resume-retry-and-backup-review"
+AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-10-30"
 
 # Set this to a full executable path only when automatic discovery cannot find
 # your preferred image viewer. The V key first honors openimage.bat, then this
@@ -1002,6 +1100,7 @@ def backup_before_inline_replacement(
     path: Path, timestamp: str | None = None
 ) -> Path:
     """Copy and verify ``path`` before any in-place content/tag replacement."""
+    check_pending_change(path)
     if not path.is_file():
         raise FileNotFoundError(f"Cannot back up missing file: {path}")
     backup = replacement_backup_path(path, timestamp)
@@ -1023,6 +1122,7 @@ def backup_before_inline_replacement(
 
 def recycle_path(path: Path) -> Path:
     """Send ``path`` to the OS Recycle Bin; never fall back to unlink/rmtree."""
+    check_pending_change(path)
     if not path.exists():
         raise FileNotFoundError(f"Cannot recycle missing path: {path}")
     batch_event("recycle_intent", path=str(path))
@@ -4071,6 +4171,7 @@ class BatchAudit:
                     finally:
                         self.progress_update()
             self.progress_phase("📂 Checking files and sidecars")
+            observed_files = {str(p.resolve()): action_file_state(p) for p in self.files if p.is_file()}
             self.audit_filesystem()
             self.progress_phase("🔁 Checking duplicates and archives")
             self.audit_duplicates_and_archives()
@@ -4087,6 +4188,7 @@ class BatchAudit:
             self.progress = None
         self.assign_codes()
         report = self.report_data()
+        report["_observed_files"] = observed_files
         if embed_lyrics_first:
             report["embedded_lyrics"] = embedded
             report["embedded_lyrics_mode"] = (
@@ -9680,6 +9782,7 @@ def bake_replaygain_into_audio(
 ) -> tuple[Path, float]:
     """Bake track gain into FLAC/MP3 audio, then calculate fresh tags."""
     source = audio_path.resolve()
+    source_state = action_file_state(source)
     requested_db, applied_db = safely_baked_replaygain_db(metrics)
     preflight_audio_replacement(source)
     suffix = source.suffix.casefold()
@@ -9770,6 +9873,8 @@ def bake_replaygain_into_audio(
             if not normalized.info or normalized.info.length <= 0:
                 raise RuntimeError("Baked FLAC has no valid audio stream")
             _remove_flac_replaygain_tags(temporary)
+            if action_file_state(source) != source_state:
+                raise ExternalFileChange(f"Source changed during rendering: {source}; refusing replacement.")
             preflight_audio_replacement(source, copies=2)
             backup = backup_before_inline_replacement(source)
             replace_staged_media(
@@ -9858,6 +9963,8 @@ def bake_replaygain_into_audio(
                     if frame.desc.casefold().startswith("replaygain_"):
                         encoded.tags.delall(f"TXXX:{frame.desc}")
                 encoded.save(v2_version=3)
+            if action_file_state(source) != source_state:
+                raise ExternalFileChange(f"Source changed during rendering: {source}; refusing replacement.")
             preflight_audio_replacement(source, copies=2)
             backup = backup_before_inline_replacement(source)
             replace_staged_media(
@@ -9968,12 +10075,14 @@ def bake_replaygain_for_batch(
     *,
     use_color: bool,
     key_reader=None,
+    offer_retry: bool = True,
     acceptable_silence_seconds: float = (
         BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS
     ),
 ) -> list[Path]:
     """Offer normal-audit ReplayGain baking and retain before/after gradients."""
     candidates = replaygain_bake_candidates(audio_files)
+    candidate_states = {path: action_file_state(path) for path in candidates}
     if not candidates:
         return []
     threshold_text = f"±{REPLAYGAIN_BAKE_THRESHOLD_DB:g} dB"
@@ -9990,6 +10099,7 @@ def bake_replaygain_for_batch(
         return []
 
     baked: list[Path] = []
+    failed_paths = []
     cover_narration(
         "🔴",
         "Rendering and keeping red-to-purple before-waveforms before changing audio data.",
@@ -10018,6 +10128,8 @@ def bake_replaygain_for_batch(
         before_path.parent.mkdir(parents=True, exist_ok=True)
         baked_backup: Path | None = None
         try:
+            if action_file_state(audio_path) != candidate_states[audio_path]:
+                raise ExternalFileChange(f"{audio_path.name} changed since the bake proposal; refresh gain and approve again.")
             preflight_audio_replacement(audio_path)
             _before, _backup, before_metrics = generate_waveform_jpeg(
                 audio_path,
@@ -10026,6 +10138,8 @@ def bake_replaygain_for_batch(
                 acceptable_silence_seconds=acceptable_silence_seconds,
             )
             recolor_before_baked_waveform(before_path)
+            if action_file_state(audio_path) != candidate_states[audio_path]:
+                raise ExternalFileChange(f"Source changed while its before-waveform rendered: {audio_path}")
             baked_backup, applied_db = bake_replaygain_into_audio(
                 audio_path,
                 before_metrics,
@@ -10042,7 +10156,9 @@ def bake_replaygain_for_batch(
             baked.append(audio_path)
             if _BATCH_SESSION is not None:
                 _BATCH_SESSION.remember("replaygain_bake", audio_path, "baked")
+                _BATCH_SESSION.resolve_failure("replaygain_bake", audio_path)
         except BaseException as exc:
+            failed_paths.append((audio_path, str(exc)))
             batch_event("failure", operation="replaygain_bake", path=str(audio_path), error=str(exc))
             rollback_note = ""
             if baked_backup is not None and baked_backup.is_file():
@@ -10072,6 +10188,13 @@ def bake_replaygain_for_batch(
             if bake_progress is not None:
                 bake_progress.update(1)
     bake_progress_context.__exit__(None, None, None)
+    if failed_paths and offer_retry:
+        print("        Failed ReplayGain files:")
+        for path, error in failed_paths:
+            print(console_safe_text(f"          {path}: {error}"))
+        if prompt_for_approval("Retry only these failed ReplayGain files with fresh checks?", False, use_color, key_reader=key_reader):
+            baked.extend(bake_replaygain_for_batch([p for p, _ in failed_paths], use_color=use_color,
+                key_reader=key_reader, offer_retry=False, acceptable_silence_seconds=acceptable_silence_seconds))
     return baked
 
 
@@ -11688,6 +11811,7 @@ def review_waveforms(
     approval_database_path: Path | None = None,
     force_all: bool = False,
     prestarted_waveform: tuple[Path, Future] | None = None,
+    only_paths: list[Path] | None = None,
 ) -> dict[str, Any]:
     """Review disposable waveform previews for audible-file warning signs."""
     if not interactive:
@@ -11698,6 +11822,9 @@ def review_waveforms(
     audit = BatchAudit(root, include_archives=include_archives)
     audit.collect_files()
     all_audio_files = audit.audio_files
+    if only_paths is not None:
+        wanted = {os.path.normcase(str(Path(path).resolve())) for path in only_paths}
+        all_audio_files = [path for path in all_audio_files if os.path.normcase(str(path.resolve())) in wanted]
     approval_store = WaveformApprovalStore(approval_database_path)
     pruned_approvals = approval_store.prune_if_oversized()
     previously_approved = [
@@ -14268,6 +14395,106 @@ def print_interactive_results(
         )
         + "\n"
     )
+
+
+def retry_failed_findings(data, result, use_color, key_reader=None, input_reader=None):
+    """Re-audit, filter to failed actions, and require fresh approvals; never replay stale plans."""
+    failures = [d for d in result.get("decisions", []) if d.get("error")]
+    if not failures:
+        return result
+    print("        Failed actions:")
+    for decision in failures:
+        print(console_safe_text(f"          {decision['finding'].get('path')}: {decision['error']}"))
+    if not prompt_for_approval("Retry only these failed actions after a fresh scan?", False, use_color, key_reader=key_reader):
+        return result
+    root = Path(data["resolved_root"])
+    fresh = BatchAudit(root, include_archives=data.get("include_archives", False),
+                       check_silence=data.get("check_silence", False)).audit(embed_lyrics_first=False)
+    def key(finding):
+        return finding["category"], os.path.normcase(str(safe_finding_path(root, finding).resolve()))
+    wanted = {key(d["finding"]) for d in failures}
+    fresh["findings"] = [f for f in fresh["findings"] if f.get("code") and key(f) in wanted]
+    fresh["_force_prompts"] = True
+    remaining = {key(f) for f in fresh["findings"]}
+    retained = [d for d in result.get("decisions", []) if not d.get("error")]
+    for decision in failures:
+        if key(decision["finding"]) not in remaining:
+            print(f"        No longer actionable after refresh: {decision['finding'].get('path')}")
+            if _BATCH_SESSION is not None:
+                _BATCH_SESSION.resolve_failure(decision["finding"]["category"], decision["finding"].get("path", ""))
+    retried = interactive_apply(fresh, use_color, key_reader=key_reader, input_reader=input_reader) if remaining else {"decisions": []}
+    for decision in retried["decisions"]:
+        if not decision.get("error") and _BATCH_SESSION is not None:
+            _BATCH_SESSION.resolve_failure(decision["finding"]["category"], decision["finding"].get("path", ""))
+    combined = retained + list(retried["decisions"])
+    return {"decisions": combined,
+            "applied_codes": "".join(d["code"] for d in combined if d.get("applied")),
+            "skipped_codes": "".join(d["code"] for d in combined if d.get("skipped")),
+            "failed_codes": "".join(d["code"] for d in combined if d.get("error"))}
+
+
+def retry_failed_waveforms(root, result, use_color=True, key_reader=None, **options):
+    """Retry only failed previews, with explicit consent and fresh rendering."""
+    if not result or not result.get("failed"):
+        return result
+    failures = result["failed"]
+    for failure in failures:
+        print(console_safe_text(f"        {failure.get('path')}: {failure.get('error', 'Waveform review failed')}"))
+    if not prompt_for_approval("Retry only these failed waveform reviews?", False, use_color, key_reader=key_reader):
+        return result
+    available = [Path(f["path"]) for f in failures if Path(f["path"]).is_file()]
+    if not available:
+        return result
+    retried = review_waveforms(root, only_paths=available, force_all=True,
+                              use_color=use_color, key_reader=key_reader, **options)
+    combined = dict(result)
+    combined["failed"] = [f for f in failures if not Path(f["path"]).is_file()] + retried.get("failed", [])
+    for field in ("fine", "problems", "edited"):
+        if isinstance(result.get(field), list):
+            combined[field] = result[field] + retried.get(field, [])
+    return combined
+
+
+def offer_backup_cleanup(root, use_color=True, key_reader=None):
+    """Summarize backups; preview exact candidates, then separately confirm recycling."""
+    root = Path(root).resolve()
+    candidates = []
+    for path in progressive_rglob(root, description="📦 Counting backups"):
+        if path.is_file() and not path.is_symlink() and path.resolve().is_relative_to(root) and is_backup_filename(path):
+            state = action_file_state(path)
+            if state is not None:
+                candidates.append((path, state))
+    total = sum(state[0] for _, state in candidates)
+    print(f"        Backup storage: {len(candidates)} files, {total:,} bytes ({total / 1024**3:.2f} GiB).")
+    if not candidates:
+        return []
+    if _BATCH_SESSION is not None and _BATCH_SESSION.has_failures:
+        print("        Backups retained: unresolved failures may need them for recovery.")
+        return []
+    if not prompt_for_approval("Preview optional backup cleanup? Nothing is deleted by previewing.", False, use_color, key_reader=key_reader):
+        return []
+    for path, state in candidates:
+        print(console_safe_text(f"          {state[0]:>14,} bytes  {path}"))
+    if not prompt_for_approval(f"Send exactly these {len(candidates)} backups to the Recycle Bin? This removes local rollback copies; disk space may not be reclaimed until the Bin is emptied.", False, use_color, key_reader=key_reader):
+        return []
+    # Abort the whole cleanup if its preview is stale; do not partially follow a stale approval.
+    for path, state in candidates:
+        if action_file_state(path) != state:
+            print(f"        Cleanup cancelled: backup changed since preview: {path}")
+            return []
+    recycled = []
+    for path, state in candidates:
+        if action_file_state(path) != state:
+            print(f"        Cleanup stopped: backup changed before recycling: {path}")
+            break
+        try:
+            recycle_path(path)
+            recycled.append(path)
+        except Exception as exc:
+            print(f"        Cleanup stopped; no permanent deletion fallback: {exc}")
+            break
+    print(f"        Recycled {len(recycled)} backups. Restore through Windows Recycle Bin if needed.")
+    return recycled
 
 
 def double_height_report_line(text: str, use_color: bool, red: int, green: int, blue: int) -> list[str]:
@@ -17099,12 +17326,23 @@ def retreat_edited_audio(
 
 
 def interactive_apply(
+    data, use_color, key_reader=None, input_reader=None, artwork_preview_renderer=None,
+):
+    global _ACTIVE_CHANGE_GUARD
+    try:
+        return _interactive_apply(data, use_color, key_reader, input_reader, artwork_preview_renderer)
+    finally:
+        _ACTIVE_CHANGE_GUARD = None
+
+
+def _interactive_apply(
     data: dict[str, Any],
     use_color: bool,
     key_reader=None,
     input_reader=None,
     artwork_preview_renderer=None,
 ) -> dict[str, Any]:
+    global _ACTIVE_CHANGE_GUARD
     rename_first_categories = GROUPED_RENAME_CATEGORIES | {
         "all_caps_album_title",
         "filename_marker_style",
@@ -17124,6 +17362,8 @@ def interactive_apply(
     failed: list[str] = []
     root = Path(data["resolved_root"])
     decisions: list[dict[str, Any]] = BatchDecisions(root)
+    observed = dict(data.get("_observed_files", {}))
+    decisions.observed = observed
     remembered_no_store = RememberedNoStore()
     reaudited_categories: dict[str, set[str]] = {}
     printed_prompt = False
@@ -17133,12 +17373,33 @@ def interactive_apply(
     remembered_missing_album_folder_skips: set[Path] = set()
     remembered_punk_genre_selection: str | None = None
     remembered_punk_genre_folder_selections: dict[str, str] = {}
+    if _BATCH_SESSION is not None and not data.get("_force_prompts"):
+        for (category, folder), selection in _BATCH_SESSION.folder_choices().items():
+            if selection == "folder":
+                remembered_folder_approvals.add((category, folder))
+            elif selection == "stop_folder":
+                remembered_folder_skips.add((category, folder))
+            elif category == "missing_album" and selection == "skip_album":
+                remembered_missing_album_folder_skips.add(Path(folder).resolve())
+            elif category == "simplify_punk_genre":
+                remembered_punk_genre_folder_selections[folder] = selection
     rename_cursor = len(_RENAMED_PATHS)
 
     for finding in coded:
+        _ACTIVE_CHANGE_GUARD = None
         refresh_pending_paths(coded, root, _RENAMED_PATHS[rename_cursor:])
         rename_cursor = len(_RENAMED_PATHS)
-        if _BATCH_SESSION is not None:
+        target = safe_finding_path(root, finding)
+        scope = target if target.is_dir() else target.parent
+        try:
+            _ACTIVE_CHANGE_GUARD = ActionChangeGuard(scope, observed or None)
+        except ExternalFileChange as exc:
+            failed.append(finding["code"])
+            print(f"        RECHECK REQUIRED: {exc}")
+            decisions.append({"code": finding["code"], "finding": finding, "error": str(exc),
+                              "applied": False, "skipped": False, "actions": []})
+            continue
+        if _BATCH_SESSION is not None and not data.get("_force_prompts"):
             previous = _BATCH_SESSION.previous(finding["category"], safe_finding_path(root, finding))
             if previous and previous != "file changed since checkpoint":
                 skipped.append(finding["code"])
@@ -17268,6 +17529,8 @@ def interactive_apply(
                     remembered_missing_album_folder_skips.add(
                         safe_finding_path(root, finding).parent.resolve()
                     )
+                    if _BATCH_SESSION is not None:
+                        _BATCH_SESSION.remember_folder("missing_album", target.parent, "skip_album")
                     actions = ["unchanged:missing_album_folder_skip"]
                     should_apply = False
                 else:
@@ -17330,6 +17593,8 @@ def interactive_apply(
                         remembered_punk_genre_folder_selections[
                             genre_folder_key
                         ] = selected_genre
+                        if _BATCH_SESSION is not None:
+                            _BATCH_SESSION.remember_folder("simplify_punk_genre", target.parent, selected_genre)
                 else:
                     remembered_label = (
                         "keep whole existing tag unchanged"
@@ -17506,8 +17771,12 @@ def interactive_apply(
                     ] = choice
                 elif choice == "folder":
                     remembered_folder_approvals.add(folder_key)
+                    if _BATCH_SESSION is not None:
+                        _BATCH_SESSION.remember_folder(folder_key[0], scope_folder, choice)
                 elif choice == "stop_folder":
                     remembered_folder_skips.add(folder_key)
+                    if _BATCH_SESSION is not None:
+                        _BATCH_SESSION.remember_folder(folder_key[0], scope_folder, choice)
                 elif choice == "remember_no":
                     remembered_no_store.remember_no(
                         str(finding["category"]),
@@ -17545,6 +17814,7 @@ def interactive_apply(
             should_delete_art = choice == "delete_art"
             if should_apply or should_delete_art:
                 try:
+                    check_pending_change(target, consume=False)
                     if should_delete_art:
                         artwork = front_art_candidate(target)
                         if artwork is None:
@@ -26072,6 +26342,7 @@ def _main(argv: list[str] | None = None) -> int:
                 not args.no_color,
             )
             return 2
+        waveform_results = retry_failed_waveforms(Path(args.root), waveform_results, use_color=not args.no_color)
         if waveform_results["failed"]:
             batch_event("failure", operation="waveform_review", failed=waveform_results["failed"])
         return 1 if waveform_results["failed"] else 0
@@ -26253,6 +26524,7 @@ def _main(argv: list[str] | None = None) -> int:
     waveform_handoff_failed = False
     if args.interactive:
         result = interactive_apply(data, use_color=not args.no_color)
+        result = retry_failed_findings(data, result, use_color=not args.no_color)
         print_interactive_results(result, not args.no_color)
         try:
             waveform_handoff = offer_post_audit_waveform_review(
@@ -26266,6 +26538,7 @@ def _main(argv: list[str] | None = None) -> int:
                     effective.silence_threshold_seconds
                 ),
             )
+            waveform_handoff = retry_failed_waveforms(Path(args.root), waveform_handoff, use_color=not args.no_color)
             waveform_handoff_failed = bool(
                 waveform_handoff
                 and waveform_handoff.get("failed")
@@ -26281,11 +26554,14 @@ def _main(argv: list[str] | None = None) -> int:
             )
     if waveform_handoff_failed:
         batch_event("failure", operation="post_audit_waveform_review")
+    if args.interactive:
+        offer_backup_cleanup(Path(args.root), use_color=not args.no_color)
     return (
         1
         if (
             data["counts"]["by_severity"].get("problem", 0)
             or waveform_handoff_failed
+            or (args.interactive and bool(result.get("failed_codes")))
         )
         else 0
     )

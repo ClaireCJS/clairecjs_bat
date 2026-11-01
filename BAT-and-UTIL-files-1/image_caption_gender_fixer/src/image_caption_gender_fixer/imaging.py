@@ -278,6 +278,7 @@ def render_region(image, region, protected, *, repair_only=False):
     np, cv, Image, Draw, Font, _, _, _ = libraries()
     style = estimate(image, region)
     cfg = region.settings
+    method=cfg.get("repair","fill")
     x1,y1,x2,y2 = cfg.get("box", region.box)
     sides=cfg.get("mask_sides",{})
     pad = max(4, round((y2-y1)*0.15),max(sides.values(),default=0))
@@ -290,13 +291,13 @@ def render_region(image, region, protected, *, repair_only=False):
     restriction = np.zeros(raw.shape, dtype="uint8")
     local = (x1-crop_box[0], y1-crop_box[1], x2-crop_box[0], y2-crop_box[1])
     restriction[max(0,local[1]-sides.get("up",0)):min(raw.shape[0],local[3]+sides.get("down",0)), max(0,local[0]-sides.get("left",0)):min(raw.shape[1],local[2]+sides.get("right",0))] = 255
-    if style["texture"] >= 12 or cfg.get("effects") is False:
+    if (method not in ("fill","original") and style["texture"] >= 12) or cfg.get("effects") is False:
           source_font = Font.truetype(style["font"], style["size"])
           glyph = styled(region.before, source_font, (255,255,255,255)).getchannel("A").resize((max(1,x2-x1),max(1,y2-y1)))
           restriction[:] = 0
           restriction[local[1]:local[3], local[0]:local[2]] = np.array(glyph)
           restriction = cv.dilate(restriction, np.ones((3,3),"uint8"))
-    mask = cv.bitwise_and(raw, restriction)
+    mask = restriction.copy() if method=="fill" else cv.bitwise_and(raw, restriction)
     dilation = int(cfg.get("mask", 1))
     if dilation > 0:
           mask = cv.dilate(mask,np.ones((2*dilation+1,2*dilation+1),"uint8"))
@@ -311,10 +312,11 @@ def render_region(image, region, protected, *, repair_only=False):
         a,b,c,d=cfg['_fit_lane']
         mask[:max(0,b-crop_box[1]),:]=0;mask[max(0,d-crop_box[1]):,:]=0
         mask[:,:max(0,a-crop_box[0])]=0;mask[:,max(0,c-crop_box[0]):]=0
-    method = cfg.get("repair", "fill" if style["texture"] < 6 else "telea")
     repaired = rgb.copy()
     repaired_alpha=np.array(original.getchannel("A"))
-    if method == "fill":
+    if method == "original":
+          pass # Explicit overlay mode retains every original background pixel.
+    elif method == "fill":
           repaired[mask > 0] = style["background"]
           repaired_alpha[mask>0]=style["background_alpha"]
     elif method == "gradient":
@@ -368,7 +370,7 @@ def render_region(image, region, protected, *, repair_only=False):
           seam=float(np.percentile(edges[border],90)) if border.any() else 0
           expected=float(np.percentile(reference[context],90)) if context.any() else 0
           score=max(0,seam-expected)+(style["texture"]*2 if method=="fill" and style["texture"]>=6 else 0)
-          preferred="fill" if style["texture"]<6 else "telea"
+          preferred="fill"
           score+=0 if method==preferred else .001
           return composite,{"repair":method,"repair_score":score,"background_only":True,
               "level":2 if style["texture"]<18 else 3,"seam_warning":seam,
@@ -377,48 +379,66 @@ def render_region(image, region, protected, *, repair_only=False):
     foreground = tuple(cfg.get("foreground",style["foreground"]))
     if "opacity" in cfg: foreground=foreground[:3]+(round(255*cfg["opacity"]),)
     outline = int(cfg.get("outline",0))
-    shadow = tuple(cfg.get("shadow",(0,0)))
-    chosen = None
+    shadow = tuple(cfg.get("shadow",(1,1)))
+    chosen = None;adaptive_info=None
     size = max(6,round(style["size"]*float(cfg.get("scale",1))))
     mode=cfg.get('_fit_mode')
     # Exhaust rightward positions before trying leftward positions. Never move
     # across a neighboring word, even when there is free space beyond it.
-    phases=('right','left') if mode=='move' else ('squeeze',) if mode=='squeeze' else ('normal',)
-    candidates=(1,0.95,0.9,0.85,0.8)
+    phases=() if cfg.get('_adaptive_fit') else ('right','left') if mode=='move' else ('squeeze',) if mode=='squeeze' else ('normal',)
+    retry=max(0,min(2,int(cfg.get('fit_retry',0))))
+    candidates=(1,.95,.90,.85,.80)
+    if mode=='squeeze' and retry:
+        candidates+=(.75,.70,.65) if retry==1 else (.75,.70,.65,.60,.55)
+    trials=0
     for phase in phases:
         for factor in candidates:
             font = Font.truetype(cfg.get("font",style["font"]),max(6,round(size*factor)))
             for tracking in (float(cfg.get("tracking",0)), -0.5, -1):
                 layer = styled(region.after,font,foreground,outline,tuple(cfg.get("outline_color",(0,0,0,255))),tracking,
-                               shadow,float(cfg.get("blur",0)),float(cfg.get("rotation",0)),tuple(cfg.get("shadow_color",(0,0,0,180))))
-                base_x=x1+int(cfg.get("dx",0));y=y1+int(cfg.get("dy",0))
+                               shadow,float(cfg.get("blur",.5)),float(cfg.get("rotation",0)),tuple(cfg.get("shadow_color",(0,0,0,180))))
+                base_x=x1+int(cfg.get("dx",0));base_y=y1+int(cfg.get("dy",0))
                 scales=(1,.98,.95,.90,.85,.80) if phase=='squeeze' else (1,)
+                if phase=='squeeze' and retry:scales+=(.75,) if retry==1 else (.75,.70,.65)
+                vertical=(0,)
+                if phase=='squeeze' and retry:
+                    distance=min(4 if retry==1 else 6,max(1,round((y2-y1)*.15)))
+                    vertical+=tuple(offset for step in range(1,distance+1) for offset in (-step,step))
                 for horizontal_scale in scales:
                     fitted=layer if horizontal_scale==1 else layer.resize((max(1,round(layer.width*horizontal_scale)),layer.height),Image.Resampling.LANCZOS)
                     lane=cfg.get('_fit_lane',(0,0,image.width,image.height))
-                    left,right=lane[0],lane[2]-fitted.width
-                    for a,b,c,d in neighbors:
-                        if b<y+fitted.height and y<d:
-                            if c<=x1:left=max(left,c)
-                            if a>=x2:right=min(right,a-fitted.width)
-                    if phase=='right':shifts=range(1,min(max(0,right-base_x),max(4,min(32,round((y2-y1)*.75))))+1)
-                    elif phase=='left':shifts=range(-1,max(min(0,left-base_x),-max(4,min(32,round((y2-y1)*.75))))-1,-1)
-                    elif phase=='squeeze':shifts=(0,) if fitted.width<=x2-x1 else ()
-                    else:shifts=(0,-2,-4,-round((y2-y1)*0.25))
-                    for shift in shifts:
-                        x=base_x+shift
-                        bounds=(x,y,x+fitted.width,y+fitted.height)
-                        if x<left or x>right or y<lane[1] or bounds[3]>lane[3] or any(overlaps(bounds,p) for p in neighbors):continue
-                        chosen=(fitted,(x,y),bounds,factor,tracking,horizontal_scale,phase)
-                        break
+                    for offset in vertical:
+                        trials+=1;y=base_y+offset
+                        left,right=lane[0],lane[2]-fitted.width
+                        for a,b,c,d in neighbors:
+                            if b<y+fitted.height and y<d:
+                                if c<=x1:left=max(left,c)
+                                if a>=x2:right=min(right,a-fitted.width)
+                        if phase=='right':shifts=range(1,min(max(0,right-base_x),max(4,min(32,round((y2-y1)*.75))))+1)
+                        elif phase=='left':shifts=range(-1,max(min(0,left-base_x),-max(4,min(32,round((y2-y1)*.75))))-1,-1)
+                        elif phase=='squeeze':shifts=(0,) if fitted.width<=x2-x1 else ()
+                        else:shifts=(0,-2,-4,-round((y2-y1)*0.25))
+                        for shift in shifts:
+                            x=base_x+shift
+                            bounds=(x,y,x+fitted.width,y+fitted.height)
+                            if x<left or x>right or y<lane[1] or bounds[3]>lane[3] or any(overlaps(bounds,p) for p in neighbors):continue
+                            chosen=(fitted,(x,y),bounds,factor,tracking,horizontal_scale,phase)
+                            break
+                        if chosen:break
                     if chosen:break
                 if chosen:
                     break
             if chosen:
                 break
         if chosen:break
+    if not chosen and cfg.get('_adaptive_fit'):
+        from .fit_search import select_fit
+        chosen,measured,adaptive_info=select_fit(region,style,neighbors,cfg.get('_fit_lane',(0,0,image.width,image.height)))
+        trials+=measured
     if not chosen:
-        raise RenderBlocked("Replacement cannot fit safely within image/protected text. Adjust, choose other wording, or defer.")
+        error=RenderBlocked("Replacement cannot fit safely within image/protected text. Adjust, choose other wording, or defer.")
+        error.fit_trials=trials
+        raise error
     if cfg.get("label"):
         label_bounds=(min(crop_box[0],chosen[2][0]),min(crop_box[1],chosen[2][1]),max(crop_box[2],chosen[2][2]),max(crop_box[3],chosen[2][3]))
         if any(overlaps(label_bounds,p) for p in neighbors): raise RenderBlocked("Explicit caption label would cover protected text.")
@@ -436,10 +456,11 @@ def render_region(image, region, protected, *, repair_only=False):
     background_edges=context_edges & ~(cv.dilate(mask,np.ones((7,7),"uint8"))>0)
     edge_warning=bool(background_edges.sum()>max(8,background_edges.size*.025))
     warnings=[]
+    if method=="original":warnings.append("Original pixels retained; old lettering may remain beneath the replacement.")
     if seam>max(45,float(np.median(gradient))*4): warnings.append("Repair boundary may have a visible seam; compare repair candidates.")
     if edge_warning: warnings.append("Strong background edges near the text may belong to an important object.")
     level = 3 if style["texture"] >= 18 or cfg.get("rotation") else 2
-    if style["texture"] < 6 and region.confidence >= 92 and style["font_score"] >= 0.72 and chosen[3] == 1 and not outline and shadow == (0,0):
+    if style["texture"] < 6 and region.confidence >= 92 and style["font_score"] >= 0.72 and chosen[3] == 1 and not outline and shadow in ((0,0),(1,1)):
         level = 1
     if region.confidence < 70 or not mask.any():
         level = 3
@@ -456,11 +477,14 @@ def render_region(image, region, protected, *, repair_only=False):
         warnings.append("Transparency changes contrast against the viewer background; inspect the intended appearance.")
     if mode:
         level=max(2,level)
-        if mode=='squeeze':warnings.append('Nearby words were redrawn with horizontal compression; inspect their shape and spacing.')
+        if mode=='adaptive':warnings.append('Measured auto-fit adjusted font size, spacing, width or alignment; inspect the preview before approving.')
+        elif mode=='squeeze':warnings.append('Text was horizontally compressed to fit; inspect its shape and spacing.')
         else:warnings.append('Replacement moved '+chosen[6]+' to fit; inspect its spacing and background.')
+    if retry and (chosen[3]<.8 or chosen[5]<.8):
+        level=3;warnings.append('Stronger automatic fitting reduced text size or width; check readability before approving.')
     affected = (min(crop_box[0],chosen[2][0]),min(crop_box[1],chosen[2][1]),max(crop_box[2],chosen[2][2]),max(crop_box[3],chosen[2][3]))
     return composite,{"level":level,"style":{k:v for k,v in style.items() if k!="source_mask"},
-                      "repair":method,"seam_warning":seam,"fit_scale":chosen[3],"horizontal_scale":chosen[5],"fit_action":chosen[6],"affected":affected,"expansion_warning":expansion_warning,"warnings":warnings}, {
+                      "repair":method,"adaptive_parameters":adaptive_info,"font_used":adaptive_info["font"] if adaptive_info else cfg.get("font",style["font"]),"shadow":shadow,"shadow_blur":float(cfg.get("blur",.5)),"source_boxes":[w.box for w in region.words],"seam_warning":seam,"fit_scale":chosen[3],"horizontal_scale":chosen[5],"fit_action":chosen[6],"fit_retry":retry,"fit_trials":trials,"text_bounds":chosen[2],"affected":affected,"expansion_warning":expansion_warning,"warnings":warnings}, {
                       "original":original,"mask":overlay,"repair":repair_image,"corrected":composite.crop(affected)}
 
 
@@ -486,52 +510,105 @@ def caption_lane(image,region,lines):
     return (0,0,image.width,image.height)
 
 
-def render_fitting_region(image,region,protected,caption_lines,other_regions):
-    """Safe placement fallback followed by at most two unchanged words per side.
+def request_fit(regions):
+    """A click must broaden the previous mild search, rather than repeat it."""
+    active=[region for region in regions if not region.skipped]
+    retry=min(2,1+max((int(r.settings.get('fit_retry',0)) for r in active),default=0))
+    for region in active:region.settings.update(move_squeeze=True,fit_retry=retry)
+    return retry
 
-    Context exists only in the rendering copy; substitution spans, captions,
-    rule traces and the original image remain intact for review and undo.
-    """
-    region=replace(region,settings=dict(region.settings,_fit_lane=caption_lane(image,region,caption_lines)))
-    if not region.settings.get('move_squeeze'):
-        try:return render_region(image,region,protected)
+
+def render_fitting_region(image,region,protected,caption_lines,other_regions):
+    """One explicit click runs both stronger passes before asking for help."""
+    requested=max(0,min(2,int(region.settings.get('fit_retry',0))))
+    if not requested:return _render_fitting_pass(image,region,protected,caption_lines,other_regions)
+    previous_trials=0
+    for level in range(requested,3):
+        candidate=replace(region,settings=dict(region.settings,fit_retry=level))
+        try:
+            result,diagnostic,crops=_render_fitting_pass(image,candidate,protected,caption_lines,other_regions)
         except RenderBlocked as error:
             if 'cannot fit safely' not in str(error):raise
+            previous_trials+=getattr(error,'fit_trials',0)
+            region.settings['fit_retry']=level
+            if level==2:
+                from .fit_search import render_adaptive_region
+                try:result,diagnostic,crops=render_adaptive_region(image,region,protected,caption_lines,other_regions)
+                except RenderBlocked as measured:
+                    measured.fit_trials=previous_trials+getattr(measured,'fit_trials',0)
+                    raise measured
+                diagnostic['fit_trials']+=previous_trials
+                return result,diagnostic,crops
+        else:
+            diagnostic['fit_trials']+=previous_trials
+            region.settings['fit_retry']=level
+            return result,diagnostic,crops
+
+
+def _render_fitting_pass(image,region,protected,caption_lines,other_regions):
+    """Bounded fitting in the original caption lane, with stronger explicit retries.
+
+    Rendering copies may include unchanged context, but never another edited word.
+    Captions, substitution spans, original pixels and review approval stay intact.
+    """
+    region=replace(region,settings=dict(region.settings,_fit_lane=caption_lane(image,region,caption_lines)))
+    retry=max(0,min(2,int(region.settings.get('fit_retry',0))));trials=0;failure=None
+    def attempt(candidate):
+        nonlocal trials,failure
+        try:
+            result,diagnostic,crops=render_region(image,candidate,protected)
+        except RenderBlocked as error:
+            if 'cannot fit safely' not in str(error):raise
+            trials+=getattr(error,'fit_trials',0);failure=error;return None
+        trials+=diagnostic.get('fit_trials',0);diagnostic['fit_trials']=trials
+        return result,diagnostic,crops
+    def blocked():
+        if retry:
+            font_limit='65%' if retry==1 else '55%'
+            width_limit='75%' if retry==1 else '65%'
+            error=RenderBlocked(str(failure)+' Auto-fit pass '+str(retry)+' tried '+str(trials)+
+                ' fitting variants (font down to '+font_limit+', width down to '+width_limit+
+                '), retaining caption boundaries and other text. '+
+                ('Continuing to the stronger pass.' if retry==1 else 'Automatic limits reached; correct OCR geometry or edit the prefilled wording.'))
+            error.fit_trials=trials;raise error
+        raise failure
+    if not region.settings.get('move_squeeze'):
+        fitted=attempt(region)
+        if fitted:return fitted
     moved=replace(region,settings=dict(region.settings,_fit_mode='move'))
-    try:return render_region(image,moved,protected)
-    except RenderBlocked as error:
-        if 'cannot fit safely' not in str(error):raise
-        failure=error
+    fitted=attempt(moved)
+    if fitted:return fitted
+    if retry:
+        # OCR corrections and neighboring edits can make context unavailable.
+        # Fitting this region alone must still be tried before giving up.
+        fitted=attempt(replace(region,settings=dict(region.settings,_fit_mode='squeeze')))
+        if fitted:return fitted
     index=region.line_index;span=region.ocr_span
-    if index is None or not span or index>=len(caption_lines):raise failure
+    if index is None or not span or index>=len(caption_lines):blocked()
     line=caption_lines[index];start,end=span
-    if line['text'][start:end]!=region.before:raise failure
+    if line['text'][start:end]!=region.before:blocked()
     words=line['words'];selected=[i for i,w in enumerate(words) if w.start<end and start<w.end]
-    if not selected:raise failure
+    if not selected:blocked()
     occupied=[w.box for other in other_regions if not (other.line_index==region.line_index and other.ocr_span==region.ocr_span and other.box==region.box) for w in other.words]
     counts=(0,) if len(selected)==len(words) else (1,2)
     for count in counts:
         lo=max(0,min(selected)-count);hi=min(len(words),max(selected)+count+1)
         context=words[lo:hi]
-        # Stop at another edited region, rather than redrawing/undoing its edit.
         if any(w.box in occupied for w in context):continue
         if count and len(context)==len(selected):continue
         a,b=context[0].start,context[-1].end
         before=line['text'][a:b]
         after=line['text'][a:start]+region.after+line['text'][end:b]
         box=(min(w.box[0] for w in context),min(w.box[1] for w in context),max(w.box[2] for w in context),max(w.box[3] for w in context))
-        # A hand-adjusted box must not be silently replaced by OCR geometry.
-        if region.settings.get('box'):raise failure
+        if region.settings.get('box'):blocked()
         candidate=replace(region,before=before,after=after,box=box,words=context,
                           settings=dict(region.settings,_fit_mode='squeeze'))
-        try:
-            result,diagnostic,crops=render_region(image,candidate,protected)
+        fitted=attempt(candidate)
+        if fitted:
+            result,diagnostic,crops=fitted
             diagnostic['fit_context']={'before':before,'after':after,'words_per_side':count}
             return result,diagnostic,crops
-        except RenderBlocked as error:
-            if 'cannot fit safely' not in str(error):raise
-            failure=error
-    raise failure
+    blocked()
 
 
 def save_image(image, metadata, path, transaction, original_hash, rules_hash, eco=False, on_created=None):
@@ -595,15 +672,10 @@ def proposal(source, image, metadata, region_list, protected, root, ocr_executab
         if artifact_callback: artifact_callback(artifacts)
     prefix = ".icgf-"+transaction
     faces=scene_faces(image)
-    for index,region in enumerate(region_list):
-        if region.skipped:
-            continue
-        try:
-            current,diagnostic,crops = render_fitting_region(current,region,protected,caption_lines or [],region_list)
-        except RenderBlocked as error:
-            return {"transaction":transaction,"stage":None,"artifacts":artifacts,"diagnostics":diagnostics,
-                    "level":3,"verification":[],"trace":[],"blocked":{"region":index,"reason":str(error)}}
-        protected.append(diagnostic["affected"])
+    from .smart_fitting import render_plan
+    current,rendered,blocked=render_plan(image,region_list,protected,caption_lines or [])
+    for index,diagnostic,crops in rendered:
+        region=region_list[index]
         if any(overlaps(diagnostic["affected"],face) for face in faces):
             diagnostic["level"]=3
             diagnostic.setdefault("warnings",[]).append("A detected face overlaps this edit; preserve facial features and inspect the repair.")
@@ -621,6 +693,9 @@ def proposal(source, image, metadata, region_list, protected, root, ocr_executab
                 crop.save(output,format="PNG")
             hide(path)
             finished(entry,path)
+    if blocked:
+        return {"transaction":transaction,"stage":None,"artifacts":artifacts,"diagnostics":diagnostics,
+                "level":3,"verification":[],"trace":[],"blocked":blocked}
     if not diagnostics:
         return None
     extension = ".jpg" if metadata["format"] == "JPEG" else ".png"
@@ -629,14 +704,16 @@ def proposal(source, image, metadata, region_list, protected, root, ocr_executab
     save_image(current,metadata,stage,transaction,original_hash,rules_hash,eco,lambda:created(entry,stage))
     finished(entry,stage)
     verification = []
-    for region,diagnostic in [(region_list[d["index"]],d) for d in diagnostics]:
+    for region,diagnostic in [(region_list[i],d) for d in diagnostics for i in d.get('members',[d['index']])]:
         detected = ocr(current.crop(diagnostic["affected"]),ocr_executable,Path(root)/"environment/tessdata",eco,True,6)
         final_text = " ".join(line["text"] for line in detected)
         expected = region.after.casefold().split()
         passed = all(word.strip(".,!?;:") in final_text.casefold() for word in expected)
-        source_absent=not bool(re.search(r"(?<!\w)"+re.escape(region.before)+r"(?!\w)",final_text,re.I))
+        source_pattern=r"(?<!\w)"+re.escape(region.before)+r"(?!\w)"
+        allowed_sources=len(re.findall(source_pattern,diagnostic.get('line_fit',{}).get('after',''),re.I))
+        source_absent=len(re.findall(source_pattern,final_text,re.I))<=allowed_sources
         passed=passed and source_absent
-        verification.append({"region":diagnostic["index"],"replacement_confirmed":passed,"source_absent":source_absent})
+        verification.append({"region":next(i for i,r in enumerate(region_list) if r is region),"replacement_confirmed":passed,"source_absent":source_absent})
         if not passed:
             diagnostic["level"] = max(2,diagnostic["level"])
     return {"transaction":transaction,"stage":str(stage),"artifacts":artifacts,"diagnostics":diagnostics,

@@ -2,15 +2,24 @@
 @on break cancel
 
 
+rem PURPOSE:      This switches to a playlist provided as the first argument.  
+rem REQUIREMENTS: MUSIC_PLAYER must be set to WinAmp or PAFPlayer.
+
+
+
+
+
+
+
 rem Validate environment (once):
         iff "1" != "%VALIDATED_PLAYLIST_BAT%" then
                 rem Validate environment variables/ANSI:
                         if "1" != "%ANSI_COLORS_HAVE_BEEN_SET%" call validate-environment-variable ANSI_COLORS_HAVE_BEEN_SET
 
                 rem Validate scripts/utilities we may call:
-                        call validate-in-path print-message important less_important 
+                        call validate-in-path print-message important less_important MUSIC_PLAYER
                         iff     "%MUSIC_PLAYER%" == "WINAMP"    then
-                                call validate-in-path switch-winamp-to-playlist.bat
+                                call validate-in-path switch-winamp-to-playlist.bat winamp-playlist-randomize.bat next.bat
                         elseiff "%MUSIC_PLAYER%" == "PAFPlayer" then
                                 call validate-in-path PAFPlayer.bat
                         endiff
@@ -42,8 +51,9 @@ rem Actually switch to the playlist:
                 :Next_No
                 goto :END
         elseiff "%MUSIC_PLAYER%" == "PAFPlayer" then
-                call PAFPlayer.bat                 %PLAYLIST_TO_USE%
-                call PAFPlayer.bat                 randomize
+                call PAFPlayer.bat %PLAYLIST_TO_USE% --randomize
+        else
+                call error "MUSIC_PLAYER must be defined"
         endiff
 
 

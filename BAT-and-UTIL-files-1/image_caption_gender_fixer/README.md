@@ -565,3 +565,21 @@ I = Ignore and N = New substitution. Console review retains its displayed keys.
 Delete opens a confirmation for recycling the current SOURCE image; declining
 keeps it. F2 opens Rename with the current source filename prefilled and editable.
 Typing and Delete inside a caption or filename field remain normal editing.
+
+
+## Move/squeeze retries — 2026-10-29
+
+The initial render retains its mild fitting limits. Move/squeeze now starts a
+stronger search instead of repeating that initial fallback. One click first tries
+font sizes down to 65% of the current size and horizontal width down to 75%, then
+automatically escalates to 55% and 65% if necessary, with small local vertical
+alignment alternatives.
+It tries the changed text alone even when OCR spans or another nearby edit make
+borrowing context impossible. Other edited words remain protected. Text stays
+inside its original caption lane, and horizontal movement remains bounded.
+
+Review-crop padding no longer blocks neighboring edits; subsequent replacements
+protect the actual rendered text bounds. Stronger compression requires visual
+review. If fitting still fails, the popup reports the pass, variant count and
+limits, and says when OCR geometry or the prefilled wording needs editing.
+Nothing is approved automatically by Move/squeeze.

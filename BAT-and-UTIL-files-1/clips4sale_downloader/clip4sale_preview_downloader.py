@@ -6,7 +6,9 @@ Python 3.10+. See README.md for installation, examples, and site limitations.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager, nullcontext
 import ctypes
+import hashlib
 import html
 import io
 import json
@@ -41,18 +43,23 @@ CATEGORY_PREFIXES = {
     "cuckolding": "cuck",
     "chastity": "ch",
 }
-VERSION = "0.9.0"
+VERSION = "0.10.0"
+TOOL_ROOT = Path(__file__).resolve().parent
+CONFIG_ROOT = TOOL_ROOT / "config"
+CONFIG_PATH = CONFIG_ROOT / "clips4sale_downloader.json"
+PRIVATE_ROOT = TOOL_ROOT / "private"
 TEMP_PROFILE_ROOT = Path(tempfile.gettempdir()) / "clips4sale_downloader"
 DEFAULT_DATABASE_NAME = "clips4sale.db"
 APP_DATA_ROOT = Path(os.environ.get("APPDATA") or (Path.home() / "AppData" / "Roaming")) / "Clips4SaleDownloader"
 DEFAULT_PROFILE_DIR = APP_DATA_ROOT / "browser-profile"
 LEGACY_DEFAULT_PROFILE_DIR = TEMP_PROFILE_ROOT / "browser-profile"
-HISTORY_ROOT = APP_DATA_ROOT / "history"
+HISTORY_ROOT = PRIVATE_ROOT / "history"
 PRIVATE_DATABASE_PATH = HISTORY_ROOT / "clips4sale-downloads.db"
 PRIVATE_REPORT_ROOT = HISTORY_ROOT / "reports"
 DATABASE_BACKUP_ROOT = HISTORY_ROOT / "backups"
-# Import earlier shared ledgers once so moving history to AppData does not
-# forget already-downloaded clips. The old databases are read only.
+# Import earlier shared ledgers once so moving history into the portable tool
+# tree does not forget already-downloaded clips. The old databases are read only.
+LEGACY_APPDATA_DATABASE_PATH = APP_DATA_ROOT / "history" / "clips4sale-downloads.db"
 LEGACY_TEMP_DATABASE_PATH = TEMP_PROFILE_ROOT / "history" / "clips4sale-downloads.db"
 LEGACY_PRIVATE_DATA_ROOT = (Path(r"C:\BAT\private") if Path(r"C:\BAT\private").is_dir()
                             else Path(os.environ.get("APPDATA") or (Path.home() / "AppData" / "Roaming"))
@@ -75,6 +82,8 @@ VIDEO_PAUSE_RANGE = (0.40, 4.20)
 REUSED_VIDEO_PAUSE_RANGE = (1.00, 5.00)
 FIVE_VIDEO_PAUSE_RANGE = (1.20, 7.30)
 LONG_VIDEO_PAUSE_RANGE = (3.30, 13.70)
+DEFAULT_SHARED_PACING_RANGE = (0.65, 1.75)
+DEFAULT_IMAGE_HASH_DISTANCE = 18
 PROFILE_COPY_IGNORES = {
     "SingletonCookie", "SingletonLock", "SingletonSocket", "DevToolsActivePort",
     "LOCK", "lockfile", "Cache", "Code Cache", "GPUCache", "GrShaderCache",
@@ -92,6 +101,58 @@ QUALITY_SUFFIX = re.compile(rf"(?:\s*[-_–—|,:]\s*|\s+|\s*[\[(]){QUALITY_TOKE
 VIDEO_EXTENSIONS = {".mp4", ".webm", ".mov", ".m4v", ".wmv", ".avi", ".ogv"}
 IMAGE_EXTENSIONS = {".gif", ".jpg", ".jpeg", ".png", ".webp", ".avif"}
 EMOJI_RE = re.compile(r"[🌈📁📍✨📦✏❌⚠↩✅🧭🏷🎬🧪📥⏳🗃🧹♻🛟🔐🌐🔒🖥💾⚡🔁]\ufe0f?")
+
+DEFAULT_CONFIG = {
+    "schema_version": 1,
+    "browser": "chrome",
+    "scroll_delay": 2.0,
+    "stable_rounds": 8,
+    "max_scrolls": 2000,
+    "page_delay": 2.0,
+    "fallback_wait": 30.0,
+    "media_retries": DEFAULT_MEDIA_RETRIES,
+    "rescan_known_streak": RESCAN_KNOWN_STREAK,
+    "shared_pacing": {
+        "minimum_seconds": DEFAULT_SHARED_PACING_RANGE[0],
+        "maximum_seconds": DEFAULT_SHARED_PACING_RANGE[1],
+    },
+    "image_similarity_hamming": DEFAULT_IMAGE_HASH_DISTANCE,
+    "daily_doctor": True,
+    "completion_notification": True,
+    "category_prefixes": dict(CATEGORY_PREFIXES),
+}
+
+
+def _merged_config(data: Any) -> dict:
+    """Merge a portable JSON config with defaults while preserving new keys."""
+    result = json.loads(json.dumps(DEFAULT_CONFIG))
+    if not isinstance(data, dict):
+        return result
+    for key, value in data.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key].update(value)
+        else:
+            result[key] = value
+    return result
+
+
+def load_config(*, create: bool = False) -> dict:
+    """Read the public portable config; create it only for a real invocation."""
+    if CONFIG_PATH.is_file():
+        try:
+            return _merged_config(json.loads(CONFIG_PATH.read_text(encoding="utf-8")))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise DownloadError(f"Could not read portable config {CONFIG_PATH}: {exc}") from exc
+    config = _merged_config({})
+    if create:
+        CONFIG_ROOT.mkdir(parents=True, exist_ok=True)
+        try:
+            with CONFIG_PATH.open("x", encoding="utf-8") as stream:
+                json.dump(config, stream, indent=2, ensure_ascii=False)
+                stream.write("\n")
+        except FileExistsError:
+            return load_config(create=False)
+    return config
 
 
 def terminal_text(text: str, stream=None) -> str:
@@ -447,12 +508,126 @@ def random_delay(low: float, high: float) -> float:
     return round(random.uniform(low, high), 2)
 
 
+class SharedPacingGate:
+    """Reserve network-request slots across every process using the portable DB."""
+
+    def __init__(self, database: Path, minimum: float, maximum: float):
+        if minimum < 0 or maximum < minimum:
+            raise ValueError("Shared pacing requires 0 <= minimum <= maximum")
+        self.database = database
+        self.minimum = float(minimum)
+        self.maximum = float(maximum)
+
+    def reserve(self) -> float:
+        now = time.time()
+        connection = sqlite3.connect(str(self.database), timeout=60, isolation_level=None)
+        try:
+            connection.execute("PRAGMA busy_timeout=60000")
+            connection.execute(
+                "CREATE TABLE IF NOT EXISTS shared_pacing ("
+                "key TEXT PRIMARY KEY, reserved_at REAL NOT NULL, owner_pid INTEGER NOT NULL)"
+            )
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                "SELECT reserved_at FROM shared_pacing WHERE key='clips4sale-network'"
+            ).fetchone()
+            gap = random.uniform(self.minimum, self.maximum)
+            reserved = max(now, (float(row[0]) if row else 0.0) + gap)
+            connection.execute(
+                "INSERT INTO shared_pacing(key, reserved_at, owner_pid) VALUES('clips4sale-network', ?, ?) "
+                "ON CONFLICT(key) DO UPDATE SET reserved_at=excluded.reserved_at, owner_pid=excluded.owner_pid",
+                (reserved, os.getpid()),
+            )
+            connection.execute("COMMIT")
+            return max(0.0, reserved - time.time())
+        except BaseException:
+            try:
+                connection.execute("ROLLBACK")
+            except sqlite3.Error:
+                pass
+            raise
+        finally:
+            connection.close()
+
+
+class RunControls:
+    """Console P/Q controls that pause safely between transfers and clips."""
+
+    def __init__(self):
+        self.paused = threading.Event()
+        self.stop_requested = threading.Event()
+        self.stopped = threading.Event()
+        self._suspended = 0
+        self._lock = threading.Lock()
+        self._thread: threading.Thread | None = None
+
+    def start(self) -> bool:
+        if os.name != "nt" or not getattr(sys.stdin, "isatty", lambda: False)():
+            return False
+        try:
+            import msvcrt  # noqa: F401
+        except ImportError:
+            return False
+        self._thread = threading.Thread(target=self._listen, name="c4sdl-hotkeys", daemon=True)
+        self._thread.start()
+        return True
+
+    def _listen(self):
+        import msvcrt
+        while not self.stopped.is_set():
+            with self._lock:
+                suspended = self._suspended > 0
+            if suspended:
+                time.sleep(0.05)
+                continue
+            if not msvcrt.kbhit():
+                time.sleep(0.05)
+                continue
+            key = msvcrt.getwch().casefold()
+            if key == "p":
+                if self.paused.is_set():
+                    self.paused.clear()
+                else:
+                    self.paused.set()
+            elif key == "q":
+                self.stop_requested.set()
+
+    @contextmanager
+    def suspend_input(self):
+        with self._lock:
+            self._suspended += 1
+        try:
+            yield
+        finally:
+            with self._lock:
+                self._suspended = max(0, self._suspended - 1)
+
+    def checkpoint(self, panel, label: str = "next safe checkpoint") -> bool:
+        announced = False
+        while self.paused.is_set() and not self.stop_requested.is_set():
+            if not announced:
+                panel.log(f"⏸️ Paused at {label}. Press P to resume or Q to stop safely.")
+                announced = True
+            if hasattr(panel, "draw_status"):
+                panel.draw_status("⏸️ Paused — P resumes; Q stops after saved work")
+            time.sleep(0.1)
+        if announced and not self.stop_requested.is_set():
+            panel.log("▶️ Resumed.")
+        return not self.stop_requested.is_set()
+
+    def close(self):
+        self.stopped.set()
+        if self._thread and self._thread.is_alive():
+            self._thread.join(timeout=0.3)
+
+
 class DownloadPacer:
     """Share non-repeating scheduled delays across one job's browser/downloads."""
 
-    def __init__(self, panel: ProgressPanel, pump=None):
+    def __init__(self, panel: ProgressPanel, pump=None, shared_gate: SharedPacingGate | None = None):
         self.panel = panel
         self.pump = pump
+        self.shared_gate = shared_gate
         self.video_downloads = 0
         self.next_long_pause = random.randint(17, 27)
         self.last_wait_ticks: int | None = None
@@ -499,6 +674,15 @@ class DownloadPacer:
         seconds = self.choose_wait(seconds)
         if seconds > 0:
             page.wait_for_timeout(seconds * 1000)
+        return seconds
+
+    def shared_turn(self, label: str) -> float:
+        if self.shared_gate is None:
+            return 0.0
+        seconds = self.shared_gate.reserve()
+        if seconds > 0:
+            self.panel.log(f"🌐 Shared pacing: {seconds:.2f}s before {label}.")
+            self.panel.wait(seconds, self.pump)
         return seconds
 
     def video_downloaded(self):
@@ -568,6 +752,11 @@ class DownloadDatabase:
                 attempts INTEGER NOT NULL DEFAULT 0,
                 owner_pid INTEGER,
                 error TEXT,
+                sha256 TEXT,
+                content_hash TEXT,
+                verified_at TEXT,
+                mtime_ns INTEGER,
+                visual_hashes TEXT,
                 updated_at TEXT NOT NULL,
                 PRIMARY KEY (studio_id, clip_id, role, url),
                 FOREIGN KEY (studio_id, clip_id)
@@ -606,7 +795,36 @@ class DownloadDatabase:
             );
             CREATE INDEX IF NOT EXISTS run_history_scope_idx
                 ON run_history(scope_key, started_at DESC);
+            CREATE TABLE IF NOT EXISTS category_preferences (
+                category TEXT PRIMARY KEY,
+                keep_count INTEGER NOT NULL DEFAULT 0,
+                discard_count INTEGER NOT NULL DEFAULT 0,
+                updated_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS duplicate_decisions (
+                content_hash TEXT PRIMARY KEY,
+                preferred_category TEXT,
+                preferred_path TEXT,
+                decided_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS shared_pacing (
+                key TEXT PRIMARY KEY,
+                reserved_at REAL NOT NULL,
+                owner_pid INTEGER NOT NULL
+            );
             """
+        )
+        # Existing portable/AppData ledgers are upgraded in place. SQLite's
+        # ALTER TABLE retains all earlier rows and keeps migration idempotent.
+        existing_columns = {row[1] for row in self.connection.execute("PRAGMA table_info(media)")}
+        for name, declaration in {
+            "sha256": "TEXT", "content_hash": "TEXT", "verified_at": "TEXT",
+            "mtime_ns": "INTEGER", "visual_hashes": "TEXT",
+        }.items():
+            if name not in existing_columns:
+                self.connection.execute(f"ALTER TABLE media ADD COLUMN {name} {declaration}")
+        self.connection.execute(
+            "CREATE INDEX IF NOT EXISTS media_content_hash_idx ON media(content_hash, status)"
         )
 
     @staticmethod
@@ -753,6 +971,8 @@ class DownloadDatabase:
         errors = sum(len(item.get("errors") or []) for item in clips) + len(report.get("errors") or [])
         if report.get("dry_run") and report.get("completed"):
             status = "planned-with-errors" if errors else "planned"
+        elif report.get("safe_stop_requested"):
+            status = "paused"
         elif report.get("completed"):
             status = "complete-with-errors" if errors else "complete"
         else:
@@ -822,21 +1042,43 @@ class DownloadDatabase:
                             (row["updated_at"], row["studio_id"], row["clip_id"]))
                     imported += 1
             if "media" in tables:
-                columns = ("studio_id", "clip_id", "role", "url", "status", "path", "bytes",
-                           "duration", "width", "height", "attempts", "owner_pid", "error", "updated_at")
+                source_columns = {row[1] for row in legacy.execute("PRAGMA table_info(media)")}
+                columns = tuple(column for column in (
+                    "studio_id", "clip_id", "role", "url", "status", "path", "bytes",
+                    "duration", "width", "height", "attempts", "owner_pid", "error",
+                    "sha256", "content_hash", "verified_at", "mtime_ns", "visual_hashes", "updated_at"
+                ) if column in source_columns)
                 for row in legacy.execute(f"SELECT {', '.join(columns)} FROM media"):
                     values = tuple(row[column] for column in columns)
                     self.connection.execute(
                         f"INSERT OR IGNORE INTO media({', '.join(columns)}) VALUES({', '.join('?' for _ in columns)})",
                         values)
                     if row["status"] == "success":
+                        optional = {key: row[key] for key in
+                                    ("sha256", "content_hash", "verified_at", "mtime_ns", "visual_hashes")
+                                    if key in source_columns}
                         self.connection.execute(
                             """UPDATE media SET status='success', path=?, bytes=?, duration=?, width=?, height=?,
-                               attempts=?, owner_pid=NULL, error=NULL, updated_at=?
+                               attempts=?, owner_pid=NULL, error=NULL, sha256=COALESCE(?, sha256),
+                               content_hash=COALESCE(?, content_hash), verified_at=COALESCE(?, verified_at),
+                               mtime_ns=COALESCE(?, mtime_ns), visual_hashes=COALESCE(?, visual_hashes), updated_at=?
                                WHERE studio_id=? AND clip_id=? AND role=? AND url=? AND status!='success'""",
                             (row["path"], row["bytes"], row["duration"], row["width"], row["height"],
-                             row["attempts"], row["updated_at"], row["studio_id"], row["clip_id"],
+                             row["attempts"], optional.get("sha256"), optional.get("content_hash"),
+                             optional.get("verified_at"), optional.get("mtime_ns"), optional.get("visual_hashes"),
+                             row["updated_at"], row["studio_id"], row["clip_id"],
                              row["role"], row["url"]))
+                    imported += 1
+            if "category_preferences" in tables:
+                for row in legacy.execute("SELECT category, keep_count, discard_count, updated_at FROM category_preferences"):
+                    self.connection.execute(
+                        """INSERT INTO category_preferences(category, keep_count, discard_count, updated_at)
+                           VALUES(?, ?, ?, ?) ON CONFLICT(category) DO UPDATE SET
+                           keep_count=category_preferences.keep_count + excluded.keep_count,
+                           discard_count=category_preferences.discard_count + excluded.discard_count,
+                           updated_at=MAX(category_preferences.updated_at, excluded.updated_at)""",
+                        tuple(row),
+                    )
                     imported += 1
         finally:
             legacy.close()
@@ -912,11 +1154,63 @@ class DownloadDatabase:
             if not row["path"] or not Path(row["path"]).is_file():
                 return []
             item = {"path": row["path"], "role": row["role"], "bytes": row["bytes"]}
-            for key in ("duration", "width", "height"):
+            for key in ("duration", "width", "height", "sha256", "content_hash",
+                        "verified_at", "mtime_ns", "visual_hashes"):
                 if row[key] is not None:
                     item[key] = row[key]
             saved.append(item)
         return saved
+
+    def _verify_row(self, row: sqlite3.Row | dict, ffprobe: str, ffmpeg: str) -> dict | None:
+        """Verify bytes and decodability, then persist portable hashes/manifest data."""
+        path = Path(str(row["path"] or ""))
+        try:
+            info = verify_saved_file(path, str(row["role"] or ""), ffprobe, ffmpeg)
+        except Exception as exc:
+            self.connection.execute(
+                """UPDATE media SET status='failed', owner_pid=NULL, error=?, updated_at=?
+                   WHERE studio_id=? AND clip_id=? AND role=? AND url=?""",
+                (f"Verification failed: {exc}", self._now(), row["studio_id"], row["clip_id"],
+                 row["role"], row["url"]),
+            )
+            self.connection.execute(
+                "UPDATE clips SET status='failed', updated_at=? WHERE studio_id=? AND clip_id=?",
+                (self._now(), row["studio_id"], row["clip_id"]),
+            )
+            return None
+        self.connection.execute(
+            """UPDATE media SET status='success', path=?, bytes=?, duration=?, width=?, height=?,
+                       sha256=?, content_hash=?, verified_at=?, mtime_ns=?, visual_hashes=?,
+                       owner_pid=NULL, error=NULL, updated_at=?
+               WHERE studio_id=? AND clip_id=? AND role=? AND url=?""",
+            (str(path), info.get("bytes"), info.get("duration"), info.get("width"),
+             info.get("height"), info.get("sha256"), info.get("content_hash"),
+             info.get("verified_at"), info.get("mtime_ns"), info.get("visual_hashes_json"),
+             self._now(), row["studio_id"], row["clip_id"], row["role"], row["url"]),
+        )
+        return {"path": str(path), "role": row["role"], **{
+            key: value for key, value in info.items() if key != "visual_hashes_json" and value is not None
+        }}
+
+    def verified_completed_media(self, clip: Clip, ffprobe: str, ffmpeg: str) -> list[dict]:
+        """Return a complete clip only after every saved file passes verification."""
+        clip_row = self.connection.execute(
+            "SELECT status FROM clips WHERE studio_id=? AND clip_id=?",
+            (clip.studio_id, clip.id),
+        ).fetchone()
+        if not clip_row or clip_row["status"] != "complete":
+            return []
+        rows = self.connection.execute(
+            "SELECT * FROM media WHERE studio_id=? AND clip_id=? AND status='success' "
+            "ORDER BY role, updated_at", (clip.studio_id, clip.id),
+        ).fetchall()
+        verified = []
+        for row in rows:
+            saved = self._verify_row(row, ffprobe, ffmpeg)
+            if not saved:
+                return []
+            verified.append(saved)
+        return verified
 
     def upsert_clip(self, clip: Clip, category: str = "", filename_base: str = ""):
         now = self._now()
@@ -1023,10 +1317,82 @@ class DownloadDatabase:
     def record_success(self, clip: Clip, media: Media, saved: dict):
         self.connection.execute(
             """UPDATE media SET status='success', path=?, bytes=?, duration=?, width=?, height=?,
+                               sha256=?, content_hash=?, verified_at=?, mtime_ns=?, visual_hashes=?,
                                owner_pid=NULL, error=NULL, updated_at=?
                WHERE studio_id=? AND clip_id=? AND role=? AND url=?""",
             (saved["path"], saved.get("bytes"), saved.get("duration"), saved.get("width"),
-             saved.get("height"), self._now(), clip.studio_id, clip.id, media.role, media.url),
+             saved.get("height"), saved.get("sha256"), saved.get("content_hash"),
+             saved.get("verified_at"), saved.get("mtime_ns"), saved.get("visual_hashes_json"),
+             self._now(), clip.studio_id, clip.id, media.role, media.url),
+        )
+
+    def verified_successful_media(self, clip: Clip, media: Media, ffprobe: str, ffmpeg: str) -> dict | None:
+        row = self.connection.execute(
+            "SELECT * FROM media WHERE studio_id=? AND clip_id=? AND role=? AND url=?",
+            (clip.studio_id, clip.id, media.role, media.url),
+        ).fetchone()
+        if not row or row["status"] != "success" or not row["path"]:
+            return None
+        return self._verify_row(row, ffprobe, ffmpeg)
+
+    def duplicate_candidates(self, content_hash: str) -> list[dict]:
+        rows = self.connection.execute(
+            """SELECT m.*, c.category FROM media m
+               LEFT JOIN clips c ON c.studio_id=m.studio_id AND c.clip_id=m.clip_id
+               WHERE m.status='success' AND m.content_hash=? AND m.path IS NOT NULL
+               ORDER BY m.updated_at""", (content_hash,),
+        ).fetchall()
+        unique: dict[str, dict] = {}
+        for row in rows:
+            candidate = dict(row)
+            path = Path(str(candidate.get("path") or ""))
+            if not path.is_file():
+                continue
+            key = str(path.resolve()).casefold()
+            if key not in unique:
+                unique[key] = candidate
+        return list(unique.values())
+
+    def category_preference(self, category: str) -> int:
+        row = self.connection.execute(
+            "SELECT keep_count, discard_count FROM category_preferences WHERE category=?",
+            (str(category or ""),),
+        ).fetchone()
+        return (int(row["keep_count"]) - int(row["discard_count"])) if row else 0
+
+    def record_duplicate_choice(self, content_hash: str, keep: dict, discarded: list[dict]):
+        now = self._now()
+        keep_category = str(keep.get("category") or "")
+        with self.connection:
+            self.connection.execute("BEGIN IMMEDIATE")
+            if keep_category:
+                self.connection.execute(
+                    """INSERT INTO category_preferences(category, keep_count, discard_count, updated_at)
+                       VALUES(?, 1, 0, ?) ON CONFLICT(category) DO UPDATE SET
+                       keep_count=keep_count + 1, updated_at=excluded.updated_at""",
+                    (keep_category, now),
+                )
+            for item in discarded:
+                category = str(item.get("category") or "")
+                if category:
+                    self.connection.execute(
+                        """INSERT INTO category_preferences(category, keep_count, discard_count, updated_at)
+                           VALUES(?, 0, 1, ?) ON CONFLICT(category) DO UPDATE SET
+                           discard_count=discard_count + 1, updated_at=excluded.updated_at""",
+                        (category, now),
+                    )
+            self.connection.execute(
+                """INSERT INTO duplicate_decisions(content_hash, preferred_category, preferred_path, decided_at)
+                   VALUES(?, ?, ?, ?) ON CONFLICT(content_hash) DO UPDATE SET
+                   preferred_category=excluded.preferred_category,
+                   preferred_path=excluded.preferred_path, decided_at=excluded.decided_at""",
+                (content_hash, keep_category or None, keep["path"], now),
+            )
+
+    def relink_duplicate_path(self, content_hash: str, old_path: str, keep_path: str):
+        self.connection.execute(
+            "UPDATE media SET path=?, updated_at=? WHERE content_hash=? AND path=?",
+            (keep_path, self._now(), content_hash, old_path),
         )
 
     def record_failure(self, clip: Clip, media: Media, error: str, *, retrying: bool = False):
@@ -1292,14 +1658,17 @@ def media_for_download(assets: list[Media]) -> list[Media]:
     return unique
 
 
-def old_variant_cleanup_plan(ledger: DownloadDatabase, output: Path) -> list[dict]:
+def old_variant_cleanup_plan(ledger: DownloadDatabase, output: Path,
+                             max_hash_distance: int | None = None) -> list[dict]:
     """Find lower-quality saved stills that belong to the same site image family.
 
     Separate source images remain separate groups. GIF/video animations are not
     queried, so the cleanup can never mistake an animation for a still variant.
     """
     output = output.expanduser().resolve()
-    families: dict[tuple[str, str, str], dict[str, dict]] = {}
+    if max_hash_distance is None:
+        max_hash_distance = int(load_config().get("image_similarity_hamming", DEFAULT_IMAGE_HASH_DISTANCE))
+    by_clip: dict[tuple[str, str], dict[str, dict]] = {}
     for row in ledger.successful_still_media():
         path = Path(str(row.get("path") or "")).expanduser()
         try:
@@ -1313,29 +1682,66 @@ def old_variant_cleanup_plan(ledger: DownloadDatabase, output: Path) -> list[dic
             continue
         media = Media(str(row.get("url") or ""), str(row.get("role") or "image"))
         family = _still_image_family(media)
-        key = (str(row["studio_id"]), str(row["clip_id"]), family)
+        key = (str(row["studio_id"]), str(row["clip_id"]))
         candidate = dict(row)
         candidate["path"] = str(resolved)
-        candidate["quality"] = (*_image_quality(media, 0), resolved.stat().st_size)
+        candidate["family"] = family
+        try:
+            candidate["visual_hashes"] = image_visual_hashes(resolved)
+            from PIL import Image
+            with Image.open(resolved) as image:
+                actual_area = int(image.width) * int(image.height)
+        except Exception:
+            candidate["visual_hashes"] = {}
+            actual_area = int(row.get("width") or 0) * int(row.get("height") or 0)
+        candidate["quality"] = (actual_area, *_image_quality(media, 0), resolved.stat().st_size)
         # A legacy ledger can mention one physical file more than once. Treat
         # the file as one candidate so it can never be recycled as its own duplicate.
-        existing = families.setdefault(key, {}).get(str(resolved).casefold())
+        existing = by_clip.setdefault(key, {}).get(str(resolved).casefold())
         if not existing or candidate["quality"] > existing["quality"]:
-            families[key][str(resolved).casefold()] = candidate
+            by_clip[key][str(resolved).casefold()] = candidate
 
     plan = []
-    for key, paths in families.items():
+    for key, paths in by_clip.items():
         candidates = list(paths.values())
         if len(candidates) < 2:
             continue
-        ranked = sorted(candidates, key=lambda item: item["quality"], reverse=True)
-        plan.append({
-            "studio_id": key[0],
-            "clip_id": key[1],
-            "family": key[2],
-            "keep": ranked[0],
-            "recycle": ranked[1:],
-        })
+        parents = list(range(len(candidates)))
+
+        def root(index):
+            while parents[index] != index:
+                parents[index] = parents[parents[index]]
+                index = parents[index]
+            return index
+
+        def union(first, second):
+            left, right = root(first), root(second)
+            if left != right:
+                parents[right] = left
+
+        for first in range(len(candidates)):
+            for second in range(first + 1, len(candidates)):
+                left, right = candidates[first], candidates[second]
+                same_url_design = left["family"] == right["family"]
+                distance = visual_hash_distance(left["visual_hashes"], right["visual_hashes"])
+                if same_url_design or (distance is not None and distance <= max_hash_distance):
+                    union(first, second)
+        groups: dict[int, list[dict]] = {}
+        for index, candidate in enumerate(candidates):
+            groups.setdefault(root(index), []).append(candidate)
+        for group in groups.values():
+            if len(group) < 2:
+                continue
+            ranked = sorted(group, key=lambda item: item["quality"], reverse=True)
+            plan.append({
+                "studio_id": key[0],
+                "clip_id": key[1],
+                "family": ranked[0]["family"],
+                "matched_by": "crop-aware visual hash" if len({item["family"] for item in group}) > 1
+                              else "Clips4Sale image family",
+                "keep": ranked[0],
+                "recycle": ranked[1:],
+            })
     return sorted(plan, key=lambda item: (item["studio_id"], item["clip_id"], item["family"]))
 
 
@@ -1754,6 +2160,8 @@ def longest_consecutive_cached(clip_ids: list[str], cached_ids: set[str]) -> int
 
 def goto(page, url: str, headless: bool, pause: bool = False, pacer: DownloadPacer | None = None):
     def navigate():
+        if pacer is not None:
+            pacer.shared_turn("page request")
         try:
             page.bring_to_front()
         except Exception:
@@ -1902,6 +2310,7 @@ def discover(page, url: str, args, panel: ProgressPanel,
                                         "Retry or increase --stable-rounds/--scroll-delay; no media saved.")
                 break
             # Move through the viewport to trigger lazy content, then observe the bottom.
+            pacer.shared_turn("listing scroll")
             page.evaluate("window.scrollBy(0, Math.max(500, window.innerHeight * 0.85))")
             scroll_steps += 1
             pacer.browser_pause(page, args.scroll_delay)
@@ -1985,6 +2394,256 @@ def probe_video(path: Path, ffprobe: str) -> dict:
             "height": max(s.get("height", 0) for s in streams)}
 
 
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _dhash(image, size: int = 16) -> str:
+    from PIL import Image
+    resampling = getattr(Image, "Resampling", Image).LANCZOS
+    gray = image.convert("L").resize((size + 1, size), resampling)
+    pixels = list(gray.getdata())
+    bits = 0
+    for y in range(size):
+        offset = y * (size + 1)
+        for x in range(size):
+            bits = (bits << 1) | int(pixels[offset + x] > pixels[offset + x + 1])
+    return f"{bits:0{size * size // 4}x}"
+
+
+def image_visual_hashes(path: Path) -> dict[str, str]:
+    """Create crop-aware hashes so 4:3 crops can match their 16:9 source."""
+    from PIL import Image
+    with Image.open(path) as source:
+        source.seek(0)
+        image = source.convert("RGB")
+        width, height = image.size
+        if width <= 0 or height <= 0:
+            raise DownloadError(f"Invalid image dimensions: {path.name}")
+        hashes: dict[str, str] = {"full@0.50": _dhash(image)}
+        ratios = {"16x9": 16 / 9, "4x3": 4 / 3, "1x1": 1.0}
+        for label, ratio in ratios.items():
+            current = width / height
+            for align in (0.0, 0.25, 0.5, 0.75, 1.0):
+                if current > ratio:
+                    crop_width = max(1, round(height * ratio))
+                    left = round((width - crop_width) * align)
+                    box = (left, 0, left + crop_width, height)
+                elif current < ratio:
+                    crop_height = max(1, round(width / ratio))
+                    top = round((height - crop_height) * align)
+                    box = (0, top, width, top + crop_height)
+                else:
+                    box = (0, 0, width, height)
+                hashes[f"{label}@{align:.2f}"] = _dhash(image.crop(box))
+        return hashes
+
+
+def visual_hash_distance(first: dict[str, str], second: dict[str, str]) -> int | None:
+    distances = []
+    for first_key, first_hash in first.items():
+        first_family = first_key.split("@", 1)[0]
+        for second_key, second_hash in second.items():
+            if second_key.split("@", 1)[0] != first_family or len(first_hash) != len(second_hash):
+                continue
+            try:
+                distances.append((int(first_hash, 16) ^ int(second_hash, 16)).bit_count())
+            except ValueError:
+                continue
+    return min(distances) if distances else None
+
+
+def _video_content_hash(path: Path, ffmpeg: str, fallback_sha256: str) -> str:
+    """Hash copied media streams so metadata-only differences still deduplicate."""
+    try:
+        result = subprocess.run(
+            [ffmpeg, "-hide_banner", "-loglevel", "error", "-nostdin", "-i", str(path),
+             "-map", "0:v?", "-map", "0:a?", "-c", "copy", "-f", "hash", "-hash", "sha256", "-"],
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            timeout=180, check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return "streams:" + fallback_sha256
+    match = re.search(r"SHA256=([0-9a-f]{64})", result.stdout, re.I)
+    return "streams:" + (match.group(1).lower() if result.returncode == 0 and match else fallback_sha256)
+
+
+def verify_saved_file(path: Path, role: str, ffprobe: str, ffmpeg: str) -> dict:
+    """Verify every saved file and produce the durable portable manifest fields."""
+    if not path.is_file():
+        raise DownloadError(f"Saved file is missing: {path}")
+    stat = path.stat()
+    if stat.st_size <= 0:
+        raise DownloadError(f"Saved file is empty: {path.name}")
+    digest = sha256_file(path)
+    result: dict[str, Any] = {
+        "bytes": stat.st_size,
+        "sha256": digest,
+        "verified_at": datetime.now().isoformat(timespec="seconds"),
+        "mtime_ns": stat.st_mtime_ns,
+    }
+    extension = path.suffix.casefold()
+    if extension in VIDEO_EXTENSIONS:
+        result.update(probe_video(path, ffprobe))
+        result["content_hash"] = _video_content_hash(path, ffmpeg, digest)
+    elif extension in IMAGE_EXTENSIONS:
+        try:
+            from PIL import Image
+            with Image.open(path) as image:
+                image.verify()
+            with Image.open(path) as image:
+                result["width"], result["height"] = image.size
+        except Exception as exc:
+            raise DownloadError(f"Pillow could not verify {path.name}: {exc}") from exc
+        result["content_hash"] = "sha256:" + digest
+        if extension != ".gif":
+            hashes = image_visual_hashes(path)
+            result["visual_hashes"] = hashes
+            result["visual_hashes_json"] = json.dumps(hashes, sort_keys=True)
+    else:
+        raise DownloadError(f"Unsupported saved media type: {path.name}")
+    return result
+
+
+def _duplicate_default(ledger: DownloadDatabase, candidates: list[dict]) -> int:
+    ranked = []
+    for index, item in enumerate(candidates):
+        preference = ledger.category_preference(str(item.get("category") or ""))
+        area = int(item.get("width") or 0) * int(item.get("height") or 0)
+        ranked.append(((preference, area, int(item.get("bytes") or 0), -index), index))
+    return max(ranked)[1]
+
+
+def choose_duplicate_keep(candidates: list[dict], default_index: int, controls: RunControls | None = None,
+                          input_fn=input, *, heading: str = "Exact duplicate content found") -> int | None:
+    """Choose an exact-duplicate file with arrows; Enter accepts the learned default."""
+    if len(candidates) < 2:
+        return 0 if candidates else None
+    print(terminal_text(f"\n♻️ {heading}. Choose the copy to keep:"))
+    interactive = getattr(sys.stdin, "isatty", lambda: False)()
+    if not interactive and input_fn is input:
+        print("Non-interactive run: preserving every copy.")
+        return None
+    guard = controls.suspend_input() if controls else nullcontext()
+    with guard:
+        if os.name == "nt" and interactive and input_fn is input:
+            import msvcrt
+            selected = default_index
+            first = True
+            while True:
+                if not first:
+                    sys.stdout.write(f"\x1b[{len(candidates)}A")
+                first = False
+                for index, item in enumerate(candidates):
+                    pointer = "▶" if index == selected else " "
+                    default = " (learned default)" if index == default_index else ""
+                    category = f" [{item.get('category')}]" if item.get("category") else ""
+                    sys.stdout.write(terminal_text(
+                        f"\r\x1b[2K {pointer} {Path(item['path']).name}{category}{default}\n"
+                    ))
+                sys.stdout.flush()
+                key = msvcrt.getwch()
+                if key in ("\r", "\n"):
+                    return selected
+                if key in ("\x00", "\xe0"):
+                    arrow = msvcrt.getwch()
+                    if arrow == "H":
+                        selected = (selected - 1) % len(candidates)
+                    elif arrow == "P":
+                        selected = (selected + 1) % len(candidates)
+                elif key == "\x1b":
+                    return None
+        for index, item in enumerate(candidates, 1):
+            default = " [default]" if index - 1 == default_index else ""
+            print(f"  [{index}] {item['path']}{default}")
+        try:
+            answer = input_fn(f"Keep which file? [Enter={default_index + 1}; 0=keep all]: ").strip()
+        except EOFError:
+            return None
+        if not answer:
+            return default_index
+        if answer.isdigit() and 1 <= int(answer) <= len(candidates):
+            return int(answer) - 1
+        return None
+
+
+def resolve_exact_duplicates(ledger: DownloadDatabase, saved: dict, panel,
+                             controls: RunControls | None = None) -> dict:
+    content_hash = str(saved.get("content_hash") or "")
+    if not content_hash:
+        return saved
+    candidates = ledger.duplicate_candidates(content_hash)
+    if len(candidates) < 2:
+        return saved
+    selected = choose_duplicate_keep(candidates, _duplicate_default(ledger, candidates), controls)
+    if selected is None:
+        panel.log("♻️ Exact duplicates preserved; no copy was selected for recycling.")
+        return saved
+    try:
+        from send2trash import send2trash
+    except ImportError as exc:
+        raise DownloadError("Duplicate cleanup requires send2trash so deletion is always recoverable.") from exc
+    keep = candidates[selected]
+    discarded = []
+    for index, item in enumerate(candidates):
+        if index == selected:
+            continue
+        path = Path(item["path"])
+        try:
+            send2trash(str(path))
+        except Exception as exc:
+            panel.log(f"⚠️ Duplicate retained because Recycle Bin failed: {path}: {exc}")
+            continue
+        ledger.relink_duplicate_path(content_hash, item["path"], keep["path"])
+        discarded.append(item)
+        panel.log(f"♻️ Recycled exact duplicate: {path.name}; kept {Path(keep['path']).name}")
+    if discarded:
+        ledger.record_duplicate_choice(content_hash, keep, discarded)
+    result = dict(saved)
+    result["path"] = keep["path"]
+    result["bytes"] = keep.get("bytes") or Path(keep["path"]).stat().st_size
+    return result
+
+
+def resolve_clip_image_variants(ledger: DownloadDatabase, output: Path, clip: Clip, panel,
+                                controls: RunControls | None = None) -> list[str]:
+    """Offer crop-aware same-clip image groups immediately after verification."""
+    groups = [group for group in old_variant_cleanup_plan(ledger, output)
+              if group["studio_id"] == clip.studio_id and group["clip_id"] == clip.id]
+    recycled: list[str] = []
+    for group in groups:
+        candidates = [group["keep"], *group["recycle"]]
+        selected = choose_duplicate_keep(
+            candidates, 0, controls,
+            heading=f"Same image detected by {group.get('matched_by', 'visual comparison')}",
+        )
+        if selected is None:
+            panel.log("♻️ Similar image variants preserved; no copy was selected for recycling.")
+            continue
+        try:
+            from send2trash import send2trash
+        except ImportError as exc:
+            raise DownloadError("Image-variant cleanup requires send2trash so deletion is always recoverable.") from exc
+        keep = candidates[selected]
+        for index, item in enumerate(candidates):
+            if index == selected:
+                continue
+            path = Path(item["path"])
+            try:
+                send2trash(str(path))
+                ledger.mark_media_recycled(item)
+                recycled.append(str(path))
+                panel.log(f"♻️ Recycled lower-priority same-image variant: {path.name}; "
+                          f"kept {Path(keep['path']).name}")
+            except Exception as exc:
+                panel.log(f"⚠️ Similar image retained because Recycle Bin failed: {path}: {exc}")
+    return recycled
+
+
 def file_extension(url: str, content_type: str) -> str:
     mime = content_type.split(";", 1)[0].strip().lower()
     types = {"video/mp4": ".mp4", "video/webm": ".webm", "video/quicktime": ".mov",
@@ -2027,14 +2686,15 @@ def tag_video_partial(partial: Path, extension: str, category: str, ffmpeg: str,
 
 def download_media(session, media: Media, output: Path, stem: str, referer: str,
                    panel: ProgressPanel, *, video_category: str = "", ffmpeg: str = "ffmpeg",
-                   ffprobe: str = "ffprobe") -> Path:
+                   ffprobe: str = "ffprobe", pacer: DownloadPacer | None = None) -> Path:
     """Try the best still first, falling back only when its URL is gone."""
     candidates = (media.url, *media.alternate_urls)
     for index, url in enumerate(candidates):
         candidate = Media(url, media.role)
         try:
             return _download_media_one(session, candidate, output, stem, referer, panel,
-                                       video_category=video_category, ffmpeg=ffmpeg, ffprobe=ffprobe)
+                                       video_category=video_category, ffmpeg=ffmpeg, ffprobe=ffprobe,
+                                       pacer=pacer)
         except Exception as exc:
             status = getattr(getattr(exc, "response", None), "status_code", None)
             if status not in (404, 410) or index + 1 >= len(candidates):
@@ -2046,7 +2706,7 @@ def download_media(session, media: Media, output: Path, stem: str, referer: str,
 
 def _download_media_one(session, media: Media, output: Path, stem: str, referer: str,
                         panel: ProgressPanel, *, video_category: str = "", ffmpeg: str = "ffmpeg",
-                        ffprobe: str = "ffprobe") -> Path:
+                        ffprobe: str = "ffprobe", pacer: DownloadPacer | None = None) -> Path:
     # Stream in bounded chunks. Exclusive file creation prevents overwrite races.
     hinted_ext = Path(unquote(urlsplit(media.url).path)).suffix.lower()
     if hinted_ext == ".jpeg":
@@ -2058,6 +2718,8 @@ def _download_media_one(session, media: Media, output: Path, stem: str, referer:
     headers = {"Referer": referer}
     if resume_from:
         headers["Range"] = f"bytes={resume_from}-"
+    if pacer is not None:
+        pacer.shared_turn("media request")
     with session.get(media.url, headers=headers, stream=True, timeout=(20, 60)) as response:
         if response.status_code in (401, 403, 429):
             raise SiteBlocked(f"Media returned HTTP {response.status_code}; stopping this run.")
@@ -2728,7 +3390,7 @@ def retry_ids_from_source(source: Path) -> tuple[set[tuple[str, str]], str | Non
 
 
 def private_database_path() -> Path:
-    """Return the shared cache/history ledger under the user's AppData folder."""
+    """Return the portable private ledger beside the downloader."""
     HISTORY_ROOT.mkdir(parents=True, exist_ok=True)
     return PRIVATE_DATABASE_PATH
 
@@ -2824,6 +3486,77 @@ def print_history(limit: int = 20, database: Path | None = None):
         print(f"   {row.get('destination') or '(no destination recorded)'}")
 
 
+def run_doctor(config: dict, args, output: Path, *, force: bool = False) -> dict:
+    """Run portable health checks once per local day, or whenever forced."""
+    database = private_database_path()
+    ledger = DownloadDatabase(database)
+    today = datetime.now().date().isoformat()
+    try:
+        if not force and config.get("daily_doctor", True) and ledger.metadata("last-doctor-date") == today:
+            return {"date": today, "skipped": True, "reason": "already checked today"}
+        if not force and not config.get("daily_doctor", True):
+            return {"date": today, "skipped": True, "reason": "disabled in config"}
+        checks: list[dict] = []
+
+        def add(name: str, ok: bool, detail: str):
+            checks.append({"name": name, "ok": bool(ok), "detail": detail})
+
+        ffprobe_path = shutil.which(getattr(args, "ffprobe", "ffprobe"))
+        ffmpeg_path = shutil.which(getattr(args, "ffmpeg", "ffmpeg"))
+        add("ffprobe", bool(ffprobe_path), ffprobe_path or "not found")
+        add("ffmpeg", bool(ffmpeg_path), ffmpeg_path or "not found")
+        try:
+            import playwright.sync_api  # noqa: F401
+            add("Playwright", True, "Python package available")
+        except ImportError as exc:
+            add("Playwright", False, str(exc))
+        try:
+            import PIL
+            add("Pillow", True, getattr(PIL, "__version__", "available"))
+        except ImportError as exc:
+            add("Pillow", False, str(exc))
+        try:
+            import send2trash  # noqa: F401
+            add("Recycle Bin", True, "send2trash available")
+        except ImportError as exc:
+            add("Recycle Bin", False, str(exc))
+        browser = browser_executable_for(args)
+        add("browser", bool(browser) or args.browser == "chromium",
+            str(browser) if browser else f"{args.browser} executable checked by Playwright at launch")
+        for label, folder in (("config folder", CONFIG_ROOT), ("private history", HISTORY_ROOT),
+                              ("destination", output)):
+            try:
+                folder.mkdir(parents=True, exist_ok=True)
+                writable = os.access(folder, os.W_OK)
+            except OSError as exc:
+                writable = False
+                detail = str(exc)
+            else:
+                detail = str(folder)
+            add(label, writable, detail)
+        try:
+            quick = ledger.connection.execute("PRAGMA quick_check").fetchone()
+            add("history database", bool(quick and str(quick[0]).casefold() == "ok"),
+                str(quick[0] if quick else "no result"))
+        except sqlite3.Error as exc:
+            add("history database", False, str(exc))
+        try:
+            free = shutil.disk_usage(output).free
+            add("free disk space", free >= 512 * 1024 * 1024, f"{free / 1073741824:.1f} GiB free")
+        except OSError as exc:
+            add("free disk space", False, str(exc))
+        summary = {"date": today, "skipped": False, "ok": all(item["ok"] for item in checks),
+                   "checks": checks}
+        ledger.set_metadata(**{"last-doctor-date": today, "last-doctor-summary": summary})
+        print(terminal_text(f"\n🩺 Daily doctor — {today}"))
+        for item in checks:
+            icon = "✅" if item["ok"] else "⚠️"
+            print(terminal_text(f"  {icon} {item['name']}: {item['detail']}"))
+        return summary
+    finally:
+        ledger.close()
+
+
 def notify_completion(output: Path, status: int) -> bool:
     """Show a topmost Windows completion window so background runs are visible."""
     if os.name != "nt":
@@ -2870,7 +3603,8 @@ def run(args, output: Path, ffprobe: str) -> int:
           file=sys.stderr, flush=True)
     legacy_databases = [output / DEFAULT_DATABASE_NAME]
     if ledger.path.resolve() == PRIVATE_DATABASE_PATH.resolve():
-        legacy_databases[0:0] = [LEGACY_TEMP_DATABASE_PATH, LEGACY_PRIVATE_DATABASE_PATH]
+        legacy_databases[0:0] = [LEGACY_APPDATA_DATABASE_PATH, LEGACY_TEMP_DATABASE_PATH,
+                                 LEGACY_PRIVATE_DATABASE_PATH]
     imported_legacy: list[str] = []
     for legacy_database in dict.fromkeys(path.expanduser() for path in legacy_databases):
         if not legacy_database.is_file() or legacy_database.resolve() == ledger.path.resolve():
@@ -2915,6 +3649,17 @@ def run(args, output: Path, ffprobe: str) -> int:
         report["legacy_databases_imported"] = imported_legacy
     if getattr(args, "clean_old_variants", False):
         report["old_variant_cleanup"] = clean_old_variants(ledger, output)
+
+    verified_clip_cache: dict[tuple[str, str], list[dict]] = {}
+
+    def completed_media(clip: Clip) -> list[dict]:
+        key = (clip.studio_id, clip.id)
+        if key not in verified_clip_cache:
+            verified_clip_cache[key] = ledger.verified_completed_media(
+                clip, ffprobe, ffmpeg or getattr(args, "ffmpeg", "ffmpeg")
+            )
+        return verified_clip_cache[key]
+
     ledger.set_metadata(listing=args.url, destination=str(output))
     scope = listing_scope(args.url)
     prior_scope = ledger.previous_scope_activity(scope)
@@ -2937,7 +3682,7 @@ def run(args, output: Path, ffprobe: str) -> int:
         prior_clips, prior_studio, prior_category = existing_listing
         complete_scope_clips, _ = deduplicate(prior_clips)
         cache_is_complete = bool(complete_scope_clips) and all(
-            ledger.completed_media(clip) for clip in complete_scope_clips
+            completed_media(clip) for clip in complete_scope_clips
         )
         if cache_is_complete and not args.refresh_listing:
             completion = ledger.completed_scope_activity(scope) or prior_scope or cache_info or {}
@@ -2986,7 +3731,7 @@ def run(args, output: Path, ffprobe: str) -> int:
     if cached_listing and not args.dry_run:
         cached_clips, cached_studio, cached_category = cached_listing
         selected, duplicates, failed_ids = prepare_selection(ledger, args, cached_clips)
-        pending = [clip for clip in selected if not ledger.completed_media(clip)]
+        pending = [clip for clip in selected if not completed_media(clip)]
         if not pending:
             report.update(
                 discovery_source="database-cache",
@@ -3004,7 +3749,7 @@ def run(args, output: Path, ffprobe: str) -> int:
             panel.log(f"⚡ Cached filelist is complete; no browser startup required ({len(selected)} clips already downloaded).")
             panel.set_total(len(selected))
             for index, clip in enumerate(selected):
-                completed = ledger.completed_media(clip)
+                completed = completed_media(clip)
                 entry = {"clip_id": clip.id, "url": clip.url, "title": clip.title,
                          "quality": quality_score(clip.raw), "files": completed,
                          "errors": [], "resumed": True, "skipped": "already-complete"}
@@ -3029,6 +3774,7 @@ def run(args, output: Path, ffprobe: str) -> int:
     browser = None
     context = None
     page = None
+    controls = None
     last_browser_url = args.url
     try:
         with sync_playwright() as playwright:
@@ -3040,7 +3786,15 @@ def run(args, output: Path, ffprobe: str) -> int:
                 page = run_page(context)
                 # One delay history covers browser settling, discovery, and
                 # download pacing. Each run starts with its own history.
-                pacer = DownloadPacer(panel)
+                shared_gate = SharedPacingGate(
+                    ledger.path,
+                    getattr(args, "shared_pacing_min", DEFAULT_SHARED_PACING_RANGE[0]),
+                    getattr(args, "shared_pacing_max", DEFAULT_SHARED_PACING_RANGE[1]),
+                )
+                pacer = DownloadPacer(panel, shared_gate=shared_gate)
+                controls = RunControls()
+                if controls.start():
+                    panel.log("⌨️ Controls: P pauses/resumes at safe checkpoints; Q stops after saved work.")
                 # Pacing is deliberately independent of the browser driver.
                 # A closed/unstable page must not abort an otherwise resumable
                 # download merely because the next delay is being displayed.
@@ -3084,6 +3838,10 @@ def run(args, output: Path, ffprobe: str) -> int:
                 panel.log(f"🏷️ Filename prefix: {studio}" + (f" - {category}" if category else ""))
                 panel.set_total(len(selected))
                 for index, clip in enumerate(selected):
+                    if not controls.checkpoint(panel, "between clips"):
+                        report["safe_stop_requested"] = True
+                        panel.log("🛑 Safe stop requested; saved work remains resumable.")
+                        break
                     entry = {"clip_id": clip.id, "url": clip.url, "title": clip.title,
                              "quality": quality_score(clip.raw), "files": [], "errors": []}
                     report["clips"].append(entry)
@@ -3094,7 +3852,7 @@ def run(args, output: Path, ffprobe: str) -> int:
                     video_already_available = False
                     clip_had_error = False
                     ledger.upsert_clip(clip)
-                    completed = ledger.completed_media(clip)
+                    completed = completed_media(clip)
                     if completed:
                         entry["files"] = completed
                         entry["resumed"] = True
@@ -3138,12 +3896,14 @@ def run(args, output: Path, ffprobe: str) -> int:
                                     output_stem = media_stem(stem, media.role)
                                     expected = output / (output_stem + (_media_extension(media) or ".media"))
                                     if not ledger.claim_media(clip, media, expected):
-                                        old = (ledger.successful_media(clip, media)
-                                               or ledger.successful_media_for_role(clip, media.role))
+                                        old = ledger.verified_successful_media(
+                                            clip, media, ffprobe, ffmpeg or getattr(args, "ffmpeg", "ffmpeg")
+                                        )
                                         if old:
                                             saved = {"path": old["path"], "role": media.role,
                                                      "bytes": old.get("bytes") or Path(old["path"]).stat().st_size}
-                                            for key in ("duration", "width", "height"):
+                                            for key in ("duration", "width", "height", "sha256", "content_hash",
+                                                        "verified_at", "mtime_ns", "visual_hashes"):
                                                 if old.get(key) is not None:
                                                     saved[key] = old[key]
                                             entry["files"].append(saved)
@@ -3168,21 +3928,18 @@ def run(args, output: Path, ffprobe: str) -> int:
                                                       f"({media.role}, clip {clip.id}): {media.url}")
                                             path = download_media(session, media, output, output_stem, clip.url, panel,
                                                                   video_category=file_category,
-                                                                  ffmpeg=ffmpeg, ffprobe=ffprobe)
-                                            saved = {"path": str(path), "role": media.role, "bytes": path.stat().st_size}
+                                                                  ffmpeg=ffmpeg, ffprobe=ffprobe, pacer=pacer)
+                                            info = verify_saved_file(path, media.role, ffprobe, ffmpeg)
+                                            saved = {"path": str(path), "role": media.role, **info}
                                             if path.suffix.lower() in VIDEO_EXTENSIONS:
                                                 saved["category"] = file_category
                                                 saved["category_tag"] = "genre"
-                                                try:
-                                                    info = probe_video(path, ffprobe)
-                                                except Exception:
-                                                    unknown_duration = True
-                                                    raise
-                                                saved.update(info)
-                                                durations.append(info["duration"])
+                                                durations.append(float(saved["duration"]))
                                             ledger.record_success(clip, media, saved)
+                                            saved = resolve_exact_duplicates(ledger, saved, panel, controls)
                                             entry["files"].append(saved)
-                                            panel.log(f"📥 Saved: {path.name}")
+                                            panel.log(f"✅ Verified and saved: {Path(saved['path']).name}")
+                                            controls.checkpoint(panel, "after media transfer")
                                             if path.suffix.lower() in VIDEO_EXTENSIONS:
                                                 pacer.video_downloaded()
                                             last_error = None
@@ -3213,7 +3970,18 @@ def run(args, output: Path, ffprobe: str) -> int:
                             if not any(m.role == "preview" or m.role.startswith("preview-gif") for m in assets):
                                 entry["errors"].append("No preview video or GIF was exposed for this clip.")
                             if not deferred_by_other_run:
-                                ledger.finish_clip(clip, assets)
+                                clip_complete = ledger.finish_clip(clip, assets)
+                                if clip_complete:
+                                    recycled_variants = resolve_clip_image_variants(
+                                        ledger, output, clip, panel, controls
+                                    )
+                                    if recycled_variants:
+                                        entry["recycled_image_variants"] = recycled_variants
+                                        recycled_keys = {str(Path(path).resolve()).casefold()
+                                                         for path in recycled_variants}
+                                        entry["files"] = [item for item in entry["files"]
+                                                          if str(Path(item["path"]).resolve()).casefold()
+                                                          not in recycled_keys]
                     except SiteBlocked:
                         raise
                     except Exception as exc:
@@ -3245,13 +4013,15 @@ def run(args, output: Path, ffprobe: str) -> int:
                             bounds = (REUSED_VIDEO_PAUSE_RANGE if not args.dry_run
                                       and (clip_had_error or deferred_by_other_run) else None)
                             pacer.pause(seconds, bounds=bounds, on_scheduled=record_wait)
-                report["completed"] = True
+                report["completed"] = not report.get("safe_stop_requested", False)
             except (KeyboardInterrupt, EOFError):
                 # Release the terminal immediately, before browser/profile
                 # cleanup can wait. The outer finally can safely close again.
                 panel.close()
                 raise
             finally:
+                if controls is not None:
+                    controls.close()
                 if page is not None:
                     try:
                         current_url = page.url
@@ -3308,6 +4078,13 @@ def positive_float(value: str) -> float:
     return number
 
 
+def nonnegative_float(value: str) -> float:
+    number = float(value)
+    if not math.isfinite(number) or number < 0:
+        raise argparse.ArgumentTypeError("must be a finite number greater than or equal to zero")
+    return number
+
+
 def positive_int(value: str) -> int:
     number = int(value)
     if number <= 0:
@@ -3315,9 +4092,13 @@ def positive_int(value: str) -> int:
     return number
 
 
-def parser() -> argparse.ArgumentParser:
+def parser(config: dict | None = None) -> argparse.ArgumentParser:
+    config = _merged_config(config or {})
+    shared = config.get("shared_pacing") or {}
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
+    p.add_argument("--doctor", action="store_true",
+                   help="Run the portable installation/database health check now and exit")
     p.add_argument("--history", nargs="?", const=20, type=positive_int, metavar="N",
                    help="Show the most recent N runs and exit (default: 20)")
     p.add_argument("url", nargs="?", help="Clips4Sale studio/category listing URL (read from retry report when omitted)")
@@ -3328,7 +4109,8 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--category-name", help="Override the category filename prefix")
     p.add_argument("--category-prefixes", action="store_true",
                    help="Opt in to sortable abbreviations such as 'sph -' in filenames (off by default)")
-    p.add_argument("--browser", choices=("chrome", "msedge", "chromium"), default="chrome")
+    p.add_argument("--browser", choices=("chrome", "msedge", "chromium"),
+                   default=config.get("browser", "chrome"))
     p.add_argument("--profile-dir", type=Path,
                    help=r"Reusable browser profile directory (default: %%APPDATA%%\Clips4SaleDownloader\browser-profile)")
     p.add_argument("--no-persistent-login", action="store_true",
@@ -3340,22 +4122,36 @@ def parser() -> argparse.ArgumentParser:
                    help="Close the headed browser when the job ends instead of leaving it open at its last page")
     p.add_argument("--dry-run", action="store_true", help="Discover clips/media and write a plan; save no media")
     p.add_argument("--max-clips", type=positive_int, help="Limit selected downloads AFTER full discovery/deduplication")
-    p.add_argument("--scroll-delay", type=positive_float, default=2.0, help="Seconds between scrolls (default: 2)")
-    p.add_argument("--stable-rounds", type=positive_int, default=8, help="Quiet bottom checks before completion (default: 8)")
-    p.add_argument("--max-scrolls", type=positive_int, default=2000, help="Abort if discovery exceeds this limit")
-    p.add_argument("--page-delay", type=positive_float, default=2.0, help="Seconds to settle each clip page")
-    p.add_argument("--fallback-wait", type=positive_float, default=30.0, help="Wait when preview duration is unavailable")
-    p.add_argument("--media-retries", "--retries", type=positive_int, default=DEFAULT_MEDIA_RETRIES,
+    p.add_argument("--scroll-delay", type=positive_float, default=float(config.get("scroll_delay", 2.0)),
+                   help="Seconds between scrolls")
+    p.add_argument("--stable-rounds", type=positive_int, default=int(config.get("stable_rounds", 8)),
+                   help="Quiet bottom checks before completion")
+    p.add_argument("--max-scrolls", type=positive_int, default=int(config.get("max_scrolls", 2000)),
+                   help="Abort if discovery exceeds this limit")
+    p.add_argument("--page-delay", type=positive_float, default=float(config.get("page_delay", 2.0)),
+                   help="Seconds to settle each clip page")
+    p.add_argument("--fallback-wait", type=positive_float, default=float(config.get("fallback_wait", 30.0)),
+                   help="Wait when preview duration is unavailable")
+    p.add_argument("--media-retries", "--retries", type=positive_int,
+                   default=int(config.get("media_retries", DEFAULT_MEDIA_RETRIES)),
                    help="Additional attempts for each failed media item (default: 1)")
+    p.add_argument("--shared-pacing-min", type=nonnegative_float,
+                   default=float(shared.get("minimum_seconds", DEFAULT_SHARED_PACING_RANGE[0])),
+                   help="Minimum gap shared by simultaneous downloader processes")
+    p.add_argument("--shared-pacing-max", type=nonnegative_float,
+                   default=float(shared.get("maximum_seconds", DEFAULT_SHARED_PACING_RANGE[1])),
+                   help="Maximum gap shared by simultaneous downloader processes")
     p.add_argument("--clean-old-variants", action="store_true",
                    help="Preview old lower-resolution still variants and offer to recycle only redundant copies")
     p.add_argument("--refresh-listing", action="store_true",
                    help="Check for new clips using the cached listing's previous boundary")
-    p.add_argument("--rescan-known-streak", type=positive_int, default=RESCAN_KNOWN_STREAK,
-                   help=f"Consecutive cached clips needed to end a newest-first rescan (default: {RESCAN_KNOWN_STREAK})")
+    p.add_argument("--rescan-known-streak", type=positive_int,
+                   default=int(config.get("rescan_known_streak", RESCAN_KNOWN_STREAK)),
+                   help="Consecutive cached clips needed to end a newest-first rescan")
     p.add_argument("--fresh", action="store_true",
                    help="Do not describe this invocation as a resume; existing successful DB items are still protected")
     p.add_argument("--no-completion-notification", action="store_true",
+                   default=not bool(config.get("completion_notification", True)),
                    help="Do not show the topmost Windows completion window")
     p.add_argument("--ffprobe", default="ffprobe", help="ffprobe command or absolute executable path")
     p.add_argument("--ffmpeg", default="ffmpeg", help="ffmpeg command or absolute path for lossless category tagging")
@@ -3363,13 +4159,28 @@ def parser() -> argparse.ArgumentParser:
 
 
 def main(argv=None) -> int:
-    p = parser()
+    config = load_config(create=False)
+    p = parser(config)
     args = p.parse_args(argv)
+    config = load_config(create=True)
+    configured_prefixes = config.get("category_prefixes")
+    if isinstance(configured_prefixes, dict):
+        CATEGORY_PREFIXES.clear()
+        CATEGORY_PREFIXES.update({str(key): str(value) for key, value in configured_prefixes.items()})
     # clairecjs_utils.claire_console installs a SIGINT handler that calls
     # sys.exit(0). Restore Python's normal handler so Ctrl+C is reported as a
     # real KeyboardInterrupt and the resumable-run report is unambiguous.
     restore_default_sigint_handler()
     print(terminal_text(f"🌈 Clips4Sale preview downloader v{VERSION}"))
+    print(terminal_text(f"⚙️ Portable config: {CONFIG_PATH}"))
+    print(terminal_text(f"🔐 Portable history: {PRIVATE_DATABASE_PATH}"))
+    if args.doctor:
+        try:
+            summary = run_doctor(config, args, Path.cwd().resolve(), force=True)
+            return 0 if summary.get("ok") else 1
+        except Exception as exc:
+            print(f"Doctor failed: {exc}", file=sys.stderr)
+            return 1
     if args.history is not None:
         try:
             print_history(args.history)
@@ -3395,10 +4206,15 @@ def main(argv=None) -> int:
             or not re.search(r"/studio/\d+", parsed.path) or CLIP_PATH.search(parsed.path)):
         p.error("Provide an HTTPS Clips4Sale studio/category LISTING URL.")
     try:
+        if args.shared_pacing_max < args.shared_pacing_min:
+            raise DownloadError("--shared-pacing-max must be greater than or equal to --shared-pacing-min")
         ffprobe = shutil.which(args.ffprobe)
+        output = select_destination(args.output)
+        doctor = run_doctor(config, args, output)
+        if not doctor.get("skipped"):
+            print(terminal_text("🩺 Daily doctor finished; normal startup is continuing."))
         if not ffprobe and not args.dry_run:
             raise DownloadError("ffprobe is required to measure the downloaded previews. Install FFmpeg or use --ffprobe PATH.")
-        output = select_destination(args.output)
         status = run(args, output, ffprobe or args.ffprobe)
         if not args.headless and not args.no_completion_notification:
             notify_completion(output, status)

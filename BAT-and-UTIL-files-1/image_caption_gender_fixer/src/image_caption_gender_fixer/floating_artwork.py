@@ -24,7 +24,7 @@ class FloatingArtwork:
         self.root=Path(root);self.backend=get_backend(root)
         self.commands=queue.Queue();self.thread=None
         self.ready=threading.Event();self.stopped=threading.Event()
-        self.error=None;self.last_path=None
+        self.error=None;self.last_path=None;self._status=None;self._ever_shown=False
         self.actions=queue.Queue();self.review_token=None
         self.dialog_actions=queue.Queue();self.dialog_token=None
         self._review_spec=None;self._dialog_spec=None;self.last_view=None;self.last_captions=None
@@ -56,7 +56,7 @@ class FloatingArtwork:
         self.commands.put(('image',view,captions,ack))
         if not self._wait(ack) or self.error or self.stopped.is_set():
             raise DependencyUnavailable('Floating artwork window could not display the latest image: '+str(self.error or 'render timeout'))
-        self.last_path=str(path)
+        self.last_path=str(path);self._ever_shown=True
 
     def _wait(self,event):
         import time
@@ -65,7 +65,11 @@ class FloatingArtwork:
             if self.error or self.stopped.is_set() or time.monotonic()>=deadline:return False
         return True
 
+    def status(self,message):
+        self._status=str(message);self.commands.put(('status',self._status))
+
     def begin_review(self,blocked,rules,notes=(),changes=(),source=None):
+        self._status=None
         token=uuid.uuid4().hex;self.review_token=token
         self._review_spec=(bool(blocked),[asdict(r) for r in rules],list(notes),list(changes),source)
         self.commands.put(('review',token,*self._review_spec))
@@ -109,6 +113,7 @@ class FloatingArtwork:
             self._dialog_spec,self.dialog_token=dialog,dialog_token
             if review is not None:self.commands.put(('review',review_token,*review))
             if dialog is not None:self.commands.put(('dialog',dialog_token,dialog))
+        if self._status is not None:self.commands.put(('status',self._status))
         ack=threading.Event();self.commands.put(('show',bool(activate),ack))
         if not self._wait(ack) or self.error or self.stopped.is_set():
             raise DependencyUnavailable('Artwork could not reopen: '+str(self.error or 'window timeout'))
@@ -117,12 +122,13 @@ class FloatingArtwork:
         from .paf_album_art import AlbumArtReview
         viewer=None
         try:
-            viewer=AlbumArtReview([initial],captions,inspect_only=True,floating=True,backend=self.backend)
+            viewer=AlbumArtReview([initial],captions,inspect_only=True,floating=True,backend=self.backend,activate_first=not self._ever_shown)
             def poll():
                 try:
                     while True:
                         command=self.commands.get_nowait()
                         if command[0]=='stop': viewer.choose('c');return
+                        if command[0]=='status':viewer.work_status(command[1]);continue
                         if command[0]=='show':
                             _,activate,ack=command;viewer.reopen(activate);ack.set();continue
                         if command[0]=='dialog':

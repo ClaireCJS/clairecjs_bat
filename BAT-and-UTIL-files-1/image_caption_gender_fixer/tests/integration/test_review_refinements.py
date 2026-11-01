@@ -66,5 +66,5 @@ def test_artwork_ignore_dialog_emits_selected_exception(tmp_path):
         viewer.buttons['ignore'].invoke();dialog=viewer._dialog
         save=next(w for w in dialog.winfo_children() if w.winfo_class()=='TButton' and 'Ignore' in str(w['text']))
         save.invoke()
-        assert actions==[{'action':'ignore','index':2,'scope':'folder'}]
+        assert actions==[{'action':'ignore','index':2,'scope':'image_run'}]
     finally:viewer.root.after(0,lambda:viewer.choose('c'));viewer.show()

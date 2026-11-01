@@ -1,4 +1,5 @@
 .venv/
+private/
 __pycache__/
 .pytest_cache/
 *.replaced-by-chatgpt*.bak

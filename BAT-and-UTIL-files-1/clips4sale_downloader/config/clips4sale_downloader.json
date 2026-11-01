@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "browser": "chrome",
+  "scroll_delay": 2.0,
+  "stable_rounds": 8,
+  "max_scrolls": 2000,
+  "page_delay": 2.0,
+  "fallback_wait": 30.0,
+  "media_retries": 1,
+  "rescan_known_streak": 5,
+  "shared_pacing": {
+    "minimum_seconds": 0.65,
+    "maximum_seconds": 1.75
+  },
+  "image_similarity_hamming": 18,
+  "daily_doctor": true,
+  "completion_notification": true,
+  "category_prefixes": {
+    "small penis humiliation": "sph",
+    "cuckolding": "cuck",
+    "chastity": "ch"
+  }
+}
