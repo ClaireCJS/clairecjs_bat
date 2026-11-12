@@ -43,3 +43,6 @@ int main(int argc, char **argv) {
     if (!send_input_event(&in)) return 5;
     return 0;
 }
+
+/* Claire Sawyer */
+
