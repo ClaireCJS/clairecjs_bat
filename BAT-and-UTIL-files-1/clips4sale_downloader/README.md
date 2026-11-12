@@ -293,10 +293,17 @@ scrolling region on width or height changes. It never needs a new download to
 notice a resize, and stops its resize watcher before restoring the terminal.
 Use a normal terminal such as Windows Terminal.
 
+Download attempt, failure, and completion lines include a local 12-hour timestamp such as `at 6:53PM`, making the transfer pace visible in both the console and text log.
+
 Press **P** to pause or resume at a safe checkpoint after the current transfer.
 Press **Q** to stop after the current clip; the report is marked `paused` and
-the saved work resumes normally next time. Hotkeys are enabled only in an
-interactive Windows console and suspend while an arrow-key file chooser is active.
+the saved work resumes normally next time. Press **Ctrl+R** to open a topmost
+Yes/No restart prompt. Choosing Yes finishes the current media transfer, writes
+the current report and a `restarting` history record, closes the controlled
+browser without leaving a handoff window, and relaunches the same command with
+the same confirmed destination. Choosing No continues the current job. Hotkeys
+are enabled only in an interactive Windows console and suspend while an
+arrow-key file chooser is active.
 
 After saving a clip's media, `ffprobe` measures its video durations. The longest
 saved preview/animation duration determines the pause before the next clip.
@@ -447,16 +454,21 @@ availability, writable portable folders and destination, free space, and SQLite
 integrity. The result and date are stored in portable history, so later starts
 that day skip it. `--doctor` forces the check and exits.
 
-At the end of a headed Windows run, a topmost completion window shows whether
-the run succeeded and names the destination. Use
-`--no-completion-notification` to suppress it. Headless runs do not open the
-window.
+At the end of every run, the console prints a prominent two-line completion
+banner with the result and destination. No completion popup is opened, including
+for headed runs. The legacy `--no-completion-notification` option remains
+accepted for command-line compatibility.
 
 To rerun only failures from a report or database:
 
 ```powershell
 C:\BAT\clips4sale_downloader.bat --retry-failures "<private report or database path>"
 ```
+
+To recover after a reboot without remembering the listing URL, run the tool
+with no URL (or use `--resume`). It lists incomplete jobs newest-first, omits
+jobs whose downloader process is still alive, and restores the selected job's
+original listing URL and destination.
 
 The listing URL and destination are read from the report when available; they
 can still be supplied explicitly. Each failed media item gets one additional

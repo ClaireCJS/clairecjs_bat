@@ -43,7 +43,9 @@ CATEGORY_PREFIXES = {
     "cuckolding": "cuck",
     "chastity": "ch",
 }
-VERSION = "0.10.0"
+VERSION = "0.10.1"
+RESTART_EXIT_CODE = 75
+RESTART_OUTPUT_ENV = "C4SDL_RESTART_OUTPUT"
 TOOL_ROOT = Path(__file__).resolve().parent
 CONFIG_ROOT = TOOL_ROOT / "config"
 CONFIG_PATH = CONFIG_ROOT / "clips4sale_downloader.json"
@@ -118,7 +120,7 @@ DEFAULT_CONFIG = {
     },
     "image_similarity_hamming": DEFAULT_IMAGE_HASH_DISTANCE,
     "daily_doctor": True,
-    "completion_notification": True,
+    "completion_notification": False,
     "category_prefixes": dict(CATEGORY_PREFIXES),
 }
 
@@ -166,11 +168,23 @@ def terminal_text(text: str, stream=None) -> str:
     return text
 
 
+def clock_stamp(value: datetime | None = None) -> str:
+    """Return a compact local 12-hour clock stamp for activity log lines."""
+    stamp = (value or datetime.now()).strftime("%I:%M%p")
+    return stamp.lstrip("0")
+
+
 class DownloadError(RuntimeError):
     pass
 
 
 class SiteBlocked(DownloadError):
+    pass
+
+
+class RestartRequested(BaseException):
+    """Internal control-flow signal raised only at a safe restart boundary."""
+
     pass
 
 
@@ -551,11 +565,12 @@ class SharedPacingGate:
 
 
 class RunControls:
-    """Console P/Q controls that pause safely between transfers and clips."""
+    """Console P/Q/Ctrl+R controls for safe pause, stop, and restart."""
 
     def __init__(self):
         self.paused = threading.Event()
         self.stop_requested = threading.Event()
+        self.restart_requested = threading.Event()
         self.stopped = threading.Event()
         self._suspended = 0
         self._lock = threading.Lock()
@@ -583,14 +598,40 @@ class RunControls:
             if not msvcrt.kbhit():
                 time.sleep(0.05)
                 continue
-            key = msvcrt.getwch().casefold()
-            if key == "p":
-                if self.paused.is_set():
-                    self.paused.clear()
-                else:
-                    self.paused.set()
-            elif key == "q":
+            self._handle_key(msvcrt.getwch().casefold())
+
+    def _confirm_restart(self) -> bool:
+        message = ("Restart this Clips4Sale download job?\n\n"
+                   "The current media transfer will finish first. Saved work will be recorded, "
+                   "the controlled browser will close cleanly, and the same job will start again "
+                   "with the same destination.")
+        if os.name == "nt":
+            try:
+                flags = 0x00000004 | 0x00000020 | 0x00000100 | 0x00010000 | 0x00040000
+                return ctypes.windll.user32.MessageBoxW(
+                    None, message, f"Restart Clips4Sale downloader v{VERSION}?", flags
+                ) == 6
+            except (AttributeError, OSError):
+                pass
+        print(terminal_text(f"\n🔁 {message}"), flush=True)
+        try:
+            return input("Restart now? [y/N]: ").strip().casefold() in {"y", "yes"}
+        except EOFError:
+            return False
+
+    def _handle_key(self, key: str):
+        if key == "p":
+            if self.paused.is_set():
+                self.paused.clear()
+            else:
+                self.paused.set()
+        elif key == "q":
+            self.stop_requested.set()
+        elif key == "\x12" and not self.restart_requested.is_set():  # Ctrl+R
+            if self._confirm_restart():
+                self.restart_requested.set()
                 self.stop_requested.set()
+                self.paused.clear()
 
     @contextmanager
     def suspend_input(self):
@@ -606,10 +647,10 @@ class RunControls:
         announced = False
         while self.paused.is_set() and not self.stop_requested.is_set():
             if not announced:
-                panel.log(f"⏸️ Paused at {label}. Press P to resume or Q to stop safely.")
+                panel.log(f"⏸️ Paused at {label}. Press P to resume, Q to stop, or Ctrl+R to restart.")
                 announced = True
             if hasattr(panel, "draw_status"):
-                panel.draw_status("⏸️ Paused — P resumes; Q stops after saved work")
+                panel.draw_status("⏸️ Paused — P resumes; Q stops; Ctrl+R restarts")
             time.sleep(0.1)
         if announced and not self.stop_requested.is_set():
             panel.log("▶️ Resumed.")
@@ -791,7 +832,8 @@ class DownloadDatabase:
                 discovered INTEGER,
                 selected INTEGER,
                 files INTEGER,
-                errors INTEGER
+                errors INTEGER,
+                owner_pid INTEGER
             );
             CREATE INDEX IF NOT EXISTS run_history_scope_idx
                 ON run_history(scope_key, started_at DESC);
@@ -823,6 +865,9 @@ class DownloadDatabase:
         }.items():
             if name not in existing_columns:
                 self.connection.execute(f"ALTER TABLE media ADD COLUMN {name} {declaration}")
+        run_columns = {row[1] for row in self.connection.execute("PRAGMA table_info(run_history)")}
+        if "owner_pid" not in run_columns:
+            self.connection.execute("ALTER TABLE run_history ADD COLUMN owner_pid INTEGER")
         self.connection.execute(
             "CREATE INDEX IF NOT EXISTS media_content_hash_idx ON media(content_hash, status)"
         )
@@ -930,6 +975,21 @@ class DownloadDatabase:
         ).fetchone()
         return dict(row) if row else None
 
+    def resumable_runs(self, limit: int = 25) -> list[dict]:
+        """Return recent runs that did not finish cleanly and are not live."""
+        rows = self.connection.execute(
+            """SELECT * FROM run_history
+               WHERE status NOT IN ('complete', 'planned', 'planned-with-errors')
+               ORDER BY started_at DESC LIMIT ?""", (int(limit),)
+        ).fetchall()
+        result = []
+        for row in rows:
+            item = dict(row)
+            if item.get("status") == "running" and self._pid_alive(item.get("owner_pid")):
+                continue
+            result.append(item)
+        return result
+
     def successful_still_media(self) -> list[dict]:
         """Return saved still-image rows used to identify obsolete variants."""
         rows = self.connection.execute(
@@ -957,10 +1017,10 @@ class DownloadDatabase:
         self.connection.execute(
             """INSERT INTO run_history(
                    run_id, scope_key, scope_kind, studio_id, category_id,
-                   listing_url, destination, status, started_at
-               ) VALUES(?, ?, ?, ?, ?, ?, ?, 'running', ?)""",
+                   listing_url, destination, status, started_at, owner_pid
+               ) VALUES(?, ?, ?, ?, ?, ?, ?, 'running', ?, ?)""",
             (run_id, scope.key, scope.kind, scope.studio_id, scope.category_id,
-             listing_url, str(destination), self._now()),
+             listing_url, str(destination), self._now(), os.getpid()),
         )
         return run_id
 
@@ -971,6 +1031,8 @@ class DownloadDatabase:
         errors = sum(len(item.get("errors") or []) for item in clips) + len(report.get("errors") or [])
         if report.get("dry_run") and report.get("completed"):
             status = "planned-with-errors" if errors else "planned"
+        elif report.get("restart_requested"):
+            status = "restarting"
         elif report.get("safe_stop_requested"):
             status = "paused"
         elif report.get("completed"):
@@ -979,7 +1041,7 @@ class DownloadDatabase:
             status = "interrupted" if any("Interrupt" in str(error) for error in report.get("errors") or []) else "failed"
         self.connection.execute(
             """UPDATE run_history SET status=?, finished_at=?, studio=?, category=?,
-                   discovered=?, selected=?, files=?, errors=? WHERE run_id=?""",
+                   discovered=?, selected=?, files=?, errors=?, owner_pid=NULL WHERE run_id=?""",
             (status, self._now(), report.get("studio"), report.get("category"),
              report.get("discovered"), report.get("selected"), files, errors, run_id),
         )
@@ -3180,7 +3242,11 @@ def leave_browser_open(args, last_url: str, report: dict, panel) -> None:
         report.setdefault("errors", []).append("Browser hand-off warning: could not locate Chrome, Edge, or Chromium.")
         return
     target_url = last_url if str(last_url).startswith(("http://", "https://")) else args.url
-    command = [str(executable), "--no-first-run", f"--user-data-dir={Path(profile)}", target_url]
+    # Explicitly request a new window.  If the browser executable already has
+    # an unrelated window open, its singleton handoff must not reuse or close
+    # that window while returning the downloader's retained session.
+    command = [str(executable), "--no-first-run", "--new-window",
+               f"--user-data-dir={Path(profile)}", target_url]
     creationflags = 0
     if os.name == "nt":
         creationflags = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
@@ -3486,6 +3552,42 @@ def print_history(limit: int = 20, database: Path | None = None):
         print(f"   {row.get('destination') or '(no destination recorded)'}")
 
 
+def choose_resumable_run(database: Path | None = None) -> dict | None:
+    """Show recent incomplete jobs and return the user's selected listing."""
+    database = database or PRIVATE_DATABASE_PATH
+    if not database.is_file():
+        return None
+    ledger = DownloadDatabase(database)
+    try:
+        rows = ledger.resumable_runs()
+    finally:
+        ledger.close()
+    if not rows:
+        print("No incomplete jobs are available to resume.")
+        return None
+    print(terminal_text("\n🔁 Incomplete jobs (newest first):"))
+    for index, row in enumerate(rows, 1):
+        when = str(row.get("finished_at") or row.get("started_at") or "unknown")[:19].replace("T", " ")
+        scope = " - ".join(part for part in (
+            row.get("studio") or f"Studio {row.get('studio_id') or '?'}",
+            row.get("category") or ("All Categories" if row.get("scope_kind") == "studio" else ""),
+        ) if part)
+        print(f"  {index}. {scope} [{row.get('status') or 'unknown'}; {when}]")
+        print(f"     {row.get('listing_url')}\n     {row.get('destination') or '(choose destination again)'}")
+    while True:
+        answer = input("Resume which job? (number, or Enter to cancel): ").strip()
+        if not answer:
+            return None
+        try:
+            choice = int(answer)
+        except ValueError:
+            print("Enter one of the displayed numbers.")
+            continue
+        if 1 <= choice <= len(rows):
+            return rows[choice - 1]
+        print("That number is not in the list.")
+
+
 def run_doctor(config: dict, args, output: Path, *, force: bool = False) -> dict:
     """Run portable health checks once per local day, or whenever forced."""
     database = private_database_path()
@@ -3575,6 +3677,18 @@ def notify_completion(output: Path, status: int) -> bool:
         return True
     except (AttributeError, OSError):
         return False
+
+
+def print_completion_console(output: Path, status: int) -> None:
+    """Print a prominent two-line completion banner; do not open a popup."""
+    title = "🌈 DOWNLOAD COMPLETE" if status == 0 else "⚠️ RUN FINISHED WITH ERRORS"
+    detail = f"📁 {output}"
+    width = max(62, len(title), len(detail)) + 4
+    border = "═" * width
+    print(terminal_text(f"\n╔{border}╗"))
+    print(terminal_text(f"║ {title.center(width - 2)} ║"))
+    print(terminal_text(f"║ {detail.center(width - 2)} ║"))
+    print(terminal_text(f"╚{border}╝"), flush=True)
 
 
 def run(args, output: Path, ffprobe: str) -> int:
@@ -3775,6 +3889,7 @@ def run(args, output: Path, ffprobe: str) -> int:
     context = None
     page = None
     controls = None
+    restart_run = False
     last_browser_url = args.url
     try:
         with sync_playwright() as playwright:
@@ -3791,10 +3906,17 @@ def run(args, output: Path, ffprobe: str) -> int:
                     getattr(args, "shared_pacing_min", DEFAULT_SHARED_PACING_RANGE[0]),
                     getattr(args, "shared_pacing_max", DEFAULT_SHARED_PACING_RANGE[1]),
                 )
-                pacer = DownloadPacer(panel, shared_gate=shared_gate)
                 controls = RunControls()
+
+                def control_pump(milliseconds):
+                    time.sleep(max(0.0, float(milliseconds)) / 1000)
+                    if controls.restart_requested.is_set():
+                        report["restart_requested"] = True
+                        raise RestartRequested()
+
+                pacer = DownloadPacer(panel, pump=control_pump, shared_gate=shared_gate)
                 if controls.start():
-                    panel.log("⌨️ Controls: P pauses/resumes at safe checkpoints; Q stops after saved work.")
+                    panel.log("⌨️ Controls: P pauses/resumes; Q stops safely; Ctrl+R prompts to restart this job.")
                 # Pacing is deliberately independent of the browser driver.
                 # A closed/unstable page must not abort an otherwise resumable
                 # download merely because the next delay is being displayed.
@@ -3839,6 +3961,10 @@ def run(args, output: Path, ffprobe: str) -> int:
                 panel.set_total(len(selected))
                 for index, clip in enumerate(selected):
                     if not controls.checkpoint(panel, "between clips"):
+                        if controls.restart_requested.is_set():
+                            report["restart_requested"] = True
+                            panel.log("🔁 Restart confirmed; restarting from the saved job state.")
+                            raise RestartRequested()
                         report["safe_stop_requested"] = True
                         panel.log("🛑 Safe stop requested; saved work remains resumable.")
                         break
@@ -3893,6 +4019,10 @@ def run(args, output: Path, ffprobe: str) -> int:
                         else:
                             with session_for(context, page) as session:
                                 for media in assets:
+                                    if controls.restart_requested.is_set():
+                                        report["restart_requested"] = True
+                                        panel.log("🔁 Restart confirmed; no new transfer will be started.")
+                                        raise RestartRequested()
                                     output_stem = media_stem(stem, media.role)
                                     expected = output / (output_stem + (_media_extension(media) or ".media"))
                                     if not ledger.claim_media(clip, media, expected):
@@ -3925,7 +4055,8 @@ def run(args, output: Path, ffprobe: str) -> int:
                                         # another worker and used to send Windows Ctrl+C.
                                         try:
                                             panel.log(f"📥 Media attempt {attempt + 1}/{args.media_retries + 1} "
-                                                      f"({media.role}, clip {clip.id}): {media.url}")
+                                                      f"({media.role}, clip {clip.id}): {media.url} "
+                                                      f"at {clock_stamp()}")
                                             path = download_media(session, media, output, output_stem, clip.url, panel,
                                                                   video_category=file_category,
                                                                   ffmpeg=ffmpeg, ffprobe=ffprobe, pacer=pacer)
@@ -3938,8 +4069,13 @@ def run(args, output: Path, ffprobe: str) -> int:
                                             ledger.record_success(clip, media, saved)
                                             saved = resolve_exact_duplicates(ledger, saved, panel, controls)
                                             entry["files"].append(saved)
-                                            panel.log(f"✅ Verified and saved: {Path(saved['path']).name}")
-                                            controls.checkpoint(panel, "after media transfer")
+                                            panel.log(f"✅ Verified and saved: {Path(saved['path']).name} "
+                                                      f"at {clock_stamp()}")
+                                            if not controls.checkpoint(panel, "after media transfer") \
+                                                    and controls.restart_requested.is_set():
+                                                report["restart_requested"] = True
+                                                panel.log("🔁 Current transfer finished; restarting this job now.")
+                                                raise RestartRequested()
                                             if path.suffix.lower() in VIDEO_EXTENSIONS:
                                                 pacer.video_downloaded()
                                             last_error = None
@@ -3958,7 +4094,8 @@ def run(args, output: Path, ffprobe: str) -> int:
                                                 "http_status": status, "error": last_error, "retrying": retrying,
                                             })
                                             panel.log(f"⚠️ Media attempt {attempt + 1}/{args.media_retries + 1} failed "
-                                                      f"({media.role}, {status_text}): {media.url}")
+                                                      f"({media.role}, {status_text}): {media.url} "
+                                                      f"at {clock_stamp()}")
                                             if retrying:
                                                 panel.log(f"🔁 Retry {attempt + 1}/{args.media_retries} for {output_stem}: {exc}")
                                                 continue
@@ -3992,6 +4129,10 @@ def run(args, output: Path, ffprobe: str) -> int:
                     finally:
                         panel.total.update(1)
                         panel.draw()
+                    if controls.restart_requested.is_set():
+                        report["restart_requested"] = True
+                        panel.log("🔁 Restart confirmed; restarting before the next wait or clip.")
+                        raise RestartRequested()
                     if index + 1 < len(selected):
                         # Probe the actual saved preview, never the paid clip's advertised duration.
                         seconds = inter_clip_wait(video_already_available, deferred_by_other_run,
@@ -4035,7 +4176,16 @@ def run(args, output: Path, ffprobe: str) -> int:
                                  if args.profile_dir else DEFAULT_PROFILE_DIR)
                     preserve_login_snapshot(preferred, Path(args._profile_actual), startup_status)
                 release_profile_lease(getattr(args, "_profile_lease", None))
-                leave_browser_open(args, last_browser_url, report, panel)
+                if report.get("restart_requested"):
+                    report["browser_left_open"] = {
+                        "left_open": False, "reason": "job restart uses the released persistent profile"
+                    }
+                else:
+                    leave_browser_open(args, last_browser_url, report, panel)
+    except RestartRequested:
+        restart_run = True
+        report["completed"] = False
+        report["restart_requested"] = True
     except BaseException as exc:
         report["completed"] = False
         if isinstance(exc, KeyboardInterrupt):
@@ -4066,6 +4216,9 @@ def run(args, output: Path, ffprobe: str) -> int:
             log_file.close()
         ledger.close()
         print(f"Run report: {report_path}")
+    if restart_run:
+        print("Restart requested; relaunching the same job.")
+        return RESTART_EXIT_CODE
     failures = sum(bool(c["errors"]) for c in report["clips"])
     print(f"Finished: {len(report['clips'])} clips processed; {failures} clips with errors.")
     return 1 if failures else 0
@@ -4101,6 +4254,8 @@ def parser(config: dict | None = None) -> argparse.ArgumentParser:
                    help="Run the portable installation/database health check now and exit")
     p.add_argument("--history", nargs="?", const=20, type=positive_int, metavar="N",
                    help="Show the most recent N runs and exit (default: 20)")
+    p.add_argument("--resume", action="store_true",
+                   help="Choose an incomplete job from portable history and resume it")
     p.add_argument("url", nargs="?", help="Clips4Sale studio/category listing URL (read from retry report when omitted)")
     p.add_argument("--output", type=Path, help="Add this destination to the mandatory numbered menu")
     p.add_argument("--retry-failures", "--rerun-failures", type=Path, metavar="REPORT_OR_DB",
@@ -4152,10 +4307,26 @@ def parser(config: dict | None = None) -> argparse.ArgumentParser:
                    help="Do not describe this invocation as a resume; existing successful DB items are still protected")
     p.add_argument("--no-completion-notification", action="store_true",
                    default=not bool(config.get("completion_notification", True)),
-                   help="Do not show the topmost Windows completion window")
+                   help="Legacy option; completion is always reported in the console")
     p.add_argument("--ffprobe", default="ffprobe", help="ffprobe command or absolute executable path")
     p.add_argument("--ffmpeg", default="ffmpeg", help="ffmpeg command or absolute path for lossless category tagging")
     return p
+
+
+def restart_current_process(argv, output: Path) -> int:
+    """Replace this process with the same job while retaining its chosen destination."""
+    original_args = list(sys.argv[1:] if argv is None else argv)
+    os.environ[RESTART_OUTPUT_ENV] = str(output.expanduser().resolve())
+    command = [sys.executable, "-B", str(Path(__file__).resolve()),
+               *(str(argument) for argument in original_args)]
+    print(terminal_text(f"🔁 Restarting with the same destination: {output}"), flush=True)
+    sys.stdout.flush()
+    sys.stderr.flush()
+    try:
+        os.execv(sys.executable, command)
+    except OSError as exc:
+        raise DownloadError(f"Could not restart the downloader: {exc}") from exc
+    return RESTART_EXIT_CODE
 
 
 def main(argv=None) -> int:
@@ -4188,6 +4359,16 @@ def main(argv=None) -> int:
         except Exception as exc:
             print(f"Error reading history: {exc}", file=sys.stderr)
             return 1
+    if args.resume or not args.url:
+        selected_run = choose_resumable_run()
+        if selected_run is None:
+            if args.resume:
+                return 0
+            p.error("Provide a listing URL, or use --resume to choose an incomplete job.")
+        args.url = selected_run["listing_url"]
+        if args.output is None and selected_run.get("destination"):
+            args.output = Path(selected_run["destination"])
+        print(terminal_text(f"🔁 Resuming: {args.url}"))
     retry_destination = None
     if args.retry_failures:
         try:
@@ -4200,7 +4381,7 @@ def main(argv=None) -> int:
         except DownloadError as exc:
             p.error(str(exc))
     if not args.url:
-        p.error("Provide a listing URL, or use --retry-failures with a report/database that contains one.")
+        p.error("Provide a listing URL, or use --resume / --retry-failures to recover a previous job.")
     parsed = urlsplit(args.url)
     if (parsed.scheme != "https" or parsed.hostname not in ("clips4sale.com", "www.clips4sale.com")
             or not re.search(r"/studio/\d+", parsed.path) or CLIP_PATH.search(parsed.path)):
@@ -4209,15 +4390,23 @@ def main(argv=None) -> int:
         if args.shared_pacing_max < args.shared_pacing_min:
             raise DownloadError("--shared-pacing-max must be greater than or equal to --shared-pacing-min")
         ffprobe = shutil.which(args.ffprobe)
-        output = select_destination(args.output)
+        restarted_output = os.environ.pop(RESTART_OUTPUT_ENV, "").strip()
+        output = Path(restarted_output).expanduser().resolve() if restarted_output else None
+        if output is not None and output.is_dir():
+            print(terminal_text(f"🔁 Restarted job is reusing its confirmed destination: {output}"))
+        else:
+            if restarted_output:
+                print(terminal_text(f"⚠️ Restart destination is unavailable: {restarted_output}"), file=sys.stderr)
+            output = select_destination(args.output)
         doctor = run_doctor(config, args, output)
         if not doctor.get("skipped"):
             print(terminal_text("🩺 Daily doctor finished; normal startup is continuing."))
         if not ffprobe and not args.dry_run:
             raise DownloadError("ffprobe is required to measure the downloaded previews. Install FFmpeg or use --ffprobe PATH.")
         status = run(args, output, ffprobe or args.ffprobe)
-        if not args.headless and not args.no_completion_notification:
-            notify_completion(output, status)
+        if status == RESTART_EXIT_CODE:
+            return restart_current_process(argv, output)
+        print_completion_console(output, status)
         return status
     except (KeyboardInterrupt, EOFError):
         print("\nCancelled. Completed and partial files have been preserved.", file=sys.stderr)

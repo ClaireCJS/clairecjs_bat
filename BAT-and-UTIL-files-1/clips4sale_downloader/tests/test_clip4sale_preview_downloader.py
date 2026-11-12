@@ -955,6 +955,16 @@ class LogicTests(unittest.TestCase):
         self.assertIn('Download run complete', args[1])
         self.assertTrue(args[3] & 0x00040000)
 
+    def test_completion_uses_double_height_console_banner(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            d.print_completion_console(Path(r'C:\downloads'), 0)
+        text = output.getvalue()
+        self.assertIn('DOWNLOAD COMPLETE', text)
+        self.assertIn(r'C:\downloads', text)
+        self.assertEqual(text.count('\n'), 5)
+        self.assertNotIn('MessageBoxW', text)
+
     def test_failed_clips_are_queued_after_pending_clips(self):
         clips = [d.Clip.from_raw(record(number), LISTING) for number in (701, 702, 703)]
         queued = d.failed_last(clips, {('100', '702')})
@@ -1337,6 +1347,53 @@ class LogicTests(unittest.TestCase):
         controls.stop_requested.set()
         self.assertFalse(controls.checkpoint(QuietPanel(), 'test checkpoint'))
 
+    def test_ctrl_r_uses_topmost_confirmation_and_requests_restart(self):
+        controls = d.RunControls()
+        message_box = Mock(return_value=6)
+        windll = SimpleNamespace(user32=SimpleNamespace(MessageBoxW=message_box))
+        with patch.object(d.os, 'name', 'nt'), patch.object(d.ctypes, 'windll', windll, create=True):
+            controls._handle_key('\x12')
+        self.assertTrue(controls.restart_requested.is_set())
+        self.assertTrue(controls.stop_requested.is_set())
+        self.assertIn('same destination', message_box.call_args.args[1])
+        self.assertTrue(message_box.call_args.args[3] & 0x00040000)
+
+        declined = d.RunControls()
+        message_box.return_value = 7
+        with patch.object(d.os, 'name', 'nt'), patch.object(d.ctypes, 'windll', windll, create=True):
+            declined._handle_key('\x12')
+        self.assertFalse(declined.restart_requested.is_set())
+        self.assertFalse(declined.stop_requested.is_set())
+
+    def test_restart_reexecutes_same_arguments_and_confirmed_destination(self):
+        root = Path.cwd() / ('restart-job-' + uuid.uuid4().hex)
+        root.mkdir()
+        with patch.dict(d.os.environ, {}, clear=False), patch.object(d.os, 'execv') as execute, \
+                redirect_stdout(io.StringIO()):
+            status = d.restart_current_process([LISTING, '--headless'], root)
+            restart_output = d.os.environ[d.RESTART_OUTPUT_ENV]
+        self.assertEqual(status, d.RESTART_EXIT_CODE)
+        self.assertEqual(restart_output, str(root.resolve()))
+        command = execute.call_args.args[1]
+        self.assertEqual(command[:3], [d.sys.executable, '-B', str(Path(d.__file__).resolve())])
+        self.assertEqual(command[3:], [LISTING, '--headless'])
+
+    def test_restart_run_history_has_distinct_status(self):
+        root = Path.cwd() / ('restart-history-' + uuid.uuid4().hex)
+        database = d.DownloadDatabase(root / 'history.db')
+        try:
+            run_id = database.start_scope_run(d.listing_scope(LISTING), LISTING, root)
+            database.finish_scope_run(run_id, {
+                'restart_requested': True, 'completed': False, 'dry_run': False,
+                'clips': [{'files': [], 'errors': []}], 'errors': [],
+            })
+            status = database.connection.execute(
+                'SELECT status FROM run_history WHERE run_id=?', (run_id,)
+            ).fetchone()[0]
+        finally:
+            database.close()
+        self.assertEqual(status, 'restarting')
+
     def test_hydration_is_parsed_without_execution(self):
         self.assertEqual(d.hydration_from_html('<script>window.__remixContext = {"x": 7}; alert(1)</script>'), {'x': 7})
         self.assertEqual(d.hydration_from_html('<script>window.__remixContext = evil()</script>'), {})
@@ -1629,6 +1686,42 @@ class IntegrationTests(unittest.TestCase):
                 redirect_stdout(io.StringIO()):
             status = d.run(args, output, self.ffprobe)
         return status, visits, panel
+
+    def test_confirmed_restart_finishes_transfer_and_returns_relaunch_status(self):
+        output = self.root / 'restart-after-transfer'; output.mkdir()
+        records = [{**record(890), 'customPreviewUrl': self.origin + '/restart-preview.mp4'}]
+
+        class RestartAfterTransfer:
+            def __init__(self):
+                self.restart_requested = threading.Event()
+                self.stop_requested = threading.Event()
+            def start(self): return False
+            def close(self): pass
+            @contextmanager
+            def suspend_input(self): yield
+            def checkpoint(self, _panel, label=''):
+                if label == 'after media transfer':
+                    self.restart_requested.set()
+                    self.stop_requested.set()
+                    return False
+                return True
+
+        with patch.object(d, 'RunControls', RestartAfterTransfer):
+            status, visits, _ = self.run_cached_fixture(output, records)
+        self.assertEqual(status, d.RESTART_EXIT_CODE)
+        self.assertEqual(len(visits), 1)
+        report = json.loads((output / 'clips4sale-run.json').read_text(encoding='utf-8'))
+        self.assertTrue(report['restart_requested'])
+        self.assertFalse(report['completed'])
+        self.assertFalse(report['browser_left_open']['left_open'])
+        database = d.DownloadDatabase(output / d.DEFAULT_DATABASE_NAME)
+        try:
+            history_status = database.connection.execute(
+                'SELECT status FROM run_history ORDER BY started_at DESC LIMIT 1'
+            ).fetchone()[0]
+        finally:
+            database.close()
+        self.assertEqual(history_status, 'restarting')
 
     def test_404_retries_then_saves_other_assets_and_next_clip_and_resumes_without_duplicates(self):
         output = self.root / '404-queue'; output.mkdir()
