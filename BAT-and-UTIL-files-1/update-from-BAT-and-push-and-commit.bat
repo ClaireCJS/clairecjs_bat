@@ -98,7 +98,7 @@ rem Make sure none of our files are set as read-only, so that we can successfull
                                         attrib %attrib_to_use%    %TARGET_2%\*.*      >nul
                                         attrib %attrib_to_use%    %TARGET_1%\*.*      >nul     
                                         attrib %attrib_to_use% /s %TARGET_1%\docs\*.* >nul     
-                                        if isdir %TARGET_2%\docs\ if exist %TARGET_2%\docs\*.* attrib %attrib_to_use% /s %TARGET_2%\docs\*.* >nul
+                                        if isdir %TARGET_2%\docs\ if exist %TARGET_2%\docs\*.* if exist %attrib_to_use% (attrib %attrib_to_use% /s %TARGET_2%\docs\*.* >nul)
                                 return
                         :end_of_subroutines
 
