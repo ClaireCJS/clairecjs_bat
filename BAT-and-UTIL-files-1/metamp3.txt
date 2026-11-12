@@ -1,0 +1,70 @@
+
+MetaMP3 v0.91 - command line meta-data processing for mp3 files
+_______________________________________________________________
+
+I wrote this because I wanted a command line tool that could
+add album art to (and save from) mp3 files, compute replaygain
+and save them as ID3 tags (readable by Winamp, etc).
+
+
+Features
+--------
+- Write (all) Text, URL and Picture frame tags, with description.
+- Compute replay-gain values and set them as ID3v2.3 tags.
+- Apply and Undo volume gain (as mp3gain).
+- Extract pictures from mp3 files.
+- Inspect ID3 v1.1, v2.3, and v2.4 tags
+- Inspect detailed info on mp3 files, including lametag data.
+
+	
+Usage
+-----
+metamp3.exe [options] [mp3files]
+
+options:
+   --artist <artist>               audio/song artist
+   --album <album>                 audio/song album
+   --track <track>[/total]         audio/song track number
+   --title <title>                 audio/song title
+   --year <year>                   audio/song year of issue (1 to 9999)
+   --genre <genre>                 audio/song genre name
+   --comment [[desc]][{lng}]<text> add user-defined text
+   --user-text [[desc]]<text>      add user text frame (TXXX)
+   --user-url [[desc]]<URL>        add user URL frame (WXXX)
+   --frame <frame:text>            set any T* or W* type frame
+   --pict [[desc]][{type}]<file>   add picture artwork
+   --save-pict <pict>              pict=[[desc]][{type}]<file>
+   --list-pict-types               list possible picture type numbers
+   --list-frames                   list Text and URL id3v2.3 frames
+   --list-genres                   list standard id3v1.1 genres
+   --1                             add id3v1 tag only (default both v1 and v2)
+   --2                             add id3v2 tag only (--1 --2 will add both)
+   --fit                           add id3v1 + id3v2 if tag does not fit id3v1
+   --remove [[desc]]<frame>        remove frame(s). accepts wildcards *,?
+   --replay-gain                   calculate and set replay gain tags
+   --apply-gain <gain>             change volume. gain=[album|radio]<+dB|-dB>
+   --undo-gain                     undo previous apply-gain
+   --info                          print detailed mp3/lametag info
+   --version                       show version info
+   --info                          show this help   
+	
+Notes
+-----
+- Files can be specified with wildcards (*,?)
+- When using any of the *-gain options on files that previously was scanned 
+  using mp3gain, metamp3 will convert the APEv2 tags written by mp3gain to
+  ID3v2.3 equals.
+- Picture, User Text/URL, and Comment may all be specified with a Description-field.
+- Picture and Comment may be specified with Type and Language, correspondingly.
+
+
+Thanks
+------
+- Thijmen Klok (and others) for the id3lib source code.
+- Glen Sawyer for the mp3gain source code.
+- GuerillaSoft for the EncSpotConsole source code.
+- Nyaochi for the command line parser.
+
+
+Tycho,
+November 2006.

@@ -38,13 +38,13 @@ rem VALIDATION & SETUP:
         set UPDATE=*copy /q /Ns    /U
         set DELETE=*del /z /q
         rem Some stuff we only need to validate once per command-line sessoin:
-        iff %VALIDATED_UPDATEFROMBATVIAMANIFEST_ENV_ALREADY ne 1 then
-            call validate-environment-variables BAT COPY
+        iff "%VALIDATED_UPDATEFROMBATVIAMANIFEST_ENV_ALREADY%" != "1" then
+            if not isdir %BAT% .or. not isdir %COPY% call validate-environment-variables BAT COPY
             call validate-in-path important_less success errorlevel insert-before-each-line
             set  VALIDATED_UPDATEFROMBATVIAMANIFEST_ENV_ALREADY=1
         endiff
         rem Some stuff we need to validate each and every run:
-        call validate-environment-variables MANIFEST_FILES SOURCE_DIR 
+        if not defined MANIFEST_FILES .or. not isdir %SOURCE_DIR% call validate-environment-variables MANIFEST_FILES SOURCE_DIR 
 
 rem Cosmetic kludge:
         rem no this actually tended to break it! call set-ansi force
@@ -89,6 +89,8 @@ goto :END_OF_SUBROUTINES
 
         :process_type [shared_type]
             call print-if-debug "Doing shared_type=“%shared_type%”"
+echo        if not defined SECONDARY_%shared_type%_FILES goto :No_Files_Of_This_Type  [SECONDARY_%shared_type%_FILES = %[SECONDARY_%shared_type%_FILES]]
+pause
             if not defined SECONDARY_%shared_type%_FILES goto :No_Files_Of_This_Type
                 set                                SOURCE_DIR=c:\%shared_type\
                 call validate-environment-variable SOURCE_DIR

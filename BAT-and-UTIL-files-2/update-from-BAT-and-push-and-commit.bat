@@ -195,6 +195,7 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
                 rem Subfolders that need to be copied twice:
                         :docs_only_goto_1
                         %copy_S%  %DOCS_FOLDER%  %TARGET_MAIN%\docs
+                   echo LINE 199: %copy_S%  %DOCS_FOLDER%  %TARGET_MAIN%\..\docs
                         %copy_S%  %DOCS_FOLDER%  %TARGET_MAIN%\..\docs
 
 
