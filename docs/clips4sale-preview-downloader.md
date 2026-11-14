@@ -24,12 +24,30 @@ system Python fallback.
 
 Both supported launch names use the same installed application and behavior.
 
+The canonical project root stays intentionally small:
+
+```text
+C:\BAT\clips4sale_downloader\
+|-- clip4sale_preview_downloader.py
+|-- README.md
+|-- config\             portable, user-editable settings
+|-- compatibility.deprecated\    older Python entry-point name
+|-- development\      site-inspection helpers
+|-- private\history\  portable private ledger, hashes, reports, and backups
+|-- releases\         replacement backups and prior builds
+`-- tests\            offline tests and verification helpers
+```
+
+Dot-prefixed environment and configuration entries may also remain in the
+root. The external `C:\BAT\clips4sale_downloader.bat` launcher disables Python
+bytecode files so normal runs do not add an `__pycache__` folder there.
+
 ## Login persistence
 
 The default headed Chrome session uses a dedicated reusable profile at:
 
 ```text
-the temporary application profile under `%TEMP%`.
+%APPDATA%\Clips4SaleDownloader\browser-profile
 ```
 
 Log in once in the Chrome window the downloader opens. Later runs reuse that
@@ -39,6 +57,9 @@ login-bearing profile into an isolated sibling profile instead of failing with
 Chrome's profile-lock error. The clone retains the same login cookies while
 using its own lock, so concurrent runs do not require another login. Use
 `--profile-dir "D:\somewhere"` to choose the preferred profile root.
+On the first v0.9+ run, an existing login from the older `%TEMP%` profile is
+copied into AppData through the same transaction-safe cookie snapshot process.
+The old profile is left intact.
 Each run navigates the initial tab opened by its own browser context, so a
 concurrent run gets its own visible browser instance rather than leaving a
 startup `about:blank` tab in front. A small OS-backed launch lease prevents two
@@ -57,7 +78,7 @@ preserved for inspection, instead of waiting forever or using incomplete
 cookies.
 Chrome can also exclusively lock its cookie file while a retained window is
 open. The downloader keeps completed idle login copies in
-the temporary profile snapshots and falls back to one when that happens. These
+AppData profile snapshots and falls back to one when that happens. These
 copies retain Chrome's encrypted cookies; they do not export plaintext
 passwords or cookie values. An older idle run profile can bootstrap the first
 snapshot after upgrading. The source used is named in the log. Snapshots are
@@ -72,9 +93,9 @@ Playwright's cleanup. Use `--close-browser-on-exit` if that hand-off is not
 wanted. Headless and `--no-persistent-login` runs cannot leave a logged-in
 window open.
 The test-only `--no-persistent-login` option creates an isolated session.
-The downloader does not write your username or password to `%TEMP%`. The
-profile stores the browser session/cookies using Chrome's normal per-user
-storage, which avoids creating a plaintext password file. When a login page
+The downloader does not write your username or password to a separate file. The
+AppData profile stores the browser session/cookies using Chrome's normal
+per-user storage, which avoids creating a plaintext password file. When a login page
 redirects away from your requested listing, press Enter after completing it;
 the downloader reopens the original URL automatically. A logged-in session
 starts scanning without an Enter prompt, including concurrent instances.
@@ -91,22 +112,49 @@ C:\BAT\clips4sale_downloader.bat "https://www.clips4sale.com/studio/54509/latina
 
 1. Choose a destination by its number, or choose **Enter another location**.
    When `%USERNAME%` is `claire`, Enter selects
-   `C:\new\p\clips4sale-previews` (and creates it after selection).
-2. If the listing is not cached, Chrome opens. Complete any site prompts, then
-   press Enter in the terminal. A complete cached listing does not start a
-   browser at all.
+   `C:\new\p\clips4sale_previews` (and creates it after selection).
+2. If a cached listing is completely downloaded, a Windows Yes/No dialog asks
+   whether to re-scan it for new clips. Choosing No uses the cache without
+   opening Chrome. Choosing Yes opens Chrome and performs a bounded new-clip
+   scan. Complete any site prompts, then press Enter in the terminal.
 3. The program scrolls the whole listing, selects editions, then saves each clip's media.
 4. Between clips it counts down the duration measured from the downloaded preview.
 
 After the listing reaches a stable end, its complete clip list is stored in the
-private download ledger. Resume and failure-retry runs reuse that cached list
-instead of scrolling the listing again. When the cached filelist and media are
-already complete, startup finishes without launching Chrome. Use
-`--refresh-listing` when you explicitly want a new scrape.
+download-history ledger. Resume and failure-retry runs reuse that cached list
+instead of scrolling the listing again. For newest-first studios, a requested
+re-scan stops after five consecutive previously cached clips. A lone pinned or
+promoted older clip therefore cannot end the scan early. Change the boundary
+with `--rescan-known-streak N`. Other sort orders stop at the previous clip
+count or recorded scroll depth. Fresh records
+are merged with the older cache, so the scan checks for additions without
+walking farther down the studio than the prior scan. `--refresh-listing`
+requests this bounded re-scan without showing the prompt.
 
-The persistent ledger is kept at `C:\BAT\private\clips4sale_downloader\clips4sale-downloads.db`
-when that private folder exists, otherwise in the user's AppData folder. Browser
-profiles and short-lived concurrent-run copies are kept under `%TEMP%`.
+The listing cache, media ledger, hashes, category preferences, append-only run
+history, and JSON reports are kept in the portable private folder:
+
+```text
+C:\BAT\clips4sale_downloader\private\history\
+```
+
+At startup, a prior
+whole-studio run or matching studio/category run produces a visible history
+reminder; existing saved files are then reused instead of downloaded again.
+The first v0.10 run imports the earlier AppData, `%TEMP%`, shared-private, or
+destination-local ledger when one is available. The complete tool folder can
+therefore move to another computer with its private history. Absolute media
+paths are rechecked on the new computer; IDs and hashes remain available even
+when the media itself moved. The browser profile and its short-lived
+concurrent-run copies remain in AppData because Chrome protects login state for
+the Windows user.
+
+Public settings live at
+`C:\BAT\clips4sale_downloader\config\clips4sale_downloader.json`. The file is
+created on the first normal v0.10 startup. It includes browser, scrolling,
+retries, shared pacing, image-similarity sensitivity, notifications, and the
+editable category-prefix mapping. The downloader has no automatic
+history-retention or history-deletion policy.
 
 The menu offers the current folder and `C:\new\p\clips4sale_previews` **only if
 that folder already exists**. It does not silently create or select the default.
@@ -138,15 +186,37 @@ replace copies of that library.
 The linked listing supplies this prefix:
 
 ```text
-cuck - Jasmine Mendez LatinAss Locas - Cuckolding - <clip title>.mp4
-cuck - Jasmine Mendez LatinAss Locas - Cuckolding - <clip title>-preview-gif.gif
-cuck - Jasmine Mendez LatinAss Locas - Cuckolding - <clip title>-image.jpg
+Jasmine Mendez LatinAss Locas - Cuckolding - <clip title>.mp4
+Jasmine Mendez LatinAss Locas - Cuckolding - <clip title>-preview-gif.gif
+Jasmine Mendez LatinAss Locas - Cuckolding - <clip title>-thumbnail.jpg
 ```
 
-Only one primary preview, one GIF-family preview, and one best still are
-downloaded. If both GIF and WebM versions of the same animation are exposed,
-the GIF is selected. A thumbnail is considered as a candidate for the best
-still and is not downloaded as a redundant second file.
+One primary preview and every distinct animation are downloaded. GIF, WebM,
+MP4, and explicit size variants with the same animation identity are grouped;
+the highest signaled quality wins, with GIF preferred when quality is tied.
+Separate animations become `-preview-gif`, `-preview-gif-2`, and so on. Every
+distinct still image is retained, but only at its best available resolution.
+Clips4Sale's `previewlg_`, `thumb_`, `square_*`, and `rect_*` files with the
+same trailing image ID are treated as alternate crops/sizes of one image;
+`previewlg_` is preferred and the rest become download fallbacks. An unrelated
+description image remains a separate `-image-N` file, while the main family is
+named `-thumbnail`.
+
+After download, Pillow verifies every still and creates crop-aware perceptual
+hashes. The comparison includes full, 16:9, 4:3, and square views at multiple
+crop alignments, so a 4:3 crop can match its region in a 16:9 source. When
+separately named files resolve to the same image family, an arrow-key menu shows
+every copy. Up/Down selects the keeper and Enter accepts the highest-resolution
+default. Escape or `0` keeps every copy. Approved discards go to the Recycle Bin.
+
+Older downloader versions may already have saved every square, rectangle,
+thumbnail, and large copy. Add `--clean-old-variants` to a normal run to preview
+those redundant files before any action. The downloader groups rows by the
+site's source-image ID and crop-aware visual fingerprints, shows the best file
+it will keep and every lower-quality file it proposes to remove, then requires
+confirmation. Approved
+files go through the operating system Recycle Bin. Distinct stills and all
+GIF/WebM/MP4 animations are excluded from this cleanup.
 
 `--studio-name` and `--category-name` override the prefix. Without a category
 filter, each clip's own category is used. This is what makes a full-studio URL
@@ -183,7 +253,14 @@ Different parts retain their separate titles. Resolution/dimensions determine
 quality, with advertised file size as a tie-breaker. Explicit resolution fields
 take precedence over title labels; title labels are a fallback when resolution
 is absent. The first listing wins ties. The report records discarded editions.
-This is metadata-based selection; it does not compare video content visually.
+
+Downloaded files are also SHA-256 hashed. Videos receive a media-stream hash,
+which ignores metadata-only differences. Matching content under a different
+clip or category opens an arrow-key menu for the physical filename to keep.
+Enter accepts a default based on earlier category choices, resolution, and file
+size. The portable history learns kept/discarded category preferences. Only
+copies confirmed by the content hash enter this exact-duplicate cleanup, and
+discarded copies go to the Recycle Bin.
 
 All discovery finishes before selection, including when `--max-clips` is used,
 so a higher-quality edition later in the listing can still win. The preview's
@@ -215,6 +292,18 @@ rows to the current viewport, clears the previous footprint, and rebuilds the
 scrolling region on width or height changes. It never needs a new download to
 notice a resize, and stops its resize watcher before restoring the terminal.
 Use a normal terminal such as Windows Terminal.
+
+Download attempt, failure, and completion lines include a local 12-hour timestamp such as `at 6:53PM`, making the transfer pace visible in both the console and text log.
+
+Press **P** to pause or resume at a safe checkpoint after the current transfer.
+Press **Q** to stop after the current clip; the report is marked `paused` and
+the saved work resumes normally next time. Press **Ctrl+R** to open a topmost
+Yes/No restart prompt. Choosing Yes finishes the current media transfer, writes
+the current report and a `restarting` history record, closes the controlled
+browser without leaving a handoff window, and relaunches the same command with
+the same confirmed destination. Choosing No continues the current job. Hotkeys
+are enabled only in an interactive Windows console and suspend while an
+arrow-key file chooser is active.
 
 After saving a clip's media, `ffprobe` measures its video durations. The longest
 saved preview/animation duration determines the pause before the next clip.
@@ -264,6 +353,12 @@ interrupt an otherwise resumable queue. The downloader restores Python's
 normal Ctrl+C handling because the shared console helper otherwise converts
 SIGINT into an ambiguous `SystemExit(0)`.
 
+Every page, listing-scroll, and media request also reserves a slot in the
+portable SQLite ledger. Simultaneous downloader processes therefore share one
+request schedule. The default shared gap is 0.65–1.75 seconds and is editable
+in the JSON config or with `--shared-pacing-min` and `--shared-pacing-max`. Its
+countdown uses the colored operation progress row.
+
 Discovery uses a 2-second minimum scroll delay (with the repeat adjustment
 above). A listing finishes after eight quiet checks
 at the bottom, with no pending site data requests and no visible loader. Adjust
@@ -287,6 +382,15 @@ C:\BAT\clips4sale_downloader.bat "<listing URL>" --headless
 
 # Show the installed version:
 C:\BAT\clips4sale_downloader.bat --version
+
+# Run dependency, browser, disk, portable-folder, and database checks now:
+C:\BAT\clips4sale_downloader.bat --doctor
+
+# Show the latest 20 recorded runs without asking for a URL or destination:
+C:\BAT\clips4sale_downloader.bat --history
+
+# Show a different number of recent runs:
+C:\BAT\clips4sale_downloader.bat --history 50
 ```
 
 `--help` lists all options. Headed Chrome is the default. Site gates require
@@ -302,12 +406,24 @@ Existing files are preserved. A collision produces `name (1).mp4`, then
 are streamed into exclusive `.part` files and published only when complete.
 Failed/interrupted downloads retain their partial files.
 
-The application keeps one SQLite job ledger in its private data directory. It records clip IDs,
-media URLs, saved paths, attempts, and failures. A later run automatically
+The application keeps one SQLite job ledger at
+`private\history\clips4sale-downloads.db`. It records clip IDs, media URLs,
+saved paths, SHA-256 hashes, metadata-independent video hashes, crop-aware image
+fingerprints, verification times, attempts, failures, and learned category
+choices. A later run automatically
 resumes: successful media is skipped, an interrupted/failed item is retried,
 and a clip encountered through two categories is still stored once because the
 ledger identity is the studio plus clip ID. SQLite claims also keep two
 concurrent runs from downloading the same media twice.
+Every existing saved file is checked again before it is accepted as complete:
+videos must pass ffprobe stream/duration checks, images must pass Pillow, and
+hashes are recalculated for the manifest. A missing or corrupt file is marked
+failed and queued for a safe re-download.
+Before an existing ledger is changed, the downloader creates a transactionally
+consistent SQLite backup under `private\history\backups`
+and verifies it with SQLite's integrity check. The first run is backed up after
+its initial ledger is complete. Backup names include the date, time, and process
+ID; existing backups are never overwritten.
 Retries retain their original media reservation. On Windows, process ownership
 is checked with a process handle, never `os.kill(pid, 0)` (which sends Ctrl+C
 on Windows). Each failed attempt is saved before console output, so an
@@ -325,19 +441,37 @@ their deterministic names are adopted into the ledger rather than renamed with
 `(1)`.
 
 Text logs are written to `C:\logs\c4sdl\`, with one collision-safe logfile per
-run. The JSON report records the logfile path. The listing cache is stored in
-the private database, so an aborted download can resume without re-scraping the
-completed listing. If `C:\BAT\private` exists it is used; otherwise the ledger
-and reports go under the user's AppData area. Browser profiles live under
-`%TEMP%` and may be discarded safely; they are not part of the application
-folder. An older destination-local ledger is imported automatically on its
-first run after this change, preserving completed URLs and listing caches.
+run. The JSON report records the logfile path. The listing cache and all run
+summaries are stored in `private\history`, so an aborted
+download can resume without re-scraping the completed listing. Earlier
+temporary, shared private,
+and destination-local ledgers are imported automatically, preserving completed
+URLs, listing caches, and run history.
+
+On the first normal startup of each local day, the downloader runs a doctor
+check for FFmpeg/ffprobe, Playwright, Pillow, Recycle Bin support, browser
+availability, writable portable folders and destination, free space, and SQLite
+integrity. The result and date are stored in portable history, so later starts
+that day skip it. `--doctor` forces the check and exits.
+
+At the end of every run, the console prints a prominent two-line completion
+banner with the result and destination. No completion popup is opened, including
+for headed runs. The legacy `--no-completion-notification` option remains
+accepted for command-line compatibility.
 
 To rerun only failures from a report or database:
 
 ```powershell
 C:\BAT\clips4sale_downloader.bat --retry-failures "<private report or database path>"
 ```
+
+To recover after a reboot without remembering the listing URL, run the tool
+with no URL (or use `--resume`). It lists incomplete jobs newest-first, omits
+jobs whose downloader process is still alive, and restores the selected job's
+original listing URL and destination.
+
+The picker accepts one job or several: `1-3`, `1,2,3`, `1 2 3`, `123`, `a`,
+or `all` to resume multiple selected jobs sequentially.
 
 The listing URL and destination are read from the report when available; they
 can still be supplied explicitly. Each failed media item gets one additional
@@ -353,12 +487,14 @@ the downloader version, process ID, and individual attempt errors.
 ## Tests
 
 ```powershell
-.\.venv\Scripts\python.exe -B -m unittest -v
+.\.venv\Scripts\python.exe -B -m unittest discover -s tests -v
 ```
 
 The tests exercise synthetic scrolling with multiple batches, a better edition
-in a later batch, scoped media extraction, folder selection, collisions, HTTP
-failures, actual FFmpeg duration measurement, and a complete two-clip run. All
+in a later batch, scoped media extraction, portable config/history migration,
+shared pacing, verified hashes, 4:3/16:9 crop matching, learned duplicate
+choices, pause controls, folder selection, collisions, HTTP failures, actual
+FFmpeg duration measurement, and a complete two-clip run. All
 browser requests use fixtures; the only HTTP server is local. Unique test
 artifact folders are retained, so running tests does not delete files.
 

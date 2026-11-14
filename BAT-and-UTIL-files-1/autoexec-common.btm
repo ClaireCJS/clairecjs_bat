@@ -67,7 +67,9 @@ rem Girder?
 
 
                 
-REM Above all else, the music must flow —— but only if it's the music server:
+rem Above all else, the music must flow —— but only if it's the music server.
+rem Machines that are NOT our music server will run the tray module that connects them to it
+
         iff "%MACHINENAME%" == "%MUSICSERVERMACHINENAME%" then
 
                 iff "%MUSIC_PLAYER%" == "WINAMP" then
@@ -82,7 +84,9 @@ REM Above all else, the music must flow —— but only if it's the music server
                         repeat 5 pause
                 endiff
         else
-
+                if "%PLAYER%" == "PAFPlayer" then
+                        call paf-tray
+                endiff
         endiff
 
 rem Things for our primary machines only:

@@ -198,6 +198,14 @@ class TerminalPanelTests(unittest.TestCase):
 
 
 class LogicTests(unittest.TestCase):
+    def test_duplicate_part_full_labels_keep_full_without_prompt(self):
+        candidates = [
+            {"path": "clip - Part 1 - thumbnail.jpg"},
+            {"path": "clip - Full - thumbnail.jpg"},
+        ]
+        with patch("builtins.input", side_effect=AssertionError("must not prompt")):
+            self.assertEqual(d.choose_duplicate_keep(candidates, 0), 1)
+
     def test_clock_stamp_uses_readable_local_12_hour_format(self):
         self.assertEqual(d.clock_stamp(d.datetime(2026, 1, 1, 6, 53)), "6:53AM")
         self.assertEqual(d.clock_stamp(d.datetime(2026, 1, 1, 18, 53)), "6:53PM")
@@ -1157,15 +1165,14 @@ class LogicTests(unittest.TestCase):
     def test_browser_and_download_waits_share_history_and_actual_reporting(self):
         panel = QuietPanel()
         pacer = d.DownloadPacer(panel)
-        browser_waits, scheduled = [], []
-        page = SimpleNamespace(wait_for_timeout=browser_waits.append)
+        scheduled = []
+        page = SimpleNamespace()
         with patch.object(d.random, 'randint', return_value=25):
             pacer.browser_pause(page, 2)
             pacer.pause(2, on_scheduled=scheduled.append)
             pacer.browser_pause(page, 2.25)
-        self.assertEqual(browser_waits, [2000, 2500])
-        self.assertEqual(panel.waits, [2.25])
-        self.assertEqual(scheduled, panel.waits)
+        self.assertEqual(panel.waits, [2.0, 2.25, 2.5])
+        self.assertEqual(scheduled, [2.25])
 
     def test_milestone_pauses_exclude_previous_other_kind_of_pause(self):
         panel = QuietPanel()
@@ -1643,10 +1650,10 @@ class IntegrationTests(unittest.TestCase):
             status = d.run(args, output, self.ffprobe)
         self.assertEqual(status, 0)
         self.assertEqual(len(list(output.glob('*.mp4'))), 1)
-        self.assertEqual(len(panel.waits), 2)
-        self.assertGreaterEqual(panel.waits[0], d.VIDEO_PAUSE_RANGE[0])
-        self.assertLessEqual(panel.waits[0], d.VIDEO_PAUSE_RANGE[1])
-        self.assertAlmostEqual(panel.waits[1], 1.2, places=1)
+        self.assertGreaterEqual(len(panel.waits), 2)
+        self.assertTrue(any(d.VIDEO_PAUSE_RANGE[0] <= value <= d.VIDEO_PAUSE_RANGE[1]
+                            for value in panel.waits))
+        self.assertTrue(any(abs(value - 1.2) <= 0.1 for value in panel.waits))
         report = json.loads((output / 'clips4sale-run.json').read_text())
         self.assertTrue(report['completed'])
         self.assertEqual(Path(report['logfile']).parent, log_directory)

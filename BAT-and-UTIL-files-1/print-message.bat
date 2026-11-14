@@ -1,4 +1,4 @@
-@loadbtm on
+loadbtm on
 @rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — BEGIN ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — BEGIN ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — BEGIN ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -118,7 +118,7 @@ REM Validate parameters
                 if not defined COLOR_%TYPE%    (echoerr %ANSI_COLOR_fatal_error%This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment %+ *pause %+ goto :END)
                 if not defined MESSAGE         (echoerr %ANSI_COLOR_fatal_error%$0 called without a message %+ *pause %+ go)
                 if "%@PLUGIN[StripAnsi]" == "" (echoerr %ANSI_COLOR_fatal_error%$0 called without StripAnsi plugin loaded %+ *pause %+ go)
-                if "1" != "%beep_validated_in_path%" call validate-in-path beep.bat 
+                if "1" != "%beep_validated_in_path%" call validate-in-path beep.bat jumpytext.bat send_mousewheel_input.exe
                 set beep_validated_in_path=1
                 set GOTOEND=0
                 echos %reverse_on%
@@ -468,7 +468,9 @@ REM Post-message delays and pauses:
 
 REM Post-message beeps and sound effects
         if "1" == "%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%" .or. "1" != "%SILENT_MESSAGE%" goto :No_Beeps_2
-            if "%TYPE%" == "CELEBRATION" .or. "%TYPE%" == "COMPLETION" (beep exclamation)
+            iff "%TYPE%" == "CELEBRATION" .or. "%TYPE%" == "COMPLETION" then
+                    beep exclamation
+            endiff
             if "%TYPE%" == "ERROR" .or. "%TYPE%" == "ALARM"   (
                     beep 145 1 
                     beep 120 1 
@@ -512,6 +514,10 @@ rem Do animation for big ones:
                         rem Set the color and do the dance:
                                 set color=%[ANSI_COLOR_%TYPE%] 
                                 do count = 1 to %num_anims% by 1 (gosub do_the_wiggle)
+
+                rem Do the new 2026 zoomies:
+                    call jumpytext
+
         endiff
 
 REM Logging

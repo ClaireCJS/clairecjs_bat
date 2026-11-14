@@ -7,11 +7,12 @@ rem CONFIG:
 
 
         rem ❶ The default player we use to preview audio files:
-                set DEFAULT_PAF_PLAYER=call mpc32 
-                set DEFAULT_PAF_PLAYER=call vlc
-                set DEFAULT_PAF_PLAYER=vlc.exe --volume 200
-                set DEFAULT_PAF_PLAYER=play_audio_file.py 
-                set DEFAULT_PAF_PLAYER=play_audio_file.py --no-album-art --no-external-album-art  --no-web-server --no-now-playing-sidecar --no-visualizers --no-chafa-album-art-in-console
+                rem DEFAULT_PAF_PLAYER=call mpc32 
+                rem DEFAULT_PAF_PLAYER=call vlc
+                rem DEFAULT_PAF_PLAYER=vlc.exe --volume 200
+                rem DEFAULT_PAF_PLAYER=play_audio_file.py 
+                rem DEFAULT_PAF_PLAYER=play_audio_file.py --no-album-art --no-external-album-art  --no-web-server --no-now-playing-sidecar --no-visualizers --no-chafa-album-art-in-console
+                set DEFAULT_PAF_PLAYER=call PAFPlayer.bat --simple
 
         rem ❶ Whether we announce our previews or not (we set this to 0 because PAFPlayer/play_audio_file.py has it’s own announce):
                 set PREVIEW_AUDIO_FILE_ANNOUNCE=0

@@ -470,6 +470,9 @@ with no URL (or use `--resume`). It lists incomplete jobs newest-first, omits
 jobs whose downloader process is still alive, and restores the selected job's
 original listing URL and destination.
 
+The picker accepts one job or several: `1-3`, `1,2,3`, `1 2 3`, `123`, `a`,
+or `all` to resume multiple selected jobs sequentially.
+
 The listing URL and destination are read from the report when available; they
 can still be supplied explicitly. Each failed media item gets one additional
 attempt by default. Use `--media-retries N` to change that. Exit status is `0`

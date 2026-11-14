@@ -1,5 +1,5 @@
 @REM                              Edit this one only in c:\bat\
-@Echo Off
+@Echo off
 on break cancel
 rem echo caller to %0 in %_CWD: %_PBATCHNAME %+ pause
 
@@ -40,7 +40,7 @@ rem VALIDATION & SETUP:
         rem Some stuff we only need to validate once per command-line sessoin:
         iff "%VALIDATED_UPDATEFROMBATVIAMANIFEST_ENV_ALREADY%" != "1" then
             if not isdir %BAT% .or. not isdir %COPY% call validate-environment-variables BAT COPY
-            call validate-in-path important_less success errorlevel insert-before-each-line
+            call validate-in-path important_less success errorlevel insert-before-each-line warning
             set  VALIDATED_UPDATEFROMBATVIAMANIFEST_ENV_ALREADY=1
         endiff
         rem Some stuff we need to validate each and every run:
@@ -80,21 +80,24 @@ rem DO SECONDARY FILES, OR SKIP THEM IF WE SAID TO:
 
                     rem SHARE REQUIRED BAT, UTIL FILES THAT WE USE, FOR FURTHER SUPPORT, TO SECONDARY PROJECT FOLDER:
                             set SECONDARY_SUBFOLDER_FOLDERNAME=%1
-                            for %shared_type in (BAT UTIL) do (gosub process_type %shared_type)
-
+                            rem for %tmptype in (UTIL BAT) do (gosub process_type %tmptype)
+                            gosub process_type UTIL
+                            gosub process_type BAT
         :Skip
 
 
 goto :END_OF_SUBROUTINES
 
         :process_type [shared_type]
-            call print-if-debug "Doing shared_type=“%shared_type%”"
-echo        if not defined SECONDARY_%shared_type%_FILES goto :No_Files_Of_This_Type  [SECONDARY_%shared_type%_FILES = %[SECONDARY_%shared_type%_FILES]]
-pause
-            if not defined SECONDARY_%shared_type%_FILES goto :No_Files_Of_This_Type
+            if "%DEBUG%" != "0" call print-if-debug "Doing shared_type=“%shared_type%%%newline%%tab%echo        iff not defined SECONDARY_%shared_type%_FILES goto :No_Files_Of_This_Type  [SECONDARY_%shared_type%_FILES = %[SECONDARY_%shared_type%_FILES]] GOAT"
+            iff not defined SECONDARY_%shared_type%_FILES then
+                call warning "no files of type %shared_type% found????"
+                goto /i :No_Files_Of_This_Type
+            endiff                
                 set                                SOURCE_DIR=c:\%shared_type\
                 call validate-environment-variable SOURCE_DIR
                 set    OUR_FILELIST=%[SECONDARY_%shared_type%_FILES]
+                if "%DEBUG%" != "0" (call print-if-debug "echo  OUR_FILELIST is now %lq%%OUR_FILELIST%%rq%")
                 set  OUR_FILELIST_2=%[SECONDARY_%shared_type%_FILES_2]
                 set  OUR_FILELIST_3=%[SECONDARY_%shared_type%_FILES_3]
                 set  OUR_FILELIST_4=%[SECONDARY_%shared_type%_FILES_4]
@@ -212,8 +215,8 @@ pause
                                 set SKIP_GIT_ADD_VALIDATION=1
                                 echo.
                                 echo.
-                                rem call print-if-debug "git add %PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%\*.*"
-                                                     git add %PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%\*.* 
+                                rem call print-if-debug "git.bat add %PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%\*.*"
+                                                    call git.bat add %PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%\*.* 
                                 set SKIP_GIT_ADD_VALIDATION=%SKIP_GIT_ADD_VALIDATION_OLD%
                                 
                 :No_Files_Of_This_Type                

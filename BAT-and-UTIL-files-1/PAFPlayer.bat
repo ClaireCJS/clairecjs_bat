@@ -2,7 +2,7 @@
 
 
 rem Set our beta/production status:
-        set PAFPLAYER_STATUS=PRODUCTION
+        rem PAFPLAYER_STATUS=PRODUCTION
         set PAFPLAYER_STATUS=BETA
 
 

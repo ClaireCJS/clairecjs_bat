@@ -6,8 +6,8 @@ call AskYN "Run %italics_on%Tag & Rename v3.9.11%italics_off% [on the files in t
 
 iff "%answer" eq "Y" then
         pushd .
-        call validate-in-path util2 bthis                                                    
-        call bthis
+        call validate-in-path util2 junction
+        junction c:\tagging .
         call util2
         if not isdir TagRename-3.9.11 (call error "TagRename-3.9.11 doesn’t exist in %_CWD") 
         cd    TagRename-3.9.11

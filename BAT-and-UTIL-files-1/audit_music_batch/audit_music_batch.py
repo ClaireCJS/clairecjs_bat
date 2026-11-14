@@ -99,6 +99,50 @@ class BatchFolderLock:
         self.handles.clear()
 
 
+_REPLAYGAIN_BAKE_THREAD_LOCK = threading.Lock()
+
+
+@contextmanager
+def replaygain_bake_turn():
+    """Serialize audio baking across auditor processes on this Windows session."""
+    if os.name != "nt":
+        with _REPLAYGAIN_BAKE_THREAD_LOCK:
+            yield
+        return
+
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateMutexW.argtypes = [wintypes.LPVOID, wintypes.BOOL, wintypes.LPCWSTR]
+    kernel32.CreateMutexW.restype = wintypes.HANDLE
+    kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+    kernel32.WaitForSingleObject.restype = wintypes.DWORD
+    kernel32.ReleaseMutex.argtypes = [wintypes.HANDLE]
+    kernel32.ReleaseMutex.restype = wintypes.BOOL
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel32.CloseHandle.restype = wintypes.BOOL
+
+    mutex = kernel32.CreateMutexW(None, False, "Local\\AuditMusicBatchReplayGainBake")
+    if not mutex:
+        raise ctypes.WinError(ctypes.get_last_error())
+    owns_mutex = False
+    try:
+        wait = kernel32.WaitForSingleObject(mutex, 0)
+        if wait == 0x00000102:  # WAIT_TIMEOUT
+            print("🎚 Waiting for another auditor's ReplayGain bake turn…", flush=True)
+            while wait == 0x00000102:
+                wait = kernel32.WaitForSingleObject(mutex, 1000)
+        if wait not in {0x00000000, 0x00000080}:  # OBJECT_0 / ABANDONED
+            raise ctypes.WinError(ctypes.get_last_error())
+        owns_mutex = True
+        yield
+    finally:
+        if owns_mutex:
+            kernel32.ReleaseMutex(mutex)
+        kernel32.CloseHandle(mutex)
+
+
 def preflight_audio_replacement(source, *, copies=4):
     """Conservative space and exclusive-access probe; no audio bytes are written."""
     source = Path(source)
@@ -284,6 +328,7 @@ _BATCH_SESSION = None
 _BATCH_FOLDER_LOCK = None
 _ACTIVE_CHANGE_GUARD = None
 _RENAMED_PATHS = []
+_PREAPPROVED_RECYCLE_PATHS: set[str] = set()
 
 
 class ExternalFileChange(RuntimeError):
@@ -311,20 +356,29 @@ class ActionChangeGuard:
         if observed is not None:
             for name, signature in observed.items():
                 if Path(name).is_relative_to(self.folder.resolve()) and self.expected.get(name) != signature:
-                    raise ExternalFileChange(f"File changed since audit: {name}. Refresh this proposal before approval.")
+                    raise ExternalFileChange(
+                        f"File changed after it was scanned: {name}. Nothing "
+                        "was changed; this item will be checked again."
+                    )
 
     def check(self, path, consume=True):
         name = str(Path(path).resolve())
         if not self.checked:
             if folder_file_states(self.folder) != self.expected:
-                raise ExternalFileChange("Files changed while this proposal was displayed. No stale approval will be applied; refresh the proposal.")
+                raise ExternalFileChange(
+                    "Files changed while this item was displayed. Nothing was "
+                    "changed; the affected item will be checked again."
+                )
             self.checked = True
         if Path(path).is_dir():
             # Folder actions are guarded by their enumerated files above;
             # directory metadata is not part of the file snapshot.
             return
         if name not in self.touched and action_file_state(path) != self.expected.get(name):
-            raise ExternalFileChange(f"File changed before write: {path}. Refresh the proposal.")
+            raise ExternalFileChange(
+                f"File changed before it could be updated: {path}. Nothing "
+                "was changed; this item will be checked again."
+            )
         if consume:
             self.touched.add(name)
 
@@ -386,6 +440,7 @@ def start_batch_session(root):
     unfinished = BatchSession.unfinished(root)
     resume = False
     if unfinished:
+        wait_for_console_output()
         answer = input("Unfinished batch found. Resume unchanged completed/skipped items? [y/N; N starts fresh]: ").strip().casefold()
         resume = answer in {"y", "yes"}
     _BATCH_SESSION = BatchSession(root, run_id=unfinished[0] if resume else None)
@@ -393,7 +448,7 @@ def start_batch_session(root):
         with _BATCH_SESSION.connect() as db:
             db.execute("UPDATE runs SET status='superseded' WHERE id=?", (unfinished[0],))
     batch_event("resume" if resume else "start", root=str(root))
-    print(f"Recovery journal: {_BATCH_SESSION.database}")
+    print(f"📓 Recovery journal: {_BATCH_SESSION.database}")
 
 
 class BatchDecisions(list):
@@ -426,7 +481,7 @@ def supervised_audio_command(command, *, cwd=None, operation="Audio processing",
             last_update[0] = elapsed
             # Child output is data, not terminal control sequences.
             clean = re.sub(r"[\x00-\x1f\x7f-\x9f]", " ", tail)[-300:]
-            print(console_safe_text(f"        {operation}: {elapsed:.0f}s | {clean}"), flush=True)
+            print(console_safe_text(f"        ⏳ {operation}: {elapsed:.0f}s | {clean}"), flush=True)
     batch_event("command_started", operation=operation, command=command)
     try:
         result = monitored_process(command, cwd=cwd, timeout=REPLAYGAIN_COMMAND_TIMEOUT_SECONDS, on_tick=tick)
@@ -452,9 +507,9 @@ def validate_audio_decode(source, ffmpeg, *, visible=True):
 # Published releases are deliberately separate from the timestamped safety
 # backups that the auditor makes before replacements. Update both values only
 # when publishing a new named release.
-AUDIT_MUSIC_BATCH_VERSION = "v165"
-AUDIT_MUSIC_BATCH_RELEASE_NAME = "safer-batches-resume-retry-and-backup-review"
-AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-10-30"
+AUDIT_MUSIC_BATCH_VERSION = "v193"
+AUDIT_MUSIC_BATCH_RELEASE_NAME = "explicit-final-convergence-verification"
+AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-11-14"
 
 # Set this to a full executable path only when automatic discovery cannot find
 # your preferred image viewer. The V key first honors openimage.bat, then this
@@ -542,6 +597,9 @@ WAVEFORM_APPROVAL_DATABASE_FILENAME = "waveform_reviews.sqlite3"
 REMEMBERED_NO_DATABASE_FILENAME = "remembered_noes.sqlite3"
 AUDIT_CACHE_FILENAME = "audit_music_batch.sqlite3"
 REPLAYGAIN_TIMING_DATABASE_FILENAME = "replaygain_timings.sqlite3"
+REPLAYGAIN_BAKE_DATABASE_FILENAME = "replaygain_bakes.sqlite3"
+REPLAYGAIN_BAKED_METADATA_KEY = "AUDIT_MUSIC_BATCH_REPLAYGAIN_BAKED"
+BACKUP_NAME_MEMORY_FILENAME = "audit_music_batch_backup_names.jsonl"
 WAVEFORM_CHANNEL_COLORS = (
     "0x55dcff",  # cyan: left/first channel
     "0xb68cff",  # violet: right/second channel
@@ -569,6 +627,13 @@ def replaygain_timing_database_path() -> Path:
     if base:
         return Path(base) / "ClaireCJS" / REPLAYGAIN_TIMING_DATABASE_FILENAME
     return Path.home() / ".clairecjs" / REPLAYGAIN_TIMING_DATABASE_FILENAME
+
+
+def replaygain_bake_database_path() -> Path:
+    """Return the dedicated persistent database for verified audio bakes."""
+    local_app_data = os.environ.get("LOCALAPPDATA", "").strip()
+    base = Path(local_app_data) if local_app_data else Path.home() / "AppData" / "Local"
+    return base / "audit_music_batch" / REPLAYGAIN_BAKE_DATABASE_FILENAME
 
 
 def record_replaygain_timing(
@@ -656,21 +721,69 @@ def cached_silence_intervals(
         pass
     return intervals
 
-# Load the leaf module directly.  The legacy clairecjs_utils package initializer
-# imports optional console dependencies that an otherwise read-only audit should
-# not require merely to display a progress bar.
+# Prefer the installed shared package, then load its standalone leaf if an
+# optional package-initializer dependency fails or this is a copied installation.
 _SCRIPT_DIR = Path(__file__).resolve().parent
-_PROGRESS_LIBRARY_SEARCH_DIRS = (
-    _SCRIPT_DIR,
-    _SCRIPT_DIR / "clairecjs_util",
-    _SCRIPT_DIR / "clairecjs_utils",
-)
-for _progress_dir in _PROGRESS_LIBRARY_SEARCH_DIRS:
-    if (_progress_dir / "claire_progressbar.py").is_file():
-        sys.path.insert(0, str(_progress_dir))
-        break
+
+
+def progress_library_search_dirs():
+    """Find shared utilities in installed, adjacent, BAT, and root locations."""
+    import site
+    roots = [_SCRIPT_DIR, _SCRIPT_DIR.parent, Path.cwd(), Path(r"C:\BAT"), Path("C:/")]
+    roots.extend(Path(entry) for entry in sys.path if entry)
+    roots.extend(Path(entry) for entry in site.getsitepackages())
+    user_site = site.getusersitepackages()
+    roots.extend(Path(entry) for entry in ([user_site] if isinstance(user_site, str) else user_site))
+    found = []
+    seen = set()
+    for root in roots:
+        for candidate in (root, root / "clairecjs_util", root / "clairecjs_utils"):
+            key = os.path.normcase(str(candidate.resolve()))
+            if key not in seen:
+                seen.add(key)
+                found.append(candidate)
+    return tuple(found)
+
+
+_PROGRESS_LIBRARY_SEARCH_DIRS = progress_library_search_dirs()
+
+
+def load_shared_progress_library(search_dirs=None):
+    """Load the shared implementation without changing global import precedence."""
+    import importlib
+    import importlib.util
+    errors = []
+    try:
+        module = importlib.import_module("clairecjs_utils.claire_progressbar")
+        return module.progress_bar, module.rainbow_hex, module.spaced_unit
+    except Exception as exc:
+        errors.append(f"package import: {type(exc).__name__}: {exc}")
+    for directory in (_PROGRESS_LIBRARY_SEARCH_DIRS if search_dirs is None else search_dirs):
+        source = Path(directory) / "claire_progressbar.py"
+        if not source.is_file():
+            continue
+        name = "_audit_shared_claire_progressbar"
+        previous = sys.modules.get(name)
+        try:
+            spec = importlib.util.spec_from_file_location(name, source)
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[name] = module
+            spec.loader.exec_module(module)
+            return module.progress_bar, module.rainbow_hex, module.spaced_unit
+        except Exception as exc:
+            errors.append(f"{source}: {type(exc).__name__}: {exc}")
+            if previous is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = previous
+    raise ImportError("; ".join(errors))
+
+
 try:
-    from clairecjs_utils.claire_progressbar import progress_bar, rainbow_hex, spaced_unit
+    progress_bar, rainbow_hex, spaced_unit = load_shared_progress_library()
+    _progress_module = sys.modules.get(progress_bar.__module__)
+    if _progress_module is not None and getattr(_progress_module, "tqdm", None) is None:
+        raise ImportError(f"tqdm is unavailable for {sys.executable}; install it with this Python's -m pip install tqdm")
     _PROGRESS_IMPORT_ERROR: str | None = None
 except Exception as _progress_exc:
     _PROGRESS_IMPORT_ERROR = (
@@ -706,7 +819,7 @@ def progressive_rglob(
     description: str = "📂 Finding files",
 ) -> Iterator[Path]:
     """Yield a recursive scan while showing rainbow discovery progress."""
-    with progress_bar(
+    with live_bake_progress(
         total=None,
         description=description,
         unit="paths",
@@ -859,6 +972,10 @@ DISCOGS_API_ROOT = "https://api.discogs.com"
 ITUNES_SEARCH_ROOT = "https://itunes.apple.com/search"
 COVER_HTTP_TIMEOUT_SECONDS = 30
 COVER_MAX_DOWNLOAD_BYTES = 100 * 1024 * 1024
+# FLAC metadata blocks use an unsigned 24-bit length.  Keep embedded artwork
+# comfortably below that hard limit while preserving the original sidecar at
+# full resolution and quality.
+FLAC_EMBEDDED_ART_TARGET_BYTES = 15 * 1024 * 1024
 COVER_USER_AGENT = (
     "audit_music_batch.py/1.0 (ClioCJS@gmail.com)"
 )
@@ -869,6 +986,7 @@ EXECUTABLE_CATEGORIES = {
     "archive_missing_attrib",
     "archive_missing_marker",
     "all_caps_album_title",
+    "title_apostrophe_style",
     "bare_marker",
     "embedded_art_without_sidecar",
     "embedded_lyrics_outdated",
@@ -906,7 +1024,10 @@ ROOT_WIDE_ACTION_CATEGORIES = {
 }
 ACTION_PROMPT_QUESTIONS = {
     "all_caps_album_title": (
-        "Rename this all-caps album title with normal title capitalization now?"
+        "Rename this all-caps track title with normal title capitalization now?"
+    ),
+    "title_apostrophe_style": (
+        "Repair the missing apostrophe in this title tag now?"
     ),
     "adobe_xmp": "Send this Adobe XMP sidecar to the Recycle Bin now?",
     "archive_incomplete_attrib": (
@@ -944,7 +1065,7 @@ ACTION_PROMPT_QUESTIONS = {
     "missing_replaygain": "Run ReplayGain on this folder now?",
     "missing_srt_from_lrc_txt": "Run Lyric/Karaoke Fix for this folder now?",
     "multiple_embedded_artworks": (
-        "Export all artwork to sidecars and keep only the front cover embedded now?"
+        "Export the preferred Front artwork to one sidecar and keep only it embedded now?"
     ),
     "plain_lyrics_not_embedded": (
         "Embed the plain lyrics into this audio file now?"
@@ -986,7 +1107,7 @@ ACTION_PROMPT_QUESTIONS = {
     ),
 }
 PROMPT_NOUN_PHRASES = (
-    "all-caps album title",
+    "all-caps track title",
     "regenerated sidecar files",
     "configured editor",
     "excessive silence",
@@ -1055,19 +1176,11 @@ ANSI = {
 ANSI_DOUBLE_HEIGHT_TOP = "\033#3"
 ANSI_DOUBLE_HEIGHT_BOTTOM = "\033#4"
 
-ENUMERATION_PROGRESS_FORMAT = (
-    "{desc:<24.24}: {n:>7,.0f} paths scanned |{bar}|"
-    " • {elapsed:>8} elapsed • {rate_fmt:>12}"
-)
-AUDIT_PROGRESS_FORMAT = (
-    "{desc}: {percentage:3.0f}%|{bar}| "
-    "{n:>7,.0f}/{total:>7,.0f}"
-    " • {elapsed}{postfix}"
-)
-AUDIT_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| {n:>7,.0f}/{total:>7,.0f} • {elapsed:>8} • ETA {remaining:>8} • {rate_fmt:>12}{postfix}"
-FILE_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| {n:>7,.0f}/{total:>7,.0f} files • {elapsed:>8} • ETA {remaining:>8} • {rate_fmt:>12}"
-ITEM_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| {n:>7,.0f}/{total:>7,.0f} • {elapsed:>8} • ETA {remaining:>8} • {rate_fmt:>12}"
-REPLAYGAIN_PROGRESS_FORMAT = "{desc:<24.24}: {percentage:3.0f}%|{bar}| • {elapsed:>8}{postfix}"
+ENUMERATION_PROGRESS_FORMAT = "{desc}: {n:,.0f} paths scanned |{bar:20}| {elapsed} • {rate_fmt}"
+AUDIT_PROGRESS_FORMAT = "{desc}: {percentage:3.0f}%|{bar:20}| {n:,.0f}/{total:,.0f} • {elapsed} • ETA {remaining} • {rate_fmt}{postfix}"
+FILE_PROGRESS_FORMAT = "{desc}: {percentage:3.0f}%|{bar:20}| {n:,.0f}/{total:,.0f} files • {elapsed} • ETA {remaining} • {rate_fmt}"
+ITEM_PROGRESS_FORMAT = AUDIT_PROGRESS_FORMAT
+REPLAYGAIN_PROGRESS_FORMAT = "{desc}: {percentage:3.0f}%|{bar:20}| {elapsed}{postfix}"
 def collision_safe_path(
     desired: Path, reserved: set[Path] | None = None
 ) -> Path:
@@ -1085,28 +1198,176 @@ def collision_safe_path(
         index += 1
 
 
-def replacement_backup_path(
-    path: Path, timestamp: str | None = None
-) -> Path:
-    """Choose the required timestamped sibling backup path for ``path``."""
-    stamp = timestamp or datetime.now().strftime("%Y%m%d%H%M")
-    desired = path.with_name(
-        f"{path.name}.bak.{stamp}.replaced-by-chatgpt.bak"
+def windows_file_io_path(path: Path) -> Path:
+    """Use extended absolute Windows paths for backup I/O, including UNC."""
+    if os.name != "nt":
+        return Path(path)
+    name = os.path.abspath(path)
+    if name.startswith("\\\\?\\"):
+        return Path(name)
+    if name.startswith("\\\\"):
+        return Path("\\\\?\\UNC\\" + name[2:])
+    return Path("\\\\?\\" + name)
+
+
+def validate_backup_filename(path: Path) -> None:
+    # Extended paths remove MAX_PATH, not the per-component filesystem limit.
+    units = len(path.name.encode("utf-16-le")) // 2
+    if os.name == "nt" and units > 255:
+        raise OSError(
+            f"Required backup filename is {units} UTF-16 units (Windows limit 255): {path}. "
+            f"Shorten the source filename by at least {units - 255} units before retrying. "
+            "No replacement was performed; the required backup naming rule was preserved."
+        )
+
+
+def backup_name_memory_path() -> Path:
+    """Persistent per-user, append-only memory for manually shortened backup stems."""
+    base = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
+    if base:
+        return Path(base) / "ClaireCJS" / BACKUP_NAME_MEMORY_FILENAME
+    return Path.home() / ".clairecjs" / BACKUP_NAME_MEMORY_FILENAME
+
+
+def backup_name_memory_key(path: Path) -> str:
+    return os.path.normcase(str(Path(path).resolve())).casefold()
+
+
+def remembered_backup_stem(path: Path, memory_path: Path | None = None) -> str | None:
+    store = Path(memory_path or backup_name_memory_path())
+    try:
+        lines = store.read_text(encoding="utf-8").splitlines()
+    except FileNotFoundError:
+        return None
+    key = backup_name_memory_key(path)
+    for line in reversed(lines):
+        try:
+            record = json.loads(line)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(record, dict) and record.get("path") == key and isinstance(record.get("stem"), str):
+            return record["stem"]
+    return None
+
+
+def remember_backup_stem(path: Path, stem: str, memory_path: Path | None = None) -> None:
+    """Append (never replace) the user's chosen compact backup stem."""
+    store = Path(memory_path or backup_name_memory_path())
+    store.parent.mkdir(parents=True, exist_ok=True)
+    record = json.dumps({"path": backup_name_memory_key(path), "stem": stem}, ensure_ascii=False)
+    with store.open("a", encoding="utf-8", newline="\n") as stream:
+        stream.write(record + "\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def _backup_suffixes(stamp: str) -> list[str]:
+    day = stamp[:8] if len(stamp) >= 8 else stamp
+    markers = (
+        ".replaced-by-chatgpt.bak",
+        ".repl-by-gpt.bak",
+        ".gptrepl.bak",
+        ".gpt.bak",
+        ".bak",
     )
-    return collision_safe_path(desired)
+    full = [f".bak.{stamp}{marker}" for marker in markers]
+    if day != stamp:
+        full.extend(f".bak.{day}{marker}" for marker in markers)
+    return full
+
+
+def _select_fitting_backup(path: Path, stem: str, suffixes: list[str]) -> Path | None:
+    for suffix in suffixes:
+        desired = path.with_name(f"{stem}{suffix}")
+        if os.name == "nt" and len(desired.name.encode("utf-16-le")) // 2 > 255:
+            continue
+        # Test collisions through extended paths too, so long paths cannot
+        # hide an existing backup from the collision check.
+        selected = collision_safe_path(windows_file_io_path(desired))
+        if os.name == "nt" and len(selected.name.encode("utf-16-le")) // 2 > 255:
+            continue
+        return desired.with_name(selected.name)
+    return None
+
+
+def _prompt_backup_stem(path: Path, stamp: str, input_reader=None) -> str:
+    minimum = f"{path.suffix}.bak.{stamp[:8]}.bak"
+    max_units = 255 - len(minimum.encode("utf-16-le")) // 2
+    default = path.stem[:max(1, max_units)]
+    prompt = (
+        "\n        ❓ Backup name is too long. Enter a shorter backup filename "
+        "stem (the audio file itself will not be renamed; this choice is "
+        "remembered for this file): "
+    )
+    while True:
+        entered = str(read_interactive_filename_edit(prompt, default, input_reader)).strip()
+        if (
+            entered
+            and entered not in {".", ".."}
+            and not entered.endswith((" ", "."))
+            and Path(entered).name == entered
+            and not any(char in entered for char in '<>:"/\\|?*')
+        ):
+            return entered
+        print("        ⚠️ Enter a valid Windows filename stem without a path or extension.", flush=True)
+
+
+def replacement_backup_path(
+    path: Path,
+    timestamp: str | None = None,
+    *,
+    input_reader=None,
+    memory_path: Path | None = None,
+) -> Path:
+    """Choose a collision-safe sibling backup, shortening its suffix as needed."""
+    stamp = timestamp or datetime.now().strftime("%Y%m%d%H%M")
+    suffixes = _backup_suffixes(stamp)
+    alias = remembered_backup_stem(path, memory_path)
+    if alias:
+        selected = _select_fitting_backup(path, alias + path.suffix, suffixes)
+        if selected is not None:
+            return selected
+    selected = _select_fitting_backup(path, path.name, suffixes)
+    if selected is not None:
+        return selected
+    if input_reader is None and not (
+        bool(getattr(sys.stdin, "isatty", lambda: False)())
+        and bool(getattr(sys.stdout, "isatty", lambda: False)())
+    ):
+        raise OSError(
+            f"No backup name fits Windows' 255-unit filename limit for {path}; "
+            "run interactively to choose and remember a shorter backup name."
+        )
+    alias = _prompt_backup_stem(path, stamp, input_reader)
+    selected = _select_fitting_backup(path, alias + path.suffix, suffixes)
+    if selected is None:
+        raise OSError("That backup name is still too long; no replacement was performed.")
+    remember_backup_stem(path, alias, memory_path)
+    return selected
 
 
 def backup_before_inline_replacement(
-    path: Path, timestamp: str | None = None
+    path: Path,
+    timestamp: str | None = None,
+    *,
+    input_reader=None,
+    memory_path: Path | None = None,
 ) -> Path:
     """Copy and verify ``path`` before any in-place content/tag replacement."""
     check_pending_change(path)
     if not path.is_file():
         raise FileNotFoundError(f"Cannot back up missing file: {path}")
-    backup = replacement_backup_path(path, timestamp)
+    backup = replacement_backup_path(
+        path, timestamp, input_reader=input_reader, memory_path=memory_path
+    )
     batch_event("backup_intent", source=str(path), backup=str(backup))
-    shutil.copy2(path, backup)
-    if not backup.is_file() or backup.stat().st_size != path.stat().st_size:
+    source_io = windows_file_io_path(path)
+    backup_io = windows_file_io_path(backup)
+    try:
+        shutil.copy2(source_io, backup_io)
+    except OSError as exc:
+        raise OSError(f"Backup copy failed; replacement not performed. Source: {path!s}; backup: {backup!s}; {exc}") from exc
+    if not backup_io.is_file() or backup_io.stat().st_size != source_io.stat().st_size:
         raise RuntimeError(f"Replacement backup verification failed: {backup}")
     def digest(filename):
         checksum = hashlib.sha256()
@@ -1114,7 +1375,7 @@ def backup_before_inline_replacement(
             for chunk in iter(lambda: stream.read(1024 * 1024), b""):
                 checksum.update(chunk)
         return checksum.digest()
-    if digest(path) != digest(backup):
+    if digest(source_io) != digest(backup_io):
         raise RuntimeError(f"Replacement backup content verification failed: {backup}")
     batch_event("backup_complete", source=str(path), backup=str(backup))
     return backup
@@ -1122,7 +1383,11 @@ def backup_before_inline_replacement(
 
 def recycle_path(path: Path) -> Path:
     """Send ``path`` to the OS Recycle Bin; never fall back to unlink/rmtree."""
-    check_pending_change(path)
+    resolved = str(Path(path).resolve())
+    guard_already_checked = resolved in _PREAPPROVED_RECYCLE_PATHS
+    _PREAPPROVED_RECYCLE_PATHS.discard(resolved)
+    if not guard_already_checked:
+        check_pending_change(path)
     if not path.exists():
         raise FileNotFoundError(f"Cannot recycle missing path: {path}")
     batch_event("recycle_intent", path=str(path))
@@ -1170,6 +1435,12 @@ def recycle_path(path: Path) -> Path:
         raise RuntimeError(f"Recycle Bin operation did not remove: {path}")
     batch_event("recycle_complete", path=str(path))
     return path
+
+
+def recycle_path_after_tracked_rename(path: Path) -> Path:
+    """Recycle a destination already approved by ``tracked_rename``."""
+    _PREAPPROVED_RECYCLE_PATHS.add(str(Path(path).resolve()))
+    return recycle_path(path)
 
 
 _LAST_RANDOM_CONSOLE_PAIR: tuple[int, int] | None = None
@@ -1569,6 +1840,7 @@ def canonicalized_filename(name: str) -> str:
     # In filenames, Claire's convention is ``feat`` rather than ``feat.``.
     # This applies whether the modifier is parenthesized or part of the title.
     result = re.sub(r"\bfeat\.(?=\s|\))", "feat", result, flags=re.I)
+    result = repair_common_missing_apostrophes(result, curly=False)
     return result
 
 
@@ -1700,6 +1972,7 @@ def normalize_batch_preflight_paths(root: Path) -> tuple[Path, list[str]]:
     approvals/comparison rasters so a rename never creates a fake re-review.
     """
     resolved_root = Path(root).resolve()
+    print(console_safe_text("🧭 Checking folder names, cover art, and album notes before the audit…"), flush=True)
     actions: list[str] = []
     try:
         folders = [
@@ -1760,7 +2033,7 @@ def normalize_batch_preflight_paths(root: Path) -> tuple[Path, list[str]]:
         ]
     except OSError:
         return resolved_root, actions
-    for folder in current_folders:
+    for folder in progress_preflight_folders(current_folders):
         children = _casefolded_child_paths(folder)
         folder_jpg = children.get("folder.jpg")
         if folder_jpg is not None and "cover.jpg" not in children:
@@ -1851,7 +2124,7 @@ add_local_dependency_paths()
 try:
     from mutagen import File as mutagen_file
     from mutagen.flac import FLAC, Picture
-    from mutagen.id3 import APIC, ID3, SYLT, TALB, TCON, TXXX, USLT
+    from mutagen.id3 import APIC, ID3, SYLT, TALB, TCON, TIT2, TXXX, USLT
     from mutagen.mp3 import MP3
 except Exception:  # pragma: no cover - exercised when mutagen is absent.
     mutagen_file = None
@@ -2026,7 +2299,8 @@ def dependency_requirements(
                 "claire_progressbar",
                 _PROGRESS_IMPORT_ERROR is None,
             ),
-            "rainbow progress display for long enumeration and audit passes",
+            "rainbow progress display for long enumeration and audit passes"
+            + (f" (import error: {_PROGRESS_IMPORT_ERROR})" if _PROGRESS_IMPORT_ERROR else ""),
             "console status",
         ),
         ToolRequirement(
@@ -2044,7 +2318,7 @@ def dependency_requirements(
         ToolRequirement(
             "ffplay",
             detected("ffplay", shutil.which("ffplay") is not None),
-            "P=Preview audio during interactive waveform review",
+            "L=Listen during interactive waveform review",
             "waveform audio preview",
         ),
         ToolRequirement(
@@ -2334,6 +2608,61 @@ TITLE_CONTRACTION_SUFFIXES = {
 }
 
 
+# Deliberately omit ambiguous forms such as Its, Were, Well, Shell, Hell,
+# Lets, and Id. These replacements are limited to ordinary words whose
+# apostrophe-free spelling is overwhelmingly a contraction in a song title.
+COMMON_MISSING_APOSTROPHES = {
+    "im": "I'm",
+    "ive": "I've",
+    "youre": "You're",
+    "theyre": "They're",
+    "dont": "Don't",
+    "cant": "Can't",
+    "wont": "Won't",
+    "couldnt": "Couldn't",
+    "wouldnt": "Wouldn't",
+    "shouldnt": "Shouldn't",
+    "isnt": "Isn't",
+    "arent": "Aren't",
+    "wasnt": "Wasn't",
+    "werent": "Weren't",
+    "didnt": "Didn't",
+    "doesnt": "Doesn't",
+    "havent": "Haven't",
+    "hasnt": "Hasn't",
+    "hadnt": "Hadn't",
+    "thats": "That's",
+    "whats": "What's",
+    "whos": "Who's",
+}
+
+
+def repair_common_missing_apostrophes(text: str, *, curly: bool) -> str:
+    """Repair conservative contraction spellings in filenames or title tags."""
+    apostrophe = "’" if curly else "'"
+    pattern = re.compile(
+        r"(?<![A-Za-z0-9])(" + "|".join(
+            sorted(
+                map(re.escape, COMMON_MISSING_APOSTROPHES),
+                key=len,
+                reverse=True,
+            )
+        ) + r")(?![A-Za-z0-9])",
+        flags=re.I,
+    )
+
+    def replacement(match: re.Match[str]) -> str:
+        canonical = COMMON_MISSING_APOSTROPHES[match.group(0).casefold()]
+        canonical = canonical.replace("'", apostrophe)
+        if match.group(0).isupper():
+            return canonical.upper()
+        if match.group(0).islower():
+            return canonical[0].lower() + canonical[1:]
+        return canonical
+
+    return pattern.sub(replacement, str(text))
+
+
 def canonical_title_word(word: str) -> str:
     """Title-case a word while preserving accepted acronyms and stylization."""
     if not word:
@@ -2390,6 +2719,7 @@ def canonical_song_title_text(text: str) -> str:
     normalized = str(text).translate(str.maketrans({
         "‘": "'", "’": "'", "“": '"', "”": '"',
     }))
+    normalized = repair_common_missing_apostrophes(normalized, curly=False)
     # ``_ (modifier)`` is Claire's filename-safe spelling for ``? (modifier)``.
     # Keep that underscore: Windows cannot store the literal question mark, and
     # treating it as an ordinary separator silently changes the song title.
@@ -2937,16 +3267,30 @@ class BatchAudit:
         """Show compact rate/filename text without consuming the bar width."""
         if self.progress is None:
             return
-        details = getattr(self.progress, "format_dict", {}) or {}
-        elapsed = float(details.get("elapsed") or 0.0)
-        current = float(details.get("n") or 0.0)
-        initial = float(getattr(self.progress, "initial", 0.0) or 0.0)
-        rate = (current - initial) / elapsed if elapsed > 0 else 0.0
-        unit = str(getattr(self.progress, "unit", "") or "").strip()
-        postfix = (f"{rate:6.2f} {unit}/s" if rate > 0 else f"{'--':>6} {unit}/s")
-        postfix = f"{postfix:<16}"
-        if self._progress_audio_preview:
-            postfix += f" • {self._progress_audio_preview}"
+        if not getattr(self, "_fixed_audit_progress", False):
+            self.progress.set_postfix_str(self._progress_audio_preview or "", refresh=refresh)
+            return
+        details = self.progress.format_dict
+        elapsed = float(details.get("elapsed") or 0)
+        rate = float(details.get("rate") or (self.progress.n / elapsed if elapsed else 0))
+        remaining = max(0, self.progress.total - self.progress.n) / rate if self.progress.total is not None and rate else None
+        def clock(seconds):
+            if seconds is None:
+                return "--:--:--"
+            seconds = int(seconds)
+            return f"{seconds // 3600:02d}:{seconds // 60 % 60:02d}:{seconds % 60:02d}"
+        width = self._audit_filename_width
+        name = self._progress_audio_preview or ""
+        if visible_cell_width(name) > width:
+            left, right = name, ""
+            # Preserve the extension/tail while removing the middle.
+            right = name[-min(16, width // 3):]
+            left = name[:-len(right)] if right else name
+            while left and visible_cell_width(left + "…" + right) > width:
+                left = left[:-1]
+            name = left + "…" + right
+        name += " " * max(0, width - visible_cell_width(name))
+        postfix = f"{clock(elapsed)} ETA {clock(remaining)} {rate:8.1f} ✓/s • {name}"
         self.progress.set_postfix_str(postfix, refresh=refresh)
 
     def progress_update(self) -> None:
@@ -2957,15 +3301,30 @@ class BatchAudit:
     def progress_show_audio(self, path: Path) -> None:
         """Refresh immediately with the audio file currently being opened."""
         if self.progress is not None:
-            self._progress_audio_preview = compact_progress_filename(path)
+            self._progress_audio_preview = re.sub(r"[\x00-\x1f\x7f-\x9f]", " ", path.name)
             self.refresh_progress_postfix(refresh=True)
 
-    def progress_phase(self, description: str) -> None:
-        """Show a new audit phase immediately without changing progress."""
+    def progress_phase(self, description: str, total: int | None = None) -> None:
+        """Announce a real phase and reset its own work counter and elapsed time."""
+        if self.progress is None:
+            print(console_safe_text(description), flush=True)
         if self.progress is not None:
             self._progress_audio_preview = ""
+            # Unknown-length phases must not format total=None as a number.
+            self.progress.bar_format = "{desc}: |{bar:20}| {elapsed} • working{postfix}"
+            self.progress.reset(total=total)
+            self.progress.total = total
+            if total is not None:
+                digits = len(str(total))
+                self.progress.bar_format = "{desc}{percentage:3.0f}%|{bar:10}| " + f"{{n:0{digits}.0f}}/{{total:0{digits}.0f}}" + "{postfix}"
+            else:
+                self.progress.bar_format = "{desc}|{bar:10}| working{postfix}"
+            self._fixed_audit_progress = True
+            overhead = visible_cell_width(description) + 80
+            self._audit_filename_width = max(16, min(100, visible_console_size().columns - overhead))
             self.progress.set_description(description, refresh=False)
             self.refresh_progress_postfix(refresh=True)
+            self.progress._audit_refresh_status = lambda: self.refresh_progress_postfix(refresh=False)
 
     def rel(self, path: Path) -> str:
         try:
@@ -3079,12 +3438,9 @@ class BatchAudit:
         return folder_front_art_candidates(folder)
 
     def artwork_sidecars_for_audio(self, audio_path: Path) -> list[Path]:
-        """Recognize album Front art and MISC's same-basename extracted art."""
+        """Recognize folder Front art and an exact per-track image sidecar."""
         candidates = self.folder_art_candidates(audio_path.parent)
-        if not is_album_track_filename(audio_path):
-            candidates.extend(
-                self.same_stem_sidecars(audio_path, IMAGE_EXTS)
-            )
+        candidates.extend(self.same_stem_sidecars(audio_path, IMAGE_EXTS))
         return list(dict.fromkeys(candidates))
 
     def tag_snapshot(self, path: Path) -> dict[str, Any]:
@@ -3542,7 +3898,7 @@ class BatchAudit:
                     "ask_first",
                     "all_caps_album_title",
                     path,
-                    "Album-track title is written entirely in capital letters.",
+                    "Track title is written entirely in capital letters.",
                     "Use the suggested capitalization or edit the filename "
                     "yourself before the audio, sidecars, backups, and local "
                     "playlist references are renamed together.",
@@ -3696,6 +4052,22 @@ class BatchAudit:
 
             if not snapshot.get("title"):
                 self.add("problem", "missing_title", path, "Missing title tag.")
+            else:
+                current_title = str(snapshot["title"][0])
+                proposed_title = repair_common_missing_apostrophes(
+                    current_title,
+                    curly=True,
+                )
+                if proposed_title != current_title:
+                    self.add(
+                        "safe_fix",
+                        "title_apostrophe_style",
+                        path,
+                        "Title tag contains a common contraction without its apostrophe.",
+                        "Replace only the unambiguous missing apostrophe; leave the rest of the title unchanged.",
+                        before_title=current_title,
+                        proposed_title=proposed_title,
+                    )
             if not snapshot.get("artist"):
                 self.add("problem", "missing_artist", path, "Missing artist tag.")
             if not snapshot.get("album"):
@@ -3746,7 +4118,7 @@ class BatchAudit:
                     "multiple_embedded_artworks",
                     path,
                     "More than one image is embedded; only one front cover should remain in the audio file.",
-                    "Export every embedded image to the folder, then retain only one front-cover image in the audio.",
+                    "Export one preferred image (Front, otherwise Back, otherwise the first usable image) as the single sidecar, then retain only it in the audio.",
                     art_count=int(snapshot.get("art_count") or 0),
                     art_types=snapshot.get("art_types", []),
                 )
@@ -4082,8 +4454,12 @@ class BatchAudit:
         embed_lyrics_first: bool = False,
         refresh_embedded_lyrics: bool = False,
     ) -> dict[str, Any]:
+        # This object is reused after baking. Findings belong to this scan,
+        # not every earlier scan performed with the same object.
+        self.findings = []
         progress = None
         embedded: list[dict[str, Any]] = []
+        embedding_failures: list[dict[str, str]] = []
         with ExitStack() as stack:
             silence_ffmpeg = (
                 shutil.which("ffmpeg")
@@ -4099,9 +4475,10 @@ class BatchAudit:
                         thread_name_prefix="audit-silence",
                     )
                 )
-            if sys.stderr.isatty():
+            print(console_safe_text("🔎 Finding audio and sidecar files…"), flush=True)
+            if progress_terminal_enabled():
                 progress = stack.enter_context(
-                    progress_bar(
+                    live_bake_progress(
                         total=None,
                         description="🔎 Finding files",
                         unit="files",
@@ -4136,11 +4513,11 @@ class BatchAudit:
             )
             if progress is None:
                 progress = stack.enter_context(
-                    progress_bar(
+                    live_bake_progress(
                         total=total_checks,
                         description="👀 Auditing music batch",
                         unit="checks",
-                        enabled=sys.stderr.isatty(),
+                        enabled=progress_terminal_enabled(),
                         bar_format=AUDIT_PROGRESS_FORMAT,
                     )
                 )
@@ -4154,7 +4531,7 @@ class BatchAudit:
                 progress.refresh()
             self.progress = progress
             if embed_lyrics_first:
-                self.progress_phase("🎤 Embedding available lyrics")
+                self.progress_phase("🎤 Embedding available lyrics", total=len(self.audio_files))
                 for path in self.audio_files:
                     self.progress_show_audio(path)
                     try:
@@ -4168,17 +4545,28 @@ class BatchAudit:
                                 embedded.append(
                                     {"path": self.rel(path), "actions": actions}
                                 )
+                    except Exception as exc:
+                        error = f"{type(exc).__name__}: {exc}"
+                        embedding_failures.append({"path": self.rel(path), "error": error})
+                        batch_event("failure", operation="automatic_lyric_embedding", path=str(path), error=error)
+                        print_file_error(path, exc, "Lyrics skipped", True)
                     finally:
                         self.progress_update()
-            self.progress_phase("📂 Checking files and sidecars")
-            observed_files = {str(p.resolve()): action_file_state(p) for p in self.files if p.is_file()}
+            self.progress_phase("📋 Recording file state", total=len(self.files))
+            observed_files = {}
+            for path in self.files:
+                self.progress_show_audio(path)
+                if path.is_file():
+                    observed_files[str(path.resolve())] = action_file_state(path)
+                self.progress_update()
+            self.progress_phase("📂 Checking filenames and sidecars", total=len(self.files))
             self.audit_filesystem()
             self.progress_phase("🔁 Checking duplicates and archives")
             self.audit_duplicates_and_archives()
-            self.progress_phase("🎵 Reading audio tags")
+            self.progress_phase("🎵 Reading audio metadata and lyric/artwork tags", total=len(self.audio_files))
             self.audit_audio_tags()
             if self.check_silence:
-                self.progress_phase("🔇 Silence detect")
+                self.progress_phase("🔇 Analyzing silence", total=len(self.audio_files))
                 self.audit_excessive_silence(
                     silence_futures if silence_executor is not None else None,
                     ffmpeg_executable=silence_ffmpeg,
@@ -4189,6 +4577,7 @@ class BatchAudit:
         self.assign_codes()
         report = self.report_data()
         report["_observed_files"] = observed_files
+        report["embedding_failures"] = embedding_failures
         if embed_lyrics_first:
             report["embedded_lyrics"] = embedded
             report["embedded_lyrics_mode"] = (
@@ -4578,6 +4967,29 @@ def lrc2srt_executable() -> Path | None:
     return next((candidate for candidate in candidates if candidate.is_file()), None)
 
 
+def srt_finding_audio_paths(root: Path, finding: dict[str, Any]) -> list[Path]:
+    affected = finding.get("details", {}).get("affected_files", [])
+    if affected:
+        return list(dict.fromkeys((root / str(path)).resolve() for path in affected))
+    target = safe_finding_path(root, finding)
+    if target.is_file():
+        return [target]
+    if not target.is_dir():
+        return []
+    return [path for path in target.iterdir() if path.is_file()
+            and path.suffix.casefold() in AUDIO_EXTS
+            and find_lyric_sidecar(path, (".lrc",)) is not None
+            and find_lyric_sidecar(path, (".txt",)) is not None]
+
+
+def nonempty_srt_exists(audio_path: Path) -> bool:
+    try:
+        srt = audio_path.with_suffix(".srt")
+        return srt.is_file() and srt.stat().st_size > 0
+    except FileNotFoundError:
+        return False
+
+
 def generate_missing_srt_sidecars(
     root: Path,
     audio_or_folder: Path,
@@ -4661,7 +5073,6 @@ def generate_missing_srt_sidecars(
         sys.executable,
         str(tool),
         "MiniLyricsFix",  # internal lrc2srt.py mode name; never shown to user
-        "--recursive",
         "--automatic-overwrites",
     ]
     print(
@@ -4742,10 +5153,15 @@ def backfill_srt_from_lrc(audio_path: Path) -> list[str]:
         [sys.executable, str(tool), str(lrc), "--automatic-overwrites"],
         cwd=str(lrc.parent),
         check=False,
+        capture_output=True,
+        text=True,
+        errors="replace",
     )
+    batch_event("diagnostic", operation="lrc_backfill", path=str(audio_path),
+                stdout=result.stdout, stderr=result.stderr)
     if result.returncode:
         raise RuntimeError(f"lrc2srt.py exited with code {result.returncode}")
-    if not srt.is_file() or srt.stat().st_mtime_ns <= before_mtime:
+    if not srt.is_file() or srt.stat().st_size == 0 or srt.stat().st_mtime_ns <= before_mtime:
         raise RuntimeError("lrc2srt.py did not rewrite the matching SRT")
     return [f"backfilled_srt:{srt}"]
 
@@ -5626,6 +6042,52 @@ def _itunes_original_art_url(url: str) -> str:
     return re.sub(r"/\d+x\d+(?:bb)?(?=[.-])", "/3000x3000bb", url)
 
 
+def youtube_video_id_from_filename(path: Path) -> str | None:
+    """Return the final YouTube ID from ``(youtube-rip) (ID)`` filenames."""
+    match = re.search(
+        r"\(youtube-rip\)\s*\(([A-Za-z0-9_-]{6,20})\)$",
+        path.stem,
+        flags=re.I,
+    )
+    return match.group(1) if match else None
+
+
+def youtube_thumbnail_cover_match(path: Path) -> CoverMatch | None:
+    """Prefer the source video's own thumbnail for an identified YouTube rip."""
+    video_id = youtube_video_id_from_filename(path)
+    if not video_id:
+        return None
+    title = re.sub(
+        r"\s*\(youtube-rip\)\s*\([A-Za-z0-9_-]{6,20}\)$",
+        "",
+        path.stem,
+        flags=re.I,
+    ).strip()
+    return CoverMatch(
+        source="YouTube thumbnail",
+        release_id=video_id,
+        release_group_id="",
+        artist="YouTube",
+        album=title or path.stem,
+        date="",
+        country="",
+        formats=("YouTube video",),
+        confidence=100,
+        exact_id=True,
+        ambiguous=False,
+        artworks=(
+            CoverArtwork(
+                image_id=video_id,
+                url=f"https://i.ytimg.com/vi/{video_id}/maxresdefault.jpg",
+                types=("Front",),
+                comment="Thumbnail from the YouTube video ID in the filename",
+                front=True,
+                approved=True,
+            ),
+        ),
+    )
+
+
 def itunes_cover_match(
     metadata: dict[str, Any],
     json_fetcher: Callable[..., dict[str, Any] | None],
@@ -5778,6 +6240,9 @@ def resolve_cover_match(
     text_fetcher: Callable[[str], str] | None = None,
 ) -> CoverMatch:
     """Resolve one release, preferring an exact tagged MusicBrainz release ID."""
+    youtube_match = youtube_thumbnail_cover_match(path)
+    if youtube_match is not None:
+        return youtube_match
     fetch_json = json_fetcher or cover_http_get_json
     metadata = cover_lookup_metadata(path)
     album = str(metadata.get("album") or "")
@@ -6578,14 +7043,28 @@ def erase_wrapped_console_text(text: str) -> None:
 
 
 class ConsolePager:
-    """A transparent stdout wrapper that pauses before one viewport scrolls."""
+    """Page output on a writer thread while the audit continues in the caller."""
+
+    _RESET = object()
 
     def __init__(self, stream: Any, key_reader=None) -> None:
         self.stream = stream
-        self.key_reader = key_reader or read_single_key
+        self.key_reader = key_reader or _read_single_key_raw
         self.rows_used = 0
         self.line_width = 0
         self.line_rows = 0
+        self._condition = threading.Condition()
+        self._stream_lock = threading.Lock()
+        self._pending: deque[Any] = deque()
+        self._active = False
+        self._closing = False
+        self._error: BaseException | None = None
+        self._writer = threading.Thread(
+            target=self._writer_loop,
+            name="audit-console-pager",
+            daemon=True,
+        )
+        self._writer.start()
 
     @property
     def encoding(self):
@@ -6598,7 +7077,21 @@ class ConsolePager:
         return self.stream.fileno()
 
     def flush(self) -> None:
-        self.stream.flush()
+        # print(..., flush=True) must not turn an ordinary write into a wait
+        # for the pager. Prompts explicitly call wait_for_output().
+        with self._stream_lock:
+            self.stream.flush()
+
+    def _write_terminal(self, text: str) -> None:
+        with self._stream_lock:
+            self.stream.write(text)
+
+    def _raise_worker_error(self) -> None:
+        if self._error is None:
+            return
+        if isinstance(self._error, KeyboardInterrupt):
+            raise self._error
+        raise RuntimeError("Buffered console output failed") from self._error
 
     def _capacity(self) -> int:
         return max(1, int(visible_console_size().lines) - 3)
@@ -6609,26 +7102,26 @@ class ConsolePager:
             "── More ── press any key to continue "
             f"{ANSI['reset']}"
         )
-        self.stream.write(prompt)
-        self.stream.flush()
+        self._write_terminal(prompt)
+        self.flush()
         key = self.key_reader()
         if key == "\x03":
-            self.stream.write(ANSI["reset"])
-            self.stream.flush()
+            self._write_terminal(ANSI["reset"])
+            self.flush()
             raise KeyboardInterrupt
-        self.stream.write(
+        self._write_terminal(
             f"\r{ANSI['erase_line']}{ANSI['erase_to_eol']}"
         )
-        self.stream.flush()
+        self.flush()
         self.rows_used = 0
         self.line_rows = 0
         self.line_width = 0
 
     def reset_after_user_pause(self) -> None:
-        """Treat another interactive prompt as the page's natural pause."""
-        self.rows_used = 0
-        self.line_rows = 0
-        self.line_width = 0
+        """Queue a page-counter reset after the prompt the user just answered."""
+        with self._condition:
+            self._pending.append(self._RESET)
+            self._condition.notify_all()
 
     def _reserve_rows(self, desired_line_width: int) -> None:
         columns = max(1, int(visible_console_size().columns))
@@ -6643,9 +7136,7 @@ class ConsolePager:
         self.rows_used += extra_rows
         self.line_rows = desired_rows
 
-    def write(self, text: str) -> int:
-        """Write incrementally so multiline strings pause between screenfuls."""
-        value = str(text)
+    def _write_paged(self, value: str) -> None:
         pieces = re.split(r"(\n)", value)
         for piece in pieces:
             if not piece:
@@ -6653,21 +7144,85 @@ class ConsolePager:
             if piece == "\n":
                 if self.line_rows == 0:
                     self._reserve_rows(0)
-                self.stream.write(piece)
+                self._write_terminal(piece)
                 self.line_width = 0
                 self.line_rows = 0
                 continue
             if "\r" in piece:
                 after_carriage = piece.rsplit("\r", 1)[-1]
                 self.line_width = visible_cell_width(after_carriage)
-                self.line_rows = 0
+                # Progress bars redraw the current terminal line. Keep its
+                # already-reserved rows so refreshes do not consume a fresh
+                # pager row on every carriage return.
                 self._reserve_rows(self.line_width)
             else:
                 desired_width = self.line_width + visible_cell_width(piece)
                 self._reserve_rows(desired_width)
                 self.line_width = desired_width
-            self.stream.write(piece)
+            self._write_terminal(piece)
+        self.flush()
+
+    def _writer_loop(self) -> None:
+        while True:
+            with self._condition:
+                while not self._pending and not self._closing:
+                    self._condition.wait()
+                if self._closing and not self._pending:
+                    self._condition.notify_all()
+                    return
+                item = self._pending.popleft()
+                self._active = True
+                self._condition.notify_all()
+            try:
+                if item is self._RESET:
+                    self.rows_used = 0
+                    self.line_rows = 0
+                    self.line_width = 0
+                else:
+                    self._write_paged(item)
+            except BaseException as exc:
+                with self._condition:
+                    self._error = exc
+                    self._pending.clear()
+                    self._closing = True
+            finally:
+                with self._condition:
+                    self._active = False
+                    self._condition.notify_all()
+            if self._error is not None:
+                return
+
+    def write(self, text: str) -> int:
+        """Queue output immediately; the pager never back-pressures the audit."""
+        value = str(text)
+        if not value:
+            return 0
+        with self._condition:
+            self._raise_worker_error()
+            if self._closing:
+                raise RuntimeError("Console pager is closing")
+            self._pending.append(value)
+            self._condition.notify_all()
         return len(value)
+
+    def wait_for_output(self) -> None:
+        """Drain output before an interactive prompt consumes console keys."""
+        with self._condition:
+            while (self._pending or self._active) and self._error is None:
+                self._condition.wait()
+            self._raise_worker_error()
+        self.flush()
+
+    def close(self) -> None:
+        """Drain queued text, stop the writer, and surface writer failures."""
+        try:
+            self.wait_for_output()
+        finally:
+            with self._condition:
+                self._closing = True
+                self._condition.notify_all()
+            self._writer.join()
+        self._raise_worker_error()
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.stream, name)
@@ -6675,8 +7230,9 @@ class ConsolePager:
 
 @contextmanager
 def paged_console_output(enabled: bool = True):
-    """Page real interactive stdout; never page redirected/machine output."""
+    """Serialize/page interactive stdout and stderr through one writer."""
     original = sys.stdout
+    original_stderr = sys.stderr
     interactive = (
         enabled
         and bool(getattr(original, "isatty", lambda: False)())
@@ -6687,10 +7243,23 @@ def paged_console_output(enabled: bool = True):
         return
     pager = ConsolePager(original)
     sys.stdout = pager
+    # Progress bars and diagnostics commonly target stderr. Since both console
+    # streams share one terminal cursor, queue them through the same writer so
+    # background paging cannot race their carriage returns and redraws.
+    sys.stderr = pager
     try:
         yield pager
     finally:
         sys.stdout = original
+        sys.stderr = original_stderr
+        pager.close()
+
+
+def wait_for_console_output() -> None:
+    """Drain paged output before the program waits for user input."""
+    wait = getattr(sys.stdout, "wait_for_output", None)
+    if callable(wait):
+        wait()
 
 
 def reset_console_pager_after_user_input() -> None:
@@ -9091,6 +9660,7 @@ def read_artwork_review_key(
     rendered_size: os.terminal_size,
 ) -> str:
     """Read a review key, reporting a live Windows viewport resize as a key."""
+    wait_for_console_output()
     if key_reader is not None:
         return key_reader()
     if (
@@ -9114,9 +9684,10 @@ def read_artwork_review_key(
         time.sleep(0.08)
 
 
-def artwork_review_choices(use_color: bool) -> str:
+def artwork_review_choices(use_color: bool, *, allow_always: bool = False, sidecar_name: str | None = None) -> str:
     """Spell out every artwork-review key instead of using cryptic letters."""
-    plain = "Y=Yes | N=No | A=Yes for folder | S=No for folder | O=Open default | Shift+O=IrfanView | R=Refresh | V=View original"
+    sidecar_option = ("S=Save as " + sidecar_name + " | ") if sidecar_name else ""
+    plain = "Y=Yes/Enter | N=No | " + ("A=Always keep extracted art | F=Keep for this folder | " if allow_always else "") + sidecar_option + "R=Refresh | V=View original"
     if not use_color:
         return f"[{plain}]"
     return (
@@ -9125,6 +9696,9 @@ def artwork_review_choices(use_color: bool) -> str:
         f"{rgb_text('=Yes/Enter | ', 255, 190, 95, True)}"
         f"{ANSI['bold']}\033[38;2;255;105;105mN{ANSI['reset']}"
         f"{rgb_text('=No | ', 255, 190, 95, True)}"
+        + (rgb_text('A=Always keep extracted art | F=Keep for this folder | ', 95, 245, 135, True) if allow_always else "")
+        + (rgb_text('S=Save as ', 95, 245, 135, True) + ANSI['italic'] + sidecar_name + ANSI['reset'] + rgb_text(' | ', 255, 190, 95, True) if sidecar_name else '')
+        +
         f"{ANSI['bold']}\033[38;2;255;215;80mR{ANSI['reset']}"
         f"{rgb_text('=Refresh | ', 255, 190, 95, True)}"
         f"{ANSI['bold']}\033[38;2;185;145;255mV{ANSI['reset']}"
@@ -9141,10 +9715,19 @@ def artwork_review_choice(
     preview_renderer=None,
     image_viewer=None,
     question_text: str | None = None,
-) -> bool:
+    approval_memory: dict | None = None,
+    sidecar_target: Path | None = None,
+) -> bool | str:
     """Preview one download and wait for Yes, No, Refresh, or View."""
     renderer = preview_renderer or render_artwork_preview
     viewer = image_viewer or launch_irfanview
+    if approval_memory is not None and approval_memory.get("always"):
+        cover_narration("✅", "Keeping extracted artwork — Always remembered for this run.", use_color=use_color, color=(95, 245, 135))
+        return True
+    folder_key = os.path.normcase(str(path.resolve().parent))
+    if approval_memory is not None and folder_key in approval_memory.get("folders", set()):
+        cover_narration("✅", "Keeping extracted artwork — folder approval remembered for this run.", use_color=use_color, color=(95, 245, 135))
+        return True
     question = (
         question_text
         or f"Approve this downloaded artwork image as {label}?"
@@ -9173,7 +9756,7 @@ def artwork_review_choice(
             prompt = urgent_prompt_text(question, use_color)
             steady = prompt_with_option_legend(
                 prompt,
-                artwork_review_choices(use_color),
+                artwork_review_choices(use_color, allow_always=approval_memory is not None, sidecar_name=sidecar_target.name if sidecar_target else None),
                 indent="            ",
             )
             interactive_terminal = bool(
@@ -9252,7 +9835,16 @@ def artwork_review_choice(
                 except Exception as exc:
                     cover_narration("❌", f"Could not open IrfanView: {exc}.", use_color=use_color, color=(255, 90, 100))
                 continue
-            if key in {"\r", "\n"} or lowered == "y":
+            save_sidecar = lowered == "s" and sidecar_target is not None
+            if save_sidecar:
+                accepted = True
+            elif lowered == "a" and approval_memory is not None:
+                approval_memory["always"] = True
+                accepted = True
+            elif lowered == "f" and approval_memory is not None:
+                approval_memory.setdefault("folders", set()).add(folder_key)
+                accepted = True
+            elif key in {"\r", "\n"} or lowered == "y":
                 accepted = True
             elif lowered == "n":
                 accepted = False
@@ -9271,7 +9863,7 @@ def artwork_review_choice(
             else:
                 print("Yes!" if accepted else "No!")
             reset_console_pager_after_user_input()
-            return accepted
+            return "sidecar" if save_sidecar else accepted
 
 
 def waveform_review_choices(
@@ -9284,16 +9876,17 @@ def waveform_review_choices(
     edit_label = "ENTER/E=Edit audio | " if default_edit else "E=Edit audio | "
     plain = (
         "N=It’s fine | Y=There is a problem | "
-        f"P=Preview audio | {edit_label}"
+        f"P=Previous file | L=Listen | {edit_label}"
         + ("B=Bake ReplayGain | " if allow_bake_gain else "")
-        + "V=View fullscreen"
+        + "R=Redraw | V=View fullscreen"
     )
     if not use_color:
         return f"[{plain}]"
     parts = (
         ("N", "=It’s fine | ", (95, 245, 135)),
         ("Y", "=There is a problem | ", (255, 105, 105)),
-        ("P", "=Preview audio | ", (95, 205, 255)),
+        ("P", "=Previous file | ", (185, 145, 255)),
+        ("L", "=Listen | ", (95, 205, 255)),
         (
             "ENTER/E" if default_edit else "E",
             "=Edit audio | ",
@@ -9304,6 +9897,7 @@ def waveform_review_choices(
             if allow_bake_gain
             else ()
         ),
+        ("R", "=Redraw | ", (95, 205, 255)),
         ("V", "=View fullscreen", (185, 145, 255)),
     )
     rendered = [rgb_text("[", 255, 205, 55, True)]
@@ -9486,6 +10080,7 @@ def read_interactive_filename_edit(
     input_reader=None,
 ) -> str:
     """Read an editable, prefilled filename on Windows with safe fallbacks."""
+    wait_for_console_output()
     if input_reader is not None:
         return input_reader(prompt)
     if (
@@ -9660,12 +10255,17 @@ def replaygain_needs_baking(
     threshold_db: float = REPLAYGAIN_BAKE_THRESHOLD_DB,
 ) -> bool:
     """Return whether a supported file's tagged gain is outside ±threshold."""
-    if metrics is None or audio_path.suffix.casefold() not in {".flac", ".mp3"}:
+    if (
+        metrics is None
+        or audio_path.suffix.casefold() not in {".flac", ".mp3"}
+        or replaygain_bake_is_recorded(audio_path)
+    ):
         return False
     tagged_db = replaygain_decibels_from_factor(metrics.replaygain_factor)
     return (
         tagged_db is not None
         and abs(tagged_db) > abs(float(threshold_db)) + 1e-9
+        and not replaygain_bake_is_recorded(audio_path)
     )
 
 
@@ -9683,6 +10283,128 @@ def safely_baked_replaygain_db(
         maximum_safe = 20.0 * math.log10(0.999 / peak_ratio)
         applied = min(requested, maximum_safe)
     return requested, applied
+
+
+class ReplayGainBakeStore:
+    """Remember an unchanged baked file even if another tagger drops our marker."""
+
+    def __init__(self, database_path: Path | None = None) -> None:
+        self.path = Path(database_path or replaygain_bake_database_path())
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        with closing_database(self.path) as connection:
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS replaygain_bakes (
+                    path TEXT PRIMARY KEY,
+                    size_bytes INTEGER NOT NULL,
+                    modified_ns INTEGER NOT NULL,
+                    applied_db REAL NOT NULL,
+                    baked_at TEXT NOT NULL
+                )
+                """
+            )
+
+    @staticmethod
+    def _key(path: Path) -> str:
+        return os.path.normcase(str(Path(path).resolve(strict=False)))
+
+    def is_baked(self, path: Path) -> bool:
+        try:
+            status = Path(path).stat()
+        except OSError:
+            return False
+        with closing_database(self.path) as connection:
+            row = connection.execute(
+                "SELECT size_bytes, modified_ns FROM replaygain_bakes WHERE path = ?",
+                (self._key(path),),
+            ).fetchone()
+        return bool(
+            row
+            and tuple(map(int, row)) == (int(status.st_size), int(status.st_mtime_ns))
+        )
+
+    def record(self, path: Path, applied_db: float) -> None:
+        status = Path(path).stat()
+        with closing_database(self.path) as connection:
+            connection.execute(
+                """
+                INSERT INTO replaygain_bakes(
+                    path, size_bytes, modified_ns, applied_db, baked_at
+                ) VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(path) DO UPDATE SET
+                    size_bytes = excluded.size_bytes,
+                    modified_ns = excluded.modified_ns,
+                    applied_db = excluded.applied_db,
+                    baked_at = excluded.baked_at
+                """,
+                (
+                    self._key(path), int(status.st_size), int(status.st_mtime_ns),
+                    float(applied_db),
+                    datetime.now().astimezone().isoformat(timespec="seconds"),
+                ),
+            )
+
+
+def replaygain_baked_metadata(path: Path) -> str | None:
+    """Read the portable in-file provenance marker written after a verified bake."""
+    try:
+        if path.suffix.casefold() == ".flac":
+            values = FLAC(path).get(REPLAYGAIN_BAKED_METADATA_KEY, [])
+            return str(values[0]) if values else None
+        if path.suffix.casefold() == ".mp3":
+            tagged = MP3(path)
+            for frame in tagged.tags.getall("TXXX") if tagged.tags else []:
+                if frame.desc.casefold() == REPLAYGAIN_BAKED_METADATA_KEY.casefold():
+                    return str(frame.text[0]) if frame.text else "baked"
+    except Exception:
+        return None
+    return None
+
+
+def write_replaygain_baked_metadata(path: Path, applied_db: float) -> str:
+    """Write and verify durable bake provenance inside FLAC or MP3 metadata."""
+    value = (
+        datetime.now().astimezone().isoformat(timespec="seconds")
+        + f"; applied_db={applied_db:+.4f}; version={AUDIT_MUSIC_BATCH_VERSION}"
+    )
+    if path.suffix.casefold() == ".flac":
+        tagged = FLAC(path)
+        tagged[REPLAYGAIN_BAKED_METADATA_KEY] = [value]
+        tagged.save()
+    elif path.suffix.casefold() == ".mp3":
+        tagged = MP3(path)
+        if tagged.tags is None:
+            tagged.add_tags()
+        tagged.tags.delall(f"TXXX:{REPLAYGAIN_BAKED_METADATA_KEY}")
+        tagged.tags.add(
+            TXXX(encoding=3, desc=REPLAYGAIN_BAKED_METADATA_KEY, text=[value])
+        )
+        tagged.save(v2_version=3)
+    else:
+        raise RuntimeError("Bake provenance supports only FLAC and MP3")
+    if replaygain_baked_metadata(path) != value:
+        raise RuntimeError("ReplayGain bake provenance metadata was not verified")
+    return value
+
+
+def replaygain_bake_is_recorded(
+    path: Path, *, store: ReplayGainBakeStore | None = None
+) -> bool:
+    """Trust either the portable metadata marker or an unchanged database record."""
+    marker = replaygain_baked_metadata(path)
+    if marker:
+        try:
+            database = store or ReplayGainBakeStore()
+            if not database.is_baked(path):
+                database.record(path, 0.0)
+        except (OSError, sqlite3.Error):
+            pass
+        return True
+    try:
+        database = store or ReplayGainBakeStore()
+        return database.is_baked(path)
+    except (OSError, sqlite3.Error):
+        return False
 
 
 def _remove_flac_replaygain_tags(path: Path) -> None:
@@ -9992,6 +10714,29 @@ def bake_replaygain_into_audio(
         raise RuntimeError(
             "Fresh ReplayGain tags were not verified; original was restored"
         )
+    try:
+        marker = write_replaygain_baked_metadata(source, applied_db)
+        if not marker:
+            raise RuntimeError("ReplayGain bake metadata marker could not be verified")
+    except Exception:
+        # Provenance is part of a successful bake. Without it, restore rather
+        # than silently offering the same destructive operation next audit.
+        backup_before_inline_replacement(source)
+        shutil.copy2(backup, source)
+        raise
+    try:
+        ReplayGainBakeStore().record(source, applied_db)
+    except (OSError, sqlite3.Error) as exc:
+        # The in-file marker is authoritative and portable. A temporarily
+        # unwritable cache must not roll back otherwise verified audio.
+        batch_event(
+            "diagnostic", operation="replaygain_bake_database",
+            path=str(source), error=str(exc),
+        )
+        cover_narration(
+            "⚠️", "Bake verified and tagged, but its database cache could not be updated.",
+            use_color=use_color, color=(225, 170, 75), dim=True,
+        )
     return backup, applied_db
 
 
@@ -10024,6 +10769,10 @@ def replaygain_waveform_pair_is_displayable(
 
 def replaygain_bake_candidates(audio_files: Iterable[Path]) -> list[Path]:
     """Find MP3/FLAC files whose tagged adjustment merits sample-data baking."""
+    try:
+        store = ReplayGainBakeStore()
+    except (OSError, sqlite3.Error):
+        store = None
     return [
         path
         for path in audio_files
@@ -10034,6 +10783,7 @@ def replaygain_bake_candidates(audio_files: Iterable[Path]) -> list[Path]:
             is not None
             and abs(tagged_db) > REPLAYGAIN_BAKE_THRESHOLD_DB + 1e-9
             and path.suffix.casefold() in {".flac", ".mp3"}
+            and not replaygain_bake_is_recorded(path, store=store)
         )
     ]
 
@@ -10042,7 +10792,7 @@ def status_bar_filename(path: Path, *, columns: int | None = None) -> str:
     """Return a one-line status filename using two dots, never an ellipsis."""
     name = path.name
     width = columns or visible_console_size().columns
-    available = max(20, width - visible_cell_width("Processing file: ") - 2)
+    available = max(20, width - visible_cell_width("🎵 Processing file: ") - 2)
     if visible_cell_width(name) <= available:
         return name
     if available <= 2:
@@ -10058,16 +10808,211 @@ def status_bar_filename(path: Path, *, columns: int | None = None) -> str:
     return left + ".." + right
 
 
-def update_stable_bake_status(progress: Any | None, audio_path: Path) -> None:
+def print_replaygain_files_with_metrics(
+    paths: Iterable[Path],
+    *,
+    heading: str = "ReplayGain files and waveform measurements",
+) -> None:
+    """List ReplayGain targets with the same measurements used by waveforms."""
+    candidates = list(paths)
+    print(console_safe_text(f"        📋 {heading}:"))
+    width = len(str(max(1, len(candidates))))
+    for index, path in enumerate(candidates, start=1):
+        print(console_safe_text(f"        🎵 {index:>{width}}) {path}"))
+        try:
+            metrics = measure_waveform_metrics(path)
+            tagged_db = replaygain_decibels_from_factor(
+                waveform_replaygain_factor(path)
+            )
+            adjustment = (
+                f"tagged adjustment: {tagged_db:+.2f} dB"
+                if tagged_db is not None
+                else "tagged adjustment: unavailable"
+            )
+            print(
+                "           📊 "
+                + adjustment
+                + " | "
+                + " | ".join(waveform_metric_lines(metrics))
+            )
+        except Exception as exc:
+            print(
+                console_safe_text(
+                    f"           ⚠️ Metrics unavailable: "
+                    f"{brief_file_error_reason(exc)}"
+                )
+            )
+
+
+@contextmanager
+def live_bake_progress(**options):
+    """Keep the shared rainbow bar and elapsed time alive during slow file work."""
+    with progress_bar(**options) as progress:
+        stop = threading.Event()
+        def refresh():
+            while not stop.wait(0.2):
+                callback = getattr(progress, "_audit_refresh_status", None)
+                if callable(callback):
+                    callback()
+                progress.refresh()
+        worker = None
+        if progress is not None:
+            progress.refresh()
+            worker = threading.Thread(target=refresh, name="audit-bake-progress", daemon=True)
+            worker.start()
+        try:
+            yield progress
+        finally:
+            stop.set()
+            if worker is not None:
+                worker.join()
+
+
+def progress_preflight_folders(folders):
+    with live_bake_progress(total=len(folders), description="🧭 Checking folder conventions",
+                            unit="folders", enabled=progress_terminal_enabled()) as progress:
+        for folder in folders:
+            if progress is not None:
+                progress.set_postfix_str(status_bar_filename(folder), refresh=True)
+            yield folder
+            if progress is not None:
+                progress.update(1)
+
+
+def update_stable_bake_status(progress: Any | None, audio_path: Path, stage: str = "Checking source") -> None:
     """Keep the current filename on the line directly above a tqdm bar."""
     if progress is None or not getattr(sys.stderr, "isatty", lambda: False)():
         return
     progress.clear()
+    progress.set_description_str(f"🎚 {stage}", refresh=False)
     sys.stderr.write(
-        f"\033[1A\rProcessing file: {status_bar_filename(audio_path)}\033[K\n"
+        f"\033[1A\r🎵 Processing file: {status_bar_filename(audio_path)}\033[K\n"
     )
     sys.stderr.flush()
     progress.refresh()
+
+
+def prompt_for_replaygain_batch_bake(
+    candidates: list[Path],
+    *,
+    threshold_text: str,
+    use_color: bool,
+    key_reader=None,
+    input_reader=None,
+    when: str = "now",
+) -> bool:
+    """Require an explicit bake choice; list metrics or preview on request."""
+    reader = key_reader or read_single_key
+    line_reader = input_reader or input
+    metrics_cache: dict[Path, WaveformMetrics] = {}
+
+    def candidate_metrics(path: Path) -> WaveformMetrics:
+        if path not in metrics_cache:
+            metrics_cache[path] = measure_waveform_metrics(path)
+        return metrics_cache[path]
+
+    def print_candidate(index: int, path: Path) -> None:
+        print(console_safe_text(
+            f"        🎵 {index:>{len(str(len(candidates)))}}) {path}"
+        ))
+        try:
+            metrics = candidate_metrics(path)
+        except Exception as exc:
+            print(console_safe_text(
+                f"           ⚠️ Metrics unavailable: {brief_file_error_reason(exc)}"
+            ))
+            return
+        print("           📊 " + " | ".join(waveform_metric_lines(metrics)))
+
+    def choose_waveform_candidate() -> Path | None:
+        if len(candidates) == 1:
+            return candidates[0]
+        print("        📋 ReplayGain bake candidates:")
+        for index, path in enumerate(candidates, start=1):
+            print(console_safe_text(f"        🎵 {index}) {path}"))
+        try:
+            entered = str(line_reader(
+                f"        ❓ Waveform file number [1-{len(candidates)}; ENTER=cancel]: "
+            )).strip()
+        except (EOFError, KeyboardInterrupt):
+            return None
+        if not entered:
+            return None
+        try:
+            index = int(entered)
+        except ValueError:
+            invalid_key_beep()
+            return None
+        return candidates[index - 1] if 1 <= index <= len(candidates) else None
+
+    def show_waveform(path: Path) -> None:
+        identity = hashlib.sha256(
+            str(path.resolve()).casefold().encode("utf-8", errors="replace")
+        ).hexdigest()[:16]
+        destination = collision_safe_path(
+            waveform_staging_root()
+            / "audit_music_batch-replaygain-candidate-waveforms"
+            / f"{identity}.jpg"
+        )
+        waveform, _backup, metrics = generate_waveform_jpeg(
+            path,
+            destination=destination,
+            narrate=True,
+        )
+        metrics_cache[path] = metrics
+        recolor_before_baked_waveform(waveform)
+        print(console_safe_text(f"        🎵 {path}"))
+        print("        📊 " + " | ".join(waveform_metric_lines(metrics)))
+        render_waveform_preview(waveform, use_color=use_color)
+
+    question = (
+        f"Bake ReplayGain into the audio data for all {len(candidates)} file"
+        f"{'s' if len(candidates) != 1 else ''} outside {threshold_text} {when}? "
+        "Red-to-purple before and cyan-to-green after waveforms will be saved "
+        "for a later waveform review."
+    )
+    legend = "[Y=Yes / N=No / L=List files + metrics / W=View waveform]"
+    while True:
+        wait_for_console_output()
+        prompt = urgent_prompt_text(question, use_color)
+        print(
+            prompt_with_option_legend(prompt, legend, indent="        "),
+            end="",
+            flush=True,
+        )
+        while True:
+            key = reader()
+            if key == "\x03":
+                raise KeyboardInterrupt
+            lowered = key.casefold()
+            if lowered == "l":
+                print()
+                print("        📋 ReplayGain bake candidates and waveform measurements:")
+                for index, path in enumerate(candidates, start=1):
+                    print_candidate(index, path)
+                reset_console_pager_after_user_input()
+                break
+            if lowered == "w":
+                print()
+                selected = choose_waveform_candidate()
+                if selected is not None:
+                    try:
+                        show_waveform(selected)
+                    except Exception as exc:
+                        print_file_error(
+                            selected,
+                            exc,
+                            "Waveform preview unavailable",
+                            use_color,
+                        )
+                reset_console_pager_after_user_input()
+                break
+            if lowered in {"y", "n"}:
+                print(" Yes!" if lowered == "y" else " No!")
+                reset_console_pager_after_user_input()
+                return lowered == "y"
+            # ENTER deliberately has no default for destructive sample baking.
+            invalid_key_beep()
 
 
 def bake_replaygain_for_batch(
@@ -10086,15 +11031,11 @@ def bake_replaygain_for_batch(
     if not candidates:
         return []
     threshold_text = f"±{REPLAYGAIN_BAKE_THRESHOLD_DB:g} dB"
-    if not prompt_for_approval(
-        f"Bake ReplayGain into the audio data for all {len(candidates)} file"
-        f"{'s' if len(candidates) != 1 else ''} outside {threshold_text} now? "
-        "Red-to-purple before and cyan-to-green after waveforms will be saved for a later "
-        "waveform review.",
-        False,
-        use_color,
+    if not prompt_for_replaygain_batch_bake(
+        candidates,
+        threshold_text=threshold_text,
+        use_color=use_color,
         key_reader=key_reader,
-        indent="        ",
     ):
         return []
 
@@ -10108,8 +11049,8 @@ def bake_replaygain_for_batch(
         dim=True,
     )
     if getattr(sys.stderr, "isatty", lambda: False)():
-        print("Processing file: preparing..", file=sys.stderr, flush=True)
-    bake_progress_context = progress_bar(
+        print(f"🎵 Processing file: {status_bar_filename(candidates[0])}", file=sys.stderr, flush=True)
+    bake_progress_context = live_bake_progress(
         total=len(candidates),
         description="🎚 Baking ReplayGain",
         unit="files",
@@ -10119,7 +11060,7 @@ def bake_replaygain_for_batch(
     bake_progress = bake_progress_context.__enter__()
     for audio_path in candidates:
         if _BATCH_SESSION is not None and _BATCH_SESSION.previous("replaygain_bake", audio_path) == "baked":
-            print(f"        Skipped {audio_path.name}: already baked in resumed batch; file unchanged.")
+            print(f"        ⏭️ Skipped {audio_path.name}: already baked in resumed batch; file unchanged.")
             if bake_progress is not None:
                 bake_progress.update(1)
             continue
@@ -10131,6 +11072,7 @@ def bake_replaygain_for_batch(
             if action_file_state(audio_path) != candidate_states[audio_path]:
                 raise ExternalFileChange(f"{audio_path.name} changed since the bake proposal; refresh gain and approve again.")
             preflight_audio_replacement(audio_path)
+            update_stable_bake_status(bake_progress, audio_path, "Rendering before-waveform")
             _before, _backup, before_metrics = generate_waveform_jpeg(
                 audio_path,
                 narrate=False,
@@ -10140,12 +11082,15 @@ def bake_replaygain_for_batch(
             recolor_before_baked_waveform(before_path)
             if action_file_state(audio_path) != candidate_states[audio_path]:
                 raise ExternalFileChange(f"Source changed while its before-waveform rendered: {audio_path}")
-            baked_backup, applied_db = bake_replaygain_into_audio(
-                audio_path,
-                before_metrics,
-                use_color=use_color,
-                stream_output=False,
-            )
+            update_stable_bake_status(bake_progress, audio_path, "Baking and validating audio")
+            with replaygain_bake_turn():
+                baked_backup, applied_db = bake_replaygain_into_audio(
+                    audio_path,
+                    before_metrics,
+                    use_color=use_color,
+                    stream_output=False,
+                )
+            update_stable_bake_status(bake_progress, audio_path, "Rendering after-waveform")
             _after, _backup, _after_metrics = generate_waveform_jpeg(
                 audio_path,
                 narrate=False,
@@ -10176,11 +11121,13 @@ def bake_replaygain_for_batch(
                     )
             elif baked_backup is None:
                 rollback_note = " No successful bake was recorded. Consult the error and recovery journal before assuming the source is unchanged."
-            print_formatted_error(
-                f"Could not bake ReplayGain into {audio_path.name}: {exc}."
-                f" This file was skipped.{rollback_note}",
-                use_color,
-            )
+            outcome = "Bake skipped"
+            if "rollback FAILED" in rollback_note:
+                outcome = "ROLLBACK FAILED — recovery needed"
+            elif "rolled back" in rollback_note:
+                outcome = "Bake failed; original restored"
+            batch_event("bake_failure_detail", path=str(audio_path), error=str(exc), rollback=rollback_note)
+            print_file_error(audio_path, exc, outcome, use_color)
             if not isinstance(exc, Exception):
                 bake_progress_context.__exit__(type(exc), exc, exc.__traceback__)
                 raise
@@ -10189,9 +11136,9 @@ def bake_replaygain_for_batch(
                 bake_progress.update(1)
     bake_progress_context.__exit__(None, None, None)
     if failed_paths and offer_retry:
-        print("        Failed ReplayGain files:")
+        print("        ⚠️ Failed ReplayGain files:")
         for path, error in failed_paths:
-            print(console_safe_text(f"          {path}: {error}"))
+            print(console_safe_text(f"          ⚠️ {status_bar_filename(path, columns=72)}: {brief_file_error_reason(error)}"))
         if prompt_for_approval("Retry only these failed ReplayGain files with fresh checks?", False, use_color, key_reader=key_reader):
             baked.extend(bake_replaygain_for_batch([p for p, _ in failed_paths], use_color=use_color,
                 key_reader=key_reader, offer_retry=False, acceptable_silence_seconds=acceptable_silence_seconds))
@@ -10267,6 +11214,7 @@ def waveform_review_choice(
     waveform_recolorer=None,
     audio_retreater=None,
     excessive_silence: bool = False,
+    has_previous: bool = False,
     longest_silence_seconds: float = 0.0,
     acceptable_silence_seconds: float = (
         BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS
@@ -10356,14 +11304,14 @@ def waveform_review_choice(
             lowered = key.casefold()
             if excessive_silence and key in {"", "\r", "\n"}:
                 lowered = "e"
-            if key == "__resize__":
+            if key == "__resize__" or lowered == "r":
                 if interactive_terminal:
                     erase_wrapped_console_text(steady)
                 else:
                     print()
                 cover_narration(
                     "🔄",
-                    "Console viewport changed; re-rendering at the live size.",
+                    "Redrawing the waveform at the current viewport size.",
                     use_color=use_color,
                     color=(105, 145, 180),
                     dim=True,
@@ -10392,6 +11340,19 @@ def waveform_review_choice(
                     )
                 continue
             if lowered == "p":
+                if not has_previous:
+                    invalid_key_beep()
+                    continue
+                if interactive_terminal:
+                    erase_wrapped_console_text(steady)
+                else:
+                    print()
+                cover_narration(
+                    "↩️", "Returning to the previous waveform.",
+                    use_color=use_color, color=(185, 145, 255),
+                )
+                return "previous", edits_opened, audio_path
+            if lowered == "l":
                 if interactive_terminal:
                     erase_wrapped_console_text(steady)
                 else:
@@ -10583,10 +11544,8 @@ def waveform_review_choice(
                         color=(95, 225, 130),
                     )
                 except Exception as exc:
-                    print_formatted_error(
-                        f"Could not bake ReplayGain into this audio: {exc}",
-                        use_color,
-                    )
+                    batch_event("diagnostic", operation="waveform_bake", error=str(exc))
+                    print_formatted_error(f"Bake failed: {brief_file_error_reason(exc)}. Details in journal.", use_color)
                 break
             if lowered not in {"n", "y"}:
                 invalid_key_beep()
@@ -10856,6 +11815,49 @@ def parse_waveform_metrics(
         replaygain_factor=waveform_replaygain_factor(audio_path),
         longest_silence_seconds=longest_silence,
         total_silence_seconds=total_silence,
+    )
+
+
+def measure_waveform_metrics(audio_path: Path) -> WaveformMetrics:
+    """Decode audio once for the graph's metrics without creating an image."""
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        raise RuntimeError("ffmpeg is required to measure waveform details")
+    command = [
+        ffmpeg,
+        "-hide_banner",
+        "-nostats",
+        "-loglevel",
+        "info",
+        "-i",
+        str(audio_path),
+        "-af",
+        (
+            "astats=metadata=0:reset=0,"
+            f"silencedetect=noise={SILENCE_DETECT_NOISE_DB}dB:"
+            f"d={WAVEFORM_SILENCE_MIN_SECONDS:g}"
+        ),
+        "-f",
+        "null",
+        os.devnull,
+    ]
+    result = monitored_process(
+        command,
+        timeout=WAVEFORM_RENDER_TIMEOUT_SECONDS,
+    )
+    output = decode_process_output(result.stdout)
+    if result.returncode:
+        tail = "\n".join(
+            line.strip() for line in output.splitlines()[-8:] if line.strip()
+        )
+        raise RuntimeError(
+            "ffmpeg could not measure this audio"
+            + (f": {tail}" if tail else "")
+        )
+    return parse_waveform_metrics(
+        output,
+        audio_path,
+        waveform_channel_count(audio_path),
     )
 
 
@@ -11587,6 +12589,14 @@ class WaveformApprovalStore:
                 ),
             )
 
+    def revoke(self, path: Path) -> None:
+        """Remove a fine approval when a revisited waveform is judged problematic."""
+        with closing_database(self.path) as connection:
+            connection.execute(
+                "DELETE FROM waveform_approvals WHERE path = ?",
+                (self._key(path),),
+            )
+
     def relocate(self, source: Path, destination: Path) -> bool:
         """Move an unchanged approval record when an audio filename changes."""
         source_key = self._key(source)
@@ -11664,6 +12674,40 @@ class RememberedNoStore:
                     PRIMARY KEY(category, path)
                 )
                 """
+            )
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS remembered_folder_choices (
+                    category TEXT NOT NULL,
+                    folder TEXT NOT NULL,
+                    choice TEXT NOT NULL,
+                    remembered_at TEXT NOT NULL,
+                    PRIMARY KEY(category, folder)
+                )
+                """
+            )
+
+    def folder_choice(self, category: str, folder: Path) -> str | None:
+        with closing_database(self.path) as connection:
+            row = connection.execute(
+                "SELECT choice FROM remembered_folder_choices WHERE category = ? AND folder = ?",
+                (category, self._key(folder)),
+            ).fetchone()
+        return str(row[0]) if row else None
+
+    def remember_folder_choice(self, category: str, folder: Path, choice: str) -> None:
+        with closing_database(self.path) as connection:
+            connection.execute(
+                """
+                INSERT INTO remembered_folder_choices(category, folder, choice, remembered_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(category, folder) DO UPDATE SET
+                    choice = excluded.choice, remembered_at = excluded.remembered_at
+                """,
+                (
+                    category, self._key(folder), choice,
+                    datetime.now().astimezone().isoformat(timespec="seconds"),
+                ),
             )
 
     @staticmethod
@@ -11785,8 +12829,13 @@ def prioritized_waveform_render_futures(
             first_future = submit(1, first_audio)
         # This blocking result is deliberate: no second ffmpeg render is even
         # submitted until the first visible waveform is complete.
-        rendered_results[first_audio] = first_future.result()
-        if first_ready_callback is not None:
+        try:
+            rendered_results[first_audio] = first_future.result()
+        except Exception:
+            # Keep the failed future: the per-file review loop records it and
+            # continues, including when retrying a single damaged source.
+            pass
+        if first_ready_callback is not None and first_audio in rendered_results:
             # Finish the first *displayable* preview before background ffmpeg
             # jobs are allowed to compete for CPU/disk.
             first_ready_callback(first_audio, rendered_results[first_audio])
@@ -11933,6 +12982,7 @@ def review_waveforms(
     problems: list[dict[str, str]] = []
     edited: list[str] = []
     failed: list[dict[str, str]] = []
+    review_outcomes: dict[int, tuple[str, Path]] = {}
     worker_count = max(1, min(int(workers), 8))
     preview_lookahead = max(4, worker_count * 2)
     staging_folder = collision_safe_path(
@@ -12008,17 +13058,12 @@ def review_waveforms(
         if tagged_bake_candidates:
             print()
             threshold_text = f"±{REPLAYGAIN_BAKE_THRESHOLD_DB:g} dB"
-            if prompt_for_approval(
-                f"Bake ReplayGain into the audio data for all "
-                f"{len(tagged_bake_candidates)} file"
-                f"{'s' if len(tagged_bake_candidates) != 1 else ''} outside "
-                f"{threshold_text} before waveform review? Red-to-purple originals "
-                "will be preserved for comparison; newly baked waveforms "
-                "will be cyan-to-green.",
-                False,
-                use_color,
+            if prompt_for_replaygain_batch_bake(
+                tagged_bake_candidates,
+                threshold_text=threshold_text,
+                use_color=use_color,
                 key_reader=key_reader,
-                indent="        ",
+                when="before waveform review",
             ):
                 cover_narration(
                     "🔴",
@@ -12029,8 +13074,8 @@ def review_waveforms(
                     dim=True,
                 )
                 if getattr(sys.stderr, "isatty", lambda: False)():
-                    print("Processing file: preparing..", file=sys.stderr, flush=True)
-                bake_progress_context = progress_bar(
+                    print(f"🎵 Processing file: {status_bar_filename(tagged_bake_candidates[0])}", file=sys.stderr, flush=True)
+                bake_progress_context = live_bake_progress(
                     total=len(tagged_bake_candidates),
                     description="🎚️ Baking ReplayGain",
                     unit="files",
@@ -12039,7 +13084,7 @@ def review_waveforms(
                 )
                 bake_progress = bake_progress_context.__enter__()
                 for candidate in tagged_bake_candidates:
-                    update_stable_bake_status(bake_progress, candidate)
+                    update_stable_bake_status(bake_progress, candidate, "Waiting for before-waveform")
                     try:
                         old_result = futures[candidate].result()
                         rendered_results[candidate] = old_result
@@ -12053,12 +13098,15 @@ def review_waveforms(
                         )
                         shutil.copy2(old_waveform, comparison)
                         recolor_before_baked_waveform(comparison)
-                        backup, applied_db = bake_replaygain_into_audio(
-                            candidate,
-                            old_metrics,
-                            use_color=use_color,
-                            stream_output=False,
-                        )
+                        update_stable_bake_status(bake_progress, candidate, "Baking and validating audio")
+                        with replaygain_bake_turn():
+                            backup, applied_db = bake_replaygain_into_audio(
+                                candidate,
+                                old_metrics,
+                                use_color=use_color,
+                                stream_output=False,
+                            )
+                        update_stable_bake_status(bake_progress, candidate, "Rendering after-waveform")
                         new_result = generate_waveform_jpeg(
                             candidate,
                             narrate=False,
@@ -12072,16 +13120,12 @@ def review_waveforms(
                         before_bake_waveforms[candidate] = comparison
                         folder_baked_audio.add(candidate)
                     except Exception as exc:
-                        print_formatted_error(
-                            f"Could not bake ReplayGain into "
-                            f"{candidate.name}: {exc}",
-                            use_color,
-                        )
+                        print_file_error(candidate, exc, "Bake failed", use_color)
                     finally:
                         if bake_progress is not None:
                             bake_progress.update(1)
                 bake_progress_context.__exit__(None, None, None)
-        if preview_renderer is None and audio_files:
+        if preview_renderer is None and audio_files and audio_files[0] in rendered_results:
             # Do the first *display* preparation synchronously too. The first JPEG
             # was already rendered before the rest were submitted; encoding its
             # Sixel now prevents the background preview workers from delaying the
@@ -12204,7 +13248,10 @@ def review_waveforms(
                     dim=True,
                 )
             )
-        for index, audio_path in enumerate(audio_files, start=1):
+        cursor = 0
+        while cursor < len(audio_files):
+            index = cursor + 1
+            audio_path = audio_files[cursor]
             if preview_executor is not None:
                 schedule_preview(index - 1 + preview_lookahead)
             comparison_waveform = before_bake_waveforms.get(audio_path)
@@ -12353,24 +13400,33 @@ def review_waveforms(
                     audio_previewer=audio_previewer,
                     waveform_metrics=waveform_metrics,
                     excessive_silence=excessive_silence_now,
+                    has_previous=(cursor > 0),
                     longest_silence_seconds=(
                         waveform_metrics.longest_silence_seconds
                     ),
                     acceptable_silence_seconds=acceptable_silence_seconds,
                 )
+                if decision == "previous":
+                    cursor -= 1
+                    continue
+                previous_outcome = review_outcomes.get(cursor)
+                if previous_outcome is not None:
+                    old_decision, old_path = previous_outcome
+                    if old_decision == "fine":
+                        fine.remove(str(old_path))
+                        if decision != "fine" or old_path != reviewed_audio_path:
+                            approval_store.revoke(old_path)
+                    else:
+                        problems[:] = [
+                            item for item in problems
+                            if item["path"] != str(old_path)
+                        ]
+                review_outcomes[cursor] = (decision, reviewed_audio_path)
                 if edit_count:
                     edited.append(str(reviewed_audio_path))
                 if decision == "fine":
                     fine.append(str(reviewed_audio_path))
                     approval_store.approve(reviewed_audio_path)
-                    print(
-                        colorize(
-                            "            ✔️ Marked fine; continuing to the "
-                            "next audio file.",
-                            "green",
-                            use_color,
-                        )
-                    )
                 else:
                     problems.append(
                         {
@@ -12396,10 +13452,8 @@ def review_waveforms(
             except Exception as exc:
                 error = f"{type(exc).__name__}: {exc}"
                 failed.append({"path": str(audio_path), "error": error})
-                print_formatted_error(
-                    f"Waveform review failed for {audio_path.name}: {error}",
-                    use_color,
-                )
+                print_file_error(audio_path, exc, "Waveform unavailable", use_color)
+            cursor += 1
     finally:
         if preview_executor is not None:
             preview_executor.shutdown(
@@ -12419,7 +13473,7 @@ def review_waveforms(
     )
     print()
     print(
-        f"        {len(fine)} newly approved, "
+        f"        ✅ {len(fine)} newly approved, "
         f"{len(previously_approved)} previously approved, "
         f"{len(problems)} problem"
         f"{'s' if len(problems) != 1 else ''}, "
@@ -12820,14 +13874,21 @@ def find_cover_and_embed(
         color=(145, 125, 75),
         dim=True,
     )
+    youtube_id = youtube_video_id_from_filename(path)
     cover_narration(
         "🌐",
-        "Searching exact "
-        f"{inline_italic('MusicBrainz', use_color)} tags first, then "
-        f"{inline_italic('Cover Art Archive', use_color)}, "
-        f"{inline_italic('Discogs', use_color)} when configured, "
-        f"{inline_italic('Bandcamp', use_color)}, and "
-        f"{inline_italic('Apple Music/iTunes', use_color)}.",
+        (
+            f"Using the thumbnail from YouTube video {youtube_id} before "
+            "trying release-art databases."
+            if youtube_id
+            else
+            "Searching exact "
+            f"{inline_italic('MusicBrainz', use_color)} tags first, then "
+            f"{inline_italic('Cover Art Archive', use_color)}, "
+            f"{inline_italic('Discogs', use_color)} when configured, "
+            f"{inline_italic('Bandcamp', use_color)}, and "
+            f"{inline_italic('Apple Music/iTunes', use_color)}."
+        ),
         use_color=use_color,
         color=(85, 135, 165),
         dim=True,
@@ -12917,7 +13978,23 @@ def find_cover_and_embed(
                 dim=True,
             )
             try:
-                payload, content_type, _final_url = fetch_image(artwork.url)
+                try:
+                    payload, content_type, _final_url = fetch_image(artwork.url)
+                except Exception:
+                    if match.source != "YouTube thumbnail":
+                        raise
+                    fallback_url = (
+                        f"https://i.ytimg.com/vi/{match.release_id}/hqdefault.jpg"
+                    )
+                    cover_narration(
+                        "↪️",
+                        "The maximum-resolution YouTube thumbnail was unavailable; "
+                        "trying its standard high-quality thumbnail.",
+                        use_color=use_color,
+                        color=(255, 190, 80),
+                        dim=True,
+                    )
+                    payload, content_type, _final_url = fetch_image(fallback_url)
                 jpeg, width, height, source_format = validated_jpeg(
                     payload,
                     content_type,
@@ -12950,16 +14027,17 @@ def find_cover_and_embed(
     saved_by_id: dict[str, Path] = {}
     for artwork, filename, jpeg, width, height, source_format in downloaded:
         desired = path.parent / filename
+        existing_artwork = desired.is_file()
         identical_existing = (
-            desired.exists()
+            existing_artwork
             and hashlib.sha256(desired.read_bytes()).digest()
             == hashlib.sha256(jpeg).digest()
         )
-        if identical_existing:
+        if existing_artwork:
             target = desired
             newly_written = False
         else:
-            target = collision_safe_path(desired)
+            target = desired
             target.write_bytes(jpeg)
             newly_written = True
         cover_narration(
@@ -12979,10 +14057,11 @@ def find_cover_and_embed(
         ):
             rejected = rejected_artwork_path(target)
             if newly_written:
-                target.replace(rejected)
+                tracked_rename(target, rejected)
             else:
+                check_pending_change(rejected)
                 rejected.write_bytes(jpeg)
-            recycle_path(rejected)
+            recycle_path_after_tracked_rename(rejected)
             actions.append(f"recycled_rejected_art:{rejected.name}")
             cover_narration(
                 "♻️",
@@ -12996,6 +14075,8 @@ def find_cover_and_embed(
             continue
         if identical_existing:
             actions.append(f"kept_identical_art:{target}")
+        elif existing_artwork:
+            actions.append(f"kept_existing_art:{target}")
         else:
             actions.append(f"saved_art:{target}")
         saved_by_id[artwork.image_id] = target
@@ -13053,13 +14134,93 @@ def picture_extension(mime: str) -> str:
     }.get(mime, ".jpg")
 
 
+def flac_picture_blocks(path: Path) -> list[tuple[bytes, str, int, str]]:
+    """Extract FLAC PICTURE blocks directly when a tag reader cannot expose them."""
+    pictures: list[tuple[bytes, str, int, str]] = []
+    with path.open("rb") as source:
+        if source.read(4) != b"fLaC":
+            return pictures
+        last = False
+        while not last:
+            header = source.read(4)
+            if len(header) != 4:
+                break
+            last = bool(header[0] & 0x80)
+            block_type = header[0] & 0x7F
+            block_length = int.from_bytes(header[1:4], "big")
+            block = source.read(block_length)
+            if len(block) != block_length:
+                break
+            if block_type != 6:
+                continue
+
+            # FLAC PICTURE fields are length-prefixed big-endian integers.
+            offset = 0
+
+            def take_u32() -> int:
+                nonlocal offset
+                if offset + 4 > len(block):
+                    raise ValueError("Truncated FLAC PICTURE block")
+                value = int.from_bytes(block[offset:offset + 4], "big")
+                offset += 4
+                return value
+
+            def take_bytes(length: int) -> bytes:
+                nonlocal offset
+                if length < 0 or offset + length > len(block):
+                    raise ValueError("Truncated FLAC PICTURE field")
+                value = block[offset:offset + length]
+                offset += length
+                return value
+
+            try:
+                picture_type = take_u32()
+                mime = take_bytes(take_u32()).decode("ascii", errors="replace")
+                description = take_bytes(take_u32()).decode("utf-8", errors="replace")
+                # Width, height, color depth, and indexed-color count.
+                for _ in range(4):
+                    take_u32()
+                data = take_bytes(take_u32())
+                if data:
+                    detected_mime = image_mime_bytes(data)
+                    if not mime.startswith("image/"):
+                        mime = detected_mime
+                    pictures.append((data, mime, picture_type, description))
+            except (ValueError, OverflowError):
+                # Ignore only the malformed picture block; keep trying later
+                # blocks so one damaged cover does not hide other embedded art.
+                continue
+    return pictures
+
+
+def image_mime_bytes(data: bytes) -> str:
+    """Identify common image payloads without relying on declared MIME tags."""
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if data.startswith(b"GIF8"):
+        return "image/gif"
+    if data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+        return "image/webp"
+    if data.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    return "application/octet-stream"
+
+
 def embedded_pictures(path: Path) -> list[tuple[bytes, str, int, str]]:
-    audio = mutagen_file(path)
     if path.suffix.lower() == ".flac":
-        return [
-            (picture.data, picture.mime, int(picture.type), picture.desc or "")
-            for picture in audio.pictures
-        ]
+        try:
+            audio = mutagen_file(path)
+            pictures = [
+                (picture.data, picture.mime, int(picture.type), picture.desc or "")
+                for picture in getattr(audio, "pictures", [])
+                if getattr(picture, "data", b"")
+            ]
+        except Exception:
+            pictures = []
+        if pictures:
+            return pictures
+        return flac_picture_blocks(path)
+    audio = mutagen_file(path)
     if not audio.tags:
         return []
     return [
@@ -13086,7 +14247,7 @@ def art_sidecar_stem(picture_type: int) -> str:
 def is_album_track_filename(path: Path) -> bool:
     """Recognize leading or artist/album-prefixed two-digit album track numbers."""
     return bool(
-        re.search(r"(?:^|[-_. ])\d{1,2}(?:[ _.-]+)", path.stem)
+        re.search(r"(?:^| - )\d{1,2}(?:[ _.-]+)", path.stem)
     )
 
 
@@ -13101,34 +14262,54 @@ def exported_art_sidecar_stem(path: Path, picture_type: int) -> str:
 
 
 def export_art_sidecars(path: Path, write: bool = True) -> list[str]:
-    existing_hashes = {
-        hashlib.sha256(candidate.read_bytes()).hexdigest()
-        for candidate in path.parent.iterdir()
-        if candidate.is_file() and candidate.suffix.lower() in IMAGE_EXTS
-    }
-    exports: list[str] = []
-    reserved: set[Path] = set()
-    for data, mime, picture_type, _description in embedded_pictures(path):
-        digest = hashlib.sha256(data).hexdigest()
-        if digest in existing_hashes:
-            continue
-        stem = exported_art_sidecar_stem(path, picture_type)
-        extension = picture_extension(mime)
-        target = collision_safe_path(
-            path.parent / f"{stem}{extension}", reserved
+    """Export one preferred embedded picture to the intended JPEG sidecar.
+
+    Front wins, then Back, then the first usable image. Multiple embedded
+    pictures never create multiple files or numbered sidecar names.
+    """
+    pictures = embedded_pictures(path)
+    if not pictures:
+        return []
+    selected = next((item for item in pictures if item[2] == 3), None)
+    selected = selected or next((item for item in pictures if item[2] == 4), None)
+    selected = selected or pictures[0]
+    data, declared_mime, _picture_type, _description = selected
+    try:
+        if (
+            image_mime_bytes(data) == "image/jpeg"
+            or str(declared_mime).casefold() in {"image/jpeg", "image/jpg"}
+        ):
+            jpeg = data
+        else:
+            with Image.open(io.BytesIO(data)) as source_image:
+                converted = source_image.convert("RGB")
+                output = io.BytesIO()
+                converted.save(
+                    output, format="JPEG", quality=95, subsampling=0, optimize=True
+                )
+                jpeg = output.getvalue()
+    except Exception as exc:
+        raise RuntimeError("Preferred embedded artwork could not be converted to JPEG") from exc
+    # Whatever its original APIC/PICTURE type, the selected image becomes the
+    # sole Front sidecar: cover.jpg for albums, exact track basename for loose audio.
+    target = path.parent / f"{exported_art_sidecar_stem(path, 3)}.jpg"
+    digest = hashlib.sha256(jpeg).digest()
+    if target.exists():
+        if hashlib.sha256(target.read_bytes()).digest() == digest:
+            return []
+        raise FileExistsError(
+            f"Preferred artwork sidecar is occupied by different image data: {target}"
         )
-        if write:
-            target.write_bytes(data)
-        existing_hashes.add(digest)
-        reserved.add(target)
-        exports.append(str(target))
-    return exports
+    if write:
+        # Register the new sidecar with the active stale-write guard before
+        # creation so a later user rejection may rename/recycle it safely.
+        check_pending_change(target)
+        target.write_bytes(jpeg)
+    return [str(target)]
 
 
 def same_basename_front_art_candidates(audio_path: Path) -> list[Path]:
-    """Return track-specific Front art only for an unnumbered/MISC audio file."""
-    if is_album_track_filename(audio_path):
-        return []
+    """Return the exact track-specific Front art for any audio filename."""
     candidates: list[Path] = []
     for extension in FRONT_ART_EXTENSION_PRIORITY:
         candidate = audio_path.with_suffix(extension)
@@ -13138,7 +14319,7 @@ def same_basename_front_art_candidates(audio_path: Path) -> list[Path]:
 
 
 def embeddable_front_art_candidates(audio_path: Path) -> list[Path]:
-    """Prefer folder Front art, then an exact MISC-track basename image."""
+    """Prefer folder Front art, then an exact per-track basename image."""
     candidates = folder_front_art_candidates(audio_path.parent)
     candidates.extend(same_basename_front_art_candidates(audio_path))
     return list(dict.fromkeys(candidates))
@@ -13154,14 +14335,14 @@ def is_allowed_front_art_name(
     *,
     audio_path: Path | None = None,
 ) -> bool:
-    """Accept folder Front names or the exact basename of one MISC track."""
+    """Accept folder Front names or the exact basename of this audio track."""
     if re.fullmatch(
         r"(?:cover|folder)(?: \(\d+\))?",
         path.stem,
         flags=re.IGNORECASE,
     ):
         return True
-    if audio_path is None or is_album_track_filename(audio_path):
+    if audio_path is None:
         return False
     return (
         path.parent.resolve() == audio_path.parent.resolve()
@@ -13222,19 +14403,70 @@ def normalized_local_front_jpeg(
             f"Could not convert {image.name} to JPEG"
         ) from exc
     desired = image.with_name(f"{image.stem}.jpg")
-    if (
-        desired.is_file()
-        and hashlib.sha256(desired.read_bytes()).digest()
-        == hashlib.sha256(payload).digest()
-    ):
+    if desired.is_file():
         return desired, False
-    target = collision_safe_path(desired)
+    target = desired
     if not write:
         return target, True
     target.write_bytes(payload)
     if image_mime(target) != "image/jpeg":
         raise RuntimeError(f"JPEG conversion verification failed: {target}")
     return target, True
+
+
+def flac_embeddable_art_payload(image: Path) -> tuple[bytes, str, bool]:
+    """Return artwork that fits safely in one FLAC PICTURE metadata block.
+
+    The full-size sidecar is never changed.  Oversized JPEGs are recompressed
+    in memory first, then progressively downscaled only if quality reduction
+    alone cannot satisfy FLAC's 24-bit metadata-block limit.
+    """
+    data = image.read_bytes()
+    mime = image_mime(image)
+    if len(data) <= FLAC_EMBEDDED_ART_TARGET_BYTES:
+        return data, mime, False
+    if Image is None:
+        raise RuntimeError(
+            f"Artwork is {len(data):,} bytes, too large for one FLAC metadata "
+            "block, and Pillow is unavailable to create a size-safe embedded copy"
+        )
+    try:
+        with Image.open(image) as source:
+            original = source.convert("RGB")
+            width, height = original.size
+            scale_steps = (1.0, 0.90, 0.80, 0.70, 0.60, 0.50)
+            qualities = (95, 92, 90, 87, 84, 80, 76, 72, 68, 64, 60)
+            for scale in scale_steps:
+                if scale == 1.0:
+                    candidate = original
+                else:
+                    candidate = original.resize(
+                        (
+                            max(1, round(width * scale)),
+                            max(1, round(height * scale)),
+                        ),
+                        Image.Resampling.LANCZOS,
+                    )
+                for quality in qualities:
+                    output = io.BytesIO()
+                    candidate.save(
+                        output,
+                        format="JPEG",
+                        quality=quality,
+                        subsampling=0 if quality >= 90 else 2,
+                        optimize=True,
+                    )
+                    payload = output.getvalue()
+                    if len(payload) <= FLAC_EMBEDDED_ART_TARGET_BYTES:
+                        return payload, "image/jpeg", True
+    except Exception as exc:
+        raise RuntimeError(
+            f"Oversized artwork could not be converted for FLAC embedding: {image}"
+        ) from exc
+    raise RuntimeError(
+        f"Artwork could not be reduced below the {FLAC_EMBEDDED_ART_TARGET_BYTES:,}-byte "
+        "FLAC embedding limit; the original sidecar was left unchanged"
+    )
 
 
 def embed_front_art(path: Path, image: Path, force: bool) -> Path | None:
@@ -13248,6 +14480,9 @@ def embed_front_art(path: Path, image: Path, force: bool) -> Path | None:
         return None
     data = image.read_bytes()
     mime = image_mime(image)
+    optimized_for_flac = False
+    if path.suffix.lower() == ".flac":
+        data, mime, optimized_for_flac = flac_embeddable_art_payload(image)
     backup = backup_before_inline_replacement(path)
     if path.suffix.lower() == ".flac":
         audio = FLAC(path)
@@ -13264,7 +14499,73 @@ def embed_front_art(path: Path, image: Path, force: bool) -> Path | None:
         audio.tags.delall("APIC")
         audio.tags.add(APIC(encoding=3, mime=mime, type=3, desc="Cover", data=data))
         audio.save(v2_version=3)
+    if optimized_for_flac:
+        print(
+            console_safe_text(
+                f"            🖼️ Embedded a size-safe {len(data):,}-byte copy of "
+                f"{image.name}; the original sidecar remains unchanged."
+            )
+        )
     return backup
+
+
+def remove_embedded_artwork(path: Path) -> list[str]:
+    """Back up one audio file, remove every embedded picture, and verify it."""
+    target = Path(path).resolve()
+    if not embedded_pictures(target):
+        return [f"embedded_art_already_absent:{target}"]
+    backup = backup_before_inline_replacement(target)
+    if target.suffix.casefold() == ".flac":
+        audio = FLAC(target)
+        audio.clear_pictures()
+        audio.save()
+    elif target.suffix.casefold() == ".mp3":
+        audio = ensure_id3(target)
+        audio.tags.delall("APIC")
+        audio.save(v2_version=3)
+    else:
+        raise RuntimeError(
+            f"Embedded-art removal is unsupported for {target.suffix or 'this format'}"
+        )
+    if embedded_pictures(target):
+        raise RuntimeError("Embedded artwork removal could not be verified")
+    return [f"backup:{backup}", f"removed_embedded_art:{target}"]
+
+
+def prompt_remove_rejected_embedded_art(
+    audio_path: Path,
+    *,
+    use_color: bool,
+    key_reader=None,
+) -> bool:
+    """Ask an explicit Y/N with no Enter default after artwork rejection."""
+    reader = key_reader or read_single_key
+    question = (
+        "The extracted artwork was rejected. Remove that embedded artwork "
+        f"from {Path(audio_path).name} too?"
+    )
+    legend = "[Y=Yes / N=No — no ENTER default]"
+    wait_for_console_output()
+    print(
+        prompt_with_option_legend(
+            urgent_prompt_text(question, use_color),
+            legend,
+            indent="            ",
+        ),
+        end="",
+        flush=True,
+    )
+    while True:
+        key = reader()
+        if key == "\x03":
+            raise KeyboardInterrupt
+        lowered = key.casefold()
+        if lowered in {"y", "n"}:
+            accepted = lowered == "y"
+            print(" Yes — remove it!" if accepted else " No — leave it embedded.")
+            reset_console_pager_after_user_input()
+            return accepted
+        invalid_key_beep()
 
 
 def apply_art(path: Path, write: bool = True) -> list[str]:
@@ -13389,6 +14690,8 @@ def review_extracted_art_sidecars(
     key_reader=None,
     preview_renderer=None,
     image_viewer=None,
+    approval_memory: dict | None = None,
+    audio_path: Path | None = None,
 ) -> bool:
     """Preview each newly exported embedded-art sidecar before keeping it.
 
@@ -13403,6 +14706,8 @@ def review_extracted_art_sidecars(
         if action.startswith("exported_art:")
     ]
     all_approved = True
+    if approval_memory is None:
+        approval_memory = {}
     for sidecar in exported:
         if not sidecar.is_file():
             continue
@@ -13412,6 +14717,10 @@ def review_extracted_art_sidecars(
             use_color=use_color,
             color=(95, 190, 225),
         )
+        # The track-specific choice has exactly one valid name. Never invent
+        # ``Song (1).jpg``: if ``Song.jpg`` already exists, it already satisfies
+        # this choice; if it does not, move the extraction to ``Song.jpg``.
+        target = Path(audio_path).with_suffix(sidecar.suffix) if audio_path else None
         accepted = artwork_review_choice(
             sidecar,
             label=sidecar.name,
@@ -13423,7 +14732,21 @@ def review_extracted_art_sidecars(
                 "Is this extracted embedded artwork sidecar "
                 f"({sidecar.name}) fine to keep?"
             ),
+            approval_memory=approval_memory,
+            sidecar_target=target,
         )
+        if accepted == "sidecar" and target is not None:
+            if target != sidecar:
+                if target.is_file():
+                    actions.append(f"already_present_track_art:{target}")
+                    sidecar = target
+                else:
+                    tracked_rename(sidecar, target)
+                    for index, action in enumerate(actions):
+                        if action == f"exported_art:{sidecar}":
+                            actions[index] = f"exported_art:{target}"
+                    sidecar = target
+            actions.append(f"saved_track_art:{sidecar}")
         if accepted:
             actions.append(f"approved_extracted_art:{sidecar.name}")
             cover_narration(
@@ -13435,8 +14758,11 @@ def review_extracted_art_sidecars(
             continue
         all_approved = False
         rejected = rejected_artwork_path(sidecar)
-        sidecar.replace(rejected)
-        recycle_path(rejected)
+        tracked_rename(sidecar, rejected)
+        # The guard approved both endpoints immediately before the rename.
+        # Re-checking the new destination would mistake our own controlled
+        # rename for an external edit and turn a harmless N into a failure.
+        recycle_path_after_tracked_rename(rejected)
         actions.append(f"recycled_rejected_art:{rejected.name}")
         cover_narration(
             "♻️",
@@ -13445,6 +14771,20 @@ def review_extracted_art_sidecars(
             color=(165, 165, 175),
             dim=True,
         )
+        if audio_path is not None and prompt_remove_rejected_embedded_art(
+            Path(audio_path),
+            use_color=use_color,
+            key_reader=key_reader,
+        ):
+            removal_actions = remove_embedded_artwork(Path(audio_path))
+            actions.extend(removal_actions)
+            cover_narration(
+                "🧹",
+                f"Removed and verified rejected embedded artwork from "
+                f"{Path(audio_path).name}.",
+                use_color=use_color,
+                color=(255, 180, 85),
+            )
     return all_approved
 
 
@@ -14397,12 +15737,109 @@ def print_interactive_results(
     )
 
 
+def print_final_audit_verification(
+    verification: dict[str, Any],
+    *,
+    action_failures: int,
+    waveform_result: dict[str, Any] | None,
+    waveform_handoff_failed: bool,
+    use_color: bool,
+) -> dict[str, Any]:
+    """End an interactive run with an explicit, freshly verified status."""
+    attention_severities = {"problem", "safe_fix", "safe_cleanup", "ask_first"}
+    remaining = [
+        finding
+        for finding in verification.get("findings", [])
+        if finding.get("severity") in attention_severities
+    ]
+    severity_counts = Counter(
+        str(finding.get("severity") or "unknown") for finding in remaining
+    )
+    waveform_failures = len((waveform_result or {}).get("failed", []))
+    waveform_problems = len((waveform_result or {}).get("problems", []))
+    total_failures = (
+        action_failures
+        + waveform_failures
+        + int(waveform_handoff_failed and not waveform_failures)
+    )
+    complete = not remaining and not total_failures and not waveform_problems
+    scanned = int(verification.get("counts", {}).get("files", 0))
+
+    print()
+    title = "AUDIT COMPLETE" if complete else "AUDIT FINISHED — MORE WORK REMAINS"
+    stops = (
+        ((80, 245, 135), (80, 220, 255))
+        if complete
+        else ((255, 215, 70), (255, 105, 90))
+    )
+    print("\n".join(double_height_gradient_section(title, use_color, stops)))
+    print()
+    if complete:
+        print(
+            rgb_text(
+                f"        ✅ Final fresh verification examined {scanned:,} files and "
+                "found no remaining actionable findings or failures.",
+                90,
+                235,
+                135,
+                use_color,
+            )
+        )
+        print(
+            rgb_text(
+                "        🏁 The audit reached its end successfully; returning to the shell.",
+                135,
+                215,
+                255,
+                use_color,
+            )
+        )
+    else:
+        print(
+            rgb_text(
+                f"        ⚠️ Final fresh verification examined {scanned:,} files and "
+                f"found {len(remaining)} remaining finding"
+                f"{'s' if len(remaining) != 1 else ''}.",
+                255,
+                205,
+                75,
+                use_color,
+            )
+        )
+        print(
+            "        📋 Remaining: "
+            f"{severity_counts.get('problem', 0)} problems, "
+            f"{severity_counts.get('safe_fix', 0)} fixes, "
+            f"{severity_counts.get('safe_cleanup', 0)} cleanups, "
+            f"{severity_counts.get('ask_first', 0)} review items; "
+            f"{total_failures} failures; {waveform_problems} waveform problems."
+        )
+        print(
+            rgb_text(
+                "        ↩️ The program is ending normally, but this folder has not "
+                "converged to a clean audit yet.",
+                255,
+                150,
+                95,
+                use_color,
+            )
+        )
+    return {
+        "complete": complete,
+        "remaining": remaining,
+        "severity_counts": dict(severity_counts),
+        "failures": total_failures,
+        "waveform_problems": waveform_problems,
+        "files_examined": scanned,
+    }
+
+
 def retry_failed_findings(data, result, use_color, key_reader=None, input_reader=None):
     """Re-audit, filter to failed actions, and require fresh approvals; never replay stale plans."""
     failures = [d for d in result.get("decisions", []) if d.get("error")]
     if not failures:
         return result
-    print("        Failed actions:")
+    print("        ⚠️ Failed actions:")
     for decision in failures:
         print(console_safe_text(f"          {decision['finding'].get('path')}: {decision['error']}"))
     if not prompt_for_approval("Retry only these failed actions after a fresh scan?", False, use_color, key_reader=key_reader):
@@ -14419,7 +15856,7 @@ def retry_failed_findings(data, result, use_color, key_reader=None, input_reader
     retained = [d for d in result.get("decisions", []) if not d.get("error")]
     for decision in failures:
         if key(decision["finding"]) not in remaining:
-            print(f"        No longer actionable after refresh: {decision['finding'].get('path')}")
+            print(f"        ✅ No longer actionable after refresh: {decision['finding'].get('path')}")
             if _BATCH_SESSION is not None:
                 _BATCH_SESSION.resolve_failure(decision["finding"]["category"], decision["finding"].get("path", ""))
     retried = interactive_apply(fresh, use_color, key_reader=key_reader, input_reader=input_reader) if remaining else {"decisions": []}
@@ -14439,7 +15876,7 @@ def retry_failed_waveforms(root, result, use_color=True, key_reader=None, **opti
         return result
     failures = result["failed"]
     for failure in failures:
-        print(console_safe_text(f"        {failure.get('path')}: {failure.get('error', 'Waveform review failed')}"))
+        print_file_error(failure.get("path", "Unknown file"), failure.get("error", "Waveform review failed"), "Review failed", use_color)
     if not prompt_for_approval("Retry only these failed waveform reviews?", False, use_color, key_reader=key_reader):
         return result
     available = [Path(f["path"]) for f in failures if Path(f["path"]).is_file()]
@@ -14465,11 +15902,11 @@ def offer_backup_cleanup(root, use_color=True, key_reader=None):
             if state is not None:
                 candidates.append((path, state))
     total = sum(state[0] for _, state in candidates)
-    print(f"        Backup storage: {len(candidates)} files, {total:,} bytes ({total / 1024**3:.2f} GiB).")
+    print(f"        📦 Backup storage: {len(candidates)} files, {total:,} bytes ({total / 1024**3:.2f} GiB).")
     if not candidates:
         return []
     if _BATCH_SESSION is not None and _BATCH_SESSION.has_failures:
-        print("        Backups retained: unresolved failures may need them for recovery.")
+        print("        💾 Backups retained: unresolved failures may need them for recovery.")
         return []
     if not prompt_for_approval("Preview optional backup cleanup? Nothing is deleted by previewing.", False, use_color, key_reader=key_reader):
         return []
@@ -14480,20 +15917,20 @@ def offer_backup_cleanup(root, use_color=True, key_reader=None):
     # Abort the whole cleanup if its preview is stale; do not partially follow a stale approval.
     for path, state in candidates:
         if action_file_state(path) != state:
-            print(f"        Cleanup cancelled: backup changed since preview: {path}")
+            print(f"        ⚠️ Cleanup cancelled: backup changed since preview: {path}")
             return []
     recycled = []
     for path, state in candidates:
         if action_file_state(path) != state:
-            print(f"        Cleanup stopped: backup changed before recycling: {path}")
+            print(f"        ⚠️ Cleanup stopped: backup changed before recycling: {path}")
             break
         try:
             recycle_path(path)
             recycled.append(path)
         except Exception as exc:
-            print(f"        Cleanup stopped; no permanent deletion fallback: {exc}")
+            print(f"        ⚠️ Cleanup stopped; no permanent deletion fallback: {exc}")
             break
-    print(f"        Recycled {len(recycled)} backups. Restore through Windows Recycle Bin if needed.")
+    print(f"        ♻️ Recycled {len(recycled)} backups. Restore through Windows Recycle Bin if needed.")
     return recycled
 
 
@@ -14622,7 +16059,7 @@ def double_height_gradient_section(
 ) -> list[str]:
     """Render a decorated double-height header with a per-character gradient."""
     text = f"✨✱✨ {title}: ✨✱✨"
-    if not use_color:
+    if not use_color or not getattr(sys.stdout, "isatty", lambda: False)():
         return [text]
     styled = (
         f"{ANSI['bold']}"
@@ -14682,7 +16119,8 @@ def friendly_category(category: str) -> str:
             "Album filename capitalization"
         ),
         "filename_marker_style": "Filename normalization",
-        "all_caps_album_title": "All-caps album title",
+        "all_caps_album_title": "All-caps track title",
+        "title_apostrophe_style": "Missing apostrophe in title",
         "same_stem_mp3_flac": "Matching MP3/FLAC pair",
     }
     return names.get(category, category.replace("_", " ").capitalize())
@@ -14882,14 +16320,14 @@ def artwork_finding_still_needs_action(
     }:
         return True
     target = safe_finding_path(root, finding)
-    # If this particular track has no local Front candidate yet, it must get
-    # the first extraction prompt. Once that prompt writes cover.jpg/a
-    # same-basename sidecar, later identical findings are safely skipped.
-    if front_art_candidate(target) is None:
-        return True
-    # ``write=False`` then reports only artwork payloads genuinely absent from
-    # the folder, so redundant later prompts remain suppressed.
-    return bool(export_art_sidecars(target, write=False))
+    if category == "embedded_art_without_sidecar":
+        # Re-check the live filesystem immediately before prompting. Either a
+        # folder Front or the exact per-track basename means extraction has
+        # already been done, including for numbered compilation tracks.
+        return front_art_candidate(target) is None
+    # Multiple embedded pictures still require reducing the container to one
+    # Front image, even when the correctly named sidecar already exists.
+    return True
 
 
 def preview_existing_front_sidecar(
@@ -14913,8 +16351,7 @@ def preview_existing_front_sidecar(
         mode = renderer(candidate, use_color=use_color)
         cover_narration(
             "👁️",
-            f"Existing front-cover sidecar preview rendered with {mode}: "
-            f"{candidate.name}.",
+            f"Artwork source audio: {safe_finding_path(root, finding)}",
             use_color=use_color,
             color=(115, 105, 155),
             dim=True,
@@ -15548,7 +16985,8 @@ def render_usage(use_color: bool = True) -> str:
             "are prepared ahead in a bounded cache."
         ),
         note(
-            "    P=Preview audio uses play_audio_file.py: arrows seek 5 seconds, "
+            "    P=Previous file revisits the preceding waveform; L=Listen uses "
+            "play_audio_file.py: arrows seek 5 seconds, "
             "Shift+arrows seek 15, and Esc/X/Q/Ctrl+W/Alt+F4/Ctrl+C/"
             "Ctrl+Break stop playback."
         ),
@@ -15644,9 +17082,43 @@ def console_safe_text(text: str, stream: Any | None = None) -> str:
     return text
 
 
+def brief_file_error_reason(error) -> str:
+    """Classify diagnostics without echoing paths, tag contents, or lyrics."""
+    text = str(error).casefold()
+    if "header missing" in text:
+        return "Invalid audio frame/header"
+    if "audio integrity check failed" in text:
+        return "Audio decode check failed"
+    if "windows limit 255" in text:
+        return "Filename too long for required backup"
+    if "not a valid flac" in text:
+        return "Invalid FLAC data"
+    if "cannot determine format" in text or "invalid data found" in text:
+        return "Audio could not be decoded"
+    if "backup" in text:
+        return "Backup could not be created or verified"
+    if "timed out" in text or isinstance(error, TimeoutError):
+        return "Operation timed out"
+    if isinstance(error, PermissionError):
+        return "Access denied or file locked"
+    return "Operation failed"
+
+
+def print_file_error(path, error, outcome, use_color):
+    batch_event("diagnostic", path=str(path), outcome=outcome, error=str(error))
+    name = status_bar_filename(Path(path), columns=72)
+    name = re.sub(r"[\x00-\x1f\x7f-\x9f]", " ", name)
+    print_formatted_error(f"{outcome}: {name} — {brief_file_error_reason(error)}. Details in journal.", use_color)
+
+
 def print_formatted_error(message: str, use_color: bool) -> None:
     """Print an error safely even when redirected output uses a legacy code page."""
-    print(console_safe_text(formatted_error(message, use_color)))
+    text = console_safe_text(formatted_error(message, use_color))
+    shared_tqdm = getattr(_progress_module, "tqdm", None)
+    if shared_tqdm is not None:
+        shared_tqdm.write(text, file=sys.stdout)
+    else:
+        print(text)
 
 
 def print_usage(use_color: bool) -> None:
@@ -15783,7 +17255,13 @@ def settled_approval_prompt(
 
 
 def read_single_key() -> str:
-    """Read one console key without waiting for Enter."""
+    """Drain pending display output, then read one key without waiting for Enter."""
+    wait_for_console_output()
+    return _read_single_key_raw()
+
+
+def _read_single_key_raw() -> str:
+    """Read a key without a pager barrier (used by the pager's writer thread)."""
     if os.name == "nt":
         import msvcrt
 
@@ -16139,6 +17617,7 @@ ACTION_SCOPE_KEYS = {
     "r": "remember_no",
     "d": "delete_art",
     "e": "rename_audio",
+    "l": "list_files",
     "\x7f": "delete_art",
 }
 
@@ -16153,6 +17632,7 @@ def action_scope_options(
     allow_delete_art: bool = False,
     allow_remember_no: bool = True,
     allow_rename_audio: bool = False,
+    allow_list_files: bool = False,
 ) -> str:
     """Render all single-key choices for a repeatable batch action."""
     yes_key = "Y" if default_yes else "y"
@@ -16168,6 +17648,8 @@ def action_scope_options(
         choices.append("D=Delete Cover Art")
     if allow_rename_audio:
         choices.append("E=Rename Audio")
+    if allow_list_files:
+        choices.append("L=List Files + Metrics")
     choices.append("V=Never")
     if allow_folder:
         choices.append("F=Yes for This Folder")
@@ -16205,6 +17687,11 @@ def action_scope_options(
             rgb_text(" / ", 255, 165, 45, True),
             rgb_text("E=Rename Audio", 255, 205, 95, True),
         ])
+    if allow_list_files:
+        chunks.extend([
+            rgb_text(" / ", 255, 165, 45, True),
+            rgb_text("L=List Files + Metrics", 120, 220, 255, True),
+        ])
     chunks.extend([
         rgb_text(" / ", 255, 165, 45, True),
         rgb_text("V=Never", 255, 145, 80, True),
@@ -16232,6 +17719,7 @@ def action_scope_prompt(
     allow_delete_art: bool = False,
     allow_remember_no: bool = True,
     allow_rename_audio: bool = False,
+    allow_list_files: bool = False,
 ) -> str:
     """Build the urgent repeatable-action prompt."""
     return prompt_with_option_legend(
@@ -16245,6 +17733,7 @@ def action_scope_prompt(
             allow_delete_art=allow_delete_art,
             allow_remember_no=allow_remember_no,
             allow_rename_audio=allow_rename_audio,
+            allow_list_files=allow_list_files,
         ),
         indent=indent,
     )
@@ -16262,6 +17751,7 @@ def action_scope_answer(choice: str, use_color: bool) -> str:
         "remember_no": ("No — remembered for this file!", (185, 145, 255)),
         "delete_art": ("Cover Art Recycled!", (255, 105, 105)),
         "rename_audio": ("Rename Audio", (255, 205, 95)),
+        "list_files": ("List Files + Metrics", (120, 220, 255)),
     }
     label, color = labels[choice]
     if not use_color:
@@ -16298,6 +17788,7 @@ def prompt_for_action_scope(
     allow_delete_art: bool = False,
     allow_remember_no: bool = True,
     allow_rename_audio: bool = False,
+    allow_list_files: bool = False,
 ) -> str:
     """Read Y/N/Always/Never/Folder with one key and no required Enter."""
     reader = key_reader or read_single_key
@@ -16312,6 +17803,7 @@ def prompt_for_action_scope(
         allow_delete_art=allow_delete_art,
         allow_remember_no=allow_remember_no,
         allow_rename_audio=allow_rename_audio,
+        allow_list_files=allow_list_files,
     )
     interactive_terminal = bool(
         getattr(sys.stdout, "isatty", lambda: False)()
@@ -16341,6 +17833,7 @@ def prompt_for_action_scope(
                 or (choice == "stop_folder" and not allow_stop_folder)
                 or (choice == "delete_art" and not allow_delete_art)
                 or (choice == "rename_audio" and not allow_rename_audio)
+                or (choice == "list_files" and not allow_list_files)
                 or (choice == "remember_no" and not allow_remember_no)
             ):
                 invalid_key_beep()
@@ -16392,14 +17885,46 @@ def set_album_tag(path: Path, album: str) -> tuple[str, Path]:
     return value, backup
 
 
+def set_title_tag(path: Path, title: str) -> tuple[str, Path]:
+    """Back up, write one exact title value, and verify the saved tag."""
+    value = str(title).strip()
+    if not value:
+        raise ValueError("Title value cannot be blank")
+    backup = backup_before_inline_replacement(path)
+    if path.suffix.casefold() == ".flac":
+        audio = FLAC(path)
+        set_flac_value(audio, "TITLE", value)
+        audio.save()
+        written = [str(item) for item in FLAC(path).get("TITLE", [])]
+    else:
+        audio = ensure_id3(path)
+        audio.tags.delall("TIT2")
+        audio.tags.add(TIT2(encoding=3, text=[value]))
+        audio.save(v2_version=3)
+        verified = ensure_id3(path)
+        written = [
+            str(item)
+            for frame in verified.tags.getall("TIT2")
+            for item in getattr(frame, "text", [])
+        ]
+    if written != [value]:
+        raise RuntimeError(f"Title verification failed; read back {written!r}")
+    return value, backup
+
+
 ALBUM_TAG_SKIP_REMAINING_FOLDER_ACTION = "skip_missing_album_for_folder"
+ALBUM_TAG_REMEMBER_FOLDER_SKIP_ACTION = "remember_missing_album_folder_skip"
 _SHIFT_ENTER_INPUT_SEQUENCES = {
     "\x1b[13;2u",  # CSI-u keyboard protocol
     "\x1b[27;2;13~",  # modifyOtherKeys protocol
 }
+_CTRL_SHIFT_ENTER_INPUT_SEQUENCES = {
+    "\x1b[13;6u",  # CSI-u keyboard protocol
+    "\x1b[27;6;13~",  # modifyOtherKeys protocol
+}
 
 
-def read_windows_line_with_shift_enter(prompt: str) -> tuple[str, bool] | None:
+def read_windows_line_with_shift_enter(prompt: str) -> tuple[str, bool, bool] | None:
     """Read an editable console line and retain the Shift state of ENTER.
 
     ``input()`` receives Shift+ENTER as an indistinguishable newline in many
@@ -16408,6 +17933,7 @@ def read_windows_line_with_shift_enter(prompt: str) -> tuple[str, bool] | None:
     stdin simply returns ``None`` so the ordinary ``input`` fallback remains
     available to scripts and tests.
     """
+    wait_for_console_output()
     if os.name != "nt":
         return None
     try:
@@ -16464,7 +17990,10 @@ def read_windows_line_with_shift_enter(prompt: str) -> tuple[str, bool] | None:
                     continue
                 if key.wVirtualKeyCode == vk_return:
                     print()
-                    return "".join(entered), bool(key.dwControlKeyState & shift_pressed)
+                    modifiers = key.dwControlKeyState
+                    shifted = bool(modifiers & shift_pressed)
+                    controlled = bool(modifiers & 0x000C)
+                    return "".join(entered), shifted, shifted and controlled
                 if key.wVirtualKeyCode == vk_back:
                     if entered:
                         entered.pop()
@@ -16487,16 +18016,19 @@ def read_album_tag_value(
     prompt: str,
     *,
     input_reader=None,
-) -> tuple[str, bool]:
-    """Return entered album text plus whether Shift+ENTER selected folder skip."""
+) -> tuple[str, bool, bool]:
+    """Return text, Shift+ENTER skip, and Ctrl+Shift+ENTER persistent skip."""
+    wait_for_console_output()
     if input_reader is not None:
         entered = str(input_reader(prompt))
-        return entered, entered in _SHIFT_ENTER_INPUT_SEQUENCES
+        persistent = entered in _CTRL_SHIFT_ENTER_INPUT_SEQUENCES
+        return entered, persistent or entered in _SHIFT_ENTER_INPUT_SEQUENCES, persistent
     console_value = read_windows_line_with_shift_enter(prompt)
     if console_value is not None:
         return console_value
     entered = input(prompt)
-    return entered, entered in _SHIFT_ENTER_INPUT_SEQUENCES
+    persistent = entered in _CTRL_SHIFT_ENTER_INPUT_SEQUENCES
+    return entered, persistent or entered in _SHIFT_ENTER_INPUT_SEQUENCES, persistent
 
 
 def prompt_for_album_tag(
@@ -16518,13 +18050,14 @@ def prompt_for_album_tag(
         "            "
         + urgent_prompt_text(
             "Album value (ENTER=leave unchanged; Shift+ENTER=leave unchanged "
-            "for rest of this folder):",
+            "for rest of this folder; Ctrl+Shift+ENTER=leave unchanged for "
+            "this folder in future audits):",
             use_color,
         )
         + " "
     )
     try:
-        entered, skip_remaining_folder = read_album_tag_value(
+        entered, skip_remaining_folder, remember_folder_skip = read_album_tag_value(
             prompt,
             input_reader=input_reader,
         )
@@ -16532,8 +18065,15 @@ def prompt_for_album_tag(
     except EOFError:
         value = ""
         skip_remaining_folder = False
+        remember_folder_skip = False
     reset_console_pager_after_user_input()
     if skip_remaining_folder and not value:
+        if remember_folder_skip:
+            print(colorize(
+                "            ↪️ Unchanged — missing album tags in this folder "
+                "will also be skipped in future audits.", "dim", use_color,
+            ))
+            return [ALBUM_TAG_REMEMBER_FOLDER_SKIP_ACTION]
         print(
             colorize(
                 "            ↪️ Unchanged — remaining missing album tags in "
@@ -17058,7 +18598,26 @@ def apply_finding(
     }:
         actions = apply_art(target, write=True)
         if not actions:
-            raise RuntimeError("No applicable artwork action was available")
+            pictures = embedded_pictures(target)
+            matches = []
+            for data, mime, picture_type, _description in pictures:
+                match = target.parent / (
+                    exported_art_sidecar_stem(target, picture_type)
+                    + picture_extension(mime)
+                )
+                if (
+                    match.is_file()
+                    and hashlib.sha256(match.read_bytes()).digest()
+                    == hashlib.sha256(data).digest()
+                    and match not in matches
+                ):
+                    matches.append(match)
+            if matches:
+                return [f"already_present_art_sidecar:{match}" for match in matches]
+            raise RuntimeError(
+                "Embedded artwork was detected, but no exportable picture "
+                "payload or matching local sidecar was found"
+            )
         return actions
 
     if category == "simplify_punk_genre":
@@ -17069,6 +18628,17 @@ def apply_finding(
             return ["unchanged:genre"]
         written, backup = set_genre_tag(target, selected)
         return [f"backup:{backup}", f"genre:{written}"]
+
+    if category == "title_apostrophe_style":
+        proposed = str(
+            finding.get("details", {}).get("proposed_title")
+            or repair_common_missing_apostrophes(
+                str(finding.get("details", {}).get("before_title") or ""),
+                curly=True,
+            )
+        )
+        written, backup = set_title_tag(target, proposed)
+        return [f"backup:{backup}", f"title:{written}"]
 
     if category == "read_only_audio":
         os.chmod(target, target.stat().st_mode | stat.S_IWRITE)
@@ -17081,6 +18651,14 @@ def apply_finding(
             finding.get("details", {}).get("proposed_name")
             or canonicalized_filename(target.name)
         )
+        if proposed_name == target.name:
+            return []
+        if target.suffix.casefold() in AUDIO_EXTS:
+            destination, family, playlist_backups = rename_waveform_problem_family(target, proposed_name)
+            return ([f"renamed:{destination}"]
+                    + [f"renamed_backup:{path}" if is_backup_filename(path) else f"renamed:{path}"
+                       for path in family if path != destination]
+                    + [f"backup:{path}" for path in playlist_backups])
         destination, renamed_backups = rename_filename_with_backups(
             target,
             proposed_name,
@@ -17354,6 +18932,7 @@ def _interactive_apply(
         (f for f in data["findings"] if f.get("code")),
         key=lambda finding: (
             0 if finding["category"] in rename_first_categories else 1,
+            0 if Path(str(finding.get("path", ""))).suffix.casefold() in AUDIO_EXTS else 1,
             str(finding.get("code") or ""),
         ),
     )
@@ -17366,6 +18945,7 @@ def _interactive_apply(
     decisions.observed = observed
     remembered_no_store = RememberedNoStore()
     reaudited_categories: dict[str, set[str]] = {}
+    extracted_art_approval_memory: dict = {}
     printed_prompt = False
     remembered_category_choices: dict[str, str] = {}
     remembered_folder_approvals: set[tuple[str, str]] = set()
@@ -17390,12 +18970,27 @@ def _interactive_apply(
         refresh_pending_paths(coded, root, _RENAMED_PATHS[rename_cursor:])
         rename_cursor = len(_RENAMED_PATHS)
         target = safe_finding_path(root, finding)
+        if finding["category"] == "missing_srt_from_lrc_txt":
+            expected = srt_finding_audio_paths(root, finding)
+            if expected and all(nonempty_srt_exists(path) for path in expected):
+                skipped.append(finding["code"])
+                decisions.append({"code": finding["code"], "finding": finding,
+                                  "applied": False, "skipped": True, "error": None,
+                                  "actions": ["already_resolved_srt_sidecars"]})
+                continue
+        if finding["category"] == "filename_marker_style" and target.is_file():
+            # Recompute from the live name: a preceding family rename may
+            # already have satisfied this duplicate or sidecar proposal.
+            proposed = canonicalized_filename(target.name)
+            if proposed == target.name:
+                continue
+            finding.setdefault("details", {})["proposed_name"] = proposed
         scope = target if target.is_dir() else target.parent
         try:
             _ACTIVE_CHANGE_GUARD = ActionChangeGuard(scope, observed or None)
         except ExternalFileChange as exc:
             failed.append(finding["code"])
-            print(f"        RECHECK REQUIRED: {exc}")
+            print(f"        ⚠️ Skipped safely: {exc}")
             decisions.append({"code": finding["code"], "finding": finding, "error": str(exc),
                               "applied": False, "skipped": False, "actions": []})
             continue
@@ -17403,13 +18998,17 @@ def _interactive_apply(
             previous = _BATCH_SESSION.previous(finding["category"], safe_finding_path(root, finding))
             if previous and previous != "file changed since checkpoint":
                 skipped.append(finding["code"])
-                print(f"        Skipped {finding.get('path')}: {previous} in resumed batch; file unchanged.")
+                print(f"        ⏭️ Skipped {finding.get('path')}: {previous} in resumed batch; file unchanged.")
                 continue
             if previous:
-                print(f"        Rechecking {finding.get('path')}: {previous}.")
+                print(f"        🔎 Rechecking {finding.get('path')}: {previous}.")
         if finding["category"] == "missing_album":
             album_folder = safe_finding_path(root, finding).parent.resolve()
-            if album_folder in remembered_missing_album_folder_skips:
+            persistent_album_skip = (
+                remembered_no_store.folder_choice("missing_album", album_folder)
+                == "skip_album"
+            )
+            if album_folder in remembered_missing_album_folder_skips or persistent_album_skip:
                 skipped.append(finding["code"])
                 decisions.append(
                     {
@@ -17425,7 +19024,10 @@ def _interactive_apply(
                 print(
                     rgb_text(
                         "            ↪️ Album unchanged — skipped for this "
-                        "folder by an earlier Shift+ENTER.",
+                        +
+                        ("folder by a remembered Ctrl+Shift+ENTER from an earlier audit."
+                         if persistent_album_skip else
+                         "folder by an earlier Shift+ENTER."),
                         175,
                         155,
                         145,
@@ -17522,10 +19124,16 @@ def _interactive_apply(
                     use_color,
                     input_reader=input_reader,
                 )
+                persist_album_folder_skip = actions == [ALBUM_TAG_REMEMBER_FOLDER_SKIP_ACTION]
                 skip_remaining_album_folder = (
                     actions == [ALBUM_TAG_SKIP_REMAINING_FOLDER_ACTION]
+                    or persist_album_folder_skip
                 )
                 if skip_remaining_album_folder:
+                    if persist_album_folder_skip:
+                        remembered_no_store.remember_folder_choice(
+                            "missing_album", target.parent, "skip_album"
+                        )
                     remembered_missing_album_folder_skips.add(
                         safe_finding_path(root, finding).parent.resolve()
                     )
@@ -17752,7 +19360,23 @@ def _interactive_apply(
                             finding["category"] == "json_sidecar"
                             and associated_audio_for_sidecar(target) is not None
                         ),
+                        allow_list_files=replaygain_scope,
                     )
+                    if choice == "list_files":
+                        listed_paths = sorted(
+                            (
+                                path
+                                for path in scope_folder.iterdir()
+                                if path.is_file()
+                                and path.suffix.casefold() in {".mp3", ".flac"}
+                            ),
+                            key=lambda path: path.name.casefold(),
+                        )
+                        print_replaygain_files_with_metrics(
+                            listed_paths,
+                            heading="ReplayGain folder targets and waveform measurements",
+                        )
+                        continue
                     if choice != "always":
                         break
                     if prompt_for_approval(
@@ -17870,6 +19494,8 @@ def _interactive_apply(
                             use_color=use_color,
                             key_reader=key_reader,
                             preview_renderer=artwork_preview_renderer,
+                            approval_memory=extracted_art_approval_memory,
+                            audio_path=safe_finding_path(root, finding),
                         )
                     if finding["category"] == "filename_marker_style":
                         old_path = finding["path"]
@@ -17939,7 +19565,25 @@ def _interactive_apply(
                                         )
                                     )
                     if reaudit_action and extracted_art_approved and not should_delete_art:
-                        if finding["category"] == "missing_embedded_art":
+                        if finding["category"] == "missing_srt_from_lrc_txt":
+                            expected = srt_finding_audio_paths(root, finding)
+                            if not expected or not all(nonempty_srt_exists(path) for path in expected):
+                                raise RuntimeError("SRT verification failed: an expected sidecar is missing or empty")
+                        elif finding["category"] == "newer_lrc_needs_srt_backfill":
+                            # The converter verifies a rewritten SRT; do not
+                            # scan thousands of unrelated tracks again.
+                            if not nonempty_srt_exists(target):
+                                raise RuntimeError("SRT verification failed: missing or empty output")
+                            # lrc2srt writes the SRT outside our tracked-file
+                            # helpers. Update the audit snapshot for this
+                            # verified, intentional write so other findings
+                            # in the same folder are not misreported as
+                            # external changes on every subsequent action.
+                            srt_path = find_lyric_sidecar(target, (".srt",))
+                            if srt_path is not None:
+                                observed[str(srt_path.resolve())] = action_file_state(srt_path)
+                            reaudited_categories.setdefault(finding["path"], set()).discard(finding["category"])
+                        elif finding["category"] == "missing_embedded_art":
                             # Do not rescan the whole batch after every cover
                             # embed. The write is local and its success can be
                             # verified precisely by rereading this one file.
@@ -18640,7 +20284,6 @@ def run_unit_tests(use_color: bool = True) -> int:
                         sys.executable,
                         str(tool),
                         "MiniLyricsFix",
-                        "--recursive",
                         "--automatic-overwrites",
                     ],
                     commands[0][0],
@@ -18743,7 +20386,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                 }
                 self.assertEqual(set(), categories)
 
-        def test_exports_all_art_but_keeps_only_front_embedded(self) -> None:
+        def test_exports_only_preferred_art_and_keeps_only_front_embedded(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
                 audio_path = make_silent_flac(root, "03 Artwork Test")
@@ -18772,8 +20415,8 @@ def run_unit_tests(use_color: bool = True) -> int:
                 )
                 self.assertEqual(3, len(FLAC(art_backup).pictures))
                 self.assertTrue((root / "cover.jpg").exists())
-                self.assertTrue((root / "back.jpg").exists())
-                self.assertTrue((root / "disc.jpg").exists())
+                self.assertFalse((root / "back.jpg").exists())
+                self.assertFalse((root / "disc.jpg").exists())
                 remaining = FLAC(audio_path).pictures
                 self.assertEqual(1, len(remaining))
                 self.assertEqual(3, remaining[0].type)
@@ -21090,7 +22733,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                     return_value=metrics.replaygain_factor,
                 ), mock.patch.object(
                     module,
-                    "prompt_for_approval",
+                    "prompt_for_replaygain_batch_bake",
                     return_value=True,
                 ) as prompt, mock.patch.object(
                     module,
@@ -22184,7 +23827,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             waveform = Path(r"C:\Temp\track.waveform.jpg")
             audio = Path(r"C:\Music\Track.flac")
             renamed_audio = audio.with_name("Track [waveform problem].flac")
-            keys = iter(("p", "e", "v", "y", "y", "y"))
+            keys = iter(("l", "e", "v", "y", "y", "y"))
             calls = {
                 "render": 0,
                 "edit": 0,
@@ -22253,7 +23896,8 @@ def run_unit_tests(use_color: bool = True) -> int:
             rendered = output.getvalue()
             self.assertIn("N=It’s fine", rendered)
             self.assertIn("Y=There is a problem", rendered)
-            self.assertIn("P=Preview audio", rendered)
+            self.assertIn("P=Previous file", rendered)
+            self.assertIn("L=Listen", rendered)
             self.assertIn("E=Edit audio", rendered)
             self.assertIn("V=View fullscreen", rendered)
             self.assertIn(
@@ -22701,14 +24345,10 @@ def run_unit_tests(use_color: bool = True) -> int:
             colored = formatted_error("waveform rendering failed", True)
             self.assertIn(f"{ANSI['blink']}{ANSI['bold']}", colored)
             self.assertIn("ERROR:", colored)
-            self.assertEqual(
-                (
-                    _SCRIPT_DIR,
-                    _SCRIPT_DIR / "clairecjs_util",
-                    _SCRIPT_DIR / "clairecjs_utils",
-                ),
-                _PROGRESS_LIBRARY_SEARCH_DIRS,
-            )
+            for expected in (_SCRIPT_DIR, _SCRIPT_DIR / "clairecjs_util",
+                             _SCRIPT_DIR / "clairecjs_utils", Path(r"C:\BAT\clairecjs_utils"),
+                             Path(r"C:\clairecjs_utils")):
+                self.assertIn(expected, _PROGRESS_LIBRARY_SEARCH_DIRS)
             with contextlib.redirect_stderr(io.StringIO()) as error_output:
                 with self.assertRaises(SystemExit):
                     parse_args(
@@ -26522,6 +28162,7 @@ def _main(argv: list[str] | None = None) -> int:
         for kind, path in data["written_reports"].items():
             print(f"  {kind}: {path}")
     waveform_handoff_failed = False
+    waveform_handoff: dict[str, Any] | None = None
     if args.interactive:
         result = interactive_apply(data, use_color=not args.no_color)
         result = retry_failed_findings(data, result, use_color=not args.no_color)
@@ -26543,25 +28184,66 @@ def _main(argv: list[str] | None = None) -> int:
                 waveform_handoff
                 and waveform_handoff.get("failed")
             )
-            if waveform_handoff is not None:
-                print_interactive_results(result, not args.no_color)
         except Exception as exc:
             waveform_handoff_failed = True
-            print_formatted_error(
-                f"Could not start the post-audit waveform review: "
-                f"{type(exc).__name__}: {exc}",
-                not args.no_color,
-            )
+            print_file_error(Path(args.root), exc, "Waveform review could not start", not args.no_color)
     if waveform_handoff_failed:
         batch_event("failure", operation="post_audit_waveform_review")
     if args.interactive:
         offer_backup_cleanup(Path(args.root), use_color=not args.no_color)
+    final_status: dict[str, Any] | None = None
+    if args.interactive:
+        print()
+        print("        🔎 Running final fresh verification scan…")
+        try:
+            verification_audit = BatchAudit(
+                Path(args.root),
+                include_archives=args.include_archives,
+                check_silence=effective.check_silence,
+                silence_threshold_seconds=effective.silence_threshold_seconds,
+            )
+            verification = verification_audit.audit(embed_lyrics_first=False)
+            final_status = print_final_audit_verification(
+                verification,
+                action_failures=len(result.get("failed_codes", "")),
+                waveform_result=waveform_handoff,
+                waveform_handoff_failed=waveform_handoff_failed,
+                use_color=not args.no_color,
+            )
+        except Exception as exc:
+            batch_event(
+                "failure",
+                operation="final_verification_scan",
+                error=f"{type(exc).__name__}: {exc}",
+            )
+            print()
+            print(
+                "\n".join(
+                    double_height_gradient_section(
+                        "AUDIT FINISHED — FINAL VERIFICATION FAILED",
+                        not args.no_color,
+                        ((255, 205, 70), (255, 90, 90)),
+                    )
+                )
+            )
+            print_file_error(
+                Path(args.root),
+                exc,
+                "The run ended, but a clean final status could not be verified",
+                not args.no_color,
+            )
+            final_status = {"complete": False, "verification_failed": True}
     return (
         1
         if (
-            data["counts"]["by_severity"].get("problem", 0)
-            or waveform_handoff_failed
-            or (args.interactive and bool(result.get("failed_codes")))
+            (args.interactive and not bool(final_status and final_status.get("complete")))
+            or (
+                not args.interactive
+                and (
+                    data["counts"]["by_severity"].get("problem", 0)
+                    or data.get("embedding_failures")
+                )
+            )
         )
         else 0
     )

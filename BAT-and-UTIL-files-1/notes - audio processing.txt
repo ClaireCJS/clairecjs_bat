@@ -18,15 +18,19 @@
 
 
 
-⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ POST-AI INSTRUCTIONS: ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐ POST-AI INSTRUCTIONS: ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+
+- CURRENT STATUS: WE DO THINGS THIS NEW SIMPLE WAY, BUT WE STILL GO THROUGH THE OLD INSTRUCTIONS TOO
+
 	- rename the files (see below)
-	- run “LRCget”    to get lyrics/LRC available from the internet (1st pass)
-	- run “sweep glh” to get lyrics     available from the internet (2nd pass) 
-	- run “sweep gkh” to generate karaokes via AI
-	- run “album_art_downloader.py” to get album art
-	- run “audit_music_batch.py” to find out what else needs to be done
-	- Tag it (see below)
-⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+	- run “LRCget”                   to get lyrics/LRC available from the internet (1st pass)
+	- run “sweep glh”                to get lyrics     available from the internet (2nd pass) 
+	- run “sweep gkh”                to generate karaokes via AI
+	- run “album_art_downloader.py”  to get album art
+	- run “tag”                      to tag them it (see below) - but try doing it with Codex first
+	- run “audit_music_batch.py”     to find out what else needs to be done
+	- run “final-assimilation-check” for last minute checkies 
+⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
 
 
 
@@ -51,7 +55,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
  
-- create/sequester new batch into it's own folder
+- create/sequester new batch into it’s own folder
 	- make a folder for the new batch, i.e. c:\new\music\BATCH.YYYYMM  {good to give the batch a dated name}
 	- find new music in %NEWCL%\music\                                 {or wherever}
 	- move some music to the new batch folder
@@ -97,24 +101,21 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 - NO LONGER DONE: once upon a time (1995-2022), this is where we would extract-all-wavs for every damn (non-wav) audio file by doing "sweep extract-all-wavs"
-	    - but now (2023), we allow mp3/flac/wav files to exist at this point in the process, because we no longer re-encode EVERY file, because we now have faith in ReplayGain
+	- but now (2023), we allow mp3/flac/wav files to exist at this point in the process, because we no longer re-encode EVERY file, because we now have faith in ReplayGain
+		- ONLY IF WINDOWS 7 MACHINES STILL EXIST: run: from inside the batch folder, from a Windows 7 machine [if we have one]: sweep naw - normalize all wavs - yes even in 2023 we still do this! - still applicable post-flac because some stuff we get is WAV-only format - yes we rely on replaygain tags these days but if the WAV is there, we’d still like to make the adjustment
+			* Note #1: I’ve spent hours tyring to get c:\util\normalize.exe [which really belongs in c:\util2\obsolete\normalize-stopped-working-after-win7.exe] to run in a post-Windows 7 world. It won’t.
+			* Note #2: I spent hours trying multiple ISOs for Windows 7 in a virtual machine. STILL WOUDLN’T WORK.
 
 
 
-- ONLY IF WINDOWS 7 MACHINES STILL EXIST: run: from inside the batch folder, from a Windows 7 machine [if we have one]: sweep naw - normalize all wavs - yes even in 2023 we still do this! - still applicable post-flac because some stuff we get is WAV-only format - yes we rely on replaygain tags these days but if the WAV is there, we'd still like to make the adjustment
-		* Note #1: I've spent hours tyring to get c:\util\normalize.exe [which really belongs in c:\util2\obsolete\normalize-stopped-working-after-win7.exe] to run in a post-Windows 7 world. It won't.
-		* Note #2: I spent hours trying multiple ISOs for Windows 7 in a virtual machine. STILL WOUDLN'T WORK.
-
-
-
-- run: check-for-invalid-audio-files.bat - ZERO OUTPUT MEANS WE'RE GOOD - see if all the files here are in the correct format now 
+- run: check-for-invalid-audio-files.bat - ZERO OUTPUT MEANS WE’RE GOOD - see if all the files here are in the correct format now 
 		* The goal here is to have our files only be in FLAC/MP3 (or, in rare case, WAV).
 		* There are occasional exceptions but probably not anything Carolyn will ever encounter - things like .MOD, .STM, .MIDI, and other obscure formats we may actually occasionally collect
 
 
 
 - MOVE BATCH: into processing (mp3\_PROCESSING\processing) - run "bthis.bat" within the bath folder if you want c:\b\ to point to it easily
-	- 202303 note: honestly, if you "bthis.bat" so that it's just c:\b\, it kind of doesn't matter where this folder really lives, so this step isn't that necessary as long as you don't lose track of things
+	- 202303 note: honestly, if you "bthis.bat" so that it’s just c:\b\, it kind of doesn’t matter where this folder really lives, so this step isn’t that necessary as long as you don’t lose track of things
 
 
 
@@ -123,12 +124,12 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 	- check for TODOs ("ldg todo") afterward because filenames may indicate some stuff we were supposed to do in edit
 	- feel free to CREATE TODOs by renaming files as well
 	- if you want to do noise reduction by sampling a hiss in order to remove the hiss you sampled..... 
-			- highlight the silence ... it's good to have 1+ seconds of it, if not 3+ seconds. Adobe will refuse if less than 1s but say you have 0.2s, you can just copy it over 5X until it's 1.0s :)
+			- highlight the silence ... it’s good to have 1+ seconds of it, if not 3+ seconds. Adobe will refuse if less than 1s but say you have 0.2s, you can just copy it over 5X until it’s 1.0s :)
 			- go to Transform->Noise Reduction->Noise Reduction. 
-					- If you haven't already, Set the default settings.  They will remain set "forever".  
+					- If you haven’t already, Set the default settings.  They will remain set "forever".  
 					  [Note that some of these settings no longer exist in newer versions of Adobe Audition]
 					  Set: Snapshots in profile to 900, FFT size to 24000/highest possible, Remove Noise selected, Reduce by *** 40db, Precision Factor 11, Smoothing Amount 1, Transistion Width 2db (2008 update: 20db transition width MAY be better... or MAY kill cymbals!) 
-					  A NEW SETTING I'M ONLY SEEING IN 2024 IS "NOISE FLOOR" -- just having to experiment with that one, higher seems less destructive but less noise-cancely
+					  A NEW SETTING I’M ONLY SEEING IN 2024 IS "NOISE FLOOR" -- just having to experiment with that one, higher seems less destructive but less noise-cancely
 					  Sometimes it is very helpful to use the "output hiss only" button to find out what it has considered to be hiss!
 					  Once you set those once they stay there but occasionally reset (thus even I had to put them in this file for reference, to fix them myself!).  
 					  For the noise reduction level, I generally use around 95%.  This may water it down a bit.  That can be reduced to 80% & still get most of the noise/buzz out.  
@@ -141,11 +142,11 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 - Encode! Any edited WAV files need encoding to mp3 [c:\bat\audio-batch-processing---encode-everything-and-remove-redundant-WAVs.bat]
 	* This bat needs to be run even if no WAVS are present
-	* These days, most edits are mp3/flac inline so we don't need to re-encode EVERYTHING like before
+	* These days, most edits are mp3/flac inline so we don’t need to re-encode EVERYTHING like before
 	      ...But there are still things that are acquired in WAV format sometimes (extracted youtube videos, CD rips), so this step will always needs to exist!
 	* from the root of our batch:
 			* CLOSE Adobe Audition! Seriously! 
-				    (It doesn't always unlock file handles of every WAV file and the next step can fail to delete a WAV if you don't!)
+				    (It doesn’t always unlock file handles of every WAV file and the next step can fail to delete a WAV if you don’t!)
 			* run: 	c:\bat\audio-batch-processing---encode-everything-and-remove-redundant-WAVs.bat
 								* just for reference, what that command does [as of 20030407] is:
 											sweep if exist *.wav call allfiles wav2mp3 -------- encodes any WAVs into MP3 using wav2mp3.bat
@@ -158,7 +159,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 - OPTIONAL: MOVE BATCH: into tagging (mp3\_PROCESSING\READY-FOR-TAGGING-1-(id3v2 only)) 
-							- we're kinda phasing this out 
+							- we’re kinda phasing this out 
 							- if you do, run "bthis.bat" within the batch to make "c:\b" point to the new folder you just moved it t
 							- this step is kind of pointless, huh?   
 							  (This was more for the era when multiple-batches were happening simultaneously)
@@ -193,7 +194,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 	- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	- why do we use this?           It adds a LOT of extra/useful/neat tags, genre, year all kinds of stuff Tag & Rename doesn't do.
+	- why do we use this?           It adds a LOT of extra/useful/neat tags, genre, year all kinds of stuff Tag & Rename doesn’t do.
 	                                Finding what year MISC tracks came out in is super useful and time-saving.
 
 	- the general process:
@@ -208,7 +209,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 				- to tell that it iss still doing stuff: 
 						1) status bar: bottom-right action: has a buncha stuff, the leftmost of which is an hourglass timer with an estimated time [never accurate] next to it
-						2) Left of status bar will have messages like "Downloading cover art of type 'Liner' for dd196zabc59-e3e3-4097"
+						2) Left of status bar will have messages like “Downloading cover art of type 'Liner' for dd196zabc59-e3e3-4097”
 
 				- EVENTUALLY, THIS WILL BE DONE. Go make food or something.  Proceed to step#3 when activity finally stops.
 
@@ -235,11 +236,11 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 
-- TAGGING: STEP 2: ALBUM ART: Claire's tools [cover_downloader.py] {can take hours for 1000 songs}
+- TAGGING: STEP 2: ALBUM ART: Claire’s tools [cover_downloader.py] {can take hours for 1000 songs}
 	- This tool is not really meant for single albums, though it COULD be run.  Usually, for single albums, we do it manually.
-	- This tool is            meant for MISC/ONEDIR non-album folders. The idea is that every MP3 has a JPG of the same name, which is it's front cover.
+	- This tool is            meant for MISC/ONEDIR non-album folders. The idea is that every MP3 has a JPG of the same name, which is it’s front cover.
 	- If it is a folder of non-album/MISC songs (ONEDIR, TRIBUTES, MISC, COVERS——anything where there would not be ONE cover file for ALL of it)
-		- 1) run cover_downloader.py to run Claire's cover_downloader script. It will take maybe 30ish seconds per song, so it's NOT fast.
+		- 1) run cover_downloader.py to run Claire’s cover_downloader script. It will take maybe 30ish seconds per song, so it’s NOT fast.
 		         cover_downloader.py is very well documented within the script, if you are looking for more tips/info.
 				 "sweep cover_downloader" is also valid if you want to run a buncha stuff while not-at-keyboard                 
 		- 2) after successful step #1, run the freshly-generated get-art.bat, which is generated in step #1 (could sweep thru several folders too)
@@ -249,19 +250,19 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 							- I usually run steps 1-3 at least twice, so often times the first review, i just nuke anything that looks SUPER low quality in hopes that the successive run happens to find a better one [rare, but not unheard of]
 				-  crop any that need cropping (non-full screen, highlight crop area, hit Ctrl-Y, then save with Ctrl-S)
 				    [They really should be square if possible —— that is the standard cover album shape.] 
-					[But also, if it's a vinyl record, i don't see a point in capturing the vinyl itself, just the label]
+					[But also, if it’s a vinyl record, i don’t see a point in capturing the vinyl itself, just the label]
 				- If stretched to a dumb aspect ratio, Ctrl-R can let you resize just one of the dimensions
-				             - sometimes helpful after cropping because it's hard to crop in an exact square
+				             - sometimes helpful after cropping because it’s hard to crop in an exact square
 							 - but in practice, the human eye might not be able to tell the difference :)
 				- Hit Shift-S [capital S] in Ifranview to sharpen ones that are hard to read after cropping
 				- Hit Ctrl-U for arbirary rotation, like if you want to turn it slightly 
 				- you can even use Image->Rotate to rotate them if you want
 		- 4) run wedding-party.py to sort the married files into another folder
 		     Why? Because this tool is not 100%.  It is almost always worth running at least one more time after throwing a wedding-party.py to sort out the successful ones. For big (100+ songs) folders I often have to make 3-4 passes, but for smaller folders (~20 songs in a ONEDIR for example) maybe only 1 or 2X. It is not a cut-and-dry call.
-		- 5) Optionally repeat steps #1-4 again. Failing to find art in one go doesn't guarantee it won't find it in the next.
+		- 5) Optionally repeat steps #1-4 again. Failing to find art in one go doesn’t guarantee it won’t find it in the next.
              Also, when songs get renamed, it is worth running against the new filename.
-		- 6) Eventually, decide we aren't going to repeat steps 1-5! We're done downloading and reivewing art automatically and will do the rest manually!
-		- 7) run CoverArtmbedder.bat / cover_embedder.py to run Claire's cover-embedder script —— it generates embed-art.bat
+		- 6) Eventually, decide we aren’t going to repeat steps 1-5! We’re done downloading and reivewing art automatically and will do the rest manually!
+		- 7) run CoverArtmbedder.bat / cover_embedder.py to run Claire’s cover-embedder script —— it generates embed-art.bat
 		- 8) run embed-art.bat, which is generated by step #7
 		- 9) no JPGs (other than perhaps a cover.jpg for the entire folder) should be left after this, 
 		     as they are all embedded and the script should have deleted them after successful embedding!
@@ -285,7 +286,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 		- If the art is present, it was likely downlaoded that way, or embedded in the last step! Yay! Already done!
 		- if the art is not present, we have to add it. Boo!
 			- first click the MP3/FLAC and try to locally add whatever cover.jpg/png is in the folder already
-		- searching can be automated using Mp3Tag's "tools":
+		- searching can be automated using Mp3Tag’s "tools":
 			- you can use the tool (right click, but also there are some keystrokes like Ctrl-3 through Ctrl-7) to automate google image searches for better cover art
 				- TODO: setting up the tools is tedious - finish this list?
 					#1/Ctrl-1: name: winamp.bat enqueue                           path: c:\tcmd\tcc.exe parameter: C:\bat\winamp-add.bat "%_path%"                                // check 'for all selected files': Yes
@@ -298,7 +299,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 	- RULE: only embed ONE album art image——the cover——per file. 
             - Why? multi-image embedding [i.e. back, front, inlay, etc] as this can confuse some players:
                     - multiple ones cause weird behavior in MiniLyrics
-                    - WinAmp can't always view the extra covers anyway
+                    - WinAmp can’t always view the extra covers anyway
     - NOTE: If you download a better one than the cover.jpg in the folder, you should delete the cover.jpg already in the folder!
             - This is very hard to notice/remember, buuuuut, the way you do is:
                 - (1) When you want to replace the image, you right-click it and say "add" and it opens the folder. 
@@ -307,7 +308,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
                 - (4) ...just delete the cover.jpg. Do not actually add it. We were just pretending to add it to open the filepicker.
                 - (5) This is when we would typically hit Ctrl-5 (or 4, or 7, or 6) to search for a better cover image
 	- TIP: for ONEDIR/MISC folders from many different years, this can actually be a good time to edit the year tag 
-		- [yes, tags can be edited in mp3tag too! it's just not the preferred tool we usually use for that]
+		- [yes, tags can be edited in mp3tag too! it’s just not the preferred tool we usually use for that]
 		- Ctrl-3 / tool#3 / "using filename" is often the best tool to find album-art for ONEDIR stuff that has the artist name in the filename
 
 
@@ -325,7 +326,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 				- never makes sense to run in MISC/ONEDIR type folders
 	- *** WHAT TO ACTUALLY DO: ***
 		{in the root of your batch} "run-eaa-in-appropriate-subfolders test" for dry run then "run-eaa-in-appropriate-subfolders force" for real run 
-                - ^^^^^ this will sweep through and run "eaa" if it's an album/appropriate place to do so. Involves over 20 checks.
+                - ^^^^^ this will sweep through and run "eaa" if it’s an album/appropriate place to do so. Involves over 20 checks.
 
 
 
@@ -333,7 +334,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 	- Duplicate check!
             - In batch base folder: run "duplicate-files-delete-them-including-sufolder-duplicates" 
             - ANSWER ⭐⭐⭐VERY VERY VERY⭐⭐⭐ CAREFULLY when deleting duplciates!  
-                    - It doesn't give you a choice of which duplicate to delete!
+                    - It doesn’t give you a choice of which duplicate to delete!
                     - So sometimes you have to answer "no" and go delete the OTHER dupe manually
                     - our 0-byte files and attrib.m3u files could actually be duplicates of each other that we do not want to delete
                     - a LRC lyric file could be a VALID dupe because the same lyrics can be attached to remixes, covers, etc
@@ -448,19 +449,18 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
 
 
 
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 - [do whatever is after this next]
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐  
-
 - VERY IMPORTANT STEP: PROCESS THE TODOS:
-	- run "ldg TODO" to check for any TODOs that may need to be done — This may mean back to editing audio files, as we often discover things we need to do at all steps fo the process
+	- run "ldg TODO" to check for any TODOs that may need to be done 
+		— This may mean back to editing audio files, as we often discover things we need to do at all steps fo the process
+		- chatGPT can help with some of them these days
 
 
 
 
 
 
-- KARAOKE COMPLIANCE: 	*** GOAL: ***		
+- KARAOKE COMPLIANCE: 	*** GOAL: ***		IN 2026 WE STARTED DOING THIS IMMEDIATELY AFTER DOWNLOAD....SO THIS MAY BE DONE ALREADY
+
 	1) To have a .SRT or .LRC (preferably .SRT *and* .LRC? Or maybe just SRT?) for every non-instrumental song
 	2) To have a .TXT lyrics for as many non-instrumental songs as possible [which happens as a side-effect of goal #1]
 
@@ -494,43 +494,73 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
     
 
 
+- FINAL PRE-ASSIMILATION CHECKS: 
+	- run "FINAL-ASSIMILATION-CHECKS.BAT"
+							- OLD DEPRECATED NOTES:
+										- FROM WITHIN OUR BATCH FOLDER, run "*del /s /E *.m3u8" because tag&rename (i think) creates these when we preview songs while tagging
+										- FROM WITHIN OUR BATCH FOLDER, run "sweep dep-mp3s-if-flacs-exist" to deprecate mp3s if a companion flac exists 
+		
+										      - if an mp3 has the same basename as a flac sidecar in the same folder, the mp3 is truly redundant and should be renamed to *.mp3.deprecated
+										      - A few years from now (2022) when we are more comfortable with the validity of flac files, we can delete the deprecated companion mp3s, but for now (2022), we’re going to keep them around, and now (2024) we’re realizing this situation doesn’t even come up so who cares
+	
+									      - FROM WITHIN OUR BATCH FOLDER, run "ldg \.wav$" to check for WAV files -- they really shouldn’t be here at this point in the workflow, at all!!!!!!!!!
+											- we deprecate the file rather than delete, in case something goes wrong, it’s nice to have the m3ps to fall back on.  
+		
+											- at this point, any WAV files were already supposed to be mp3s that have embedded art and are tagged properly, so wtf!
+											- might have to kick it back for a future batch, delete it, or figure it out
+										- THE FINAL FINAL CHECK:
+											FROM WITHIN OUR BATCH FOLDER, run "dir /s /p" to just do a basic visual review that everything looks ***FUCKING BEAUTIFUL AND AS PERFECT AS CAN BE***
+												I NOTICED A BUNCHA EXTRA COVER(??).JPG FILES LAST TIME — WATCH OUT! Might be missing a step related to coverdownloader cleanup
 
-- FINAL PRE-ASSIMILATION CHECKS:
-	- FROM WITHIN OUR BATCH FOLDER, run "*del /s /E *.m3u8" because tag&rename (i think) creates these when we preview songs while tagging
-	- FROM WITHIN OUR BATCH FOLDER, run "sweep dep-mp3s-if-flacs-exist" to deprecate mp3s if a companion flac exists 
-		- we deprecate the file rather than delete, in case something goes wrong, it's nice to have the m3ps to fall back on.  
-		- if an mp3 has the same basename as a flac sidecar in the same folder, the mp3 is truly redundant and should be renamed to *.mp3.deprecated-by-codex
-		- A few years from now (2022) when we are more comfortable with the validity of flac files, we can delete the deprecated companion mp3s, but for now (2022), we're going to keep them around, and now (2024) we're realizing this situation doesn't even come up so who cares
-	- FROM WITHIN OUR BATCH FOLDER, run "ldg \.wav$" to check for WAV files -- they really shouldn't be here at this point in the workflow, at all!!!!!!!!!
-		- at this point, any WAV files were already supposed to be mp3s that have embedded art and are tagged properly, so wtf!
-		- might have to kick it back for a future batch, delete it, or figure it out
-	- THE FINAL FINAL CHECK:
-		FROM WITHIN OUR BATCH FOLDER, run "dir /s /p" to just do a basic visual review that everything looks ***FUCKING BEAUTIFUL AND AS PERFECT AS CAN BE***
-			I NOTICED A BUNCHA EXTRA COVER(??).JPG FILES LAST TIME — WATCH OUT! Might be missing a step related to coverdownloader cleanup
+
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 - [do whatever is after this next]
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐  
 
 
 	
+- 2026 AUDIT:
+	- run "audit_music_batch" in this folder for final auditing ... It was probably already run earlier on, but needs to be run again.
+	
+
+
+
+
+- cover art downloader????
+
+
+
+
+
+
+
 
 
 - ASSIMILATE BATCH INTO COLLECTION: final assimilation of new batch into collection repository - generally one folder at a time, painstakingly and carefully
 	- SUMMARY: now is time to move files from our batch to the main, official mp3 collection!
-	- TIP: we should [have already] run "bthis.bat" in the base folder our batch, so that c:\b\ points to our batch. Very convenient! 
-	- STEP 1: move the entire batch into \mp3\_processing\testing\BATCHNAME [we could get away with skipping this though] prior to assimilation
-		      TO DO THIS: if c:\b\ points to our batch, we could go to c:\ and then say "put b c:\mp3\_processing\testing" and then make sure to name it something like BATCH202304 
-    - STEP 2: OPTIONAL: navigate to c:\mp3\_processing\testing\{our batch folder we just moved it to} then run "bthis" to make c:\b\ point to this new batch location
-	- I USUALLY SKIP THIS: it may behoove us to make a playlist of the music here and let it run for awhile to actually test it, but life goes by too fast to always allow this
-	- STEP 3: UHHHHHH WHAT HAPPENED: there *WAS* a preprocess.bat inside \mp3\_processing\testing\ that may need to be run now! ... But in 2024 I'm not seeing it exist
-	- TIP: for best efficiency, one pane (left?) should be at c:\mp3\ at the command line, and another should be at c:\b\ (our batch) — alt-shift-minus will open panes horizontally
-	- STEP 4: THE MEAT! DOING ALL THE ACTUAL-ACTUAL MOVING!
+
+	- TIP: NOT REQUIRED: we should [have already] run "bthis.bat" in the base folder our batch, so that c:\b\ points to our batch. Very convenient! 
+
+
+    - PRE-2026 STEPS THAT WE DON’T NEED ANYMORE:
+									    - STEP 1: move the entire batch into \mp3\_processing\testing\BATCHNAME [we could get away with skipping this though] prior to assimilation
+											      TO DO THIS: if c:\b\ points to our batch, we could go to c:\ and then say "put b c:\mp3\_processing\testing" and then make sure to name it something like BATCH202304 
+									    - STEP 2: OPTIONAL: navigate to c:\mp3\_processing\testing\{our batch folder we just moved it to} then run "bthis" to make c:\b\ point to this new batch location
+										- I USUALLY SKIP THIS: it may behoove us to make a playlist of the music here and let it run for awhile to actually test it, but life goes by too fast to always allow this
+									    - STEP 3: UHHHHHH WHAT HAPPENED: there *WAS* a preprocess.bat inside \mp3\_processing\testing\ that may need to be run now! ... But in 2024 I’m not seeing it exist
+										- TIP: for best efficiency, one pane (left?) should be at c:\mp3\ at the command line, and another should be at c:\b\ (our batch) — alt-shift-minus will open panes horizontally
+
+
+    - THE MEAT! DOING ALL THE ACTUAL-ACTUAL MOVING!
 		- "LEVEL: RED" - the worst ones to do
-			- do song  upgrade-replacements -- very rare, hardly everh appens
-			- do album upgrade-replacements ... these are the most complicated to do, but don't generally affect the base attrib lst
+			- do song  upgrade-replacements -- very rare, hardly ever happens. But it sucks because you have to find the old file, move the new one in, make sure sidecars/attrib stuff is still aligned, etc.
+			- do album upgrade-replacements ... these are the most complicated to do, but don’t generally affect the base attrib lst
 				- when replacing an album:
 					- takes some critical thought
 					- deprecate original album folder (in \mp3\) at begining of process to prevent confusion
-					- go into each old-versoion album folder - get it's shit!
-						- INTENT: basically, we need to pillage anything in the old-album's folder that we want to keep in the new album's folder
-						- copy txt & lrc files - check that they match the new album version's naming
+					- go into each old-versoion album folder - get it’s shit!
+						- INTENT: basically, we need to pillage anything in the old-album’s folder that we want to keep in the new album’s folder
+						- copy txt & lrc files - check that they match the new album version’s naming
 						- move/append attrib.lst from old to new - if the names of the songs changed (i.e. a 1-disc album is now a 2-disc album) attrib.lst will need updating 
 						- move artwork/image files — might need a "cover art war" if more than 1, to see which is best
 						- other stuff will require judgment, it may or may not apply
@@ -550,38 +580,38 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
 					- does that look good? then     print-album-data-for-BaseAttribLst.bat  >clip:
                                                  ...and paste the results into the base attrib lst
 				- the tricky part here is hand-editing the entries.  
-					  You want them to be specific enough to ONLY hit the new files, but not so specific that they don't match if things change slightly.
-					  It's an art.  
+					  You want them to be specific enough to ONLY hit the new files, but not so specific that they don’t match if things change slightly.
+					  It’s an art.  
 					  You can use always mchk to check your work
 					- things to take out...
 						- For example "incomplete" and "todo" references should be taken out, they may be tempmorary
 						- "the.*" in bandmames should usually go, because we often invert things like "The Church" into "Church, The" and best to just not use the unless necessary
-						- often times the year should be taken out if it's at the very end
+						- often times the year should be taken out if it’s at the very end
 						- 'MISC' folders and such -- better to treat those in the folder (creating MISC\changer, MISC\changerrecent, moving files one at a time into those) than to ever try addressing those in the base attribute file
 						- things like this are onedir folders, the fact that the folder is called 'changerrecent' is what controls things, it should not be in here except as an informative comment that such folder exists:
 							#TV.*CARTOONS.*1980s.*changer.*cheese:changer
-							^see how it's commented out? because there's no need to put this folder in changer, the fact that 'changer' is part of the folder's name does it already
+							^see how it’s commented out? because there’s no need to put this folder in changer, the fact that 'changer' is part of the folder’s name does it already
 							#Metallica.*MISC:changer
-							^see how it's commented out? because MISC should have 'changer', 'changerrecent', 'tolerable', etc folders and THAT's how those get put in changer/changerrecent/tolerable/etc
+							^see how it’s commented out? because MISC should have 'changer', 'changerrecent', 'tolerable', etc folders and THAT’s how those get put in changer/changerrecent/tolerable/etc
 				- make sure the new entries are only the new albums!
-				- if it's an album that is demos - the filename may be ambiguous with the studio album. 
+				- if it’s an album that is demos - the filename may be ambiguous with the studio album. 
 					- You may need to rename the original album folder to disambiguate for example: "God Ween Satan (demos)" and "God Ween Satan (the album)" 
 					- and then update the entries for *both* versions in attrib.lst so that the demo-version and non-demo-version are both distinct
-				- make sure to comment out those albums that aren't really albums ("UNPROCESSED/ARCHIVED-ORIGINALS" folders often end up here)
-				- when making a new folder for a brand new band that we've never had albums before
+				- make sure to comment out those albums that aren’t really albums ("UNPROCESSED/ARCHIVED-ORIGINALS" folders often end up here)
+				- when making a new folder for a brand new band that we’ve never had albums before
 						- keep in mind that there may be songs by that band in the collection already that maybe should live in this new folder instead of where they were. Maybe.
-						- and if they don't live in the new folder, nice to make a >"__ zero byte note talking about this other track elsewhere __" just to link things together
+						- and if they don’t live in the new folder, nice to make a >"__ zero byte note talking about this other track elsewhere __" just to link things together
 				- make sure to make decisions about which ones are going into changerrecent, or just changer, or just Christmas, or just preferred
 					- by default things get added like this: {note how changerrecent also has a year and decade version of changerrecent}
 						- example:  BabyMetal.*2.*2014.*Metal.*Resistance:changer,changerrecent,changerrecent2022,changerrecent2020s
-					- example of something we'll listen to later and put in changer but not changerrecent: Bis.*Some album:changer,to learn
-						- "to learn" is kind of a "let's put this in changerrecent at a later date" note-to-self
+					- example of something we’ll listen to later and put in changer but not changerrecent: Bis.*Some album:changer,to learn
+						- "to learn" is kind of a "let’s put this in changerrecent at a later date" note-to-self
 		- "LEVEL: YELLOW" - time to start moving folders into the official collection!
 			- do non-music
 			- do TV/cartoon/movie/novelty stuff
 			- RULE OF THUMB: any ALL-CAPS folder needs doing first
-		- "LEVEL: GREEN" - the last 1% of effort is sometimes 80% of the stuff we realllllllllllllllllly care about, so it's a nice pleasant step
-			- eventually it's *possible* that we will get to a point where everything in our current batch precisely matches the structure of where it needs to go and can all be moved in with one command
+		- "LEVEL: GREEN" - the last 1% of effort is sometimes 80% of the stuff we realllllllllllllllllly care about, so it’s a nice pleasant step
+			- eventually it’s *possible* that we will get to a point where everything in our current batch precisely matches the structure of where it needs to go and can all be moved in with one command
 				- might not be a good idea for Carolyn to ever do that without dry run capability added to moves
 
 
@@ -624,20 +654,20 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
 
 
 
-BRAINSTORMING: Flac files don't display internal album art correctly, so if it's a MISC folder and a DIFFERENT song has a JPG companion, it'll pick that up and display the wrong cover
+BRAINSTORMING: Flac files don’t display internal album art correctly, so if it’s a MISC folder and a DIFFERENT song has a JPG companion, it’ll pick that up and display the wrong cover
 	Possible solution: Sweep entire music collection looking for all FLACs.  
 		NOT QUITE: If there is not a cover.jpg file, extract it from each flac.
-			But wait, a MISC folder of 80s hits would end up with one cover.jpg. so no can't blindly do this
-			For a misc folder, we'd need.... a *sidecar* jpg for each and every flac.
-				But we can't do this blindly! for albums it would be really dumb!
+			But wait, a MISC folder of 80s hits would end up with one cover.jpg. so no can’t blindly do this
+			For a misc folder, we’d need.... a *sidecar* jpg for each and every flac.
+				But we can’t do this blindly! for albums it would be really dumb!
 		Soooo:
-			no flac files ------ don't worry
+			no flac files ------ don’t worry
 			all flac files ----- 
 				if an album, should already have an extracted cover, but if not, extract ONE to cover.jpg
 				if non-album, need companion JPGs
 			some flac files ---- extract companion JPGs for the flac files
 
-			.....soooO: pretty much, we want companion-jpgs for all FLACs unless it's an all-flac album (if exist [0-1]*.flac and not exist *.mp3) then just a cover.jpg
+			.....soooO: pretty much, we want companion-jpgs for all FLACs unless it’s an all-flac album (if exist [0-1]*.flac and not exist *.mp3) then just a cover.jpg
 
 			....this should probably be done right before the step where we review all album art?
 

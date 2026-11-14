@@ -44,6 +44,34 @@ CATEGORY_PREFIXES = {
     "chastity": "ch",
 }
 VERSION = "0.10.1"
+_ORIGINAL_CONSOLE_TITLE: str | None = None
+
+
+def set_console_title(text: str) -> None:
+    """Set the current console title without disturbing other windows."""
+    global _ORIGINAL_CONSOLE_TITLE
+    if os.name == "nt":
+        try:
+            user32 = ctypes.windll.kernel32
+            if _ORIGINAL_CONSOLE_TITLE is None:
+                length = user32.GetConsoleTitleLengthW()
+                buffer = ctypes.create_unicode_buffer(length + 1)
+                user32.GetConsoleTitleW(buffer, length + 1)
+                _ORIGINAL_CONSOLE_TITLE = buffer.value
+            user32.SetConsoleTitleW(str(text))
+            return
+        except (AttributeError, OSError):
+            pass
+    if sys.stdout.isatty():
+        print(f"\x1b]0;{text}\x07", end="", flush=True)
+
+
+def restore_console_title() -> None:
+    global _ORIGINAL_CONSOLE_TITLE
+    if _ORIGINAL_CONSOLE_TITLE is not None:
+        original = _ORIGINAL_CONSOLE_TITLE
+        _ORIGINAL_CONSOLE_TITLE = None
+        set_console_title(original)
 RESTART_EXIT_CODE = 75
 RESTART_OUTPUT_ENV = "C4SDL_RESTART_OUTPUT"
 TOOL_ROOT = Path(__file__).resolve().parent
@@ -714,7 +742,10 @@ class DownloadPacer:
     def browser_pause(self, page, seconds: float):
         seconds = self.choose_wait(seconds)
         if seconds > 0:
-            page.wait_for_timeout(seconds * 1000)
+            # Keep the same visible countdown used for download pacing.  A
+            # silent Playwright wait made the console look hung between clip
+            # pages and also prevented the user from seeing the remaining time.
+            self.panel.wait(seconds, self.pump)
         return seconds
 
     def shared_turn(self, label: str) -> float:
@@ -979,16 +1010,36 @@ class DownloadDatabase:
         """Return recent runs that did not finish cleanly and are not live."""
         rows = self.connection.execute(
             """SELECT * FROM run_history
-               WHERE status NOT IN ('complete', 'planned', 'planned-with-errors')
+               WHERE status NOT IN ('complete', 'planned', 'planned-with-errors', 'superseded')
                ORDER BY started_at DESC LIMIT ?""", (int(limit),)
         ).fetchall()
         result = []
+        seen_scopes = set()
         for row in rows:
             item = dict(row)
+            if item.get("scope_key") in seen_scopes:
+                continue
             if item.get("status") == "running" and self._pid_alive(item.get("owner_pid")):
                 continue
+            seen_scopes.add(item.get("scope_key"))
             result.append(item)
         return result
+
+    def supersede_prior_runs(self, scope: ListingScope, keep_run_id: str):
+        """Hide older non-live attempts for a scope after a newer resume starts."""
+        rows = self.connection.execute(
+            "SELECT run_id, status, owner_pid FROM run_history "
+            "WHERE scope_key=? AND run_id<>? AND status NOT IN "
+            "('complete', 'planned', 'planned-with-errors', 'superseded')",
+            (scope.key, keep_run_id),
+        ).fetchall()
+        for row in rows:
+            if row["status"] == "running" and self._pid_alive(row["owner_pid"]):
+                continue
+            self.connection.execute(
+                "UPDATE run_history SET status='superseded', finished_at=?, owner_pid=NULL WHERE run_id=?",
+                (self._now(), row["run_id"]),
+            )
 
     def successful_still_media(self) -> list[dict]:
         """Return saved still-image rows used to identify obsolete variants."""
@@ -2145,8 +2196,10 @@ class ProgressPanel:
             while True:
                 elapsed = min(seconds, time.monotonic() - start)
                 with self._lock:
-                    self.transient = (f"⏳ Next clip in {math.ceil(seconds - elapsed)}s", elapsed, seconds)
+                    remaining = max(0, math.ceil(seconds - elapsed))
+                    self.transient = (f"⏳⌛ Waiting for next clip: {remaining}s", elapsed, seconds)
                     self.draw()
+                set_console_title(f"Clips4Sale Downloader v{VERSION} — waiting {remaining}s")
                 if elapsed >= seconds:
                     break
                 pause = min(0.2, seconds - elapsed)
@@ -2155,6 +2208,7 @@ class ProgressPanel:
             with self._lock:
                 self.transient = None
                 self.draw()
+            set_console_title(f"Clips4Sale Downloader v{VERSION} — downloading")
 
     def close(self):
         self._stop_resize.set()
@@ -2585,6 +2639,15 @@ def choose_duplicate_keep(candidates: list[dict], default_index: int, controls: 
     """Choose an exact-duplicate file with arrows; Enter accepts the learned default."""
     if len(candidates) < 2:
         return 0 if candidates else None
+    full_indexes = [index for index, item in enumerate(candidates)
+                    if re.search(r"\bfull\b", Path(item["path"]).stem, re.I)]
+    part_indexes = [index for index, item in enumerate(candidates)
+                    if re.search(r"\bpart\s*\d*\b", Path(item["path"]).stem, re.I)]
+    if len(full_indexes) == 1 and part_indexes and len(full_indexes) + len(part_indexes) == len(candidates):
+        selected = full_indexes[0]
+        print(terminal_text(f"♻️ Duplicate labels differ only by Part/Full; automatically keeping Full: "
+                            f"{Path(candidates[selected]['path']).name}"))
+        return selected
     print(terminal_text(f"\n♻️ {heading}. Choose the copy to keep:"))
     interactive = getattr(sys.stdin, "isatty", lambda: False)()
     if not interactive and input_fn is input:
@@ -2812,12 +2875,28 @@ def _download_media_one(session, media: Media, output: Path, stem: str, referer:
         else:
             panel.status = f"Downloading {written / 1048576:.1f} MB"
             panel.draw()
+        heartbeat_stop = threading.Event()
+        transfer_started = time.monotonic()
+        last_chunk_at = transfer_started
+
+        def transfer_heartbeat():
+            while not heartbeat_stop.wait(15.0):
+                quiet_for = int(time.monotonic() - last_chunk_at)
+                elapsed = int(time.monotonic() - transfer_started)
+                panel.log(f"⏳ Media transfer still active: {stem + ext}; "
+                          f"{written / 1048576:.1f} MB received; "
+                          f"no new data for {quiet_for}s (elapsed {elapsed}s)")
+
+        heartbeat = threading.Thread(target=transfer_heartbeat,
+                                     name="c4sdl-transfer-heartbeat", daemon=True)
+        heartbeat.start()
         try:
             with partial.open("ab" if resume_from else "xb") as stream:
                 for chunk in response.iter_content(256 * 1024):
                     if chunk:
                         stream.write(chunk)
                         written += len(chunk)
+                        last_chunk_at = time.monotonic()
                         if hasattr(panel, "transfer_progress"):
                             panel.transfer_progress(written, expected_total, f"📥 {stem + ext}")
                         else:
@@ -2860,6 +2939,9 @@ def _download_media_one(session, media: Media, output: Path, stem: str, referer:
             if partial.exists():
                 panel.log(f"Preserved incomplete file: {partial}")
             raise
+        finally:
+            heartbeat_stop.set()
+            heartbeat.join(timeout=1)
 
 
 def base_name(output: Path, studio: str, category: str, clip: Clip,
@@ -3552,8 +3634,8 @@ def print_history(limit: int = 20, database: Path | None = None):
         print(f"   {row.get('destination') or '(no destination recorded)'}")
 
 
-def choose_resumable_run(database: Path | None = None) -> dict | None:
-    """Show recent incomplete jobs and return the user's selected listing."""
+def choose_resumable_run(database: Path | None = None) -> list[dict] | None:
+    """Show incomplete jobs and accept one, many, ranges, or all."""
     database = database or PRIVATE_DATABASE_PATH
     if not database.is_file():
         return None
@@ -3575,17 +3657,32 @@ def choose_resumable_run(database: Path | None = None) -> dict | None:
         print(f"  {index}. {scope} [{row.get('status') or 'unknown'}; {when}]")
         print(f"     {row.get('listing_url')}\n     {row.get('destination') or '(choose destination again)'}")
     while True:
-        answer = input("Resume which job? (number, or Enter to cancel): ").strip()
+        answer = input("Resume which job? (number, 1-3, 1,2,3, 1 2 3, 123, a/all, or Enter to cancel): ").strip().casefold()
         if not answer:
             return None
+        if answer in {"a", "all"}:
+            return rows
+        selected: set[int] = set()
         try:
-            choice = int(answer)
+            for token in re.split(r"[\s,]+", answer):
+                if not token:
+                    continue
+                if re.fullmatch(r"\d+-\d+", token):
+                    first, last = (int(part) for part in token.split("-", 1))
+                    if first > last:
+                        first, last = last, first
+                    selected.update(range(first, last + 1))
+                elif token.isdigit() and len(token) > 1 and all(1 <= int(char) <= len(rows) for char in token):
+                    selected.update(int(char) for char in token)
+                elif token.isdigit():
+                    selected.add(int(token))
+                else:
+                    raise ValueError
+            if selected and all(1 <= number <= len(rows) for number in selected):
+                return [rows[number - 1] for number in sorted(selected)]
         except ValueError:
-            print("Enter one of the displayed numbers.")
-            continue
-        if 1 <= choice <= len(rows):
-            return rows[choice - 1]
-        print("That number is not in the list.")
+            pass
+        print("Enter numbers, ranges, comma/space-separated numbers, 123, or a/all.")
 
 
 def run_doctor(config: dict, args, output: Path, *, force: bool = False) -> dict:
@@ -3692,6 +3789,7 @@ def print_completion_console(output: Path, status: int) -> None:
 
 
 def run(args, output: Path, ffprobe: str) -> int:
+    set_console_title(f"Clips4Sale Downloader v{VERSION} — opening history")
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
@@ -3778,6 +3876,7 @@ def run(args, output: Path, ffprobe: str) -> int:
     scope = listing_scope(args.url)
     prior_scope = ledger.previous_scope_activity(scope)
     run_history_id = ledger.start_scope_run(scope, args.url, output)
+    ledger.supersede_prior_runs(scope, run_history_id)
     report["history_scope"] = {"key": scope.key, "kind": scope.kind,
                                "studio_id": scope.studio_id, "category_id": scope.category_id}
     report["history_run_id"] = run_history_id
@@ -3830,6 +3929,8 @@ def run(args, output: Path, ffprobe: str) -> int:
     def startup_status(text):
         # Startup has no clip/transfer log yet. Record every phase and clone
         # progress update so a stall can be tied to a specific file/operation.
+        print(terminal_text(text), file=sys.stderr, flush=True)
+        set_console_title(f"Clips4Sale Downloader v{VERSION} — {re.sub(r'^[^A-Za-z0-9]+', '', text)}")
         if log_file:
             log_file.write(f"{datetime.now().isoformat(timespec='seconds')} {text}\n")
             log_file.flush()
@@ -3955,6 +4056,7 @@ def run(args, output: Path, ffprobe: str) -> int:
                               duplicate_editions=duplicates, selected=len(selected),
                               failed_queued_last=sum((clip.studio_id, clip.id) in failed_ids for clip in selected))
                 mode = "; retrying failures only" if retry_ids is not None else "; resuming from the job database"
+                set_console_title(f"Clips4Sale Downloader v{VERSION} — discovering clips")
                 panel.log(f"🌈 Found {len(clips)} listings; skipped {len(duplicates)} duplicate editions; "
                           f"{len(selected)} selected{mode}.")
                 panel.log(f"🏷️ Filename prefix: {studio}" + (f" - {category}" if category else ""))
@@ -3971,6 +4073,7 @@ def run(args, output: Path, ffprobe: str) -> int:
                     entry = {"clip_id": clip.id, "url": clip.url, "title": clip.title,
                              "quality": quality_score(clip.raw), "files": [], "errors": []}
                     report["clips"].append(entry)
+                    set_console_title(f"Clips4Sale Downloader v{VERSION} — downloading {index + 1}/{len(selected)}")
                     panel.log(f"🎬 [{index + 1}/{len(selected)}] {clip.title}")
                     durations = []
                     unknown_duration = False
@@ -4342,6 +4445,7 @@ def main(argv=None) -> int:
     # sys.exit(0). Restore Python's normal handler so Ctrl+C is reported as a
     # real KeyboardInterrupt and the resumable-run report is unambiguous.
     restore_default_sigint_handler()
+    set_console_title(f"Clips4Sale Downloader v{VERSION} — starting")
     print(terminal_text(f"🌈 Clips4Sale preview downloader v{VERSION}"))
     print(terminal_text(f"⚙️ Portable config: {CONFIG_PATH}"))
     print(terminal_text(f"🔐 Portable history: {PRIVATE_DATABASE_PATH}"))
@@ -4360,11 +4464,25 @@ def main(argv=None) -> int:
             print(f"Error reading history: {exc}", file=sys.stderr)
             return 1
     if args.resume or not args.url:
-        selected_run = choose_resumable_run()
-        if selected_run is None:
+        selected_runs = choose_resumable_run()
+        if selected_runs is None:
             if args.resume:
                 return 0
             p.error("Provide a listing URL, or use --resume to choose an incomplete job.")
+        if len(selected_runs) > 1:
+            original = list(sys.argv[1:] if argv is None else argv)
+            original = [item for item in original if item != "--resume"]
+            statuses = []
+            for selected_run in selected_runs:
+                job_args = list(original)
+                if selected_run.get("destination"):
+                    job_args.extend(["--output", str(selected_run["destination"])])
+                job_args.append(selected_run["listing_url"])
+                print(terminal_text(f"\n🔁 Resuming selected job: {selected_run['listing_url']}"))
+                set_console_title(f"Clips4Sale Downloader v{VERSION} — resuming {selected_run.get('studio') or selected_run.get('studio_id', '')}")
+                statuses.append(main(job_args))
+            return max(statuses, default=0)
+        selected_run = selected_runs[0]
         args.url = selected_run["listing_url"]
         if args.output is None and selected_run.get("destination"):
             args.output = Path(selected_run["destination"])
@@ -4407,8 +4525,10 @@ def main(argv=None) -> int:
         if status == RESTART_EXIT_CODE:
             return restart_current_process(argv, output)
         print_completion_console(output, status)
+        set_console_title(f"Clips4Sale Downloader v{VERSION} — finished")
         return status
     except (KeyboardInterrupt, EOFError):
+        set_console_title(f"Clips4Sale Downloader v{VERSION} — cancelled")
         print("\nCancelled. Completed and partial files have been preserved.", file=sys.stderr)
         return 130
     except SystemExit as exc:
@@ -4417,6 +4537,7 @@ def main(argv=None) -> int:
             return 130
         raise
     except Exception as exc:
+        set_console_title(f"Clips4Sale Downloader v{VERSION} — error")
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
