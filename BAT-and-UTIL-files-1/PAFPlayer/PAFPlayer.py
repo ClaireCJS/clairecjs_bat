@@ -620,9 +620,9 @@ except ImportError:  # pragma: no cover
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID                = '2026-11-16-v726-windows11-lockscreen-attempt'
+PLAYER_BUILD_ID                = '2026-11-16-v727-private-python-runtime'
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION                = 'V726'
+PROGRAM_VERSION                = 'V727'
 PROGRAM_RELEASE_LABEL          = 'V723'
 
 # A Discord webhook is a credential, not a setting.  Keep it out of JSON,
@@ -78511,11 +78511,11 @@ def run_emojimaxx_cli_preview(text: str) -> int:
     return 0
 
 
-def paf_install_base_dir(*, bat_root: Path | None = None, local_appdata: Path | None = None) -> Path:
-    """Choose the documented per-machine/per-user base without writing to it."""
-    bat = Path(r"C:\BAT") if bat_root is None else Path(bat_root)
-    if bat.is_dir():
-        return bat
+def paf_install_base_dir(*, util_root: Path | None = None, local_appdata: Path | None = None) -> Path:
+    """Choose C:\\util for PAFPlayer, falling back to this user's LocalAppData."""
+    util = Path(r"C:\util") if util_root is None else Path(util_root)
+    if util.is_dir():
+        return util
     local = (Path(os.environ["LOCALAPPDATA"]) if os.environ.get("LOCALAPPDATA")
              else Path.home() / "AppData" / "Local") if local_appdata is None else Path(local_appdata)
     return local
@@ -78541,8 +78541,9 @@ def paf_next_install_destination(base: Path, version: str, *, now: datetime | No
 
 
 def paf_stage_self_install(source: Path, base: Path, *, version: str = PROGRAM_VERSION,
-                           now: datetime | None = None) -> Path:
-    """Copy and verify one runnable script, then publish its new directory atomically."""
+                           now: datetime | None = None, runtime_source: Path | None = None,
+                           launcher_source: Path | None = None) -> Path:
+    """Stage player, launcher, and optional private runtime before atomic publication."""
     source = Path(source).resolve()
     if not source.is_file():
         raise FileNotFoundError(f"PAFPlayer source is missing: {source}")
@@ -78564,6 +78565,17 @@ def paf_stage_self_install(source: Path, base: Path, *, version: str = PROGRAM_V
         if hashlib.sha256(content).hexdigest() != original_digest:
             raise OSError("Installed PAFPlayer copy failed SHA-256 verification")
         compile(content.decode("utf-8-sig"), str(copied), "exec")
+        launcher_source = (Path(__file__).resolve().with_name("pafplayer.bat")
+                           if launcher_source is None else Path(launcher_source))
+        if launcher_source.is_file():
+            shutil.copy2(launcher_source, stage / "pafplayer.bat")
+        runtime_source = (Path(__file__).resolve().parent / "runtime"
+                          if runtime_source is None else Path(runtime_source))
+        if runtime_source.is_dir():
+            shutil.copytree(runtime_source, stage / "runtime", dirs_exist_ok=False)
+        requirements_source = Path(__file__).resolve().with_name("requirements-core.txt")
+        if requirements_source.is_file():
+            shutil.copy2(requirements_source, stage / "requirements-core.txt")
         (stage / "PAFPlayer.md").write_text(
             "# PAFPlayer\n\nWindows music player with synchronized lyrics, artwork, "
             "console visualization, web configuration, and optional remote controls.\n\n"
@@ -78577,8 +78589,9 @@ def paf_stage_self_install(source: Path, base: Path, *, version: str = PROGRAM_V
             "Run `python PAFPlayer.py --help` for all playback options and controls. "
             "Use `python PAFPlayer.py --tray-only HOST:PORT` for a remote household tray.\n\n"
             "Web Configuration is available at the address printed when the player starts. "
-            "The single-file player bundles its feature modules; FFmpeg, Python packages, "
-            "and optional Windows integrations are checked separately.\n\n"
+            "The single-file player bundles its feature modules. Start with pafplayer.bat "
+            "to use the app-private runtime when installed; FFmpeg and optional Windows "
+            "integrations may need separate setup.\n\n"
             "Your playlists and saved settings are not copied or replaced by first-run setup. "
             "An existing PAFPlayer folder is preserved; each new installation gets its own folder.\n",
             encoding="utf-8")
@@ -78586,6 +78599,7 @@ def paf_stage_self_install(source: Path, base: Path, *, version: str = PROGRAM_V
         state.mkdir()
         (state / "install.json").write_text(json.dumps({
             "version": version, "sha256": original_digest,
+            "private_runtime": (stage / "runtime" / "python.exe").is_file(),
             "installed_utc": datetime.now(timezone.utc).isoformat(),
         }, indent=2) + "\n", encoding="utf-8")
         # The stage and destination share a parent volume, so this rename is
@@ -78621,6 +78635,10 @@ def paf_readiness_checks(script_path: Path | None = None, *, tray_only: bool = F
         except (ImportError, ValueError, AttributeError):
             return False
     add("Windows", os.name == "nt", True, os.name)
+    private_python = script.parent / "runtime" / "python.exe"
+    private_runtime = private_python.is_file()
+    add("Private runtime", private_runtime, False,
+        str(private_python) if private_runtime else "not built; launcher falls back to the current Python")
     add("Python 3.10+", sys.version_info >= (3, 10), True, sys.version.split()[0])
     add("Player file", script.is_file(), True, str(script))
     tree = None
@@ -78750,7 +78768,9 @@ def run_paf_self_install(arguments: list[str], *, source: Path | None = None,
                 print('Voice model setup could not open: '+str(exc), file=sys.stderr)
     if launch:
         try:
-            subprocess.Popen([sys.executable, "-B", str(installed), "--bootstrap-installed", *arguments],
+            private_python = destination / "runtime" / "python.exe"
+            executable = str(private_python) if private_python.is_file() else sys.executable
+            subprocess.Popen([executable, "-B", str(installed), "--bootstrap-installed", *arguments],
                              close_fds=True)
         except OSError as exc:
             print(f"Installed copy is ready at {installed}, but launch failed: {exc}", file=sys.stderr)
