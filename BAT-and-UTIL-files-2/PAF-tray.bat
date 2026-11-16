@@ -4,6 +4,7 @@
 
 rem Config:
         set PAFPLAYER_TO_USE_RIGHT_NOW=%BAT%\PAFPlayer-sandbox\PAFPlayer.py
+        set PAFPLAYER_TO_USE_RIGHT_NOW=%BAT%\PAFPlayer.bat
 
 
 

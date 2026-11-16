@@ -92,7 +92,7 @@
 2026-09-28  23:35      1,004,946   78%  audit_music_batch.py
 2024-11-19  03:23          5,089   78%  auto-clean.bat
 2025-01-05  13:11         13,972   74%  auto-process.bat
-2026-10-25  15:56          6,897   72%  autoexec-common.btm
+2026-11-16  00:48          6,938   72%  autoexec-common.btm
 2026-10-25  15:18         45,128   77%  autoexec.ahk
 2024-11-19  03:23            917   52%  AutoHotKey-autoexec.bat
 2026-10-25  15:21          3,103   64%  AutoHotKey.bat
@@ -298,7 +298,7 @@
 2024-11-19  03:50            215   29%  del-FLACs-if-mp3s-exist.bat
 2025-07-30  06:17          2,317   64%  del-if-exists.bat
 2026-09-10  01:55          9,408   73%  del-maybe-after-review.bat
-2024-11-19  03:50            213   28%  del-WAVs-if-mp3s-exist.bat
+2026-11-13  21:44             40   -5%  del-WAVs-if-mp3s-exist.bat
 2024-11-19  03:50            359   36%  del-WAVs-if-mp3s-or-flacs-exist.bat
 2026-09-10  01:52         37,774   81%  delete-bad-AI-transcriptions.bat
 2024-11-19  03:50            445   39%  delete-duplicate-files-in-each-subfolder-but-not-across-current-folder.bat
@@ -307,7 +307,7 @@
 2025-04-02  02:08         21,931   80%  delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat
 2025-04-01  13:39            187   26%  delete-sidecar-lyric-and-subtitle-files-for-audiofiles-that-are-instrumentals.bat
 2024-11-19  03:50            744   49%  delete-track-from-currently-playing-playlist.bat
-2024-11-19  03:50            270   27%  delete-WAVs-if-MP3s-exist.bat
+2026-11-13  21:36            839   48%  delete-WAVs-if-MP3s-exist.bat
 2025-06-16  17:05          4,840   83%  delete-zero-byte-files.bat
 2025-11-26  12:05            129   11%  deltree-if-isdir.bat
 2024-11-19  03:50          1,083   58%  deltree.bat
@@ -674,6 +674,7 @@
 2025-01-29  13:39             56    2%  ith.bat
 2024-12-08  19:21            231   20%  join-videos.bat
 2024-11-19  08:52            700   51%  jpg2png.bat
+2026-11-13  05:08          2,954   89%  jumpytext.bat
 2024-11-19  08:55          4,036   72%  kill-some-annoying-processes.bat
 2024-11-19  08:55            202   39%  kill.bat
 2024-11-19  08:55          3,447   81%  KillIfRunning.bat
@@ -681,6 +682,7 @@
 2024-11-19  08:55            120   19%  label.bat
 2024-11-19  08:55             39   -5%  lastfm-start.bat
 2025-03-26  17:14          1,393   72%  launch-monitor-to-react-after-program-closes.bat
+2026-11-14  17:25            168   38%  launch-PAFPlayer.bat
 2023-04-09  08:00          2,410   66%  left-center-right.pl
 2024-11-19  08:55             53   -3%  lengths.bat
 2025-01-13  12:54             82    5%  less_important.bat
@@ -797,8 +799,9 @@
 2024-12-27  03:16             49    3%  openpdf.bat
 2026-07-21  15:18          2,718   69%  opera.bat
 2024-11-19  22:35             45   -4%  package-tracking.bat
-2026-09-25  16:31             33   -6%  paf.bat
-2026-10-25  16:00            377   51%  PAFPlayer.bat
+2026-11-16  17:10          1,111   66%  PAF-tray.bat
+2026-11-13  06:04             37   -5%  PAF.bat
+2026-11-16  13:53          1,095   53%  PAFPlayer.bat
 2024-03-28  03:16             23   -8%  paus.btm
 2025-10-27  03:51          5,933   66%  pause-alias.bat
 2025-05-07  21:16          1,383   50%  pause-for-x-seconds.bat
@@ -811,7 +814,7 @@
 2024-11-19  22:35             40   -5%  pendmoves.bat
 2024-11-19  22:35             42   -4%  pf.bat
 2024-11-19  21:25          2,116   44%  PhraseExpress-Claire.csv
-2026-11-01  21:53      1,183,744    0%  PhraseExpress-phrases.pexdb
+2026-11-14  17:15      1,183,744    0%  PhraseExpress-phrases.pexdb
 2023-04-28  15:03            627   51%  pickle_view.py
 2025-03-26  17:02          2,254   56%  play-m3u-with-VLC.bat
 2024-11-19  22:35             54   -3%  play-m3u-with-winamp.bat
@@ -834,12 +837,12 @@
 2024-11-19  22:35             40   -5%  prev.bat
 2025-02-22  00:33          1,236   49%  prevdir.bat
 2023-05-31  11:55            117   22%  prevent-duplicate-lines.pl
-2026-09-07  22:57         11,277   72%  preview-audio-file.bat
+2026-11-13  05:04         11,345   72%  preview-audio-file.bat
 2025-04-04  15:37             40   -5%  preview-image-file.bat
 2025-04-04  15:37             40   -5%  preview-video-file.bat
 2024-11-19  22:35             31   -6%  previousdir.bat
 2025-01-13  13:02             98    9%  print-if-debug.bat
-2026-04-30  00:46         46,472   77%  print-message.bat
+2026-11-13  00:05         46,641   77%  print-message.bat
 2025-11-05  14:31             39   -5%  print-with-columns.bat
 2026-06-04  17:18         90,860   79%  print_with_columns.py
 2025-09-02  15:23         16,194   75%  process-done-torrent.btm
@@ -1147,7 +1150,7 @@
 2024-11-19  22:35             29   -6%  symlink.bat
 2026-05-03  19:19         11,229   71%  sync-a-folder-somewhere.bat
 2026-04-13  06:12             38   -5%  sync-a-folder-to-somewhere.bat
-2026-10-24  15:44            928   65%  sync-bat-documentation.bat
+2026-11-16  07:31            929   65%  sync-bat-documentation.bat
 2024-11-19  16:05            343   38%  sync-bat-to-dropbox.bat
 2024-11-19  22:35             40   -5%  sync-cameras.bat
 2024-11-19  16:05          1,459   57%  sync-dropbox.bat
@@ -1179,7 +1182,7 @@
 2024-11-19  16:04            807   52%  sync-winamp-playlists-to-dropbox.bat
 2024-11-19  16:04            280   32%  sync-winamp-program-to-burn-workflow.bat
 2024-12-22  17:07             17  -11%  tag-mp3.bat
-2024-12-22  18:27            597   56%  tag-mp3s.bat
+2026-11-13  17:51            559   51%  tag-mp3s.bat
 2026-04-03  18:12          1,537   60%  tag.bat
 2024-11-19  16:04            291   49%  tail.bat
 2026-01-08  19:08             27   -7%  tax.bat
@@ -1246,7 +1249,7 @@
 2024-11-19  16:02            305   34%  unzip-all.bat
 2025-10-01  16:03          6,208   70%  unzip-gracefully.bat
 2024-11-19  16:02            461   39%  update-cygwin.bat
-2026-10-08  23:08         14,721   73%  update-from-BAT-via-manifest.bat
+2026-11-12  17:32         15,379   73%  update-from-BAT-via-manifest.bat
 2026-03-12  18:32             55   -3%  update-windows-terminal-preview.bat
 2026-03-12  18:32             47   -4%  update-windows-terminal.bat
 2019-10-01  11:28             28   -7%  uppercase.pl

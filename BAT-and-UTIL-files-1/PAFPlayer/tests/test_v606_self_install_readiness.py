@@ -90,6 +90,52 @@ class SelfInstallTests(unittest.TestCase):
         (source.parent / "src" / "PAFPlayer_workflows.py").write_text("", encoding="utf-8")
         self.assertFalse(app.paf_is_loose_script(source))
 
+    def test_install_base_prefers_util_then_uses_local_appdata(self):
+        util = RUN / "util-base"
+        local = RUN / "local-base"
+        util.mkdir()
+        self.assertEqual(util, app.paf_install_base_dir(util_root=util, local_appdata=local))
+        missing_util = RUN / "missing-util-base"
+        self.assertEqual(local, app.paf_install_base_dir(util_root=missing_util, local_appdata=local))
+
+    def test_install_copies_launcher_runtime_and_pinned_requirements(self):
+        source, base = self.fixture("private-runtime-copy")
+        package_root = RUN / "packaging-fixture"
+        package_root.mkdir()
+        runtime = package_root / "runtime"
+        runtime.mkdir()
+        (runtime / "python.exe").write_bytes(b"fixture-python")
+        launcher = package_root / "pafplayer.bat"
+        launcher.write_text("@echo off\n", encoding="utf-8")
+        installed = app.paf_stage_self_install(
+            source, base, runtime_source=runtime, launcher_source=launcher)
+        self.assertEqual(b"fixture-python", (installed / "runtime" / "python.exe").read_bytes())
+        self.assertEqual("@echo off\n", (installed / "pafplayer.bat").read_text(encoding="utf-8"))
+        marker = json.loads((installed / "state" / "install.json").read_text(encoding="utf-8"))
+        self.assertTrue(marker["private_runtime"])
+
+    @unittest.skipUnless(hasattr(Path, "symlink_to"), "symlink support unavailable")
+    def test_install_refuses_linked_primary_destination(self):
+        source, base = self.fixture("linked-destination")
+        target = RUN / "linked-target"
+        target.mkdir()
+        link = base / "PAFPlayer"
+        try:
+            link.symlink_to(target, target_is_directory=True)
+        except OSError as exc:
+            self.skipTest(f"cannot create symlink fixture: {exc}")
+        with self.assertRaisesRegex(OSError, "linked destination"):
+            app.paf_stage_self_install(source, base)
+        self.assertFalse((target / "PAFPlayer.py").exists())
+
+    def test_core_package_manifest_uses_exact_pins(self):
+        manifest = Path(__file__).resolve().parents[1] / "requirements-core.txt"
+        text = manifest.read_text(encoding="utf-8")
+        self.assertIn("numpy==", text)
+        self.assertIn("Pillow==", text)
+        self.assertIn("send2trash==", text)
+        self.assertNotIn(">=", text)
+
 
 class ReadinessTests(unittest.TestCase):
     @classmethod

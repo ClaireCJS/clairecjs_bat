@@ -507,9 +507,9 @@ def validate_audio_decode(source, ffmpeg, *, visible=True):
 # Published releases are deliberately separate from the timestamped safety
 # backups that the auditor makes before replacements. Update both values only
 # when publishing a new named release.
-AUDIT_MUSIC_BATCH_VERSION = "v193"
+AUDIT_MUSIC_BATCH_VERSION = "v195"
 AUDIT_MUSIC_BATCH_RELEASE_NAME = "explicit-final-convergence-verification"
-AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-11-14"
+AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-11-16"
 
 # Set this to a full executable path only when automatic discovery cannot find
 # your preferred image viewer. The V key first honors openimage.bat, then this
@@ -548,6 +548,7 @@ BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS = 10.0
 # are not offered for destructive sample-data baking. Change this one value to
 # make both the folder-wide workflow and the per-file B option more/less strict.
 REPLAYGAIN_BAKE_THRESHOLD_DB = 0.05
+REPLAYGAIN_PEAK_LIMITED_PERCENT = 99.9
 REPLAYGAIN_COMMAND_TIMEOUT_SECONDS = 300.0
 SILENCE_DETECT_NOISE_DB = -50
 SILENCE_ANALYSIS_WORKERS = max(2, min(8, os.cpu_count() or 4))
@@ -599,6 +600,7 @@ AUDIT_CACHE_FILENAME = "audit_music_batch.sqlite3"
 REPLAYGAIN_TIMING_DATABASE_FILENAME = "replaygain_timings.sqlite3"
 REPLAYGAIN_BAKE_DATABASE_FILENAME = "replaygain_bakes.sqlite3"
 REPLAYGAIN_BAKED_METADATA_KEY = "AUDIT_MUSIC_BATCH_REPLAYGAIN_BAKED"
+REPLAYGAIN_PEAK_LIMITED_METADATA_KEY = "AUDIT_MUSIC_BATCH_REPLAYGAIN_PEAK_LIMITED"
 BACKUP_NAME_MEMORY_FILENAME = "audit_music_batch_backup_names.jsonl"
 WAVEFORM_CHANNEL_COLORS = (
     "0x55dcff",  # cyan: left/first channel
@@ -3238,6 +3240,31 @@ def split_genre_components(genres: list[str]) -> list[str]:
     return components
 
 
+def folder_has_numbered_audio_tracks(folder: Path) -> bool:
+    """Return whether a loose/special folder is actually acting like an album."""
+    try:
+        return any(
+            child.is_file()
+            and child.suffix.casefold() in AUDIO_EXTS
+            and re.match(r"^\d{1,3}(?:[_ .-]|$)", child.stem)
+            for child in folder.iterdir()
+        )
+    except OSError:
+        return False
+
+
+def album_tag_required(path: Path) -> bool:
+    """Require ALBUM except for loose folders, unless numbered tracks override."""
+    parts = {part.casefold() for part in path.parent.parts}
+    loose = "misc" in parts or "onedir" in parts
+    tribute = "tributes" in parts
+    if not (loose or tribute):
+        return True
+    if folder_has_numbered_audio_tracks(path.parent):
+        return True
+    return False
+
+
 class BatchAudit:
     def __init__(
         self,
@@ -4070,7 +4097,7 @@ class BatchAudit:
                     )
             if not snapshot.get("artist"):
                 self.add("problem", "missing_artist", path, "Missing artist tag.")
-            if not snapshot.get("album"):
+            if not snapshot.get("album") and album_tag_required(path):
                 self.add(
                     "ask_first",
                     "missing_album",
@@ -10303,6 +10330,18 @@ class ReplayGainBakeStore:
                 )
                 """
             )
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS replaygain_peak_limited (
+                    path TEXT PRIMARY KEY,
+                    size_bytes INTEGER NOT NULL,
+                    modified_ns INTEGER NOT NULL,
+                    requested_db REAL NOT NULL,
+                    peak_percentage REAL NOT NULL,
+                    recorded_at TEXT NOT NULL
+                )
+                """
+            )
 
     @staticmethod
     def _key(path: Path) -> str:
@@ -10344,6 +10383,43 @@ class ReplayGainBakeStore:
                 ),
             )
 
+    def is_peak_limited(self, path: Path) -> bool:
+        try:
+            status = Path(path).stat()
+        except OSError:
+            return False
+        with closing_database(self.path) as connection:
+            row = connection.execute(
+                "SELECT size_bytes, modified_ns FROM replaygain_peak_limited WHERE path = ?",
+                (self._key(path),),
+            ).fetchone()
+        return bool(row and tuple(map(int, row)) == (int(status.st_size), int(status.st_mtime_ns)))
+
+    def record_peak_limited(
+        self, path: Path, requested_db: float, peak_percentage: float
+    ) -> None:
+        status = Path(path).stat()
+        with closing_database(self.path) as connection:
+            connection.execute(
+                """
+                INSERT INTO replaygain_peak_limited(
+                    path, size_bytes, modified_ns, requested_db,
+                    peak_percentage, recorded_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(path) DO UPDATE SET
+                    size_bytes = excluded.size_bytes,
+                    modified_ns = excluded.modified_ns,
+                    requested_db = excluded.requested_db,
+                    peak_percentage = excluded.peak_percentage,
+                    recorded_at = excluded.recorded_at
+                """,
+                (
+                    self._key(path), int(status.st_size), int(status.st_mtime_ns),
+                    float(requested_db), float(peak_percentage),
+                    datetime.now().astimezone().isoformat(timespec="seconds"),
+                ),
+            )
+
 
 def replaygain_baked_metadata(path: Path) -> str | None:
     """Read the portable in-file provenance marker written after a verified bake."""
@@ -10359,6 +10435,49 @@ def replaygain_baked_metadata(path: Path) -> str | None:
     except Exception:
         return None
     return None
+
+
+def replaygain_peak_limited_metadata(path: Path) -> str | None:
+    """Read the portable marker for a gain request blocked by full-scale peaks."""
+    try:
+        if path.suffix.casefold() == ".flac":
+            values = FLAC(path).get(REPLAYGAIN_PEAK_LIMITED_METADATA_KEY, [])
+            return str(values[0]) if values else None
+        if path.suffix.casefold() == ".mp3":
+            tagged = MP3(path)
+            for frame in tagged.tags.getall("TXXX") if tagged.tags else []:
+                if frame.desc.casefold() == REPLAYGAIN_PEAK_LIMITED_METADATA_KEY.casefold():
+                    return str(frame.text[0]) if frame.text else "peak-limited"
+    except Exception:
+        return None
+    return None
+
+
+def write_replaygain_peak_limited_metadata(
+    path: Path, requested_db: float, peak_percentage: float
+) -> str:
+    """Persist a durable explanation for a gain request that cannot be applied safely."""
+    value = (
+        datetime.now().astimezone().isoformat(timespec="seconds")
+        + f"; requested_db={requested_db:+.4f}; peak={peak_percentage:.3f}%; "
+        f"version={AUDIT_MUSIC_BATCH_VERSION}"
+    )
+    if path.suffix.casefold() == ".flac":
+        tagged = FLAC(path)
+        tagged[REPLAYGAIN_PEAK_LIMITED_METADATA_KEY] = [value]
+        tagged.save()
+    elif path.suffix.casefold() == ".mp3":
+        tagged = MP3(path)
+        if tagged.tags is None:
+            tagged.add_tags()
+        tagged.tags.delall(f"TXXX:{REPLAYGAIN_PEAK_LIMITED_METADATA_KEY}")
+        tagged.tags.add(TXXX(encoding=3, desc=REPLAYGAIN_PEAK_LIMITED_METADATA_KEY, text=[value]))
+        tagged.save(v2_version=3)
+    else:
+        raise RuntimeError("Peak-limited ReplayGain metadata supports only FLAC and MP3")
+    if replaygain_peak_limited_metadata(path) != value:
+        raise RuntimeError("Peak-limited ReplayGain metadata was not verified")
+    return value
 
 
 def write_replaygain_baked_metadata(path: Path, applied_db: float) -> str:
@@ -10403,6 +10522,18 @@ def replaygain_bake_is_recorded(
     try:
         database = store or ReplayGainBakeStore()
         return database.is_baked(path)
+    except (OSError, sqlite3.Error):
+        return False
+
+
+def replaygain_peak_limited_is_recorded(
+    path: Path, *, store: ReplayGainBakeStore | None = None
+) -> bool:
+    """Return whether this unchanged file is known to be unable to accept its boost safely."""
+    if replaygain_peak_limited_metadata(path):
+        return True
+    try:
+        return (store or ReplayGainBakeStore()).is_peak_limited(path)
     except (OSError, sqlite3.Error):
         return False
 
@@ -10594,6 +10725,8 @@ def bake_replaygain_into_audio(
             normalized = FLAC(temporary)
             if not normalized.info or normalized.info.length <= 0:
                 raise RuntimeError("Baked FLAC has no valid audio stream")
+            normalized.pop(REPLAYGAIN_PEAK_LIMITED_METADATA_KEY, None)
+            normalized.save()
             _remove_flac_replaygain_tags(temporary)
             if action_file_state(source) != source_state:
                 raise ExternalFileChange(f"Source changed during rendering: {source}; refusing replacement.")
@@ -10681,6 +10814,7 @@ def bake_replaygain_into_audio(
             if not encoded.info or encoded.info.length <= 0:
                 raise RuntimeError("Re-encoded MP3 has no valid audio stream")
             if encoded.tags is not None:
+                encoded.tags.delall(f"TXXX:{REPLAYGAIN_PEAK_LIMITED_METADATA_KEY}")
                 for frame in list(encoded.tags.getall("TXXX")):
                     if frame.desc.casefold().startswith("replaygain_"):
                         encoded.tags.delall(f"TXXX:{frame.desc}")
@@ -10773,19 +10907,46 @@ def replaygain_bake_candidates(audio_files: Iterable[Path]) -> list[Path]:
         store = ReplayGainBakeStore()
     except (OSError, sqlite3.Error):
         store = None
-    return [
-        path
-        for path in audio_files
-        if (
-            (tagged_db := replaygain_decibels_from_factor(
-                waveform_replaygain_factor(path)
-            ))
-            is not None
-            and abs(tagged_db) > REPLAYGAIN_BAKE_THRESHOLD_DB + 1e-9
-            and path.suffix.casefold() in {".flac", ".mp3"}
-            and not replaygain_bake_is_recorded(path, store=store)
-        )
-    ]
+    candidates: list[Path] = []
+    for path in audio_files:
+        if path.suffix.casefold() not in {".flac", ".mp3"}:
+            continue
+        if replaygain_bake_is_recorded(path, store=store) or replaygain_peak_limited_is_recorded(path, store=store):
+            continue
+        tagged_db = replaygain_decibels_from_factor(waveform_replaygain_factor(path))
+        if tagged_db is None or abs(tagged_db) <= REPLAYGAIN_BAKE_THRESHOLD_DB + 1e-9:
+            continue
+        candidates.append(path)
+    return candidates
+
+
+def force_bake_replaygain_file(
+    audio_path: Path,
+    *,
+    use_color: bool,
+    acceptable_silence_seconds: float,
+) -> list[Path]:
+    """Force one ReplayGain bake, even when its normal candidate guards say no."""
+    if audio_path.suffix.casefold() not in {".flac", ".mp3"}:
+        raise RuntimeError("--bake requires an MP3 or FLAC audio file")
+    if not audio_path.is_file():
+        raise FileNotFoundError(audio_path)
+    print(console_safe_text(f"        🎚️ Forced ReplayGain bake: {audio_path}"), flush=True)
+    print("        📊 Before bake: " + " | ".join(
+        waveform_metric_lines(measure_waveform_metrics(audio_path))
+    ), flush=True)
+    baked = bake_replaygain_for_batch(
+        [audio_path],
+        use_color=use_color,
+        acceptable_silence_seconds=acceptable_silence_seconds,
+        force=True,
+        offer_retry=False,
+    )
+    if audio_path in baked:
+        print("        📊 After bake:  " + " | ".join(
+            waveform_metric_lines(measure_waveform_metrics(audio_path))
+        ), flush=True)
+    return baked
 
 
 def status_bar_filename(path: Path, *, columns: int | None = None) -> str:
@@ -11021,17 +11182,18 @@ def bake_replaygain_for_batch(
     use_color: bool,
     key_reader=None,
     offer_retry: bool = True,
+    force: bool = False,
     acceptable_silence_seconds: float = (
         BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS
     ),
 ) -> list[Path]:
     """Offer normal-audit ReplayGain baking and retain before/after gradients."""
-    candidates = replaygain_bake_candidates(audio_files)
+    candidates = list(audio_files) if force else replaygain_bake_candidates(audio_files)
     candidate_states = {path: action_file_state(path) for path in candidates}
     if not candidates:
         return []
     threshold_text = f"±{REPLAYGAIN_BAKE_THRESHOLD_DB:g} dB"
-    if not prompt_for_replaygain_batch_bake(
+    if not force and not prompt_for_replaygain_batch_bake(
         candidates,
         threshold_text=threshold_text,
         use_color=use_color,
@@ -11082,6 +11244,37 @@ def bake_replaygain_for_batch(
             recolor_before_baked_waveform(before_path)
             if action_file_state(audio_path) != candidate_states[audio_path]:
                 raise ExternalFileChange(f"Source changed while its before-waveform rendered: {audio_path}")
+            requested_db, applied_db = safely_baked_replaygain_db(before_metrics)
+            if (
+                requested_db > REPLAYGAIN_BAKE_THRESHOLD_DB
+                and before_metrics.peak_volume_percentage >= REPLAYGAIN_PEAK_LIMITED_PERCENT
+                and applied_db <= 0.0
+                and not force
+            ):
+                peak_backup = backup_before_inline_replacement(audio_path)
+                try:
+                    write_replaygain_peak_limited_metadata(
+                        audio_path,
+                        requested_db,
+                        before_metrics.peak_volume_percentage,
+                    )
+                    ReplayGainBakeStore().record_peak_limited(
+                        audio_path,
+                        requested_db,
+                        before_metrics.peak_volume_percentage,
+                    )
+                except BaseException:
+                    if peak_backup.is_file():
+                        backup_before_inline_replacement(audio_path)
+                        shutil.copy2(peak_backup, audio_path)
+                    raise
+                print(console_safe_text(
+                    f"        ⏭️ Peak-limited: {audio_path.name} already reaches "
+                    f"{before_metrics.peak_volume_percentage:.1f}% peak; requested "
+                    f"{requested_db:+.2f} dB cannot be applied safely. "
+                    "Recorded and excluded from future normal bake prompts."
+                ), flush=True)
+                continue
             update_stable_bake_status(bake_progress, audio_path, "Baking and validating audio")
             with replaygain_bake_turn():
                 baked_backup, applied_db = bake_replaygain_into_audio(
@@ -16957,6 +17150,12 @@ def render_usage(use_color: bool = True) -> str:
         note(
             "  ^ Force-refresh both plain lyrics and timed karaoke from "
             "validated sidecars, then re-audit."
+        ),
+        "",
+        f"  {command('--bake')} {example('AUDIO_FILE')}  {default_badge(False)}",
+        note(
+            "  ^ Force ReplayGain sample-data baking for one MP3/FLAC, bypassing "
+            "the normal candidate prompt and showing before/after waveform measurements."
         ),
         "",
         f"  {command('--find-cover')}  {command('--no-find-cover')}  "
@@ -27596,6 +27795,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("root", nargs="?", default=None, help="Batch root to audit; use . for the current folder.")
     parser.add_argument("-h", "--help", action="store_true", help="Show the styled usage screen and exit.")
     parser.add_argument("--version", action="store_true", help="Show the named published release version and exit.")
+    parser.add_argument(
+        "--bake",
+        action="store_true",
+        help=(
+            "Force ReplayGain sample-data baking for the supplied audio file, "
+            "showing before/after waveform measurements without the normal candidate prompt."
+        ),
+    )
     parser.add_argument("--show-batch-journal", action="store_true", help="Show recovery history for the root without changing music files.")
     parser.add_argument("--include-archives", action="store_true", help="Include archived/deprecated audio in active tag checks.")
     parser.add_argument("--format", choices=("text", "json", "markdown"), default="text", help="Report format for stdout.")
@@ -28032,6 +28239,41 @@ def _main(argv: list[str] | None = None) -> int:
             not args.no_color,
         )
         return 2
+    if args.bake:
+        bake_path = Path(args.root).expanduser().resolve()
+        if not bake_path.is_file():
+            print_formatted_error(
+                "--bake requires the root argument to be one existing MP3 or FLAC file.",
+                not args.no_color,
+            )
+            return 2
+        if bake_path.suffix.casefold() not in {".flac", ".mp3"}:
+            print_formatted_error(
+                "--bake supports MP3 and FLAC files only.",
+                not args.no_color,
+            )
+            return 2
+        if not run_dependency_preflight(
+            unit_tests=False,
+            find_cover=False,
+            check_silence=False,
+            interactive=False,
+            use_color=not args.no_color,
+        ):
+            return 3
+        try:
+            baked = force_bake_replaygain_file(
+                bake_path,
+                use_color=not args.no_color,
+                acceptable_silence_seconds=effective.silence_threshold_seconds,
+            )
+        except Exception as exc:
+            print_formatted_error(
+                f"Forced ReplayGain bake failed: {type(exc).__name__}: {exc}",
+                not args.no_color,
+            )
+            return 1
+        return 0 if baked else 1
     if not run_dependency_preflight(
         unit_tests=False,
         find_cover=effective.find_cover and args.interactive,

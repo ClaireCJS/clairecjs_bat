@@ -620,9 +620,9 @@ except ImportError:  # pragma: no cover
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID                = '2026-11-16-v727-private-python-runtime'
+PLAYER_BUILD_ID                = '2026-11-16-v728-lastfm-private-requests'
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION                = 'V727'
+PROGRAM_VERSION                = 'V728'
 PROGRAM_RELEASE_LABEL          = 'V723'
 
 # A Discord webhook is a credential, not a setting.  Keep it out of JSON,
@@ -30168,14 +30168,16 @@ def format_position(seconds: float | None) -> str:
 
 
 def format_playlist_resume_notice(playlist: Path, song: Path, position: float) -> str:
-    """Show the playlist and song as separate, filename-aligned startup lines."""
-    playlist_label = " ↩ Resuming playlist: "
-    song_label = " ↩ Resuming song:"
-    song_padding = " " * max(1, terminal_cell_width(playlist_label) - terminal_cell_width(song_label))
+    """Show resume notices with their colons in the startup status column."""
+    playlist_label = " ↩ Resuming playlist"
+    song_label = " ↩ Resuming song"
+    status_width = 50
+    playlist_padding = " " * max(0, status_width - terminal_cell_width(playlist_label))
+    song_padding = " " * max(0, status_width - terminal_cell_width(song_label))
     color, italic, roman, reset = "\033[38;2;120;210;190m", "\033[3m", "\033[23m", "\033[0m"
     return (
-        f"{color}{playlist_label}{italic}{Path(playlist).name}{roman}{reset}\n"
-        f"{color}{song_label}{song_padding}{italic}{Path(song).name}{roman} "
+        f"{color}{playlist_label}{playlist_padding}: {italic}{Path(playlist).name}{roman}{reset}\n"
+        f"{color}{song_label}{song_padding}: {italic}{Path(song).name}{roman} "
         f"at {format_position(position)}{reset}\n"
     )
 
@@ -78549,7 +78551,12 @@ def paf_stage_self_install(source: Path, base: Path, *, version: str = PROGRAM_V
         raise FileNotFoundError(f"PAFPlayer source is missing: {source}")
     base = Path(base).resolve()
     base.mkdir(parents=True, exist_ok=True)
+    preferred = base / "PAFPlayer"
+    if preferred.is_symlink():
+        raise OSError(f"Refusing to install through linked destination: {preferred}")
     target = paf_next_install_destination(base, version, now=now)
+    if target.is_symlink():
+        raise OSError(f"Refusing to install through linked destination: {target}")
     stage_base = base / f".{target.name}.stage-{secrets.token_hex(6)}"
     stage = stage_base
     number = 1
@@ -78749,7 +78756,23 @@ def run_paf_self_install(arguments: list[str], *, source: Path | None = None,
         return 2
     installed = destination / "PAFPlayer.py"
     print(f"Verified new installation: {installed}")
-    result = run_paf_readiness_check(installed, tray_only=bool(arguments[:1] == ["--tray-only"]))
+    private_python = destination / "runtime" / "python.exe"
+    if private_python.is_file():
+        check_args = [str(private_python), "-B", str(installed), "--readiness-check"]
+        if arguments[:1] == ["--tray-only"]:
+            check_args.append("--tray-only")
+        try:
+            checked = subprocess.run(check_args, check=False, capture_output=True, text=True)
+            if checked.stdout:
+                print(checked.stdout, end="" if checked.stdout.endswith("\n") else "\n")
+            if checked.stderr:
+                print(checked.stderr, file=sys.stderr, end="" if checked.stderr.endswith("\n") else "\n")
+            result = checked.returncode
+        except OSError as exc:
+            print(f"Private Python readiness check failed: {exc}", file=sys.stderr)
+            result = 2
+    else:
+        result = run_paf_readiness_check(installed, tray_only=bool(arguments[:1] == ["--tray-only"]))
     if result:
         print(f"The installed copy is preserved at {destination}. Resolve the failed checks and rerun --readiness-check there.")
         return result
@@ -78761,7 +78784,8 @@ def run_paf_self_install(arguments: list[str], *, source: Path | None = None,
             answer = ''
         if answer in {'y', 'yes'}:
             try:
-                subprocess.Popen([sys.executable, '-B', str(installed), '--models'], close_fds=True,
+                setup_python = str(private_python) if private_python.is_file() else sys.executable
+                subprocess.Popen([setup_python, '-B', str(installed), '--models'], close_fds=True,
                                  creationflags=getattr(subprocess, 'CREATE_NEW_CONSOLE', 0))
                 print('Voice model setup opened separately; player startup will continue.')
             except OSError as exc:

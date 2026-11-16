@@ -1,7 +1,19 @@
 # PAFPlayer documentation
 
-Current release: **V726** — allow lock-screen companion installation attempts on Windows 11.
-[Release notes](../releases/PAFPlayer_v726_windows11_lockscreen_release_notes.md).
+Current release: **V728** — include the pinned Requests dependencies needed for Last.fm Now Playing in the private runtime.
+[Release notes](../releases/PAFPlayer_v728_lastfm_private_requests_release_notes.md).
+
+## Private Python runtime
+
+Start an installed copy with `pafplayer.bat`. It uses the PAFPlayer-owned
+`runtime\python.exe` when present, so changes to packages in your personal
+Python do not change PAFPlayer. The core runtime is built with
+`python -B tools/build_private_runtime.py`; exact core dependency versions are
+in `requirements-core.txt`, including the Last.fm HTTP client dependencies. Build it before first-run installation to have the
+self-installer copy it into the new installation under `C:\util\PAFPlayer`.
+The runtime is a full app-local Python distribution with packages in a private
+`site-packages` directory, not a virtual environment. Qwen/Piper model runtimes
+and large model weights remain independently managed optional components.
 
 The **AI DJ** tab groups related options into three cards. Its conversation
 prompt, preset selector, editor, new-preset field, and save action occupy

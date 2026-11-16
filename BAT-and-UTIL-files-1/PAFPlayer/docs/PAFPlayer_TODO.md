@@ -3,6 +3,24 @@
 Only active, unverified follow-up work belongs here. Completed work is retained
 in versioned release notes and changelog history.
 
+## Medium priority
+
+- [ ] Migrate the play-history database from the legacy
+      `play_audio_file-play-history.sqlite3` name/location to a private PAFPlayer
+      subfolder using the requested new filename
+      `PAFPlayer-play-history.sqllite3` (confirm whether the `sqllite3` spelling
+      is intentional or should be corrected to `sqlite3`). The default root
+      should be `C:\util\PAFPlayer\private\`; if `C:\util\` does not exist,
+      allow `C:\bat\PAFPlayer\private\` as a fallback, but never select that
+      fallback for Claire personally. On startup, detect the old database,
+      migrate it safely to the new location/name, verify the migrated database,
+      and leave the old file beside itself as a `.bak` rather than deleting it.
+      Preserve existing history and avoid overwriting an existing destination
+      without a verified backup. Double-check that the relevant `.gitignore`
+      rules exclude the new private database and its backups, including the
+      publishing copy in `C:\clairecjs_bat` if that repository is the source
+      copied for publication.
+
 ## Discord Social SDK live validation
 
 - [ ] Enable Social SDK for the PAFPlayer application in Discord's Developer

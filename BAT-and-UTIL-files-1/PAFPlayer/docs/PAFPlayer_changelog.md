@@ -1,5 +1,13 @@
 # PAFPlayer changelog
 
+## V728 — November 16, 2026
+
+Pin Requests and its HTTP dependencies in the private runtime so Last.fm Now Playing and scrobbling work when PAFPlayer is launched with its bundled Python. [Release notes](../releases/PAFPlayer_v728_lastfm_private_requests_release_notes.md).
+
+## V727 — November 16, 2026
+
+Move first-run installation to `C:\util`, add the `pafplayer.bat` runtime-selecting launcher, pin the core Python package versions, and provide a builder for an app-private embedded Python runtime. The runtime is copied into a new install when it has been built; voice-model runtimes remain separate. [Release notes](../releases/PAFPlayer_v727_private_python_runtime_release_notes.md).
+
 ## V726 — November 16, 2026
 
 Allow the lock-screen companion installer and tray-only automatic setup to attempt installation on Windows 11. [Release notes](../releases/PAFPlayer_v726_windows11_lockscreen_release_notes.md).

@@ -1,0 +1,17 @@
+{
+  "python": "3.12.10",
+  "architecture": "win_amd64",
+  "requirements": "# Core runtime packages: keep exact versions so personal Python upgrades do not affect PAFPlayer.\nnumpy==2.2.6\nPillow==11.2.1\nsend2trash==1.8.3\nrequests==2.34.2\ncharset-normalizer==3.5.2\nidna==3.20\nurllib3==2.8.0\ncertifi==2026.10.23\n",
+  "python_installer": "python-3.12.10-amd64.exe",
+  "python_installer_sha256": "67b5635e80ea51072b87941312d00ec8927c4db9ba18938f7ad2d27b328b95fb",
+  "packages": {
+    "numpy": "2.2.6",
+    "Pillow": "11.2.1",
+    "send2trash": "1.8.3",
+    "requests": "2.34.2",
+    "charset_normalizer": "3.5.2",
+    "idna": "3.20",
+    "urllib3": "2.8.0",
+    "certifi": "2026.10.23"
+  }
+}

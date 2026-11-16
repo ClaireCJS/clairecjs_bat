@@ -331,3 +331,5 @@ The tests use temporary folders and mocked network responses. They do not alter 
 - Cover Art Archive does not label every physical-medium image precisely; generic discs default to CD.
 - Duplicate detection uses identical file bytes, not perceptual similarity; differently compressed copies may still be reviewed separately.
 - The downloader does not embed artwork into audio tags. It creates sidecar image files.
+When neither `--missing-only` nor `--no-missing-only` is supplied, interactive runs ask whether to scan folders that already have artwork—even when `--root` is supplied. Noninteractive runs default to scanning all eligible folders.
+
