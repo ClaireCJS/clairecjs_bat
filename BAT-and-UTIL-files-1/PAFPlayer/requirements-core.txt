@@ -1,6 +1,6 @@
 # Core runtime packages: keep exact versions so personal Python upgrades do not affect PAFPlayer.
 numpy==2.2.6
-Pillow==11.2.1
+Pillow==13.0.0
 send2trash==1.8.3
 requests==2.34.2
 charset-normalizer==3.5.2
