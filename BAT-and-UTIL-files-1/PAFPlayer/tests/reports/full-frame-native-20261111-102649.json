@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "path": "existing",
+      "ms_per_frame": 5.502514500039979,
+      "identical": true,
+      "collections": [
+        12,
+        1,
+        0
+      ]
+    },
+    {
+      "path": "production-native",
+      "ms_per_frame": 0.657431999934488,
+      "identical": true,
+      "collections": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "source_sha256": "a26c04407993622f543c5786e2c611113f70baa6b768297914545582c0181776",
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102649",
+  "blocked_writes": [],
+  "limitations": "Offline row-formatting benchmark; not end-to-end live FPS or terminal write latency."
+}

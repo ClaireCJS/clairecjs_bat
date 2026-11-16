@@ -1,0 +1,119 @@
+{
+  "version": "V642",
+  "tests": 35,
+  "failures": [
+    [
+      "test_emoji_answers_and_shadow_are_reserved_in_fit (test_v643_artwork_karaoke_fit.ArtworkFitTests)",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 119, in test_emoji_answers_and_shadow_are_reserved_in_fit\n    self.assertLess(answers['font_size'], plain['font_size'])\nAssertionError: 51 not less than 51\n"
+    ],
+    [
+      "test_manual_zoom_reduces_fitted_size_and_legacy_large_zoom_stays_bounded (test_v643_artwork_karaoke_fit.ArtworkFitTests)",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 104, in test_manual_zoom_reduces_fitted_size_and_legacy_large_zoom_stays_bounded\n    self.assertEqual(full_tk['font_size'], big_tk['font_size'])\nAssertionError: 46 != 115\n"
+    ],
+    [
+      "test_pillow_pixel_size_is_independent_of_monitor_dpi (test_v643_artwork_karaoke_fit.ArtworkFitTests)",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 132, in test_pillow_pixel_size_is_independent_of_monitor_dpi\n    self.assertEqual(1, len(set(sizes)))\nAssertionError: 1 != 3\n"
+    ],
+    [
+      "test_resize_grows_short_cue_beyond_old_260_point_cap (test_v643_artwork_karaoke_fit.ArtworkFitTests)",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 87, in test_resize_grows_short_cue_beyond_old_260_point_cap\n    self.assertGreater(big['font_size'], 260)\nAssertionError: 184 not greater than 260\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Hey', size=(900, 540), renderer='Tk')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 67, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.27307692307692305 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Hey', size=(900, 540), renderer='Pillow')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 70, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.27692307692307694 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Hey', size=(1600, 900), renderer='Tk')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 67, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.26704545454545453 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Hey', size=(1600, 900), renderer='Pillow')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 70, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.26136363636363635 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Hey', size=(340, 600), renderer='Tk')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 67, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.4064516129032258 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Hey', size=(340, 600), renderer='Pillow')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 70, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.3870967741935484 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text=\"Don't want to be\", size=(1600, 900), renderer='Pillow')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 70, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.7853503184713376 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text=\"Don't want to be\", size=(340, 600), renderer='Tk')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 67, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.7903225806451613 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Go!', size=(900, 540), renderer='Tk')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 67, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.27307692307692305 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Go!', size=(900, 540), renderer='Pillow')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 70, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.27692307692307694 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Go!', size=(1600, 900), renderer='Tk')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 67, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.26704545454545453 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Go!', size=(1600, 900), renderer='Pillow')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 70, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.26136363636363635 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Go!', size=(340, 600), renderer='Tk')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 67, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.36129032258064514 not greater than 0.85\n"
+    ],
+    [
+      "test_short_cues_expand_in_both_renderers_without_clipping (test_v643_artwork_karaoke_fit.ArtworkFitTests) (text='Go!', size=(340, 600), renderer='Pillow')",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035\\tests\\test_v643_artwork_karaoke_fit.py\", line 70, in test_short_cues_expand_in_both_renderers_without_clipping\n    self.assertGreater(fill, .85)\nAssertionError: 0.35161290322580646 not greater than 0.85\n"
+    ]
+  ],
+  "errors": [],
+  "skipped": 0,
+  "compiled": [
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v643_artwork_karaoke_fit.py",
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v643_artwork_karaoke_fit.py"
+  ],
+  "bundles": 27,
+  "parity": [
+    "PAFPlayer_workflows",
+    "PAFPlayer_cli_workflows",
+    "PAFPlayer_cuda_benchmarks",
+    "PAFPlayer_discord",
+    "PAFPlayer_instance",
+    "PAFPlayer_render_book",
+    "PAFPlayer_web_workflows",
+    "PAFPlayer_windows_media",
+    "PAFPlayer_windows_ui",
+    "PAFPlayer_workflows_ui",
+    "PAFPlayer_tray",
+    "PAFPlayer_track_details",
+    "PAFPlayer_remote_tray",
+    "PAFPlayer_tray_machine",
+    "PAFPlayer_remote_overlay",
+    "PAFPlayer_tray_hover",
+    "PAFPlayer_lockscreen",
+    "PAFPlayer_lockscreen_installer",
+    "PAFPlayer_lockscreen_payload",
+    "PAFPlayer_ffmpeg_setup",
+    "PAFPlayer_error_delivery",
+    "PAFPlayer_test_triage",
+    "PAFPlayer_screensaver",
+    "PAFPlayer_monkeymote",
+    "PAFPlayer_tray_options",
+    "PAFPlayer_steam",
+    "PAFPlayer_memory_audio"
+  ],
+  "javascript_blocks": 8,
+  "blocked_writes": [],
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v643-20261105-145035",
+  "source_sha256": "227f607b020d7f153761ccac00c6dec97c92687979a67896126df828ada65f48"
+}

@@ -42,7 +42,9 @@ def select_fit(region,style,neighbors,lane):
             if len(faces)==3:break
     sizes=sorted({base_size,minimum,*[max(minimum,round(base_size*f)) for f in (1,.95,.9,.85,.8,.75,.7,.65,.6,.55)]},reverse=True)
     tracking=(float(cfg['tracking']),) if 'tracking' in cfg else (0,-.5,-1)
-    variants=sorted((5*(1-size/base_size)+.25*rank+.025*abs(space-float(cfg.get('tracking',0))),rank,size,space,face)
+    profile=cfg.get('_fit_profile')
+    size_weight,width_weight={'larger type':(8,1.2),'natural width':(2,5)}.get(profile,(5,2))
+    variants=sorted((size_weight*(1-size/base_size)+.25*rank+.025*abs(space-float(cfg.get('tracking',0))),rank,size,space,face)
         for rank,face in enumerate(faces) for size in sizes for space in tracking)
     foreground=tuple(cfg.get('foreground',style['foreground']))
     if 'opacity' in cfg:foreground=foreground[:3]+(round(255*cfg['opacity']),)
@@ -85,7 +87,7 @@ def select_fit(region,style,neighbors,lane):
                     x=max(low,min(last,base_x));bounds=(x,y,x+width,y+layer.height)
                     if any(imaging.overlaps(bounds,p) for p in neighbors):continue
                     distance=math.hypot(x-base_x,y-base_y)/max(1,y2-y1)
-                    score=lower+2*(1-horizontal)+.05*distance
+                    score=lower+width_weight*(1-horizontal)+.05*distance
                     if best is not None and score>=best[0]:continue
                     fitted=layer if width==layer.width else layer.resize((width,layer.height),Image.Resampling.LANCZOS)
                     chosen=(fitted,(x,y),bounds,size/base_size,space,horizontal,'adaptive')
@@ -120,12 +122,12 @@ def _contexts(region,lines,others):
     return contexts
 
 
-def render_adaptive_region(image,region,protected,lines,others):
+def render_adaptive_region(image,region,protected,lines,others,profile=None):
     from . import imaging
     lane=imaging.caption_lane(image,region,lines);best=None;trials=0
     candidates=[(region,0),*_contexts(region,lines,others)]
     for candidate,count in candidates:
-        candidate=replace(candidate,settings=dict(region.settings,_fit_lane=lane,_fit_mode='adaptive',_adaptive_fit=True,fit_retry=2))
+        candidate=replace(candidate,settings=dict(region.settings,_fit_lane=lane,_fit_mode='adaptive',_adaptive_fit=True,fit_retry=2,_fit_profile=profile))
         try:result,diagnostic,crops=imaging.render_region(image,candidate,protected)
         except RenderBlocked as error:
             # Optional larger contexts may lack a patch donor or another

@@ -121,7 +121,10 @@ def test_automatic_fit_and_artwork_retry_both_need_fresh_review(tmp_path,style,m
         if len(proposals)==1:
             assert not proposal.get('blocked') and all(d.get('automatic_fit') for d in proposal['diagnostics'])
             return {'action':'fit_all'}
-        assert not proposal.get('blocked') and all(d['fit_retry']==1 for d in proposal['diagnostics'])
+        assert not proposal.get('blocked') and proposal['level']>=2
+        # A measured alternative may outrank the first squeeze pass.
+        assert all(d['fit_retry']>=1 for d in proposal['diagnostics'])
+        assert imaging.full_captions(lines,regions)['proposed']=='woman friend'
         return 's'
     monkeypatch.setattr(app,'review',review)
     result,code=app.process([str(source)])

@@ -1,0 +1,12 @@
+{"time":"2026-11-11T19:23:19-0500","event":"controller.start","enabled":false,"interval":2,"text_provider":"auto","speech_provider":"auto"}
+{"time":"2026-11-11T19:23:19-0500","event":"settings.changed","enabled":true,"interval":2,"text_provider":"auto","speech_provider":"auto"}
+{"time":"2026-11-11T19:23:19-0500","event":"job.started","job":2,"forced":true,"history_count":1,"count":0}
+{"time":"2026-11-11T19:23:19-0500","event":"job.stage","job":2,"stage":"Writing conversation"}
+{"time":"2026-11-11T19:23:19-0500","event":"text.provider.start","provider":"openai"}
+{"time":"2026-11-11T19:23:19-0500","event":"openai.credit.exhausted"}
+{"time":"2026-11-11T19:23:19-0500","event":"text.provider.fallback","provider":"openai","error_type":"HTTPError","http_status":429}
+{"time":"2026-11-11T19:23:19-0500","event":"text.provider.skipped","provider":"gemini","reason":"free_tier_not_confirmed"}
+{"time":"2026-11-11T19:23:19-0500","event":"text.provider.skipped","provider":"openrouter","reason":"key_missing"}
+{"time":"2026-11-11T19:23:19-0500","event":"text.provider.start","provider":"ollama"}
+{"time":"2026-11-11T19:25:19-0500","event":"text.provider.failed","provider":"ollama","error_type":"TimeoutError"}
+{"time":"2026-11-11T19:25:19-0500","event":"job.failed","job":2,"text_ready":false,"error_type":"TimeoutError"}

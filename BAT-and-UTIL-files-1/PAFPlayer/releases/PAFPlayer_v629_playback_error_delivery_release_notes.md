@@ -1,0 +1,14 @@
+# PAFPlayer V629 — playback error recovery and delivery
+
+Released October 29, 2026.
+
+- Empty, missing, and unreadable selected playlist files are reported before decode. The player scans forward at most one playlist revolution, skips other bad entries, and keeps playback moving when a playable track remains. If none remains, it stops cleanly.
+- A new **Error delivery** web tab offers independently saved global switches for Windows popup, notification-area notification, and error sound. All default on. Popup launch and sound playback use background threads; the popup runs in an independent Windows process so it remains visible if the player exits on its last bad entry. The notification is posted only by the verified owner of the official tray icon.
+- The included Wilhelm scream sample plays through FFplay at 10% volume without changing the music volume setting. The Ogg sample was downloaded from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Wilhelm_Scream.ogg) and is labeled CC0 1.0 there; its SHA-256 is `360097c9715f55abcc26ab73f12f69b730c660fbf019fc63caa685bfa9b6585b`.
+- Alerts are deduplicated by error, path, size, and modification time during each player run. A repaired file is treated as a new revision. The existing error log retains the full local path; popup and notification show only the filename.
+- `PAFPlayer randomize` and `PAFPlayer --randomize` contact only the official running instance and randomize its upcoming playlist order. No official instance gives `no pafplayer instance to randomize`; single-file playback gives a warning without changing playback. The command does not spawn another player or tray icon.
+- `PAFPlayer a_playlist.m3u --randomize` loads a playlist and randomizes the upcoming slots while keeping the current track anchored. If an official player already runs, the request is handed to it through the existing authenticated loopback IPC. Duplicate playlist slots survive. The one-run order does not replace the persistent history shuffle cache or saved shuffle preference.
+- `PAFPlayer --resume` and `PAFPlayer resume` follow the same saved-session path.
+- Email delivery is not wired in this release. It needs a chosen destination and SMTP or provider credentials. Windows can suppress notification-area notifications, and a forced process termination cannot clean up an already displayed popup.
+
+Verification: eight V629 randomize tests and six V629 error-delivery tests pass. Relevant existing tray, enqueue, resume, simple-instance, and library-search tests pass. Python compilation and bundle/source parity pass. The older embedded `--unit-tests` suite was also run during V629 development and reported 50 failures and six errors among 695 tests; its historical source assertions and fixture failures remain to be triaged. This release has not had a live Windows notification-area or audio-device smoke test.

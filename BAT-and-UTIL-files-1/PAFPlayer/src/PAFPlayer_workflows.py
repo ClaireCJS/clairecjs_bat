@@ -470,6 +470,8 @@ class Runtime:
         self.monitor=None; self.server=None; self.queue_bridge=None; self.queue_read=None
         self.upload_lock=threading.RLock()
         self.lock=threading.RLock(); self.token=secrets.token_urlsafe(32); self.events=deque(maxlen=1000); self.sequence=0
+        # Tiny render-facing state must never share the library/filesystem lock.
+        self.presentation_lock=threading.RLock()
         self._hud_activity=None
         self.jobs={}; self.tasks=queue.Queue(maxsize=8); self.worker=None; self.stop_event=threading.Event()
         from PAFPlayer_windows_media import Bridge
@@ -482,11 +484,11 @@ class Runtime:
     def note_external_activity(self, message, seconds=5):
         """Show a short, path-free account of an external queue/control action."""
         label=' '.join(str(message).split())[:100]
-        with self.lock:
+        with self.presentation_lock:
             self._hud_activity=(label,time.monotonic()+max(.1,min(float(seconds),15)))
 
     def hud_activity(self):
-        with self.lock:
+        with self.presentation_lock:
             active=self._hud_activity
             if active and time.monotonic()<active[1]: return active[0]
             self._hud_activity=None
@@ -653,6 +655,7 @@ class Runtime:
 
     def close(self):
         self.stop_event.set()
+        if getattr(self,'ai_dj_controller',None): self.ai_dj_controller.close()
         if getattr(self,'discord',None): self.discord.close()
         self.windows_media.close()
         if self.monitor: self.monitor.close()

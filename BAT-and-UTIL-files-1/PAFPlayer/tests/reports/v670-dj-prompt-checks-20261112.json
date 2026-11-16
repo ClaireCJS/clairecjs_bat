@@ -1,0 +1,14 @@
+{
+  "version": "V670",
+  "focused_tests_passed": 32,
+  "prompt_and_shift_tests": 5,
+  "browser_prompt_save_restore_after_reload": "passed",
+  "browser_sleep_and_error_tabs": "passed",
+  "javascript_blocks_checked": 10,
+  "bundled_modules_compiled": 28,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true,
+  "political_prompt_live_news": false,
+  "lyric_input": false,
+  "numbered_introductions": "explicitly discouraged"
+}

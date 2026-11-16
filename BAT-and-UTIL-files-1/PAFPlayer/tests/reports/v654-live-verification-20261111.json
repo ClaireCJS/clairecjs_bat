@@ -1,0 +1,69 @@
+{
+  "version": "V654",
+  "pid": 35904,
+  "samples": 90,
+  "errors": [],
+  "private_bytes": {
+    "start": 1338318848,
+    "end": 1431085056,
+    "minimum": 1338318848,
+    "maximum": 1433686016
+  },
+  "gc_collection_delta": [
+    4604,
+    418,
+    12
+  ],
+  "fps_range": [
+    0.0,
+    54.8
+  ],
+  "audio_underruns": [
+    0
+  ],
+  "popup_backlog_max": 0,
+  "all_displays_enabled": true,
+  "transport_modes": [
+    "row-delta"
+  ],
+  "source_sha256": "a26c04407993622f543c5786e2c611113f70baa6b768297914545582c0181776",
+  "source_unchanged": true,
+  "subjective_v654_feedback_pending": true,
+  "overall_hang_resolution_confirmed": false,
+  "limitations": [
+    "HTTP sampling latency is not frame timing.",
+    "Short observation does not prove multi-hour memory stability.",
+    "V654 row-delta transport differs from earlier V653 full-frame sampling; FPS is not a controlled comparison."
+  ],
+  "traces": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-thread-stacks-20261111-103337.json",
+      "samples": 197,
+      "request_median_ms": 7.492399992770515,
+      "request_max_ms": 248.67309999535792,
+      "requests_over_65_ms": [
+        {
+          "elapsed": 3.6163227000070037,
+          "ms": 248.67309999535792
+        },
+        {
+          "elapsed": 15.022766400012188,
+          "ms": 222.7425999881234
+        }
+      ]
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-thread-stacks-20261111-103458.json",
+      "samples": 198,
+      "request_median_ms": 11.545299988938496,
+      "request_max_ms": 231.62629999569617,
+      "requests_over_65_ms": [
+        {
+          "elapsed": 2.0101676000049338,
+          "ms": 231.62629999569617
+        }
+      ]
+    }
+  ],
+  "retention_report": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v652-live-retention-V654-20261111-103642.json"
+}

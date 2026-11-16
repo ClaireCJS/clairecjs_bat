@@ -1,0 +1,34 @@
+{
+  "version": "V652",
+  "source_sha256": "ae9aaea9f3cc9a95ce9d0e99e7597d49867a2fc702cefc865e922b44417422db",
+  "audio_polls": 500,
+  "diagnostic_polls": 100,
+  "steam_polls": 20,
+  "result": {
+    "before": {
+      "memory": {
+        "private_bytes": 57925632,
+        "working_set_bytes": 71241728
+      },
+      "pointer_types": 26,
+      "function_types": 12,
+      "tracked_objects": 29772
+    },
+    "seconds": 9.412518700002693,
+    "known_audio_samples": 500,
+    "after": {
+      "memory": {
+        "private_bytes": 57421824,
+        "working_set_bytes": 70774784
+      },
+      "pointer_types": 26,
+      "function_types": 12,
+      "tracked_objects": 29774
+    }
+  },
+  "gc_events": [],
+  "errors": [],
+  "blocked_writes": [],
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\native-soak-20261111-062525",
+  "limitations": "Accelerated native-poll workload, not a live full-player soak or frame-latency measurement."
+}

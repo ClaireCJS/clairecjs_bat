@@ -1,0 +1,14 @@
+{
+  "version": "V669",
+  "focused_tests_passed": 16,
+  "prompt_tests_passed": 4,
+  "mock_playback_views": [
+    "playing",
+    "paused",
+    "help"
+  ],
+  "existing_command_input_tests_passed": 7,
+  "bundled_modules_compiled": 28,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true
+}

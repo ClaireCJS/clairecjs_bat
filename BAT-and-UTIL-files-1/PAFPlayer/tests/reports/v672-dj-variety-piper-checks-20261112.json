@@ -1,0 +1,15 @@
+{
+  "version": "V672",
+  "focused_tests_passed": 82,
+  "dj_variety_tests_passed": 4,
+  "piper_setup_tests_passed": 6,
+  "piper_existing_install_real_synthesis": "passed, 22050 Hz",
+  "browser_piper_setup": "passed",
+  "browser_prompt_and_sleep_controls": "passed",
+  "bundled_modules_compiled": 28,
+  "source_bundle_mismatches": 0,
+  "javascript_blocks_checked": 11,
+  "release_matches_active": true,
+  "recent_dialogue_memory": "current session only",
+  "live_provider_with_new_context": "not tested"
+}

@@ -1,0 +1,28 @@
+{
+  "version": "V663",
+  "boundary_test": 1,
+  "free_provider_and_warning_tests": 6,
+  "private_key_tests": 2,
+  "dj_diagnostic_playback_tests": 6,
+  "piper_setup_tests": 4,
+  "help_tests": 3,
+  "existing_dj_tests": 22,
+  "command_tests": 7,
+  "compiled_bundled_modules": 28,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true,
+  "javascript_blocks_checked": 9,
+  "browser_warning_tab_order": "passed",
+  "browser_warning_refresh": "passed",
+  "real_local_fallback": {
+    "openai_exhaustion": "simulated without network spending",
+    "ollama_and_piper": "actual local inference and synthesis",
+    "speech_files": 6,
+    "credit_warning": "present",
+    "initial_120s_timeout": "failed; raised to 600s"
+  },
+  "openrouter_live": "not verified; no key",
+  "gemini_live": "not verified; no key; free-tier confirmation required",
+  "actual_credit_warning_seeded": true,
+  "literal_c_bat_changes": []
+}

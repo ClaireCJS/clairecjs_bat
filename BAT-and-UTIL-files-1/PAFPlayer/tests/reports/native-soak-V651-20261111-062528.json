@@ -1,0 +1,1815 @@
+{
+  "version": "V651",
+  "source_sha256": "41c8cb9d9cb937c1d6f0dac00db8a62a2a2eebd2450ca14fb543c8cca34cddd4",
+  "audio_polls": 500,
+  "diagnostic_polls": 100,
+  "steam_polls": 20,
+  "result": {
+    "before": {
+      "memory": {
+        "private_bytes": 58097664,
+        "working_set_bytes": 71299072
+      },
+      "pointer_types": 50,
+      "function_types": 36,
+      "tracked_objects": 30339
+    },
+    "seconds": 9.761694400003762,
+    "known_audio_samples": 500,
+    "after": {
+      "memory": {
+        "private_bytes": 72146944,
+        "working_set_bytes": 84815872
+      },
+      "pointer_types": 4171,
+      "function_types": 4536,
+      "tracked_objects": 159536
+    }
+  },
+  "gc_events": [
+    {
+      "generation": 0,
+      "ms": 0.09679999493528157,
+      "collected": 292
+    },
+    {
+      "generation": 0,
+      "ms": 0.12029999925289303,
+      "collected": 257
+    },
+    {
+      "generation": 0,
+      "ms": 0.12659998901654035,
+      "collected": 242
+    },
+    {
+      "generation": 0,
+      "ms": 0.11809999705292284,
+      "collected": 311
+    },
+    {
+      "generation": 0,
+      "ms": 0.12630000128410757,
+      "collected": 204
+    },
+    {
+      "generation": 0,
+      "ms": 0.21850000484846532,
+      "collected": 246
+    },
+    {
+      "generation": 0,
+      "ms": 0.1286000042455271,
+      "collected": 279
+    },
+    {
+      "generation": 0,
+      "ms": 0.11490000179037452,
+      "collected": 262
+    },
+    {
+      "generation": 1,
+      "ms": 0.6661000079475343,
+      "collected": 1110
+    },
+    {
+      "generation": 0,
+      "ms": 0.14560000272467732,
+      "collected": 253
+    },
+    {
+      "generation": 0,
+      "ms": 0.15690000145696104,
+      "collected": 328
+    },
+    {
+      "generation": 0,
+      "ms": 0.11559999256860465,
+      "collected": 221
+    },
+    {
+      "generation": 0,
+      "ms": 0.14119999832473695,
+      "collected": 342
+    },
+    {
+      "generation": 0,
+      "ms": 0.11079999967478216,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.21220000053290278,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.185500000952743,
+      "collected": 259
+    },
+    {
+      "generation": 0,
+      "ms": 0.12769999739248306,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.10420000762678683,
+      "collected": 271
+    },
+    {
+      "generation": 0,
+      "ms": 0.08600000001024455,
+      "collected": 154
+    },
+    {
+      "generation": 0,
+      "ms": 0.0881000014487654,
+      "collected": 259
+    },
+    {
+      "generation": 1,
+      "ms": 0.9420999995199963,
+      "collected": 1270
+    },
+    {
+      "generation": 0,
+      "ms": 0.16830000095069408,
+      "collected": 327
+    },
+    {
+      "generation": 0,
+      "ms": 0.14099999680183828,
+      "collected": 240
+    },
+    {
+      "generation": 0,
+      "ms": 0.1368000084767118,
+      "collected": 295
+    },
+    {
+      "generation": 0,
+      "ms": 0.09830000635702163,
+      "collected": 262
+    },
+    {
+      "generation": 0,
+      "ms": 0.07090000144671649,
+      "collected": 285
+    },
+    {
+      "generation": 0,
+      "ms": 0.12670000432990491,
+      "collected": 271
+    },
+    {
+      "generation": 0,
+      "ms": 0.21209999977145344,
+      "collected": 357
+    },
+    {
+      "generation": 0,
+      "ms": 0.12579999747686088,
+      "collected": 246
+    },
+    {
+      "generation": 0,
+      "ms": 0.17050000315066427,
+      "collected": 204
+    },
+    {
+      "generation": 0,
+      "ms": 0.09770000178832561,
+      "collected": 321
+    },
+    {
+      "generation": 0,
+      "ms": 0.09709999721962959,
+      "collected": 226
+    },
+    {
+      "generation": 1,
+      "ms": 1.0635999933583662,
+      "collected": 1355
+    },
+    {
+      "generation": 0,
+      "ms": 0.13720001152250916,
+      "collected": 315
+    },
+    {
+      "generation": 0,
+      "ms": 0.17640000442042947,
+      "collected": 337
+    },
+    {
+      "generation": 0,
+      "ms": 0.1441000058548525,
+      "collected": 234
+    },
+    {
+      "generation": 0,
+      "ms": 0.11510000331327319,
+      "collected": 234
+    },
+    {
+      "generation": 0,
+      "ms": 0.10760000441223383,
+      "collected": 295
+    },
+    {
+      "generation": 0,
+      "ms": 0.0934000127017498,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.0923999905353412,
+      "collected": 287
+    },
+    {
+      "generation": 0,
+      "ms": 0.11220001033507288,
+      "collected": 247
+    },
+    {
+      "generation": 0,
+      "ms": 0.12409999908413738,
+      "collected": 361
+    },
+    {
+      "generation": 0,
+      "ms": 0.10970000585075468,
+      "collected": 238
+    },
+    {
+      "generation": 0,
+      "ms": 0.09039998985826969,
+      "collected": 196
+    },
+    {
+      "generation": 1,
+      "ms": 0.9186999959638342,
+      "collected": 1352
+    },
+    {
+      "generation": 0,
+      "ms": 0.14620000729337335,
+      "collected": 401
+    },
+    {
+      "generation": 0,
+      "ms": 0.14180000289343297,
+      "collected": 230
+    },
+    {
+      "generation": 0,
+      "ms": 0.2043999993475154,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.1323999895248562,
+      "collected": 309
+    },
+    {
+      "generation": 0,
+      "ms": 0.2542000001994893,
+      "collected": 262
+    },
+    {
+      "generation": 0,
+      "ms": 0.14340000052470714,
+      "collected": 299
+    },
+    {
+      "generation": 0,
+      "ms": 0.12759999663103372,
+      "collected": 246
+    },
+    {
+      "generation": 0,
+      "ms": 0.10569998994469643,
+      "collected": 353
+    },
+    {
+      "generation": 0,
+      "ms": 0.13630000466946512,
+      "collected": 186
+    },
+    {
+      "generation": 0,
+      "ms": 0.11059999815188348,
+      "collected": 259
+    },
+    {
+      "generation": 0,
+      "ms": 0.11850000009872019,
+      "collected": 254
+    },
+    {
+      "generation": 1,
+      "ms": 0.8343999943463132,
+      "collected": 1251
+    },
+    {
+      "generation": 0,
+      "ms": 0.215300009585917,
+      "collected": 270
+    },
+    {
+      "generation": 0,
+      "ms": 0.23350000265054405,
+      "collected": 321
+    },
+    {
+      "generation": 0,
+      "ms": 0.1365999924018979,
+      "collected": 369
+    },
+    {
+      "generation": 0,
+      "ms": 0.1610000035725534,
+      "collected": 255
+    },
+    {
+      "generation": 0,
+      "ms": 0.12320000678300858,
+      "collected": 224
+    },
+    {
+      "generation": 0,
+      "ms": 0.1247000036528334,
+      "collected": 337
+    },
+    {
+      "generation": 0,
+      "ms": 0.10930000280495733,
+      "collected": 220
+    },
+    {
+      "generation": 0,
+      "ms": 0.09279999358113855,
+      "collected": 214
+    },
+    {
+      "generation": 0,
+      "ms": 0.11059999815188348,
+      "collected": 295
+    },
+    {
+      "generation": 0,
+      "ms": 0.1525000116089359,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.07189999450929463,
+      "collected": 287
+    },
+    {
+      "generation": 1,
+      "ms": 1.9902999920304865,
+      "collected": 1246
+    },
+    {
+      "generation": 0,
+      "ms": 0.1756999990902841,
+      "collected": 357
+    },
+    {
+      "generation": 0,
+      "ms": 0.12229999992996454,
+      "collected": 274
+    },
+    {
+      "generation": 0,
+      "ms": 0.0940000027185306,
+      "collected": 341
+    },
+    {
+      "generation": 0,
+      "ms": 0.12430000060703605,
+      "collected": 271
+    },
+    {
+      "generation": 0,
+      "ms": 0.10130000009667128,
+      "collected": 353
+    },
+    {
+      "generation": 0,
+      "ms": 0.11709998943842947,
+      "collected": 194
+    },
+    {
+      "generation": 0,
+      "ms": 0.10789999214466661,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.11100000119768083,
+      "collected": 321
+    },
+    {
+      "generation": 0,
+      "ms": 0.10220000694971532,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.10170000314246863,
+      "collected": 224
+    },
+    {
+      "generation": 0,
+      "ms": 0.10600000678095967,
+      "collected": 279
+    },
+    {
+      "generation": 1,
+      "ms": 0.7968999998411164,
+      "collected": 1329
+    },
+    {
+      "generation": 0,
+      "ms": 0.1571000029798597,
+      "collected": 299
+    },
+    {
+      "generation": 0,
+      "ms": 0.13549999857787043,
+      "collected": 274
+    },
+    {
+      "generation": 0,
+      "ms": 0.12310000602155924,
+      "collected": 295
+    },
+    {
+      "generation": 0,
+      "ms": 0.1396000006934628,
+      "collected": 262
+    },
+    {
+      "generation": 0,
+      "ms": 0.11139998969156295,
+      "collected": 285
+    },
+    {
+      "generation": 0,
+      "ms": 0.0906000059330836,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.0990999978967011,
+      "collected": 341
+    },
+    {
+      "generation": 0,
+      "ms": 0.09410000347997993,
+      "collected": 186
+    },
+    {
+      "generation": 0,
+      "ms": 0.09950000094249845,
+      "collected": 259
+    },
+    {
+      "generation": 0,
+      "ms": 0.11209999502170831,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.10849999671336263,
+      "collected": 271
+    },
+    {
+      "generation": 1,
+      "ms": 1.6126999980770051,
+      "collected": 1268
+    },
+    {
+      "generation": 0,
+      "ms": 0.23110001347959042,
+      "collected": 363
+    },
+    {
+      "generation": 0,
+      "ms": 0.12850000348407775,
+      "collected": 262
+    },
+    {
+      "generation": 0,
+      "ms": 0.08060000254772604,
+      "collected": 295
+    },
+    {
+      "generation": 0,
+      "ms": 0.10889999975915998,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.1176999940071255,
+      "collected": 337
+    },
+    {
+      "generation": 0,
+      "ms": 0.10269999620504677,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.13469999248627573,
+      "collected": 196
+    },
+    {
+      "generation": 0,
+      "ms": 0.11300000187475234,
+      "collected": 307
+    },
+    {
+      "generation": 0,
+      "ms": 0.11360000644344836,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.08739999611862004,
+      "collected": 307
+    },
+    {
+      "generation": 0,
+      "ms": 0.10989999282173812,
+      "collected": 247
+    },
+    {
+      "generation": 1,
+      "ms": 0.7760000007692724,
+      "collected": 1411
+    },
+    {
+      "generation": 0,
+      "ms": 0.15910000365693122,
+      "collected": 278
+    },
+    {
+      "generation": 0,
+      "ms": 0.11340000492054969,
+      "collected": 270
+    },
+    {
+      "generation": 0,
+      "ms": 0.12680000509135425,
+      "collected": 295
+    },
+    {
+      "generation": 0,
+      "ms": 0.11709998943842947,
+      "collected": 369
+    },
+    {
+      "generation": 0,
+      "ms": 0.0627999979769811,
+      "collected": 255
+    },
+    {
+      "generation": 0,
+      "ms": 0.11160000576637685,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.08519999391864985,
+      "collected": 337
+    },
+    {
+      "generation": 0,
+      "ms": 0.0813000078778714,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.09410000347997993,
+      "collected": 196
+    },
+    {
+      "generation": 0,
+      "ms": 0.11629999789875001,
+      "collected": 307
+    },
+    {
+      "generation": 0,
+      "ms": 0.09359999967273325,
+      "collected": 254
+    },
+    {
+      "generation": 1,
+      "ms": 0.7177999941632152,
+      "collected": 1357
+    },
+    {
+      "generation": 0,
+      "ms": 0.3254000039305538,
+      "collected": 303
+    },
+    {
+      "generation": 0,
+      "ms": 0.12969999806955457,
+      "collected": 331
+    },
+    {
+      "generation": 0,
+      "ms": 0.1230000052601099,
+      "collected": 262
+    },
+    {
+      "generation": 0,
+      "ms": 0.07870000263210386,
+      "collected": 295
+    },
+    {
+      "generation": 0,
+      "ms": 0.10850001126527786,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.09380000119563192,
+      "collected": 341
+    },
+    {
+      "generation": 0,
+      "ms": 0.10109999857377261,
+      "collected": 186
+    },
+    {
+      "generation": 0,
+      "ms": 0.10380000458098948,
+      "collected": 259
+    },
+    {
+      "generation": 0,
+      "ms": 0.11300000187475234,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.11419999646022916,
+      "collected": 271
+    },
+    {
+      "generation": 0,
+      "ms": 0.10799999290611595,
+      "collected": 196
+    },
+    {
+      "generation": 1,
+      "ms": 0.7444999937433749,
+      "collected": 1429
+    },
+    {
+      "generation": 2,
+      "ms": 20.541099991532974,
+      "collected": 1198
+    },
+    {
+      "generation": 0,
+      "ms": 0.16070000128820539,
+      "collected": 288
+    },
+    {
+      "generation": 0,
+      "ms": 0.02849999873433262,
+      "collected": 0
+    },
+    {
+      "generation": 0,
+      "ms": 0.03330000618007034,
+      "collected": 0
+    },
+    {
+      "generation": 0,
+      "ms": 0.03370000922586769,
+      "collected": 0
+    },
+    {
+      "generation": 0,
+      "ms": 0.11920000542886555,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.24510000366717577,
+      "collected": 317
+    },
+    {
+      "generation": 0,
+      "ms": 0.20570000924635679,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.09169999975711107,
+      "collected": 216
+    },
+    {
+      "generation": 0,
+      "ms": 0.12060000153724104,
+      "collected": 271
+    },
+    {
+      "generation": 0,
+      "ms": 0.09669999417383224,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.06269999721553177,
+      "collected": 287
+    },
+    {
+      "generation": 1,
+      "ms": 0.6123000057414174,
+      "collected": 1062
+    },
+    {
+      "generation": 0,
+      "ms": 0.1432999997632578,
+      "collected": 345
+    },
+    {
+      "generation": 0,
+      "ms": 0.12889999197795987,
+      "collected": 252
+    },
+    {
+      "generation": 0,
+      "ms": 0.13130001025274396,
+      "collected": 250
+    },
+    {
+      "generation": 0,
+      "ms": 0.13690000923816115,
+      "collected": 279
+    },
+    {
+      "generation": 0,
+      "ms": 0.10279999696649611,
+      "collected": 258
+    },
+    {
+      "generation": 0,
+      "ms": 0.05909999890718609,
+      "collected": 279
+    },
+    {
+      "generation": 0,
+      "ms": 0.11449999874457717,
+      "collected": 247
+    },
+    {
+      "generation": 0,
+      "ms": 0.10459999612066895,
+      "collected": 361
+    },
+    {
+      "generation": 0,
+      "ms": 0.11110000195913017,
+      "collected": 238
+    },
+    {
+      "generation": 0,
+      "ms": 0.10750000365078449,
+      "collected": 196
+    },
+    {
+      "generation": 0,
+      "ms": 0.09979998867493123,
+      "collected": 313
+    },
+    {
+      "generation": 1,
+      "ms": 0.7347999926423654,
+      "collected": 1260
+    },
+    {
+      "generation": 0,
+      "ms": 0.17850000585895032,
+      "collected": 323
+    },
+    {
+      "generation": 0,
+      "ms": 0.13590000162366778,
+      "collected": 258
+    },
+    {
+      "generation": 0,
+      "ms": 0.11770000855904073,
+      "collected": 289
+    },
+    {
+      "generation": 0,
+      "ms": 0.09750000026542693,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.12490000517573208,
+      "collected": 287
+    },
+    {
+      "generation": 0,
+      "ms": 0.12549999519251287,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.09639999188948423,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.09709999721962959,
+      "collected": 184
+    },
+    {
+      "generation": 0,
+      "ms": 0.10820000898092985,
+      "collected": 259
+    },
+    {
+      "generation": 0,
+      "ms": 0.10230000771116465,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.17270000535063446,
+      "collected": 271
+    },
+    {
+      "generation": 1,
+      "ms": 0.7296999974641949,
+      "collected": 1267
+    },
+    {
+      "generation": 0,
+      "ms": 0.1677999971434474,
+      "collected": 355
+    },
+    {
+      "generation": 0,
+      "ms": 0.11830001312773675,
+      "collected": 270
+    },
+    {
+      "generation": 0,
+      "ms": 0.07009999535512179,
+      "collected": 277
+    },
+    {
+      "generation": 0,
+      "ms": 0.1041999930748716,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.1548000000184402,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.10250000923406333,
+      "collected": 214
+    },
+    {
+      "generation": 0,
+      "ms": 0.102700010756962,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.15779999375808984,
+      "collected": 285
+    },
+    {
+      "generation": 0,
+      "ms": 0.1145999995060265,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.08869999146554619,
+      "collected": 287
+    },
+    {
+      "generation": 0,
+      "ms": 0.10699999984353781,
+      "collected": 263
+    },
+    {
+      "generation": 1,
+      "ms": 0.7659999973839149,
+      "collected": 1398
+    },
+    {
+      "generation": 0,
+      "ms": 0.16679998952895403,
+      "collected": 268
+    },
+    {
+      "generation": 0,
+      "ms": 0.3880000003846362,
+      "collected": 357
+    },
+    {
+      "generation": 0,
+      "ms": 0.11480000102892518,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.109200002043508,
+      "collected": 333
+    },
+    {
+      "generation": 0,
+      "ms": 0.09370000043418258,
+      "collected": 186
+    },
+    {
+      "generation": 0,
+      "ms": 0.1277999981539324,
+      "collected": 236
+    },
+    {
+      "generation": 0,
+      "ms": 0.1255999959539622,
+      "collected": 301
+    },
+    {
+      "generation": 0,
+      "ms": 0.12740000966005027,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.08939999679569155,
+      "collected": 307
+    },
+    {
+      "generation": 0,
+      "ms": 0.10559998918324709,
+      "collected": 238
+    },
+    {
+      "generation": 0,
+      "ms": 0.09950000094249845,
+      "collected": 345
+    },
+    {
+      "generation": 1,
+      "ms": 0.7763000030536205,
+      "collected": 1184
+    },
+    {
+      "generation": 0,
+      "ms": 0.13729999773204327,
+      "collected": 393
+    },
+    {
+      "generation": 0,
+      "ms": 0.13190000026952475,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.21719999494962394,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.1286000042455271,
+      "collected": 275
+    },
+    {
+      "generation": 0,
+      "ms": 0.11139998969156295,
+      "collected": 361
+    },
+    {
+      "generation": 0,
+      "ms": 0.1520000078016892,
+      "collected": 247
+    },
+    {
+      "generation": 0,
+      "ms": 0.10109999857377261,
+      "collected": 138
+    },
+    {
+      "generation": 0,
+      "ms": 0.12199999764561653,
+      "collected": 259
+    },
+    {
+      "generation": 0,
+      "ms": 0.09950000094249845,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.14740000187885016,
+      "collected": 271
+    },
+    {
+      "generation": 0,
+      "ms": 0.1382000045850873,
+      "collected": 196
+    },
+    {
+      "generation": 1,
+      "ms": 0.695200011250563,
+      "collected": 1248
+    },
+    {
+      "generation": 0,
+      "ms": 0.13479999324772507,
+      "collected": 280
+    },
+    {
+      "generation": 0,
+      "ms": 0.11359999189153314,
+      "collected": 301
+    },
+    {
+      "generation": 0,
+      "ms": 0.13519999629352242,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.14030000602360815,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.09729999874252826,
+      "collected": 222
+    },
+    {
+      "generation": 0,
+      "ms": 0.08230000094044954,
+      "collected": 216
+    },
+    {
+      "generation": 0,
+      "ms": 0.11979999544564635,
+      "collected": 271
+    },
+    {
+      "generation": 0,
+      "ms": 0.11729999096132815,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.07199999527074397,
+      "collected": 287
+    },
+    {
+      "generation": 0,
+      "ms": 0.11470000026747584,
+      "collected": 263
+    },
+    {
+      "generation": 0,
+      "ms": 0.1176999940071255,
+      "collected": 345
+    },
+    {
+      "generation": 1,
+      "ms": 0.9820999985095114,
+      "collected": 1247
+    },
+    {
+      "generation": 0,
+      "ms": 0.1306000049225986,
+      "collected": 122
+    },
+    {
+      "generation": 0,
+      "ms": 0.12850000348407775,
+      "collected": 291
+    },
+    {
+      "generation": 0,
+      "ms": 0.33889999031089246,
+      "collected": 345
+    },
+    {
+      "generation": 0,
+      "ms": 0.1303999888477847,
+      "collected": 222
+    },
+    {
+      "generation": 0,
+      "ms": 0.10910000128205866,
+      "collected": 216
+    },
+    {
+      "generation": 0,
+      "ms": 0.11700000322889537,
+      "collected": 271
+    },
+    {
+      "generation": 0,
+      "ms": 0.1365999924018979,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.08430000161752105,
+      "collected": 287
+    },
+    {
+      "generation": 0,
+      "ms": 0.11220001033507288,
+      "collected": 263
+    },
+    {
+      "generation": 0,
+      "ms": 0.11950000771321356,
+      "collected": 345
+    },
+    {
+      "generation": 0,
+      "ms": 0.18819999240804464,
+      "collected": 202
+    },
+    {
+      "generation": 1,
+      "ms": 1.371199992718175,
+      "collected": 1208
+    },
+    {
+      "generation": 0,
+      "ms": 0.1677000109339133,
+      "collected": 355
+    },
+    {
+      "generation": 0,
+      "ms": 0.47590000031050295,
+      "collected": 345
+    },
+    {
+      "generation": 0,
+      "ms": 0.12599999899975955,
+      "collected": 200
+    },
+    {
+      "generation": 0,
+      "ms": 0.10150000161956996,
+      "collected": 361
+    },
+    {
+      "generation": 0,
+      "ms": 0.1360000023851171,
+      "collected": 247
+    },
+    {
+      "generation": 0,
+      "ms": 0.20870000298600644,
+      "collected": 361
+    },
+    {
+      "generation": 0,
+      "ms": 0.112599998828955,
+      "collected": 295
+    },
+    {
+      "generation": 0,
+      "ms": 0.1145999995060265,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.10439999459777027,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.0973999995039776,
+      "collected": 186
+    },
+    {
+      "generation": 0,
+      "ms": 0.11730000551324338,
+      "collected": 236
+    },
+    {
+      "generation": 1,
+      "ms": 2.0496000070124865,
+      "collected": 1262
+    },
+    {
+      "generation": 0,
+      "ms": 0.22819999139755964,
+      "collected": 389
+    },
+    {
+      "generation": 0,
+      "ms": 0.11439999798312783,
+      "collected": 259
+    },
+    {
+      "generation": 0,
+      "ms": 0.10910000128205866,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.12009999772999436,
+      "collected": 271
+    },
+    {
+      "generation": 0,
+      "ms": 0.106100007542409,
+      "collected": 212
+    },
+    {
+      "generation": 0,
+      "ms": 0.1142999972216785,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.11839999933727086,
+      "collected": 228
+    },
+    {
+      "generation": 0,
+      "ms": 0.2558000123826787,
+      "collected": 317
+    },
+    {
+      "generation": 0,
+      "ms": 0.09140001202467829,
+      "collected": 259
+    },
+    {
+      "generation": 0,
+      "ms": 0.1475999888498336,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.10170000314246863,
+      "collected": 271
+    },
+    {
+      "generation": 1,
+      "ms": 0.7750999939162284,
+      "collected": 1154
+    },
+    {
+      "generation": 0,
+      "ms": 0.12539999443106353,
+      "collected": 307
+    },
+    {
+      "generation": 0,
+      "ms": 0.16900000628083944,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.1171000039903447,
+      "collected": 252
+    },
+    {
+      "generation": 0,
+      "ms": 0.08969999908003956,
+      "collected": 313
+    },
+    {
+      "generation": 0,
+      "ms": 0.09669999417383224,
+      "collected": 238
+    },
+    {
+      "generation": 0,
+      "ms": 0.301799998851493,
+      "collected": 345
+    },
+    {
+      "generation": 0,
+      "ms": 0.0850000069476664,
+      "collected": 186
+    },
+    {
+      "generation": 0,
+      "ms": 0.2260999899590388,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.13120000949129462,
+      "collected": 313
+    },
+    {
+      "generation": 0,
+      "ms": 0.09760000102687627,
+      "collected": 240
+    },
+    {
+      "generation": 0,
+      "ms": 0.12229999992996454,
+      "collected": 323
+    },
+    {
+      "generation": 1,
+      "ms": 1.6243999998550862,
+      "collected": 1243
+    },
+    {
+      "generation": 2,
+      "ms": 30.842100008158013,
+      "collected": 1533
+    },
+    {
+      "generation": 0,
+      "ms": 0.07670000195503235,
+      "collected": 152
+    },
+    {
+      "generation": 0,
+      "ms": 0.02580000727903098,
+      "collected": 0
+    },
+    {
+      "generation": 0,
+      "ms": 0.026900001103058457,
+      "collected": 0
+    },
+    {
+      "generation": 0,
+      "ms": 0.04539999645203352,
+      "collected": 74
+    },
+    {
+      "generation": 0,
+      "ms": 0.12040000001434237,
+      "collected": 321
+    },
+    {
+      "generation": 0,
+      "ms": 0.10399999155197293,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.2820999943651259,
+      "collected": 321
+    },
+    {
+      "generation": 0,
+      "ms": 0.12939999578520656,
+      "collected": 303
+    },
+    {
+      "generation": 0,
+      "ms": 0.10250000923406333,
+      "collected": 242
+    },
+    {
+      "generation": 0,
+      "ms": 0.112599998828955,
+      "collected": 313
+    },
+    {
+      "generation": 0,
+      "ms": 0.0990999978967011,
+      "collected": 204
+    },
+    {
+      "generation": 1,
+      "ms": 0.976100011030212,
+      "collected": 1024
+    },
+    {
+      "generation": 0,
+      "ms": 0.15750000602565706,
+      "collected": 327
+    },
+    {
+      "generation": 0,
+      "ms": 0.2724000078160316,
+      "collected": 337
+    },
+    {
+      "generation": 0,
+      "ms": 0.11069999891333282,
+      "collected": 283
+    },
+    {
+      "generation": 0,
+      "ms": 0.10289999772794545,
+      "collected": 369
+    },
+    {
+      "generation": 0,
+      "ms": 0.12120000610593706,
+      "collected": 255
+    },
+    {
+      "generation": 0,
+      "ms": 0.0923000043258071,
+      "collected": 204
+    },
+    {
+      "generation": 0,
+      "ms": 0.1382000045850873,
+      "collected": 337
+    },
+    {
+      "generation": 0,
+      "ms": 0.09889999637380242,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.2727999963099137,
+      "collected": 321
+    },
+    {
+      "generation": 0,
+      "ms": 0.10570000449661165,
+      "collected": 267
+    },
+    {
+      "generation": 0,
+      "ms": 0.09190000128000975,
+      "collected": 262
+    },
+    {
+      "generation": 1,
+      "ms": 0.8655999990878627,
+      "collected": 1212
+    },
+    {
+      "generation": 0,
+      "ms": 0.10060000931844115,
+      "collected": 154
+    },
+    {
+      "generation": 0,
+      "ms": 0.15139998868107796,
+      "collected": 291
+    },
+    {
+      "generation": 0,
+      "ms": 0.1311999949393794,
+      "collected": 345
+    },
+    {
+      "generation": 0,
+      "ms": 0.10609999299049377,
+      "collected": 228
+    },
+    {
+      "generation": 0,
+      "ms": 0.2449000021442771,
+      "collected": 216
+    },
+    {
+      "generation": 0,
+      "ms": 0.11799999629147351,
+      "collected": 271
+    },
+    {
+      "generation": 0,
+      "ms": 0.09269999281968921,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.07429999823216349,
+      "collected": 287
+    },
+    {
+      "generation": 0,
+      "ms": 0.10749998909886926,
+      "collected": 263
+    },
+    {
+      "generation": 0,
+      "ms": 0.0985000078799203,
+      "collected": 345
+    },
+    {
+      "generation": 0,
+      "ms": 0.1238000113517046,
+      "collected": 202
+    },
+    {
+      "generation": 1,
+      "ms": 0.8016999927349389,
+      "collected": 1209
+    },
+    {
+      "generation": 0,
+      "ms": 0.42350000876467675,
+      "collected": 363
+    },
+    {
+      "generation": 0,
+      "ms": 0.1297999988310039,
+      "collected": 353
+    },
+    {
+      "generation": 0,
+      "ms": 0.11970000923611224,
+      "collected": 198
+    },
+    {
+      "generation": 0,
+      "ms": 0.09819999104365706,
+      "collected": 262
+    },
+    {
+      "generation": 0,
+      "ms": 0.11229999654460698,
+      "collected": 279
+    },
+    {
+      "generation": 0,
+      "ms": 0.10570000449661165,
+      "collected": 262
+    },
+    {
+      "generation": 0,
+      "ms": 0.09919999865815043,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.15659999917261302,
+      "collected": 279
+    },
+    {
+      "generation": 0,
+      "ms": 0.09960000170394778,
+      "collected": 262
+    },
+    {
+      "generation": 0,
+      "ms": 0.07860000187065452,
+      "collected": 295
+    },
+    {
+      "generation": 0,
+      "ms": 0.1357000001007691,
+      "collected": 255
+    },
+    {
+      "generation": 1,
+      "ms": 0.7688000041525811,
+      "collected": 1460
+    },
+    {
+      "generation": 0,
+      "ms": 0.16320000577252358,
+      "collected": 303
+    },
+    {
+      "generation": 0,
+      "ms": 0.12799999967683107,
+      "collected": 347
+    },
+    {
+      "generation": 0,
+      "ms": 0.1432999997632578,
+      "collected": 226
+    },
+    {
+      "generation": 0,
+      "ms": 0.09760000102687627,
+      "collected": 337
+    },
+    {
+      "generation": 0,
+      "ms": 0.10910000128205866,
+      "collected": 198
+    },
+    {
+      "generation": 0,
+      "ms": 0.10639999527484179,
+      "collected": 244
+    },
+    {
+      "generation": 0,
+      "ms": 0.11829999857582152,
+      "collected": 305
+    },
+    {
+      "generation": 0,
+      "ms": 0.09719999798107892,
+      "collected": 254
+    },
+    {
+      "generation": 0,
+      "ms": 0.07759999425616115,
+      "collected": 313
+    },
+    {
+      "generation": 0,
+      "ms": 0.11879998783115298,
+      "collected": 246
+    },
+    {
+      "generation": 0,
+      "ms": 0.11720000475179404,
+      "collected": 353
+    },
+    {
+      "generation": 1,
+      "ms": 1.5741000097477809,
+      "collected": 1240
+    },
+    {
+      "generation": 0,
+      "ms": 0.12409999908413738,
+      "collected": 307
+    },
+    {
+      "generation": 0,
+      "ms": 0.16739999409765005,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.11190000805072486,
+      "collected": 252
+    },
+    {
+      "generation": 0,
+      "ms": 0.21579999884124845,
+      "collected": 311
+    },
+    {
+      "generation": 0,
+      "ms": 0.10489999840501696,
+      "collected": 238
+    },
+    {
+      "generation": 0,
+      "ms": 0.10099999781232327,
+      "collected": 345
+    },
+    {
+      "generation": 0,
+      "ms": 0.07660000119358301,
+      "collected": 186
+    },
+    {
+      "generation": 0,
+      "ms": 0.1939000067068264,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.11019999510608613,
+      "collected": 313
+    },
+    {
+      "generation": 0,
+      "ms": 0.18180000188294798,
+      "collected": 240
+    },
+    {
+      "generation": 0,
+      "ms": 0.08969999908003956,
+      "collected": 323
+    },
+    {
+      "generation": 1,
+      "ms": 0.8431000023847446,
+      "collected": 1261
+    },
+    {
+      "generation": 0,
+      "ms": 0.1956000050995499,
+      "collected": 349
+    },
+    {
+      "generation": 0,
+      "ms": 0.12070000229869038,
+      "collected": 224
+    },
+    {
+      "generation": 0,
+      "ms": 0.13679999392479658,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.1036000030580908,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.18850000924430788,
+      "collected": 313
+    },
+    {
+      "generation": 0,
+      "ms": 0.11740000627469271,
+      "collected": 295
+    },
+    {
+      "generation": 0,
+      "ms": 0.1086000120267272,
+      "collected": 246
+    },
+    {
+      "generation": 0,
+      "ms": 0.20769999537151307,
+      "collected": 301
+    },
+    {
+      "generation": 0,
+      "ms": 0.09780000254977494,
+      "collected": 196
+    },
+    {
+      "generation": 0,
+      "ms": 0.10880001354962587,
+      "collected": 345
+    },
+    {
+      "generation": 0,
+      "ms": 0.11860000086016953,
+      "collected": 218
+    },
+    {
+      "generation": 1,
+      "ms": 0.8967000030679628,
+      "collected": 1387
+    },
+    {
+      "generation": 0,
+      "ms": 0.1691999932518229,
+      "collected": 307
+    },
+    {
+      "generation": 0,
+      "ms": 0.16850000247359276,
+      "collected": 329
+    },
+    {
+      "generation": 0,
+      "ms": 0.15299998631235212,
+      "collected": 240
+    },
+    {
+      "generation": 0,
+      "ms": 0.1419000036548823,
+      "collected": 323
+    },
+    {
+      "generation": 0,
+      "ms": 0.11579999409150332,
+      "collected": 263
+    },
+    {
+      "generation": 0,
+      "ms": 0.1466999965487048,
+      "collected": 345
+    },
+    {
+      "generation": 0,
+      "ms": 0.10580000525806099,
+      "collected": 186
+    },
+    {
+      "generation": 0,
+      "ms": 0.1664000010350719,
+      "collected": 218
+    },
+    {
+      "generation": 0,
+      "ms": 0.11619999713730067,
+      "collected": 313
+    }
+  ],
+  "errors": [],
+  "blocked_writes": [],
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\native-soak-20261111-062528",
+  "limitations": "Accelerated native-poll workload, not a live full-player soak or frame-latency measurement."
+}

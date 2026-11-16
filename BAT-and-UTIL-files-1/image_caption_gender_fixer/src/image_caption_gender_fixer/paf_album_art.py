@@ -353,7 +353,7 @@ class AlbumArtReview:
             self.control_banks=[ttk.Frame(self.root,padding=2),ttk.Frame(self.root,padding=2)]
             controls.columnconfigure(0,weight=1);controls.columnconfigure(1,weight=1)
             actions=([('✅ [A] Approve','a'),('[R] Reject changes','r'),('[S] Skip image','s'),('[D] Defer','d'),
-                ('➕ [N] New substitution','add_rule'),('✏ [G] Regenerate edits','edit_caption'),('♀ [F] his → her','pronouns'),('↔ [M] Move/squeeze','m'),('[O] Correct OCR','o'),('[V] Adjust text/image','v'),('[B] Background repairs','b'),
+                ('➕ [N] New substitution','add_rule'),('✏ [G] Regenerate edits','edit_caption'),('♀ [F] his → her','pronouns'),('↔ [M] Move/squeeze','m'),('↻ [T] Try next fit','next_fit'),('[O] Correct OCR','o'),('[V] Adjust text/image','v'),('[B] Background repairs','b'),
                 ('🚫 [I] Ignore substitution…','ignore'),('[C] Cancel job','c'),('[H] Help','help'),('📝 [F2] Rename image…','rename_image'),('🗑 [Del] Delete / Recycle…','recycle_image'),('[Esc] Hide window','hide')] if floating else
                 [('Continue','continue')] if inspect_only else [('Approve','a'),('Skip','s'),('Cancel job','c')])
             split=(len(actions)+1)//2
@@ -364,7 +364,7 @@ class AlbumArtReview:
             if floating:
                 from .repair_modes import RepairPicker
                 self.repair_picker=RepairPicker(self,self.control_banks[1])
-            self._hotkeys={'a':'a','r':'r','s':'s','d':'d','n':'add_rule','g':'edit_caption','m':'m','o':'o','v':'v','b':'b','i':'ignore','c':'c','h':'help','f':'pronouns'}
+            self._hotkeys={'a':'a','r':'r','s':'s','d':'d','n':'add_rule','g':'edit_caption','m':'m','o':'o','v':'v','b':'b','i':'ignore','c':'c','h':'help','f':'pronouns','t':'next_fit'}
             self.root.bind('<KeyPress>',self.button_hotkey,add='+')
             from .popup_controls import ControlPanel
             self.control_panel=ControlPanel(self,controls)
@@ -403,7 +403,7 @@ class AlbumArtReview:
         self._dirty=True;widget.edit_modified(False)
         self.mark_caption_changes()
         self.notice.configure(text='✏️ OCR / caption edited — Regenerate applies edits and keeps visual adjustments. Keep green OCR line breaks.')
-        for key in ('a','p','m','ignore','o','v','b','add_rule','rename_image'):
+        for key in ('a','p','m','next_fit','ignore','o','v','b','add_rule','rename_image'):
             if key in self.buttons:self.buttons[key].configure(state='disabled')
 
     @_passive_artwork_update
@@ -414,8 +414,12 @@ class AlbumArtReview:
         if changes is not None:self._review_changes=list(changes);self._review_source=source
         if self._review_source:self.root.title('ICGF — '+Path(self._review_source).name)
         if source is not None:self.artwork_clicks.comparison(source,self.blocked)
+        fit=next((change['fit_review'] for change in self._review_changes if change.get('fit_review')),None)
         if self._work_message:self.refresh_work_status(force=True)
-        elif not self._dirty:self.notice.configure(text='  |  '.join('⚠️ '+n for n in self._notes) or ('Edit the yellow caption, then Regenerate; Approve applies the rendered proposal.' if callback else 'Preparing preview…'),wraplength=self.notice.cget('wraplength') or max(160,self.root.winfo_width()-24))
+        elif not self._dirty:
+            messages=[f"↔ Fit {fit['number']}/{fit['total']} · {fit['description']}"] if fit and callback else []
+            messages.extend('⚠️ '+note for note in self._notes)
+            self.notice.configure(text='  |  '.join(messages) or ('Edit the yellow caption, then Regenerate; Approve applies the rendered proposal.' if callback else 'Preparing preview…'),wraplength=self.notice.cget('wraplength') or max(160,self.root.winfo_width()-24))
         active=bool(callback) if self.floating else not self.inspect_only
         self.proposed_caption.configure(state='normal' if active else 'disabled')
         self.caption.configure(state='normal' if active else 'disabled')
@@ -423,6 +427,9 @@ class AlbumArtReview:
             if key in ('hide','continue','help'):continue
             enabled=active and (key not in ('a','p') or (not self.blocked and self._has_drawn and not self._dirty))
             if key in ('m','ignore'):enabled=active and bool(self._review_changes) and not self._dirty
+            if key=='next_fit':
+                button.configure(text=f"↻ [T] Try next fit ({fit['number']}/{fit['total']})" if fit else '↻ [T] Try next fit')
+                enabled=active and bool(fit) and not self.blocked and self._has_drawn and not self._dirty
             if key=='m':
                 exhausted=any(change.get('fit_exhausted') for change in self._review_changes)
                 button.configure(text='↔ Auto-fit exhausted' if exhausted else '↔ [M] Move/squeeze')
@@ -680,7 +687,7 @@ class AlbumArtReview:
     def review_button(self,action):
         if action=='help':
             self.notice.configure(text='Approve applies the rendered proposal. Correct green OCR (keep line breaks) or edit yellow wording, then Regenerate. F converts he/him/his in the proposed caption. '
-                'Move/squeeze retries fitting; Correct OCR, Adjust and Background expose the same menus as the console. '
+                'M retries fitting; T cycles through the best available fits. Correct OCR, Adjust and Background expose the console menus. '
                 'Ignore can save an exception; Reject/Skip leaves the image unchanged. Letter keys activate buttons outside text fields. '
                 'Single-click artwork to toggle Before/After; triple-click opens the displayed version in your default viewer. Hover for two seconds for click help. Console: Ctrl+A shows artwork; Ctrl+Alt+A shows all ICGF artwork windows.',wraplength=self.notice.cget('wraplength') or max(160,self.root.winfo_width()-24));return
         if self.floating and action=='c':self.emit('c');return
@@ -808,7 +815,7 @@ class AlbumArtReview:
         kind=action.get('action') if isinstance(action,dict) else action
         message={'a':'💾 Approval received; waiting to save…','approve':'💾 Approval received; waiting to save…',
             'edit_caption':'✏ Regenerating your caption edits…','edit_ocr':'📖 Correcting OCR and rebuilding substitutions…','repair_mode':'🩹 Applying background repair…',
-            'fit_all':'↔ Fitting the replacement text…','recycle_image':'🗑 Recycling the image…',
+            'fit_all':'↔ Fitting the replacement text…','next_fit':'↻ Rendering the next fit for review…','recycle_image':'🗑 Recycling the image…',
             'rename_image':'📝 Renaming the image…','s':'⏭ Skipping image; continuing the queue…',
             'd':'⏭ Deferring image; continuing the queue…','c':'Stopping the job…'}.get(kind,'Processing your selection…')
         self.work_status(message);self.set_review(None,[],self.blocked)
@@ -822,6 +829,9 @@ class AlbumArtReview:
             if action=='ignore':self.ignore_substitution();return
             if action in ('rename_image','recycle_image'):self.source_file_action(action);return
             if action=='m':self.emit({'action':'fit_all'});return
+            if action=='next_fit':
+                if self._dirty or self.buttons[action].instate(['disabled']):return
+                self.emit({'action':'next_fit'});return
             if action in ('edit_caption','pronouns'):
                 text=self.proposed_caption.get('1.0','end-1c')
                 if action=='pronouns':

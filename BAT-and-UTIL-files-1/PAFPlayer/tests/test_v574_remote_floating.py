@@ -139,8 +139,7 @@ class WhipGlyphTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from PIL import ImageFont
-        cls.functions = renderer_helpers({'_pillow_char_is_emojiish', '_pillow_font_codepoints',
-            '_pillow_symbol_font', '_pillow_historic_font', '_pillow_font_for_run',
+        cls.functions = renderer_helpers({'_pillow_char_is_emojiish', '_pillow_font_for_run',
             '_pillow_mixed_font_runs', '_pillow_render_runs'})
         fonts = Path(os.environ.get('WINDIR', r'C:\Windows')) / 'Fonts'
         if not (fonts / 'seguihis.ttf').is_file(): raise unittest.SkipTest('Segoe UI Historic not installed')
@@ -158,7 +157,7 @@ class WhipGlyphTests(unittest.TestCase):
             if any(ch in '𓀓𓀝' for ch in run):
                 seen.extend(ch for ch in run if ch in '𓀓𓀝')
                 self.assertEqual(Path(font.path).name.casefold(), 'seguihis.ttf')
-                coverage = self.functions['_pillow_font_codepoints'](str(font.path))
+                coverage = app._paf_pillow_font_codepoints(str(font.path))
                 self.assertTrue(all(ord(ch) in coverage for ch in run))
                 self.assertNotEqual(bytes(font.getmask(run)), bytes(self.primary.getmask(run)))
         self.assertEqual(seen, list('𓀓𓀝'))

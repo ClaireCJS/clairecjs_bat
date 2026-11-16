@@ -1,5 +1,35 @@
 # Floating Lyrics positioning
 
+## V707 programmatic centering and focus
+
+The web buttons that center Floating Lyrics on a monitor or over the console
+visualizer reposition the transparent runtime window without opening its opaque
+edit border, forcing keyboard focus, or generating a fake mouse click. A brief
+focus-event suppression interval absorbs delayed Windows activation messages,
+so the window does not alternate indefinitely between clicked and unfocused
+rendering. Clicking an actual lyric glyph still enters normal edit mode.
+
+## V641 Emojimaxx solution color consistency
+
+Floating Lyrics uses its selected **Solution color** for both the small answer
+and its hover tooltip. With **Inherit lyric colors**, it samples the first
+solid pixel of the source lyric glyph, avoiding the black readability shadow,
+and refreshes the answer color during lyric color animation. Web Karaoke uses
+the same fixed-versus-inherited rule for its answer tooltip and small answer.
+The Web Karaoke and Floating Lyrics color settings remain independent, so set
+both controls to the same choice when you want the same treatment on both
+surfaces. The lyric coloring modes themselves can still differ.
+
+## V640 Japanese and other missing lyric glyphs
+
+Floating Lyrics now checks whether its drawing font contains each lyric
+character. For Japanese text absent from Segoe UI, it uses an installed Noto,
+Meiryo, Yu Gothic, or MS Gothic font that contains the character. This also
+handles Windows TrueType font collections (`.ttc`). The console karaoke can
+use Windows font fallback already; this change adds comparable fallback to
+the bitmap used by the floating window. Font availability still depends on
+the Windows installation.
+
 ## V605 whole-window opacity
 
 Web Configuration → Floating Lyrics now has a **Floating lyrics opacity** slider

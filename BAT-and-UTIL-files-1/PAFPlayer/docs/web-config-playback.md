@@ -1,5 +1,44 @@
 # Web configuration notes
 
+## V634 SIXEL and error-sound safeguards
+
+The experimental **SIXEL visualizer** checkbox asks for confirmation twice
+when enabled from the web configuration. Cancelling either prompt leaves the
+checkbox off and sends no toggle action. Disabling it remains immediate. At
+the next player startup, active SIXEL mode prints a console warning and names
+`--no-sixel-visualizer` as a temporary command-line escape.
+
+The **Quiet Wilhelm scream** error-delivery switch keeps the existing saved
+`ErrorSoundEnabled` preference and per-file alert deduplication. Its FFplay
+volume is now 1%, one tenth of the previous 10% playback level. The bundled
+recording itself is unchanged.
+
+## V631 playlist file status
+
+Web and remote queue reads use the most recently completed file-status snapshot.
+One background worker checks whether queue files exist and refreshes missing
+paths from the playlist file. Membership changes schedule a new scan; unchanged
+queues refresh every 10 seconds. The first response after loading a playlist
+can briefly omit missing-file flags while that first scan completes. Queue
+edits use cached missing-file status and do not stat every track while holding
+the playback queue lock. The queue entries and play-next order themselves
+remain live and are not cached by this status worker. A file-status refresh
+does not change the queue-edit revision; changing the queue or current song
+still does.
+
+## V629 error message delivery
+
+**Error delivery** is a web configuration tab with three saved global switches:
+**Popup for playback errors**, **Windows notification**, and **Quiet Wilhelm
+scream**. All three are on by default and work independently of Console Alerts.
+The popup and sound run outside the audio/console loop. The notification goes
+through the verified official tray icon; it needs an enabled tray and Windows
+may hide it during Focus Assist or full-screen use. The error is still logged.
+Each error and file revision produces at most one delivery per player run, so
+revisiting one bad playlist slot does not repeatedly open the same popup.
+Email is not currently available; it would require an explicitly configured
+mail destination and provider credentials.
+
 ## V618 playback device default
 
 In the Playback tab, the **Device:** chooser keeps **Fav** and **Def** beside
@@ -110,5 +149,10 @@ Web Karaoke, Artwork Pop-Up, and Floating Lyrics each display their Emojimaxx co
 ## V494 Web Lyrics solution controls
 
 The Web Karaoke section has its own **Show Emojimaxx solutions** checkbox and sliders for solution size (5–150% of lyric size), signed vertical distance (-50% to +50% of the main lyric font size, default 1%), and opacity (0–100%, default 100%). Positive distance moves the answer farther away on the selected side; negative distance pulls it toward or across the lyric. **Over** moves the answer above its emoji; under is the default. Choose a solution color, or enable **Inherit lyric colors** to hide the picker and follow the token's current lyric color. These settings are saved separately from Floating Lyrics and Artwork Lyrics. The controls appear when Web Emojimaxx is enabled.
+
+In V641, the Web Karaoke hover answer follows that same color choice: the
+selected fixed solution color, or the token's current animated lyric color
+when inheritance is enabled. Floating Lyrics applies the equivalent rule to
+its small answer and tooltip; its separate color control stays independent.
 
 The Artwork EmojiMaxx config shortcut focuses its Artwork solution row.

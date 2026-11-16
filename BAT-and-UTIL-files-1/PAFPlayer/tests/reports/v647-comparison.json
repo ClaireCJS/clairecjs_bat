@@ -1,0 +1,23 @@
+{
+  "version": "V647",
+  "tests": 132,
+  "passed": 125,
+  "failures_unchanged_from_V646": [
+    "test_v180_playback_publishes_emphasis_progress_to_external_lyrics (PAFPlayer.PlayWaveFileTests)",
+    "test_v182_lyric_buttons_have_topmost_context_menus_and_floating_reveal (PAFPlayer.PlayWaveFileTests)",
+    "test_v248_cursive_fix_is_in_web_karaoke_not_experimental_bottom (PAFPlayer.PlayWaveFileTests)",
+    "test_v251_web_karaoke_checkerboard_tooltips_and_help_contract (PAFPlayer.PlayWaveFileTests)",
+    "test_v319_restores_off_but_keeps_two_unclear_emojimax_removals (PAFPlayer.PlayWaveFileTests)",
+    "test_v386_floating_lyrics_web_topmost_control_contract (PAFPlayer.PlayWaveFileTests)",
+    "test_v388_web_lyric_window_controls_are_four_buttons_in_requested_order (PAFPlayer.PlayWaveFileTests)"
+  ],
+  "new_failures": [],
+  "errors": [],
+  "source_sha256": "df8d90d57b353b976df7e7cff4a88b2f256efc4b43b880214120aa442c1aa6a8",
+  "changed_top_level_nodes": [
+    "PLAYER_BUILD_ID = '2026-11-09-v647-status-publication-stalls'",
+    "PROGRAM_VERSION = 'V647'",
+    "PROGRAM_RELEASE_LABEL = 'V647'",
+    "play_audio_file"
+  ]
+}

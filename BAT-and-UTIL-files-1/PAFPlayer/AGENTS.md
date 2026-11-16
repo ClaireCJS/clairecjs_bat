@@ -53,6 +53,10 @@ PAFPlayer version. Update the active `PAFPlayer.py`, add a uniquely named
 notes, then update `docs/PAFPlayer_changelog.md` in newest-first order.
 Update the appropriate full document under `docs/` in the same change.
 `PAFPlayer.md` at the root stays a short description and link to full docs.
+Use `docs/README.md` as the main manual for new feature guidance, including web
+visualizer and Web Karaoke changes. Update an existing topic page when that
+provides better context. Do not create a new standalone documentation page for
+routine feature changes unless the user explicitly asks for one.
 When completing a TODO, document the feature before checking off or removing
 the entry in `docs/PAFPlayer_TODO.md`.
 

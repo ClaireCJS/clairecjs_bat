@@ -1,5 +1,604 @@
 # PAFPlayer changelog
 
+## V726 — November 16, 2026
+
+Allow the lock-screen companion installer and tray-only automatic setup to attempt installation on Windows 11. [Release notes](../releases/PAFPlayer_v726_windows11_lockscreen_release_notes.md).
+
+## V725 — November 15, 2026
+
+Enable tray-only lock-screen status by default, automatically check and install the companion when needed, and open actionable setup guidance for Windows-controlled steps or failures. [Release notes](../releases/PAFPlayer_v725_auto_remote_lockscreen_release_notes.md).
+
+## V724 — November 15, 2026
+
+Add a local, read-only lock-screen bridge and guided installation and setup window to tray-only clients. [Release notes](../releases/PAFPlayer_v724_remote_lockscreen_release_notes.md).
+
+## V723 — November 15, 2026
+
+Fix tray-only Reload to reuse the resolved server address, including launches that discovered a server on the LAN or included startup flags. Startup flags still initialize per-server preferences; reload uses those saved preferences so later tray-menu changes remain effective. [Release notes](../releases/PAFPlayer_v723_tray_only_startup_options_release_notes.md).
+
+## V722 — November 14, 2026
+
+Make the Console Visualizer height slider substantially wider, preserve its
+local value throughout dragging and server acknowledgement, and automatically
+disable **Auto-set to tallest** when a manual height is chosen.
+[Release notes](../releases/PAFPlayer_v722_visualizer_height_slider_release_notes.md).
+
+## V721 — November 14, 2026
+
+Add `--tray-only` startup flags for all tray menu boolean settings, local floating/artwork visibility, sung-lyric tooltip, wallpaper, hotkey capture, full tooltip, both windows’ always-on-top states, and whether presentation follows the server. Add `--art-lyrics` for enabling lyrics over local artwork, with explicit on/off and server-inherit forms. Flags work through detached launch and save per-server local preferences. [Release notes](../releases/PAFPlayer_v721_tray_only_startup_options_release_notes.md).
+
+## V720 — November 14, 2026
+
+Synchronize the standalone player with the ordered AI DJ provider priorities and stage-aware Ollama diagnostics. The diagnostics now explicitly identify a reachable service as running, distinguish an empty API catalog from a stopped service, and show model-store next steps based on manifests on disk. [Release notes](../releases/PAFPlayer_v720_ai_provider_precedence_release_notes.md).
+
+## V719 — November 14, 2026
+
+Replace the AI DJ text-provider selector with ordered priority dropdowns, and make `--ollamainstructions` report process, API, catalog, model-store, and manifest state with stage-specific next steps. [Release notes](../releases/PAFPlayer_v719_ai_provider_precedence_release_notes.md).
+
+## V717 — November 14, 2026
+
+Use the device emoji font for Web Emojimaxx substitutions, preferring Apple Color Emoji on iOS and the PAFPlayer/Segoe UI Emoji fallback on Windows. [Release notes](../releases/PAFPlayer_v717_ios_emoji_presentation_release_notes.md).
+
+## V716 — November 14, 2026
+
+Shorten displayed song-source links by hiding the `http(s)://www.` prefix while preserving the full target. Wrap long links within a bounded column on narrow and portrait layouts, letting status bubbles use the full row below. [Release notes](../releases/PAFPlayer_v716_web_song_url_wrap_release_notes.md).
+
+## V715 — November 14, 2026
+
+Clarify that Ollama can be running and reachable while its API lists zero models; give model-store guidance without incorrectly telling users to start or reinstall it. [Release notes](../releases/PAFPlayer_v715_ollama_diagnostics_release_notes.md).
+
+## V714 — November 14, 2026
+
+Show embedded album art in the playlist tag editor and allow replacing it with a verified audio-file backup. Add `--ai` for read-only AI DJ provider/model diagnostics and a guided model-manager launch. Save the model storage folder in AI DJ settings and use that preference for local voice installs; the current model stores are already on `T:\\models`. [Release notes](../releases/PAFPlayer_v714_ai_repair_artwork_release_notes.md).
+
+## V713 — November 14, 2026
+
+Add an opt-in, session-paired touchpad page for moving the Windows pointer and sending left/right clicks. [Release notes](../releases/PAFPlayer_v713_remote_mouse_release_notes.md).
+
+## V712 — November 14, 2026
+
+Allow Emojimax to create collision-safe transformed copies of UTF-8 and UTF-16 text files while preserving the phrase preview. [Release notes](../releases/PAFPlayer_v712_emojimax_files_release_notes.md).
+
+## V711 — November 14, 2026
+
+Restore the rainbow background behind the web-player song title and apply backdrop transparency to the whole title box. [Release notes](../releases/PAFPlayer_v711_web_title_rainbow_release_notes.md).
+
+## V710 — November 13, 2026
+
+Add manual AI DJ wake/sleep controls in the web interface and the requested
+hash-command aliases. Manual sleep cancels DJ work without changing the saved
+schedule. Fix Web Karaoke auto-expand so hiding configuration lets the lyric
+dock claim the released space after the grid finishes resizing.
+[Release notes](../releases/PAFPlayer_v710_dj_wake_sleep_karaoke_expand_release_notes.md).
+
+## V709 — November 13, 2026
+
+Improve DJ-test colors, model headings, error formatting, and settings detail; add `--ollamainstructions` for model-specific local connection steps. [Release notes](../releases/PAFPlayer_v709_dj_test_display_release_notes.md).
+
+## V708 — November 13, 2026
+
+Rearrange AI DJ configuration into responsive Schedule & cadence, Conversation
+model, and Voices & speech cards. Give the prompt editor a true vertical layout
+with bounded fields and responsive save controls, eliminating page-wide
+horizontal overflow down to a 420 px viewport.
+[Release notes](../releases/PAFPlayer_v708_ai_dj_responsive_layout_release_notes.md).
+
+## V707 — November 13, 2026
+
+Fix floating lyrics strobing between focused edit chrome and transparent
+runtime mode after either web centering command. Programmatic placement now
+moves the transparent window without forcing focus or synthesizing a click.
+[Release notes](../releases/PAFPlayer_v707_floating_center_focus_release_notes.md).
+
+## V706 — November 13, 2026
+
+Explain optional local models and distinguish an empty Ollama catalog from model files that Ollama cannot see. [Release notes](../releases/PAFPlayer_v706_local_model_guidance_release_notes.md).
+
+## V705 — November 13, 2026
+
+Accept `--djtest` as an alias for `--dj-test`. [Release notes](../releases/PAFPlayer_v705_djtest_alias_release_notes.md).
+
+## V704 — November 13, 2026
+
+Make `#?` an alias for `#commands`, so the hash-command list is discoverable with the familiar question-mark shortcut. [Release notes](../releases/PAFPlayer_v704_hash_question_command_list_release_notes.md).
+
+## V703 — November 13, 2026
+
+Add a **Talk Now!** button to the AI DJ web configuration and add named `#` console commands for common playback, volume, navigation, playlist, visualizer, karaoke, warning, URL, help, and quit actions. [Release notes](../releases/PAFPlayer_v703_web_dj_talk_and_hash_commands_release_notes.md).
+
+## V702 — November 13, 2026
+
+Hide the AI DJ **Download / repair free Piper voices** button when an automatic Piper installation or valid configured local voice setup is already available; keep it visible when setup is missing or incomplete. [Release notes](../releases/PAFPlayer_v702_hide_ready_piper_setup_release_notes.md).
+
+## V701 — November 13, 2026
+
+Simplify the web title backdrop, compact the filename/status header, move the web-visualizer switch above Web Karaoke, default the configuration panel closed behind a gear button, reorder and clarify configuration tabs, style Steam controls consistently, and let `--tray-only` discover verified PAFPlayer servers on the LAN through web port 666 plus MonkeyMote port 19371. [Release notes](../releases/PAFPlayer_v701_web_layout_and_lan_tray_release_notes.md).
+
+## V700 — November 13, 2026
+
+Remove the lowercase `w` SIXEL visualizer shortcut so `Shift+W` is the dedicated warning-history shortcut; the SIXEL visualizer remains available through its other controls. [Release notes](../releases/PAFPlayer_v700_w_warning_history_release_notes.md).
+
+## V699 — November 13, 2026
+
+Keep ordinary HUD notices visible twice as long, keep HUD warnings through the current song, repeat still-active warning conditions every tenth track, and add a Shift+W screen for currently applicable and unresolved warnings. [Release notes](../releases/PAFPlayer_v699_hud_warning_history_release_notes.md).
+
+## V698 — November 13, 2026
+
+Add a read-only `--dj-test` comparison using random playlist visits, the live DJ prompt, available free hosted models, and installed Ollama models. [Release notes](../releases/PAFPlayer_v698_dj_test_release_notes.md).
+
+## V696 — November 13, 2026
+
+Fix Shift-click and Ctrl-click playlist selection, preserve selections through refreshes, and support dragging selected groups. [Release notes](../releases/PAFPlayer_v696_playlist_selection_release_notes.md).
+
+## V695 — November 13, 2026
+
+Supply the selected next playlist track to the DJs, discard stale introductions, and ask for music criticism instead of lyric recitation. [Release notes](../releases/PAFPlayer_v695_dj_next_track_release_notes.md).
+
+## V694 — November 13, 2026
+
+Refresh DJ warnings off the track-start path to avoid waiting on DJ work and disk reads. [Release notes](../releases/PAFPlayer_v694_nonblocking_dj_warnings_release_notes.md).
+
+## V693 — November 13, 2026
+
+Align the playlist, web server, and MonkeyMote startup status lines using terminal-cell widths. [Release notes](../releases/PAFPlayer_v693_startup_alignment_release_notes.md).
+
+## V692 — November 13, 2026
+
+Support moving an already relocated unified model store and report byte progress. [Release notes](../releases/PAFPlayer_v692_repeatable_model_moves_release_notes.md).
+
+## V691 — November 13, 2026
+
+Verify each model-store junction targets the copied directory before declaring success. [Release notes](../releases/PAFPlayer_v691_junction_verification_release_notes.md).
+
+## V690 — November 13, 2026
+
+Add verified model-store relocation and a destination control in the model window. [Release notes](../releases/PAFPlayer_v690_model_storage_release_notes.md).
+
+## V689 — November 13, 2026
+
+Add configurable playlist columns and a single-selection tag editor with verified backups. [Release notes](../releases/PAFPlayer_v689_playlist_columns_release_notes.md).
+
+## V688 — November 12, 2026
+
+Restore karaoke after DJ playback, autosave DJ settings, add DJ-only profiles, and zoom the playlist font with Ctrl+wheel. [Release notes](../releases/PAFPlayer_v688_dj_profiles_release_notes.md).
+
+## V687 — November 12, 2026
+
+Detach Piper synthesis, add an AI-off switch, fix DJ visualization and paused artwork, improve playlist handoff and Ctrl+O, and narrow and reorder the DJ settings. [Release notes](../releases/PAFPlayer_v687_dj_window_safety_release_notes.md).
+
+## V686 — November 12, 2026
+
+Align playlist rows, support drag reordering and J jump search, and display background-loaded artist/title tags. [Release notes](../releases/PAFPlayer_v686_playlist_editor_release_notes.md).
+
+## V685 — November 12, 2026
+
+Bind playlist-window status to its own Tk interpreter and log window lifecycle, close reasons, and callback failures to aid diagnosis of unexpected closures. [Release notes](../releases/PAFPlayer_v685_playlist_lifetime_release_notes.md).
+
+## V684 — November 12, 2026
+
+Add a compact Alt+P playlist window with live playlist and playing-track updates, keyboard and mouse playback, file and folder additions, Explorer drop support, and saved or session-only removals. [Release notes](../releases/PAFPlayer_v684_playlist_view_release_notes.md).
+
+## V683 — November 12, 2026
+
+Fit the model window to display scaling, show clean local-model download progress, and return the launcher to the console while streaming status. [Release notes](../releases/PAFPlayer_v683_model_ui_release_notes.md).
+
+## V682 — November 12, 2026
+
+Limit the Speed bump — beat arc to a configurable pixel width rather than the
+entire idle wander area. Add a persistent Idle Behavior numeric spinner with a
+100 px default and a 10–1000 px range; the final path remains monitor-clamped.
+[Release notes](../releases/PAFPlayer_v682_idle_beat_arc_width_release_notes.md).
+
+## V681 — November 12, 2026
+
+Add free GPT-OSS fallback and DJ text-model comparisons with an optional local Ollama download. [Release notes](../releases/PAFPlayer_v681_text_models_release_notes.md).
+
+## V680 — November 12, 2026
+
+Split the official tray's right-click exit into **Close PAFPlayer tray (only)**, which leaves playback running, and **Shut PAFPlayer down completely**, which retains full-process shutdown. [Release notes](../releases/PAFPlayer_v680_tray_close_only_release_notes.md).
+
+## V678 — November 12, 2026
+
+Display a stitched collage of discussed song artwork in the external artwork window during DJ commentary. [Release notes](../releases/PAFPlayer_v678_dj_collage_release_notes.md).
+
+## V677 — November 12, 2026
+
+Route DJ speech text to karaoke, analyze its spectrum, add DJ transport controls and recurring active-warning reminders, and restore the editor handoff. [Release notes](../releases/PAFPlayer_v677_dj_transport_release_notes.md).
+
+## V676 — November 12, 2026
+
+Show model comparison progress and playable samples, provide lyrics to the DJ, remove delayed synthetic window input, and add a WAV Explorer action. [Release notes](../releases/PAFPlayer_v676_dj_model_ui_release_notes.md).
+
+## V675 — November 12, 2026
+
+Stream model installer output and show current-step and overall progress in the model window. [Release notes](../releases/PAFPlayer_v675_model_progress_release_notes.md).
+
+## V674 — November 12, 2026
+
+Keep voice model download and comparison buttons visible above the model list and output. [Release notes](../releases/PAFPlayer_v674_model_buttons_release_notes.md).
+
+## V673 — November 12, 2026
+
+Add an independent local voice model download and comparison window, with a skippable first-install option and four command-line aliases. [Release notes](../releases/PAFPlayer_v673_voice_models_release_notes.md).
+
+## V672 — November 12, 2026
+
+Prepare free Piper voices on AI DJ startup, show discovered paths and setup progress, and recover from missing custom paths. [Release notes](../releases/PAFPlayer_v672_piper_startup_release_notes.md).
+
+## V671 — November 12, 2026
+
+Give the DJ newly played tracks and recent conversation context to reduce repetitive scripts; reject near-identical responses. [Release notes](../releases/PAFPlayer_v671_dj_variety_release_notes.md).
+
+## V670 — November 12, 2026
+
+Hold Shift to keep # entry open; move AI DJ to its own tab with editable, restorable, saved, political and randomized conversation prompts; prevent numbered self-introductions. [Release notes](../releases/PAFPlayer_v670_dj_prompts_release_notes.md).
+
+## V669 — November 12, 2026
+
+Show an editable `#` extended-command prompt in the console while playing or paused. [Release notes](../releases/PAFPlayer_v669_hash_prompt_release_notes.md).
+
+## V668 — November 12, 2026
+
+Skip missing playlist entries without interrupting playback and show encountered missing files in the web configuration Errors tab. [Release notes](../releases/PAFPlayer_v668_playlist_errors_release_notes.md).
+
+## V667 — November 12, 2026
+
+Append generated DJ conversation and recent tracks to a readable local DJ log, with write failures surfaced in Help and Warnings. [Release notes](../releases/PAFPlayer_v667_dj_conversation_log_release_notes.md).
+
+## V666 — November 12, 2026
+
+Allow `#djforce` through scheduled and lock-screen sleep, including generation and playback; default to one woman and one man. [Release notes](../releases/PAFPlayer_v666_dj_force_release_notes.md).
+
+## V665 — November 12, 2026
+
+Add scheduled DJ sleep and sunrise/fixed-hour wake with configurable ZIP, plus a shared DJ/lock-screen sleep-on-lock checkbox. [Release notes](../releases/PAFPlayer_v665_dj_sleep_release_notes.md).
+
+## V664 — November 12, 2026
+
+Use the native Gemini API and current free-tier model, including Google authorization keys; verify real free OpenRouter and Gemini dialogue. [Release notes](../releases/PAFPlayer_v664_gemini_native_release_notes.md).
+
+## V663 — November 12, 2026
+
+Defer automatically prepared DJ segments until the next track boundary, while preserving the explicit immediate `#djforce` command. [Release notes](../releases/PAFPlayer_v663_dj_between_tracks_release_notes.md).
+
+## V662 — November 11, 2026
+
+Add free OpenRouter and explicitly confirmed Gemini fallback, preserve Ollama/Piper, and show persistent evidence-based OpenAI credit warnings in Help and the bottom Warnings web tab. [Release notes](../releases/PAFPlayer_v662_free_dj_providers_release_notes.md).
+
+## V661 — November 11, 2026
+
+Load the DJ OpenAI key from Claire’s private environment file when present, falling back to the process environment, without putting keys in settings or logs. [Release notes](../releases/PAFPlayer_v661_dj_private_key_release_notes.md).
+
+## V660 — November 11, 2026
+
+Log private, metadata-free DJ scheduling, provider, and playback events; show automatic progress and qualifying-track counts; defer automatic playback until modal Help closes. [Release notes](../releases/PAFPlayer_v660_dj_diagnostics_release_notes.md).
+
+## V659 — November 11, 2026
+
+Automatically install and verify private Piper speech and a default voice when local DJ speech is needed. Existing configured paths are retained; setup runs in the background and keeps incomplete attempts. [Release notes](../releases/PAFPlayer_v659_piper_auto_setup_release_notes.md).
+
+## V658 — November 11, 2026
+
+Show AI DJ generation status and dialogue in Help as soon as text is ready, even if speech fails; refresh during playback and pause, and preserve the last dialogue on failure. Restore the editable DJ implementation and bundle parity. [Release notes](../releases/PAFPlayer_v658_dj_help_commentary_release_notes.md).
+
+## V657 — November 11, 2026
+
+Add opt-in AI Podcaster / DJ mode with nonblocking preparation, `#dj` and
+`#djforce`, Experimental settings, transport-aware interruption, OpenAI and
+Ollama text, and OpenAI Realtime / local Piper speech paths. Provider access
+and actual Piper synthesis remain unverified live on this machine.
+[Release notes](../releases/PAFPlayer_v657_experimental_ai_dj_release_notes.md).
+
+## V656 — November 11, 2026
+
+Add nonblocking, editable, timeout-based console command entry during playback
+and pause. This is a foundation only: AI DJ commands and commentary are not yet
+implemented. [Release notes](../releases/PAFPlayer_v656_hash_command_foundation_release_notes.md).
+
+## V655 — November 11, 2026
+
+Move every idle-artwork option into a dedicated **Idle Behavior** web tab in
+document/settings order. Add persistent return-to-origin and five wander-pattern
+choices, including a beat-paced speed-bump arc. Replace 140 ms integer stepping
+with monitor-bounded, time-based ~30 FPS motion shared by the main and related-art
+windows; edge targets now reverse or choose a meaningful destination instead of
+stalling. Three focused motion tests plus syntax and source verification pass.
+[Release notes](../releases/PAFPlayer_v655_idle_behavior_motion_release_notes.md).
+
+## V654 — November 11, 2026
+
+Reuse the existing native artwork encoder for full-frame row formatting with
+byte-exact output and a Python fallback. The isolated 200-frame benchmark drops
+from 5.50 to 0.66 ms per frame for this step. Eight new tests pass; the 115- and
+188-test selections retain only baseline failures. Live verification after
+restart confirmed all displays active, zero audio underruns and no popup backlog.
+An occasional diagnostic delay still coincided with full GC; visible smoothness
+and multi-hour stability remain unconfirmed.
+[Release notes](../releases/PAFPlayer_v654_native_full_frame_formatting_release_notes.md).
+
+## V653 — November 11, 2026
+
+Add an experimental, persistent **Dance to music** checkbox beside the idle
+artwork timeout and range controls. Main and related-art windows now optionally
+consume the existing timestamped progress-color beat pulse: silence pauses
+motion and stronger beats increase the bounded movement step. No duplicate
+audio analysis is added, stale pulses stop motion, and monitor/range guards are
+unchanged. Four focused V653 tests and the six V651/V86 idle-art regression
+tests pass, plus syntax and release verification.
+[Release notes](../releases/PAFPlayer_v653_idle_art_music_dance_release_notes.md).
+
+## V652 — November 11, 2026
+
+Fix steadily retained ctypes pointer/signature definitions in external-audio,
+Steam and diagnostic polling; avoid disposable COM pointer cycles and reuse
+cursor/idle-input types. The isolated repeated-poll workload went from roughly
+129,000 extra retained objects to two, without changing GC policy or rendering.
+Nine new tests pass; 107-test and 188-test selections match the old failures in
+their V651 baselines. The changes are preserved in the newer V653 working file.
+Live smoothness and a multi-hour playback soak remain pending restart.
+[Release notes](../releases/PAFPlayer_v652_native_poll_retention_release_notes.md).
+
+## V651 — November 11, 2026
+
+Add persistent Experimental controls for the idle artwork dance timeout and
+monitor-relative movement range, including immediate live-window updates and
+monitor-safe gallery footprints. Record deduplicated Wilhelm-class playback
+failures in a bounded session-only ledger; the web player now shows a caution
+badge that opens a newest-first, auto-refreshing error tab. Four focused V651
+tests plus the two existing idle-art tests pass, with source/bundle and syntax
+verification.
+[Release notes](../releases/PAFPlayer_v651_idle_dance_session_errors_release_notes.md).
+
+## V650 — November 10, 2026
+
+Reduce the large artwork rebuild when the three-line karaoke area appears or
+disappears. Reuse one bounded cover source across heights and batch fixed-DRCS
+cell conversion without changing pixels, glyphs or layout. Cold conversion is
+about 6–7 times faster after NumPy setup in the synthetic benchmark. Ten new
+tests pass; 188 existing tests match V649's 11 failures and one error. The
+combined suite's order-sensitive silent-playback timeout is documented. After
+restart, two 45-second live traces (889 snapshots) no longer caught the prolonged
+artwork rebuild; they reported 48.4–54.43 FPS toward 60 FPS. User confirmation of
+visible smoothness remains pending.
+[Release notes](../releases/PAFPlayer_v650_karaoke_resize_release_notes.md).
+
+## V649 — November 9, 2026
+
+Fix two blocking paths found in live V648 stacks: event/HUD publication no longer
+waits for the library scan's filesystem lock, and empty input polls no longer
+reload bass settings for undo every frame. Preserve event ordering, bounded log
+history, individual setting undo, and all render treatments. 155/162 relevant
+checks pass with the same seven historical failures and no errors; compilation,
+27-module parity and eight web-script syntax checks pass. Live V649 sampling no
+longer catches either targeted path; terminal output still consumes substantial
+time. Overall freeze resolution remains subject to sustained playback feedback.
+[Release notes](../releases/PAFPlayer_v649_render_blocking_release_notes.md).
+
+## V648 — November 9, 2026
+
+Add bounded, on-demand, local-only thread locations to runtime diagnostics after
+external profiling failed. No local variables, source contents, frame retention,
+background sampler, or render-loop work. Preserve the V647 status fix. Remaining
+visualizer freezes are still under investigation. 131/138 relevant checks pass;
+the same seven historical failures remain, with no errors, plus compilation,
+27-module parity, and eight web-script syntax checks.
+[Release notes](../releases/PAFPlayer_v648_local_stack_diagnostics_release_notes.md).
+
+## V647 — November 9, 2026
+
+Use the live title style/content in periodic web status instead of loading all
+111 saved settings twice on the visualizer thread. Live V646 timings identified
+133–237 ms status preparation; a contention fixture reproduces the registry/GIL
+delay and confirms zero bulk reads after the change. No other playback or
+rendering behavior changes. 125/132 relevant tests pass, with the same seven
+historical failures as V646, plus compilation, 27-module parity, and eight web
+script checks. Live V647 confirms a much smaller status cost, but overall
+console freezes remain unresolved; interactive stack capture is the next check.
+[Release notes](../releases/PAFPlayer_v647_status_publication_stalls_release_notes.md).
+
+## V646 — November 9, 2026
+
+Replace the per-pixel Python search for inherited Emojimaxx answer colors with
+native Pillow mask operations, preserving exact color selection. The large
+empty-mask fixture falls from 332 ms to 0.269 ms. Cancel old artwork animation
+timers at new cues and remove the immediate redundant repaint; cue delivery and
+normal animation cadence remain intact. 122/129 relevant tests pass; all seven
+failures also occur on V645. No new failures, 27-module parity, compilation, and
+eight JavaScript syntax checks pass. Live all-display FPS remains unverified.
+[Release notes](../releases/PAFPlayer_v646_karaoke_render_load_release_notes.md).
+
+## V645 — November 6, 2026
+
+Show directional resize cursors over focused artwork borders and add a
+focus-only maximize/restore button overlaying the title. Maximize uses the
+current monitor's work area; Restore keeps the original normal rectangle,
+clamping it only if monitor layout changed. Preserve normal saved placement
+and the stable borderless HWND. Focus changes cause no header/artwork reflow.
+All 44 focused/related tests pass, including real Windows maximize/restore,
+27-module bundle parity, compilation, and eight web-script syntax checks.
+Interactive focus visibility checks pass; screenshot capture timed out.
+[Release notes](../releases/PAFPlayer_v645_artwork_window_controls_release_notes.md).
+
+## V644 — November 5, 2026
+
+Remove the “bigger” → 🦣 Emojimaxx mapping and mark that word explicitly removed
+so candidate synchronization cannot restore it. Capitalization and punctuation
+remain text in console, web, and popup lyrics. The separate “biggest” mapping
+is unchanged. Six literal cases pass across all three rendering paths; four
+existing curation tests, Python compilation, and all 27 module/source parity
+checks pass. [Release notes](../releases/PAFPlayer_v644_emojimax_bigger_text_release_notes.md).
+
+## V643 — November 5, 2026
+
+Expand artwork karaoke to the largest size that fits its canvas, replacing the
+8.5%-of-window/260-point ceiling in both native and Pillow rendering. Account
+for shadows during wrapping and reserve space for enabled emoji answers.
+Preserve manual zoom below full fit, old setting IDs, efficient binary search,
+and V642's header/borders. All 36 focused/related tests pass, including actual
+Tk canvas bounds and Pillow masks through 4K. Compilation, 27-module source
+parity, and all eight web script syntax checks pass.
+[Release notes](../releases/PAFPlayer_v643_artwork_karaoke_fit_release_notes.md).
+
+## V642 — November 4, 2026
+
+Replace the artwork popup's two-row control area with one large song title and
+one web button linking directly to Artwork configuration. Handle URL anchors
+inside the web configuration scroller. Remove the native caption and frame that
+overlapped the title and remained visible when unfocused. Keep the header visible
+on focus loss while making only the border transparent. Preserve title dragging,
+focused-edge resizing, window options, lyric zoom shortcuts and saved settings.
+All 25 focused/related tests pass, as do 27-module bundle parity and web syntax
+checks. Interactive focus transitions pass native geometry/style checks; desktop
+screenshot capture timed out. [Release notes](../releases/PAFPlayer_v642_artwork_popup_chrome_release_notes.md).
+
+## V641 — November 2, 2026
+
+Corrected Emojimaxx solution coloring across Web Karaoke and Floating Lyrics.
+Fixed-color answers and hover tooltips now use the chosen solution color.
+When **Inherit lyric colors** is enabled, the floating answer samples the
+first solid lyric glyph instead of a shadow or outline and refreshes as the
+lyric color animates. Web hover answers now follow the same fixed/inherited
+choice. Each surface retains its independently saved appearance settings.
+Focused color and related renderer tests cover the behavior. [Release
+notes](../releases/PAFPlayer_v641_emojimax_solution_color_parity_release_notes.md).
+
+## V640 — November 2, 2026
+
+The RAM-backed loopback input now asks FFmpeg to reconnect when a paced HTTP
+read is interrupted. The loopback server's Range support resumes the stream
+at the requested byte offset. V639's bounded early-end recovery remains in
+place if a decoder still stops before the track ends. Floating Lyrics now
+selects an installed Japanese-capable font for characters missing from Segoe
+UI; TrueType collection coverage is checked correctly as well. A focused
+regression covers the reported Japanese text and both audio command paths,
+and the reported MP3 is checked in an isolated muted worker. [Release
+notes](../releases/PAFPlayer_v640_loopback_reconnect_unicode_lyrics_release_notes.md).
+
+## V639 — November 2, 2026
+
+Fixed premature playlist advances after a RAM-backed decoder returned a clean
+exit before the track's known end. The player now compares the consumed audio
+clock with the expected end, resumes the remaining portion, and uses the source
+file for recovery when available. Retries are bounded; an unresolved early end
+raises a runtime warning and is not classified as a full play. A muted,
+isolated regression with the reported Red Hot Chili Peppers MP3 checks playback
+through the end without contacting the official player. [Release
+notes](../releases/PAFPlayer_v639_premature_audio_eof_recovery_release_notes.md).
+
+## V638 — November 2, 2026
+
+Added a **Maximum console visualizer FPS** number field to the Console
+Visualizer web configuration. It accepts whole numbers from 1 to 120, saves
+through the existing `ConsoleVisualizerMaxFps` global setting, and defaults to
+60 FPS when unset. Changes cap the running console frame scheduler immediately;
+the adaptive governor and Steam load reduction can still paint more slowly.
+The browser visualizer and audio timing are unchanged. Focused tests cover
+default and saved values, validation, and frame-ceiling precedence. [Release
+notes](../releases/PAFPlayer_v638_console_visualizer_fps_cap_release_notes.md).
+
+## V637 — November 2, 2026
+
+Corrected Web Karaoke's **Auto-Expand Lyric Size** at large panel sizes. V636
+measured the lyric element's line boxes, but some oversized glyphs extend above
+or below those boxes. The fitter now also checks the rendered characters against
+the actual lyric panel edges. A real Edge regression covers the wide browser
+layout and Portuguese lyric text shown in the reported overflow. The manual
+panel-height handle now takes precedence over an earlier, larger reservation,
+so dragging the configuration panel changes the lyric size in both directions.
+Web progress seeks move the local progress display immediately and reconcile
+with confirmed playback. Console/taskbar lyric titles expire after the existing
+15-second cue maximum during long instrumental gaps. The inter-track timing
+control accepts -5 to +5 seconds in a text box next to its slider, while
+retaining the millisecond setting internally. Configuration tabs now follow the
+actual order of their page sections. [Release
+notes](../releases/PAFPlayer_v637_web_karaoke_ink_bounds_release_notes.md).
+
+## V636 — November 1, 2026
+
+Fixed Web Karaoke **Auto-Expand Lyric Size** so each cue grows or shrinks to the
+largest font that fits the assigned lyric panel. The width check previously
+added a margin to an element width that already included the full panel, so it
+rejected even short lyrics and left them at the ordinary size. Long words now
+wrap within the panel. A real Edge layout test checks small and tall panels,
+short and long cues, and verifies that a 5% larger font no longer fits. [Release
+notes](../releases/PAFPlayer_v636_web_karaoke_panel_fit_release_notes.md).
+
+## V635 — November 1, 2026
+
+Moved the playlist resume checkpoint out of the high-rate console visualizer
+callback. A single background worker coalesces positions when a Registry write
+is slow, and the player waits for outstanding writes before advancing the
+playlist bookmark to another track. This removes a synchronous two-Registry-
+write operation that previously ran on a visualizer frame every two seconds.
+The existing five-second visualizer performance counters remain available for
+diagnosing terminal throughput separately. [Release
+notes](../releases/PAFPlayer_v635_async_resume_checkpoints_release_notes.md).
+
+## V634 — November 1, 2026
+
+Require two web confirmations to enable the experimental SIXEL visualizer;
+cancelling either prompt leaves it off. Warn once when a playback instance
+starts with SIXEL active, including saved or command-line activation. Reduce
+the optional Wilhelm error sound from FFplay volume 10% to 1%, preserving its
+saved preference and per-file deduplication. The live V633 Windows Terminal
+test confirmed that bounded SIXEL output keeps HUD frames in place. [Release
+notes](../releases/PAFPlayer_v634_sixel_confirmation_quiet_error_sound_release_notes.md).
+
+## V633 — November 1, 2026
+
+Corrected Chafa SIXEL sizing: `--view-size` uses terminal cells, and PAFPlayer
+now checks the emitted raster against the reserved pixel area before painting.
+It discards Chafa's trailing CR/LF, which could advance the console viewport
+and leave repeated HUD frames in scrollback. The static cover layer also uses
+a valid Chafa color count. Both `resume` and `--resume` now accept additional
+options such as `--theory=7`. Focused renderer and CLI tests pass; the live
+Windows Terminal reproduction still needs confirmation. [Release notes](../releases/PAFPlayer_v633_bounded_sixel_viewport_release_notes.md).
+
+## V632 — November 1, 2026
+
+The console spectrum now reserves two terminal rows below its paint area. Full
+frames always re-home with an absolute viewport row, including diagnostic modes
+that formerly moved upward from the assumed previous cursor position. This
+addresses visualizer frames accumulating in scrollback when a bottom-edge paint
+or interleaved HUD/prompt write moves the cursor. The spectrum can be up to two
+rows shorter. [Release notes](../releases/PAFPlayer_v632_visualizer_viewport_guard_release_notes.md).
+
+## V631 — October 30, 2026
+
+Web and remote queue status now refresh file availability on one background
+worker. Frequent polls avoid per-track filesystem checks, and queue edits no
+longer stat every entry while holding the playback lock. The embedded test
+suite now runs all tests with 57 audited V630 baseline failures visibly marked
+as expected; raw mode retains the unmarked failures for investigation.
+[Release notes](../releases/PAFPlayer_v631_queue_status_test_triage_release_notes.md).
+
+## V630 — October 29, 2026
+
+Playlist randomization now checks command admission before changing the live
+shuffle state. The background history worker preserves an already randomized
+session order when the playlist slots still match, including duplicate entries.
+Playlist handoff also retains repeated file entries instead of collapsing them.
+An official-instance handoff checks that randomization is available before
+loading a new playlist; if randomization fails after the load, the caller gets
+an explicit partial-success warning instead of an error that suggests nothing
+was loaded. Error alerts rearm after a track becomes healthy and later fails
+again. Delivery failures no longer interrupt recovery. The single-file
+Windows media bundle now matches its editable source, including the existing
+owner check and Chrome card reassertion logic. [Release notes](../releases/PAFPlayer_v630_randomize_reliability_release_notes.md).
+
+## V629 — October 29, 2026
+
+An empty, missing, or unreadable playlist entry now raises a visible warning and
+moves to the next playable entry instead of ending playback on the empty-file
+exception. If no playable entry remains, the session stops cleanly. The new
+**Error delivery** web tab controls a nonblocking Windows popup, a notification
+through the official tray icon, and a bundled Wilhelm scream through FFplay at
+10% volume. Duplicate alerts for the same error and unchanged file are
+suppressed within a run. `randomize` or `--randomize` now randomizes the
+running official playlist, while `playlist.m3u --randomize` loads and
+randomizes that playlist for this run. `--resume` aliases `resume`.
+[Release notes](../releases/PAFPlayer_v629_playback_error_delivery_release_notes.md).
+
 ## V628 — October 27, 2026
 
 The queueing guide now shows when an argument becomes a regular expression and

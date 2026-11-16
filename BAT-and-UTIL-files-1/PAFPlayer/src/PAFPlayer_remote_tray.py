@@ -4,7 +4,9 @@ from __future__ import annotations
 import base64
 import ctypes
 from ctypes import wintypes
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
+import ipaddress
 import io
 import json
 import os
@@ -12,6 +14,7 @@ from pathlib import Path
 import queue
 import re
 import subprocess
+import socket
 import sys
 import threading
 import time
@@ -20,6 +23,10 @@ from urllib.parse import urlencode, urlsplit
 from urllib.error import HTTPError
 from urllib.request import Request, build_opener, ProxyHandler
 import webbrowser
+
+
+DEFAULT_WEB_PORT = 666
+DEFAULT_MONKEYMOTE_PORT = 19371
 
 
 class RemoteTrayAppSettings:
@@ -200,6 +207,88 @@ def server_address(value):
 
 def last_server_path():
     return Path(os.environ.get('APPDATA') or os.environ.get('LOCALAPPDATA') or Path.home()) / 'PAFPlayer' / 'RemoteTray' / 'last-server.json'
+
+
+def local_lan_hosts():
+    """Return bounded /24 IPv4 candidates for the local private networks."""
+    local = set()
+    try:
+        for _family, _kind, _proto, _canon, sockaddr in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+            address = ipaddress.ip_address(sockaddr[0])
+            if address.is_private and not address.is_loopback:
+                local.add(address)
+    except OSError:
+        pass
+    hosts = set()
+    for address in local:
+        network = ipaddress.ip_network(f'{address}/24', strict=False)
+        hosts.update(str(candidate) for candidate in network.hosts())
+    return tuple(sorted(hosts, key=lambda value: tuple(int(part) for part in value.split('.'))))
+
+
+def _tcp_port_open(host, port, timeout=0.18):
+    try:
+        with socket.create_connection((host, int(port)), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
+def discover_lan_servers(*, web_port=DEFAULT_WEB_PORT, monkeymote_port=DEFAULT_MONKEYMOTE_PORT):
+    """Find verified PAFPlayer web servers while probing both known ports."""
+    def probe(host):
+        web_open = _tcp_port_open(host, web_port)
+        monkeymote_open = _tcp_port_open(host, monkeymote_port)
+        if not web_open and not monkeymote_open:
+            return None
+        if not web_open:
+            return {'host': host, 'web_port': int(web_port), 'monkeymote': monkeymote_open, 'verified': False}
+        try:
+            server = RemoteServer(f'{host}:{int(web_port)}')
+            greeting = server.hello(include_timeline=False)
+            return {'host': host, 'web_port': int(web_port), 'monkeymote': monkeymote_open,
+                    'verified': True, 'version': str(greeting.get('version', ''))}
+        except (OSError, ValueError, KeyError, HTTPError):
+            return {'host': host, 'web_port': int(web_port), 'monkeymote': monkeymote_open, 'verified': False}
+
+    hosts = local_lan_hosts()
+    results = []
+    with ThreadPoolExecutor(max_workers=min(64, max(1, len(hosts)))) as pool:
+        futures = [pool.submit(probe, host) for host in hosts]
+        for future in as_completed(futures):
+            result = future.result()
+            if result is not None:
+                results.append(result)
+    return sorted(results, key=lambda value: tuple(int(part) for part in value['host'].split('.')))
+
+
+def choose_lan_server(*, input_fn=input, output_fn=print):
+    """Prompt for a verified LAN player after checking web and MonkeyMote ports."""
+    candidates = discover_lan_servers()
+    usable = [item for item in candidates if item['verified']]
+    if not usable:
+        output_fn('PAFPlayer: no verified PAFPlayer web server found on the local LAN.')
+        if any(not item['verified'] for item in candidates):
+            output_fn('A MonkeyMote or other service answered, but no usable PAFPlayer web interface was verified.')
+        return None
+    output_fn('PAFPlayer LAN players (web port 666; MonkeyMote port 19371 also probed):')
+    for index, item in enumerate(usable, 1):
+        mobile = 'MonkeyMote open' if item['monkeymote'] else 'MonkeyMote closed'
+        output_fn(f'  {index}. {item["host"]}:{item["web_port"]} · {item["version"] or "PAFPlayer"} · {mobile}')
+    while True:
+        try:
+            choice = input_fn('Choose a player number, R to rescan, or Q to cancel: ').strip().casefold()
+        except (EOFError, KeyboardInterrupt):
+            output_fn('PAFPlayer: LAN search cancelled.')
+            return None
+        if choice in {'q', 'quit', 'cancel', ''}:
+            return None
+        if choice == 'r':
+            return choose_lan_server(input_fn=input_fn, output_fn=output_fn)
+        if choice.isdecimal() and 1 <= int(choice) <= len(usable):
+            item = usable[int(choice) - 1]
+            return f'{item["host"]}:{item["web_port"]}'
+        output_fn('Enter one of the listed numbers, R, or Q.')
 
 
 def parse_enqueue_arguments(arguments):
@@ -835,7 +924,31 @@ def run_remote_save_dialog(server, settings, stop_event):
         root.destroy()
 
 
-def launch_background_tray(address):
+_TRAY_STARTUP_FLAGS = {
+    '--floating-lyrics': ('machine', 'remote_floating_lyrics', True),
+    '--no-floating-lyrics': ('machine', 'remote_floating_lyrics', False),
+    '--album-art': ('machine', 'remote_album_art', True),
+    '--no-album-art': ('machine', 'remote_album_art', False),
+    '--show-lyrics-tooltip': ('machine', 'lyrics_tooltip', True),
+    '--no-show-lyrics-tooltip': ('machine', 'lyrics_tooltip', False),
+    '--album-wallpaper': ('machine', 'album_wallpaper', True),
+    '--no-album-wallpaper': ('machine', 'album_wallpaper', False),
+    '--capture-hotkeys': ('machine', 'remote_hotkeys', True),
+    '--no-capture-hotkeys': ('machine', 'remote_hotkeys', False),
+    '--full-info-tooltip': ('full_info', None, True),
+    '--no-full-info-tooltip': ('full_info', None, False),
+    '--follow-server-appearance': ('inherit', None, True),
+    '--local-appearance': ('inherit', None, False),
+    '--always-on-top': ('topmost', 'both', True),
+    '--no-always-on-top': ('topmost', 'both', False),
+    '--floating-lyrics-always-on-top': ('topmost', 'floating', True),
+    '--no-floating-lyrics-always-on-top': ('topmost', 'floating', False),
+    '--album-art-always-on-top': ('topmost', 'artwork', True),
+    '--no-album-art-always-on-top': ('topmost', 'artwork', False),
+}
+
+
+def launch_background_tray(address, startup_flags=()):
     from PAFPlayer_workflows import unique
     app = sys.modules.get('PAFPlayer') or sys.modules['__main__']
     app_file = str(Path(app.__file__).resolve())
@@ -846,7 +959,7 @@ def launch_background_tray(address):
     environment = dict(os.environ, PAFPLAYER_TRAY_BACKGROUND='1')
     with log.open('xb') as output:
         process = subprocess.Popen(
-            [sys.executable, '-B', app_file, '--tray-only', address, '--foreground'],
+            [sys.executable, '-B', app_file, '--tray-only', address, '--foreground', *startup_flags],
             stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.STDOUT,
             close_fds=True, env=environment,
             creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)
@@ -860,16 +973,62 @@ def run_tray_only(arguments):
     foreground = '--foreground' in arguments
     if foreground:
         arguments.remove('--foreground')
-    if len(arguments) != 1:
-        print('Usage: PAFPlayer --tray-only HOST:PORT [--foreground]', file=sys.stderr)
-        return 2
+    machine_overrides = {}
+    presentation_overrides = {}
+    topmost_overrides = {}
+    full_info_override = None
+    startup_flags = []
+    address = None
+    for argument in arguments:
+        spec = _TRAY_STARTUP_FLAGS.get(argument)
+        if spec:
+            kind, name, value = spec
+            startup_flags.append(argument)
+            if kind == 'machine': machine_overrides[name] = value
+            elif kind == 'inherit': presentation_overrides['inherit'] = value
+            elif kind == 'full_info': full_info_override = value
+            elif kind == 'topmost':
+                targets = ('artwork', 'floating') if name == 'both' else (name,)
+                for target in targets: topmost_overrides[target] = value
+        elif argument == '--art-lyrics':
+            presentation_overrides['artwork_lyrics'] = 'on'
+            startup_flags.append(argument)
+        elif argument == '--no-art-lyrics':
+            presentation_overrides['artwork_lyrics'] = 'off'
+            startup_flags.append(argument)
+        elif argument.startswith('--art-lyrics='):
+            mode = argument.split('=', 1)[1].casefold()
+            if mode not in ('server', 'on', 'off'):
+                print('PAFPlayer: --art-lyrics must be server, on, or off.', file=sys.stderr)
+                return 2
+            presentation_overrides['artwork_lyrics'] = mode
+            startup_flags.append(argument)
+        elif argument.startswith('--') or address is not None:
+            print('Usage: PAFPlayer --tray-only [HOST:PORT] [--foreground] '
+                  '[--floating-lyrics|--no-floating-lyrics] [--album-art|--no-album-art] '
+                  '[--show-lyrics-tooltip|--no-show-lyrics-tooltip] '
+                  '[--album-wallpaper|--no-album-wallpaper] '
+                  '[--capture-hotkeys|--no-capture-hotkeys] '
+                  '[--always-on-top|--no-always-on-top] '
+                  '[--floating-lyrics-always-on-top|--no-floating-lyrics-always-on-top] '
+                  '[--album-art-always-on-top|--no-album-art-always-on-top] '
+                  '[--art-lyrics|--no-art-lyrics|--art-lyrics=server|on|off] '
+                  '[--full-info-tooltip|--no-full-info-tooltip] '
+                  '[--follow-server-appearance|--local-appearance]', file=sys.stderr)
+            return 2
+        else:
+            address = argument
     if os.name != 'nt':
         print('The tray-only client requires Windows.', file=sys.stderr)
         return 2
+    if address is None:
+        address = choose_lan_server()
+        if not address:
+            return 1
     try:
-        server = RemoteServer(arguments[0])
+        server = RemoteServer(address)
         if not foreground:
-            return launch_background_tray(server.label)
+            return launch_background_tray(server.label, startup_flags)
         mutex = _remote_mutex(server.label)
     except (ValueError, OSError) as exc:
         print('PAFPlayer: ' + str(exc), file=sys.stderr)
@@ -882,6 +1041,7 @@ def run_tray_only(arguments):
     reload_requested = threading.Event()
     commands = queue.Queue(maxsize=64)
     save_requests = queue.Queue(maxsize=1)
+    lockscreen_requests = queue.Queue(maxsize=1)
     hotkeys = RemoteHotkeys()
     def send_commands():
         while not stop.is_set():
@@ -916,6 +1076,7 @@ def run_tray_only(arguments):
                     (3, 'Next track', 'next', active), (4, 'Open web configuration', 'web', active),
                     (5, 'Open tag viewer', 'details', True),
                     (15, 'Options…', 'options', True),
+                    (16, 'Lock screen setup on this computer…', 'lockscreen_setup', True),
                     (14, 'Save current music file…', 'save_current', save_available),
                     (6, ('✓ ' if self._machine and self._machine.options['lyrics_tooltip'] else '○ ') + 'Show sung lyrics above tray', 'machine_lyrics_tooltip', True),
                     (7, ('✓ ' if self._machine and self._machine.options['album_wallpaper'] else '○ ') + 'Album art desktop wallpaper', 'machine_album_wallpaper', True),
@@ -946,6 +1107,9 @@ def run_tray_only(arguments):
                 try: commands.put_nowait((action, time.time(), server.owner_identity))
                 except queue.Full: return False
                 return True
+            if action == 'lockscreen_setup':
+                try: lockscreen_requests.put_nowait(True); return True
+                except queue.Full: return False
             if action == 'details':
                 launch_viewer(server.url)
                 return True
@@ -980,10 +1144,20 @@ def run_tray_only(arguments):
                               app=RemoteTrayAppSettings(server.label))
     app_module = sys.modules.get('PAFPlayer') or sys.modules['__main__']
     runtime.app.install_player_preference_backend(app_module)
+    for name, value in presentation_overrides.items():
+        runtime.app.set_presentation_option(name, value)
+    if 'artwork' in topmost_overrides:
+        app_module.save_external_album_art_topmost(topmost_overrides['artwork'])
+    if 'floating' in topmost_overrides:
+        app_module.save_external_floating_lyrics_topmost(topmost_overrides['floating'])
     tray = RemoteTrayController(runtime, RemoteTrayIdentity(), override=True,
                                drop_callback=server.enqueue_dropped_paths,
                                drop_reader=app_module.windows_dropped_paths)
     tray.attach_machine_options(remote=True, settings=runtime.app)
+    for name, value in machine_overrides.items():
+        tray._machine.set_option(name, value)
+    if full_info_override is not None:
+        tray.set_full_info_tooltip(full_info_override)
     from PAFPlayer_remote_overlay import RemoteOverlays
     overlays = RemoteOverlays(server, tray._machine)
     if (tray._machine.options.get('remote_floating_lyrics')
@@ -991,26 +1165,47 @@ def run_tray_only(arguments):
         overlays.start()
     server.on_change = tray.refresh
     server.start_polling()
+    from PAFPlayer_remote_lockscreen import RemoteLockScreen, setup_dialog
+    lockscreen_dialog_open = threading.Event()
+    def show_lockscreen_setup():
+        if lockscreen_dialog_open.is_set(): return
+        try: lockscreen_requests.put_nowait(True)
+        except queue.Full: pass
+    lockscreen = RemoteLockScreen(server, runtime.app, on_attention=show_lockscreen_setup)
     try:
         if not tray.start():
             print('PAFPlayer: could not create the remote tray icon.', file=sys.stderr)
             return 1
+        try:
+            lockscreen.start()
+        except OSError as exc:
+            lockscreen.status = 'Could not start local bridge: ' + str(exc)
+            show_lockscreen_setup()
         from PAFPlayer_workflows import read_json, write_json
         remembered=read_json(last_server_path(),{})
         if remembered.get('address')!=server.label:
             write_json(last_server_path(),{'address':server.label})
         while not stop.is_set() and tray._thread and tray._thread.is_alive():
             try:
-                save_requests.get(timeout=.25)
+                save_requests.get_nowait()
+            except queue.Empty:
+                pass
+            else:
+                run_remote_save_dialog(server, runtime.app, stop)
+            try:
+                lockscreen_requests.get(timeout=.25)
             except queue.Empty:
                 continue
-            run_remote_save_dialog(server, runtime.app, stop)
+            lockscreen_dialog_open.set()
+            try: setup_dialog(lockscreen, stop)
+            finally: lockscreen_dialog_open.clear()
         return 0
     except KeyboardInterrupt:
         return 0
     finally:
         stop.set()
         overlays.close()
+        lockscreen.close()
         tray.close()
         server.close()
         kernel32 = ctypes.windll.kernel32
@@ -1021,9 +1216,9 @@ def run_tray_only(arguments):
             app_file = str(Path(app_module.__file__).resolve())
             try:
                 if os.environ.get('PAFPLAYER_TRAY_BACKGROUND') == '1':
-                    launch_background_tray(arguments[0])
+                    launch_background_tray(server.label)
                 else:
-                    os.execv(sys.executable, [sys.executable, app_file, '--tray-only', arguments[0], '--foreground'])
+                    os.execv(sys.executable, [sys.executable, app_file, '--tray-only', server.label, '--foreground'])
             except OSError as exc:
                 print('PAFPlayer: tray reload failed: ' + str(exc), file=sys.stderr)
 

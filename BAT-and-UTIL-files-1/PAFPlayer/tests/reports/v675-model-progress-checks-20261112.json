@@ -1,0 +1,13 @@
+{
+  "version": "V675",
+  "focused_regression_tests_passed": 82,
+  "progress_tests_passed": 6,
+  "real_tk_progress_window": "passed with mock download, bytes and installer percentage",
+  "subprocess_output_before_exit": "passed with real subprocess",
+  "piper_installer_output": "passed with real subprocess",
+  "real_piper_comparison": "passed",
+  "live_large_model_download": "not performed",
+  "bundled_modules_compiled": 29,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true
+}

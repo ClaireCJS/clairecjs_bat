@@ -1,0 +1,85 @@
+{
+  "V648_normal": {
+    "trace": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-thread-stacks-20261109-133255.json",
+    "version": "V648",
+    "samples": 198,
+    "request_median_ms": 12.207599997054785,
+    "request_max_ms": 275.06889996584505,
+    "main_in_terminal_write": 99,
+    "main_in_undo_observer": 11,
+    "main_in_event_logger": 0,
+    "reported_fps": [
+      24.8,
+      26.0,
+      26.0,
+      26.0,
+      26.2,
+      26.2,
+      25.8,
+      25.8,
+      25.8,
+      22.73
+    ],
+    "reported_target_fps": [
+      30.0,
+      29.97,
+      29.97,
+      29.97,
+      29.6,
+      29.6,
+      30.0,
+      30.0,
+      30.0,
+      20.43
+    ]
+  },
+  "V649": {
+    "trace": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-thread-stacks-20261109-134537.json",
+    "version": "V649",
+    "samples": 199,
+    "request_median_ms": 13.643199927173555,
+    "request_max_ms": 189.65730001218617,
+    "main_in_terminal_write": 101,
+    "main_in_undo_observer": 0,
+    "main_in_event_logger": 0,
+    "reported_fps": [
+      24.13,
+      24.52,
+      24.52,
+      24.52,
+      26.6,
+      26.6,
+      23.4,
+      23.4,
+      25.2,
+      25.2
+    ],
+    "reported_target_fps": [
+      29.73,
+      29.09,
+      29.09,
+      29.09,
+      30.0,
+      30.0,
+      29.58,
+      29.58,
+      30.0,
+      30.0
+    ]
+  },
+  "steam_status_observed": {
+    "playing": true,
+    "games": [
+      "Dungeon Clawler"
+    ],
+    "SteamReduceVisualizerLoad": true,
+    "configured_visualizer_max_fps": 60,
+    "reported_target_fps": 30,
+    "observed_at": "2026-11-09T13:49:26.095669"
+  },
+  "limitations": [
+    "Different tracks/moments; not a controlled FPS comparison.",
+    "Short trace with diagnostic overhead; absence of a stack does not prove sustained absence of stalls.",
+    "V648 lock trace also included a modal learned-tag prompt, so not used as an ordinary FPS comparison."
+  ]
+}

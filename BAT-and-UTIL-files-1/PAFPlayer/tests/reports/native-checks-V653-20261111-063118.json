@@ -1,0 +1,55 @@
+{
+  "version": "V653",
+  "source_sha256": "139f6ff09d2519499b58f79464b38ee376d51995ba74088e187c2b7021a392ca",
+  "tests": 107,
+  "failures": [
+    [
+      "test_fallback_resumes_with_fifteen_second_fade_after_quiet (test_play_audio_file_v418.BrowserDetectionTests)",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\native-checks-20261111-063118\\tests\\test_play_audio_file_v418.py\", line 61, in test_fallback_resumes_with_fifteen_second_fade_after_quiet\n    self.assertEqual(p.EXTERNAL_MEDIA_PAUSE, controller.filter_action(None, False, 1))\nAssertionError: 'external-media-auto-pause' != None\n"
+    ],
+    [
+      "test_partial_failure_cannot_hide_positive_playback (test_play_audio_file_v418.BrowserDetectionTests)",
+      "Traceback (most recent call last):\n  File \"C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\native-checks-20261111-063118\\tests\\test_play_audio_file_v418.py\", line 48, in test_partial_failure_cannot_hide_positive_playback\n    self.assertEqual(p.EXTERNAL_MEDIA_PAUSE, controller.filter_action(None, False, 1))\nAssertionError: 'external-media-auto-pause' != None\n"
+    ]
+  ],
+  "errors": [],
+  "bundles": 27,
+  "parity": [
+    "PAFPlayer_workflows",
+    "PAFPlayer_cli_workflows",
+    "PAFPlayer_cuda_benchmarks",
+    "PAFPlayer_discord",
+    "PAFPlayer_instance",
+    "PAFPlayer_render_book",
+    "PAFPlayer_web_workflows",
+    "PAFPlayer_windows_media",
+    "PAFPlayer_windows_ui",
+    "PAFPlayer_workflows_ui",
+    "PAFPlayer_tray",
+    "PAFPlayer_track_details",
+    "PAFPlayer_remote_tray",
+    "PAFPlayer_tray_machine",
+    "PAFPlayer_remote_overlay",
+    "PAFPlayer_tray_hover",
+    "PAFPlayer_lockscreen",
+    "PAFPlayer_lockscreen_installer",
+    "PAFPlayer_lockscreen_payload",
+    "PAFPlayer_ffmpeg_setup",
+    "PAFPlayer_error_delivery",
+    "PAFPlayer_test_triage",
+    "PAFPlayer_screensaver",
+    "PAFPlayer_monkeymote",
+    "PAFPlayer_tray_options",
+    "PAFPlayer_steam",
+    "PAFPlayer_memory_audio"
+  ],
+  "javascript_blocks": 8,
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\native-checks-20261111-063118",
+  "blocked_writes": [
+    "winreg.CreateKey",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\errors.log",
+    "C:\\logs\\PAFPlayer",
+    "C:\\logs\\PAFPlayer\\trace.log"
+  ]
+}

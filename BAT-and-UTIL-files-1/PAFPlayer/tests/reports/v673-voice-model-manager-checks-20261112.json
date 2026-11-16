@@ -1,0 +1,12 @@
+{
+  "version": "V673",
+  "focused_tests_passed": 32,
+  "manager_tests_passed": 8,
+  "real_tk_window": "passed",
+  "real_piper_comparison": "two WAV samples and results JSON passed",
+  "kokoro_qwen_install_and_comparison": "mocked; real downloads and synthesis not tested",
+  "bundled_modules_compiled": 29,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true,
+  "models_automatically_selected_for_download": false
+}

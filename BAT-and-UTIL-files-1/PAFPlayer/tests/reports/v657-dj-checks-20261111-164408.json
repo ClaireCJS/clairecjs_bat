@@ -1,0 +1,26 @@
+{
+  "version": "V657",
+  "sha256": "c0f3dbb7b92000df4866c5b8556b1af7286c678de025cb4009daec6114066b6f",
+  "bundle_count": 28,
+  "javascript_count": 9,
+  "checks": [
+    {
+      "name": "dj tests",
+      "returncode": 0,
+      "output": "----------------------------------------------------------------------\nRan 22 tests in 1.199s\n\nOK\n"
+    },
+    {
+      "name": "command tests",
+      "returncode": 0,
+      "output": "----------------------------------------------------------------------\nRan 7 tests in 0.005s\n\nOK\n"
+    },
+    {
+      "name": "baseline comparison",
+      "returncode": 0,
+      "output": "V656 ran 3 failures ['test_v172_web_pause_is_a_real_toggle_and_spectrum_uses_small_endpoint'] errors []\nV657 ran 3 failures ['test_v172_web_pause_is_a_real_toggle_and_spectrum_uses_small_endpoint'] errors []\n"
+    }
+  ],
+  "live_text": "Unavailable: URLError in sandbox and elevated attempt",
+  "live_piper": "Not installed; prior Windows speech probes failed",
+  "literal_c_bat_changes": []
+}

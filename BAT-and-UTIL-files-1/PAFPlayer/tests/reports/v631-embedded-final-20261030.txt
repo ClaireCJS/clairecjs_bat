@@ -1,0 +1,940 @@
+Embedded test audit: all tests run; 57 known V630 failures are marked expected. Use --unit-tests-raw to see them as failures.
+test_album_art_composite_keeps_spectrum_visible (__main__.PlayWaveFileTests) ... ok
+test_album_art_sidecar_is_discovered_and_cached (__main__.PlayWaveFileTests) ... ok
+test_broken_id3_pair_swapped_text_is_recovered (__main__.PlayWaveFileTests) ... ok
+test_drcs_timeline_and_single_font_download_are_nonempty (__main__.PlayWaveFileTests) ... ok
+test_emojimax_one_of_preserves_space_and_fan_is_plain (__main__.PlayWaveFileTests) ... ok
+test_ffprobe_tags_are_decoded_as_utf8 (__main__.PlayWaveFileTests) ... ok
+test_file_and_directory_navigation_wraps_as_requested (__main__.PlayWaveFileTests) ... ok
+test_karaoke_styles_and_color_treatments_are_independent (__main__.PlayWaveFileTests) ... ok
+test_lastfm_eligibility_uses_same_majority_play_rule (__main__.PlayWaveFileTests) ... ok
+test_legacy_v89_distinct_candidate_helper_isolated_from_v309_playback (__main__.PlayWaveFileTests)
+Keep the old helper testable for diagnosis, while V309 live playback deliberately never calls it. ... ok
+test_lrc_sidecar_drives_timed_lyrics (__main__.PlayWaveFileTests) ... ok
+test_lyric_neighbors_fade_and_scroll_by_normal_rows (__main__.PlayWaveFileTests) ... ok
+test_majority_play_requires_more_than_half_unique_timeline (__main__.PlayWaveFileTests) ... ok
+test_missing_song_tag_falls_back_to_track_filename (__main__.PlayWaveFileTests) ... ok
+test_one_second_silence_completes_with_drcs_and_looping_off (__main__.PlayWaveFileTests)
+Catch visualizer startup deadlocks without producing audible sound. ... ok
+test_playlist_cannot_reach_single_track_ffplay_path (__main__.PlayWaveFileTests) ... ok
+test_playlist_defaults_to_shuffle_and_advances_without_track_loop (__main__.PlayWaveFileTests) ... ok
+test_playlist_history_5000_unique_filenames_need_no_metadata_probe (__main__.PlayWaveFileTests) ... ok
+test_playlist_history_identity_uses_fast_normalized_filename_first (__main__.PlayWaveFileTests) ... ok
+test_playlist_history_migrates_filename_schema_and_normalizes_key (__main__.PlayWaveFileTests) ... ok
+test_playlist_history_preserves_unconvertible_duration_tag_schema_as_backup (__main__.PlayWaveFileTests) ... ok
+test_playlist_history_probes_only_ambiguous_filename_collision (__main__.PlayWaveFileTests) ... ok
+test_playlist_quit_restores_and_saves_same_track_position (__main__.PlayWaveFileTests) ... ok
+test_playlist_shuffle_order_reads_history_once_and_returns_every_entry (__main__.PlayWaveFileTests) ... ok
+test_positional_m3u_is_promoted_to_playlist_mode (__main__.PlayWaveFileTests) ... ok
+test_random_modes_and_relative_playlist_do_not_require_tree_scan (__main__.PlayWaveFileTests) ... ok
+test_report_artist_display_strips_feature_credit_and_repairs_known_typo (__main__.PlayWaveFileTests) ... ok
+test_report_artist_grouping_ignores_features_punctuation_and_and_style (__main__.PlayWaveFileTests) ... ok
+test_resume_does_not_relaunch_missing_winamp (__main__.PlayWaveFileTests) ... ok
+test_seek_restarts_ffplay_at_requested_offsets (__main__.PlayWaveFileTests) ... expected failure
+test_srt_sidecar_preferred_and_utf16_decoded (__main__.PlayWaveFileTests) ... ok
+test_stop_and_seek_key_mappings (__main__.PlayWaveFileTests) ... ok
+test_tag_panel_packs_fields_by_priority_and_reserves_mode_markers (__main__.PlayWaveFileTests) ... ok
+test_ui_refinements_v7_regressions (__main__.PlayWaveFileTests) ... ok
+test_v100_equals_resets_volume_and_speed_contract (__main__.PlayWaveFileTests)
+Equals restores volume and speed together in active and paused playback. ... ok
+test_v102_external_art_native_size_and_safe_floating_lyrics_contract (__main__.PlayWaveFileTests)
+V102 art controls remain safe while V180 expands lyrics to artwork/floating/both. ... ok
+test_v103_redraw_floating_lyrics_and_compact_header_contract (__main__.PlayWaveFileTests)
+V103 preserves Chafa on first F5 and repairs floating lyric controls. ... ok
+test_v104_gui_lyric_animation_never_full_repaints_art (__main__.PlayWaveFileTests)
+Lyric color animation must not decode/repaint art or touch stdout. ... ok
+test_v105_gui_mode_change_uses_absolute_hud_anchor (__main__.PlayWaveFileTests)
+GUI lyric clicks cannot reuse or corrupt the terminal saved-cursor slot. ... ok
+test_v106_gui_errors_are_logged_and_cannot_invalidate_decoded_art (__main__.PlayWaveFileTests)
+Tk callback errors leave stdout alone and lyric failures stay separate from Pillow. ... ok
+test_v106_media_previous_next_modifier_contract (__main__.PlayWaveFileTests)
+Bare media keys scrub, Shift scrubs 8x, and Ctrl/Alt navigate tracks. ... ok
+test_v106_metadata_tails_fill_existing_rows_before_adding_lines (__main__.PlayWaveFileTests)
+V263 keeps Yoka at two rows while making Album/Comment the right-side anchor. ... expected failure
+test_v106_runtime_warning_ledger_acknowledges_without_forgetting_history (__main__.PlayWaveFileTests) ... ok
+test_v107_del_and_ins_prompts_blink_and_pump_the_visualizer (__main__.PlayWaveFileTests)
+Modal playlist input must neither hide silently nor freeze the renderer. ... ok
+test_v107_help_omits_art_explanations_and_names_playlist_jump_load_keys (__main__.PlayWaveFileTests) ... ok
+test_v107_ins_search_is_preindexed_cached_and_has_no_per_key_filesystem_io (__main__.PlayWaveFileTests)
+A broad first character must stay an in-memory operation. ... ok
+test_v107_tk_shutdown_collects_on_owner_thread_and_suppresses_only_late_noise (__main__.PlayWaveFileTests) ... ok
+test_v108_alt3_prioritizes_hud_tags_translates_codes_and_uses_one_row (__main__.PlayWaveFileTests)
+Alt+3 is human-oriented; raw payloads no longer consume whole pages. ... ok
+test_v108_shuffle_cache_never_restores_stale_last_played_snapshot (__main__.PlayWaveFileTests)
+The five-hour queue cache cannot override newer live SQLite history. ... ok
+test_v108_shuffle_excludes_sampled_launches_before_earned_play_threshold (__main__.PlayWaveFileTests)
+A quick visit is recent even when it never earned local/scrobble history. ... ok
+test_v108_shuffle_visit_ledger_persists_separately_from_earned_history (__main__.PlayWaveFileTests)
+Launch visits survive a new process without manufacturing an earned play. ... ok
+test_v109_alt3_is_live_persistent_state_across_track_handoff (__main__.PlayWaveFileTests)
+The tag display never owns a blocking input loop during playback. ... expected failure
+test_v109_cold_last_play_is_blank_until_owner_applies_lookup (__main__.PlayWaveFileTests)
+Unknown/pending is distinct from the definitive zero-row Never state. ... ok
+test_v109_learned_forces_local_last_play_update (__main__.PlayWaveFileTests)
+Writing the learned rule and writing Last play are one user action. ... ok
+test_v109_local_history_earns_at_one_third_without_early_scrobble (__main__.PlayWaveFileTests)
+Local Last play and Last.fm intentionally use different thresholds. ... ok
+test_v110_diagnostic_logs_rotate_to_one_bak_generation (__main__.PlayWaveFileTests) ... ok
+test_v110_errors_and_trace_are_separate_structured_logs (__main__.PlayWaveFileTests) ... ok
+test_v110_logging_contract_covers_errors_trace_and_thread_failures (__main__.PlayWaveFileTests) ... ok
+test_v110_tk_fonts_bind_with_root_not_invalid_master_option (__main__.PlayWaveFileTests)
+Tk Font construction remains root-bound; floating text may use Pillow in V180. ... ok
+test_v111_ctrl_alt_arrows_are_global_volume_hotkeys (__main__.PlayWaveFileTests) ... ok
+test_v111_insert_is_multiselect_play_next_and_resets_speed (__main__.PlayWaveFileTests) ... ok
+test_v111_last_play_is_a_track_start_snapshot_without_dir_reflow (__main__.PlayWaveFileTests)
+The 33% write updates SQLite only; it cannot turn Never into 1min live. ... ok
+test_v111_speed_starts_at_one_and_playlist_relaunch_inherits_that_rule (__main__.PlayWaveFileTests) ... ok
+test_v111_truncation_closes_open_delimiters_as_last_character (__main__.PlayWaveFileTests)
+A clipped bracket/brace/quote is never stranded at the row edge. ... ok
+test_v112_artwork_letterboxes_without_cropping_contract (__main__.PlayWaveFileTests) ... ok
+test_v112_effective_instrumental_tag_merge (__main__.PlayWaveFileTests) ... ok
+test_v112_hud_details_hotkey_and_persistence_contract (__main__.PlayWaveFileTests) ... ok
+test_v112_user_owned_art_geometry_contract (__main__.PlayWaveFileTests) ... ok
+test_v12_artist_throb_is_independent_and_faster (__main__.PlayWaveFileTests) ... ok
+test_v12_emojimax_current_line_never_reverts_during_fade (__main__.PlayWaveFileTests) ... ok
+test_v12_lyric_title_owns_title_through_short_gap_only (__main__.PlayWaveFileTests) ... ok
+test_v12_playlist_previous_walks_real_visit_history (__main__.PlayWaveFileTests) ... ok
+test_v15_next_line_emojimax_is_immediate_but_previous_can_revert (__main__.PlayWaveFileTests) ... ok
+test_v15_osc8_url_is_clickable_without_affecting_cell_width (__main__.PlayWaveFileTests) ... ok
+test_v165_hud_anchor_tracks_resize_without_scrollback_drift (__main__.PlayWaveFileTests)
+Successive frames stay on one viewport footprint across resizes. ... ok
+test_v167_progress_bar_glyphs_are_single_terminal_cells (__main__.PlayWaveFileTests)
+Progress glyphs must never expand into mojibake and wrap the HUD row. ... ok
+test_v167_source_contains_no_inherited_mojibake_markers (__main__.PlayWaveFileTests)
+The shipped source itself must stay clean UTF-8, not pre-corrupted text. ... ok
+test_v168_supplied_hud_screenshots_align_inline_last_play_when_spare_width_exists (__main__.PlayWaveFileTests)
+V263 aligns inline Last play to Album/Comment when usable, else to the far right. ... ok
+test_v169_bride_riot_screenshot_justifies_every_free_semantic_colon_pair (__main__.PlayWaveFileTests)
+V263 preserves left semantic pairs and right-justifies Album/Comment together. ... expected failure
+test_v169_optimizer_is_willing_to_break_alignment_to_keep_full_information (__main__.PlayWaveFileTests)
+At 104 cells the same Bride Riot data fits only by sacrificing prettiness. ... ok
+test_v169_smart_hud_alignment_toggle_and_source_default_contract (__main__.PlayWaveFileTests) ... ok
+test_v170_art_window_focus_transparency_zoom_and_plasma_contract (__main__.PlayWaveFileTests)
+The NOFX GUI contract survives the V180 dual-destination configurator. ... expected failure
+test_v170_artwork_lyric_zoom_registry_bounds (__main__.PlayWaveFileTests) ... ok
+test_v170_plasma_field_is_spatially_varied_and_time_variant (__main__.PlayWaveFileTests)
+Plasma is a 2-D moving field, not one flat color per glyph. ... ok
+test_v171_default_is_one_mode_and_startup_prefers_it_when_explicit (__main__.PlayWaveFileTests) ... ok
+test_v171_karaoke_color_favorite_mask_supports_multiple_modes (__main__.PlayWaveFileTests) ... ok
+test_v172_art_window_suppresses_native_pixel_border_centers_titles_and_compacts_gutters (__main__.PlayWaveFileTests) ... ok
+test_v172_compact_geometry_shrinks_only_unused_gutter_and_respects_controls (__main__.PlayWaveFileTests) ... ok
+test_v172_karaoke_color_configurator_is_scrollable_live_and_persistent (__main__.PlayWaveFileTests) ... ok
+test_v172_web_pause_is_a_real_toggle_and_spectrum_uses_small_endpoint (__main__.PlayWaveFileTests) ... expected failure
+test_v172_webserver_banner_includes_quick_version_peek (__main__.PlayWaveFileTests) ... ok
+test_v173_art_startup_restores_console_focus_after_tk_can_steal_it (__main__.PlayWaveFileTests) ... ok
+test_v173_bare_q_opens_command_menu_and_modified_q_quits (__main__.PlayWaveFileTests) ... ok
+test_v173_configurator_animation_is_incremental_and_close_cancels_it (__main__.PlayWaveFileTests)
+Regression for the original V172 hang; hero and row clocks stay independent. ... ok
+test_v174_album_art_native_border_is_debounced_and_not_reentrant (__main__.PlayWaveFileTests)
+Regression for the black Windows-10 ``Not Responding`` art popup. ... ok
+test_v174_play_pause_state_persists_and_defaults_to_playing (__main__.PlayWaveFileTests)
+A clean restart mirrors the prior play/pause state; old installs start playing. ... ok
+test_v175_ctrl_alt_i_is_idle_art_with_three_second_grace_and_smart_hud_moves_to_numpad1 (__main__.PlayWaveFileTests) ... ok
+test_v175_ctrl_c_and_final_stop_use_immediate_hard_kill (__main__.PlayWaveFileTests) ... expected failure
+test_v175_letter_color_samples_are_about_three_times_larger (__main__.PlayWaveFileTests) ... ok
+test_v175_release_identity (__main__.PlayWaveFileTests) ... ok
+test_v175_unfocused_art_has_no_canvas_or_native_border (__main__.PlayWaveFileTests) ... expected failure
+test_v176_coloring_configurator_has_large_live_hero_and_enabled_controls (__main__.PlayWaveFileTests) ... ok
+test_v176_hero_text_is_huge_truncated_and_plasma_work_is_cropped (__main__.PlayWaveFileTests) ... ok
+test_v176_release_identity (__main__.PlayWaveFileTests) ... ok
+test_v177_art_karaoke_is_static_until_spectrum_ready_and_while_config_open (__main__.PlayWaveFileTests) ... ok
+test_v177_configurator_owns_animation_budget_and_pauses_other_visualizers (__main__.PlayWaveFileTests) ... ok
+test_v177_configurator_palette_dropdowns_persist_per_style (__main__.PlayWaveFileTests) ... ok
+test_v177_twelve_more_lettering_modes_and_independent_palettes (__main__.PlayWaveFileTests) ... ok
+test_v178_album_art_has_one_focus_border_not_border_plus_inner_gutter (__main__.PlayWaveFileTests) ... ok
+test_v178_maximized_configurator_preserves_intrinsic_row_heights_without_overlap (__main__.PlayWaveFileTests) ... ok
+test_v178_preview_rows_are_clipped_and_pattern_layouts_are_cached (__main__.PlayWaveFileTests) ... ok
+test_v178_row_preview_scheduler_adapts_without_changing_hero_speed (__main__.PlayWaveFileTests) ... ok
+test_v179_black_dresses_album_and_url_use_same_colon_when_slack_exists (__main__.PlayWaveFileTests)
+User-supplied Black Dresses HUD should spend three spare cells on Album/URL alignment. ... expected failure
+test_v179_cross_lane_alignment_is_soft_and_rejects_large_padding_jumps (__main__.PlayWaveFileTests) ... ok
+test_v179_cross_lane_alignment_refuses_to_shift_when_suffix_would_overflow (__main__.PlayWaveFileTests)
+Album/URL beauty pass must never buy alignment by losing information. ... ok
+test_v180_art_and_floating_coloring_profiles_are_independent (__main__.PlayWaveFileTests) ... ok
+test_v180_configurator_has_destination_buttons_enabled_default_favorite_speed_and_emphasis (__main__.PlayWaveFileTests) ... ok
+test_v180_playback_publishes_emphasis_progress_to_external_lyrics (__main__.PlayWaveFileTests) ... expected failure
+test_v180_three_way_external_lyric_destinations_support_both (__main__.PlayWaveFileTests) ... ok
+test_v180_timed_emphasis_progress_tracks_timed_and_untimed_lines (__main__.PlayWaveFileTests) ... ok
+test_v181_album_art_has_one_outer_focus_border_and_borderless_canvas (__main__.PlayWaveFileTests) ... ok
+test_v181_visual_palette_picker_previews_style_and_preserves_arrow_cycling (__main__.PlayWaveFileTests) ... ok
+test_v182_empty_floating_window_has_no_waiting_placeholder_and_lyric_click_reveals_it (__main__.PlayWaveFileTests) ... ok
+test_v182_floating_configurator_keeps_real_floating_lyrics_live (__main__.PlayWaveFileTests) ... ok
+test_v182_lyric_buttons_have_topmost_context_menus_and_floating_reveal (__main__.PlayWaveFileTests) ... ok
+test_v183_equal_spacing_preserves_existing_semantic_colon_anchors (__main__.PlayWaveFileTests)
+Spacing polish must preserve V263's selected semantic colon anchors. ... expected failure
+test_v183_grlwood_dense_row_equalizes_every_free_visible_gap (__main__.PlayWaveFileTests)
+User-supplied GRLwood HUD: free one-row gaps should be visually even. ... ok
+test_v184_coloring_rows_give_sample_all_flexible_width (__main__.PlayWaveFileTests) ... ok
+test_v184_every_visible_coloring_sample_animates_each_row_pass (__main__.PlayWaveFileTests) ... ok
+test_v184_release_identity (__main__.PlayWaveFileTests) ... ok
+test_v185_coloring_configurator_is_one_shared_five_column_table (__main__.PlayWaveFileTests) ... ok
+test_v185_interactive_coloring_controls_have_tooltips (__main__.PlayWaveFileTests) ... ok
+test_v185_release_identity (__main__.PlayWaveFileTests) ... ok
+test_v185_row_samples_are_single_line_centered_and_compact (__main__.PlayWaveFileTests) ... ok
+test_v186_coloring_header_is_sticky_outside_scroller (__main__.PlayWaveFileTests) ... ok
+test_v186_name_click_previews_without_enabling (__main__.PlayWaveFileTests) ... ok
+test_v186_palette_popup_has_no_focusout_race_and_applies_selection (__main__.PlayWaveFileTests) ... ok
+test_v186_release_identity (__main__.PlayWaveFileTests) ... ok
+test_v186_row_samples_fit_full_single_line_and_remain_animated (__main__.PlayWaveFileTests) ... ok
+test_v187_coloring_table_has_separate_sample_and_controls_columns (__main__.PlayWaveFileTests) ... ok
+test_v187_coloring_type_is_bolder_and_table_uses_one_pixel_rules (__main__.PlayWaveFileTests) ... ok
+test_v187_release_identity (__main__.PlayWaveFileTests) ... ok
+test_v187_row_preview_layout_is_mode_independent_and_centered (__main__.PlayWaveFileTests) ... ok
+test_v187_solid_palette_is_spatially_solid_but_time_animated (__main__.PlayWaveFileTests) ... ok
+test_v187_speed_range_is_point_one_to_six_x (__main__.PlayWaveFileTests) ... ok
+test_v188_coloring_table_gives_extra_width_to_style_controls (__main__.PlayWaveFileTests) ... ok
+test_v188_row_animation_does_not_repaint_palette_picker_every_frame (__main__.PlayWaveFileTests) ... ok
+test_v188_row_samples_use_large_consistent_height_driven_text (__main__.PlayWaveFileTests) ... ok
+test_v188_timed_label_is_short_with_minilyrics_tooltip (__main__.PlayWaveFileTests) ... ok
+test_v192_configurator_has_destination_tabs_treatments_timing_and_readability (__main__.PlayWaveFileTests) ... ok
+test_v192_configurator_throttles_visualizer_instead_of_pausing (__main__.PlayWaveFileTests) ... expected failure
+test_v192_floating_edit_focus_border_and_unpadded_title_contract (__main__.PlayWaveFileTests) ... ok
+test_v192_floating_overlay_is_content_sized_and_drag_stable (__main__.PlayWaveFileTests) ... expected failure
+test_v192_resize_preserves_floating_center_and_artwork_rectangle (__main__.PlayWaveFileTests) ... expected failure
+test_v192_timing_tone_and_shadow_renderer_contract (__main__.PlayWaveFileTests) ... ok
+test_v196_ctrl_alt_f6_restores_art_then_overlays_console_visualizer (__main__.PlayWaveFileTests) ... ok
+test_v197_floating_layout_tabs_and_animation_optimization (__main__.PlayWaveFileTests) ... ok
+test_v197_layered_art_cache_avoids_reextract_and_adapts_bandwidth (__main__.PlayWaveFileTests) ... ok
+test_v198_idle_artwork_keeps_lyric_layer_stable_during_crossfade (__main__.PlayWaveFileTests) ... ok
+test_v200_cover_art_visualizer_styles_tile_and_mask_as_requested (__main__.PlayWaveFileTests) ... ok
+test_v200_last_played_is_a_paged_rainbow_audit_query (__main__.PlayWaveFileTests) ... ok
+test_v226_web_document_title_is_single_line_act_title_with_cover_credit (__main__.PlayWaveFileTests)
+Browser title is the web-specific Act - Title line with optional original-artist credit. ... ok
+test_v228_mminspo_waveformatextensible_masks_and_pcm_command (__main__.PlayWaveFileTests) ... ok
+test_v228_web_mminspo_and_visualizer_control_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v229_twin_drcs_blackness_keeps_two_art_samples (__main__.PlayWaveFileTests) ... ok
+test_v229_web_art_is_capped_and_transport_precedes_visualizer (__main__.PlayWaveFileTests) ... expected failure
+test_v230_mminspo_accumulates_short_pipe_reads_into_real_audio_blocks (__main__.PlayWaveFileTests) ... ok
+test_v230_progress_bar_can_be_hidden_without_hiding_clock (__main__.PlayWaveFileTests) ... ok
+test_v230_web_console_karaoke_and_progress_have_master_switches (__main__.PlayWaveFileTests) ... ok
+test_v233_lrc_inferred_emphasis_never_spends_more_than_one_second_per_word (__main__.PlayWaveFileTests) ... ok
+test_v233_matrix_editor_normalizes_coefficients_and_keeps_front_identity (__main__.PlayWaveFileTests) ... ok
+test_v233_q_menu_and_web_status_output_rate_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v233_web_configuration_matrix_marks_and_compact_layout_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v233_web_karaoke_edit_background_and_explorer_contract (__main__.PlayWaveFileTests) ... ok
+test_v234_beat_progress_glow_changes_only_display_rendering (__main__.PlayWaveFileTests) ... ok
+test_v234_drcs_microtiles_use_spare_soft_font_slots (__main__.PlayWaveFileTests) ... ok
+test_v234_progress_beat_and_drcs_microtiles_are_opt_in_web_controls (__main__.PlayWaveFileTests) ... ok
+test_v235_matrix_profiles_have_default_and_crossovers (__main__.PlayWaveFileTests) ... ok
+test_v235_output_expansion_respects_sub_crossover (__main__.PlayWaveFileTests) ... ok
+test_v235_registry_writer_is_crash_proof_and_geometry_has_file_mirror (__main__.PlayWaveFileTests) ... ok
+test_v235_web_matrix_and_scroll_contract (__main__.PlayWaveFileTests) ... ok
+test_v237_art_geometry_saves_immediately_and_base_art_redraw_is_cached (__main__.PlayWaveFileTests) ... ok
+test_v237_output_bit_depth_command_contract (__main__.PlayWaveFileTests) ... ok
+test_v237_playlist_browser_numbering_and_queue_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v237_web_karaoke_semantic_style_mapping (__main__.PlayWaveFileTests) ... ok
+test_v237_web_splitters_output_depth_and_background_contract (__main__.PlayWaveFileTests) ... ok
+test_v238_matrix_factory_uses_side_surrounds_sub_unity_and_future_atmos (__main__.PlayWaveFileTests) ... ok
+test_v238_playlist_browser_and_web_queue_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v238_progress_beat_modes_and_cursive_mask_experiment_contract (__main__.PlayWaveFileTests) ... ok
+test_v238_web_matrix_playback_and_experimental_control_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v238_web_rainbow_title_glow_art_cycle_and_player_order (__main__.PlayWaveFileTests) ... expected failure
+test_v239_last_played_searches_complete_artist_and_title_history (__main__.PlayWaveFileTests) ... ok
+test_v239_secondary_monitor_geometry_is_restored_exactly (__main__.PlayWaveFileTests) ... ok
+test_v239_truncated_visualizer_rescales_art_to_all_visible_rows (__main__.PlayWaveFileTests) ... ok
+test_v239_web_transport_is_priority_coalesced_and_http_headers_end_once (__main__.PlayWaveFileTests) ... ok
+test_v240_popup_geometry_uses_native_origin_and_signal_safe_snapshot (__main__.PlayWaveFileTests)
+Title-bar movement persists USER32 X/Y instead of lagging Tk coordinates. ... ok
+test_v241_history_csv_backfill_collapses_case_and_quotes (__main__.PlayWaveFileTests) ... ok
+test_v241_history_identity_folds_case_smart_quotes_and_duration (__main__.PlayWaveFileTests) ... ok
+test_v241_imported_artist_song_history_is_normal_playback_fallback (__main__.PlayWaveFileTests) ... ok
+test_v241_matrix_mute_and_sub_sos_contract (__main__.PlayWaveFileTests) ... ok
+test_v241_popup_outer_rect_roundtrips_across_three_monitors (__main__.PlayWaveFileTests) ... ok
+test_v241_progress_reactivity_and_marks_contract (__main__.PlayWaveFileTests) ... ok
+test_v241_visualizer_bar_microtiles_and_web_persistence_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v242_matrix_final_mute_filter_is_valid_and_coefficients_are_live (__main__.PlayWaveFileTests) ... ok
+test_v242_progress_uses_cached_visualizer_levels_and_adaptive_demo (__main__.PlayWaveFileTests) ... ok
+test_v243_learned_remove_clears_queue_history_and_does_not_reinject_current (__main__.PlayWaveFileTests) ... ok
+test_v243_manual_idle_uses_current_native_four_corners_without_track_reload (__main__.PlayWaveFileTests) ... ok
+test_v243_web_layout_progress_autoslide_playlist_and_unique_actions (__main__.PlayWaveFileTests) ... ok
+test_v244_bar_microtile_checkbox_is_explicit_and_roundtrips_status (__main__.PlayWaveFileTests) ... ok
+test_v244_matrix_web_apply_uses_native_speaker_mapped_renderer (__main__.PlayWaveFileTests) ... ok
+test_v245_bar_microtiles_blend_exact_requested_strength_over_live_bar_color (__main__.PlayWaveFileTests)
+5% bar artwork must remain 5%; microtiles may not replace the bar palette. ... ok
+test_v246_7_1_back_only_mute_uses_native_pcm_channel_order (__main__.PlayWaveFileTests)
+BL/BR-only program audio must survive the safety mute pan in 7.1/7.1.4. ... ok
+test_v247_experimental_web_controls_are_bottom_group (__main__.PlayWaveFileTests) ... ok
+test_v247_progress_control_diagnostic_is_test_only_and_queue_visible (__main__.PlayWaveFileTests) ... ok
+test_v247_progress_web_dropdowns_mutate_live_owner_state (__main__.PlayWaveFileTests) ... ok
+test_v248_cursive_fix_is_in_web_karaoke_not_experimental_bottom (__main__.PlayWaveFileTests) ... expected failure
+test_v248_last_played_plain_search_is_unicode_casefold_and_quote_insensitive (__main__.PlayWaveFileTests) ... ok
+test_v248_last_played_returns_all_case_variant_artist_matches (__main__.PlayWaveFileTests) ... ok
+test_v248_obsolete_last_play_regex_option_is_removed (__main__.PlayWaveFileTests) ... ok
+test_v249_active_database_legacy_rows_are_backfilled_into_full_identity_table (__main__.PlayWaveFileTests) ... ok
+test_v249_history_companion_filename_fork_merges_artist_song_history (__main__.PlayWaveFileTests) ... ok
+test_v249_history_table_borders_are_fixed_and_pager_leaves_final_page_visible (__main__.PlayWaveFileTests) ... ok
+test_v249_history_timestamp_uses_12_hour_clock_without_seconds (__main__.PlayWaveFileTests) ... ok
+test_v249_idle_main_dance_uses_native_outer_rect_origin_and_movement (__main__.PlayWaveFileTests) ... ok
+test_v249_progress_percent_color_is_bright_enough_for_blue_violet (__main__.PlayWaveFileTests) ... ok
+test_v250_microtile_opt_out_group_and_cli_contract (__main__.PlayWaveFileTests) ... ok
+test_v250_web_art_resize_gutter_never_overlays_artwork (__main__.PlayWaveFileTests) ... ok
+test_v250_web_section_placement_contract (__main__.PlayWaveFileTests) ... ok
+test_v251_autoslide_contract_is_console_local_and_extended_interval (__main__.PlayWaveFileTests) ... ok
+test_v251_web_karaoke_checkerboard_tooltips_and_help_contract (__main__.PlayWaveFileTests) ... ok
+test_v252_combined_web_title_multi_output_art_profiles_and_hotkeys (__main__.PlayWaveFileTests) ... ok
+test_v253_live_spectrum_mixing_and_silence_are_bounded (__main__.PlayWaveFileTests) ... ok
+test_v253_live_visualizer_input_selector_and_auto_pause_contract (__main__.PlayWaveFileTests) ... ok
+test_v253_playback_uses_live_capture_on_pause_and_track_fallback (__main__.PlayWaveFileTests) ... ok
+test_v253_release_identity_and_three_layer_coloring_model (__main__.PlayWaveFileTests) ... ok
+test_v254_floating_lyrics_click_and_reveal_restore_readable_edit_box (__main__.PlayWaveFileTests) ... ok
+test_v254_web_karaoke_autosize_has_readable_height_floor (__main__.PlayWaveFileTests) ... ok
+test_v255_multi_output_latency_math_and_web_contract (__main__.PlayWaveFileTests) ... ok
+test_v255_tone_arrival_detector_synthetic (__main__.PlayWaveFileTests) ... ok
+test_v256_shuffle_perf_and_idle_origin_contract (__main__.PlayWaveFileTests) ... ok
+test_v257_alt_f_floating_lyrics_contract (__main__.PlayWaveFileTests) ... ok
+test_v258_visualizer_fast_path_and_karaoke_autosize_contract (__main__.PlayWaveFileTests) ... ok
+test_v259_f5_live_fps_and_auto_input_dormancy_contract (__main__.PlayWaveFileTests) ... ok
+test_v25_emojimax_whole_words_spacing_and_wind_context (__main__.PlayWaveFileTests) ... ok
+test_v25_persistence_catalog_has_twelve_distinct_bounded_block_behaviors (__main__.PlayWaveFileTests) ... ok
+test_v25_spectrum_does_not_hold_last_frame_when_analysis_is_behind (__main__.PlayWaveFileTests) ... ok
+test_v25_srt_with_comment_header_is_preferred_and_parsed (__main__.PlayWaveFileTests) ... ok
+test_v25_top_visualizer_crop_is_physical_with_or_without_karaoke_expansion (__main__.PlayWaveFileTests) ... ok
+test_v260_emojimaxx_longest_substitution_wins (__main__.PlayWaveFileTests) ... ok
+test_v261_visualizer_throughput_hot_loop_contract (__main__.PlayWaveFileTests) ... ok
+test_v262_twin_renderer_exposes_semantic_cells_without_changing_full_output (__main__.PlayWaveFileTests) ... ok
+test_v262_waterfall_vector_fast_path_matches_legacy_formula (__main__.PlayWaveFileTests) ... ok
+test_v263_idle_art_dance_never_straddles_monitor_seam (__main__.PlayWaveFileTests) ... ok
+test_v263_release_identity_split_hud_profiler_and_geometry_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v264_web_is_demand_driven_cached_and_browser_animation_is_throttled (__main__.PlayWaveFileTests) ... expected failure
+test_v266_restores_transport_independent_governor_and_real_transport_choices (__main__.PlayWaveFileTests) ... ok
+test_v26_agc_boosts_real_quiet_signal_but_not_silence (__main__.PlayWaveFileTests) ... ok
+test_v26_editor_sidecars_are_exact_stem_only (__main__.PlayWaveFileTests) ... ok
+test_v26_history_mark_really_upserts_database_and_runtime_cache (__main__.PlayWaveFileTests) ... expected failure
+test_v26_new_keys_and_granularity_defaults (__main__.PlayWaveFileTests) ... ok
+test_v26_shuffle_cache_persists_rotated_queue_without_refreshing_expiry (__main__.PlayWaveFileTests) ... ok
+test_v26_shuffle_queue_rotates_played_track_to_tail (__main__.PlayWaveFileTests) ... ok
+test_v27_async_playlist_cache_writer_does_not_block_track_handoff (__main__.PlayWaveFileTests) ... ok
+test_v27_emojimax_removes_alone (__main__.PlayWaveFileTests) ... ok
+test_v27_focus_safe_terminal_behavior_is_default (__main__.PlayWaveFileTests) ... ok
+test_v28_circled_number_spacing_is_consistent (__main__.PlayWaveFileTests) ... ok
+test_v28_visualizer_rows_force_column_one_and_restore_autowrap (__main__.PlayWaveFileTests) ... ok
+test_v297_ctrl_z_operator_removal_megamix_and_zero_loss_fastpath_contract (__main__.PlayWaveFileTests) ... ok
+test_v299_f5_redraw_is_a_true_transport_repair_without_profiler_work (__main__.PlayWaveFileTests) ... expected failure
+test_v299_karaoke_reclaim_resets_incremental_visualizer_transport (__main__.PlayWaveFileTests)
+A lyric gap must normalize #3/#4 rows before spectrum reclaims them. ... ok
+test_v299_track_handoff_does_not_clear_inflight_shuffle_status (__main__.PlayWaveFileTests) ... ok
+test_v29_default_signal_aurora_renderer_is_fast_path (__main__.PlayWaveFileTests) ... ok
+test_v29_frequency_warp_shape_and_keys (__main__.PlayWaveFileTests) ... ok
+test_v29_processing_palette_split_and_aurora_variants (__main__.PlayWaveFileTests) ... ok
+test_v29_twin_drcs_remains_default_and_defaults_support_it (__main__.PlayWaveFileTests) ... ok
+test_v300_matrix_factory_reset_is_section_scoped_and_save_prompted (__main__.PlayWaveFileTests) ... ok
+test_v300_preferred_emoji_font_priority_and_surfaces (__main__.PlayWaveFileTests) ... ok
+test_v301_floating_lyrics_are_stable_justified_and_baseline_aligned (__main__.PlayWaveFileTests) ... ok
+test_v301_lastfm_backfill_does_not_cache_false_never_while_inflight (__main__.PlayWaveFileTests) ... ok
+test_v301_matrix_live_levels_are_final_pcm_and_web_polled (__main__.PlayWaveFileTests) ... ok
+test_v302_shared_karaoke_playlist_date_and_floating_position_contract (__main__.PlayWaveFileTests) ... ok
+test_v304_structured_lastfm_alias_repairs_pipeline_album_track_pollution (__main__.PlayWaveFileTests) ... ok
+test_v304_structured_lastfm_alias_requires_album_and_track_proof (__main__.PlayWaveFileTests) ... ok
+test_v307_never_is_bucket_zero_and_known_dates_get_ten_deciles (__main__.PlayWaveFileTests) ... ok
+test_v308_authoritative_history_uses_newest_safe_identity_source (__main__.PlayWaveFileTests) ... ok
+test_v308_bulk_history_uses_artist_title_when_filename_bucket_is_missing (__main__.PlayWaveFileTests) ... ok
+test_v308_nonblocking_startup_waits_for_unchecked_identity_source (__main__.PlayWaveFileTests) ... ok
+test_v308_provisional_history_miss_is_not_cached_as_never (__main__.PlayWaveFileTests) ... ok
+test_v309_decensor_examples_and_non_asterisk_bypass (__main__.PlayWaveFileTests) ... ok
+test_v309_emojimax_curations (__main__.PlayWaveFileTests) ... ok
+test_v309_final_playback_boundary_allows_duplicate_playlist_slots (__main__.PlayWaveFileTests)
+V309 must not silently skip a same-physical-file slot immediately before launch. ... ok
+test_v309_fixed_slot_queue_preserves_length_and_duplicates (__main__.PlayWaveFileTests) ... ok
+test_v30_visualizer_uses_synchronized_output_and_explicit_row_advances (__main__.PlayWaveFileTests) ... ok
+test_v314_progressive_shuffle_scores_the_playlist_once (__main__.PlayWaveFileTests) ... ok
+test_v314_same_identity_filename_rows_need_no_metadata_probe (__main__.PlayWaveFileTests) ... ok
+test_v314_shuffle_metadata_cache_survives_process_cache_reset_and_invalidates (__main__.PlayWaveFileTests) ... ok
+test_v317_clean_full_short_play_logs_and_scrobbles_despite_bad_duration (__main__.PlayWaveFileTests)
+A continuous short stream reaching EOF supersedes percentage rules. ... ok
+test_v319_composer_anchors_right_and_comment_is_equidistant (__main__.PlayWaveFileTests) ... expected failure
+test_v319_restores_off_but_keeps_two_unclear_emojimax_removals (__main__.PlayWaveFileTests) ... expected failure
+test_v319_volume_readout_blinks_three_times_and_visualizer_throbs (__main__.PlayWaveFileTests) ... ok
+test_v31_help_keys_last_heard_and_visualizer_crop_defaults (__main__.PlayWaveFileTests) ... ok
+test_v320_missing_replaygain_is_a_disableable_red_hud_alert (__main__.PlayWaveFileTests) ... ok
+test_v321_removes_four_requested_emojimaxx_associations (__main__.PlayWaveFileTests) ... ok
+test_v323_learned_extra_tag_preserves_internal_spaces (__main__.PlayWaveFileTests) ... ok
+test_v326_completed_hud_rows_anchor_their_last_field (__main__.PlayWaveFileTests) ... ok
+test_v327_emoji16_curations_box_cells_and_survey_aliases (__main__.PlayWaveFileTests) ... ok
+test_v328_emoji_survey_lists_words_colors_pages_and_exports (__main__.PlayWaveFileTests) ... ok
+test_v329_hud_survey_compares_colored_placement_algorithms_only (__main__.PlayWaveFileTests) ... ok
+test_v32_attribute_assignment_permanence_example (__main__.PlayWaveFileTests) ... ok
+test_v32_attribute_dat_format_and_source_default (__main__.PlayWaveFileTests) ... ok
+test_v32_extended_timed_sidecar_parsers (__main__.PlayWaveFileTests) ... ok
+test_v32_lyric_sidecar_tag_roundtrip_verifies (__main__.PlayWaveFileTests) ... ok
+test_v32_parent_attrib_lists_are_root_first_with_permanent_rules (__main__.PlayWaveFileTests) ... ok
+test_v330_live_inputs_suppress_track_artwork_without_losing_settings (__main__.PlayWaveFileTests) ... ok
+test_v331_frequency_warp_compacts_low_end_and_repeats_feedback (__main__.PlayWaveFileTests) ... expected failure
+test_v332_forget_emojimax_removals_are_explicit_and_reversible (__main__.PlayWaveFileTests) ... ok
+test_v333_web_decensor_controls_follow_their_destination_sections (__main__.PlayWaveFileTests) ... ok
+test_v334_missing_playlist_is_a_warning_and_clean_return (__main__.PlayWaveFileTests) ... ok
+test_v335_web_artwork_and_floating_sections_have_live_controls_and_config_actions (__main__.PlayWaveFileTests) ... ok
+test_v344_popup_karaoke_web_actions_reach_the_playback_queue (__main__.PlayWaveFileTests) ... ok
+test_v355_circled_number_bugfix_space_is_terminal_and_substitution_only (__main__.PlayWaveFileTests)
+Only generated Windows-Terminal circled digits receive a safety cell. ... ok
+test_v356_anniversary_auto_expand_and_unicode_survey_descriptions (__main__.PlayWaveFileTests) ... ok
+test_v357_survey_curation_and_requested_emojimax_replacements (__main__.PlayWaveFileTests) ... ok
+test_v359_emojimaxx_cli_preview_prints_and_exits (__main__.PlayWaveFileTests) ... ok
+test_v359_emojimaxx_cli_preview_requires_one_text_argument (__main__.PlayWaveFileTests) ... ok
+test_v361_removes_seem_and_uses_two_circled_digits_for_eighteen (__main__.PlayWaveFileTests) ... ok
+test_v366_emojimaxx_cli_preview_has_three_stages_and_resets_every_normal_row (__main__.PlayWaveFileTests) ... ok
+test_v366_floating_lyrics_editor_contract_is_opaque_thick_autosize_and_ctrl_wheel (__main__.PlayWaveFileTests) ... ok
+test_v366_freezepop_one_cell_album_comment_alignment_keeps_album_value_right_edge (__main__.PlayWaveFileTests) ... ok
+test_v367_circled_number_terminal_spacing_has_two_generated_safety_cells (__main__.PlayWaveFileTests) ... ok
+test_v367_emojimaxx_curated_remove_planets_and_add_shine (__main__.PlayWaveFileTests) ... ok
+test_v367_floating_titlebar_has_requested_controls_and_manual_shortcuts (__main__.PlayWaveFileTests) ... ok
+test_v367_inline_last_play_ignores_nonadjacent_album_and_right_justifies (__main__.PlayWaveFileTests) ... ok
+test_v367_nonadjacent_album_case_can_swap_composer_with_last_play (__main__.PlayWaveFileTests) ... ok
+test_v367_nonadjacent_last_play_alignment_has_swap_first_contract (__main__.PlayWaveFileTests) ... ok
+test_v368_floating_animation_backs_off_while_editor_is_opaque (__main__.PlayWaveFileTests) ... expected failure
+test_v368_floating_edit_mode_preserves_outer_geometry_and_avoids_focus_loop (__main__.PlayWaveFileTests) ... ok
+test_v368_floating_focus_loss_has_foreground_fail_safe (__main__.PlayWaveFileTests) ... ok
+test_v36_emojimax_prefers_written_word_emoji (__main__.PlayWaveFileTests) ... ok
+test_v36_renderer_diagnostics_can_remove_window_sensitive_sequences (__main__.PlayWaveFileTests) ... ok
+test_v370_mp3_duration_reconciles_bad_ffprobe_header_with_frame_duration (__main__.PlayWaveFileTests) ... ok
+test_v370_pause_feedback_freezes_real_terminal_width_and_audio_buffer_is_250ms (__main__.PlayWaveFileTests) ... ok
+test_v370_rammstein_hud_uses_spare_space_instead_of_a_separate_url_row (__main__.PlayWaveFileTests) ... ok
+test_v370_slutever_album_right_edge_drives_adjacent_last_play_alignment (__main__.PlayWaveFileTests) ... ok
+test_v370_url_display_hides_implied_scheme_and_www_but_keeps_link_target (__main__.PlayWaveFileTests) ... ok
+test_v371_main_dispatch_passes_smooth_audio_settings (__main__.PlayWaveFileTests) ... ok
+test_v371_play_audio_file_owns_smooth_audio_settings (__main__.PlayWaveFileTests) ... ok
+test_v372_font_fitting_is_logarithmic_and_pillow_fonts_are_cached (__main__.PlayWaveFileTests) ... ok
+test_v372_large_artwork_lyrics_have_native_vector_fast_path (__main__.PlayWaveFileTests) ... ok
+test_v372_native_animation_uses_shared_playback_clock (__main__.PlayWaveFileTests) ... ok
+test_v373_octant_mode_is_solid_not_braille_and_maps_all_masks (__main__.PlayWaveFileTests) ... ok
+test_v374_artwork_command_queue_no_longer_has_50ms_karaoke_floor (__main__.PlayWaveFileTests) ... ok
+test_v374_artwork_render_lead_self_corrects_early_and_late (__main__.PlayWaveFileTests) ... ok
+test_v374_karaoke_frame_exposes_offset_adjusted_cue_deadlines (__main__.PlayWaveFileTests) ... ok
+test_v376_art_detail_dither_helper_is_not_on_hot_render_path (__main__.PlayWaveFileTests) ... ok
+test_v376_keeps_multi_art_strip_tiling_and_removes_hotpath_dither (__main__.PlayWaveFileTests) ... ok
+test_v376_row_delta_artwork_repaint_is_wrap_safe_and_absolute (__main__.PlayWaveFileTests) ... ok
+test_v378_2x4_render_emits_no_unicode_mosaic_glyphs (__main__.PlayWaveFileTests) ... ok
+test_v379_2x4_codebook_remains_radius_one (__main__.PlayWaveFileTests) ... ok
+test_v379_accuracy_labels_match_theoretical_exact_mask_coverage (__main__.PlayWaveFileTests) ... ok
+test_v379_microtile_detail_keeps_original_seven_density_modes (__main__.PlayWaveFileTests) ... ok
+test_v379_mode_specific_dense_art_fonts_fit_the_94_character_bank (__main__.PlayWaveFileTests) ... ok
+test_v379_new_3x3_2x5_3x4_patterns_use_requested_geometry (__main__.PlayWaveFileTests) ... ok
+test_v379_original_art_detail_modes_use_fixed_cell_drcs (__main__.PlayWaveFileTests) ... ok
+test_v380_hybrid_art_detail_modes_are_exposed_and_exact (__main__.PlayWaveFileTests) ... ok
+test_v380_hybrid_pool_can_emit_both_unicode_and_drcs (__main__.PlayWaveFileTests) ... ok
+test_v380_renderer_switches_charset_per_hybrid_cell_only (__main__.PlayWaveFileTests) ... expected failure
+test_v380_speed_and_art_detail_feedback_contract (__main__.PlayWaveFileTests) ... ok
+test_v381_help_overlay_has_no_interaction_feedback_box (__main__.PlayWaveFileTests) ... ok
+test_v381_hybrid_unicode_cells_get_absolute_next_column_fences (__main__.PlayWaveFileTests) ... ok
+test_v382_adaptive_exact_modes_never_use_nearest_wrong_mask (__main__.PlayWaveFileTests) ... ok
+test_v382_microtile_dropdown_order_labels_default_and_marks (__main__.PlayWaveFileTests) ... ok
+test_v382_microtile_favorite_cycle_and_persistent_tooltip_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v383_adaptive_seamless_2x4_spends_drcs_slots_on_current_artwork (__main__.PlayWaveFileTests) ... ok
+test_v383_art_saturation_toggle_persists_server_state_and_karaoke_label_is_clearer (__main__.PlayWaveFileTests) ... ok
+test_v383_exact_art_detail_modes_are_grouped_before_approximate_modes (__main__.PlayWaveFileTests) ... ok
+test_v384_console_visualizer_layer_switches_and_alert_master_contract (__main__.PlayWaveFileTests) ... ok
+test_v384_persisted_master_layer_defaults_and_sat_emojimax_removed (__main__.PlayWaveFileTests) ... ok
+test_v384_visualizer_art_detail_split_and_broken_section_bottom_contract (__main__.PlayWaveFileTests) ... ok
+test_v385_emojimaxx_removes_shovel_and_uses_sunrise_for_daylight (__main__.PlayWaveFileTests) ... ok
+test_v385_visualizer_overlay_messages_is_visualizer_control_default_on_and_persisted (__main__.PlayWaveFileTests) ... ok
+test_v386_floating_lyrics_web_topmost_control_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v386_microtile_cards_hug_content_and_recycle_right_clicks_backwards (__main__.PlayWaveFileTests) ... expected failure
+test_v386_visualizer_bar_artwork_is_dedicated_switch_and_dependency (__main__.PlayWaveFileTests) ... ok
+test_v386_visualizer_input_is_in_playback_and_not_bar_gated (__main__.PlayWaveFileTests) ... ok
+test_v387_ctrl_end_and_home_do_not_arm_visualizer_overlay (__main__.PlayWaveFileTests) ... ok
+test_v387_floating_lyrics_animation_is_audio_budgeted_and_not_immediately_repainted (__main__.PlayWaveFileTests) ... ok
+test_v387_local_art_fallback_priority_matches_cover_folder_disc_band_other (__main__.PlayWaveFileTests) ... ok
+test_v388_art_and_floating_topmost_web_contract (__main__.PlayWaveFileTests) ... ok
+test_v388_explicit_decensor_buttons_replace_generic_duplicate_controls (__main__.PlayWaveFileTests) ... ok
+test_v388_web_lyric_window_controls_are_four_buttons_in_requested_order (__main__.PlayWaveFileTests) ... expected failure
+test_v389_drcs_bank_and_first_target_frame_commit_atomically (__main__.PlayWaveFileTests) ... ok
+test_v389_microtile_detail_changes_stage_drcs_instead_of_redefining_visible_cells (__main__.PlayWaveFileTests) ... ok
+test_v389_pending_bank_swap_forces_complete_frame_before_delta_transport (__main__.PlayWaveFileTests) ... ok
+test_v390_dead_kennedys_hud_uses_spare_cells_for_obvious_colon_alignment (__main__.PlayWaveFileTests) ... ok
+test_v390_emojimax_numbers_avoid_unsupported_chess_symbol_block_and_keep_compound_spacing (__main__.PlayWaveFileTests) ... ok
+test_v398_write_emojimaxx_gets_one_windows_terminal_safety_cell (__main__.PlayWaveFileTests) ... ok
+test_v399_emojimaxx_uses_requested_heavy_directional_arrows (__main__.PlayWaveFileTests) ... ok
+test_v400_help_output_resolves_devices_depth_multioutput_and_wraps_playlist (__main__.PlayWaveFileTests) ... ok
+test_v404_artwork_and_floating_use_current_cue_without_early_display (__main__.PlayWaveFileTests) ... ok
+test_v407_all_cli_preference_overrides_are_session_only (__main__.PlayWaveFileTests) ... expected failure
+test_v408_shuffle_loop_web_console_and_help_state_clarity (__main__.PlayWaveFileTests) ... expected failure
+test_v40_playlist_progress_reports_five_percent_steps (__main__.PlayWaveFileTests) ... ok
+test_v427_attrib_delimiter_does_not_leave_an_empty_regex_alternative (__main__.PlayWaveFileTests) ... ok
+test_v43_large_playlist_defers_existence_checks (__main__.PlayWaveFileTests) ... ok
+test_v43_lexical_path_key_does_not_require_existing_file (__main__.PlayWaveFileTests) ... ok
+test_v447_native_audio_probe_reads_mute_without_calling_setmute (__main__.PlayWaveFileTests) ... ok
+test_v448_inline_last_play_right_justifies_against_single_metadata_row (__main__.PlayWaveFileTests) ... ok
+test_v448_web_playback_controls_have_requested_row_order (__main__.PlayWaveFileTests) ... expected failure
+test_v449_registry_schema_has_new_namespace_and_human_locations (__main__.PlayWaveFileTests) ... ok
+test_v449_registry_writes_no_longer_target_legacy_branch_directly (__main__.PlayWaveFileTests) ... ok
+test_v450_emojimaxx_cow_and_lotus_curation (__main__.PlayWaveFileTests) ... ok
+test_v452_external_media_loudness_match_is_guarded_and_bidirectional (__main__.PlayWaveFileTests) ... ok
+test_v453_web_tabs_frequency_warp_and_polish_contract (__main__.PlayWaveFileTests) ... expected failure
+test_v454_ctrl_break_restores_cursor_and_skips_slow_shutdown_waits (__main__.PlayWaveFileTests) ... ok
+test_v455_web_tabs_artwork_controls_and_beat_polish (__main__.PlayWaveFileTests) ... expected failure
+test_v46_theory_range_help_order_and_bottom_trim (__main__.PlayWaveFileTests) ... ok
+test_v477_ambiguous_browser_audio_pauses_after_persistence (__main__.PlayWaveFileTests) ... ok
+test_v477_transient_browser_audio_does_not_trigger_auto_pause (__main__.PlayWaveFileTests) ... ok
+test_v488_console_volume_entry_values (__main__.PlayWaveFileTests) ... ok
+test_v489_bass_lock_web_setting_persists_and_republishes (__main__.PlayWaveFileTests) ... ok
+test_v490_floating_teeny_solutions_are_persistent_and_rendered (__main__.PlayWaveFileTests) ... ok
+test_v495_fast_console_abort_watchdog_fires_without_waiting_for_tk (__main__.PlayWaveFileTests) ... ok
+test_v498_solution_distance_is_signed_font_percentage (__main__.PlayWaveFileTests) ... ok
+test_v524_recent_avoidance_is_enabled_by_default (__main__.PlayWaveFileTests) ... ok
+test_v529_solution_labels_have_small_rightward_optical_nudge (__main__.PlayWaveFileTests) ... ok
+test_v52_default_analyzer_uses_native_ffmpeg_and_logging_hud_states (__main__.PlayWaveFileTests) ... ok
+test_v52_shuffle_neighbor_skips_duplicate_current_track (__main__.PlayWaveFileTests) ... ok
+test_v532_emojimaxx_removes_the_bad_stripe_mappings (__main__.PlayWaveFileTests) ... ok
+test_v533_recent_shuffle_revalidates_stale_never_for_album_alias (__main__.PlayWaveFileTests)
+A sibling album path cached as Never must honor newly earned Artist+Song history. ... ok
+test_v534_launch_cooldown_covers_artist_song_alias_paths (__main__.PlayWaveFileTests)
+A sampled album copy makes another path for that Artist+Song recent immediately. ... ok
+test_v534_simulator_uses_live_bounded_selection_core (__main__.PlayWaveFileTests)
+The reusable transition core replaces recent proposals and reports forced exhaustion. ... ok
+test_v535_legacy_missing_bookmark_uses_first_remaining_track (__main__.PlayWaveFileTests)
+A bookmark predating next_track still resumes deterministically. ... ok
+test_v535_missing_bookmark_uses_saved_successor (__main__.PlayWaveFileTests)
+A deleted bookmarked track continues with its recorded queue successor. ... ok
+test_v535_near_eof_resume_rewinds_fifteen_seconds (__main__.PlayWaveFileTests)
+A bookmark in the last few seconds resumes fifteen seconds from EOF. ... ok
+test_v535_shuffle_lifetime_is_a_persisted_web_playback_setting (__main__.PlayWaveFileTests)
+The web control stores minutes while presenting a fractional hour value. ... ok
+test_v536_adaptive_progress_uses_current_levels_and_spatial_decay (__main__.PlayWaveFileTests)
+File playback must not discard current spectrum data; treatment 3 has a visible tail. ... ok
+test_v536_artwork_seaming_accepts_zero_based_favorite_and_default (__main__.PlayWaveFileTests) ... ok
+test_v536_auto_tallest_visualizer_rows_web_contract (__main__.PlayWaveFileTests) ... ok
+test_v537_playlist_resume_is_checkpointed_during_playback (__main__.PlayWaveFileTests)
+The coordinator must persist before playback and wire live playhead updates. ... ok
+test_v538_beat_timing_control_and_timestamp_contract (__main__.PlayWaveFileTests) ... ok
+test_v53_forward_history_never_replays_same_path (__main__.PlayWaveFileTests) ... ok
+test_v53_missing_attrib_lst_creation_header_and_no_overwrite (__main__.PlayWaveFileTests) ... ok
+test_v540_web_choice_marks_auto_tallest_and_discord_help (__main__.PlayWaveFileTests) ... ok
+test_v54_hotkey_aliases_emojimax_and_done_scrollback_guard (__main__.PlayWaveFileTests) ... ok
+test_v54_mark_learned_creates_missing_attrib_with_standard_header (__main__.PlayWaveFileTests) ... ok
+test_v54_scrobble_learned_keys_emojimax_and_help_source (__main__.PlayWaveFileTests) ... ok
+test_v559_console_abort_exits_without_cleanup_or_decoder_wait (__main__.PlayWaveFileTests) ... ok
+test_v55_mark_learned_appends_only_learned_not_effective_attributes (__main__.PlayWaveFileTests) ... ok
+test_v55_mark_learned_hud_shows_exact_written_rule (__main__.PlayWaveFileTests)
+V83 supersedes the old one-line exact-rule HUD with filename-only two-row feedback. ... ok
+test_v56_single_scrobble_per_visit_and_force_confirmation_source (__main__.PlayWaveFileTests) ... ok
+test_v575_volume_rainbow_is_readable_at_every_level (__main__.PlayWaveFileTests) ... ok
+test_v598_playlist_history_refreshes_stale_never_after_a_play_write (__main__.PlayWaveFileTests)
+A browser row resolved before playback must not remain "Never" afterward. ... ok
+test_v59_mocked_now_playing_then_scrobble_then_return_visit (__main__.PlayWaveFileTests)
+Mock the required Now Playing/scrobble lifecycle without network I/O. ... ok
+test_v59_playback_lifecycle_now_playing_once_per_visit_source (__main__.PlayWaveFileTests) ... ok
+test_v60_database_prefers_c_bat_source (__main__.PlayWaveFileTests) ... ok
+test_v60_emojimax_additions_and_take_removed (__main__.PlayWaveFileTests) ... ok
+test_v60_karaoke_visualizer_height_cycle_source (__main__.PlayWaveFileTests) ... ok
+test_v60_learned_pair_has_no_blank_line (__main__.PlayWaveFileTests) ... ok
+test_v61_mode_names_are_distinct (__main__.PlayWaveFileTests) ... ok
+test_v61_scale_to_text_uses_exact_per_column_legacy_geometry (__main__.PlayWaveFileTests) ... ok
+test_v63_main_resume_next_never_relaunches_physical_alias (__main__.PlayWaveFileTests) ... ok
+test_v63_resume_skips_different_path_to_same_physical_file (__main__.PlayWaveFileTests) ... ok
+test_v63_resume_successor_is_captured_before_queue_rotation (__main__.PlayWaveFileTests) ... ok
+test_v64_metadata_semantic_columns_align_colons (__main__.PlayWaveFileTests) ... ok
+test_v65_narrow_hud_breaks_alignment_before_adding_rows (__main__.PlayWaveFileTests) ... ok
+test_v66_expanded_mode_no_longer_shortens_spectrum_under_text (__main__.PlayWaveFileTests) ... ok
+test_v66_four_karaoke_visualizer_compositing_modes_source (__main__.PlayWaveFileTests) ... ok
+test_v66_industrial_genre_emoji_precedes_rock_metal (__main__.PlayWaveFileTests) ... ok
+test_v67_compound_lyric_parser_and_minimum_filter_building_blocks (__main__.PlayWaveFileTests) ... ok
+Selecting sidecars: done
+Selecting sidecars: done
+test_v67_compound_lyric_sidecar_selection_policy (__main__.PlayWaveFileTests) ... ok
+test_v67_playback_start_history_never_synchronously_selects (__main__.PlayWaveFileTests) ... expected failure
+test_v67_up_uses_up_arrow_not_up_button (__main__.PlayWaveFileTests) ... ok
+test_v68_usage_has_at_least_three_times_v67_example_count (__main__.PlayWaveFileTests) ... ok
+test_v68_usage_has_keystrokes_immediately_after_playback_options (__main__.PlayWaveFileTests) ... expected failure
+test_v69_append_learned_uses_durable_track_separator_class (__main__.PlayWaveFileTests) ... ok
+test_v69_learned_track_prefix_is_limited_to_one_or_two_digits (__main__.PlayWaveFileTests) ... ok
+test_v69_learned_track_prefix_matches_space_underscore_or_hyphen (__main__.PlayWaveFileTests) ... ok
+test_v70_corpus_editor_failure_keeps_written_file (__main__.PlayWaveFileTests) ... ok
+test_v70_corpus_writes_snippet_file_instead_of_code_to_stdout (__main__.PlayWaveFileTests) ... ok
+test_v71_last_heard_colon_aligns_exactly_with_album (__main__.PlayWaveFileTests)
+V263 no longer lets metadata Last play own Album's right-side colon. ... ok
+test_v71_last_heard_tail_still_uses_album_column_when_comment_occupies_row2 (__main__.PlayWaveFileTests)
+When Comment exists, Album/Comment�not Last play�share the preferred right column. ... expected failure
+test_v72_alt_a_external_album_art_key_contract (__main__.PlayWaveFileTests) ... ok
+test_v72_external_album_art_default_and_session_integration_source (__main__.PlayWaveFileTests) ... ok
+test_v72_external_album_art_geometry_clamps_missing_monitor (__main__.PlayWaveFileTests) ... ok
+test_v72_external_album_art_geometry_handles_negative_monitor_coordinates (__main__.PlayWaveFileTests) ... ok
+test_v72_external_album_art_geometry_keeps_valid_saved_location (__main__.PlayWaveFileTests) ... ok
+test_v73_album_art_aspect_snap_never_moves_origin (__main__.PlayWaveFileTests) ... ok
+test_v73_album_art_mouse_and_ctrl_resize_contract_source (__main__.PlayWaveFileTests) ... ok
+test_v73_album_art_track_updates_do_not_reposition_visible_window_source (__main__.PlayWaveFileTests) ... ok
+test_v73_down_emojimax_has_one_less_trailing_separator (__main__.PlayWaveFileTests) ... ok
+test_v73_help_playlist_track_count_format_source (__main__.PlayWaveFileTests) ... ok
+test_v73_neighbor_circled_one_adjacent_glyph_compensation (__main__.PlayWaveFileTests) ... ok
+test_v74_close_without_started_gui_returns_cleanly (__main__.PlayWaveFileTests) ... ok
+test_v74_external_album_art_gui_shutdown_is_thread_owned (__main__.PlayWaveFileTests) ... ok
+test_v75_playlist_history_report_data_lines_use_high_brightness_random_rgb (__main__.PlayWaveFileTests) ... ok
+test_v75_playlist_history_report_sorts_never_then_oldest_to_newest (__main__.PlayWaveFileTests) ... ok
+test_v75_playlist_history_report_wraps_filename_inside_console_table (__main__.PlayWaveFileTests) ... ok
+test_v75_usage_mentions_playlist_last_played_diagnostic (__main__.PlayWaveFileTests) ... ok
+📝 Playlist analysis exported to: C:\Users\ClioC\AppData\Local\Temp\tmpc8y2gefv\playlist-analysis.txt
+✏️ Opened playlist-analysis.txt in your TXT editor.
+test_v76_playlist_analysis_display_exports_and_opens_editor (__main__.PlayWaveFileTests) ... ok
+test_v76_playlist_analysis_export_is_unwrapped_ansi_free_full_path (__main__.PlayWaveFileTests) ... ok
+test_v76_playlist_analysis_pager_key_source_supports_requested_navigation (__main__.PlayWaveFileTests) ... ok
+test_v76_playlist_analysis_table_uses_full_paths_and_wraps_console_rows (__main__.PlayWaveFileTests) ... expected failure
+test_v77_playlist_analysis_uses_second_history_progress_bar_source (__main__.PlayWaveFileTests) ... ok
+test_v77_playlist_history_scores_reports_query_and_resolution_progress (__main__.PlayWaveFileTests) ... ok
+test_v78_actual_history_builder_then_current_promotion_keeps_never_next (__main__.PlayWaveFileTests) ... ok
+test_v78_analysis_builders_report_one_progress_unit_per_track (__main__.PlayWaveFileTests) ... ok
+test_v78_both_fresh_rebuild_sites_preserve_history_order_source (__main__.PlayWaveFileTests) ... expected failure
+test_v78_fresh_history_rebuild_does_not_inject_removed_current_track (__main__.PlayWaveFileTests) ... ok
+test_v78_fresh_history_rebuild_promotes_current_without_rotating_priority (__main__.PlayWaveFileTests) ... ok
+test_v78_playlist_analysis_has_third_generation_progress_bar (__main__.PlayWaveFileTests) ... ok
+test_v80_learned_record_is_exactly_two_adjacent_lines (__main__.PlayWaveFileTests) ... ok
+test_v80_learned_track_prefix_uses_clean_character_class_spelling (__main__.PlayWaveFileTests) ... expected failure
+test_v81_ctrl_b_url_chooser_prompt_has_numbers_all_and_none_escape (__main__.PlayWaveFileTests)
+V95 supersedes the ambiguous numeric-only prompt with numbered URL rows. ... ok
+test_v81_help_no_longer_claims_g_is_url_chooser (__main__.PlayWaveFileTests) ... ok
+test_v81_persistence_g_bindings_are_restored_exactly (__main__.PlayWaveFileTests) ... ok
+test_v81_url_controls_remain_ctrl_b_and_ctrl_u (__main__.PlayWaveFileTests) ... ok
+test_v82_ctrl_u_and_ctrl_b_are_same_chooser_and_f1_is_help (__main__.PlayWaveFileTests)
+Minor key changes requested alongside ReplayGain must remain explicit. ... ok
+test_v82_default_manager_has_restore_submenu_and_all_gesture (__main__.PlayWaveFileTests)
+The * menu must expose R restore and the requested * -> R -> A path. ... ok
+test_v82_replaygain_album_fallback_when_track_absent (__main__.PlayWaveFileTests)
+Track preference treats missing/malformed track gain as unavailable and falls back. ... ok
+test_v82_replaygain_album_mode_falls_back_to_track (__main__.PlayWaveFileTests)
+Album mode reverses preference but never disables useful track normalization. ... ok
+test_v82_replaygain_clipping_prevention_positive_gain_high_peak (__main__.PlayWaveFileTests)
+Peak limiting must implement P*10**(gain/20)<=1 exactly, not an arbitrary clamp. ... ok
+test_v82_replaygain_composes_with_balance_in_one_filter_chain (__main__.PlayWaveFileTests)
+Balance/pan remains downstream of ReplayGain inside the same chain. ... ok
+test_v82_replaygain_composes_with_multichannel_expansion (__main__.PlayWaveFileTests)
+5.1/7.1 expansion must remain intact after the normalization stage. ... ok
+test_v82_replaygain_composes_with_speed_in_one_filter_chain (__main__.PlayWaveFileTests)
+The new gain stage must coexist with atempo rather than create a second -af. ... ok
+test_v82_replaygain_disabled_is_noop (__main__.PlayWaveFileTests)
+--replaygain=off must suppress the gain stage even when tags are present. ... ok
+test_v82_replaygain_gain_value_capitalization_and_spacing_variants (__main__.PlayWaveFileTests)
+All normal gain spellings listed in the feature request parse identically. ... ok
+test_v82_replaygain_help_none_is_blinking_red_and_clipping_text_uses_db_once (__main__.PlayWaveFileTests)
+The ? diagnostic must make missing RG unmistakable without polluting the normal HUD. ... ok
+test_v82_replaygain_malformed_gain_is_rejected (__main__.PlayWaveFileTests)
+Malformed/non-finite gain text must never leak into an FFmpeg filter. ... ok
+test_v82_replaygain_malformed_peak_does_not_block_valid_gain (__main__.PlayWaveFileTests)
+Bad peak evidence disables only clipping prevention, not the valid requested gain. ... ok
+test_v82_replaygain_metadata_shares_existing_ffprobe_and_stays_out_of_display_tags (__main__.PlayWaveFileTests)
+ReplayGain extraction must reuse the display metadata probe, never leak into HUD tags. ... ok
+test_v82_replaygain_negative_track_gain_math (__main__.PlayWaveFileTests)
+Negative track gain must convert to the exact 10**(dB/20) baseline. ... ok
+test_v82_replaygain_no_tags_is_noop (__main__.PlayWaveFileTests)
+An enabled ReplayGain mode with no gain tags must preserve legacy playback exactly. ... ok
+test_v82_replaygain_peak_over_one_can_require_attenuation (__main__.PlayWaveFileTests)
+A valid peak above full scale can force applied ReplayGain below zero dB. ... ok
+test_v82_replaygain_playback_loop_reuses_one_resolved_info_across_seek_restart (__main__.PlayWaveFileTests)
+The live controller must call the RG probe once even when FFplay restarts. ... ok
+test_v82_replaygain_positive_track_gain_math (__main__.PlayWaveFileTests)
+A positive gain with no peak remains an intentional positive normalization. ... ok
+test_v82_replaygain_restart_at_new_seek_offset_keeps_identical_gain (__main__.PlayWaveFileTests)
+Changing -ss must not recalculate or change the visit's ReplayGain filter. ... ok
+test_v82_replaygain_source_defaults_and_cli_are_documented_in_source (__main__.PlayWaveFileTests)
+Guard the default-on source policy and the single four-value --replaygain option. ... ok
+test_v82_replaygain_track_preferred_over_album (__main__.PlayWaveFileTests)
+Track mode must use track gain even when album gain is also valid. ... ok
+test_v82_replaygain_with_user_volume_at_or_below_100 (__main__.PlayWaveFileTests)
+FFplay -volume remains the user's <=100% control downstream of ReplayGain. ... ok
+test_v82_replaygain_with_user_volume_over_100_keeps_deliberate_boost (__main__.PlayWaveFileTests)
+ReplayGain clipping prevention must not erase PAFPlayer's explicit >100% boost. ... ok
+test_v83_album_art_has_five_pixel_border_and_exit_safe_geometry_save (__main__.PlayWaveFileTests)
+Guard the 96-DPI five-pixel baseline and exit-safe geometry save. ... ok
+test_v83_ctrl_alt_a_brings_album_art_forward_and_ctrl_a_still_edits_attrib (__main__.PlayWaveFileTests)
+The two A chords now have intentionally distinct responsibilities. ... ok
+test_v83_ctrl_alt_l_direct_poll_requires_console_input_focus (__main__.PlayWaveFileTests)
+Ctrl+Alt+L must not behave like a system-wide GetAsyncKeyState hotkey. ... ok
+test_v83_existing_attrib_gets_two_blank_lines_before_marked_pair (__main__.PlayWaveFileTests)
+V97 payload has exactly one blank physical line before the Marked comment. ... ok
+test_v83_learned_confirmation_is_filename_only_and_has_r_hint (__main__.PlayWaveFileTests)
+The HUD confirmation must not waste width on the already-known directory. ... ok
+test_v83_learned_extra_tag_prompt_enter_and_second_hotkey (__main__.PlayWaveFileTests)
+Typed comma tags commit on Enter; Ctrl+Alt+L again discards extras. ... ok
+test_v83_learned_extra_tag_prompt_timeout_without_input_is_learned_only (__main__.PlayWaveFileTests)
+V93 supersedes the earlier grace: 10s untouched still returns learned-only. ... ok
+test_v83_learned_extra_tags_append_in_one_two_line_record (__main__.PlayWaveFileTests)
+Ctrl+Alt+L extras must extend the same learned rule, never create extra records. ... ok
+test_v83_loose_learned_selector_strips_extension_bitrate_and_brackets (__main__.PlayWaveFileTests)
+Loose-file learned rules should describe the title, not transient rip metadata. ... ok
+test_v83_outer_playlist_callback_filters_disk_memory_and_queue_source (__main__.PlayWaveFileTests)
+Guard the outer-session contract that R updates disk, entry list, queue, and count. ... ok
+test_v83_q_is_help_dismissal_when_overlay_open_but_quits_normally_elsewhere (__main__.PlayWaveFileTests)
+V233 supersedes bare-Q search: Q opens the compact Q command menu; modified Q quits. ... ok
+test_v83_r_override_calls_playlist_removal_instead_of_random_toggle (__main__.PlayWaveFileTests)
+During the 8-second post-learned window, R removes instead of toggling shuffle. ... ok
+test_v83_remove_track_from_m3u_preserves_other_lines_and_comments (__main__.PlayWaveFileTests)
+Disk removal from M3U must delete only matching entries, not rewrite the playlist conceptually. ... ok
+test_v83_remove_track_from_pls_renumbers_and_updates_count (__main__.PlayWaveFileTests)
+PLS removal must keep File/Title/Length numbering internally consistent. ... ok
+test_v83_remove_track_from_xspf_removes_matching_track_block (__main__.PlayWaveFileTests)
+XSPF removal must delete the matching <track> while retaining siblings. ... ok
+test_v83_static_header_reserves_directory_row_above_play (__main__.PlayWaveFileTests)
+V90 supersedes the always-two-row header: Dir is reserved only when Play cannot fit. ... ok
+test_v83_true_silence_clears_visualizer_persistence_memory_source (__main__.PlayWaveFileTests)
+A verified all-zero analyzer frame must not leave ghost/fade bass bars behind. ... ok
+test_v83_url_no_tags_uses_five_second_blinking_yellow_error_source (__main__.PlayWaveFileTests)
+URL browse with no metadata must be visible rather than silently ignored. ... ok
+test_v84_only_unrequested_controls_remain_ungated_global_physical_polls (__main__.PlayWaveFileTests)
+Physical media/art controls remain global when the V523 Control switch is enabled. ... ok
+test_v84_requested_actions_still_exist_on_focused_interpretation_path (__main__.PlayWaveFileTests)
+Focus-only must not mean disabled: the ordinary semantic mappings remain intact. ... ok
+test_v84_requested_hotkeys_are_focus_gated_not_global_polled (__main__.PlayWaveFileTests)
+Every key moved in V84 must require pending console input before physical polling can fire. ... ok
+test_v85_editor_handoff_uses_alt_escape_and_restores_prior_foreground_window (__main__.PlayWaveFileTests)
+The Windows editor worker must implement the requested Alt+Esc + HWND restoration sequence. ... ok
+test_v85_effective_learned_check_uses_real_attrib_rule_evaluator (__main__.PlayWaveFileTests)
+Duplicate detection should reflect effective matching rules, including removals. ... ok
+test_v85_loose_learned_selector_turns_literal_dash_separator_into_wildcard (__main__.PlayWaveFileTests)
+Requested normalization uses wildcards for word separators. ... ok
+test_v85_mark_learned_checks_duplicate_before_prompt_and_uses_warning_style (__main__.PlayWaveFileTests)
+An already learned song must not prompt or append another rule. ... ok
+test_v85_previous_v83_url_and_album_art_fixes_remain_present (__main__.PlayWaveFileTests)
+Guard repeated user requirements against accidental regression in this pass. ... ok
+test_v85_successful_learned_mark_auto_opens_local_attrib_editor (__main__.PlayWaveFileTests)
+After append, the exact local attrib.lst is handed to the background editor workflow. ... ok
+test_v86_act_and_song_throbs_speed_up_without_changing_shuffle_throb (__main__.PlayWaveFileTests)
+Requested rate changes are +10% Act, +5% Song, with shuffle left alone. ... ok
+test_v86_album_art_existing_border_position_and_foreground_fixes_are_retained (__main__.PlayWaveFileTests)
+The repeated artwork requirements stay protected while idle drift is added. ... ok
+test_v86_append_track_to_m3u_preserves_audio_and_adds_membership (__main__.PlayWaveFileTests)
+INS disk helper appends playlist membership without copying/modifying audio. ... ok
+test_v86_audio_catalog_live_reconciliation_finds_file_missing_from_stale_filelist (__main__.PlayWaveFileTests)
+A query-specific background scan should supplement, not rewrite, a stale master list. ... ok
+test_v86_audio_catalog_prefers_primary_falls_back_and_matches_words_any_order (__main__.PlayWaveFileTests)
+INS catalog search uses audio-only paths and ANDs words without requiring order. ... ok
+test_v86_delete_playlist_entry_never_deletes_audio_file (__main__.PlayWaveFileTests)
+Playlist deletion is membership-only even when the entry is the current track. ... ok
+test_v86_dir_label_has_exactly_one_space_after_folder_emoji (__main__.PlayWaveFileTests)
+When V90 needs the overflow Dir row, its label still has exactly one space after \U0001f4c2. ... ok
+test_v86_f5_hard_redraw_clears_full_screen_and_dynamic_row_reflow_clears_stale_rows (__main__.PlayWaveFileTests)
+Observed duplicated Act/Song rows need a stronger recovery path than incremental repaint. ... ok
+test_v86_generated_learned_selector_backs_off_when_wildcard_collides (__main__.PlayWaveFileTests)
+A pretty broad selector may be used only when it identifies one sibling audio file. ... ok
+test_v86_generated_learned_selector_uses_exact_noise_only_as_last_resort (__main__.PlayWaveFileTests)
+When cleaned titles collide, correctness may restore VBR/bitrate text to stay unique. ... ok
+test_v86_help_has_experimental_section_progress_bar_style_and_pagination (__main__.PlayWaveFileTests)
+Compact help should paginate only when needed and keep progress styling in Visualizer. ... ok
+test_v86_idle_art_default_cli_and_media_player_guard_are_present (__main__.PlayWaveFileTests)
+Auto-raise has a source default, 0-disable CLI, and VLC/mpv/MPC suppression. ... ok
+test_v86_idle_art_drift_box_is_tiny_and_monitor_safe (__main__.PlayWaveFileTests)
+1%/10px dance bounds must keep every border at least 5px inside work area. ... ok
+test_v86_ins_runtime_additions_survive_inflight_loader_source (__main__.PlayWaveFileTests)
+A stale background playlist read must not overwrite an INS addition made after it began. ... ok
+test_v86_learned_remove_hint_is_16_seconds_and_fades_last_quarter (__main__.PlayWaveFileTests)
+The learned->R affordance lasts twice as long and fades during final 25%. ... ok
+test_v86_marked_record_spacing_is_two_blank_lines_then_exact_two_lines (__main__.PlayWaveFileTests)
+Existing attrib.lst gets two blank lines before comment, one rule line, final newline. ... ok
+test_v86_playlist_browser_ui_supports_jump_and_escape (__main__.PlayWaveFileTests)
+Playlist view retains navigation while V237 adds queue/selection/page controls. ... expected failure
+test_v86_playlist_edit_and_browser_keys_map_as_requested (__main__.PlayWaveFileTests)
+INS/Shift+INS/DEL/PgUp/PgDn must remain focused console actions. ... ok
+test_v86_playlist_search_ui_advertises_picker_completion_and_navigation (__main__.PlayWaveFileTests)
+INS UI must expose the requested completion/file-picker/navigation affordances. ... ok
+test_v86_standard_transient_decorators_have_symmetric_inner_spaces (__main__.PlayWaveFileTests)
+Both \U0001f4a5 and \u26a0 notice helpers normalize their output as visual brackets. ... ok
+test_v87_c_alias_dedupe_survives_different_stat_device_keys_via_samefile (__main__.PlayWaveFileTests)
+C:/T: aliases should still collapse even if Windows reports different st_dev values. ... ok
+test_v87_catalog_c_drive_alias_has_preference_over_t_drive_spelling (__main__.PlayWaveFileTests)
+When physical identity is equal, the C: representation is the preferred display spelling. ... ok
+test_v87_catalog_physical_aliases_deduplicate_to_one_existing_file (__main__.PlayWaveFileTests)
+A symlink/hardlink spelling for one real file must not produce two INS results. ... ok
+test_v87_catalog_query_dedupes_c_alias_after_lexical_narrowing (__main__.PlayWaveFileTests)
+INS query keystrokes use the already-deduped immutable lexical index. ... ok
+test_v87_catalog_search_filters_missing_files_and_physical_duplicates (__main__.PlayWaveFileTests)
+INS query results must be both existing and physically unique. ... ok
+test_v87_ctrl_alt_shift_i_maps_to_focus_only_idle_art_action (__main__.PlayWaveFileTests)
+Legacy shifted I still reaches idle art; V175 also restores unshifted Ctrl+Alt+I. ... ok
+test_v87_external_art_manual_idle_gallery_lifecycle_source (__main__.PlayWaveFileTests)
+The Tk owner thread should own gallery creation, dance, rebuild, and teardown. ... ok
+test_v87_help_and_usage_expose_manual_idle_gallery (__main__.PlayWaveFileTests)
+The full usage may document art while compact ? help intentionally does not. ... ok
+test_v87_idle_gallery_allocator_avoids_player_and_other_dance_areas (__main__.PlayWaveFileTests)
+Every extra artwork window must reserve a mutually exclusive full dance footprint. ... ok
+test_v87_idle_gallery_dance_footprints_include_player_and_are_mutually_disjoint (__main__.PlayWaveFileTests)
+Allocator guarantees should cover the full moving regions, not only initial windows. ... ok
+test_v87_idle_gallery_refuses_slots_when_pafplayer_occupies_monitor (__main__.PlayWaveFileTests)
+No related-art window should spawn when the player leaves no safe desktop region. ... ok
+test_v87_idle_gallery_uses_cover_as_main_and_other_variants_as_extras (__main__.PlayWaveFileTests)
+Idle mode should dedicate the primary window to cover and distribute the rest. ... ok
+test_v87_nonidle_album_art_rotation_weights_match_requested_shares (__main__.PlayWaveFileTests)
+Cover/back/other dwell weights should match the explicit V87 contract. ... ok
+test_v87_nonidle_album_art_uses_weighted_sampling_and_real_crossfade_source (__main__.PlayWaveFileTests)
+The normal artwork window should sample dwell weights and blend transition frames. ... expected failure
+test_v87_physical_dedupe_actually_selects_c_alias_when_identity_matches (__main__.PlayWaveFileTests)
+The physical-dedupe winner itself, not merely its ranking key, should be C:. ... ok
+test_v87_playlist_browser_rows_use_distinct_path_and_brighter_filename_colors (__main__.PlayWaveFileTests)
+Each playlist row should vary by index and render filename brighter than its path. ... expected failure
+test_v87_playlist_modal_finish_playback_calls_match_one_argument_signature (__main__.PlayWaveFileTests)
+Regression for both Enter-jump and DEL crashes caused by passing a stray position. ... expected failure
+test_v87_playlist_snapshot_builder_does_not_stat_35000_future_entries (__main__.PlayWaveFileTests)
+PgUp/PgDn snapshot construction must stay purely in-memory for huge playlists. ... ok
+test_v87_related_art_windows_keep_five_pixel_border (__main__.PlayWaveFileTests)
+Gallery windows should match the main popup's monitor-scaled border. ... ok
+test_v87_startup_immediately_enters_manual_style_idle_routine (__main__.PlayWaveFileTests)
+The first artwork load should start dance/gallery without waiting for idle timeout. ... ok
+test_v88_alt3_is_focus_only_tag_overlay_and_escape_is_consumed_by_modal_source (__main__.PlayWaveFileTests)
+Alt+3 must be discoverable/focus-gated and the tag browser owns Esc/Q. ... ok
+test_v88_collection_setup_builds_junction_commands_and_is_called_before_playback_settings (__main__.PlayWaveFileTests)
+First-run C:\mp3/C:\music bootstrap should be explicit and non-destructive. ... ok
+test_v88_ctrl_a_after_already_learned_uses_parent_lookup_source (__main__.PlayWaveFileTests)
+The duplicate-learned state should alter only the next/current-track Ctrl+A resolution. ... ok
+test_v88_dir_row_has_dim_parent_bright_final_folder_and_no_folder_banner (__main__.PlayWaveFileTests)
+The screenshot's duplicate Folder line is removed; Dir emphasizes only final component. ... ok
+test_v88_hud_keeps_original_artist_and_composer_visible (__main__.PlayWaveFileTests)
+Credit tags may wrap but must never be silently discarded. ... ok
+test_v88_learned_extra_tags_switch_to_30_second_idle_timeout_after_typing (__main__.PlayWaveFileTests)
+The original 5s timer disappears permanently after the first typed edit. ... ok
+test_v88_metadata_colon_visual_adjustment_moves_act_one_cell_right (__main__.PlayWaveFileTests)
+Act/Year first-column colon gets the requested Windows-Terminal visual correction. ... ok
+test_v88_nearest_parent_attrib_is_selected_after_inherited_learned (__main__.PlayWaveFileTests)
+Nearest parent attrib.lst should win when no local file exists. ... ok
+test_v88_probe_metadata_exposes_original_artist_composer_and_raw_tags_from_one_probe (__main__.PlayWaveFileTests)
+TOPE/composer should reach HUD fields while Alt+3 raw tags reuse the same ffprobe. ... ok
+test_v89_dense_one_row_metadata_first_colon_matches_play_and_dir (__main__.PlayWaveFileTests)
+The greedy one-line path must not start Act: at column zero anymore. ... ok
+test_v89_learned_extra_tags_commit_only_on_enter (__main__.PlayWaveFileTests)
+Printable text is provisional; Enter is the only path that returns extra tags. ... ok
+test_v89_learned_extra_tags_second_hotkey_and_escape_discard_typed_buffer (__main__.PlayWaveFileTests)
+Accidental text cannot survive Esc or a deliberate second Ctrl+Alt+L. ... ok
+test_v89_learned_extra_tags_timeout_discards_typed_buffer (__main__.PlayWaveFileTests)
+A 30-second typing inactivity timeout must mark learned-only, never persist stray keys. ... ok
+test_v89_strict_grid_act_colon_does_not_shift_when_year_is_missing (__main__.PlayWaveFileTests)
+Act/Year semantic width is fixed even when only Act exists on the first row. ... ok
+test_v90_compact_header_hides_dir_when_complete_play_line_fits (__main__.PlayWaveFileTests)
+A complete full-path Play line should consume one row, not duplicate Dir. ... ok
+test_v90_compact_header_reclaims_metadata_row_when_dir_is_hidden (__main__.PlayWaveFileTests)
+The nested layout must derive all later rows from conditional PLAY_ROW. ... ok
+test_v90_editor_handoff_clicks_editor_before_alt_escape_and_focus_restore (__main__.PlayWaveFileTests)
+EditPlus must actually receive one activation/click so its taskbar entry stops flashing. ... ok
+test_v90_web_cli_options_are_documented_and_parsed (__main__.PlayWaveFileTests)
+The restored port can be disabled or moved without source edits. ... ok
+test_v90_web_defaults_restore_original_localhost_666_contract (__main__.PlayWaveFileTests)
+The lost web branch is restored with safe loopback defaults. ... expected failure
+test_v90_web_server_exposes_status_art_tags_actions_and_visualizer_routes (__main__.PlayWaveFileTests)
+Keep the restored remote surface from silently shrinking in another branch merge. ... ok
+test_v90_web_server_main_session_is_started_passed_to_playback_and_closed (__main__.PlayWaveFileTests)
+The localhost server belongs to the whole session, not one FFplay reconstruction. ... ok
+test_v90_web_server_real_ephemeral_roundtrip_and_action_queue (__main__.PlayWaveFileTests)
+Exercise the dependency-free HTTP server, not merely its constants. ... ok
+test_v91_historical_branch_audit_sentinels (__main__.PlayWaveFileTests)
+Guard the major old branches that have previously been vulnerable to merge loss. ... ok
+test_v91_marked_record_is_physically_two_lines_comment_then_rule (__main__.PlayWaveFileTests)
+The attrib writer must prove the comment/rule newline exists before opening the editor. ... ok
+test_v91_multi_track_near_eof_resume_restarts_same_song_then_advances_normally (__main__.PlayWaveFileTests)
+A near-EOF saved visit should neither instant-exit nor confuse distinct-next logic. ... ok
+test_v91_multidisc_learned_selector_uses_disc_and_track_prefix (__main__.PlayWaveFileTests)
+4_01_ is a durable album identity and should beat a giant escaped title regex. ... ok
+test_v91_recent_shuffle_all_recent_has_bounded_fallback (__main__.PlayWaveFileTests)
+When every alternative is recent, one finite queue pass returns the original proposal. ... ok
+test_v91_recent_shuffle_candidate_searches_forward_once_and_avoids_three_hours (__main__.PlayWaveFileTests)
+A <3h proposal is replaced with a distinct older/never track without retry loops. ... ok
+test_v91_recent_shuffle_unknown_cache_performs_one_targeted_history_query (__main__.PlayWaveFileTests)
+A provisional shuffle candidate is still checked against history if background scoring has not reached it. ... expected failure
+test_v91_shuffle_transition_calls_three_hour_guard_after_resume_successor (__main__.PlayWaveFileTests)
+The 3h guard must cover both provisional and completed historical-shuffle transitions. ... ok
+test_v91_single_disc_track_prefix_still_uses_track_number_only (__main__.PlayWaveFileTests)
+Legacy 01_Title album files keep the compact one-number selector. ... ok
+test_v91_single_distinctless_playlist_replays_instead_of_exiting_to_prompt (__main__.PlayWaveFileTests)
+No distinct successor is a legal one-track state, not a fatal playlist exception. ... ok
+test_v92_emojimax_low_uses_down_pointing_finger (__main__.PlayWaveFileTests)
+The semantic low token should now render as \U0001f447. ... ok
+test_v92_format_tag_panel_never_returns_adjacent_duplicate_visible_rows (__main__.PlayWaveFileTests)
+Two identical consecutive Act/Song/Album rows are never a legal metadata result. ... ok
+test_v92_learned_prompt_initial_grace_is_eight_seconds_and_typing_idle_remains_thirty (__main__.PlayWaveFileTests)
+Give slightly more time to begin typing without changing the explicit 30s inactivity rule. ... ok
+test_v92_metadata_layout_is_calculated_once_after_real_visualizer_flags_exist (__main__.PlayWaveFileTests)
+Metadata geometry is first built only after the real visualizer flags exist. ... ok
+test_v92_metadata_repaint_clears_reserved_rows_before_rewriting (__main__.PlayWaveFileTests)
+Terminal repaint should erase old row contents before drawing animated metadata. ... ok
+test_v93_artist_and_song_throb_are_25_percent_faster_than_v92 (__main__.PlayWaveFileTests)
+V93 divides both existing animation periods by 1.25 and leaves shuffle unchanged. ... ok
+test_v93_ctrl_o_is_focus_only_open_playlist_action (__main__.PlayWaveFileTests)
+Ctrl+O is decoded from the buffered console control character; no global poll is added. ... ok
+test_v93_ctrl_o_playlist_switch_cleans_session_before_self_exec (__main__.PlayWaveFileTests)
+Main does not splice playlist state; it records the picker result and relaunches after finally. ... ok
+test_v93_dense_three_field_row_uses_available_width_for_album_year_genre (__main__.PlayWaveFileTests)
+V169 supersedes forced edge-filling: preserve all fields before spending slack. ... ok
+test_v93_empty_attrib_selector_is_global_learned_rule (__main__.PlayWaveFileTests)
+A literal ':learned' line must classify every audio file in that attrib.lst scope. ... ok
+test_v93_extract_album_art_uses_vlc_only_as_final_fallback_and_does_not_materialize_it (__main__.PlayWaveFileTests)
+VLC cache bytes are display fallback, not permission to write cover.jpg beside the song. ... ok
+test_v93_last_play_uses_compact_age_and_never_ago (__main__.PlayWaveFileTests)
+The HUD vocabulary is Last play with minute/hour abbreviations, never prose 'ago'. ... ok
+test_v93_vlc_artistalbum_cache_fallback_reads_matching_art (__main__.PlayWaveFileTests)
+VLC-cached artist/album art should be usable when the audio file itself has none. ... ok
+test_v93_web_server_announces_actual_port_twice_for_visibility (__main__.PlayWaveFileTests)
+Startup line plus one transient player notice make the actual bound port hard to miss. ... ok
+test_v94_playback_loop_assigns_now_before_web_publication (__main__.PlayWaveFileTests)
+Regression: V93 crashed immediately because web status read `now` before assignment. ... ok
+test_v95_ctrl_u_chooser_shows_urls_and_highlights_all (__main__.PlayWaveFileTests)
+Numbers are meaningful only when their actual URLs are visible beside them. ... ok
+test_v95_last_play_never_is_rendered_not_suppressed (__main__.PlayWaveFileTests)
+Never-played tracks should explicitly show Last play: Never. ... ok
+test_v95_web_control_schema_covers_all_live_multi_choice_families (__main__.PlayWaveFileTests)
+Every major live choice family gets a dropdown; toggles/experimentals get checkboxes. ... ok
+test_v95_web_control_schema_route_and_parameterized_post_roundtrip (__main__.PlayWaveFileTests)
+Exercise the new schema route and dynamic setting action through the real HTTP server. ... ok
+test_v95_web_has_winamp_wawi_style_separate_play_pause_stop_controls (__main__.PlayWaveFileTests)
+Transport should have independent Play/Pause/Stop buttons with classic beveled styling. ... ok
+test_v95_web_javascript_visualizer_uses_same_analyzer_timeline (__main__.PlayWaveFileTests)
+Canvas visualizer receives real FFmpeg-spectrum data, not a fake random animation. ... ok
+test_v95_web_lyrics_are_large_above_controls_and_line_rainbow (__main__.PlayWaveFileTests)
+The sung line should be dominant, rainbow, and immediately above Choices. ... ok
+test_v95_web_maintenance_contract_is_in_source_and_ui (__main__.PlayWaveFileTests)
+Future control additions carry an explicit reminder to update the browser too. ... ok
+test_v95_web_parameterized_dropdown_slider_actions_are_validated (__main__.PlayWaveFileTests)
+Remote direct setters must be bounded before entering the playback owner thread. ... ok
+test_v95_web_progress_is_clickable_and_emits_ratio_seek_action (__main__.PlayWaveFileTests)
+Browser progress clicks must enqueue an exact normalized seek ratio. ... ok
+test_v95_web_time_matches_terminal_mmss_hhmmss_shape (__main__.PlayWaveFileTests)
+JavaScript uses the same whole-second m:ss / h:mm:ss formatting as format_position(). ... ok
+test_v96_external_art_window_acknowledges_taskbar_attention_once (__main__.PlayWaveFileTests)
+The first Tk show must activate/click once, restore cursor, then restore prior focus. ... ok
+test_v96_hud_alignment_ignores_colons_inside_artist_and_song_values (__main__.PlayWaveFileTests)
+Value punctuation must never be collected by the remembered-colon scanner. ... ok
+test_v96_hud_right_justifies_song_and_aligns_year_colon_under_song (__main__.PlayWaveFileTests)
+MLP regression: preserve full long values and take free semantic colon alignment. ... ok
+test_v96_web_album_art_mouse_contract_is_prev_next_middle_fullsize (__main__.PlayWaveFileTests)
+Browser art mirrors the native direction contract and middle opens raw/full-size art. ... expected failure
+test_v96_web_art_endpoint_serves_requested_related_variant (__main__.PlayWaveFileTests)
+`/api/art?index=N` should return that related image rather than always the cover. ... ok
+test_v96_web_metadata_and_detected_urls_are_clickable (__main__.PlayWaveFileTests)
+HTTP(S) URLs in tag values and the detected URL list should become real anchors. ... ok
+test_v96_web_track_worker_loads_same_related_art_family_as_native_popup (__main__.PlayWaveFileTests)
+The web art worker should call extract_album_art_variants, not only extract_album_art. ... ok
+test_v97_album_art_attempt_database_roundtrip (__main__.PlayWaveFileTests)
+TEMP SQLite attempt state survives revisits and records success/detail. ... ok
+test_v97_album_art_triple_click_and_resize_fill_contract_source (__main__.PlayWaveFileTests)
+Triple left click opens the viewer; current art is contained in the user rectangle. ... ok
+test_v97_aresample_is_last_stage_of_single_filter_chain (__main__.PlayWaveFileTests)
+ReplayGain/speed/boost/balance/channel filters still compose into one -af before output resampling. ... ok
+test_v97_base_attribute_empty_selector_can_globally_mark_learned (__main__.PlayWaveFileTests)
+A base-file ':learned' line means every song is learned, just like ordinary attrib.lst. ... ok
+test_v97_base_attribute_file_is_loaded_once_and_applied_last (__main__.PlayWaveFileTests)
+Global C:\mp3\mp3-base-attributes.lst semantics participate after local rules. ... ok
+test_v97_download_target_respects_misc_exact_stem_policy (__main__.PlayWaveFileTests)
+Downloaded art beneath MISC is Song.ext; album folders get cover.ext. ... ok
+test_v97_hud_places_genre_under_song_lastplay_under_album_comment_under_song (__main__.PlayWaveFileTests)
+V263 Tears For Fears layout keeps Album/Comment as the right-side colon family. ... ok
+test_v97_last_play_never_does_not_get_stranded_on_own_row_when_it_can_fit (__main__.PlayWaveFileTests)
+Short Cats Millionaire metadata must squeeze Never beside other fields. ... ok
+test_v97_learned_prompt_pumps_visualizer_while_waiting (__main__.PlayWaveFileTests)
+The modal extra-tag prompt must keep servicing the visualizer instead of freezing it. ... ok
+test_v97_marked_payload_is_blank_comment_rule_blank (__main__.PlayWaveFileTests)
+Exact human-readable attrib payload has one blank physical line on each outside edge. ... ok
+test_v97_misc_embedded_materialization_uses_exact_audio_stem (__main__.PlayWaveFileTests)
+Embedded art exported beneath MISC must become Song.jpg, never generic cover.jpg. ... ok
+test_v97_misc_subtree_art_candidates_are_exact_stem_only (__main__.PlayWaveFileTests)
+Anything anywhere beneath a MISC component uses loose-song art semantics. ... ok
+test_v97_misc_variants_allow_embedded_but_reject_unrelated_sidecars (__main__.PlayWaveFileTests)
+MISC's valid set is embedded current-file art plus exact-stem sidecars. ... expected failure
+test_v97_musicbrainz_cover_download_mock_roundtrip (__main__.PlayWaveFileTests)
+Explicit downloader searches MusicBrainz, fetches CAA art, and saves a non-destructive sidecar. ... ok
+test_v97_no_art_popup_download_and_title_contract_source (__main__.PlayWaveFileTests)
+No-art behavior, retry prompt, live title and successful refresh remain wired together. ... ok
+test_v97_warning_render_payload_has_terminal_only_opening_safety_space (__main__.PlayWaveFileTests)
+Nested notice renderer keeps semantic symmetry and adds one WT-only opening safety cell. ... ok
+test_v97_wav_output_rate_uses_aresample_not_decoder_ar (__main__.PlayWaveFileTests)
+44.1-kHz PCM must not be reinterpreted at 192 kHz by FFplay's decoder -ar. ... ok
+test_winamp_is_paused_and_resumed_without_stop (__main__.PlayWaveFileTests) ... ok
+test_v369_gui_lyric_animation_uses_playback_clock (__main__.TestV369SmoothAudioPluralSync) ... ok
+test_v369_plural_emojimax_uses_global_count (__main__.TestV369SmoothAudioPluralSync) ... ok
+test_v369_stereo_waveout_format_and_command (__main__.TestV369SmoothAudioPluralSync) ... ok
+test_v265_web_visualizer_is_browser_owned_and_gated (__main__.V265BrowserOwnedVisualizerRegressionTests) ... expected failure
+
+----------------------------------------------------------------------
+Ran 695 tests in 158.187s
+
+OK (expected failures=57)
+Expected-failure categories: historical source or layout assertion: 39, behavior or fixture discrepancy still requiring reassessment: 18

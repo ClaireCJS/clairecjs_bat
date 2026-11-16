@@ -2,6 +2,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field, replace
 import csv
+import hashlib
 import io
 import json
 import math
@@ -84,7 +85,7 @@ def marker(path):
     return None
 
 
-def ocr(image, executable, tessdata, eco=False, full=False, psm=11):
+def ocr(image, executable, tessdata, eco=False, full=False, psm=11, *, timeout=120):
     np, _, Image, _, _, _, _, _ = libraries()
     factor = min(1.0, (1200 if eco else 1800) / max(image.size)) if not full else 1.0
     prepared = image
@@ -103,7 +104,7 @@ def ocr(image, executable, tessdata, eco=False, full=False, psm=11):
     buffer = io.BytesIO()
     prepared.save(buffer, format="PNG")
     command = [str(executable), "stdin", "stdout", "--tessdata-dir", str(tessdata), "-l", "eng", "--psm", str(psm), "-c", "tessedit_create_tsv=1"]
-    result = subprocess.run(command, input=buffer.getvalue(), capture_output=True, timeout=120,
+    result = subprocess.run(command, input=buffer.getvalue(), capture_output=True, timeout=timeout,
                             env=dict(os.environ, OMP_THREAD_LIMIT="1", OMP_NUM_THREADS="1"))
     if result.returncode:
         raise DependencyUnavailable("Tesseract failed: " + result.stderr.decode("utf-8", "replace")[:500])
@@ -443,6 +444,13 @@ def render_region(image, region, protected, *, repair_only=False):
         label_bounds=(min(crop_box[0],chosen[2][0]),min(crop_box[1],chosen[2][1]),max(crop_box[2],chosen[2][2]),max(crop_box[3],chosen[2][3]))
         if any(overlaps(label_bounds,p) for p in neighbors): raise RenderBlocked("Explicit caption label would cover protected text.")
         Draw.Draw(composite).rectangle(label_bounds,fill=tuple(cfg["label"]))
+    # Compare the rendered glyph core with the repaired pixels beneath it.
+    # Actual luminance change captures low-contrast ink and translucent text.
+    background_pixels=np.asarray(composite.crop(chosen[2]),dtype=np.float32)[:,:,:3]
+    ink=np.asarray(chosen[0],dtype=np.float32)
+    alpha_mask=ink[:,:,3]>=max(24,float(ink[:,:,3].max())*.8)
+    luma=(ink[:,:,:3]-background_pixels) @ np.array([.2126,.7152,.0722],dtype=np.float32)
+    ink_contrast=float(np.median(np.abs(luma[alpha_mask])*ink[:,:,3][alpha_mask]/255)) if alpha_mask.any() else 0.
     composite.alpha_composite(chosen[0],chosen[1])
     overlay = original.copy()
     tint = Image.new("RGBA",original.size,(255,30,40,140))
@@ -484,7 +492,7 @@ def render_region(image, region, protected, *, repair_only=False):
         level=3;warnings.append('Stronger automatic fitting reduced text size or width; check readability before approving.')
     affected = (min(crop_box[0],chosen[2][0]),min(crop_box[1],chosen[2][1]),max(crop_box[2],chosen[2][2]),max(crop_box[3],chosen[2][3]))
     return composite,{"level":level,"style":{k:v for k,v in style.items() if k!="source_mask"},
-                      "repair":method,"adaptive_parameters":adaptive_info,"font_used":adaptive_info["font"] if adaptive_info else cfg.get("font",style["font"]),"shadow":shadow,"shadow_blur":float(cfg.get("blur",.5)),"source_boxes":[w.box for w in region.words],"seam_warning":seam,"fit_scale":chosen[3],"horizontal_scale":chosen[5],"fit_action":chosen[6],"fit_retry":retry,"fit_trials":trials,"text_bounds":chosen[2],"affected":affected,"expansion_warning":expansion_warning,"warnings":warnings}, {
+                      "repair":method,"ink_contrast":ink_contrast,"adaptive_parameters":adaptive_info,"font_used":adaptive_info["font"] if adaptive_info else cfg.get("font",style["font"]),"shadow":shadow,"shadow_blur":float(cfg.get("blur",.5)),"source_boxes":[w.box for w in region.words],"seam_warning":seam,"fit_scale":chosen[3],"horizontal_scale":chosen[5],"fit_action":chosen[6],"fit_retry":retry,"fit_trials":trials,"text_bounds":chosen[2],"affected":affected,"expansion_warning":expansion_warning,"warnings":warnings}, {
                       "original":original,"mask":overlay,"repair":repair_image,"corrected":composite.crop(affected)}
 
 
@@ -651,7 +659,7 @@ def save_image(image, metadata, path, transaction, original_hash, rules_hash, ec
             raise IntegrityError("Staging output dimensions/frame count failed validation.")
 
 
-def proposal(source, image, metadata, region_list, protected, root, ocr_executable, original_hash, rules_hash, eco=False, transaction=None, artifact_callback=None, caption_lines=None):
+def proposal(source, image, metadata, region_list, protected, root, ocr_executable, original_hash, rules_hash, eco=False, transaction=None, artifact_callback=None, caption_lines=None, fit_review=None):
     _, _, Image, Draw, _, _, _, _ = libraries()
     transaction = transaction or str(uuid.uuid4())
     capacity(Path(source).parent,image.width*image.height*12)
@@ -673,7 +681,20 @@ def proposal(source, image, metadata, region_list, protected, root, ocr_executab
     prefix = ".icgf-"+transaction
     faces=scene_faces(image)
     from .smart_fitting import render_plan
-    current,rendered,blocked=render_plan(image,region_list,protected,caption_lines or [])
+    recognized={}
+    def recognize(output,box,*,preview=False):
+        crop=output.crop(box)
+        key=(crop.size,hashlib.sha256(crop.tobytes()).digest())
+        if key not in recognized:
+            options={'timeout':3} if preview else {}
+            recognized[key]=ocr(crop,ocr_executable,Path(root)/"environment/tessdata",eco,True,6,**options)
+        return recognized[key]
+    def render(alternative):
+        return render_plan(image,region_list,protected,caption_lines or [],alternative=alternative)
+    if fit_review is None:current,rendered,blocked=render(None)
+    else:
+        from .fit_review import select
+        current,rendered,blocked=select(fit_review,render,lambda output,box:recognize(output,box,preview=True),region_list)
     for index,diagnostic,crops in rendered:
         region=region_list[index]
         if any(overlaps(diagnostic["affected"],face) for face in faces):
@@ -705,7 +726,7 @@ def proposal(source, image, metadata, region_list, protected, root, ocr_executab
     finished(entry,stage)
     verification = []
     for region,diagnostic in [(region_list[i],d) for d in diagnostics for i in d.get('members',[d['index']])]:
-        detected = ocr(current.crop(diagnostic["affected"]),ocr_executable,Path(root)/"environment/tessdata",eco,True,6)
+        detected = recognize(current,diagnostic["affected"])
         final_text = " ".join(line["text"] for line in detected)
         expected = region.after.casefold().split()
         passed = all(word.strip(".,!?;:") in final_text.casefold() for word in expected)
@@ -716,6 +737,8 @@ def proposal(source, image, metadata, region_list, protected, root, ocr_executab
         verification.append({"region":next(i for i,r in enumerate(region_list) if r is region),"replacement_confirmed":passed,"source_absent":source_absent})
         if not passed:
             diagnostic["level"] = max(2,diagnostic["level"])
+    options=fit_review.summary() if fit_review is not None else None
     return {"transaction":transaction,"stage":str(stage),"artifacts":artifacts,"diagnostics":diagnostics,
-            "level":max(d["level"] for d in diagnostics),"verification":verification,
+            "level":max([2 if options else 1,*(d["level"] for d in diagnostics)]),"verification":verification,
+            "fit_review":options,
             "trace":[t for r in region_list if not r.skipped for t in r.trace]}

@@ -1,0 +1,26 @@
+{
+  "version": "V660",
+  "new_diagnostic_and_playback_tests": 6,
+  "piper_setup_tests": 4,
+  "help_tests": 3,
+  "existing_dj_tests": 22,
+  "command_tests": 7,
+  "bundled_modules_compiled": 28,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true,
+  "live_local_probe": {
+    "synthetic_track": true,
+    "requested_seconds": 90,
+    "dialogue_turns": 10,
+    "valid_speech_files": 10,
+    "log_created": true,
+    "sample_track_metadata_in_log": false
+  },
+  "existing_v659_session_observed": {
+    "enabled": true,
+    "local_fallback": "ollama and piper",
+    "ready": true,
+    "transport_paused": true
+  },
+  "literal_c_bat_changes": []
+}

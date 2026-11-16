@@ -1,0 +1,76 @@
+{
+  "profiled": false,
+  "version": "V646",
+  "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+  "source_sha256": "9c0c52dddcb8b6971cf8c269b67703e1de33fe12ee75c6d7e7d28245cf6beb65",
+  "results": [
+    {
+      "name": "artwork_layout_900",
+      "median_ms": 8.109299931675196,
+      "max_ms": 136.43490010872483,
+      "cpu_median_ms": 15.625
+    },
+    {
+      "name": "artwork_color_900",
+      "median_ms": 12.103699962608516,
+      "max_ms": 133.29130003694445,
+      "cpu_median_ms": 15.625,
+      "sha256": "8834fae76121189dc0e5d1d705cfdf509205bb2e980d05d884e020b53dee3514"
+    },
+    {
+      "name": "upload_900",
+      "median_ms": 7.452199934050441,
+      "max_ms": 7.569300010800362,
+      "cpu_median_ms": 15.625
+    },
+    {
+      "name": "artwork_layout_1920",
+      "median_ms": 18.69779999833554,
+      "max_ms": 36.228799959644675,
+      "cpu_median_ms": 15.625
+    },
+    {
+      "name": "artwork_color_1920",
+      "median_ms": 17.991000087931752,
+      "max_ms": 21.522499970160425,
+      "cpu_median_ms": 15.625,
+      "sha256": "13484f12e8238a528dae2897c20776acf80fb66cd0de73ae593bb3d65da64737"
+    },
+    {
+      "name": "upload_1920",
+      "median_ms": 27.864300063811243,
+      "max_ms": 29.85699998680502,
+      "cpu_median_ms": 31.25
+    },
+    {
+      "name": "inherited_color_empty_mask_300",
+      "median_ms": 0.06120000034570694,
+      "max_ms": 0.10929990094155073,
+      "cpu_median_ms": 0.0,
+      "value": "#f4f8ff"
+    },
+    {
+      "name": "inherited_color_left_padding_300",
+      "median_ms": 0.3413999220356345,
+      "max_ms": 0.48070005141198635,
+      "cpu_median_ms": 0.0,
+      "value": "#148ce6"
+    },
+    {
+      "name": "inherited_color_empty_mask_900",
+      "median_ms": 0.2687000669538975,
+      "max_ms": 0.30670000705868006,
+      "cpu_median_ms": 0.0,
+      "value": "#f4f8ff"
+    },
+    {
+      "name": "inherited_color_left_padding_900",
+      "median_ms": 1.7868999857455492,
+      "max_ms": 1.9079999765381217,
+      "cpu_median_ms": 0.0,
+      "value": "#148ce6"
+    }
+  ],
+  "blocks": [],
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\karaoke-v646-20261109-011558"
+}

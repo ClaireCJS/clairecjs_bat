@@ -1,0 +1,29 @@
+{
+  "version": "V646",
+  "source_sha256": "9c0c52dddcb8b6971cf8c269b67703e1de33fe12ee75c6d7e7d28245cf6beb65",
+  "quiet": {
+    "median_ms": 4.142899997532368,
+    "max_ms": 4.461999982595444,
+    "samples_ms": [
+      4.342400003224611,
+      4.12319996394217,
+      4.461999982595444,
+      4.142899997532368,
+      4.109700093977153
+    ]
+  },
+  "competing_python_thread": {
+    "median_ms": 2229.4217000016943,
+    "max_ms": 2242.922500008717,
+    "samples_ms": [
+      2241.99749995023,
+      2202.4355999892578,
+      1609.335600049235,
+      2242.922500008717,
+      2229.4217000016943
+    ]
+  },
+  "settings_load_calls": 20,
+  "caveat": "Synthetic shared-interpreter contention; not full player FPS",
+  "blocks": []
+}

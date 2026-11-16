@@ -1,0 +1,602 @@
+{
+  "versions": [
+    647,
+    648
+  ],
+  "source_sha256": "0f3cfeb92523216db34f27ce36af3e4bbbc10da9dc890c87d2e97833deae1476",
+  "paths": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\PAFPlayer_changelog.md.bak.202611090726.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "d13ffa9f6879fe4e86bdf10bfcdef712084a16ede91c41dc78c293ae8326fe88"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\PAFPlayer_changelog.md.bak.202611090732.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "e0b548cf5a745e6adefe2560f94be3c44563aee6bc6ff0e74329cacacaa141c4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\PAFPlayer_changelog.md.bak.202611091329.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "f333250f40963c0335bef1c505d24e92cf2784b22e0cf1f0b4c40eb8cf97a7c4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\PAFPlayer_changelog.md",
+      "status": "modified",
+      "sha256": "09690edf4437a5c8ca095b20efc2207fdcb35ea148512d30976c80c4d8ba65b6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\PAFPlayer_v647_status_publication_stalls_release_notes.md.bak.202611090732.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "7d5297f945d56c77189bb57717206a3f78a36423d4b665fdd2b148171b829bab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\performance-v519.md",
+      "status": "modified",
+      "sha256": "31140621dcb938dc6d04752743b7856b74248366037bef607d69d1a447dce1cf"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\performance-v519.md.bak.202611090726.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "530846ec851f1228c9c1121e3d974c8fd93fc6475c22a4f09ab79bccc680395c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\performance-v519.md.bak.202611090732.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "1da31969adc6f5a50f53fea17fe8aa0a252cc087f7da6559d93efa940d1cf5d5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\performance-v519.md.bak.202611091329.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "c346b454d6b93aba140a4d9146566fc07d842ba9d9578d794441be92da64a448"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md",
+      "status": "modified",
+      "sha256": "21de59817ba294855bf070aa323273509ad0a58a1c118b93ce003fba16c4230d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md.bak.202611090726.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "055ec65a336ea31dd0662bb6dfb78623cbf02018243d923cff0b4c22522fc48c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md.bak.202611091329.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "3aeca246857d4e80560e65b18cec526b3fb3298fcca9497380d4e14e340e6c25"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+      "status": "modified",
+      "sha256": "0f3cfeb92523216db34f27ce36af3e4bbbc10da9dc890c87d2e97833deae1476"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611090722.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "9c0c52dddcb8b6971cf8c269b67703e1de33fe12ee75c6d7e7d28245cf6beb65"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611090735.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "df8d90d57b353b976df7e7cff4a88b2f256efc4b43b880214120aa442c1aa6a8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v647_status_publication_stalls.py",
+      "status": "created",
+      "sha256": "df8d90d57b353b976df7e7cff4a88b2f256efc4b43b880214120aa442c1aa6a8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v647_status_publication_stalls_release_notes.md",
+      "status": "created",
+      "sha256": "34c5c23efaf1d344e8b33f60d74ad66936d2b64116e48be5553aaac415823568"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v648_local_stack_diagnostics.py",
+      "status": "created",
+      "sha256": "0f3cfeb92523216db34f27ce36af3e4bbbc10da9dc890c87d2e97833deae1476"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v648_local_stack_diagnostics_release_notes.md",
+      "status": "created",
+      "sha256": "1bd09815e4a4620102d1e4e5abf014bd1c7e8ece818c20e25cf83f20e64e8101"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\benchmark_v647_status_stalls.py",
+      "status": "created",
+      "sha256": "6d59d88c72fb522c78c22968f5ea1d01b315cc355d0e4c35509077829857ca5a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_v648_thread_stacks.py",
+      "status": "created",
+      "sha256": "832dfb862d0bfaf9ae643c6971dcd6c5832a491564dba7cf70fe68369b7dd681"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\profile_v647_status.py",
+      "status": "created",
+      "sha256": "d55a68033d059270f836f7df4abc835e60ba2fa1e8e362bb5a0f9bac7ffd8f1c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v647-checks-V647-20261109-072329.json",
+      "status": "created",
+      "sha256": "46f43eff938f89c881a0279b5b55e4cfa9fc304df10ae9b0781d8beb64cdffaf"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v647-checks-V647-20261109-072329.log",
+      "status": "created",
+      "sha256": "5ff0d3d1ffb59e00339c823a53bdd8cb63a0327f35aac72da34bcf96b088cc05"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v647-comparison.json",
+      "status": "created",
+      "sha256": "c09ab0788b8b44a99aa0e664a9c3eea05300cb34fb8c73774e1374ad53d20757"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v647-live-after-20261109-072747.json",
+      "status": "created",
+      "sha256": "ba24a985f262445060cd6baaa50f31a7feac1505c13edf9607437b5410ad2db6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v647-live-components-20261109-071627.json",
+      "status": "created",
+      "sha256": "c703c037d498fdc5533ac420f8ba1795aa7d78c50814abe3bb2447b0841b47d6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v647-status-contention-V646-20261109-072155.json",
+      "status": "created",
+      "sha256": "db91abbaa429244d5de8c35f6463e273beedb171f31b6ad099e685102568d1fe"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v647-status-contention-V647-20261109-072256.json",
+      "status": "created",
+      "sha256": "d3774a246ee01a1179236b066e3dff4e8b15f10ade43ee50b58e878e75cc24cc"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v647-status-profile-V646-20261109-071854.json",
+      "status": "created",
+      "sha256": "72fe21caed7a7d5cb331dc3b14924ed43dedf18ecb6d4c39ea1a55fcb36a5f33"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v647-status-profile-V646-20261109-071854.txt",
+      "status": "created",
+      "sha256": "022d821468d5754cb9e9b0be26fee74474ec320b9d3630313d598a21839c3d8b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-checks-V648-20261109-073527.json",
+      "status": "created",
+      "sha256": "4e392bfb95c9211fc81dd2a334333354b647aec1490c5c03a32a4e060d0bd716"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-checks-V648-20261109-073527.log",
+      "status": "created",
+      "sha256": "3a2bb8ce00573b47b5ca6d8685dfe49b765ebdf53e9fc270dc3b1ac0ad48715e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-checks-V648-20261109-073708.json",
+      "status": "created",
+      "sha256": "02a10ce20439704105b813ed062717b4628322f5b3d6eaee28a6acdd30333edf"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-checks-V648-20261109-073708.log",
+      "status": "created",
+      "sha256": "a9f430b7f23fa21cab6d3ab76f1d58e1a8962d06855e0cc93a5d0c025fef65dc"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "df8d90d57b353b976df7e7cff4a88b2f256efc4b43b880214120aa442c1aa6a8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tests\\test_v619_karaoke_entry.py",
+      "status": "created",
+      "sha256": "00beec6d4566a71010b0cdc4155d4b425346fea68c3e5f47ff1522c619950bf3"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tests\\test_v641_emojimax_solution_color.py",
+      "status": "created",
+      "sha256": "84941e33a81a09fdd605a877861ba64744d72c482cf9aee9cfed180df660a4ad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tests\\test_v642_artwork_chrome.py",
+      "status": "created",
+      "sha256": "ce9da0e9a1ee14ff8c426aab3aaf89e59c65ca6b11bc5e0eb7d4f7bcd132847a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tests\\test_v643_artwork_karaoke_fit.py",
+      "status": "created",
+      "sha256": "2e5ee55e4b60e3ac5f43441a62f7b645084b98a9bc28ebcbc61a8d735ece0bbd"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tests\\test_v645_artwork_window_controls.py",
+      "status": "created",
+      "sha256": "bbfd3aea90f56d1eb5fe9718872b83e3a976f3be54b3635161f5532699f59276"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tests\\test_v646_karaoke_render_load.py",
+      "status": "created",
+      "sha256": "f1cc42734685912927f94188cdf9323b15a5fb1ffb5fe603c5db02dd8f01751a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tests\\test_v647_status_stalls.py",
+      "status": "created",
+      "sha256": "006ffd954d48427a48fcf8d8326e00783fe85a1843161c5afbaeaf88102d0322"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpa44e6h_r\\Song.lrc",
+      "status": "created",
+      "sha256": "65385e3010c180b4a553550a474e0742bc52e0b79477a2c4c8e4787891c2af88"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpa44e6h_r\\Song.mp3",
+      "status": "created",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpa44e6h_r\\Song.srt",
+      "status": "created",
+      "sha256": "750e0f9221187bc9dba69fa71ba7d0fbf8464cb1c230a3ed5ab1a10e19de5564"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpa44e6h_r\\Song.txt",
+      "status": "created",
+      "sha256": "2d6944241362c8000034a6b330bbea45fd89b340fac699e183c81064c926931f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpoba9_7uz\\Song.lrc",
+      "status": "created",
+      "sha256": "d8e4d67ab760111e17a413ec57e5a98b7832bfc2dbd71ed250dadfaeb26eb181"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpoba9_7uz\\Song.mp3",
+      "status": "created",
+      "sha256": "8f1d9e249cea6e861fcae329b5eeff87880c522d84811c964e5b553705f578a7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpoba9_7uz\\Song.mp3.bak.202611090723.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpoba9_7uz\\Song.txt",
+      "status": "created",
+      "sha256": "7c2abae83bc6c0c2a0f32125dfcf0193880a37abcd74ab73d0516d13680ab011"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpso7t31h5\\Song.srt",
+      "status": "created",
+      "sha256": "6469da37647a6199eff3373ad066987c7fdcb4cd4bd5712b3b89cf1afc96e125"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpwj2p3krx\\song.flac",
+      "status": "created",
+      "sha256": "6ed8919ce20490a5e3ad8630a4fab69475297abd07db73918dd5f36fcfaeb11b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v647-20261109-072329\\tmpwj2p3krx\\song.lrc",
+      "status": "created",
+      "sha256": "77b3cb42e1d98184d891ed53b8e254624d3c6c72626a1f7bce5f6954a7521117"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "0f3cfeb92523216db34f27ce36af3e4bbbc10da9dc890c87d2e97833deae1476"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tests\\test_v619_karaoke_entry.py",
+      "status": "created",
+      "sha256": "00beec6d4566a71010b0cdc4155d4b425346fea68c3e5f47ff1522c619950bf3"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tests\\test_v641_emojimax_solution_color.py",
+      "status": "created",
+      "sha256": "84941e33a81a09fdd605a877861ba64744d72c482cf9aee9cfed180df660a4ad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tests\\test_v642_artwork_chrome.py",
+      "status": "created",
+      "sha256": "ce9da0e9a1ee14ff8c426aab3aaf89e59c65ca6b11bc5e0eb7d4f7bcd132847a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tests\\test_v643_artwork_karaoke_fit.py",
+      "status": "created",
+      "sha256": "2e5ee55e4b60e3ac5f43441a62f7b645084b98a9bc28ebcbc61a8d735ece0bbd"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tests\\test_v645_artwork_window_controls.py",
+      "status": "created",
+      "sha256": "bbfd3aea90f56d1eb5fe9718872b83e3a976f3be54b3635161f5532699f59276"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tests\\test_v646_karaoke_render_load.py",
+      "status": "created",
+      "sha256": "f1cc42734685912927f94188cdf9323b15a5fb1ffb5fe603c5db02dd8f01751a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tests\\test_v647_status_stalls.py",
+      "status": "created",
+      "sha256": "006ffd954d48427a48fcf8d8326e00783fe85a1843161c5afbaeaf88102d0322"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tests\\test_v648_local_stack_diagnostics.py",
+      "status": "created",
+      "sha256": "54adb7b7fb070305b54e74bf67e6b622b44d2bdd03c208c6673b6fb8397b68d3"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmp_3f0ij4x\\Song.lrc",
+      "status": "created",
+      "sha256": "65385e3010c180b4a553550a474e0742bc52e0b79477a2c4c8e4787891c2af88"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmp_3f0ij4x\\Song.mp3",
+      "status": "created",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmp_3f0ij4x\\Song.srt",
+      "status": "created",
+      "sha256": "750e0f9221187bc9dba69fa71ba7d0fbf8464cb1c230a3ed5ab1a10e19de5564"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmp_3f0ij4x\\Song.txt",
+      "status": "created",
+      "sha256": "2d6944241362c8000034a6b330bbea45fd89b340fac699e183c81064c926931f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmpexobb_hq\\Song.srt",
+      "status": "created",
+      "sha256": "6469da37647a6199eff3373ad066987c7fdcb4cd4bd5712b3b89cf1afc96e125"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmpkbfjwvsg\\Song.lrc",
+      "status": "created",
+      "sha256": "d8e4d67ab760111e17a413ec57e5a98b7832bfc2dbd71ed250dadfaeb26eb181"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmpkbfjwvsg\\Song.mp3",
+      "status": "created",
+      "sha256": "8f1d9e249cea6e861fcae329b5eeff87880c522d84811c964e5b553705f578a7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmpkbfjwvsg\\Song.mp3.bak.202611090735.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmpkbfjwvsg\\Song.txt",
+      "status": "created",
+      "sha256": "7c2abae83bc6c0c2a0f32125dfcf0193880a37abcd74ab73d0516d13680ab011"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmpvpxqd8yn\\song.flac",
+      "status": "created",
+      "sha256": "6ed8919ce20490a5e3ad8630a4fab69475297abd07db73918dd5f36fcfaeb11b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073527\\tmpvpxqd8yn\\song.lrc",
+      "status": "created",
+      "sha256": "77b3cb42e1d98184d891ed53b8e254624d3c6c72626a1f7bce5f6954a7521117"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "0f3cfeb92523216db34f27ce36af3e4bbbc10da9dc890c87d2e97833deae1476"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tests\\test_v619_karaoke_entry.py",
+      "status": "created",
+      "sha256": "00beec6d4566a71010b0cdc4155d4b425346fea68c3e5f47ff1522c619950bf3"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tests\\test_v641_emojimax_solution_color.py",
+      "status": "created",
+      "sha256": "84941e33a81a09fdd605a877861ba64744d72c482cf9aee9cfed180df660a4ad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tests\\test_v642_artwork_chrome.py",
+      "status": "created",
+      "sha256": "ce9da0e9a1ee14ff8c426aab3aaf89e59c65ca6b11bc5e0eb7d4f7bcd132847a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tests\\test_v643_artwork_karaoke_fit.py",
+      "status": "created",
+      "sha256": "2e5ee55e4b60e3ac5f43441a62f7b645084b98a9bc28ebcbc61a8d735ece0bbd"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tests\\test_v645_artwork_window_controls.py",
+      "status": "created",
+      "sha256": "bbfd3aea90f56d1eb5fe9718872b83e3a976f3be54b3635161f5532699f59276"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tests\\test_v646_karaoke_render_load.py",
+      "status": "created",
+      "sha256": "f1cc42734685912927f94188cdf9323b15a5fb1ffb5fe603c5db02dd8f01751a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tests\\test_v647_status_stalls.py",
+      "status": "created",
+      "sha256": "006ffd954d48427a48fcf8d8326e00783fe85a1843161c5afbaeaf88102d0322"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tests\\test_v648_local_stack_diagnostics.py",
+      "status": "created",
+      "sha256": "5ded6147c94883bf84d1c6314e2d4bb7ccfee4faab455889367077475da89085"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmp77u702ax\\Song.lrc",
+      "status": "created",
+      "sha256": "65385e3010c180b4a553550a474e0742bc52e0b79477a2c4c8e4787891c2af88"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmp77u702ax\\Song.mp3",
+      "status": "created",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmp77u702ax\\Song.srt",
+      "status": "created",
+      "sha256": "750e0f9221187bc9dba69fa71ba7d0fbf8464cb1c230a3ed5ab1a10e19de5564"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmp77u702ax\\Song.txt",
+      "status": "created",
+      "sha256": "2d6944241362c8000034a6b330bbea45fd89b340fac699e183c81064c926931f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmp89qt06ee\\song.flac",
+      "status": "created",
+      "sha256": "6ed8919ce20490a5e3ad8630a4fab69475297abd07db73918dd5f36fcfaeb11b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmp89qt06ee\\song.lrc",
+      "status": "created",
+      "sha256": "77b3cb42e1d98184d891ed53b8e254624d3c6c72626a1f7bce5f6954a7521117"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmpb3jps9z4\\Song.srt",
+      "status": "created",
+      "sha256": "6469da37647a6199eff3373ad066987c7fdcb4cd4bd5712b3b89cf1afc96e125"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmpujt3wk54\\Song.lrc",
+      "status": "created",
+      "sha256": "d8e4d67ab760111e17a413ec57e5a98b7832bfc2dbd71ed250dadfaeb26eb181"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmpujt3wk54\\Song.mp3",
+      "status": "created",
+      "sha256": "8f1d9e249cea6e861fcae329b5eeff87880c522d84811c964e5b553705f578a7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmpujt3wk54\\Song.mp3.bak.202611090737.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v648-20261109-073708\\tmpujt3wk54\\Song.txt",
+      "status": "created",
+      "sha256": "7c2abae83bc6c0c2a0f32125dfcf0193880a37abcd74ab73d0516d13680ab011"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\status-contention-v647-20261109-072155\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "9c0c52dddcb8b6971cf8c269b67703e1de33fe12ee75c6d7e7d28245cf6beb65"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\status-contention-v647-20261109-072256\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "df8d90d57b353b976df7e7cff4a88b2f256efc4b43b880214120aa442c1aa6a8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\status-v647-20261109-071854\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "9c0c52dddcb8b6971cf8c269b67703e1de33fe12ee75c6d7e7d28245cf6beb65"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v647-profiler-20261109\\LICENSE",
+      "status": "created",
+      "sha256": "2e1597b7eeb2ebd75dd15ff5863283ef452c9a51bc473150132b68c69fbe996d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v647-profiler-20261109\\py-spy.exe",
+      "status": "created",
+      "sha256": "0890578ca20bf839d7f890bbcdb508a21cb9f1b71f99bf32be371c5e492a0b48"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v647-profiler-20261109\\py_spy-0.4.3-py2.py3-none-win_amd64.whl",
+      "status": "created",
+      "sha256": "b14e00fddd4bfb12628e5c04b7d22c6754ae4c31bdfad0728adbe091ed26445f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v647_status_stalls.py",
+      "status": "created",
+      "sha256": "006ffd954d48427a48fcf8d8326e00783fe85a1843161c5afbaeaf88102d0322"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v648_local_stack_diagnostics.py",
+      "status": "created",
+      "sha256": "5ded6147c94883bf84d1c6314e2d4bb7ccfee4faab455889367077475da89085"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v648_local_stack_diagnostics.py.bak.202611090737.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "54adb7b7fb070305b54e74bf67e6b622b44d2bdd03c208c6673b6fb8397b68d3"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v647_status_stalls.py",
+      "status": "created",
+      "sha256": "0dc3739e430843ae0e05992a9dd302fe8d48d2d2f4e70cc062fe70512a9a5c91"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v648_local_stack_diagnostics.py",
+      "status": "created",
+      "sha256": "618334aa6d24ef16dd3e4eeaabc89eae00895b078e1c7b42a8e03d0dc4b7177d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tools\\capture_v647_visualizer_stacks.ps1",
+      "status": "created",
+      "sha256": "d6a93029599d6a52bc84132258c3a8ded2a7f3b32f1aafa9b4962be30c2760b8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tools\\document_v647_status_stalls.py",
+      "status": "created",
+      "sha256": "1cf7b472ad68f2177c30483c2c3900739d59e2fa86cb1cea9caf57e7c9ea5f36"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tools\\prepare_v647_status_stalls.py",
+      "status": "created",
+      "sha256": "084b928ff2db58dbc93bc4e9666f92e692a1fd4504d90c0a8229ffd05d2b9a15"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tools\\prepare_v648_local_stack_diagnostics.py",
+      "status": "created",
+      "sha256": "c1e31abff83323d0c3253996315f33fa417970222b9ef1c874ff62d2412352ec"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tools\\release_v648_local_stack_diagnostics.py",
+      "status": "created",
+      "sha256": "bb7e35c853ad1a1fe2ca9c6c59fa27c2e32f0df1e91b04a2eb46fa74437c6180"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-change-manifest.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v647-change-manifest.json",
+      "status": "created"
+    }
+  ],
+  "root_audit": {
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer": [
+      "AGENTS.md",
+      "changerrecent.m3u",
+      "PAFPlayer.dcc",
+      "PAFPlayer.md",
+      "PAFPlayer.py",
+      "play_audio_file-lastfm-setup-asked.txt"
+    ],
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen": [
+      "App.xaml",
+      "App.xaml.cs",
+      "build_desktop.ps1",
+      "DesktopBackground.cs",
+      "DesktopHost.cs",
+      "DesktopHost.manifest",
+      "DesktopPackage.appxmanifest",
+      "lockscreen_installer.py",
+      "MainPage.xaml",
+      "MainPage.xaml.cs",
+      "ManagedPublisher.cs",
+      "Package.appxmanifest",
+      "PAFPlayerLockScreen.csproj",
+      "StatusUpdater.cs"
+    ],
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver": [
+      "PAFPlayer.cfg",
+      "PAFPlayer.scr"
+    ]
+  },
+  "root_cleanup_needed": false,
+  "literal_c_bat_changes": [],
+  "existing_files_deleted": [],
+  "overall_freeze_fix_complete": false,
+  "live_trace_pending": true
+}

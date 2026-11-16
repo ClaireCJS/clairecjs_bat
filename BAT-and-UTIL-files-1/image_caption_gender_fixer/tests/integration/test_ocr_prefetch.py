@@ -48,10 +48,10 @@ def test_normal_run_uses_prefetched_initial_ocr_after_folder_and_image_rename(tm
     source.rename(folder/'renamed.png');folder.rename(tmp_path/'after')
     source=tmp_path/'after/renamed.png';cached=(source.parent/'.ocr').read_bytes()
     real=imaging.ocr;calls=[]
-    def only_verification(image,exe,data,eco=False,full=False,psm=11):
+    def only_verification(image,exe,data,eco=False,full=False,psm=11,*,timeout=120):
         calls.append(psm)
         assert psm==6,'Normal processing repeated the initial page OCR'
-        return real(image,exe,data,eco,full,psm)
+        return real(image,exe,data,eco,full,psm,timeout=timeout)
     monkeypatch.setattr(imaging,'ocr',only_verification)
     app=app_for(tmp_path,answers=iter(['s']))
     result,code=app.process([str(source)])

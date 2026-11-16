@@ -100,7 +100,7 @@ def embedded_installer_root_at(root):
 def install_embedded_lockscreen(*, check_only=False, ask=input, backend=None):
     """Install/update the companion using only bytes bundled in PAFPlayer.py."""
     if os.name != 'nt':
-        print('Lock-screen installation requires Windows 10.', file=sys.stderr)
+        print('Lock-screen installation requires Windows 10 or later.', file=sys.stderr)
         return 1
     from PAFPlayer_lockscreen_installer import WindowsBackend, install
     try:
@@ -273,7 +273,7 @@ def previous_setting():
 
 def launch(server, identity):
     if os.name != 'nt':
-        raise OSError('Windows 10 is required for lock-screen status')
+        raise OSError('Windows 10 or later is required for lock-screen status')
     # Discover only our installed, signed package. Never execute a PATH match,
     # downloaded file, unverified external runtime, or the obsolete identity.
     script = r'''$ErrorActionPreference='Stop'

@@ -1,0 +1,446 @@
+{
+  "version": "V650",
+  "source_sha256": "f434ec10577fb5e4198cfd5d4c0519018409e8963f383a43b3dd024c2e84cb6e",
+  "native_composer": true,
+  "results": [
+    {
+      "name": "noop",
+      "calls": 100,
+      "ms_per_call": 7.800001185387373e-05,
+      "tracked_growth": [
+        2,
+        0,
+        0
+      ],
+      "unreachable": 0,
+      "retained_pointer_types": 0,
+      "retained_function_types": 0,
+      "types": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "name": "diagnostics",
+      "calls": 100,
+      "ms_per_call": 0.3895810000540223,
+      "tracked_growth": [
+        8790,
+        0,
+        0
+      ],
+      "unreachable": 2600,
+      "retained_pointer_types": 100,
+      "retained_function_types": 0,
+      "types": [
+        [
+          "builtins.tuple",
+          500
+        ],
+        [
+          "builtins.getset_descriptor",
+          400
+        ],
+        [
+          "builtins.dict",
+          400
+        ],
+        [
+          "builtins.builtin_function_or_method",
+          300
+        ],
+        [
+          "ctypes.WinDLL",
+          200
+        ],
+        [
+          "builtins.StgDict",
+          200
+        ],
+        [
+          "_ctypes.PyCFuncPtrType",
+          200
+        ],
+        [
+          "builtins.list",
+          200
+        ],
+        [
+          "ctypes.CDLL.__init__.<locals>._FuncPtr",
+          200
+        ]
+      ],
+      "functions": [],
+      "classes": [
+        [
+          "CDLL.__init__.<locals>._FuncPtr",
+          200
+        ]
+      ]
+    },
+    {
+      "name": "thread_stacks",
+      "calls": 100,
+      "ms_per_call": 0.020652000093832612,
+      "tracked_growth": [
+        91,
+        0,
+        0
+      ],
+      "unreachable": 0,
+      "retained_pointer_types": 0,
+      "retained_function_types": 0,
+      "types": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "name": "idle_input",
+      "calls": 100,
+      "ms_per_call": 0.010846999939531088,
+      "tracked_growth": [
+        1209,
+        0,
+        0
+      ],
+      "unreachable": 1100,
+      "retained_pointer_types": 0,
+      "retained_function_types": 0,
+      "types": [
+        [
+          "builtins.tuple",
+          400
+        ],
+        [
+          "builtins.getset_descriptor",
+          200
+        ],
+        [
+          "_ctypes.CField",
+          200
+        ],
+        [
+          "builtins.list",
+          100
+        ],
+        [
+          "_ctypes.PyCStructType",
+          100
+        ],
+        [
+          "builtins.StgDict",
+          100
+        ]
+      ],
+      "functions": [],
+      "classes": [
+        [
+          "windows_last_input_tick.<locals>.LASTINPUTINFO",
+          100
+        ]
+      ]
+    },
+    {
+      "name": "console_geometry",
+      "calls": 100,
+      "ms_per_call": 0.03354800006491132,
+      "tracked_growth": [
+        4610,
+        0,
+        0
+      ],
+      "unreachable": 4300,
+      "retained_pointer_types": 0,
+      "retained_function_types": 0,
+      "types": [
+        [
+          "builtins.tuple",
+          1700
+        ],
+        [
+          "_ctypes.CField",
+          1100
+        ],
+        [
+          "builtins.getset_descriptor",
+          600
+        ],
+        [
+          "builtins.list",
+          300
+        ],
+        [
+          "_ctypes.PyCStructType",
+          300
+        ],
+        [
+          "builtins.StgDict",
+          300
+        ]
+      ],
+      "functions": [],
+      "classes": [
+        [
+          "console_cursor_and_viewport_top.<locals>.COORD",
+          100
+        ],
+        [
+          "console_cursor_and_viewport_top.<locals>.SMALL_RECT",
+          100
+        ],
+        [
+          "console_cursor_and_viewport_top.<locals>.CSBI",
+          100
+        ]
+      ]
+    },
+    {
+      "name": "lock_state",
+      "calls": 100,
+      "ms_per_call": 0.49030299996957183,
+      "tracked_growth": [
+        206,
+        0,
+        0
+      ],
+      "unreachable": 200,
+      "retained_pointer_types": 0,
+      "retained_function_types": 0,
+      "types": [
+        [
+          "ctypes.c_void_p",
+          100
+        ],
+        [
+          "builtins.dict",
+          100
+        ]
+      ],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "name": "external_audio_sessions",
+      "calls": 20,
+      "ms_per_call": 16.217309999774443,
+      "tracked_growth": [
+        10573,
+        0,
+        0
+      ],
+      "unreachable": 4757,
+      "retained_pointer_types": 160,
+      "retained_function_types": 180,
+      "types": [
+        [
+          "builtins.dict",
+          1740
+        ],
+        [
+          "ctypes.c_void_p",
+          1480
+        ],
+        [
+          "builtins.builtin_function_or_method",
+          520
+        ],
+        [
+          "builtins.tuple",
+          304
+        ],
+        [
+          "builtins.list",
+          200
+        ],
+        [
+          "ctypes.CDLL.__init__.<locals>._FuncPtr",
+          200
+        ],
+        [
+          "builtins.getset_descriptor",
+          127
+        ],
+        [
+          "builtins.StgDict",
+          62
+        ],
+        [
+          "_ctypes.PyCFuncPtrType",
+          60
+        ],
+        [
+          "ctypes.WinDLL",
+          40
+        ],
+        [
+          "ctypes.OleDLL",
+          20
+        ],
+        [
+          "_ctypes.PyCArrayType",
+          2
+        ]
+      ],
+      "functions": [],
+      "classes": [
+        [
+          "CDLL.__init__.<locals>._FuncPtr",
+          60
+        ],
+        [
+          "c_char_Array_24",
+          1
+        ],
+        [
+          "c_wchar_Array_32768",
+          1
+        ]
+      ]
+    },
+    {
+      "name": "steam_process_images",
+      "calls": 20,
+      "ms_per_call": 26.23694499998237,
+      "tracked_growth": [
+        1859,
+        0,
+        0
+      ],
+      "unreachable": 928,
+      "retained_pointer_types": 20,
+      "retained_function_types": 0,
+      "types": [
+        [
+          "builtins.builtin_function_or_method",
+          280
+        ],
+        [
+          "builtins.tuple",
+          162
+        ],
+        [
+          "builtins.dict",
+          140
+        ],
+        [
+          "builtins.list",
+          120
+        ],
+        [
+          "ctypes.CDLL.__init__.<locals>._FuncPtr",
+          120
+        ],
+        [
+          "builtins.getset_descriptor",
+          43
+        ],
+        [
+          "builtins.StgDict",
+          21
+        ],
+        [
+          "ctypes.WinDLL",
+          20
+        ],
+        [
+          "_ctypes.PyCFuncPtrType",
+          20
+        ],
+        [
+          "_ctypes.PyCArrayType",
+          1
+        ]
+      ],
+      "functions": [],
+      "classes": [
+        [
+          "CDLL.__init__.<locals>._FuncPtr",
+          20
+        ],
+        [
+          "c_wchar_Array_32768",
+          1
+        ]
+      ]
+    },
+    {
+      "name": "cursor_visibility",
+      "calls": 100,
+      "ms_per_call": 0.010402000043541193,
+      "tracked_growth": [
+        1209,
+        0,
+        0
+      ],
+      "unreachable": 1100,
+      "retained_pointer_types": 0,
+      "retained_function_types": 0,
+      "types": [
+        [
+          "builtins.tuple",
+          400
+        ],
+        [
+          "builtins.getset_descriptor",
+          200
+        ],
+        [
+          "_ctypes.CField",
+          200
+        ],
+        [
+          "builtins.list",
+          100
+        ],
+        [
+          "_ctypes.PyCStructType",
+          100
+        ],
+        [
+          "builtins.StgDict",
+          100
+        ]
+      ],
+      "functions": [],
+      "classes": [
+        [
+          "set_console_cursor_visible.<locals>.CursorInfo",
+          100
+        ]
+      ]
+    },
+    {
+      "name": "render_artwork",
+      "calls": 100,
+      "ms_per_call": 1.7369329999201,
+      "tracked_growth": [
+        1178,
+        0,
+        0
+      ],
+      "unreachable": 0,
+      "retained_pointer_types": 0,
+      "retained_function_types": 0,
+      "types": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "name": "render_bare",
+      "calls": 100,
+      "ms_per_call": 7.031368000025395,
+      "tracked_growth": [
+        3170,
+        0,
+        0
+      ],
+      "unreachable": 0,
+      "retained_pointer_types": 0,
+      "retained_function_types": 0,
+      "types": [],
+      "functions": [],
+      "classes": []
+    }
+  ],
+  "blocked_writes": [],
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-gc-20261111-011210"
+}

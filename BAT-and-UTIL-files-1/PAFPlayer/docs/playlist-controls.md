@@ -81,6 +81,10 @@ focused song next, Ctrl+Space builds a multi-selection, and Shift+Enter jumps.
 
 ## Playlist resume bookmarks
 
+V633 allows options after either resume spelling: `PAFPlayer resume --theory=7`
+and `PAFPlayer --resume --theory=7` both restore the saved playlist while
+applying the diagnostic option to the current run.
+
 V612 adds `PAFPlayer resume` for a restart after a crash or reboot. It reads the
 last saved playlist from the existing global resume bookmark and launches that
 playlist through the normal player and single-instance path. The saved song and

@@ -301,6 +301,7 @@ class ClickSequence:
 class TrayController:
     WM_TRAY = 0x8000 + 41
     WM_SYNC = 0x8000 + 42
+    WM_NOTICE = 0x8000 + 43
     WM_TIMER = 0x0113
     WM_CLOSE = 0x0010
     WM_DESTROY = 0x0002
@@ -310,6 +311,7 @@ class TrayController:
     WM_DROPFILES = 0x0233
     NIM_ADD, NIM_MODIFY, NIM_DELETE = 0, 1, 2
     NIF_MESSAGE, NIF_ICON, NIF_TIP = 1, 2, 4
+    NIF_INFO = 0x10
 
     def __init__(self, runtime, instance, override=None, *, click_window=CLICK_WINDOW_SECONDS,
                  drop_callback=None, drop_reader=None):
@@ -337,6 +339,7 @@ class TrayController:
         self._last_tray_lyric = ''
         self._settings_cache = {}
         self._settings_cache_at = 0.0
+        self._pending_notices = []
         self._last_hover_request_at = 0.0
 
     def _sync_lyric_bubble(self, lyric):
@@ -466,6 +469,15 @@ class TrayController:
         if self._hwnd and os.name == 'nt':
             ctypes.windll.user32.PostMessageW(self._hwnd, self.WM_SYNC, 0, 0)
 
+    def notify_error(self, title, message):
+        """Queue a Windows shell notification on this verified icon's message thread."""
+        with self._lock:
+            if self._closing or not self.instance.owns() or not self._hwnd:
+                return False
+            self._pending_notices.append((str(title)[:63], str(message)[:255]))
+            hwnd = self._hwnd
+        return bool(ctypes.windll.user32.PostMessageW(hwnd, self.WM_NOTICE, 0, 0))
+
     def close(self):
         with self._lock:
             self._closing = True
@@ -521,6 +533,12 @@ class TrayController:
                        'next': self.runtime.app.NEXT_FILE,
                        'pause': self.runtime.app.PAUSE_TOGGLE}
             return server.enqueue_action(mapping[action])
+        if action == 'close_tray':
+            # This is deliberately local to the tray controller.  Do not send
+            # the playback server's exit command: the music process must keep
+            # running after the notification-area icon is dismissed.
+            self.close()
+            return True
         if action == 'exit':
             if not server: return False
             server.enqueue_tray_exit()
@@ -566,7 +584,9 @@ class TrayController:
                 (7, ('✓ ' if self._machine and self._machine.options['lyrics_tooltip'] else '○ ') + 'Show sung lyrics above tray', 'machine_lyrics_tooltip', True),
                 (8, ('✓ ' if self._machine and self._machine.options['album_wallpaper'] else '○ ') + 'Album art desktop wallpaper', 'machine_album_wallpaper', True),
                 (9, 'Open current track folder', 'folder', folder),
-                (10, 'About / version', 'about', True), (11, 'Exit PAFPlayer', 'exit', True)]
+                (10, 'About / version', 'about', True),
+                (13, 'Close PAFPlayer tray (only)', 'close_tray', True),
+                (14, 'Shut PAFPlayer down completely', 'exit', True)]
 
     def poll_hotkeys(self):
         """Tray-only overrides this without blocking the Win32 message pump."""
@@ -842,6 +862,19 @@ class TrayController:
                 return 0
             if message == self.WM_SYNC:
                 sync(); return 0
+            if message == self.WM_NOTICE:
+                with self._lock:
+                    pending = self._pending_notices[:]
+                    self._pending_notices.clear()
+                if self._visible and self.instance.owns() and not self._closing:
+                    for title, detail in pending:
+                        notify.szInfoTitle = title
+                        notify.szInfo = detail
+                        notify.dwInfoFlags = 0x03  # NIIF_ERROR
+                        notify.uFlags = self.NIF_INFO
+                        shell32.Shell_NotifyIconW(self.NIM_MODIFY, ctypes.byref(notify))
+                    notify.uFlags = self.NIF_MESSAGE | self.NIF_ICON | self.NIF_TIP
+                return 0
             if message == self.WM_TIMER:
                 self.poll_hotkeys()
                 sync_drop_overlay()

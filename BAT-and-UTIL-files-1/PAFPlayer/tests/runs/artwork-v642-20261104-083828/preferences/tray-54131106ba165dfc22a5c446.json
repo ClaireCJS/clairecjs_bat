@@ -1,0 +1,32 @@
+{
+  "RendererPreferences": {
+    "ExternalAlbumArtGeometry": {
+      "type": 1,
+      "value": "900x620+200+180"
+    },
+    "ExternalAlbumArtManualSizeV237": {
+      "type": 4,
+      "value": 1
+    },
+    "ExternalAlbumArtLyricsModeV180": {
+      "type": 4,
+      "value": 0
+    },
+    "ExternalAlbumArtKaraokeEnabledV336": {
+      "type": 4,
+      "value": 1
+    },
+    "ExternalAlbumArtPopupEmojimaxV295": {
+      "type": 4,
+      "value": 0
+    },
+    "ExternalAlbumArtTopmost": {
+      "type": 4,
+      "value": 0
+    },
+    "ExternalAlbumArtPlacementV241": {
+      "type": 1,
+      "value": "{\"rect\":[200,180,1100,800],\"monitor_device\":\"\\\\\\\\.\\\\DISPLAY2\",\"monitor_work\":[0,0,3840,2160]}"
+    }
+  }
+}

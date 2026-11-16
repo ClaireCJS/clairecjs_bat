@@ -1,4 +1,4 @@
-"""Install the PAFPlayer Windows 10 lock-screen status companion.
+"""Install the PAFPlayer Windows lock-screen status companion.
 
 Run from the interactive Windows account that should see the lock-screen status.
 Only certificate trust is elevated; AppX registration stays in that account.
@@ -103,10 +103,10 @@ def validate_artifacts(package: Path, certificate: Path, dependencies: tuple[Pat
 
 def require_windows_10() -> None:
     if platform.system() != "Windows" or not hasattr(sys, "getwindowsversion"):
-        raise InstallerError("This installer must run on Windows 10.")
+        raise InstallerError("This installer must run on Windows 10 or later.")
     build = sys.getwindowsversion().build
-    if build < 19041 or build >= 22000:
-        raise InstallerError(f"Windows build {build} is outside the supported Windows 10 range.")
+    if build < 19041:
+        raise InstallerError(f"Windows build {build} is too old; Windows 10 build 19041 or later is required.")
     if (os.environ.get("PROCESSOR_ARCHITEW6432") or os.environ.get("PROCESSOR_ARCHITECTURE", "")).upper() != "AMD64":
         raise InstallerError("This package requires 64-bit Windows and an x64-compatible CPU.")
 

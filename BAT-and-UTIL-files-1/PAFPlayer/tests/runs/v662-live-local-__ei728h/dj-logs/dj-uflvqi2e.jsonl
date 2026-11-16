@@ -1,0 +1,27 @@
+{"time":"2026-11-11T19:26:33-0500","event":"controller.start","enabled":false,"interval":2,"text_provider":"auto","speech_provider":"auto"}
+{"time":"2026-11-11T19:26:33-0500","event":"settings.changed","enabled":true,"interval":2,"text_provider":"auto","speech_provider":"auto"}
+{"time":"2026-11-11T19:26:33-0500","event":"job.started","job":2,"forced":true,"history_count":1,"count":0}
+{"time":"2026-11-11T19:26:33-0500","event":"job.stage","job":2,"stage":"Writing conversation"}
+{"time":"2026-11-11T19:26:33-0500","event":"text.provider.start","provider":"openai"}
+{"time":"2026-11-11T19:26:33-0500","event":"openai.credit.exhausted"}
+{"time":"2026-11-11T19:26:33-0500","event":"text.provider.fallback","provider":"openai","error_type":"HTTPError","http_status":429}
+{"time":"2026-11-11T19:26:33-0500","event":"text.provider.skipped","provider":"gemini","reason":"free_tier_not_confirmed"}
+{"time":"2026-11-11T19:26:33-0500","event":"text.provider.skipped","provider":"openrouter","reason":"key_missing"}
+{"time":"2026-11-11T19:26:33-0500","event":"text.provider.start","provider":"ollama"}
+{"time":"2026-11-11T19:27:06-0500","event":"text.provider.success","provider":"ollama","turns":6}
+{"time":"2026-11-11T19:27:06-0500","event":"text.ready","job":2,"turns":6}
+{"time":"2026-11-11T19:27:06-0500","event":"job.stage","job":2,"stage":"Synthesizing speaker turn 1 of 6"}
+{"time":"2026-11-11T19:27:06-0500","event":"speech.provider.start","provider":"openai","turn":1}
+{"time":"2026-11-11T19:27:06-0500","event":"speech.provider.fallback","provider":"openai","error_type":"RuntimeError"}
+{"time":"2026-11-11T19:27:06-0500","event":"speech.provider.start","provider":"piper","turn":1}
+{"time":"2026-11-11T19:27:08-0500","event":"job.stage","job":2,"stage":"Synthesizing speaker turn 2 of 6"}
+{"time":"2026-11-11T19:27:08-0500","event":"speech.provider.start","provider":"piper","turn":2}
+{"time":"2026-11-11T19:27:11-0500","event":"job.stage","job":2,"stage":"Synthesizing speaker turn 3 of 6"}
+{"time":"2026-11-11T19:27:11-0500","event":"speech.provider.start","provider":"piper","turn":3}
+{"time":"2026-11-11T19:27:13-0500","event":"job.stage","job":2,"stage":"Synthesizing speaker turn 4 of 6"}
+{"time":"2026-11-11T19:27:13-0500","event":"speech.provider.start","provider":"piper","turn":4}
+{"time":"2026-11-11T19:27:15-0500","event":"job.stage","job":2,"stage":"Synthesizing speaker turn 5 of 6"}
+{"time":"2026-11-11T19:27:15-0500","event":"speech.provider.start","provider":"piper","turn":5}
+{"time":"2026-11-11T19:27:18-0500","event":"job.stage","job":2,"stage":"Synthesizing speaker turn 6 of 6"}
+{"time":"2026-11-11T19:27:18-0500","event":"speech.provider.start","provider":"piper","turn":6}
+{"time":"2026-11-11T19:27:20-0500","event":"job.ready","job":2,"audio_files":6}

@@ -1,4 +1,13 @@
-# Windows tray icon (V626)
+# Windows tray icon (V680)
+
+## V680 tray-only close versus full shutdown
+
+The official tray's right-click menu now separates the two meanings of
+"close": **Close PAFPlayer tray (only)** removes the notification-area icon
+and its tray-owned windows while leaving the player and current music running.
+**Shut PAFPlayer down completely** sends the existing shutdown command and
+stops playback with the rest of the PAFPlayer process. The tray-only action is
+local to the tray controller; it does not enqueue a playback exit request.
 
 ## V626 tray-icon file drops
 
@@ -72,7 +81,8 @@ two choices: **Official color emoji — no additional coloring** and
 selected pattern treatment, per-letter palette, or solid color mode; changing
 it selects the rendering type without changing the coloring treatment or its
 saved mode ID. The choice applies to artwork and Floating Lyrics together,
-and the existing small emoji button in the artwork title bar stays in sync.
+and V642 keeps these choices in configuration rather than adding an emoji
+button to the artwork header. Its single 🌐 button opens Web Artwork settings.
 The official player uses its existing saved preference. A `--tray-only` client
 stores a local choice for its remote server through its existing presentation
 settings; selecting a local appearance stops following server appearance
@@ -243,7 +253,9 @@ The viewer uses the owning player's read-only `/api/track-details` and `/api/tra
 
 ## Tray-only clients on other Windows computers
 
-On each other computer, run `PAFPlayer.py --tray-only machineservername:666` (or the current single-file release with the same arguments). This starts only a remote tray client: no audio, local official-instance claim, playback queue, or duplicate official icon. Its tooltip identifies the target server and connected/disconnected state. A Windows mutex permits only one remote tray client in the same logon session. If the server disappears, the icon remains clearly disconnected and retries its `/api/remote-tray/hello` heartbeat. That response identifies the current official owner; each playback request includes its identity and the server rejects a request if ownership changed. Remote clicks and menu commands go only to the named official server; **Reload tray from updated PAFPlayer.py** restarts this tray from the current single file, while **Exit this tray** stops only this client's icon. Its **Open tag viewer** opens the same native window and fetches that server's metadata and artwork.
+On each other computer, run `PAFPlayer.py --tray-only machineservername:666` (or the current single-file release with the same arguments).
+
+Tray-only startup flags set the same local controls exposed in the menu and Options window. Example: `PAFPlayer.py --tray-only music-pc:666 --floating-lyrics --floating-lyrics-always-on-top --art-lyrics`. Boolean option pairs are `--floating-lyrics` / `--no-floating-lyrics`, `--album-art` / `--no-album-art`, `--show-lyrics-tooltip` / `--no-show-lyrics-tooltip`, `--album-wallpaper` / `--no-album-wallpaper`, `--capture-hotkeys` / `--no-capture-hotkeys`, and `--full-info-tooltip` / `--no-full-info-tooltip`. `--always-on-top` / `--no-always-on-top` controls both local windows; use `--floating-lyrics-always-on-top` / `--no-floating-lyrics-always-on-top` or `--album-art-always-on-top` / `--no-album-art-always-on-top` to control one. `--art-lyrics` enables lyrics on local artwork, `--no-art-lyrics` disables them, and `--art-lyrics=server|on|off` selects the inherited or explicit state. `--follow-server-appearance` / `--local-appearance` selects whether the local renderer follows the server. These preferences are saved locally for this server, forwarded through detached startup, and remain editable from the menu; they do not change the remote player. Reload reuses the resolved server address, including after LAN discovery.
 
 The playing computer must bind its existing web server to a LAN address, for example `--web-host=0.0.0.0 --web-port=666`, and allow the port through its Windows firewall. The default loopback bind cannot be reached from another machine. This is plain HTTP and the existing LAN control endpoints do not require pairing, so expose the port only on a trusted household network. The tray-only client does not change the server's bind setting or saved preferences.
 

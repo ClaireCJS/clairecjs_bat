@@ -1,0 +1,1412 @@
+{
+  "version": "V654",
+  "source_sha256": "a26c04407993622f543c5786e2c611113f70baa6b768297914545582c0181776",
+  "release_matches": true,
+  "live_verification_pending": true,
+  "paths": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+      "status": "modified",
+      "sha256": "a26c04407993622f543c5786e2c611113f70baa6b768297914545582c0181776"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\PAFPlayer_changelog.md.bak.202611111029.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "facd9e93048f653713b051e73f69002acbc48315f224dba95825ab9514da3c5a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\benchmark_full_frame_native.py.bak.202611111024.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "8fe25025535075c966c60676d0ffd0fb0510c15c77c469ff491019474a69c1b8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\benchmark_full_frame_native.py.bak.202611111026.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "d2b0f89947167403664f68c3b889d4e7c5ff22b97c98bcf32206a9548d0c359a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\test_v654_native_full_frames.py.bak.202611111027.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "a91a40b14b2c1d7ba80fa8dd150335f45d81c7dd49a968c28dbaed20e5e276f2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\PAFPlayer_changelog.md",
+      "status": "modified",
+      "sha256": "1d5cafdf75a966701b4794de3c0e0a228f21d454e513c408c605f8b445a62c06"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md",
+      "status": "modified",
+      "sha256": "77001727ba7ffed6fb160ba5029859045b3a343481ab80d05352843f376f18e3"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md.bak.202611111029.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "154ec4b5bc600defc07721018274de05d93425bfe5c4617b27e717bd8a0efb8f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\performance-v519.md",
+      "status": "modified",
+      "sha256": "0b5a781fdde5ad6f4882fa188eb6b5413aca56449513314f9a31e8eafa91a8d2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\performance-v519.md.bak.202611111029.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "eec8a5a079485f6048b31efe32878942f48993cf25e1bc3b6ffd167fd28eb390"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611111025.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "5768b4c8bda0173248785406c627a9305ad49bc45a00557bfde6d9b4f94f0670"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v654_native_full_frame_formatting.py",
+      "status": "created",
+      "sha256": "a26c04407993622f543c5786e2c611113f70baa6b768297914545582c0181776"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v654_native_full_frame_formatting_release_notes.md",
+      "status": "created",
+      "sha256": "cdc8213015b527c6eb034f4dd15f36a7110f6d98db39679101d81641a3f10b68"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\benchmark_full_frame_native.py",
+      "status": "created",
+      "sha256": "3b6c66ca89f3dbb0053430cdfc5a72f305c6d3eb0cdc2f859ae174c4a4f459b1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\benchmark_packed_sgr_keys.py",
+      "status": "created",
+      "sha256": "4f0ee749a88fba59ca76463b50661e3a1cb129f0aa5b8f08751ce88e3dbaea1d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_v652_live_retention.py",
+      "status": "created",
+      "sha256": "70db1e489747f93adbe4d1cdb522858115dc569aea8726bda91c52c718555fe0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\full-frame-native-20261111-102414.json",
+      "status": "created",
+      "sha256": "9c2586e4c9c73892c7536f1680486dc33cd81b2ab42544b85a19ffd9540579b5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\full-frame-native-20261111-102649.json",
+      "status": "created",
+      "sha256": "3889f7e70b2fc187a5a676efd992c9725623d7f1f62de0e7bc4b6f5d12dd4b86"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\packed-sgr-keys-20261111-101950.json",
+      "status": "created",
+      "sha256": "1e02504a8d2f0976512bcedfca771269b38082f3f92156096c79b9d956e9f346"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\pipeline-regressions-V654-20261111-102652.json",
+      "status": "created",
+      "sha256": "f6fa21e7f4cdf65bcc9b886572252839a0e19130ad290de781ef3e039001df5d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\pipeline-regressions-V654-20261111-102652.log",
+      "status": "created",
+      "sha256": "f18fc224581f3851b7ddce463c645beb3e3552b9af3c5fe9a6d711625714dfd6"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-thread-stacks-20261111-101441.json",
+      "status": "created",
+      "sha256": "707842c11c42397dc71c174a49a93af6d9c04ad1fd350fecf8b09516718b8114"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v652-live-retention-V653-20261111-101837.json",
+      "status": "created",
+      "sha256": "7d6b807e2b8582912926281a1b2ec37bdfe32493e84870c0652562bb75fc3830"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v654-checks-V654-20261111-102553.json",
+      "status": "created",
+      "sha256": "a4ed8b07336de7d686493e6184a615c29632c2af23f27765d3ef5bd56991d7e0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v654-checks-V654-20261111-102553.log",
+      "status": "created",
+      "sha256": "057a4059d05920e32c9b796939c4d02dd7cb647ad594afd8845463a562e6fb88"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102336",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102336\\PAFPlayer-native",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102336\\PAFPlayer-native\\artwork-a455f7dcc25c44c4e1807ce19f97bac7315d3d22f212959f66f496603913d36c.dll",
+      "status": "created",
+      "sha256": "a455f7dcc25c44c4e1807ce19f97bac7315d3d22f212959f66f496603913d36c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102336\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "5768b4c8bda0173248785406c627a9305ad49bc45a00557bfde6d9b4f94f0670"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102414",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102414\\PAFPlayer-native",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102414\\PAFPlayer-native\\artwork-a455f7dcc25c44c4e1807ce19f97bac7315d3d22f212959f66f496603913d36c.dll",
+      "status": "created",
+      "sha256": "a455f7dcc25c44c4e1807ce19f97bac7315d3d22f212959f66f496603913d36c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102414\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "5768b4c8bda0173248785406c627a9305ad49bc45a00557bfde6d9b4f94f0670"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102649",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102649\\PAFPlayer-native",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102649\\PAFPlayer-native\\artwork-a455f7dcc25c44c4e1807ce19f97bac7315d3d22f212959f66f496603913d36c.dll",
+      "status": "created",
+      "sha256": "a455f7dcc25c44c4e1807ce19f97bac7315d3d22f212959f66f496603913d36c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102649\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "a26c04407993622f543c5786e2c611113f70baa6b768297914545582c0181776"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\Microsoft",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\Microsoft\\Windows",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\Microsoft\\Windows\\Caches",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "a26c04407993622f543c5786e2c611113f70baa6b768297914545582c0181776"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\history.sqlite3",
+      "status": "created",
+      "sha256": "e28eca16610f7ae5712430a3b55dafbbf2fd7522a8c197677d946b35f0e4145c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\history.sqlite3.bak.202611111027.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "8c566d01e635b49c23cf9ef9312d47e2429d0087ac36f13efcc3717d0a23f2f5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-0w7dakni",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-4zpz23nn",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-4zpz23nn\\song.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-4zpz23nn\\state",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-4zpz23nn\\state\\library.json",
+      "status": "created",
+      "sha256": "f7250aa3bfedcacc9a8d2cc1adbb4d1bade17d0b2cc640da47e08ebb2993a2f9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-4zpz23nn\\state\\uploads",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-4zpz23nn\\state\\uploads.json",
+      "status": "created",
+      "sha256": "c877c49f31da4da33fb85cc8b8e696a611cde274b57f23e9d331e5ae40c59cfa"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-4zpz23nn\\state\\uploads\\test (1).wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-4zpz23nn\\state\\uploads\\test.wav",
+      "status": "created",
+      "sha256": "e23b51a40d21aad70200ec1f08c6e4883d6ca40c22b6ffbdff306c9c62c408e4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-7be7y280",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-7be7y280\\list.m3u",
+      "status": "created",
+      "sha256": "25a2ff142b4a57ece0295a88e49bafb1197abcf1b5a685c32ea0f3440a0a7ec9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-7be7y280\\list.m3u.bak.202611111027.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "d35f3f98efb4f90413fb5c3d64d673d98f9d5bf491a089d32c9e9f1797afdeed"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-7be7y280\\song.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-96hipkc5",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-96hipkc5\\state",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-96hipkc5\\state\\settings.json",
+      "status": "created",
+      "sha256": "b568fdc5329cd25cd4d8dd58f5a1e13689d0e695cda3650938b77dc2bd981191"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-9ytfu8pi",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-b3dkcd7z",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-b3dkcd7z\\Song Live.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-b3dkcd7z\\list.m3u",
+      "status": "created",
+      "sha256": "e4b61a68c3c4d9cccc7383efebb8b80aabcd2382052c100228b24219977c6f2d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-b3dkcd7z\\list.m3u.bak.202611111027.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "49fdf19eaa087fa4aa2b4fccad771ca4e31016a1931358f33f1cae57c2c42662"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-br1c6w5y",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-br1c6w5y\\list.m3u",
+      "status": "created",
+      "sha256": "32233fac1e2e6bd5931d2b731376f44b8fa390209d1ed4e1860000512bed5e2c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-br1c6w5y\\list.m3u.bak.202611111027.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "371674b508b6d36d4d78f8f9727bead97f926638a3d180c41d734eded3eff02a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-br1c6w5y\\song.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-d7e3ryd5",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-d7e3ryd5\\music",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-d7e3ryd5\\music\\song.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-izq94nhd",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-izq94nhd\\a.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-izq94nhd\\b.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-izq94nhd\\c.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-izq94nhd\\state",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-izq94nhd\\state\\playlists",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-izq94nhd\\state\\playlists\\queue (1).m3u8",
+      "status": "created",
+      "sha256": "7ba554b63f7b48d6b86d257a97e43aecc9d5ee18c3e7e195f2dc0fb00b0727b4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-izq94nhd\\state\\playlists\\queue.m3u8",
+      "status": "created",
+      "sha256": "7ba554b63f7b48d6b86d257a97e43aecc9d5ee18c3e7e195f2dc0fb00b0727b4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-ope4vh5j",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-ope4vh5j\\music",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-ope4vh5j\\music\\song.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-ope4vh5j\\queue.m3u",
+      "status": "created",
+      "sha256": "dd8e933d081358fec5b252b33f250204fc43a0bfe7e1b7e71af7bfb3fade791f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-ope4vh5j\\queue.m3u.bak.202611111027.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "6cd6881cc8e4b3bec36bfcce14285ce46ca49ef35e921b2bd29b98a6f15a84cb"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-ope4vh5j\\state",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-ope4vh5j\\state\\library.json",
+      "status": "created",
+      "sha256": "2930ff4a6954e1a5f0cd3ade9f1d2fcdb7a235355f60a90d6c5e257ebf0a5082"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-ope4vh5j\\state\\monitor-state-488fa65183bc9d72.json",
+      "status": "created",
+      "sha256": "e68dd379c800429b5ca614282cc51cdc61605b877d9ec127d77a88d70ab19d8b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-pb_jkaap",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-pb_jkaap\\a.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-pb_jkaap\\b.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-pb_jkaap\\c.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-sjkgk_3_",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-sjkgk_3_\\song.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-uvio46w3",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-vinugprr",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-vinugprr\\state",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-vinugprr\\state\\library.json",
+      "status": "created",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-vinugprr\\state\\uploads",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-vinugprr\\state\\uploads.json",
+      "status": "created",
+      "sha256": "99887916712952953609bdb6d0a6e60d43c36cbda28f30ae0df4949c616c6285"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-vinugprr\\state\\uploads\\active.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-vinugprr\\state\\uploads\\old.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k\\music",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k\\music\\.hidden.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k\\music\\renamed.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k\\music\\song.bak.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k\\music\\transfer.part.wav",
+      "status": "created",
+      "sha256": "78f82cd49af869013e8ec414a15d71f5f4f2ec8d006b6a0c50527c91eaa7a85f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k\\state",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k\\state\\library.json",
+      "status": "created",
+      "sha256": "9c360ee441f1d222e8fd4433ce59ff191142e124643a4ad6015bda0f05d27c02"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k\\state\\library.json.bak.202611111027.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "d74f7e4881933aa828e6d800c96674de31814a3e479b5738764f5cd17155c504"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k\\state\\monitor-state-3f8169f998404f89.json",
+      "status": "created",
+      "sha256": "35f8c642b5b13864bf7d28965b77fe2f20c94fb1e5ea23a6dadbf065fe7b214d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\paf456-tests-xvkt8r2k\\state\\monitor-state-3f8169f998404f89.json.bak.202611111027.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "f692d5c687d3575fb35f69228104a07830ae626718e6540a1c649b13bf84fee7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\play_audio_file",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\play_audio_file\\spectrum_cache",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\play_audio_file\\spectrum_cache\\e4c0dc4c0fb573fa642692169e2098deb6aef7c852270b5e8f1f3a5f027223bc.zlib",
+      "status": "created",
+      "sha256": "d5ac508cd228dd971bac24cec373703df3ed3791c6e8000ada0d93585e0e6248"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_PAFPlayer_workflows.py",
+      "status": "created",
+      "sha256": "d53f4c8368adc2b22063b22e69fda6cde679cc233368746f0d5077d2077b2d4b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_v619_karaoke_entry.py",
+      "status": "created",
+      "sha256": "00beec6d4566a71010b0cdc4155d4b425346fea68c3e5f47ff1522c619950bf3"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_v641_emojimax_solution_color.py",
+      "status": "created",
+      "sha256": "84941e33a81a09fdd605a877861ba64744d72c482cf9aee9cfed180df660a4ad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_v642_artwork_chrome.py",
+      "status": "created",
+      "sha256": "ce9da0e9a1ee14ff8c426aab3aaf89e59c65ca6b11bc5e0eb7d4f7bcd132847a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_v643_artwork_karaoke_fit.py",
+      "status": "created",
+      "sha256": "2e5ee55e4b60e3ac5f43441a62f7b645084b98a9bc28ebcbc61a8d735ece0bbd"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_v645_artwork_window_controls.py",
+      "status": "created",
+      "sha256": "bbfd3aea90f56d1eb5fe9718872b83e3a976f3be54b3635161f5532699f59276"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_v646_karaoke_render_load.py",
+      "status": "created",
+      "sha256": "f1cc42734685912927f94188cdf9323b15a5fb1ffb5fe603c5db02dd8f01751a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_v647_status_stalls.py",
+      "status": "created",
+      "sha256": "006ffd954d48427a48fcf8d8326e00783fe85a1843161c5afbaeaf88102d0322"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_v648_local_stack_diagnostics.py",
+      "status": "created",
+      "sha256": "5ded6147c94883bf84d1c6314e2d4bb7ccfee4faab455889367077475da89085"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_v649_render_blocking.py",
+      "status": "created",
+      "sha256": "84731fd377f3b386a1d238b56df3356c6bc8555f85eb30eeeaf0a76ff9a2b0e8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tests\\test_v650_karaoke_resize.py",
+      "status": "created",
+      "sha256": "123c6c4631ae729c1706a326d676454a8a029e7212f00833b33b1483c093de6a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp0ic6qop0",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp0ic6qop0\\Song.lrc",
+      "status": "created",
+      "sha256": "65385e3010c180b4a553550a474e0742bc52e0b79477a2c4c8e4787891c2af88"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp0ic6qop0\\Song.mp3",
+      "status": "created",
+      "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp0ic6qop0\\Song.srt",
+      "status": "created",
+      "sha256": "750e0f9221187bc9dba69fa71ba7d0fbf8464cb1c230a3ed5ab1a10e19de5564"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp0ic6qop0\\Song.txt",
+      "status": "created",
+      "sha256": "2d6944241362c8000034a6b330bbea45fd89b340fac699e183c81064c926931f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp54kfbiu3",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp54kfbiu3\\Song.lrc",
+      "status": "created",
+      "sha256": "d8e4d67ab760111e17a413ec57e5a98b7832bfc2dbd71ed250dadfaeb26eb181"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp54kfbiu3\\Song.mp3",
+      "status": "created",
+      "sha256": "8f1d9e249cea6e861fcae329b5eeff87880c522d84811c964e5b553705f578a7"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp54kfbiu3\\Song.mp3.bak.202611111027.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp54kfbiu3\\Song.txt",
+      "status": "created",
+      "sha256": "7c2abae83bc6c0c2a0f32125dfcf0193880a37abcd74ab73d0516d13680ab011"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp6fjxrdp0",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp6fjxrdp0\\song.flac",
+      "status": "created",
+      "sha256": "6ed8919ce20490a5e3ad8630a4fab69475297abd07db73918dd5f36fcfaeb11b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp6fjxrdp0\\song.lrc",
+      "status": "created",
+      "sha256": "77b3cb42e1d98184d891ed53b8e254624d3c6c72626a1f7bce5f6954a7521117"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp8i5io_ho",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp8i5io_ho\\one-second-silence.lrc",
+      "status": "created",
+      "sha256": "8077016dd91009c8c107e1216fae42675ac4e856ecdc2b94796ce4dc0bf91fbe"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmp8i5io_ho\\one-second-silence.wav",
+      "status": "created",
+      "sha256": "56d4af65701c26df20bd4021eda95b6e830348ce3a746086079fe89285548dc9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmpumzphn6c",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmpumzphn6c\\Song.srt",
+      "status": "created",
+      "sha256": "6469da37647a6199eff3373ad066987c7fdcb4cd4bd5712b3b89cf1afc96e125"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmpxb1ngwgd",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\tmpxb1ngwgd\\inaudible-test-tone.wav",
+      "status": "created",
+      "sha256": "8033c9c459b80d3616131baaf9dd0a698a98cf3d307f013188093586c4f2812e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log",
+      "status": "created",
+      "sha256": "70e790da5804ee9f90b34b3e49cff47481190f3bdc9d2baaaac6836629de76aa"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "sha256": "7821af777cce2df0d8c43b389e920773434f9d0b78848d9c6bdbb8e120908a27"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (10).bak",
+      "status": "created",
+      "sha256": "a2a6b965a31520e0893e45877979aca54ca1b1ee9d0e80f1c95ed5892d68b755"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (11).bak",
+      "status": "created",
+      "sha256": "a3417eb93568ba1d67c48306b8d901754fb5db460363d244436a6a7a9333cd4e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (12).bak",
+      "status": "created",
+      "sha256": "062264b0ccc5603626fdf7be64ced9092b2008fae5c0c279f8f87eb1800e8a56"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (13).bak",
+      "status": "created",
+      "sha256": "1c65276cf7b77cebaef582b075711e654da3b4480ea7afe9a3662c447df439f2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (14).bak",
+      "status": "created",
+      "sha256": "fa8b3d6ad062a4208741136ce0b58e3685c2f33f82f10b0cbe20a1c831403980"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (15).bak",
+      "status": "created",
+      "sha256": "9dd2319b6ecebf24768ca5dfd60d8cbb55d79c7cc0f49ad3c19466dfbf4e7639"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (16).bak",
+      "status": "created",
+      "sha256": "9dd87a8e44110e1aec5cba4f043bd105afbcc551b54b4b22dc503418f440b677"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (17).bak",
+      "status": "created",
+      "sha256": "afa95f7e1d9dc7711134f6b03ba0f365ecd9a760b62ec2f445290a807b966a2b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (18).bak",
+      "status": "created",
+      "sha256": "ed38a9489aed4d482f0c3affe6e98ed220fcb30f8d7bd4b3fa598b1a8fa17d12"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (19).bak",
+      "status": "created",
+      "sha256": "362167cd4e86919d308d229b575e61fa51c9d42e223d1810c84102ee6f803f67"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "sha256": "f79f44bd5129ee19a9e5311cce3017dc778d4edb00dd4a9aef0f5c916f31a204"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (20).bak",
+      "status": "created",
+      "sha256": "71a844a0aaecf479e8353ad28df64070e11403bcd07dbdaa1a6da7ec53ad9e4d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (21).bak",
+      "status": "created",
+      "sha256": "96a1b4509f68b6d2d1685b00dcdd720521e0c83225206c12622a6d4e0acc4521"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (22).bak",
+      "status": "created",
+      "sha256": "589c689637ea470388a08393838b740400b5b5801c37c38e0dc87ee5f4f75890"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (23).bak",
+      "status": "created",
+      "sha256": "fb470fa44fd11e3ca70859a1b7e1e29b6fd8efaa04ce2c80e0eadf4ec51d3369"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (24).bak",
+      "status": "created",
+      "sha256": "54eb68b488a1d217ccf507116426834048ec33599fc3f325d38d874ca00e4466"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (25).bak",
+      "status": "created",
+      "sha256": "00e0ba4cbae5c1c1c5acc0765a7388d9e16f0bf91bb7f15cb3082ccd46f00214"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (26).bak",
+      "status": "created",
+      "sha256": "72f8eeb5be2ff686a85b328299782cceb51a245571d81b06ee60c441deaffaf2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (27).bak",
+      "status": "created",
+      "sha256": "e49d1e6183e9775dafa393e2ede5520081c08af5a7d07cb2182ffbd2eba10dc0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (28).bak",
+      "status": "created",
+      "sha256": "6e3e72ac3f33af12a5ed1a8fe6decbd8739cdaf5c3fbc28ae7d367d76a002bef"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (29).bak",
+      "status": "created",
+      "sha256": "8f4af0cdc6497c0a199df740f19ed0493447f638a2e9540128537a8fcf26ebaa"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "sha256": "fa75e50c26df4b9100cd8aef46b38b689891dce8a34f3182f2a603d8c9948b72"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (30).bak",
+      "status": "created",
+      "sha256": "7b2118eff0ad087218f22551ef6228f88cfa53db9b9b96bbba12d95230976789"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (31).bak",
+      "status": "created",
+      "sha256": "0dcaa5136f1a0d1f1975034d104c06b1f6417f55d7a08979ff63a744cea4cf54"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (32).bak",
+      "status": "created",
+      "sha256": "bd2a44e7b8f9d31c99326816ee8bf50b6fc9ede254eb3cd94a5fe475a4dbbfc1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (33).bak",
+      "status": "created",
+      "sha256": "93ddecc1efe676053b14736c6c04dd9ae3e79eaeb5d0af88e5ab2b26c793c5a5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (34).bak",
+      "status": "created",
+      "sha256": "32906d754b35f107783952889d605cff6e7ee5043897265c4510baf3d3830d55"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (35).bak",
+      "status": "created",
+      "sha256": "736a98dc49d888140dcc85ba189abe0a5fbeaf21a9f6eb6aadb5b9a2b406729d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (36).bak",
+      "status": "created",
+      "sha256": "cea93af98c04b9fd05fa03a8298ba606f2c70b58b1ba38f31f72b1a910bd8b0e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (37).bak",
+      "status": "created",
+      "sha256": "21e94a4b0fa6e579e3f68c4226fc13ef0917efc377fb5815aef146485e1d77ad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (38).bak",
+      "status": "created",
+      "sha256": "b8a547149974d2c908f9985a914769e36251eb3f429f1fafb4cd6f15402545d4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (39).bak",
+      "status": "created",
+      "sha256": "30dddeb4f65d721b05922c9f10d4638c094e281e15e94ab82974e0e1df7ba88c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (4).bak",
+      "status": "created",
+      "sha256": "545149d93bd45c73d0194c81ad663d960f868b20c3e2034f07dbbfc04e60969f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (40).bak",
+      "status": "created",
+      "sha256": "e868b7c2b853377211b88507eec7ccf204558dc32055b33ed0621261a1cee62d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (41).bak",
+      "status": "created",
+      "sha256": "7188edce9945f6d2ceaa5ba88e749abb9b4ed27a827dfdefea59c323c30cecc9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (42).bak",
+      "status": "created",
+      "sha256": "b430cb97d473377550cd939a68033b529c5acadc9d58bbe220841b9cc6251147"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (43).bak",
+      "status": "created",
+      "sha256": "789e4bcaff29fc53a34bd5678198c3e05e24d573f721b5cbfc986fbe906b3bc0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (44).bak",
+      "status": "created",
+      "sha256": "ef0e918fcb8e6c3702d69febf10b8cadbf5a2f5be203ea77c053f23dd5d78b9b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (45).bak",
+      "status": "created",
+      "sha256": "89f87b625013a8660b3dec08e0dbc06e9909405cd073671d5d4a305a3d500752"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (46).bak",
+      "status": "created",
+      "sha256": "0896a15a95a8b76e111988cdf5254511ac0f5f24b04cdbe02fc85671d0920e89"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (47).bak",
+      "status": "created",
+      "sha256": "395d9d13da6fcfde97d2ae94645af606c70e6fa1e723459bd716535832604516"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (48).bak",
+      "status": "created",
+      "sha256": "da021fa2d73f4a20e1a639c02e55140519471a2f16887ce99b6888e44765c163"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (49).bak",
+      "status": "created",
+      "sha256": "6f29c51e897a85759a4f4d62b174545e03ae9bcfef51896b8275d967f9059233"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (5).bak",
+      "status": "created",
+      "sha256": "d242c414851a5b30eb8e7cafdf6470e9167ceab309a7b1904a6abb0f1bec5644"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (50).bak",
+      "status": "created",
+      "sha256": "7a15b34c75ebe27631d920dabef2eb6d857642b373c4087861e38e49f2394d90"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (51).bak",
+      "status": "created",
+      "sha256": "e5fdb685ae7d938d3c9839ab46ca1fd26de14de341c015c9be709ca11af1cd0c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (52).bak",
+      "status": "created",
+      "sha256": "938eed83ebe8d914babd9c7e9dc49cdaaceb5bfe8f979afb155b1db103654a84"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (53).bak",
+      "status": "created",
+      "sha256": "7221e39c44acbbbed6d85101efc19dbadcd6d4850ae4f88b1840cf273b635c19"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (54).bak",
+      "status": "created",
+      "sha256": "58c1358f8cd4bae170e0c1c68144370895ea57ce51c3b7b9aada7179ddbf3142"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (55).bak",
+      "status": "created",
+      "sha256": "535826f52b32bfa66eadfeae99357114642c4a7bc155265e41f354f84c73d8db"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (56).bak",
+      "status": "created",
+      "sha256": "4f8fb6b32da3070c67f8cfd67371128a8e7c0c915af834f1a8ce1ab8705f2c2d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (57).bak",
+      "status": "created",
+      "sha256": "79c942fcaa1b55e81ff2b551381985ac57c00945e869754b09da68e3fafb7abe"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (58).bak",
+      "status": "created",
+      "sha256": "d214cffda622776ac37286d951ae3789c5251268c53fb102d3ab9ee576ceaac0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (6).bak",
+      "status": "created",
+      "sha256": "9d80026230417382f26909420f4e94c8403b129b5f567a3ba2d5e46e154f4c6d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (7).bak",
+      "status": "created",
+      "sha256": "c8b27846f004f22fe4f929c68735d342580c2629118876282e106c29236e79a2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (8).bak",
+      "status": "created",
+      "sha256": "56221f023d210cac16feebd52e181d0a50c4ff30ad36e90eda94afb1d3c1f977"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt (9).bak",
+      "status": "created",
+      "sha256": "17ce431e29afd0a1a64145d68f08ff121c23a65807a4b4bea75859af6963a438"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-8zheny7s\\concurrent.log.bak.202611111026.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "1fd4c54e32ad56016e969e66c6799f023103e56267e6634710f287beebf54c93"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-akwbmbn9",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-eqrqdk3z",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-k4ijle2p",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\pipeline-regressions-20261111-102652\\v649-lock-test-k4ijle2p\\trace.log",
+      "status": "created",
+      "sha256": "cfdca1974e04353a238e8024b397ed14aab867fca433e19ed60f224d10459274"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\PAFPlayer-native",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\PAFPlayer-native\\artwork-a455f7dcc25c44c4e1807ce19f97bac7315d3d22f212959f66f496603913d36c.dll",
+      "status": "created",
+      "sha256": "a455f7dcc25c44c4e1807ce19f97bac7315d3d22f212959f66f496603913d36c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\PAFPlayer.py",
+      "status": "created",
+      "sha256": "a26c04407993622f543c5786e2c611113f70baa6b768297914545582c0181776"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\PAFPlayer_steam.py",
+      "status": "created",
+      "sha256": "2b031accff5347707ddcf7e9d1c5b2567bb229546d1a8815ab48758a9e0c7fe4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\baseline_v653.py",
+      "status": "created",
+      "sha256": "5768b4c8bda0173248785406c627a9305ad49bc45a00557bfde6d9b4f94f0670"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tests",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tests\\test_PAFPlayer_v458.py",
+      "status": "created",
+      "sha256": "e800a248124e162e2d9d8d03e198524a735cac6e276842bbff391e2d277b7b26"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tests\\test_pipeline_native_allocations.py",
+      "status": "created",
+      "sha256": "732656d9eba0fe78ae495482061286050f294debd2472f361b8bac667458a2df"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tests\\test_play_audio_file_v418.py",
+      "status": "created",
+      "sha256": "e9eb0621c74115210becbc718c929e93993a5f47d5f6e49aa1bf5c7092afeaca"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tests\\test_v580_tray_and_steam.py",
+      "status": "created",
+      "sha256": "1f324f1984fc153c26f93fb8547c59294c7599a7f61b637084342903932369c9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tests\\test_v581_steam_notices.py",
+      "status": "created",
+      "sha256": "dd4b21862cdad9a6f00846c26c67af84bcf5ef3913fe1eafec5d9c7cfcde89e4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tests\\test_v648_local_stack_diagnostics.py",
+      "status": "created",
+      "sha256": "5ded6147c94883bf84d1c6314e2d4bb7ccfee4faab455889367077475da89085"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tests\\test_v650_karaoke_resize.py",
+      "status": "created",
+      "sha256": "123c6c4631ae729c1706a326d676454a8a029e7212f00833b33b1483c093de6a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tests\\test_v651_idle_dance_session_errors.py",
+      "status": "created",
+      "sha256": "e7510cf14637e335e0ccc6eb43dff688e466e0a7c8366622d7d494543c1b7dd8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tests\\test_v654_native_full_frames.py",
+      "status": "created",
+      "sha256": "a91a40b14b2c1d7ba80fa8dd150335f45d81c7dd49a968c28dbaed20e5e276f2"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmp6ci1mk3g",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmp6tima5y1",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmp6tima5y1\\Second Library",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmp6tima5y1\\Second Library\\steamapps",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmp6tima5y1\\Second Library\\steamapps\\appmanifest_42.acf",
+      "status": "created",
+      "sha256": "05a80d75228100e05cf3bd0e31ef6e1ddfd3729ec05c43f4a672bc4cc5b29ac0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmp6tima5y1\\Second Library\\steamapps\\appmanifest_43.acf",
+      "status": "created",
+      "sha256": "0ded624ee11e9375af53cd180f354df21ce638fbf6cfdceffaa12096a4720003"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmp6tima5y1\\steamapps",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmp6tima5y1\\steamapps\\libraryfolders.vdf",
+      "status": "created",
+      "sha256": "98502c62fb003949f8db780946cdcdd5200678ca629a1e44fc5423d65dc30638"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmp8ivmhehv",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmp_yk8c0el",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpdkfsjcnd",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpe4ikwdk2",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmppniocx2x",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmppniocx2x\\tray-e6adfddf3df0a31361584b1c.json",
+      "status": "created",
+      "sha256": "8a834e2f78500db882e7a10b470a7b9f1f7d0eb91e503ac4614f8dfbf0463a42"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmppniocx2x\\tray-e6adfddf3df0a31361584b1c.json.bak.202611111025.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "6ee0addfb1e53524eb6b188502f3ac1130907f72b28974bb8c3c84fb3e665cd1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpqe_3gspp",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpqe_3gspp\\logs",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpqe_3gspp\\logs\\tray-20261111-102559.log",
+      "status": "created",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpv0_rfyp_",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpv0_rfyp_\\tray-e6adfddf3df0a31361584b1c.json",
+      "status": "created",
+      "sha256": "2788932c950d401b5d236eb47d606f506b7a0e91c7714e3b387c1692cbebc6ba"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpv0_rfyp_\\tray-e6adfddf3df0a31361584b1c.json.bak.202611111025.replaced-by-chatgpt.bak",
+      "status": "created",
+      "sha256": "9d06c4f37622c76432c3dcca3646c70078c5064c12c89f4c2819e362aa2b374b"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpz4d2tzd2",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpznl4ptel",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\tmpznl4ptel\\tray-e6adfddf3df0a31361584b1c.json",
+      "status": "created",
+      "sha256": "be2219639ff516f3acde22eaede4abbb83c5712226426ad69f6b8ebb646023bb"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\v650-art-_py66gf2",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\v650-art-_py66gf2\\fixture.flac",
+      "status": "created",
+      "sha256": "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\v650-art-_r0573bx",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\v650-art-_r0573bx\\fixture.flac",
+      "status": "created",
+      "sha256": "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\v650-art-a9hc11_1",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\v650-art-a9hc11_1\\fixture.flac",
+      "status": "created",
+      "sha256": "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\v650-art-dtc46w3e",
+      "status": "created",
+      "kind": "directory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v654-checks-20261111-102553\\v650-art-dtc46w3e\\fixture.flac",
+      "status": "created",
+      "sha256": "f16d05ec6b29248d2c61adb1e9263f78e4f7bace1b955014a2d17872cfe4064d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v654_native_full_frames.py",
+      "status": "created",
+      "sha256": "805b6a801e270b469b0227f82e771361ee135025ccf90ececcd4c480eafe071d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v654_native_full_frames.py",
+      "status": "created",
+      "sha256": "c36033e6bb44d761165a89a4c6b2a6e8493e6060b1b379e9a6dc2cd04c48c96f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tools\\prepare_v654_native_full_frames.py",
+      "status": "created",
+      "sha256": "89b54913c9e21d88ddf3380ce5323021e99796d9362a75e6854071eb43244ec9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tools\\release_v654_native_full_frames.py",
+      "status": "created",
+      "sha256": "fc66c835cd0e95e1c4aa65a47a2a466fef88f2895d82b17fe6684b4743ca2f30"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v654-change-manifest.json",
+      "status": "created"
+    }
+  ],
+  "moves": [
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\benchmark_full_frame_native.py.bak.202611111024.replaced-by-chatgpt.bak",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\benchmark_full_frame_native.py.bak.202611111024.replaced-by-chatgpt.bak",
+      "status": "moved verified backup"
+    },
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\benchmark_full_frame_native.py.bak.202611111026.replaced-by-chatgpt.bak",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\benchmark_full_frame_native.py.bak.202611111026.replaced-by-chatgpt.bak",
+      "status": "moved verified backup"
+    },
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v654_native_full_frames.py.bak.202611111027.replaced-by-chatgpt.bak",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\test_v654_native_full_frames.py.bak.202611111027.replaced-by-chatgpt.bak",
+      "status": "moved verified backup"
+    }
+  ],
+  "literal_cbat_changes": [],
+  "deleted_paths": [],
+  "roots": {
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer": [
+      "AGENTS.md",
+      "PAFPlayer.dcc",
+      "PAFPlayer.md",
+      "PAFPlayer.py",
+      "__pycache__",
+      "assets",
+      "backups",
+      "changerrecent.m3u",
+      "discord_social",
+      "docs",
+      "lockscreen",
+      "monkeymote",
+      "play_audio_file-lastfm-setup-asked.txt",
+      "releases",
+      "screensaver",
+      "src",
+      "tests",
+      "tools"
+    ],
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen": [
+      "App.xaml",
+      "App.xaml.cs",
+      "Assets",
+      "BackgroundTasks",
+      "DesktopBackground.cs",
+      "DesktopHost.cs",
+      "DesktopHost.manifest",
+      "DesktopPackage.appxmanifest",
+      "MainPage.xaml",
+      "MainPage.xaml.cs",
+      "ManagedPublisher.cs",
+      "PAFPlayerLockScreen.csproj",
+      "Package.appxmanifest",
+      "Properties",
+      "StatusUpdater.cs",
+      "archive",
+      "build_desktop.ps1",
+      "dist",
+      "docs",
+      "lockscreen_installer.py",
+      "src",
+      "testing",
+      "tools"
+    ],
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver": [
+      "PAFPlayer.cfg",
+      "PAFPlayer.scr",
+      "docs",
+      "releases",
+      "src",
+      "testing",
+      "tools"
+    ]
+  }
+}

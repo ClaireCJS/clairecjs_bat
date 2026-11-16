@@ -59,7 +59,7 @@ def _line_task(image,regions,lines,index):
     return min(members),members,combined
 
 
-def render_plan(image,regions,protected,lines):
+def render_plan(image,regions,protected,lines,alternative=None):
     """A failed word fit may restart its line as one coherent replacement.
 
     No artifact or source is written while searching. Each line is combined at
@@ -71,7 +71,12 @@ def render_plan(image,regions,protected,lines):
         current=image.copy();reserved=list(protected);rendered=[]
         for index,members,region in tasks:
             others=[r for i,r in enumerate(regions) if i not in members]
-            try:current,diagnostic,crops=_fit(current,region,reserved,lines,others)
+            candidate=replace(region,settings=dict(region.settings))
+            try:
+                if alternative and index==alternative[0]:
+                    from .fit_search import render_adaptive_region
+                    current,diagnostic,crops=render_adaptive_region(current,candidate,reserved,lines,others,alternative[1])
+                else:current,diagnostic,crops=_fit(current,candidate,reserved,lines,others)
             except RenderBlocked as error:
                 replacement=None
                 if 'cannot fit safely' in str(error) and region.line_index not in combined_lines:

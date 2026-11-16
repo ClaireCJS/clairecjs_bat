@@ -1,0 +1,10 @@
+{
+  "version": "V667",
+  "focused_tests_passed": 68,
+  "conversation_log_tests_passed": 3,
+  "bundled_modules_compiled": 28,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true,
+  "browser_warning_refresh": "passed",
+  "tests_use_isolated_log_paths": true
+}

@@ -1,0 +1,141 @@
+{
+  "recorded_at": "2026-11-10T07:40:38.026385",
+  "source_sha256": "f434ec10577fb5e4198cfd5d4c0519018409e8963f383a43b3dd024c2e84cb6e",
+  "captures": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v650-karaoke-transition-V650-20261110-073722.json",
+      "version": "V650",
+      "samples": 445,
+      "request_median_ms": 7.801200001267716,
+      "request_max_ms": 224.4178999972064,
+      "reported_fps_range": [
+        48.4,
+        54.43
+      ],
+      "sampled_main_thread_artwork_rebuilds": 0,
+      "cue_presence_changes": [
+        {
+          "elapsed": 2.0000006770715117e-06,
+          "position": 13.33,
+          "has_lyric": false
+        },
+        {
+          "elapsed": 2.0145687999975053,
+          "position": 15.395,
+          "has_lyric": true
+        },
+        {
+          "elapsed": 24.764012699997693,
+          "position": 38.032000000000004,
+          "has_lyric": false
+        },
+        {
+          "elapsed": 27.78612989999965,
+          "position": 41.08,
+          "has_lyric": true
+        },
+        {
+          "elapsed": 37.92285170000105,
+          "position": 51.245000000000005,
+          "has_lyric": false
+        },
+        {
+          "elapsed": 40.94243920000008,
+          "position": 54.294000000000004,
+          "has_lyric": true
+        }
+      ]
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v650-karaoke-transition-V650-20261110-073921.json",
+      "version": "V650",
+      "samples": 444,
+      "request_median_ms": 7.357550000961055,
+      "request_max_ms": 280.73869999934686,
+      "reported_fps_range": [
+        49.4,
+        54.2
+      ],
+      "sampled_main_thread_artwork_rebuilds": 0,
+      "cue_presence_changes": [
+        {
+          "elapsed": 2.1000014385208488e-06,
+          "position": 132.037,
+          "has_lyric": false
+        },
+        {
+          "elapsed": 5.033420200001274,
+          "position": 136.925,
+          "has_lyric": true
+        },
+        {
+          "elapsed": 7.551937100000941,
+          "position": 139.56900000000002,
+          "has_lyric": false
+        },
+        {
+          "elapsed": 11.575504200001888,
+          "position": 143.629,
+          "has_lyric": true
+        },
+        {
+          "elapsed": 13.590672900001664,
+          "position": 145.672,
+          "has_lyric": false
+        },
+        {
+          "elapsed": 21.23587320000297,
+          "position": 153.156,
+          "has_lyric": true
+        }
+      ]
+    }
+  ],
+  "after_capture_status": {
+    "version": "V650",
+    "paused": false,
+    "console_karaoke_enabled": true,
+    "external_album_art_enabled": true,
+    "floating_lyrics_enabled": true,
+    "visualizer_granularity": 3,
+    "drcs_art_microtile_mode": 9,
+    "drcs_art_bar_microtile_mode": 9,
+    "artwork_seam_strategy": 5,
+    "visualizer_rows": 48,
+    "karaoke_visualizer_expansion_enabled": true,
+    "visualizer_perf": {
+      "fps": 51.0,
+      "terminal_fps": 51.0,
+      "target_fps": 60.0,
+      "render_ms": 7.383,
+      "transport_ms": 3.585,
+      "bytes_per_second": 0.0,
+      "escapes_per_second": 0.0,
+      "runs_per_second": 0.0,
+      "transport_mode": "full-frame",
+      "cpu_percent": 128.4,
+      "missed": 28,
+      "profile_enabled": false,
+      "components": {},
+      "window_seconds": 5.0
+    },
+    "audio_health": {
+      "isolated": true,
+      "queued_ms": 341.3333333333333,
+      "underruns": 0
+    }
+  },
+  "long_gap_checked": {
+    "starts_seconds": 145.6,
+    "ends_seconds": 152.76,
+    "outgoing_fade_seconds": 6.0
+  },
+  "user_visual_feedback": "pending",
+  "limitations": [
+    "Stacks sample at up to 10 Hz, not every rendered frame.",
+    "HTTP request latency is not frame latency.",
+    "Different tracks and active Steam settings prevent a controlled V649/V650 FPS comparison.",
+    "No sustained-hour or direct visual verification was performed."
+  ],
+  "literal_c_bat_changes": []
+}

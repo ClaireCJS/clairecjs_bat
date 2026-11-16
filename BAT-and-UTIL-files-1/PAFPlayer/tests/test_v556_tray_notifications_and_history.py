@@ -11,7 +11,9 @@ class V556RegressionTests(unittest.TestCase):
         hover = (ROOT / 'src' / 'PAFPlayer_tray_hover.py').read_text(encoding='utf-8')
         self.assertIn('Show sung lyrics above tray', source)
         self.assertIn('self._lyric_bubble.show(lyric)', source)
-        self.assertNotIn('NIF_INFO', source)
+        lyric_path = source[source.index('def _sync_lyric_bubble'):source.index('def _log')]
+        self.assertNotIn('NIF_INFO', lyric_path)
+        self.assertIn('NIF_INFO', source)  # Error alerts use shell notifications separately.
         self.assertIn('class LyricBubble', hover)
         self.assertIn('Shell_NotifyIconGetRect', hover)
         self.assertIn('0x00000020', hover)  # WS_EX_TRANSPARENT: clicks pass through.

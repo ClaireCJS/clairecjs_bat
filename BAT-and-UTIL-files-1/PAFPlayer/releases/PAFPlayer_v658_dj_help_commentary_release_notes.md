@@ -1,0 +1,7 @@
+# PAFPlayer V658 — DJ commentary in Help
+
+`?` / F1 shows AI DJ status and the most recent generated dialogue between track diagnostics and keyboard shortcuts. Dialogue appears before speech synthesis and stays visible if synthesis fails. Help paginates long dialogue and refreshes while open during playback or pause. Cancelled generations cannot publish stale text. Control characters are stripped before display.
+
+The editable DJ implementation now matches the bundled implementation and retains the separate presentation helpers. Text and speech still require working providers; this release does not install Piper or configure credentials. Use `#djforce` after three seconds of playback to request a segment, or `#dj` for automatic intervals.
+
+The configured OpenAI key tested on this machine was rejected with HTTP 401. A local Ollama model produced real dialogue in approximately 79 seconds after an earlier request timed out; the updated automatic selection produced dialogue in 110 seconds. Focused verification: 22 existing DJ tests, three new Help tests, seven command tests, and 28 bundled modules compile; the release copy matches the active player. [Test report](../tests/reports/v658-dj-help-checks-20261111.json). Automatic model selection now chooses the smallest installed model and bounds context size. Speech was not verified live; Piper was not installed. No literal C:\BAT files were changed.

@@ -340,7 +340,7 @@ def route(app,action,source,image,regions,protected,proposal,remember):
 
 def review(app,message,blocked):
     """Keep GUI decisions live while a console key acts immediately."""
-    labels={'m':'Move/squeeze text to fit','y':'Approve','a':'Add rule','e':'Edit prefilled caption',
+    labels={'m':'Move/squeeze text to fit','t':'Try next fit','y':'Approve','a':'Add rule','e':'Edit prefilled caption',
             'r':'Reject changes','s':'Skip image','d':'Defer image',
             'o':'Correct OCR','v':'Adjust text/image','b':'Compare background repairs',
             'i':'Ignore text change','c':'Cancel job'}
@@ -369,7 +369,7 @@ def review(app,message,blocked):
             'Press a displayed key once; ENTER chooses the highlighted default. Approve applies only the\n'
             'rendered proposal. ENTER tries move/squeeze for a blocked render; V opens its adjustment\n'
             'menu, where ENTER tries smaller text for a fit problem. E opens the prefilled caption editor.\n'
-            'Reject/Skip leaves this image unchanged; C/ESC cancels and retains resumable progress.',
+            'T cycles through available fit previews. Reject/Skip leaves this image unchanged; C/ESC retains resumable progress.',
             poll=poll,escape='c',aliases={'approve':'y','reject':'r','reject changes':'r','skip':'s'})
         if isinstance(value,tuple) and value[0]=='artwork':
             if os.name=='nt':
@@ -377,6 +377,6 @@ def review(app,message,blocked):
                 while msvcrt.kbhit():msvcrt.getwch()
             value=value[1]
             return 's' if isinstance(value,str) and value in ('r','reject','reject changes') else value
-        return {'y':'a','a':'add_rule','e':'edit_caption','r':'s'}.get(value,value)
+        return {'y':'a','a':'add_rule','e':'edit_caption','r':'s','t':'next_fit'}.get(value,value)
     finally:
         if token is not None:artwork.end_review(token)

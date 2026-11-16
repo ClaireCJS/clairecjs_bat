@@ -1,6 +1,6 @@
 """Windows media settings UI, added without altering the console visualizer."""
 HTML='''
-<div class="group" id="windowsMediaSection"><h3>Windows / Lock Screen · Experimental</h3>
+<div class="group" id="windowsMediaSection"><h3>🪟 Windows / Lock Screen</h3>
 <div class="workflow-tools">
 <label><input type="checkbox" data-windows-setting="enabled">Windows media / lock-screen integration</label>
 <label><input type="checkbox" data-windows-setting="artwork" checked>Show album artwork</label>

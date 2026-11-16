@@ -1,0 +1,20 @@
+[
+  {
+    "model": "piper",
+    "gender": "female",
+    "status": "ok",
+    "file": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v673-real-sd881ez8\\comparisons\\comparison-aa6xz1a8\\piper-female.wav",
+    "generation_seconds": 2.27,
+    "voice": "Piper default voice",
+    "duration_seconds": 5.86
+  },
+  {
+    "model": "piper",
+    "gender": "male",
+    "status": "ok",
+    "file": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v673-real-sd881ez8\\comparisons\\comparison-aa6xz1a8\\piper-male.wav",
+    "generation_seconds": 2.05,
+    "voice": "Piper default voice",
+    "duration_seconds": 5.17
+  }
+]

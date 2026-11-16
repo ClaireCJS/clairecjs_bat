@@ -1,0 +1,20 @@
+[
+  {
+    "model": "piper",
+    "gender": "female",
+    "status": "ok",
+    "file": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v673-real-oxrpw3e0\\comparisons\\comparison-e86lvldr\\piper-female.wav",
+    "generation_seconds": 1.61,
+    "voice": "Piper default voice",
+    "duration_seconds": 5.77
+  },
+  {
+    "model": "piper",
+    "gender": "male",
+    "status": "ok",
+    "file": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v673-real-oxrpw3e0\\comparisons\\comparison-e86lvldr\\piper-male.wav",
+    "generation_seconds": 1.31,
+    "voice": "Piper male voice",
+    "duration_seconds": 3.98
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "version": "V665",
+  "focused_tests_passed": 58,
+  "sleep_tests_passed": 7,
+  "bundled_modules_compiled": 28,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true,
+  "javascript_blocks_checked": 9,
+  "browser_sleep_visibility_and_lock_sync": "passed",
+  "browser_warning_tab_and_credit_warning": "passed",
+  "live_free_provider_and_piper_evidence": "v664-free-dj-live-checks-20261112.json"
+}

@@ -1,0 +1,19 @@
+{
+  "version": "V658",
+  "focused_dj_tests": 22,
+  "help_tests": 3,
+  "hash_command_tests": 7,
+  "source_bundle_mismatches": 0,
+  "bundled_modules_compile": 28,
+  "release_matches_active": true,
+  "live_ollama": {
+    "model": "qwen3-coder:30b",
+    "initial_manual_selection_seconds": 78.7,
+    "automatic_selection_bounded_context_seconds": 110.3,
+    "sample_track": "synthetic example"
+  },
+  "openai_private_env_current_key": "HTTP 401",
+  "piper": "not installed",
+  "live_speech": "not verified",
+  "literal_c_bat_changes": []
+}

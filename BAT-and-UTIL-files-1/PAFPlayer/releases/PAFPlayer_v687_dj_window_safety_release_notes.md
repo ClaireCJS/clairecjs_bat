@@ -1,0 +1,3 @@
+# PAFPlayer V687 — DJ and playlist fixes
+
+Piper speech is launched detached and hidden to avoid interaction with the active window; this still needs a live desktop verification. The DJ is disabled for a run with --no-ai or --noai. DJ visualizer uses the speech clock; paused artwork remains in auto mode until competing media appears. Unknown next songs are not announced. The playlist window supports Ctrl+O; switching waits for the new player. Playlist handoff prompts on an unflagged playlist and provides queue aliases. DJ controls are responsive and follow Artwork. Model relocation to T:\models is not yet included.

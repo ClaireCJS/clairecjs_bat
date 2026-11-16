@@ -84,7 +84,10 @@ def test_automatic_context_fit_requires_review_before_commit(tmp_path,known_styl
     def approve(source,proposal,regions):
         proposals.append(proposal)
         assert not proposal.get('blocked') and proposal['level']>=2
-        assert proposal['diagnostics'][0]['fit_action']=='squeeze'
+        chosen=proposal['diagnostics'][0]
+        assert chosen['fit_action'] in ('squeeze','adaptive')
+        assert chosen['fit_context']['after']=='bright woman today'
+        assert imaging.full_captions([line],regions)['proposed']=='bright woman today'
         assert sha256(source)==digest and not (tmp_path/'.history.icgf').exists()
         return 'a'
     monkeypatch.setattr(app,'review',approve)

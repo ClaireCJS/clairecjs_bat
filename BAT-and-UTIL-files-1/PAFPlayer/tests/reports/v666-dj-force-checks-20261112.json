@@ -1,0 +1,12 @@
+{
+  "version": "V666",
+  "focused_tests_passed": 65,
+  "bundled_modules_compiled": 28,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true,
+  "javascript_blocks_checked": 9,
+  "browser_sleep_controls_and_warning": "passed",
+  "forced_sleep_generation_and_playback": "passed with mocked providers and playback",
+  "piper_second_voice_download_and_selection": "passed with mocked downloads and synthesis",
+  "live_second_voice_download": "not tested"
+}

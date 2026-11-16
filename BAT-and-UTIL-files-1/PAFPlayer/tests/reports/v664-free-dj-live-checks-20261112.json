@@ -1,0 +1,28 @@
+{
+  "version": "V664",
+  "focused_tests": 51,
+  "bundled_modules_compiled": 28,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true,
+  "openrouter_key_auth_http": 200,
+  "openrouter_free_account": true,
+  "gemini_key_auth_http": 200,
+  "google_project_user_confirmed_free_tier": true,
+  "gemini_free_setting_persisted": true,
+  "real_end_to_end": {
+    "openrouter_free_and_piper": {
+      "wav_files": 4,
+      "elapsed_seconds": 16.5
+    },
+    "gemini_native_and_piper": {
+      "wav_files": 2,
+      "elapsed_seconds": 9.5
+    }
+  },
+  "earlier_gemini_model": "404 unavailable to new users; updated to gemini-3.5-flash-lite",
+  "openai_credit_warning": "last verified balance exhausted",
+  "literal_c_bat_changes": {
+    "C:\\BAT\\private.env": "modified",
+    "C:\\BAT\\private.env.bak.202611120207.replaced-by-chatgpt.bak": "created"
+  }
+}

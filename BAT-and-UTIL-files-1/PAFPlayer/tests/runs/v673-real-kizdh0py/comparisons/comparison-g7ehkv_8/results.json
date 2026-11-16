@@ -1,0 +1,20 @@
+[
+  {
+    "model": "piper",
+    "gender": "female",
+    "status": "ok",
+    "file": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v673-real-kizdh0py\\comparisons\\comparison-g7ehkv_8\\piper-female.wav",
+    "generation_seconds": 3.12,
+    "voice": "Piper default voice",
+    "duration_seconds": 5.84
+  },
+  {
+    "model": "piper",
+    "gender": "male",
+    "status": "ok",
+    "file": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v673-real-kizdh0py\\comparisons\\comparison-g7ehkv_8\\piper-male.wav",
+    "generation_seconds": 2.81,
+    "voice": "Piper default voice",
+    "duration_seconds": 5.03
+  }
+]

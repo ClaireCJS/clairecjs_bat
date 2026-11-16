@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import atexit
 import ctypes
+from functools import lru_cache
 from ctypes import wintypes
 import ntpath
 import os
@@ -18,10 +19,9 @@ DEFAULTS = {REDUCE: 1, NO_GALLERY: 1}
 NOTICE_SECONDS = 10.0
 
 
-def process_images():
-    """Read process paths with limited query access; never inspect process memory."""
-    if os.name != 'nt':
-        return []
+@lru_cache(maxsize=1)
+def _process_image_api():
+    """Stable ctypes types avoid a retained type graph on every Steam poll."""
     class Entry(ctypes.Structure):
         _fields_ = [('dwSize', wintypes.DWORD), ('cntUsage', wintypes.DWORD),
                     ('pid', wintypes.DWORD), ('heap', ctypes.c_size_t),
@@ -43,6 +43,14 @@ def process_images():
     api.QueryFullProcessImageNameW.restype = wintypes.BOOL
     api.CloseHandle.argtypes = [wintypes.HANDLE]
     api.CloseHandle.restype = wintypes.BOOL
+    return api, Entry
+
+
+def process_images():
+    """Read process paths with limited query access; never inspect process memory."""
+    if os.name != 'nt':
+        return []
+    api, Entry = _process_image_api()
     snapshot = api.CreateToolhelp32Snapshot(2, 0)
     if snapshot == ctypes.c_void_p(-1).value:
         raise ctypes.WinError(ctypes.get_last_error())
@@ -50,12 +58,12 @@ def process_images():
     try:
         entry = Entry(); entry.dwSize = ctypes.sizeof(entry)
         more = api.Process32FirstW(snapshot, ctypes.byref(entry))
+        buffer = ctypes.create_unicode_buffer(32768)
         while more:
             handle = api.OpenProcess(0x1000, False, entry.pid)
             path = ''
             if handle:
                 try:
-                    buffer = ctypes.create_unicode_buffer(32768)
                     size = wintypes.DWORD(len(buffer))
                     if api.QueryFullProcessImageNameW(handle, 0, buffer, ctypes.byref(size)):
                         path = buffer.value
@@ -291,9 +299,9 @@ def get_monitor(app):
 
 
 def augment(page):
-    html = '''<div class="group" id="steamSection"><h3>Steam</h3>
-<label><input type="checkbox" id="steamReduce" checked>Reduce visualizer load by 50% if Steam game is playing</label>
-<label><input type="checkbox" id="steamGallery" checked>Do not run idle artwork gallery if Steam game is playing</label>
+    html = '''<div class="group" id="steamSection"><h3>🎮 Steam</h3>
+<div class="toggle-grid"><label class="toggle control-theme-steam"><input type="checkbox" id="steamReduce" checked><span>Reduce visualizer load by 50% if Steam game is playing</span></label>
+<label class="toggle control-theme-steam"><input type="checkbox" id="steamGallery" checked><span>Do not run idle artwork gallery if Steam game is playing</span></label></div>
 <p class="note">Halves the console visualizer’s frame budget; audio and lyric timing stay unchanged. A game can be in the background. Steam simply being open does not count. Settings are saved for future runs.</p>
 <p id="steamStatus" role="status"></p></div>'''
     script = '''<script>(()=>{
@@ -319,6 +327,6 @@ async function change(key,control){busy=true;++requestSerial;reduce.disabled=gal
 reduce.onchange=()=>change('SteamReduceVisualizerLoad',reduce);gallery.onchange=()=>change('SteamDisableIdleGallery',gallery);refresh();setInterval(()=>{if(!document.hidden)refresh()},3000);
 })();</script>'''
     anchor = '<div class="group section-global-config" id="globalConfigSection">'
-    title = '<h1 id="songTitle">Waiting for playback…</h1>'
+    title = '<h1><span id="songTitle">Waiting for playback…</span><button id="sessionErrorBadge" type="button" title="Click for errors" aria-label="Click for errors" hidden>⚠</button></h1>'
     notice = '<div id="steamPlaybackNotice" role="status" aria-live="polite" hidden style="color:#8ddcff;font-size:0.95rem;margin:0.35rem 0 0.65rem;overflow-wrap:anywhere"></div>'
     return page.replace(title, title + notice, 1).replace(anchor, html + anchor, 1).replace('</body>', script + '</body>', 1)

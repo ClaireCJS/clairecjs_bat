@@ -1,0 +1,7 @@
+# PAFPlayer V660 — DJ diagnostics and Help handoff
+
+The DJ writes separate append-only per-session JSONL logs under `%LOCALAPPDATA%\PAFPlayer\workflows\dj-logs`. Scheduling, provider start/fallback, HTTP status, setup stages, cancellation, and playback outcomes are recorded without keys, track metadata, generated dialogue, response bodies, or exception messages. Help shows how many qualifying tracks have been counted and automatic job progress; the web DJ status also exposes automatic stages.
+
+Prepared commentary now waits for the modal Help screen to close before the player claims its music pause. Previously Help could swallow the synthetic pause action while the DJ claimed ownership. Explicit user pause remains respected. Resuming a manually paused player preserves a ready automatic segment, which plays after playback resumes.
+
+The V659 live session showed a ready segment from local Ollama and Piper, with OpenAI text and speech failing over. The precise cause of the earlier lack of a job was not recorded by V659. A real local probe at the 90-second setting generated ten turns and ten valid WAVs with a metadata-free DJ log. Six new diagnostic and playback tests plus 36 existing DJ, Piper, Help, and command tests passed; all 28 bundled modules compiled and the release matches the active file. [Test report](../tests/reports/v660-dj-diagnostics-checks-20261111.json). No literal C:\BAT paths were changed.

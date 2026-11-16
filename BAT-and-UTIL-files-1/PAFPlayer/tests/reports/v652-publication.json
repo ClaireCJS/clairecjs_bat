@@ -1,0 +1,79 @@
+{
+  "release": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v652_native_poll_retention.py",
+  "sha256": "ae9aaea9f3cc9a95ce9d0e99e7597d49867a2fc702cefc865e922b44417422db",
+  "notes": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v652_native_poll_retention_release_notes.md",
+  "active_source_version": "V653",
+  "active_source_sha256": "5768b4c8bda0173248785406c627a9305ad49bc45a00557bfde6d9b4f94f0670",
+  "native_functions_preserved": true,
+  "focused_tests": 107,
+  "new_tests": 9,
+  "broad_tests": 188,
+  "baseline_failures_unchanged": true,
+  "live_verification_pending": true,
+  "literal_cbat_changes": [],
+  "moves": [
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\__pycache__",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\__pycache__-202611110634",
+      "status": "moved",
+      "files": {
+        "PAFPlayer.cpython-310.pyc": "ffb48379cd45261a8e058aa397e529a446780b60b44d2cdf60fa86d246586161"
+      }
+    }
+  ],
+  "roots": {
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer": [
+      "AGENTS.md",
+      "PAFPlayer.dcc",
+      "PAFPlayer.md",
+      "PAFPlayer.py",
+      "assets",
+      "backups",
+      "changerrecent.m3u",
+      "discord_social",
+      "docs",
+      "lockscreen",
+      "monkeymote",
+      "play_audio_file-lastfm-setup-asked.txt",
+      "releases",
+      "screensaver",
+      "src",
+      "tests",
+      "tools"
+    ],
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen": [
+      "App.xaml",
+      "App.xaml.cs",
+      "Assets",
+      "BackgroundTasks",
+      "DesktopBackground.cs",
+      "DesktopHost.cs",
+      "DesktopHost.manifest",
+      "DesktopPackage.appxmanifest",
+      "MainPage.xaml",
+      "MainPage.xaml.cs",
+      "ManagedPublisher.cs",
+      "PAFPlayerLockScreen.csproj",
+      "Package.appxmanifest",
+      "Properties",
+      "StatusUpdater.cs",
+      "archive",
+      "build_desktop.ps1",
+      "dist",
+      "docs",
+      "lockscreen_installer.py",
+      "src",
+      "testing",
+      "tools"
+    ],
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver": [
+      "PAFPlayer.cfg",
+      "PAFPlayer.scr",
+      "docs",
+      "releases",
+      "src",
+      "testing",
+      "tools"
+    ]
+  }
+}

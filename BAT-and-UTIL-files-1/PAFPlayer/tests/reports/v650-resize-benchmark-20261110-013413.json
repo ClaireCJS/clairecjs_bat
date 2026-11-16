@@ -1,0 +1,45 @@
+{
+  "version": "V650",
+  "source_sha256": "f434ec10577fb5e4198cfd5d4c0519018409e8963f383a43b3dd024c2e84cb6e",
+  "results": [
+    {
+      "rows": 42,
+      "width": 140,
+      "strength": 0.1,
+      "scalar_cold_ms": 598.9188000003196,
+      "numpy_cold_ms": 194.54179999956978,
+      "warm_ms": 0.0034760000016831327,
+      "identical": true
+    },
+    {
+      "rows": 42,
+      "width": 140,
+      "strength": 1.0,
+      "scalar_cold_ms": 612.1036999993521,
+      "numpy_cold_ms": 89.31990000019141,
+      "warm_ms": 0.003378000001248438,
+      "identical": true
+    },
+    {
+      "rows": 48,
+      "width": 140,
+      "strength": 0.1,
+      "scalar_cold_ms": 686.1005999999179,
+      "numpy_cold_ms": 93.49589999874297,
+      "warm_ms": 0.0033199999961652793,
+      "identical": true
+    },
+    {
+      "rows": 48,
+      "width": 140,
+      "strength": 1.0,
+      "scalar_cold_ms": 687.4461999996129,
+      "numpy_cold_ms": 100.75019999931101,
+      "warm_ms": 0.0033269999948970508,
+      "identical": true
+    }
+  ],
+  "blocked_writes": [],
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\v650-resize-benchmark-20261110-013413",
+  "limitations": "Synthetic cold artwork conversion; not a live end-to-end FPS measurement."
+}

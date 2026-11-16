@@ -1,0 +1,42 @@
+{
+  "paths": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\performance-v519.md",
+      "status": "modified"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\PAFPlayer_changelog.md",
+      "status": "modified"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v654-live-verification-20261111.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-thread-stacks-20261111-103337.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v648-thread-stacks-20261111-103458.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v652-live-retention-V654-20261111-103642.json",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\performance-v519.md.bak.202611111037.replaced-by-chatgpt.bak",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\PAFPlayer_changelog.md.bak.202611111037.replaced-by-chatgpt.bak",
+      "status": "created"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v654-live-verification-paths-20261111.json",
+      "status": "created"
+    }
+  ],
+  "literal_cbat_changes": [],
+  "runtime_code_changed": false
+}

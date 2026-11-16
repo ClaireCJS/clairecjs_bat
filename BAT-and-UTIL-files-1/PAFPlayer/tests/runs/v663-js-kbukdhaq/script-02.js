@@ -1,0 +1,9 @@
+(()=>{
+ const section=document.getElementById('windowsMediaSection'),controls=[...section.querySelectorAll('[data-windows-setting]')];let initialized=false,busy=false;
+ function values(){return Object.fromEntries(controls.map(x=>[x.dataset.windowsSetting,x.type==='checkbox'?x.checked:x.type==='range'?Number(x.value):x.value]))}
+ function enable(){const v=values();section.querySelector('[data-windows-setting="brightness"]').disabled=!v.enabled||!v.artwork||v.source==='none';document.getElementById('windowsBrightness').textContent=v.brightness+'%'}
+ function status(value){const s=value.status;document.getElementById('windowsMediaStatus').textContent=s.state+' — '+s.reason+(s.title?' · '+s.title:'')+(s.brightness!==null?' · Artwork '+s.brightness+'%':'')}
+ async function poll(){if(busy)return;try{const r=await fetch('/api/workflows/status'),state=await r.json();if(!r.ok)return;const value=state.windows_media;if(!initialized){for(const el of controls){const v=value.settings[el.dataset.windowsSetting];if(el.type==='checkbox')el.checked=!!v;else el.value=String(v)}initialized=true;enable()}status(value);if(!state.local)controls.forEach(x=>x.disabled=true)}catch(_){}}
+ async function save(){enable();busy=true;try{const r=await fetch('/api/workflows/windows-media',{method:'POST',headers:{'Content-Type':'application/json','X-PAF-Workflow-Token':sessionStorage.getItem('paf-workflow-token')||''},body:JSON.stringify(values())});const result=await r.json();if(!r.ok)throw new Error(result.error);status(result)}catch(e){document.getElementById('windowsMediaStatus').textContent=String(e)}finally{busy=false}}
+ for(const el of controls){el.onchange=save;if(el.type==='range')el.oninput=enable}enable();poll();setInterval(()=>{if(!document.hidden)poll()},3000);
+})();

@@ -1,0 +1,14 @@
+{
+  "version": "V674",
+  "real_gui_scales": [
+    1.0,
+    2.0,
+    2.5
+  ],
+  "gui_buttons_visible_and_invoked": "passed with mocked install/compare",
+  "existing_model_manager_tests_passed": 8,
+  "real_piper_comparison": "passed",
+  "bundled_modules_compiled": 29,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true
+}

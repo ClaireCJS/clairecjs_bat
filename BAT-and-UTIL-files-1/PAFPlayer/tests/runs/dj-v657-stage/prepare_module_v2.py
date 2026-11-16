@@ -1,0 +1,10 @@
+from pathlib import Path
+p=Path(__file__).parent/'PAFPlayer_dj_candidate.py';s=p.read_text(encoding='utf8')
+s=s.replace("voices='marin,coral,cedar,sage,shimmer,alloy,ash,ballad,echo,fable,nova,onyx,verse')", "voices='marin,coral,cedar,sage,shimmer,alloy,ash,ballad,echo,fable,nova,onyx,verse',\n                text_provider='auto', speech_provider='auto')")
+s=s.replace("if value['accent'] not in ACCENTS:","if value['text_provider'] not in ('auto','ollama') or value['speech_provider'] not in ('auto','piper'): raise ValueError('Invalid provider')\n    if value['accent'] not in ACCENTS:")
+s=s.replace("        if not key: raise RuntimeError('OpenAI key unavailable')\n        value=post_json", "        if opts['text_provider']=='ollama' or not key: raise RuntimeError('OpenAI text disabled or unavailable')\n        value=post_json",1)
+s=s.replace("        warning='OpenAI text failed; using local Ollama'", "        warning='' if opts['text_provider']=='ollama' else 'OpenAI text failed; using local Ollama'")
+s=s.replace("files=[];local=False", "files=[];local=opts['speech_provider']=='piper'")
+s=s.replace("not 1<=len(obj)<=50", "not 1<=len(obj)<=12")
+compile(s,str(p),'exec')
+with (p.parent/'PAFPlayer_dj_candidate_v2.py').open('x',encoding='utf8',newline='\n') as f:f.write(s)

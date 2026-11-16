@@ -1,0 +1,28 @@
+{
+  "results": [
+    {
+      "path": "existing",
+      "ms_per_frame": 5.399417499938863,
+      "identical": true,
+      "collections": [
+        12,
+        1,
+        0
+      ]
+    },
+    {
+      "path": "native-experiment",
+      "ms_per_frame": 0.6898279999586521,
+      "identical": true,
+      "collections": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "source_sha256": "5768b4c8bda0173248785406c627a9305ad49bc45a00557bfde6d9b4f94f0670",
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\full-frame-native-20261111-102414",
+  "blocked_writes": [],
+  "limitations": "Offline experiment only. Production unchanged; full geometry/flag/fallback coverage not yet tested."
+}

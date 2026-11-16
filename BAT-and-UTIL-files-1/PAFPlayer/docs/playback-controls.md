@@ -1,3 +1,74 @@
+## V640 RAM loopback read recovery
+
+When a RAM-backed song is played through PAFPlayer's local loopback URL,
+FFmpeg can resume an interrupted HTTP read using the server's Range support.
+V639's bounded early-end check still resumes any missing audio if the decoder
+stops too soon. Direct file playback does not use the HTTP reconnect options.
+
+## V639 premature audio end recovery
+
+If a decoder exits before a track's known end, PAFPlayer records the actual
+WaveOut playback position and resumes the missing tail instead of advancing
+the playlist. For a track first served from RAM over the local loopback URL,
+the recovery opens the original file directly when it is still available. If
+the file was renamed or removed during playback, recovery continues using the
+RAM copy. Recovery attempts are bounded, and an unresolved premature end is
+reported as a warning rather than marked as a complete play. The direct-file
+fallback can briefly hold a file lock for the remainder of that track.
+
+The regression test uses `04_Magic Johnson.mp3` at zero volume in an isolated
+WaveOut worker. It does not send commands to the official player. Run it with
+`PAFPLAYER_LIVE_AUDIO_TEST=1`; if the MP3 is unavailable, the test skips with a
+warning. Windows shell, device, and decoder timing may still cause a short
+audible restart gap when recovery is needed.
+
+## V630 randomize reliability
+
+If a running player accepts a playlist but cannot complete the requested
+randomization, the command reports that the playlist loaded and warns that it
+was not randomized. Check the displayed queue before retrying, since the load
+already happened. Once the player accepts a randomize command, its background
+history worker keeps that live order when the playlist members have not changed.
+This includes separate slots for repeated entries of the same audio file.
+The official-instance playlist load now passes those repeated slots through
+unchanged as well.
+Error delivery can alert again if a previously bad track became playable and
+later failed once more during the same run. A shell notification or alert
+thread failure cannot interrupt the playlist skip itself. The single-file
+distribution now includes the current Windows media owner checks and Chrome
+card reassertion code from the editable module source.
+
+## V629 randomize and resume commands
+
+`PAFPlayer randomize` and `PAFPlayer --randomize` randomize the upcoming order
+of the playlist in the running official player. They do not launch another
+player. If no official player exists, the command reports `no pafplayer
+instance to randomize` and exits with an error. If the official player is
+playing a single file, it prints a warning and leaves playback alone.
+
+`PAFPlayer a_playlist.m3u --randomize` starts that playlist with its current
+song anchored and the other playlist slots randomized for this run. Duplicate
+playlist entries remain separate slots. If an official player is already
+running, the playlist is loaded there and then randomized; the second process
+does not start competing playback. Manual play-next entries still take priority.
+This explicit randomization does not replace the saved history-shuffle cache
+or the saved shuffle-mode preference.
+
+`PAFPlayer --resume` is an alias for `PAFPlayer resume`. Both restore the last
+saved playlist session, song, and playhead.
+
+## V629 unplayable playlist entries
+
+When a selected playlist entry is missing, empty, or cannot be inspected,
+PAFPlayer reports the filename and scans at most one playlist revolution for
+the next playable entry. It skips other bad entries during that scan and stops
+cleanly if none remains. Empty files no longer let the validation exception
+end the session abruptly. The existing error log records the problem, while
+the web **Error delivery** tab controls popup, Windows notification, and a
+bundled Wilhelm scream played at 10% volume. Delivery is deduplicated by error,
+path, file size, and modification time for the running session. A repaired file
+can alert again if it later fails; a new process starts with a fresh ledger.
+
 ## V626 whole-file memory playback
 
 On Windows, PAFPlayer can read a track completely into RAM and close the

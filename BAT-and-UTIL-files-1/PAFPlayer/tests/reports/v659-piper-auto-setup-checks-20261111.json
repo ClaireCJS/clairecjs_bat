@@ -1,0 +1,24 @@
+{
+  "version": "V659",
+  "setup_tests": 4,
+  "help_tests": 3,
+  "existing_dj_tests": 22,
+  "command_tests": 7,
+  "compiled_bundled_modules": 28,
+  "source_mismatches": 0,
+  "release_matches_active": true,
+  "private_setup": "created and verified actual voice synthesis",
+  "piper_version": "1.8.0",
+  "onnxruntime_version": "1.19.0",
+  "voice": "en_US-lessac-medium",
+  "live_local_end_to_end": {
+    "input": "synthetic example metadata",
+    "text_provider": "ollama",
+    "speech_provider": "piper",
+    "wav_files": 6,
+    "elapsed_seconds": 53.5
+  },
+  "silent_ffplay_exit_code": 0,
+  "openai_current_and_old_keys": "HTTP 401",
+  "literal_c_bat_changes": []
+}

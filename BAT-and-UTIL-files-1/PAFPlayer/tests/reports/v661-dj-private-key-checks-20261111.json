@@ -1,0 +1,23 @@
+{
+  "version": "V661",
+  "key_loading_tests": 2,
+  "dj_diagnostics_tests": 6,
+  "piper_setup_tests": 4,
+  "help_tests": 3,
+  "existing_dj_tests": 22,
+  "command_tests": 7,
+  "compiled_bundled_modules": 28,
+  "source_bundle_mismatches": 0,
+  "release_matches_active": true,
+  "private_key_loaded": true,
+  "private_key_differs_from_inherited_environment": true,
+  "openai_models_http_status": 200,
+  "openai_text_http_status": 429,
+  "openai_text_error_code": "credit_balance_exhausted",
+  "openai_speech": "failed; not verified",
+  "local_fallback": "Ollama and Piper verified in V660",
+  "literal_c_bat_changes": {
+    "C:\\BAT\\private.env": "modified",
+    "C:\\BAT\\private.env.bak.202611111906.replaced-by-chatgpt.bak": "created"
+  }
+}

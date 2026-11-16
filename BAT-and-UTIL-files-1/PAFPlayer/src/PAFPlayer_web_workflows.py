@@ -8,18 +8,81 @@ def missing_playlist_paths(runtime,playlist):
     try:
         stat=Path(playlist).stat(); signature=(str(playlist),stat.st_size,stat.st_mtime_ns)
         cached=getattr(runtime,'missing_playlist_cache',None)
-        if cached and cached[0]==signature: return cached[1]
-        _,_,_,rows=playlist_rows(playlist)
-        missing=[row['path'] for row in rows if not Path(row['path']).is_file()]
-        runtime.missing_playlist_cache=(signature,missing)
-        return missing
+        if cached and cached[0]==signature:
+            candidates=cached[1]
+        else:
+            _,_,_,rows=playlist_rows(playlist)
+            candidates=[row['path'] for row in rows]
+            runtime.missing_playlist_cache=(signature,candidates)
+        # File availability can change without changing the playlist file.
+        return [path for path in candidates if not Path(path).is_file()]
     except (OSError,ValueError): return []
+
+
+class PlaylistStatusCache:
+    """Refresh queue file availability off the web/remote request thread."""
+    def __init__(self,refresh_seconds=10.0):
+        self.refresh_seconds=refresh_seconds
+        self._lock=threading.Lock()
+        self._latest_key=None;self._cached_key=None;self._cached_at=0.0
+        self._cached=((),());self._pending=None;self._inflight_key=None;self._worker=None
+
+    def invalidate(self):
+        with self._lock:
+            self._cached_at=0.0
+
+    def read(self,runtime,order,source,present,removed,key_for_path):
+        key=(str(source),frozenset(present),frozenset(removed))
+        now=time.monotonic()
+        with self._lock:
+            self._latest_key=key
+            valid=self._cached_key==key
+            if not valid or now-self._cached_at>=self.refresh_seconds:
+                if self._inflight_key!=key and (self._pending is None or self._pending[0]!=key):
+                    self._pending=(key,runtime,tuple(order),source,frozenset(present),frozenset(removed),key_for_path)
+                if self._worker is None:
+                    self._worker=threading.Thread(target=self._refresh,name='paf-queue-file-status',daemon=True)
+                    try:self._worker.start()
+                    except RuntimeError:self._worker=None
+            return self._cached if valid else ((),())
+
+    def _refresh(self):
+        while True:
+            with self._lock:
+                task=self._pending;self._pending=None
+                if task is None:
+                    self._worker=None;return
+                key,runtime,order,source,present,removed,key_for_path=task
+                self._inflight_key=key
+            try:
+                present=set(present);extras=[]
+                for raw in missing_playlist_paths(runtime,source):
+                    path=Path(raw);identity=key_for_path(path)
+                    if identity not in present and identity not in removed:
+                        extras.append(str(path));present.add(identity)
+                missing=[str(path) for path in order if not Path(path).is_file()]
+                missing.extend(extras)
+                result=(tuple(extras),tuple(missing))
+            except Exception:
+                # Status is advisory. An unavailable drive must not block queue
+                # reads or prevent transport commands from reaching playback.
+                result=((),())
+            with self._lock:
+                self._inflight_key=None
+                if key==self._latest_key:
+                    self._cached_key=key;self._cached=result;self._cached_at=time.monotonic()
+
+
+def queue_revision(state):
+    """Version only edits' inputs, not asynchronously refreshed file status."""
+    fields={key:state.get(key) for key in ('entries','next','current','playlist','shuffled')}
+    return hashlib.sha256(json.dumps(fields,sort_keys=True,default=str).encode()).hexdigest()[:20]
 
 
 def queue_snapshot(runtime):
     state=runtime.queue_read() if runtime.queue_read else {'entries':[], 'next':[], 'current':None, 'playlist':None, 'reason':'No active playlist'}
     state=dict(state)
-    state['revision']=hashlib.sha256(json.dumps(state,sort_keys=True,default=str).encode()).hexdigest()[:20]
+    state['revision']=queue_revision(state)
     return state
 
 
@@ -47,7 +110,7 @@ def enqueue_placement(runtime,override=None):
 
 
 def calculate_queue_edit(runtime,state,payload):
-    revision=hashlib.sha256(json.dumps(state,sort_keys=True,default=str).encode()).hexdigest()[:20]
+    revision=queue_revision(state)
     if payload.get('revision')!=revision: raise ValueError('CONFLICT: queue changed; refresh and retry')
     old=json.loads(json.dumps(state)); entries=list(state['entries']); next_up=list(state['next']); op=payload.get('op'); selected=list(dict.fromkeys(payload.get('paths',[])))
     if len(selected)>5000: raise ValueError('Too many selected tracks')
@@ -104,8 +167,12 @@ def calculate_queue_edit(runtime,state,payload):
         entries=[replacements.get(x,x) for x in entries]; next_up=[replacements.get(x,x) for x in next_up]
     else: raise ValueError('Unknown queue operation')
     result=dict(state,entries=entries,next=next_up)
-    if 'missing' in result: result['missing']=[x for x in entries if not Path(x).is_file()]
-    after=hashlib.sha256(json.dumps(result,sort_keys=True,default=str).encode()).hexdigest()[:20]
+    if 'missing' in result:
+        # The background status cache will refresh changed paths. A queue edit
+        # must not stat every track while it holds the playback queue lock.
+        known_missing=set(state['missing'])
+        result['missing']=[x for x in entries if x in known_missing]
+    after=queue_revision(result)
     runtime.queue_history.append({'before':old,'after':after,'time':time.time(),'operation':op,'added':[x for x in entries if x not in old['entries']],'removed':[x for x in old['entries'] if x not in entries]})
     runtime.log('queue.edit',operation=op,count=len(selected))
     return result
@@ -250,6 +317,10 @@ def handle(handler,owner,path):
             if operation=='status':
                 from PAFPlayer_discord import social_sdk_available, connection_health
                 data={'settings':runtime.settings,'local':local,'token':runtime.token if local else None,'audio_extensions':sorted(runtime.app.AUDIO_EXTENSIONS),'queue':queue_snapshot(runtime),'history':[{'time':x['time'],'operation':x['operation'],'added':x['added'],'removed':x['removed']} for x in runtime.queue_history], 'monitor':{'paused':runtime.monitor.paused,'roots':runtime.monitor.roots,'mode':runtime.monitor.mode,'actions':list(runtime.monitor.actions)} if runtime.monitor else None,'index':{k:{'source':v.get('source'),'filename':Path(k).name} for k,v in runtime.index.copy().items()},'discord':getattr(runtime,'discord_status','Disabled'),'discord_health':connection_health(runtime),'discord_sdk_available':social_sdk_available(runtime),'windows_media':{'settings':__import__('PAFPlayer_windows_media').settings(runtime),'status':runtime.windows_media.status},'tray':runtime.tray.status() if getattr(runtime,'tray',None) else {'enabled':False,'saved_enabled':True,'override':None,'visible':False,'instance':'additional'}, 'control': {'hotkeys_enabled': bool(runtime.app.load_player_settings().get('ControlHotkeysEnabled', 1))}}
+            elif operation=='dj':
+                from PAFPlayer_dj import get_controller
+                from PAFPlayer_dj import dj_profiles_status
+                data=dict(get_controller(runtime).status(),**dj_profiles_status(runtime),local=local,token=runtime.token if local else None)
             elif operation=='steam':
                 from PAFPlayer_steam import get_monitor
                 data=dict(get_monitor(runtime.app).status(),local=local,token=runtime.token if local else None)
@@ -264,8 +335,10 @@ def handle(handler,owner,path):
                 from urllib.parse import parse_qs
                 query=parse_qs(handler.path.partition('?')[2]); after=int(query.get('after',['0'])[0]); level=query.get('level',[''])[0]; category=query.get('category',[''])[0]; search=query.get('search',[''])[0].casefold()
                 # Bound work and bandwidth per poll; paused clients do not poll.
-                records=list(runtime.events)
-                data={'cursor':runtime.sequence,'records':[x for x in records if x['id']>after and (not level or x['level']==level) and (not category or x['category']==category) and (not search or search in x['message'].casefold())][-200:]}
+                with runtime.presentation_lock:
+                    records=list(runtime.events)
+                    cursor=runtime.sequence
+                data={'cursor':cursor,'records':[x for x in records if x['id']>after and (not level or x['level']==level) and (not category or x['category']==category) and (not search or search in x['message'].casefold())][-200:]}
             else: raise ValueError('Unknown workflow endpoint')
             handler._json(200,data); return True
         if operation=='upload': handler._json(200,receive_upload(handler,runtime)); return True
@@ -296,6 +369,28 @@ def handle(handler,owner,path):
                 if any(not Path(x).is_dir() for x in roots): raise ValueError('Library roots must be existing directories')
                 runtime.settings['library_roots']=[str(Path(x).resolve()) for x in roots]
             runtime.save_settings(); data={'ok':True}
+        elif operation=='dj':
+            if not local: raise PermissionError('Change AI DJ settings on the player computer')
+            from PAFPlayer_dj import get_controller
+            controller=get_controller(runtime)
+            if 'profile_op' in payload:
+                if not set(payload)<= {'profile_op','name'}:raise ValueError('Invalid DJ profile request')
+                from PAFPlayer_dj import dj_profile_action, dj_profiles_status
+                selected=dj_profile_action(runtime,payload['profile_op'],payload.get('name',''))
+                data={'settings':selected,**dj_profiles_status(runtime)}
+            elif 'setup_piper' in payload:
+                if payload!={'setup_piper':True}:raise ValueError('Invalid Piper setup request')
+                data={'started':controller.start_piper_setup(force=True)}
+            elif 'talk_now' in payload:
+                if payload!={'talk_now':True}:raise ValueError('Invalid AI DJ request')
+                accepted=owner.enqueue_action('hash-command:djforce')
+                data={'accepted':accepted}
+            else:
+                changed=payload.pop('changed',None)
+                data={'settings':controller.configure(payload,changed)}
+                if 'model_storage_path' in payload:
+                    from PAFPlayer_model_storage import save_preferred_root
+                    save_preferred_root(data['settings']['model_storage_path'])
         elif operation=='steam':
             if not local: raise PermissionError('Change Steam settings on the player computer')
             from PAFPlayer_steam import get_monitor

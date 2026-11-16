@@ -1,0 +1,26 @@
+{
+  "version": "V644",
+  "literal_cases": [
+    "bigger",
+    "Bigger",
+    "BIGGER",
+    "bigger!",
+    "(Bigger)",
+    "bigger BIGGER"
+  ],
+  "surfaces": [
+    "plain/popup",
+    "console",
+    "web"
+  ],
+  "biggest_preserved": true,
+  "tests": 4,
+  "failures": [],
+  "errors": [],
+  "skipped": 0,
+  "compiled": true,
+  "bundle_parity": 27,
+  "blocked_writes": [],
+  "source_sha256": "df254a38b04578414ebfc2740f9cdb03abad26eec04b25d7a94cddf9ade79a58",
+  "stage": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v644-20261105-195223"
+}

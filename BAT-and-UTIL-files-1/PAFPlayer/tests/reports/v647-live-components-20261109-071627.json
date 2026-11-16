@@ -1,0 +1,604 @@
+[
+  {
+    "time": 1794226574.838482,
+    "perf": {
+      "fps": 13.4,
+      "terminal_fps": 13.4,
+      "target_fps": 57.56,
+      "render_ms": 14.144,
+      "transport_ms": 12.607,
+      "bytes_per_second": 2486364.2,
+      "escapes_per_second": 82275.0,
+      "runs_per_second": 464.6,
+      "transport_mode": "row-delta",
+      "cpu_percent": 136.6,
+      "missed": 68,
+      "profile_enabled": true,
+      "components": {
+        "render": {
+          "total_ms": 808.244,
+          "avg_ms": 12.063,
+          "count": 67,
+          "share_percent": 16.16
+        },
+        "transport": {
+          "total_ms": 844.673,
+          "avg_ms": 12.607,
+          "count": 67,
+          "share_percent": 16.89
+        },
+        "progress": {
+          "total_ms": 106.399,
+          "avg_ms": 4.433,
+          "count": 24,
+          "share_percent": 2.13
+        },
+        "hud": {
+          "total_ms": 0.034,
+          "avg_ms": 0.003,
+          "count": 12,
+          "share_percent": 0.0
+        },
+        "karaoke": {
+          "total_ms": 171.765,
+          "avg_ms": 11.451,
+          "count": 15,
+          "share_percent": 3.44
+        },
+        "metadata": {
+          "total_ms": 174.374,
+          "avg_ms": 13.413,
+          "count": 13,
+          "share_percent": 3.49
+        },
+        "web_spectrum": {
+          "total_ms": 0.691,
+          "avg_ms": 0.03,
+          "count": 23,
+          "share_percent": 0.01
+        },
+        "web_status": {
+          "total_ms": 2002.287,
+          "avg_ms": 133.486,
+          "count": 15,
+          "share_percent": 40.05
+        },
+        "web_http_status": {
+          "total_ms": 120.098,
+          "avg_ms": 12.01,
+          "count": 10,
+          "share_percent": 2.4
+        },
+        "web_http_spectrum": {
+          "total_ms": 0.0,
+          "avg_ms": 0.0,
+          "count": 0,
+          "share_percent": 0.0
+        },
+        "art_lyrics": {
+          "total_ms": 0.397,
+          "avg_ms": 0.006,
+          "count": 67,
+          "share_percent": 0.01
+        },
+        "web_http_spectrum_raw": {
+          "total_ms": 0.0,
+          "avg_ms": 0.0,
+          "count": 0,
+          "share_percent": 0.0
+        }
+      },
+      "window_seconds": 5.0
+    },
+    "has_lyric": true
+  },
+  {
+    "time": 1794226575.9149199,
+    "perf": {
+      "fps": 13.4,
+      "terminal_fps": 13.4,
+      "target_fps": 57.56,
+      "render_ms": 14.144,
+      "transport_ms": 12.607,
+      "bytes_per_second": 2486364.2,
+      "escapes_per_second": 82275.0,
+      "runs_per_second": 464.6,
+      "transport_mode": "row-delta",
+      "cpu_percent": 136.6,
+      "missed": 68,
+      "profile_enabled": true,
+      "components": {
+        "render": {
+          "total_ms": 808.244,
+          "avg_ms": 12.063,
+          "count": 67,
+          "share_percent": 16.16
+        },
+        "transport": {
+          "total_ms": 844.673,
+          "avg_ms": 12.607,
+          "count": 67,
+          "share_percent": 16.89
+        },
+        "progress": {
+          "total_ms": 106.399,
+          "avg_ms": 4.433,
+          "count": 24,
+          "share_percent": 2.13
+        },
+        "hud": {
+          "total_ms": 0.034,
+          "avg_ms": 0.003,
+          "count": 12,
+          "share_percent": 0.0
+        },
+        "karaoke": {
+          "total_ms": 171.765,
+          "avg_ms": 11.451,
+          "count": 15,
+          "share_percent": 3.44
+        },
+        "metadata": {
+          "total_ms": 174.374,
+          "avg_ms": 13.413,
+          "count": 13,
+          "share_percent": 3.49
+        },
+        "web_spectrum": {
+          "total_ms": 0.691,
+          "avg_ms": 0.03,
+          "count": 23,
+          "share_percent": 0.01
+        },
+        "web_status": {
+          "total_ms": 2002.287,
+          "avg_ms": 133.486,
+          "count": 15,
+          "share_percent": 40.05
+        },
+        "web_http_status": {
+          "total_ms": 120.098,
+          "avg_ms": 12.01,
+          "count": 10,
+          "share_percent": 2.4
+        },
+        "web_http_spectrum": {
+          "total_ms": 0.0,
+          "avg_ms": 0.0,
+          "count": 0,
+          "share_percent": 0.0
+        },
+        "art_lyrics": {
+          "total_ms": 0.397,
+          "avg_ms": 0.006,
+          "count": 67,
+          "share_percent": 0.01
+        },
+        "web_http_spectrum_raw": {
+          "total_ms": 0.0,
+          "avg_ms": 0.0,
+          "count": 0,
+          "share_percent": 0.0
+        }
+      },
+      "window_seconds": 5.0
+    },
+    "has_lyric": true
+  },
+  {
+    "time": 1794226577.0258868,
+    "perf": {
+      "fps": 13.4,
+      "terminal_fps": 13.4,
+      "target_fps": 57.56,
+      "render_ms": 14.144,
+      "transport_ms": 12.607,
+      "bytes_per_second": 2486364.2,
+      "escapes_per_second": 82275.0,
+      "runs_per_second": 464.6,
+      "transport_mode": "row-delta",
+      "cpu_percent": 136.6,
+      "missed": 68,
+      "profile_enabled": true,
+      "components": {
+        "render": {
+          "total_ms": 808.244,
+          "avg_ms": 12.063,
+          "count": 67,
+          "share_percent": 16.16
+        },
+        "transport": {
+          "total_ms": 844.673,
+          "avg_ms": 12.607,
+          "count": 67,
+          "share_percent": 16.89
+        },
+        "progress": {
+          "total_ms": 106.399,
+          "avg_ms": 4.433,
+          "count": 24,
+          "share_percent": 2.13
+        },
+        "hud": {
+          "total_ms": 0.034,
+          "avg_ms": 0.003,
+          "count": 12,
+          "share_percent": 0.0
+        },
+        "karaoke": {
+          "total_ms": 171.765,
+          "avg_ms": 11.451,
+          "count": 15,
+          "share_percent": 3.44
+        },
+        "metadata": {
+          "total_ms": 174.374,
+          "avg_ms": 13.413,
+          "count": 13,
+          "share_percent": 3.49
+        },
+        "web_spectrum": {
+          "total_ms": 0.691,
+          "avg_ms": 0.03,
+          "count": 23,
+          "share_percent": 0.01
+        },
+        "web_status": {
+          "total_ms": 2002.287,
+          "avg_ms": 133.486,
+          "count": 15,
+          "share_percent": 40.05
+        },
+        "web_http_status": {
+          "total_ms": 120.098,
+          "avg_ms": 12.01,
+          "count": 10,
+          "share_percent": 2.4
+        },
+        "web_http_spectrum": {
+          "total_ms": 0.0,
+          "avg_ms": 0.0,
+          "count": 0,
+          "share_percent": 0.0
+        },
+        "art_lyrics": {
+          "total_ms": 0.397,
+          "avg_ms": 0.006,
+          "count": 67,
+          "share_percent": 0.01
+        },
+        "web_http_spectrum_raw": {
+          "total_ms": 0.0,
+          "avg_ms": 0.0,
+          "count": 0,
+          "share_percent": 0.0
+        }
+      },
+      "window_seconds": 5.0
+    },
+    "has_lyric": true
+  },
+  {
+    "time": 1794226578.0317638,
+    "perf": {
+      "fps": 13.4,
+      "terminal_fps": 13.4,
+      "target_fps": 57.56,
+      "render_ms": 14.144,
+      "transport_ms": 12.607,
+      "bytes_per_second": 2486364.2,
+      "escapes_per_second": 82275.0,
+      "runs_per_second": 464.6,
+      "transport_mode": "row-delta",
+      "cpu_percent": 136.6,
+      "missed": 68,
+      "profile_enabled": true,
+      "components": {
+        "render": {
+          "total_ms": 808.244,
+          "avg_ms": 12.063,
+          "count": 67,
+          "share_percent": 16.16
+        },
+        "transport": {
+          "total_ms": 844.673,
+          "avg_ms": 12.607,
+          "count": 67,
+          "share_percent": 16.89
+        },
+        "progress": {
+          "total_ms": 106.399,
+          "avg_ms": 4.433,
+          "count": 24,
+          "share_percent": 2.13
+        },
+        "hud": {
+          "total_ms": 0.034,
+          "avg_ms": 0.003,
+          "count": 12,
+          "share_percent": 0.0
+        },
+        "karaoke": {
+          "total_ms": 171.765,
+          "avg_ms": 11.451,
+          "count": 15,
+          "share_percent": 3.44
+        },
+        "metadata": {
+          "total_ms": 174.374,
+          "avg_ms": 13.413,
+          "count": 13,
+          "share_percent": 3.49
+        },
+        "web_spectrum": {
+          "total_ms": 0.691,
+          "avg_ms": 0.03,
+          "count": 23,
+          "share_percent": 0.01
+        },
+        "web_status": {
+          "total_ms": 2002.287,
+          "avg_ms": 133.486,
+          "count": 15,
+          "share_percent": 40.05
+        },
+        "web_http_status": {
+          "total_ms": 120.098,
+          "avg_ms": 12.01,
+          "count": 10,
+          "share_percent": 2.4
+        },
+        "web_http_spectrum": {
+          "total_ms": 0.0,
+          "avg_ms": 0.0,
+          "count": 0,
+          "share_percent": 0.0
+        },
+        "art_lyrics": {
+          "total_ms": 0.397,
+          "avg_ms": 0.006,
+          "count": 67,
+          "share_percent": 0.01
+        },
+        "web_http_spectrum_raw": {
+          "total_ms": 0.0,
+          "avg_ms": 0.0,
+          "count": 0,
+          "share_percent": 0.0
+        }
+      },
+      "window_seconds": 5.0
+    },
+    "has_lyric": false
+  },
+  {
+    "time": 1794226579.1312206,
+    "perf": {
+      "fps": 13.4,
+      "terminal_fps": 13.4,
+      "target_fps": 57.56,
+      "render_ms": 14.144,
+      "transport_ms": 12.607,
+      "bytes_per_second": 2486364.2,
+      "escapes_per_second": 82275.0,
+      "runs_per_second": 464.6,
+      "transport_mode": "row-delta",
+      "cpu_percent": 136.6,
+      "missed": 68,
+      "profile_enabled": true,
+      "components": {
+        "render": {
+          "total_ms": 808.244,
+          "avg_ms": 12.063,
+          "count": 67,
+          "share_percent": 16.16
+        },
+        "transport": {
+          "total_ms": 844.673,
+          "avg_ms": 12.607,
+          "count": 67,
+          "share_percent": 16.89
+        },
+        "progress": {
+          "total_ms": 106.399,
+          "avg_ms": 4.433,
+          "count": 24,
+          "share_percent": 2.13
+        },
+        "hud": {
+          "total_ms": 0.034,
+          "avg_ms": 0.003,
+          "count": 12,
+          "share_percent": 0.0
+        },
+        "karaoke": {
+          "total_ms": 171.765,
+          "avg_ms": 11.451,
+          "count": 15,
+          "share_percent": 3.44
+        },
+        "metadata": {
+          "total_ms": 174.374,
+          "avg_ms": 13.413,
+          "count": 13,
+          "share_percent": 3.49
+        },
+        "web_spectrum": {
+          "total_ms": 0.691,
+          "avg_ms": 0.03,
+          "count": 23,
+          "share_percent": 0.01
+        },
+        "web_status": {
+          "total_ms": 2002.287,
+          "avg_ms": 133.486,
+          "count": 15,
+          "share_percent": 40.05
+        },
+        "web_http_status": {
+          "total_ms": 120.098,
+          "avg_ms": 12.01,
+          "count": 10,
+          "share_percent": 2.4
+        },
+        "web_http_spectrum": {
+          "total_ms": 0.0,
+          "avg_ms": 0.0,
+          "count": 0,
+          "share_percent": 0.0
+        },
+        "art_lyrics": {
+          "total_ms": 0.397,
+          "avg_ms": 0.006,
+          "count": 67,
+          "share_percent": 0.01
+        },
+        "web_http_spectrum_raw": {
+          "total_ms": 0.0,
+          "avg_ms": 0.0,
+          "count": 0,
+          "share_percent": 0.0
+        }
+      },
+      "window_seconds": 5.0
+    },
+    "has_lyric": false
+  },
+  {
+    "time": 1794226580.1461039,
+    "perf": {
+      "fps": 0.0,
+      "terminal_fps": 0.0,
+      "target_fps": 60.0,
+      "render_ms": 16.666666666666668,
+      "transport_ms": 0.0,
+      "cpu_percent": 0.0,
+      "bytes_per_second": 0.0,
+      "escapes_per_second": 0.0,
+      "runs_per_second": 0.0,
+      "transport_mode": "row-delta",
+      "missed": 0,
+      "profile_enabled": false,
+      "components": {}
+    },
+    "has_lyric": true
+  },
+  {
+    "time": 1794226581.2575727,
+    "perf": {
+      "fps": 0.0,
+      "terminal_fps": 0.0,
+      "target_fps": 60.0,
+      "render_ms": 16.666666666666668,
+      "transport_ms": 0.0,
+      "cpu_percent": 0.0,
+      "bytes_per_second": 0.0,
+      "escapes_per_second": 0.0,
+      "runs_per_second": 0.0,
+      "transport_mode": "row-delta",
+      "missed": 0,
+      "profile_enabled": false,
+      "components": {}
+    },
+    "has_lyric": true
+  },
+  {
+    "time": 1794226582.316494,
+    "perf": {
+      "fps": 0.0,
+      "terminal_fps": 0.0,
+      "target_fps": 60.0,
+      "render_ms": 16.666666666666668,
+      "transport_ms": 0.0,
+      "cpu_percent": 0.0,
+      "bytes_per_second": 0.0,
+      "escapes_per_second": 0.0,
+      "runs_per_second": 0.0,
+      "transport_mode": "row-delta",
+      "missed": 0,
+      "profile_enabled": false,
+      "components": {}
+    },
+    "has_lyric": true
+  },
+  {
+    "time": 1794226583.333381,
+    "perf": {
+      "fps": 0.2,
+      "terminal_fps": 0.2,
+      "target_fps": 51.6,
+      "render_ms": 285.403,
+      "transport_ms": 191.113,
+      "bytes_per_second": 0.0,
+      "escapes_per_second": 0.0,
+      "runs_per_second": 0.0,
+      "transport_mode": "row-delta",
+      "cpu_percent": 149.5,
+      "missed": 145,
+      "profile_enabled": false,
+      "components": {},
+      "window_seconds": 5.047
+    },
+    "has_lyric": true
+  },
+  {
+    "time": 1794226584.3362536,
+    "perf": {
+      "fps": 0.2,
+      "terminal_fps": 0.2,
+      "target_fps": 51.6,
+      "render_ms": 285.403,
+      "transport_ms": 191.113,
+      "bytes_per_second": 0.0,
+      "escapes_per_second": 0.0,
+      "runs_per_second": 0.0,
+      "transport_mode": "row-delta",
+      "cpu_percent": 149.5,
+      "missed": 145,
+      "profile_enabled": false,
+      "components": {},
+      "window_seconds": 5.047
+    },
+    "has_lyric": true
+  },
+  {
+    "time": 1794226585.3736563,
+    "perf": {
+      "fps": 0.2,
+      "terminal_fps": 0.2,
+      "target_fps": 51.6,
+      "render_ms": 285.403,
+      "transport_ms": 191.113,
+      "bytes_per_second": 0.0,
+      "escapes_per_second": 0.0,
+      "runs_per_second": 0.0,
+      "transport_mode": "row-delta",
+      "cpu_percent": 149.5,
+      "missed": 145,
+      "profile_enabled": false,
+      "components": {},
+      "window_seconds": 5.047
+    },
+    "has_lyric": true
+  },
+  {
+    "time": 1794226586.377031,
+    "perf": {
+      "fps": 0.2,
+      "terminal_fps": 0.2,
+      "target_fps": 51.6,
+      "render_ms": 285.403,
+      "transport_ms": 191.113,
+      "bytes_per_second": 0.0,
+      "escapes_per_second": 0.0,
+      "runs_per_second": 0.0,
+      "transport_mode": "row-delta",
+      "cpu_percent": 149.5,
+      "missed": 145,
+      "profile_enabled": false,
+      "components": {},
+      "window_seconds": 5.047
+    },
+    "has_lyric": true
+  }
+]

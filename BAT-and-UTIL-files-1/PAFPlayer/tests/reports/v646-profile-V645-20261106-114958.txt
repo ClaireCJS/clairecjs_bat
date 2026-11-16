@@ -1,0 +1,36 @@
+         10362572 function calls (10360102 primitive calls) in 3.231 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1198 to 28 due to restriction <28>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       10    0.003    0.000    3.186    0.319 benchmark_v646_karaoke.py:54(measure)
+       12    0.582    0.049    2.389    0.199 PAFPlayer.py:43926(emojimax_solution_label_color)
+        6    0.000    0.000    2.050    0.342 benchmark_v646_karaoke.py:79(<lambda>)
+  2352012    0.772    0.000    1.806    0.000 Image.py:1599(getpixel)
+  2352222    0.663    0.000    0.853    0.000 Image.py:835(load)
+       10    0.002    0.000    0.384    0.038 benchmark_v646_karaoke.py:72(<lambda>)
+       10    0.001    0.000    0.381    0.038 <production karaoke>:49650(pattern_rgba_for_mask)
+        6    0.000    0.000    0.339    0.056 benchmark_v646_karaoke.py:81(<lambda>)
+       14    0.001    0.000    0.325    0.023 __init__.py:1(<module>)
+        6    0.000    0.000    0.237    0.040 benchmark_v646_karaoke.py:70(<lambda>)
+        6    0.000    0.000    0.237    0.040 <production karaoke>:49541(build_artwork_plasma_mask)
+       63    0.001    0.000    0.221    0.004 <production karaoke>:49560(candidate)
+       12    0.001    0.000    0.212    0.018 <production karaoke>:45725(reuse_or_create_photoimage)
+       12    0.000    0.000    0.207    0.017 ImageTk.py:165(paste)
+       17    0.198    0.012    0.198    0.012 {method 'call' of '_tkinter.tkapp' objects}
+       12    0.000    0.000    0.198    0.016 ImageTk.py:62(_pyimagingtkcall)
+   141/13    0.001    0.000    0.196    0.015 <frozen importlib._bootstrap>:1022(_find_and_load)
+       10    0.006    0.001    0.196    0.020 <production karaoke>:49714(<listcomp>)
+   141/13    0.000    0.000    0.196    0.015 <frozen importlib._bootstrap>:987(_find_and_load_unlocked)
+   136/14    0.000    0.000    0.190    0.014 <frozen importlib._bootstrap>:664(_load_unlocked)
+  2352222    0.190    0.000    0.190    0.000 {method 'pixel_access' of 'ImagingCore' objects}
+    23040    0.022    0.000    0.190    0.000 PAFPlayer.py:36987(external_album_art_karaoke_pattern_rgb)
+   209/14    0.000    0.000    0.190    0.014 <frozen importlib._bootstrap>:233(_call_with_frames_removed)
+   130/13    0.000    0.000    0.189    0.015 <frozen importlib._bootstrap_external>:877(exec_module)
+  2352012    0.181    0.000    0.181    0.000 {method 'getpixel' of 'ImagingCore' objects}
+   137/13    0.001    0.000    0.178    0.014 {built-in method builtins.exec}
+      327    0.000    0.000    0.178    0.001 <production karaoke>:49564(measure)
+      327    0.001    0.000    0.177    0.001 <production karaoke>:48228(_pillow_mixed_text_width)
+
+

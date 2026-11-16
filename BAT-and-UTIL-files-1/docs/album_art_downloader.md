@@ -4,6 +4,10 @@
 
 Documentation maintenance: keep `album_art_downloader.md` beside the main script and synchronize the same content to `C:\BAT\docs\album_art_downloader.md` on every documentation update. Keep both Markdown copies synchronized in the repository too. Before replacing an existing copy, create and verify the required timestamped sibling backup. Program releases continue to increment by one and retain a descriptive versioned `.py` snapshot.
 
+## Callable fallback API (v40)
+
+Other Python tools can import `album_art_downloader` and call `download_artwork_for_folder(folder, review=True)`. Importing the module does not open menus, install packages, or scan files. The call checks dependencies, scans the supplied folder, preserves existing art, optionally reviews images in Chafa, and returns a dictionary with `status`, `stats`, and `front_art` (a `Path` or `None`). It raises an exception when required dependencies or review facilities are unavailable. `audit_music_batch.py` uses this only after its existing multi-source artwork search fails; it then embeds the verified Front sidecar using its own embedding workflow. A declined or rejected image does not trigger fallback.
+
 ## Performance improvements (v39)
 
 Scanning now lists each included directory once and prunes excluded subtrees before walking them. The excluded-directory count therefore counts pruned subtree roots, not every folder underneath them. Eligible folders retain their deterministic ordering.

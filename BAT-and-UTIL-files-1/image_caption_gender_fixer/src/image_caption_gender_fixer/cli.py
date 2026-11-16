@@ -265,10 +265,14 @@ class App:
                     '; move '+str(fit['dx'])+','+str(fit['dy'])+' px; '+str(fit['variants'])+' measured placements.')
             for warning in diagnostic.get("warnings",[]): self.diagnostics(color("⚠️ "+warning,YELLOW))
             self.diagnostics("Font candidates: "+", ".join(Path(c["font"]).name+" ("+str(round(c["score"]*100))+"%)" for c in diagnostic["style"].get("font_candidates",[])))
-        menu=('[y]approve, ' if not proposal.get('blocked') else '' if proposal['blocked'].get('fit_exhausted') else '[m]ove/squeeze text to fit, ')+'[a]dd rule, [e]dit caption, [r]eject changes, [s]kip, [d]efer, fix [o]CR, [v]isual adjustment, [b]ackground repairs, [i]gnore text change, [c]ancel: '
+        fit_review=proposal.get('fit_review')
+        if fit_review:
+            fit_label=f"Fit {fit_review['number']}/{fit_review['total']} · {fit_review['description']}"
+            self.diagnostics('↔ '+fit_label)
+        menu=('[t]ry next fit, ' if fit_review else '')+('[y]approve, ' if not proposal.get('blocked') else '' if proposal['blocked'].get('fit_exhausted') else '[m]ove/squeeze text to fit, ')+'[a]dd rule, [e]dit caption, [r]eject changes, [s]kip, [d]efer, fix [o]CR, [v]isual adjustment, [b]ackground repairs, [i]gnore text change, [c]ancel: '
         self.review_source=str(source)
         self.review_changes=[dict(index=i,before=r.before,after=r.after,
-            fit_exhausted=bool(proposal.get('blocked',{}).get('fit_exhausted'))) for i,r in enumerate(regions) if not r.skipped]
+            fit_review=fit_review,fit_exhausted=bool(proposal.get('blocked',{}).get('fit_exhausted'))) for i,r in enumerate(regions) if not r.skipped]
         if self.review_changes and self.floating_artwork is not None and hasattr(self.floating_artwork,'update'):
             from .repair_modes import samples
             from . import imaging
@@ -770,7 +774,8 @@ class App:
                             self.results.append({"file":str(source),"state":"skipped","reason":"no_substitution"})
                             self.sessions.save(session)
                             continue
-                    action="";manual_caption=None
+                    from .fit_review import FitReview
+                    action="";manual_caption=None;fit_review=FitReview()
                     while True:
                         transaction=str(uuid.uuid4())
                         item.update(transaction=transaction,state="interrupted")
@@ -782,7 +787,8 @@ class App:
                         self.work_status("Rendering and verifying proposed caption…")
                         self.review_rules=rules
                         proposed=imaging.proposal(source,image,metadata,regions,protected,self.root,executable["path"],digest,
-                                                   fingerprint(rules,store.ignores),self.args.eco,transaction,artifact_callback=remember,caption_lines=self.caption_lines)
+                                                   fingerprint(rules,store.ignores),self.args.eco,transaction,artifact_callback=remember,caption_lines=self.caption_lines,
+                                                   fit_review=fit_review if self.interactive else None)
                         self.initializing.clear()
                         if not proposed:
                             action="s"
@@ -824,7 +830,10 @@ class App:
                             self.work_status('✅ Saved '+event['corrected']+'; continuing the queue…')
                             break
                         payload=action if isinstance(action,dict) else {'action':action}
-                        if payload['action'] in ('rename_image','recycle_image'):
+                        if payload['action']!='next_fit':fit_review=FitReview()
+                        if payload['action']=='next_fit':
+                            fit_review.advance()
+                        elif payload['action'] in ('rename_image','recycle_image'):
                             try:
                                 destination=file_actions.apply(self,source,item,session,payload,analysis_identity)
                                 if destination is None:

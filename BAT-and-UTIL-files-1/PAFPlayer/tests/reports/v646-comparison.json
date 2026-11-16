@@ -1,0 +1,69 @@
+{
+  "baseline_tests": 119,
+  "current_tests": 129,
+  "current_passes": 122,
+  "unchanged_failures": [
+    "test_v180_playback_publishes_emphasis_progress_to_external_lyrics (PAFPlayer.PlayWaveFileTests)",
+    "test_v182_lyric_buttons_have_topmost_context_menus_and_floating_reveal (PAFPlayer.PlayWaveFileTests)",
+    "test_v248_cursive_fix_is_in_web_karaoke_not_experimental_bottom (PAFPlayer.PlayWaveFileTests)",
+    "test_v251_web_karaoke_checkerboard_tooltips_and_help_contract (PAFPlayer.PlayWaveFileTests)",
+    "test_v319_restores_off_but_keeps_two_unclear_emojimax_removals (PAFPlayer.PlayWaveFileTests)",
+    "test_v386_floating_lyrics_web_topmost_control_contract (PAFPlayer.PlayWaveFileTests)",
+    "test_v388_web_lyric_window_controls_are_four_buttons_in_requested_order (PAFPlayer.PlayWaveFileTests)"
+  ],
+  "new_failures": [],
+  "profiled": false,
+  "output_hashes_match": true,
+  "timings": [
+    {
+      "name": "artwork_layout_900",
+      "before_ms": 7.786499918438494,
+      "after_ms": 8.109299931675196
+    },
+    {
+      "name": "artwork_color_900",
+      "before_ms": 12.164000072516501,
+      "after_ms": 12.103699962608516
+    },
+    {
+      "name": "upload_900",
+      "before_ms": 7.241100072860718,
+      "after_ms": 7.452199934050441
+    },
+    {
+      "name": "artwork_layout_1920",
+      "before_ms": 25.267899967730045,
+      "after_ms": 18.69779999833554
+    },
+    {
+      "name": "artwork_color_1920",
+      "before_ms": 24.15610000025481,
+      "after_ms": 17.991000087931752
+    },
+    {
+      "name": "upload_1920",
+      "before_ms": 28.868100023828447,
+      "after_ms": 27.864300063811243
+    },
+    {
+      "name": "inherited_color_empty_mask_300",
+      "before_ms": 49.102299963124096,
+      "after_ms": 0.06120000034570694
+    },
+    {
+      "name": "inherited_color_left_padding_300",
+      "before_ms": 8.059099898673594,
+      "after_ms": 0.3413999220356345
+    },
+    {
+      "name": "inherited_color_empty_mask_900",
+      "before_ms": 331.9985999260098,
+      "after_ms": 0.2687000669538975
+    },
+    {
+      "name": "inherited_color_left_padding_900",
+      "before_ms": 53.16589993890375,
+      "after_ms": 1.7868999857455492
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+         16146 function calls in 0.035 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        5    0.000    0.000    0.035    0.007 profile_v647_status.py:29(read_titles_old)
+       10    0.002    0.000    0.035    0.003 PAFPlayer.py:12710(load_player_settings)
+     1120    0.002    0.000    0.033    0.000 PAFPlayer.py:1284(paf_registry_query_value_read_only)
+     2240    0.026    0.000    0.026    0.000 {built-in method winreg.OpenKey}
+     1120    0.001    0.000    0.018    0.000 PAFPlayer.py:1201(_paf_registry_query_new_only)
+     1120    0.002    0.000    0.003    0.000 PAFPlayer.py:1151(_paf_registry_location)
+     1120    0.001    0.000    0.001    0.000 PAFPlayer.py:1196(_paf_registry_path)
+     3260    0.001    0.000    0.001    0.000 {method 'startswith' of 'str' objects}
+     2540    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+     1090    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+     1120    0.000    0.000    0.000    0.000 {method 'strip' of 'str' objects}
+      460    0.000    0.000    0.000    0.000 {built-in method builtins.max}
+      440    0.000    0.000    0.000    0.000 {built-in method builtins.min}
+      230    0.000    0.000    0.000    0.000 {method 'removeprefix' of 'str' objects}
+      230    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+       10    0.000    0.000    0.000    0.000 PAFPlayer.py:1755(clamp_console_visualizer_max_fps)
+       10    0.000    0.000    0.000    0.000 {method 'index' of 'tuple' objects}
+       10    0.000    0.000    0.000    0.000 {built-in method builtins.round}
+       10    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+

@@ -43,7 +43,11 @@ def resolve_request(runtime, targets, *, regex=None, filelist=None):
                 paths.extend(str(p.resolve()) for p in found);playlist=str(path)
             elif supported_file(path,app.AUDIO_EXTENSIONS): paths.append(str(path))
             else: raise ValueError('Media target does not exist or is unsupported: '+str(path))
-    paths=list(dict.fromkeys(paths))
+    # A playlist is an ordered sequence of slots; the same file may appear
+    # more than once intentionally. Standalone targets and regex results keep
+    # their existing deduplication behavior.
+    if playlist is None:
+        paths=list(dict.fromkeys(paths))
     if not paths: raise ValueError('No media targets supplied')
     if len(paths)>25000: raise ValueError('At most 25,000 tracks per handoff')
     return {'paths':paths,'playlist':playlist}
@@ -128,13 +132,30 @@ class Instance:
                     if not 0<length<=8*1024*1024: raise ValueError('Invalid handoff size')
                     data=json.loads(self.rfile.read(length))
                     if not isinstance(data,dict): raise ValueError('Invalid handoff request')
-                    if 'seek_seconds' in data:
+                    if 'dj_test_snapshot' in data:
+                        if data != {'dj_test_snapshot':True}: raise ValueError('Invalid DJ test playlist request')
+                        from PAFPlayer_web_workflows import queue_snapshot
+                        snapshot=queue_snapshot(owner.runtime)
+                        entries=snapshot.get('entries',[])
+                        if not entries: raise ValueError('No playlist is open in the running player')
+                        status=200;value={'ok':True,'queued':0,'entries':entries,'message':'Playlist snapshot'}
+                    elif 'seek_seconds' in data:
                         if set(data)!={'seek_seconds'}: raise ValueError('Seek request cannot include media paths')
                         seconds=data['seek_seconds']
                         if isinstance(seconds,bool) or not isinstance(seconds,(int,float)) or not math.isfinite(seconds): raise ValueError('Invalid seek timestamp')
                         bridge=getattr(owner.runtime,'seek_bridge',None)
                         if bridge is None or not bridge(float(seconds)): raise ValueError('Player is not accepting seeks yet')
                         status=200;value={'ok':True,'queued':0,'message':'Seek requested'}
+                    elif 'randomize' in data and set(data)=={'randomize'}:
+                        if data['randomize'] is not True: raise ValueError('Invalid randomize request')
+                        bridge=getattr(owner.runtime,'randomize_bridge',None)
+                        deadline=time.monotonic()+15
+                        while not callable(bridge) and time.monotonic()<deadline:
+                            time.sleep(.05)
+                            bridge=getattr(owner.runtime,'randomize_bridge',None)
+                        if not callable(bridge): raise ValueError('Player playlist is still starting; retry shortly')
+                        outcome=bridge()
+                        status=200;value={'ok':True,'queued':0,**outcome}
                     elif 'preview_only' in data:
                         if set(data)!={'selectors','preview_only'} or data['preview_only'] is not True:
                             raise ValueError('Invalid enqueue preview request')
@@ -142,6 +163,13 @@ class Instance:
                         preview=prepare_enqueue_preview(owner.runtime,data['selectors'],allow_direct=True)
                         status=200;value={'ok':True,**preview}
                     else:
+                        if 'randomize' in data and (data['randomize'] is not True or not data.get('playlist')):
+                            raise ValueError('Randomize with media requires one playlist')
+                        if 'randomize' in data and set(data) != {'paths', 'playlist', 'randomize'}:
+                            raise ValueError('Invalid playlist randomize request')
+                        if 'randomize' in data and not isinstance(data['playlist'], str):
+                            raise ValueError('Invalid playlist randomize request')
+                        warning=None
                         opacity=data.get('floating_opacity')
                         if opacity is not None:
                             if type(opacity) is not int or not 10<=opacity<=100: raise ValueError('Floating Lyrics opacity must be 10..100 percent')
@@ -158,6 +186,9 @@ class Instance:
                         if not isinstance(paths,list) or len(paths)>25000: raise ValueError('Invalid media list')
                         if paths:
                             if any(not supported_file(x,owner.runtime.app.AUDIO_EXTENSIONS) for x in paths): raise ValueError('Media changed or disappeared before handoff')
+                            if data.get('randomize'):
+                                bridge=getattr(owner.runtime,'randomize_bridge',None)
+                                if not callable(bridge): raise ValueError('Player playlist is still starting; request was not accepted; retry shortly')
                             if not owner.runtime.queue_bridge:
                                 deadline=time.monotonic()+15
                                 while not owner.runtime.queue_bridge and time.monotonic()<deadline:
@@ -171,12 +202,19 @@ class Instance:
                             already_in_playlist=sum(os.path.normcase(path) in existing for path in paths)
                             result=edit_queue(owner.runtime,{'op':'load' if data.get('playlist') else 'add','paths':paths,'playlist':data.get('playlist'),'revision':before['revision'],**({'placement':placement} if placement else {})},source='another PAFPlayer')
                             revision=result['revision']
+                            if data.get('randomize'):
+                                try:
+                                    outcome=bridge()
+                                    if outcome.get('warning'): warning=outcome['message']
+                                except Exception as exc:
+                                    warning=str(exc)
                         elif set(data)!={'floating_opacity'}: raise ValueError('Invalid media list')
                         else: revision=None;already_in_playlist=0
                         if opacity is not None and not owner.runtime.opacity_bridge(opacity): raise ValueError('Floating Lyrics is not accepting opacity commands yet')
-                        status=200;value={'ok':True,'queued':len(paths),'message':('Loaded playlist' if data.get('playlist') else 'Queued at end' if placement=='end' else 'Queued next') if paths else 'Floating Lyrics opacity set for this run','revision':revision,
+                        status=200;value={'ok':True,'queued':len(paths),'message':('Playlist loaded, but not randomized: '+str(warning) if warning else 'Loaded and randomized playlist' if data.get('randomize') else 'Loaded playlist' if data.get('playlist') else 'Queued at end' if placement=='end' else 'Queued next') if paths else 'Floating Lyrics opacity set for this run','revision':revision,
                                           'already_in_playlist':already_in_playlist,
                                           'added_to_playlist':len(paths)-already_in_playlist}
+                        if warning: value['warning']=True
                 except Exception as exc: status=400;value={'error':str(exc)}
                 body=json.dumps(value).encode();self.send_response(status);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
         self.httpd=ThreadingHTTPServer(('127.0.0.1',0),Handler)

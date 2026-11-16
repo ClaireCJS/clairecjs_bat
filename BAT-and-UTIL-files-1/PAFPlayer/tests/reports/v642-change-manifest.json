@@ -1,0 +1,1013 @@
+{
+  "version": "V642",
+  "source_sha256": "227f607b020d7f153761ccac00c6dec97c92687979a67896126df828ada65f48",
+  "literal_C_BAT_changes": [],
+  "deletions": [],
+  "backup_archive_moves": [
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py.bak.202611040834.replaced-by-chatgpt.bak",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611040834.replaced-by-chatgpt.bak",
+      "reason": "verified sibling backup archived after replacement"
+    },
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py.bak.202611040837.replaced-by-chatgpt.bak",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611040837.replaced-by-chatgpt.bak",
+      "reason": "verified sibling backup archived after replacement"
+    },
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py.bak.202611040845.replaced-by-chatgpt.bak",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611040845.replaced-by-chatgpt.bak",
+      "reason": "verified sibling backup archived after replacement"
+    },
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py.bak.202611040848.replaced-by-chatgpt.bak",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611040848.replaced-by-chatgpt.bak",
+      "reason": "verified sibling backup archived after replacement"
+    },
+    {
+      "from": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\PAFPlayer_changelog.md.bak.202611041107.replaced-by-chatgpt.bak",
+      "to": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\PAFPlayer_changelog.md.bak.202611041107.replaced-by-chatgpt.bak",
+      "reason": "verified sibling backup archived after replacement"
+    }
+  ],
+  "root_audit": {
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer": [
+      "AGENTS.md",
+      "PAFPlayer.dcc",
+      "PAFPlayer.md",
+      "PAFPlayer.py",
+      "changerrecent.m3u",
+      "play_audio_file-lastfm-setup-asked.txt"
+    ],
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\lockscreen": [
+      "App.xaml",
+      "App.xaml.cs",
+      "DesktopBackground.cs",
+      "DesktopHost.cs",
+      "DesktopHost.manifest",
+      "DesktopPackage.appxmanifest",
+      "MainPage.xaml",
+      "MainPage.xaml.cs",
+      "ManagedPublisher.cs",
+      "PAFPlayerLockScreen.csproj",
+      "Package.appxmanifest",
+      "StatusUpdater.cs",
+      "build_desktop.ps1",
+      "lockscreen_installer.py"
+    ],
+    "C:\\codex\\clairevironment\\bat\\PAFPlayer\\screensaver": [
+      "PAFPlayer.cfg",
+      "PAFPlayer.scr"
+    ]
+  },
+  "notes": [
+    "No playback or saved household settings changed.",
+    "No obsolete root files required moving.",
+    "Final native run and successful tests are distinguished from retained preliminary attempts."
+  ],
+  "paths": [
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\backups\\PAFPlayer_changelog.md.bak.202611041107.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "b78d163232c3a804f8fa63c09932db6da641cf775367b6225550b2164d59aa3a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\PAFPlayer_changelog.md",
+      "status": "modified",
+      "sha256": "ba99d33407bcab190bc8a8bcd30043c37f831cb76fac6427048ef5149c7cf236"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md",
+      "status": "modified",
+      "sha256": "61fecd816fbe3167bd47c4e28f3373bd66868cdbe8199cb01e2800e6a9fe7396"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\README.md.bak.202611041107.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "ef3eb6dd463f75d36cfc6ceee5516c03d37ac28a565d644565c5132bda1e45f4"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\window-shortcuts.md",
+      "status": "modified",
+      "sha256": "044da23c678e5688d1b26c9a99afbe35be6ed45746affe5d5f2bf8b71377539d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\window-shortcuts.md.bak.202611041107.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "224aa216354945bfe1a3883d87988b0a10c1fad41df8b93d9f16c8fcba2332de"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\windows-tray.md",
+      "status": "modified",
+      "sha256": "e02ba86907199c1ad6815e2b77b65492bc643adf6fc2c687ceef62e96866024d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\docs\\windows-tray.md.bak.202611041107.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "700cd56c3ecbb1d8a7fa550e72f723336e2de40886edf58de671c3a81f42ba5a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py",
+      "status": "modified",
+      "sha256": "227f607b020d7f153761ccac00c6dec97c92687979a67896126df828ada65f48"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611040834.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "743c9c47dbb6235775acad26adeca040474d85d63254d8d7c2dc82057729d0c1"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611040837.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "8701de8db1e050e184c51cdecd95818710183aa88e03eabb310bd88ba260102e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611040845.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "b1761c611fa29611df2d66565b07aef189906b6fb623e8583d91f8a3ac540d2e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer.py.bak.202611040848.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "adbd6aff5f4593596dd96acfdfdb563c6613204f063265311efc455ed84934bc"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v642_artwork_popup_chrome.py",
+      "status": "copied",
+      "kind": "artifact",
+      "sha256": "227f607b020d7f153761ccac00c6dec97c92687979a67896126df828ada65f48",
+      "source": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\PAFPlayer.py"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\releases\\PAFPlayer_v642_artwork_popup_chrome_release_notes.md",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "2bad9a548775559454d789645162ad911739484a5652d40e60cb8055fe5a881a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_v642_artwork_chrome.py",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "be9565608c96f8f1933ec513ed4b9d20846bbcc61b9879aa22ef5007ade94541"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\probe_v642_artwork_chrome.py.bak.202611040848.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "e145fc9f843be715de466983f6ef7f54a11a61908024f3f400c9027219ee9446"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-change-manifest.json",
+      "status": "created",
+      "kind": "this inventory"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-checks-20261104-084351.json",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "99fd88abefa13c9e9d416e8c4dcd8b1919535fb52a9bbfc313dbbe94e0cf421d"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-checks-20261104-084351.log",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "2c6bcba5d49799df49a9d9af995f21c1df0384aeb11ca73294f0d1ccaa6f49eb"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-checks-20261104-084520.json",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "8813076e15cda078b40f00601fb6cc202b237744743b41a6f519bf03333ac841"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-checks-20261104-084520.log",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "264a1ae7ee5117c77d2556b1dbd79227c8904757f639917759a7fecf6f9937d0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-checks-20261104-084801.json",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "bcc35da4793ff0391e0c90f2ecd9879ddd70f10add0d5c2ad5a1bcafbc3f1d57"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-checks-20261104-084801.log",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "d0a9081d53eb89becab4142a79eee5ebd5e925d0b0578881f69379458330425f"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-ui-20261104-083608.jsonl",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "f4df7c78c6b1d3babb26c150086c71fde8ac0d5efa9e745408647adc7886fec9"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-ui-20261104-083701.jsonl",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "faecc1b9954064c62186bcd53c3d1e742219ea3fa89d2881ea9c80623809e5c0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-ui-20261104-083828.jsonl",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "c74c59ee4e8bef7c2644dbacef1221ba89fcf0ccf0c3a3268eb46bbd3c23c23c"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\reports\\v642-ui-20261104-084825.jsonl",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "011ee7b4e112842b9bf4cf61beb181196e5b1bf5325d8e329b808139ec027482"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "8701de8db1e050e184c51cdecd95818710183aa88e03eabb310bd88ba260102e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\PAFPlayer\\external_album_art_geometry.txt",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040837.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\PAFPlayer\\external_album_art_placement_v241.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040836.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040837.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\preferences\\tray-54131106ba165dfc22a5c446.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040836.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040836.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040836.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1bcf3be028ccddad9a3ce90d5194fded2708a7c371a6017b0e2423f233e4d4e5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040837.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040837.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083608\\stop",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "b1761c611fa29611df2d66565b07aef189906b6fb623e8583d91f8a3ac540d2e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_geometry.txt",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040837.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040838.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040838.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040838.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040838.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_placement_v241.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040837.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040837.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040837.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040838.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040838.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040838.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040838.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040837.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040837.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040837.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040837.replaced-by-chatgpt (4).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040837.replaced-by-chatgpt (5).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040837.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1bcf3be028ccddad9a3ce90d5194fded2708a7c371a6017b0e2423f233e4d4e5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (4).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (5).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (6).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (7).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083701\\stop",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "b1761c611fa29611df2d66565b07aef189906b6fb623e8583d91f8a3ac540d2e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_geometry.txt",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040838.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040839.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040845.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040845.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040845.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040845.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040838.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040838.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040838.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040838.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040839.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040839.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040845.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040845.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040845.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040845.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (4).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (5).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt (6).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040838.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1bcf3be028ccddad9a3ce90d5194fded2708a7c371a6017b0e2423f233e4d4e5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040839.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040839.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040839.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040845.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040845.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040845.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040845.replaced-by-chatgpt (4).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040845.replaced-by-chatgpt (5).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040845.replaced-by-chatgpt (6).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040845.replaced-by-chatgpt (7).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040845.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-083828\\stop",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "227f607b020d7f153761ccac00c6dec97c92687979a67896126df828ada65f48"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_geometry.txt",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040848.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040849.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040849.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040849.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_geometry.txt.bak.202611040849.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "7410868fa4b072875fcaf6c0aa1f389893fe6b8f0cf026486176399347e901ab"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_placement_v241.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040848.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040848.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040848.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040849.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040849.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040849.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\PAFPlayer\\external_album_art_placement_v241.json.bak.202611040849.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "70a803b6b33923e4f271a71074c73b777734865ca9594271c8b96582a2ac2be0"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040848.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040848.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040848.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040848.replaced-by-chatgpt (4).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040848.replaced-by-chatgpt (5).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040848.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "1bcf3be028ccddad9a3ce90d5194fded2708a7c371a6017b0e2423f233e4d4e5"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040849.replaced-by-chatgpt (1).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040849.replaced-by-chatgpt (2).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040849.replaced-by-chatgpt (3).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040849.replaced-by-chatgpt (4).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040849.replaced-by-chatgpt (5).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040849.replaced-by-chatgpt (6).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040849.replaced-by-chatgpt (7).bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\artwork-v642-20261104-084825\\preferences\\tray-54131106ba165dfc22a5c446.json.bak.202611040849.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "0290496844208c8ffc3d8a2ec9b34be000434443a2fbdd2858931f42215c2a0a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v642-20261104-084351\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "b1761c611fa29611df2d66565b07aef189906b6fb623e8583d91f8a3ac540d2e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v642-20261104-084351\\test_v641_emojimax_solution_color.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "84941e33a81a09fdd605a877861ba64744d72c482cf9aee9cfed180df660a4ad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v642-20261104-084351\\test_v642_artwork_chrome.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "8732ebbee5c9ed93df3635fef6043ffaf57daa8cb93d9ce581ed07e39592c6e8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v642-20261104-084520\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "adbd6aff5f4593596dd96acfdfdb563c6613204f063265311efc455ed84934bc"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v642-20261104-084520\\tests\\test_v641_emojimax_solution_color.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "84941e33a81a09fdd605a877861ba64744d72c482cf9aee9cfed180df660a4ad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v642-20261104-084520\\tests\\test_v642_artwork_chrome.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "56187b74495fb7391cc7943b237f43eb66ae54aeea42c3a946541c8dd12e60ea"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v642-20261104-084801\\PAFPlayer.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "227f607b020d7f153761ccac00c6dec97c92687979a67896126df828ada65f48"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v642-20261104-084801\\tests\\test_v641_emojimax_solution_color.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "84941e33a81a09fdd605a877861ba64744d72c482cf9aee9cfed180df660a4ad"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\runs\\checks-v642-20261104-084801\\tests\\test_v642_artwork_chrome.py",
+      "status": "created",
+      "kind": "retained isolated test fixture",
+      "sha256": "ce9da0e9a1ee14ff8c426aab3aaf89e59c65ca6b11bc5e0eb7d4f7bcd132847a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v642_artwork_chrome.py",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "ce9da0e9a1ee14ff8c426aab3aaf89e59c65ca6b11bc5e0eb7d4f7bcd132847a"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v642_artwork_chrome.py.bak.202611040845.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "8732ebbee5c9ed93df3635fef6043ffaf57daa8cb93d9ce581ed07e39592c6e8"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\test_v642_artwork_chrome.py.bak.202611040848.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "56187b74495fb7391cc7943b237f43eb66ae54aeea42c3a946541c8dd12e60ea"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v642_artwork_chrome.py",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "8ab07eb003b9f1879a55f3e3f11c7c81e79b803a31713b53b523f6a9d2c93729"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v642_artwork_chrome.py.bak.202611040845.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "8ab1d56c42428d405480cb5d2c325f507741e2529fb4e9c81f8953a2c7eedd35"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tests\\verify_v642_artwork_chrome.py.bak.202611040848.replaced-by-chatgpt.bak",
+      "status": "created",
+      "kind": "verified replacement backup",
+      "sha256": "5ec8c478bea0faec2a167e4f8b58f2eadb93148aa47e0afdfd717a13aa0596da"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tools\\prepare_v642_artwork_chrome.py",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "7029ae1e817a8388d37c138b1118274304912b37528dac2c2aec7934e6cf066e"
+    },
+    {
+      "path": "C:\\codex\\clairevironment\\bat\\PAFPlayer\\tools\\publish_v642_artwork_chrome.py",
+      "status": "created",
+      "kind": "artifact",
+      "sha256": "d2f240f44463b0ee9b147cd2353fd6b61874eb722bfc060f4d991197c805368f"
+    }
+  ]
+}
