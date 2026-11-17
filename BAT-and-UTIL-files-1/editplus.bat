@@ -1,4 +1,4 @@
-@Echo Off
+@Echo On
  on break cancel
 
 
@@ -136,7 +136,8 @@ rem IF NO BRANCH, WARN THAT WE ARE * Using THE DEFAULT:
             rem call debug "start %EDITPLUSEXE% %ALL_ARGS%"
             rem call deubg "start %EDITPLUSEXE% %ALL_ARGS_AMPERSAND_ESCAPED%"
             rem start %EDITPLUSEXE% %ALL_ARGS% 
-                start %EDITPLUSEXE% %ALL_ARGS_AMPERSAND_ESCAPED% 
+            rem start %EDITPLUSEXE% %ALL_ARGS_AMPERSAND_ESCAPED% 
+                start %EDITPLUSEXE% %ALL_ARGS% 
             goto :END
     :AnacondaStart
             echo * TODO edit this and make it work with editplus 5

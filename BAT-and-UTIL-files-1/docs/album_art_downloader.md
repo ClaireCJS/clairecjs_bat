@@ -333,3 +333,7 @@ The tests use temporary folders and mocked network responses. They do not alter 
 - The downloader does not embed artwork into audio tags. It creates sidecar image files.
 When neither `--missing-only` nor `--no-missing-only` is supplied, interactive runs ask whether to scan folders that already have artwork—even when `--root` is supplied. Noninteractive runs default to scanning all eligible folders.
 
+When interactive release candidates are shown, choose a number for one release, `A` for all available artwork from the first candidate, or `AR` for all artwork and remember that choice for the rest of the run. The prompt times out after 60 seconds and defaults to `A`. This affects artwork selection only; existing files remain protected by the default collision policy.
+
+For non-album folders in sidecar mode, the downloader checks same-stem image files before searching the network. If every audio file already has its own sidecar, the folder is skipped. If even one individual file lacks a sidecar, it remains eligible. Numbered albums are handled as album artwork and are not suppressed by individual track sidecars.
+

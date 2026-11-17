@@ -22,7 +22,6 @@ rem Check environment:
 
 
 
-rem Actually do it:
-        kill /f 
+rem Actually do it:        
         %PAFPLAYER_TO_USE_RIGHT_NOW% --tray-only %MUSICSERVERMACHINENAME%:%MUSICSERVERPORT% --floating-lyrics --album-art --art-lyrics
         rem CLI OPS not used: --floating-lyrics-always-on-top 

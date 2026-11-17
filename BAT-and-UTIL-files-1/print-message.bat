@@ -516,7 +516,7 @@ rem Do animation for big ones:
                                 do count = 1 to %num_anims% by 1 (gosub do_the_wiggle)
 
                 rem Do the new 2026 zoomies:
-                    call jumpytext
+                    rem No! Not yet! It’s not tab-specific so it affects other tabs: call jumpytext
 
         endiff
 

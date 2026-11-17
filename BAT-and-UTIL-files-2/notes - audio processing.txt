@@ -542,13 +542,13 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
 	- TIP: NOT REQUIRED: we should [have already] run "bthis.bat" in the base folder our batch, so that c:\b\ points to our batch. Very convenient! 
 
 
-    - PRE-2026 STEPS THAT WE DON’T NEED ANYMORE:
-									    - STEP 1: move the entire batch into \mp3\_processing\testing\BATCHNAME [we could get away with skipping this though] prior to assimilation
-											      TO DO THIS: if c:\b\ points to our batch, we could go to c:\ and then say "put b c:\mp3\_processing\testing" and then make sure to name it something like BATCH202304 
-									    - STEP 2: OPTIONAL: navigate to c:\mp3\_processing\testing\{our batch folder we just moved it to} then run "bthis" to make c:\b\ point to this new batch location
-										- I USUALLY SKIP THIS: it may behoove us to make a playlist of the music here and let it run for awhile to actually test it, but life goes by too fast to always allow this
-									    - STEP 3: UHHHHHH WHAT HAPPENED: there *WAS* a preprocess.bat inside \mp3\_processing\testing\ that may need to be run now! ... But in 2024 I’m not seeing it exist
-										- TIP: for best efficiency, one pane (left?) should be at c:\mp3\ at the command line, and another should be at c:\b\ (our batch) — alt-shift-minus will open panes horizontally
+		    - PRE-2026 STEPS THAT WE DON’T NEED ANYMORE:
+											    - STEP 1: move the entire batch into \mp3\_processing\testing\BATCHNAME [we could get away with skipping this though] prior to assimilation
+													      TO DO THIS: if c:\b\ points to our batch, we could go to c:\ and then say "put b c:\mp3\_processing\testing" and then make sure to name it something like BATCH202304 
+											    - STEP 2: OPTIONAL: navigate to c:\mp3\_processing\testing\{our batch folder we just moved it to} then run "bthis" to make c:\b\ point to this new batch location
+												- I USUALLY SKIP THIS: it may behoove us to make a playlist of the music here and let it run for awhile to actually test it, but life goes by too fast to always allow this
+											    - STEP 3: UHHHHHH WHAT HAPPENED: there *WAS* a preprocess.bat inside \mp3\_processing\testing\ that may need to be run now! ... But in 2024 I’m not seeing it exist
+												- TIP: for best efficiency, one pane (left?) should be at c:\mp3\ at the command line, and another should be at c:\b\ (our batch) — alt-shift-minus will open panes horizontally
 
 
     - THE MEAT! DOING ALL THE ACTUAL-ACTUAL MOVING!
@@ -647,6 +647,63 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
 
 
 
+⭐⭐⭐ OLD STUFF: OLD STANDARDS-AND-PRACTICES FILE BEFORE WE HAD THE AUDIO-PROCESSING-BATCH-NOTES DOCUMETNATION:
+
+	######## PREFERENCE LEVELS ######## 
+	LEVEL 0:	everything		Automatically generated.
+	LEVEL 1:	preferred		Removing stuff that simply can't be heard.
+						Non-music, audiobooks, tracks that TOTALLY SUCK.
+	LEVEL 2:	changer			Adding stuff that should be heard.  
+			changerrecent		new stuff gets added to this also, but removed once it's aged more
+						Mostly by-album but some by-song.
+	LEVEL 3:	pretty good		like changer, but no bad songs really
+	LEVEL 4:	best			like pretty good, but more exclusive
+	LEVEL 4.5:	best on album		only the best songs per album, but most albums do not have this tagged
+	LEVEL 5:	party			Adding only the favorite songs.  The party playlist.
+
+	LEVEL X:	to learn 		Albums, mostly in changer, that should be learned/listened to.
+
+
+######## SPECIAL ATTRIBUTES ########
+	* "I was there"			For songs I saw in person when they were recorded!
+	* "unprocessed"			For stuff that bypassed my rigid quality control and remastering process
+	* "cock rock"
+	  "drugs"				songs about drugs
+	  "i identify"			sometimes I identify with a song...
+	  "long"  / "excessively long" For songs >6.5/15 minutes or so.
+	  "short" / "excessively short"For songs <60s/15s or so.... short S.O.D. songs are all excessively short
+	* "two songs at once"
+	  "bassy"				bass-heavy songs or parts with bass
+	  "cheese"				for cheezy stuff
+	  "motivational"
+	  "overplayed"
+	  "satire"
+	  "stand up comedy"
+	  "strange"
+	  "tedious"
+	  "twisted"
+	  "twisted tributes"		Tributes that are VERY different...
+	  "two songs at once"
+	* "slowest on album"
+	  "fastest on album"		For songs that are (usually craziliy) faster than the rest of the songs on an album...
+	  "heaviest on album"		For songs that are the heaviest on the album WITHOUT being the fastest....
+						Typically a heavy song is the fastest so I don't use this tag in that situation.
+						A good meta tag would be: fastest and heaviest on album:+fastest on album,+heaviest on album
+	  "best on album"
+	  "unique to this album"	rarely used, for remix albums that have, say, 1 non-remix/original track on them that stands out from the rest by being unique
+	* "hated by guests"		* hated by X, really. "hated by Ingebretsen Brent" would be an example.
+	* Holidays				"Halloween","Christmas","New Year's"
+	 
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -677,4 +734,5 @@ BRAINSTORMING: Flac files don’t display internal album art correctly, so if it
 
 			- AI/Codex cleanup rule: NEVER default to deleting *.bak files. Treat BAK files as keep-by-default; only delete a specific BAK file/class after explicit user approval and explanation.
 			- AI/Codex cleanup rule: zero-byte files named like __ something __ are usually user comments/markers and must be kept by default. Only delete bare junk markers like __, or specific marker classes after explicit approval.
+
 
