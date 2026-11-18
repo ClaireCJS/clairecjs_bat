@@ -1,5 +1,41 @@
 # PAFPlayer changelog
 
+## V737 — November 17, 2026
+
+Suppress the pre-play console artwork rendered by `main()` when `--simple` is active. [Release notes](../releases/PAFPlayer_v737_simple_no_preplay_art_release_notes.md).
+
+## V736 — November 17, 2026
+
+Make `--simple` authoritative inside playback: artwork, DRCS/SIXEL, bars, layered artwork, and visualizer background-art surfaces are forcibly disabled even when persisted settings or a wrapper supplies them. [Release notes](../releases/PAFPlayer_v736_simple_artwork_hard_disable_release_notes.md).
+
+## V735 — November 17, 2026
+
+Add a launcher-safe `PAFPLAYER_SIMPLE=1` handoff so batch wrappers cannot accidentally lose inline mode. [Release notes](../releases/PAFPlayer_v735_preview_inline_handoff_release_notes.md).
+
+## V734 — November 17, 2026
+
+Preserve the original `--simple` request across launcher/workflow argument normalization and disable full-player redraw paths in simple mode. [Release notes](../releases/PAFPlayer_v734_simple_launcher_path_release_notes.md).
+
+## V733 — November 17, 2026
+
+Prevent `--simple` from entering the loose-script self-install UI path, which could print a startup title and clear the console before inline playback began. [Release notes](../releases/PAFPlayer_v733_simple_bypasses_installer_ui_release_notes.md).
+
+## V732 — November 17, 2026
+
+Suppress the normal playback title/header rows in `--simple`, completing its inline-console behavior. [Release notes](../releases/PAFPlayer_v732_simple_no_title_header_release_notes.md).
+
+## V731 — November 17, 2026
+
+Correct tolerant lyric filenames: `.maybe` remains part of the filename passed to the loader and is removed only for the advisory extension check. [Release notes](../releases/PAFPlayer_v731_preserve_maybe_lyric_filenames_release_notes.md).
+
+## V730 — November 17, 2026
+
+Make explicit lyric previews tolerant of filenames: a trailing `.maybe` is removed, the option (`--use_lrc`, `--use_srt`, or `--use_txt`) selects the parser rather than the filename extension, and an unverifiable file produces a press-any-key warning before playback continues. [Release notes](../releases/PAFPlayer_v730_tolerant_lyric_override_filenames_release_notes.md).
+
+## V729 — November 17, 2026
+
+Add `--use_lrc`, `--use_srt`, and `--use_txt` lyric preview overrides. The explicit file is used only for the first dispatched audio item, which makes it useful with `--simple`. The simple mode is now inline-friendly: it preserves existing console history, does not clear the screen, and leaves the console title unchanged. [Release notes](../releases/PAFPlayer_v729_simple_lyric_overrides_release_notes.md).
+
 ## V728 — November 16, 2026
 
 Pin Requests and its HTTP dependencies in the private runtime so Last.fm Now Playing and scrobbling work when PAFPlayer is launched with its bundled Python. [Release notes](../releases/PAFPlayer_v728_lastfm_private_requests_release_notes.md).

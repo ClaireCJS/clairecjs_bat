@@ -620,10 +620,10 @@ except ImportError:  # pragma: no cover
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID                = '2026-11-16-v728-lastfm-private-requests'
+PLAYER_BUILD_ID                = '2026-11-17-v737-simple-no-preplay-art'
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION                = 'V728'
-PROGRAM_RELEASE_LABEL          = 'V723'
+PROGRAM_VERSION                = 'V737'
+PROGRAM_RELEASE_LABEL          = 'V737'
 
 # A Discord webhook is a credential, not a setting.  Keep it out of JSON,
 # the registry, logs, browser state, and environment persistence.  Windows
@@ -19682,8 +19682,22 @@ def _find_timed_lyric_sidecar(audio_path: Path) -> Path | None:
                 return candidate
     return None
 
-def load_lyrics(audio_path: Path) -> list[tuple[float, float | None, str]]:
+def load_lyrics(
+    audio_path: Path,
+    override_path: Path | None = None,
+    override_format: str | None = None,
+) -> list[tuple[float, float | None, str]]:
     """Load timed lyrics, preferring SRT sidecars over LRC/embedded lyrics."""
+    if override_path is not None:
+        try:
+            text = _read_lyrics_sidecar_text(override_path)
+        except OSError:
+            return []
+        suffix = (override_format or override_path.suffix).casefold().lstrip(".")
+        if suffix in {"lrc", "srt", "vtt"}:
+            return parse_timed_lyrics_text(text, suffix)
+        lines = [line.strip() for line in text.splitlines() if line.strip() and not line.lstrip().startswith(("#", ";"))]
+        return [(index * 4.0, None, line) for index, line in enumerate(lines)]
     # SRT wins because it supplies explicit END timestamps for every cue.
     sidecar = _find_timed_lyric_sidecar(audio_path)
     if sidecar is not None:
@@ -54218,6 +54232,9 @@ def play_audio_file(
     looping_state: list[bool] | None = None,
     repeat_mode_state: list[int] | None = None,
     lyrics_display: bool = True,
+    lyric_override_path: Path | None = None,
+    lyric_override_format: str | None = None,
+    simple_mode: bool = False,
     shuffle_state: list[bool] | None = None,
     shuffle_mode_state: list[int] | None = None,
     shuffle_expiration_hours_state: list[float] | None = None,
@@ -54358,6 +54375,17 @@ def play_audio_file(
     applied twice during one song.
     """
     global _CURSOR_SUPPRESSION_ACTIVE, _CURSOR_HIDE_APPEND_ENABLED, _INLINE_RENAME_CURSOR_SUFFIX, _DISABLE_USER32_ACTIVITY, _VISUALIZER_TRANSPORT_AUTOTUNE_WINNER, _RUNTIME_SETTINGS_LAST_SNAPSHOT
+    if simple_mode:
+        # --simple is an inline-preview contract. Persisted settings and later
+        # launcher normalization must not reintroduce PAFPlayer artwork or any
+        # visualizer surface into the caller's existing console history.
+        sixel_visualizer = False
+        drcs_visualizer = False
+        album_art_display = False
+        album_art_visualizer_state = [False]
+        layered_art_visualizer_state = [False]
+        visualizer_bars_enabled_state = [False]
+        visualizer_background_artwork_enabled_state = [False]
     smooth_audio_renderer_enabled = bool(smooth_audio_renderer_enabled)
     audio_buffer_ms = max(SMOOTH_AUDIO_BUFFER_MS_MIN, min(SMOOTH_AUDIO_BUFFER_MS_MAX, int(audio_buffer_ms)))
     active_theories = frozenset(theory_modes or ())
@@ -54577,7 +54605,7 @@ def play_audio_file(
         audio_tags["Last play"] = ""
     lyrics = (
         list(prepared_track.lyrics) if prepared_valid and lyrics_display
-        else (load_lyrics(audio_path) if lyrics_display else [])
+        else (load_lyrics(audio_path, override_path=lyric_override_path, override_format=lyric_override_format) if lyrics_display else [])
     )
     append_pafplayer_trace(
         "transition.prepare-consumed",
@@ -54644,6 +54672,8 @@ def play_audio_file(
         now: float, playback_position: float | None = None, paused: bool = False
     ) -> None:
         nonlocal last_title_refresh, title_marquee_started, title_marquee_source
+        if simple_mode:
+            return
         if now - last_title_refresh < TITLE_MARQUEE_REFRESH_SECONDS:
             return
         state = '⏸️' if paused else '▶️'
@@ -56543,7 +56573,7 @@ def play_audio_file(
         space.  If the full Play line would truncate, Dir remains above it and
         emphasizes the final directory component as before.
         """
-        if all_audio_tags_active:
+        if simple_mode or all_audio_tags_active:
             return
         available = max(12, shutil.get_terminal_size((120, 30)).columns - 1)
         header = playing_header_ansi(current_position)
@@ -60552,6 +60582,8 @@ def play_audio_file(
         request the stronger whole-screen clear explicitly.
         """
         nonlocal last_drcs_position, last_lyric_index, last_sixel_refresh
+        if simple_mode:
+            return
         nonlocal last_visualizer_payload, static_visualizer_payload, last_visualizer_rows
         nonlocal last_visualizer_cells, visualizer_cursor_known_bottom, last_visualizer_row_count
         if clear_art:
@@ -61101,9 +61133,9 @@ def play_audio_file(
         screen_closed = True
         _CURSOR_SUPPRESSION_ACTIVE = False
         set_console_cursor_visible(False if preserve_live_tags else result not in NAVIGATION_ACTIONS)
-        if not preserve_live_tags:
+        if not preserve_live_tags and not simple_mode:
             clear_region(HEADER_ROW, UI_ROWS)
-        if not preserve_live_tags and UI_ROWS > 1:
+        if not preserve_live_tags and not simple_mode and UI_ROWS > 1:
             # Delete the reserved UI rows so the terminal's prior contents are
             # pulled back up instead of leaving a karaoke-shaped blank crater.
             write_console(move_to(HEADER_ROW + 1) + f"\033[{UI_ROWS - 1}M")
@@ -61277,7 +61309,8 @@ def play_audio_file(
             UI_ROWS,
             TERMINAL_BOTTOM_RESERVE_TRIM_ROWS,
         )
-        clear_region(0, UI_ROWS)
+        if not simple_mode:
+            clear_region(0, UI_ROWS)
         write_console(define_all_player_drcs(dense_art_drcs_layout_active) + "\033[?25l")
         render_static_header(position)
         render_controls(0.0)
@@ -65325,7 +65358,8 @@ def play_audio_file(
             process_pid=getattr(process, "pid", None),
             process_returncode=(process.poll() if process is not None else None),
         )
-        set_console_title(previous_console_title)
+        if not simple_mode:
+            set_console_title(previous_console_title)
         if owns_external_media_controller:
             external_media_controller.close()
         resume_winamp_if_paused_by_preview(winamp_paused_by_preview)
@@ -78841,6 +78875,10 @@ _PAF_REMOTE_MOUSE = False
 def main(argv: list[str] | None = None) -> int:
     """Run unit tests or preview the single supplied audio filename."""
     arguments = list(sys.argv[1:] if argv is None else argv)
+    simple_requested = (
+        any(option in {"--simple", "--light"} for option in arguments)
+        or os.environ.get("PAFPLAYER_SIMPLE", "").strip() == "1"
+    )
     global _PAF_REMOTE_MOUSE
     _PAF_REMOTE_MOUSE = "--remote-mouse" in arguments
     arguments = [arg for arg in arguments if arg != "--remote-mouse"]
@@ -78940,6 +78978,7 @@ def main(argv: list[str] | None = None) -> int:
     if (argv is None and arguments and not installed_child and os.name == "nt"
             and arguments not in (["randomize"], ["--randomize"])
             and not any(arg in one_shot or arg.startswith("--install-survey-dry-run=") for arg in arguments)
+            and not simple_requested
             and paf_is_loose_script(__file__)):
         return run_paf_self_install((["--no-ai"] if _PAF_NO_AI else []) + arguments)
     if any(arg == "--install-survey-dry-run" or arg.startswith("--install-survey-dry-run=") for arg in arguments):
@@ -78993,7 +79032,9 @@ def main(argv: list[str] | None = None) -> int:
 
     from PAFPlayer_tray import parse_options, TrayController
     arguments, tray_override, explicit_instance = parse_options(arguments)
-    simple_instance = any(option in {"--simple", "--light"} for option in arguments)
+    # Keep the pre-dispatch value: launcher/workflow normalization may consume
+    # the flag before the playback argument parser sees it.
+    simple_instance = simple_requested or any(option in {"--simple", "--light"} for option in arguments)
     if _PAF_NO_AI:
         explicit_instance = True
     if simple_instance:
@@ -79369,7 +79410,8 @@ def main(argv: list[str] | None = None) -> int:
         usage_line("--visualizer-target-fps=FPS", "requested console spectrum rate; subject to saved Console Visualizer maximum (default 60 FPS) and adaptive throughput", f"{VISUALIZER_TARGET_FPS:g} request")
         usage_line("-a, --album-art / -A, --no-album-art", "SIXEL artwork background", "on")
         usage_line("--no-chafa-album-art-in-console", "suppress Chafa's pre-play album-art grid only; popup, web art, and visualizers remain available")
-        usage_line("--simple / --light", "independent local playback: no official-instance handoff or tray; disables console/popup art, web server, now-playing sidecar, and visualizers")
+        usage_line("--simple / --light", "inline-friendly local playback: preserves console history and title, disables screen clearing plus console/popup art, web server, now-playing sidecar, and visualizers")
+        usage_line("--use_lrc FILE / --use_srt FILE / --use_txt FILE", "preview an explicit lyric file for the first dispatched audio item only; especially useful with --simple")
         usage_line("--album-art-style STYLE", "cover-on-black, cover-on-both, or cover-on-bars; aspect-mismatched covers tile from a centered origin", "cover-on-both")
         usage_line("--external-album-art / --no-external-album-art", "enable/disable separate movable GUI cover-art window for this run", "on" if ENABLE_EXTERNAL_ALBUM_ART_WINDOW else "off")
         usage_line("--external-album-art-idle-foreground-seconds=SECONDS", "idle time before auto-raising artwork; 0=never", f"{EXTERNAL_ALBUM_ART_IDLE_FOREGROUND_SECONDS:g}s")
@@ -79544,6 +79586,8 @@ def main(argv: list[str] | None = None) -> int:
     randomize_playlist = False
     playlist_argument: str | None = None
     initial_blank_line = True
+    lyric_override_path: Path | None = None
+    lyric_override_format: str | None = None
     now_playing_enabled = True
     now_playing_sidecar = True
     external_now_playing: Path | None = None
@@ -79624,6 +79668,59 @@ def main(argv: list[str] | None = None) -> int:
             drcs_enabled = False
             sixel_enabled = False
             chafa_album_art_in_console = False
+            initial_blank_line = False
+        elif argument in {"--use_lrc", "--use_srt", "--use_txt"} or any(
+            argument.startswith(option + "=") for option in ("--use_lrc", "--use_srt", "--use_txt")
+        ):
+            option, equals, inline_value = argument.partition("=")
+            if not equals:
+                option = argument
+                argument_index += 1
+                if argument_index >= len(arguments):
+                    print(f"💥 ERROR: {option} requires a lyric filename.", file=sys.stderr)
+                    return 2
+                inline_value = arguments[argument_index]
+            expected_suffix = option.removeprefix("--use_")
+            candidate = Path(inline_value).expanduser()
+            extension_check_path = candidate
+            if candidate.name.casefold().endswith(".maybe"):
+                # `.maybe` is part of the real filename. Remove it only from
+                # the advisory extension check; never alter the load path.
+                extension_check_path = Path(str(candidate)[:-len(".maybe")])
+            if not candidate.is_file():
+                print(
+                    f"⚠️ WARNING: {option} could not verify the lyric file: {candidate}\n"
+                    "The player will continue and attempt to read it for the first track. Press any key to continue...",
+                    file=sys.stderr,
+                )
+                try:
+                    import msvcrt
+                    msvcrt.getwch()
+                except (ImportError, OSError):
+                    try:
+                        input()
+                    except (EOFError, KeyboardInterrupt):
+                        pass
+            elif extension_check_path.suffix.casefold() != "." + expected_suffix:
+                print(
+                    f"⚠️ WARNING: {option} received a filename whose apparent extension is "
+                    f"{extension_check_path.suffix or '<none>'}, not .{expected_suffix}. "
+                    "The player will still attempt it. Press any key to continue...",
+                    file=sys.stderr,
+                )
+                try:
+                    import msvcrt
+                    msvcrt.getwch()
+                except (ImportError, OSError):
+                    try:
+                        input()
+                    except (EOFError, KeyboardInterrupt):
+                        pass
+            if lyric_override_path is not None:
+                print("💥 ERROR: only one --use_lrc/--use_srt/--use_txt override may be supplied.", file=sys.stderr)
+                return 2
+            lyric_override_path = candidate.resolve()
+            lyric_override_format = expected_suffix
         elif argument == "--suppress-attribute-management":
             suppress_attribute_management = True
         elif argument == "--no-microtile-detail-for-bars":
@@ -81468,7 +81565,7 @@ def main(argv: list[str] | None = None) -> int:
                 )
             prepared_current = successor_preparation.take(current_audio)
             preplay_cover = b""
-            if album_art_display and chafa_album_art_in_console and not all_audio_tags_state[0]:
+            if album_art_display and chafa_album_art_in_console and not simple_instance and not all_audio_tags_state[0]:
                 preplay_cover = render_preplay_album_cover(
                     current_audio, max(12, shutil.get_terminal_size((120, 30)).columns - 1)
                 )
@@ -81683,6 +81780,9 @@ def main(argv: list[str] | None = None) -> int:
                 looping_state=looping_state,
                 repeat_mode_state=repeat_mode_state,
                 lyrics_display=lyrics_enabled,
+                lyric_override_path=lyric_override_path,
+                lyric_override_format=lyric_override_format,
+                simple_mode=simple_instance,
                 shuffle_state=shuffle_state,
                 shuffle_mode_state=shuffle_mode_state,
                 shuffle_expiration_hours_state=shuffle_expiration_hours_state,
@@ -81820,6 +81920,8 @@ def main(argv: list[str] | None = None) -> int:
                 transition_handoff_started_at=prior_track_finished_at,
                 dj_upcoming_hint=hinted_next,
             )
+            lyric_override_path = None
+            lyric_override_format = None
             flush_playlist_resume_checkpoint()
             if playlist_path is not None:
                 check_playlist_source_after_track()

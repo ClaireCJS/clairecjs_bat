@@ -108,6 +108,9 @@ rem Process playlists / audio files:
                 rem echo ext is %ext
 
                 rem Process either a playlist or an individual song:
+echo on                                       
+call bigecho GOATYGOATGYGOATYGOATGYGOATYGOATGY
+
                         if "m3u" == "%ext%" call get-lyrics-for-playlist %1$       %+ rem Process individual playlist
                         if "m3u" != "%ext%" call get-lyrics-for-file.btm %1$       %+ rem Process individual audiofile
                 goto :endiff_96

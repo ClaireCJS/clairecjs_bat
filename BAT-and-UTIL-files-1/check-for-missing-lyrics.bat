@@ -167,6 +167,10 @@ rem Check for fast mode:
         endiff
 
 
+rem Check for recursive:
+        set RECURSE_CFML=0
+        if "%1" == "/s" set RECURSE_CFML=1
+
 
 rem Kill bad transcriptions unless in fast mode:
         if "0" != "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" .and. "1" != "%CFML_FAST%" .and. exist *.srt call delete-bad-ai-transcriptions 3

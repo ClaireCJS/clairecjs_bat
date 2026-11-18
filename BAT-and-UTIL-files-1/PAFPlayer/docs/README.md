@@ -1,7 +1,32 @@
 # PAFPlayer documentation
 
-Current release: **V728** — include the pinned Requests dependencies needed for Last.fm Now Playing in the private runtime.
-[Release notes](../releases/PAFPlayer_v728_lastfm_private_requests_release_notes.md).
+Current release: **V737** — simple mode also suppresses opening artwork.
+[Release notes](../releases/PAFPlayer_v737_simple_no_preplay_art_release_notes.md).
+
+## Inline lyric preview
+
+Use `PAFPlayer.py --simple --use_lrc FILE AUDIO`, `--use_srt FILE AUDIO`, or
+`--use_txt FILE AUDIO` to preview a supplied lyric file without changing the
+audio file's sidecars. The option selects the parser, so the filename may have
+any extension. A trailing `.maybe` is ignored only when checking the apparent
+extension; it remains part of the filename loaded (`hello.lrc.maybe` is opened
+literally). If the file cannot be verified, or its apparent extension is
+unexpected, PAFPlayer warns and waits for a key, then continues and attempts
+the preview anyway. The override is
+authoritative for the first dispatched audio item only; later playlist tracks
+return to normal lyric lookup.
+
+`--simple` is intended for inline console use. It preserves the existing
+console history, does not clear the screen, does not replace the console title,
+does not render the normal PAFPlayer playback title/header, and disables the
+heavier art, web, now-playing, and visualizer surfaces.
+It also bypasses the loose-script self-install screen, so launching a loose
+copy with `--simple` does not print an installer title or clear the console.
+Batch launchers may set `PAFPLAYER_SIMPLE=1` when command-line expansion could
+consume `--simple`; this has the same inline behavior.
+Simple mode also forcibly disables PAFPlayer artwork and every visualizer
+surface, regardless of saved artwork/visualizer settings, including the
+pre-play opening-art render.
 
 ## Private Python runtime
 

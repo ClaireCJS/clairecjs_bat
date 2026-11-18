@@ -116,7 +116,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                                 call sleep 4
                                 set worker=get-karaoke
                                 set workload=%default_number_of_karaoke_to_work%
-                                set PLAYLIST_TO_WORK="%@NAME["%default_playlist_to_work%"]-without lrc or srt.%@EXT["%default_playlist_to_work%"]"
+                                set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-without lrc or srt.%@EXT["%default_playlist_to_work%"]"
                         endiff
                         iff  "L" == "%WORK_TYPE_ANSWER%" .or. "%1" == "lyrics"  then
                                 set  WORK_TYPE_ANSWER=L
@@ -125,7 +125,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                                 call sleep 4
                                 set worker=get-lyrics
                                 set workload=%default_number_of_lyrics_to_work%
-                                set PLAYLIST_TO_WORK="%@NAME["%default_playlist_to_work%"]-without txt.%@EXT["%default_playlist_to_work%"]"
+                                set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-without txt.%@EXT["%default_playlist_to_work%"]"
                         endiff
                         iff  "P" == "%WORK_TYPE_ANSWER%" .or. "%1" == "prompts"  then
                                 set  WORK_TYPE_ANSWER=P
@@ -134,7 +134,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                                 call sleep 4
                                 set worker=get-karaoke-prompts-only
                                 set workload=%default_number_of_lyrics_to_work%
-                                set PLAYLIST_TO_WORK="%@NAME["%default_playlist_to_work%"]-with txt but no lrc or srt.%@EXT["%default_playlist_to_work%"]"
+                                set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-with txt but no lrc or srt.%@EXT["%default_playlist_to_work%"]"
                         endiff
 
                 rem Process command line override of # of files to process:
@@ -149,7 +149,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                 rem DO THE ACTUAL WORK!! Call the pre-determined proper script + playlist + workload:
                         iff "%worker%" !=  "" then
                                 set worker_call=call %worker% %PLAYLIST_TO_WORK% %@IF["%workload%" != "",%workload%,%@IF["%workload2" != "",%workload2%,10]] %3$
-                                echo %ansi_color_important%%STAR2% Calling worker: %worker_call%%ansi_color_normal%
+                                call bigecho %ansi_color_important%%STAR2% Calling worker: %worker_call%%ansi_color_normal%
                                 %worker_call%
                         endiff
 

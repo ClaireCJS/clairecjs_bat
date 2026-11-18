@@ -518,6 +518,7 @@ rem If the file has been marked as failed previously, abort (unless in force mod
                 rem call debug " askifuntranscribeable 494 called"
                 goto /i END
         endiff
+        :ignore_that_we_are_already_failed
 
 REM Values fetched from input file:
         :go_here_after_rerunning_getlyrics
@@ -691,6 +692,7 @@ REM Now, let’s check these values:
 REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
         set INPUT_FILE=%@UNQUOTE["%SONGFILE%"]
         if not exist "%@UNQUOTE["%INPUT_FILE%"]" call validate-environment-variable INPUT_FILE
+pause "[2]call validate-file-extension “%AUDIO_FILE%” %FILEMASK_AUDIO%"
         call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO%
 
 
@@ -886,8 +888,9 @@ REM If we say "force", skip the already-exists check and contiune
 
 REM If it’s an instrumental, don’t bother:
         unset /q REGEX_RESULT
-        set REGEX_RESULT=%@REGEX[instrumental,%INPUT_FILE%]
-        iff "%REGEX_RESULT%" == "1" then
+        set REGEX_RESULT_1=%@REGEX[instrumental,%INPUT_FILE%]
+        set REGEX_RESULT_2=%@REGEX[semi[\s\-]instrumental,%INPUT_FILE%]
+        iff "%REGEX_RESULT_1%" == "1" .and. "%REGEX_RESULT_2%" == "0" then
                 @call warning "Sorry, nothing to transcribe because this file appears to be an instrumental: %INPUT_FILE%" silent 
                 goto /i END
                 exit /b
@@ -1985,7 +1988,7 @@ rem Let user know if we were NOT succesful, then skip to the end:
                                 if  "U" == "%ANSWER%" gosub   ask_if_untranscribeable "%@UNQUOTE["%INPUT_FILE%"]"
                                 if  "1" == "%ANSWER%" goto /i go_here_for_encoding_retries
                                 if  "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" goto /i ask_about_instrumental_1500
-                                call debug "INPUT_FILE=“%@unquote[%INPUT_FILE]” goatGOAT"
+                                rem call debug "INPUT_FILE=“%@unquote[%INPUT_FILE]”"
                                 iff "Y" == "%ANSWER%" .or. "I" == "%ANSWER%" then
                                         iff exist "%@UNQUOTE["%INPUT_FILE%"]" then
                                                 echo Tru`>%@`UNQUOTE["%INPUT_FILE%"]:karaoke_failed" 🐐🐐🐐🐐🐐🐐🐐>nul
@@ -2047,7 +2050,7 @@ rem A chance to edit/reject the karaoke:
 
 rem Make sure postprocessed lyrics exist because we’re about to print them:
         gosub create_or_set_postprocessed_lyrics "%POSTPROCESSED_LYRICS%" 
-        call subtle "Postprocessed lyrics are now “%postprocessed_lyrics%” GOAT JUST_GENERATED_LYRICS=%JUST_GENERATED_LYRICS%"
+        rem call subtle "Postprocessed lyrics are now “%postprocessed_lyrics%” JUST_GENERATED_LYRICS=%JUST_GENERATED_LYRICS%"
         if "1" == "%DEBUG_TRACE_CSFF%" pause "Are we here at 1882"
 
 
@@ -2344,11 +2347,12 @@ goto /i skip_subroutines
         :ask_if_untranscribeable [opts]
                 set USE_WAIT_TIME=%ASK_IF_UNTRANSCRIBEABLE_WAIT_TIME%
                 if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set USE_WAIT_TIME=0 
-                call AskYN "Rename it as “[untranscribeable]” to prevent this prompt from coming up again [%ansi_color_bright_green%P%ansi_color_prompt%lay,en%ansi_color_bright_green%Q%ansi_color_prompt%ueue in %italics_on%WinAmp%Italics_off%,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental/%ansi_color_bright_green%S%ansi_color_prompt%ound effect]" None %USE_WAIT_TIME% IQPS I:no_but_mark_it_instrumental_instead,Q:enQueue_in_winamp,P:play_it,S:no_instead_mark_mark_as_sound_effect %+ rem TODO remove hard-coded wait time
+                call AskYN "Rename it as “[untranscribeable]” to prevent this prompt from coming up again [%ansi_color_bright_green%P%ansi_color_prompt%lay,en%ansi_color_bright_green%Q%ansi_color_prompt%ueue in %italics_on%WinAmp%Italics_off%,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental/%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%$%ansi_color_prompt%=encode anyway]" None %USE_WAIT_TIME% IQPS$ I:no_but_mark_it_instrumental_instead,Q:enQueue_in_winamp,P:play_it,S:no_instead_mark_mark_as_sound_effect,$:restart %+ rem TODO remove hard-coded wait time
                         gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
                         gosub check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
                         gosub check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
                         gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
+                        if "$" == "%ANSWER%" goto /i ignore_that_we_are_already_failed
                         set IS_UNTRANSCRIBEABLE=-1
                         if  "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" goto /i ask_about_instrumental_480
                         iff "Y" == "%ANSWER%" then

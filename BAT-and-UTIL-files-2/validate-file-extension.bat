@@ -60,7 +60,7 @@ rem Check our extension versus the list of valid extensions:
         )
 
 rem ERROR: At this point, all checks have failed and the file is not valid!
-        set VAL_FILE_EXT_ERR_MSG=*** Validation of file “%VALIDATION_FILE%” failed because its extension is not one of: “%italics%%underline%%VALID_EXTENSIONS%%italics_off%%underline_off%”
+        set VAL_FILE_EXT_ERR_MSG=*** %italics_on%[Validate-File-Extension.bat]%italics_off% Validation of file “%VALIDATION_FILE%” failed because its extension is not one of: “%italics%%underline%%VALID_EXTENSIONS%%italics_off%%underline_off%”
 
         call divider
         echo %ansi_color_warning%Calling File: “%[_PBATCHNAME]”%EOL%

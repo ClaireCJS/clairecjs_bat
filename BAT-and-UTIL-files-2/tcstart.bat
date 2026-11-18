@@ -32,8 +32,16 @@ rem ::::: RUN ENVIRONMENT.BAT, WITH THE ONE PRE-REQUISITE THAT THE MACHINE NAME 
         title TCC
 
         iff exist "%1" .and. "%@EXT[%1]" == "BAT" then
-                echo Should we run env and %1 with params %2$?
-                *pause
+                rem Warning:
+                        set MSG=%bklink_off%%ansi_color_warning_soft%Press any key to run %italics_on%%ansi_color_warning%environm.btm%ansi_color_warning_soft%%italics_off% and %italics_on%%ansi_color_warning%%1%italics_off%%ansi_color_warning_soft% with params %2$?%ansi_color_magenta%%blink_on%
+                        iff "1" == "%PAUSE_BEFORE_RUNNING%" then
+                                echo %msg%
+                                *pause
+                        else
+                                call pause-for-x-seconds 30 "%msg%"
+                        endiff
+
+
                 call c:\bat\environm.btm force
                 call %1$
                 goto /i :Clean_Up

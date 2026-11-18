@@ -1,2 +1,5 @@
+@Echo off
 @rem if that doesn’t work %localappdata%\microsoft\windowsapps\wt.exe
 wt -w 0 c:\tcmd\tcc.exe c:\bat\tcstart-then-autoexec.bat
+pause "Press any key to exit"
+exit

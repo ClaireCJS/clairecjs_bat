@@ -70,13 +70,14 @@ rem Girder?
 rem Above all else, the music must flow —— but only if it's the music server.
 rem Machines that are NOT our music server will run the tray module that connects them to it
 
-        iff "%MACHINENAME%" == "%MUSICSERVERMACHINENAME%" then
-                iff "%MUSIC_PLAYER%" == "WINAMP" then
+       iff "%MACHINENAME%" == "%MUSICSERVERMACHINENAME%" then
+                echo "[2]music player is %MUSIC_PLAYER%"
+                iff     "%MUSIC_PLAYER%" == "WINAMP" then
                         call winamp autoexec
-                elseif "%MUSIC_PLAYER%" == "PAFPlayer" then
+                elseiff "%MUSIC_PLAYER%" == "PAFPlayer" then
                         call launch-PAFPlayer.bat resume
                 else
-                        call warning "MUSIC_PLAYER is not defined!!"
+                        call warning "%italics_on%MUSIC_PLAYER%italics_on% is not defined!!"
                         repeat 5 pause
                 endiff
         else

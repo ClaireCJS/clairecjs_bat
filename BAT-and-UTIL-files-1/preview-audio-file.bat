@@ -12,7 +12,8 @@ rem CONFIG:
                 rem DEFAULT_PAF_PLAYER=vlc.exe --volume 200
                 rem DEFAULT_PAF_PLAYER=play_audio_file.py 
                 rem DEFAULT_PAF_PLAYER=play_audio_file.py --no-album-art --no-external-album-art  --no-web-server --no-now-playing-sidecar --no-visualizers --no-chafa-album-art-in-console
-                set DEFAULT_PAF_PLAYER=call PAFPlayer.bat --simple
+                set PAFPLAYER_SIMPLE=1
+                set DEFAULT_PAF_PLAYER=call PAFPlayer.bat --simple --no-visualizers --no-album-art --no-external-album-art --no-web-server
 
         rem ❶ Whether we announce our previews or not (we set this to 0 because PAFPlayer/play_audio_file.py has it’s own announce):
                 set PREVIEW_AUDIO_FILE_ANNOUNCE=0
@@ -100,8 +101,10 @@ rem Capture parameters:
                                 set SHOW_KARAOKE=0
                                 shift
                         else
-                                call error "Unknown 2ⁿᵈ parameter of “%1” given to preview-audio-file"
-                                goto /i END
+                                rem Took these out because we now have --use_lrc and other optinos to possibly pass here. 
+                                rem We can’t validate every possible option here. That’s not the job of this script.
+                                rem call error "Unknown 2ⁿᵈ parameter of “%1” given to preview-audio-file"
+                                rem goto /i END
                         endiff
                 endiff
 
@@ -164,7 +167,7 @@ rem Actions to take AFTER preview (unpausing music):
 rem Cleanup:
         :END
         if defined CREATE_PENTAGRAM echos %CREATE_PENTAGRAM%                                          %+ rem A very Claire-specific holistic fix Becuase previewing audio files with PAFPlayer can sometimes reset our custom ansi pentgram (and trumpet) chracters which we create with the ansi sequence defined by this environment variable
-        unset /q PAF_COMMAND PAF_START PAF_WINAMP_INTEGRATION PAF_PLAYER PAF_LRC_FILE PAF_SRT_FILE    %+ rem Because this can be an env-var parameter, unset it so internally-set values don’t become env-var-parameters of future invocations
+        unset /q PAF_COMMAND PAF_START PAF_WINAMP_INTEGRATION PAF_PLAYER PAF_LRC_FILE PAF_SRT_FILE PAFPLAYER_SIMPLE    %+ rem Because this can be an env-var parameter, unset it so internally-set values don’t become env-var-parameters of future invocations
 
 
 
