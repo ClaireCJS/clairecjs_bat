@@ -89,9 +89,9 @@ text
 :USAGE:                                           1) "SetVarsOnly"          —— to just set the MAYBE_LYRICS_1/2/BROAD_SEARCH environment variables
 :USAGE:                                           2)    "force"             —— to get lyrics for songs that are already in an approved-lyricLESSness state
 :USAGE:                                           3)    "genius"            —— to ONLY perform the Genius.com/LyricsGenius.exe download
-:USAGE:                                           4)    "syncedlyrics"      —— to ONLY perform the SyncedLyrics download                                         GOATADDTOMAINDOCS
-:USAGE:                                           5)    "quick_LRC"         —— to ONLY perform a quick LRC download for each file that does not have an LRC *OR* SRT file                               GOATADDTOMAINDOCS
-:USAGE:                                           5)    "quick_LRC upgrade" —— to ONLY perform a quick LRC download for each file that does not have an LRC file ... even if a SRT exists               GOATADDTOMAINDOCS
+:USAGE:                                           4)    "syncedlyrics"      —— to ONLY perform the SyncedLyrics download                                                                                
+:USAGE:                                           5)    "quick_LRC"         —— to ONLY perform a quick LRC download for each file that does not have an LRC *OR* SRT file                               
+:USAGE:                                           5)    "quick_LRC upgrade" —— to ONLY perform a quick LRC download for each file that does not have an LRC file ... even if a SRT exists               
 :USAGE: Forms of automation via environment variables:
 :USAGE:     set LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE=1  //no automatic timeouts; always waits for user input
 :USAGE:     set OVERRIDE_FILE_ARTIST_TO_USE=Misfits      //override artist name, especially useful if you want to predownload lyrics for a bunch of tribute/cover albums of a particular band. For example, I have 10 tribute albums for The Misfits that I want to pre-download lyrics for, but I have a hunch the downloader will not find the right lyrics if my original artist tag is missing on any of these files, plus a lot of people who upload lyrics upload without the “The”. And although this script compensates for both those contingencies, setting this can speed things up.
@@ -539,9 +539,11 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         gosub divider
                         echo %ansi_color_warning_soft%%star2% Current folder:  %ZZZZZZZZZZZZZZZZZZZZZZZ%%ansi_color_bright_green%“%ansi_color_warning_soft%%faint_on%%[_CWP]%faint_off%%ansi_color_bright_green%”
                         set thisemphasis=%emphasis%
-                        echo %BIG_TOP%%ansi_color_warning_soft%%star2% Audio file: %ZZZZZZZZZZZZZZZZZZZZZZZ%%ansi_color_bright_green%“%ansi_color_warning_soft%%thisemphasis%%AUDIO_FILE%%deemphasis%%ansi_color_bright_green%”
-                        echo %BIG_BOT%%ansi_color_warning_soft%%star2% Audio file: %ZZZZZZZZZZZZZZZZZZZZZZZ%%ansi_color_bright_green%“%ansi_color_warning_soft%%thisemphasis%%AUDIO_FILE%%deemphasis%%ansi_color_bright_green%”
-                        echos %BIG_OFF%
+                        set AMSG=%ansi_color_warning_soft%%star2% Audio file: %ZZZZZZZZZZZZZZZZZZZZZZZ%%ansi_color_bright_green%“%ansi_color_warning_soft%%thisemphasis%%AUDIO_FILE%%deemphasis%%ansi_color_bright_green%”
+                        rem echo %BIG_TOP%%AMSG%
+                        rem echo %BIG_BOT%%AMSG%
+                        rem echos %BIG_OFF%
+                        call bigecho %AMSG%
                         rem gosub say_if_exists AUDIO_FILE        0
                         gosub divider                        
 
@@ -2456,7 +2458,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                 else                        
                         set blink_maybe=%blink_off%
                 endiff
-                rem Not sure if we need this one: goat: gosub divider nonewline                                    
+                rem Not sure if we need this one: : gosub divider nonewline                                    
 
         rem Create our command:
                 unset /q LYRIC_RETRIEVAL_COMMAND SUBTI_RETRIEVAL_COMMAND EXSUB_RETRIEVAL_COMMAND
@@ -2590,7 +2592,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                         if "A" == "%ANSWER%" (set SYNCEDLYRICS_MODE=A %+ set SYNCEDLYRICS_MODE4PRINT=%SYNCEDLYRICS_MODE_A_4PRINT% %+ goto :ask_about_mode)
                                         if "K" == "%ANSWER%" (set SYNCEDLYRICS_MODE=L %+ set SYNCEDLYRICS_MODE4PRINT=%SYNCEDLYRICS_MODE_L_4PRINT% %+ goto :ask_about_mode)
                                         if "T" == "%ANSWER%" (set SYNCEDLYRICS_MODE=T %+ set SYNCEDLYRICS_MODE4PRINT=%SYNCEDLYRICS_MODE_T_4PRINT% %+ goto :ask_about_mode)
-                                        if "B" == "%ANSWER%" (set SYNCEDLYRICS_MODE=B %+ set SYNCEDLYRICS_MODE4PRINT=%SYNCEDLYRICS_MODE_B_4PRINT% %+ goto :ask_about_mode) %+ rem TODO make this the default mode once testing is over [GOAT]
+                                        if "B" == "%ANSWER%" (set SYNCEDLYRICS_MODE=B %+ set SYNCEDLYRICS_MODE4PRINT=%SYNCEDLYRICS_MODE_B_4PRINT% %+ goto :ask_about_mode) 
                                         if "U" == "%ANSWER%" (unset /q last* already* %+ set GENIUS_SEARCHED_ALREADY=0                            %+ goto :ask_about_mode)
                                         iff "G" == "%ANSWER%" then
                                                 set CURRENT_LYRIC_PROVIDER=LyricsGenius

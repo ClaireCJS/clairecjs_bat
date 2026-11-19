@@ -150,7 +150,7 @@ rem Validate the above (and other) values that we will be using here:
         ) else (                
                 set to_validate=BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_CLAIRE_ZIP PERL_SITELIB_FULL_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE DOCS_FOLDER SOUNDS_FOLDER PAFPLAYER_FOLDER AUDIT_MUSIC_BATCH_FOLDER CLIPS4SALE_DOWNLOADER_FOLDER IMAGE_CAPTION_GENDER_FIXER_FOLDER
         )           
-rem goat        call validate-environment-variables %to_validate%
+        call validate-environment-variables %to_validate%
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
         rem Set our copy commands:

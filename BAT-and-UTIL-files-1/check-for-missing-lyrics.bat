@@ -265,7 +265,7 @@ rem Debug:
 
 rem COSMETIC CONFIG:
         rem MISSING_FILE_PRE_TEXT is the part of :process_file that we moved out for slight speed optimization
-        set MISSING_FILE_PRE_TEXT=%@ANSI_MOVE_TO_COL[1]%EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%
+        set MISSING_FILE_PRE_TEXT=%@ANSI_MOVE_TO_COL[1]%EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics/karaoke: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%
 
 rem If we are processing a playlist OR a wildcard set of files, look through it for audio files, 
 rem and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_1:

@@ -444,11 +444,13 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                 set AI_GENERATION_ANYWAY_WAIT_TIME=0                       %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
                 set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=0                %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
                 set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE=0
-                set KARAOKE_APPROVAL_WAIT_TIME=0
+                set KARAOKE_APPROVAL_WAIT_TIME=0                           %+ rem wait time for "Approve karaoke?"-type questions
                 set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=0                 %+ rem wait time for "are these lyrics good?"-type questions
-                SET PROCEED_WITH_AI_CONSIDERATION_TIME=0                   %+ rem wait time for "Proceed with this AI generation?"-type questions
+                rem PROCEED_WITH_AI_CONSIDERATION_TIME=0                   %+ rem wait time for "Proceed with this AI generation?"-type questions
+                SET PROCEED_WITH_AI_CONSIDERATION_TIME=20                  %+ rem wait time for "Proceed with this AI generation?"-type questions
                 set PROMPT_CONSIDERATION_TIME=0                            %+ rem wait time for "does this AI command look sane"-type questions
-                set PROMPT_EDIT_CONSIDERATION_TIME=0                       %+ rem wait time for "do you want to edit the AI prompt"-type questions
+                rem PROMPT_EDIT_CONSIDERATION_TIME=0                       %+ rem wait time for "do you want to edit the AI prompt"-type questions
+                set PROMPT_EDIT_CONSIDERATION_TIME=15                      %+ rem wait time for "do you want to edit the AI prompt"-type questions
                 set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=0     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
                 set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0     %+ rem wait time for "hey lyrics not found!"-type notifications/questions
                 set WHISPERTIMESYNC_QUERY_WAIT_TIME=0
@@ -692,7 +694,7 @@ REM Now, let’s check these values:
 REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
         set INPUT_FILE=%@UNQUOTE["%SONGFILE%"]
         if not exist "%@UNQUOTE["%INPUT_FILE%"]" call validate-environment-variable INPUT_FILE
-pause "[2]call validate-file-extension “%AUDIO_FILE%” %FILEMASK_AUDIO%"
+        rem DEBUG: pause "[2]call validate-file-extension “%AUDIO_FILE%” %FILEMASK_AUDIO%"
         call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO%
 
 
@@ -706,6 +708,7 @@ REM If our input file is lyricless and we’ve approved its lyriclessness, then 
                 set goto_forcing_ai_generation=1
         else                
                 set goto_forcing_ai_generation=0
+                set SOLELY_BY_AI=0
         endiff
         if "1" == "%goto_forcing_ai_generation%" goto /i forcing_ai_generation
 
@@ -982,7 +985,6 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
         :We_Have_A_Text_File_Now
 
 
-rem GOAT hope this is the right place for this label:
 :go_here_for_encoding_retries
 
 
@@ -1149,7 +1151,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         if "1" == "%AUTO_LYRIC_APPROVAL%" goto /i use_text
 
         rem DEBUG: echo    Sometimes lyrics aren’t getting integrated into the AI prompt for some reason, and it seems to be after somethingsomethingsomething⁉️⁉️⁉️⁉️
-        rem DEBUG: echo    if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto /i endiff_no_text_1017 GOAT %+ pause
+        rem DEBUG: echo    if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto /i endiff_no_text_1017  %+ pause
 
         if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto /i endiff_no_text_1017
                 :reassemble_prompt_lyrics
@@ -2148,9 +2150,11 @@ rem Full-endeavor success message:
                 :ask_2185
                 unset /q answer 
                 rem call debug "* UNQUOTED INPUT FILE IS “%@UNQUOTE["%INPUT_FILE%"]”" silent
-                @call AskYN "Align %italics_on%mis-heard%italics_off% karaoke to original lyrics with %italics_on%WhisperTimeSync%%italics_off% [%ansi_green%P%ansi_color_prompt%=Play 1st,%ansi_green%A%ansi_color_prompt%=Approve now,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_green%E%ansi_color_prompt%dit it]"            no %WHISPERTIMESYNC_QUERY_WAIT_TIME%         AEIP1QTW Q:enQueue_in_winamp,P:Play_It,A:approve_the_karaoke_right_now,T:delete,E:Edit_transcription,I:mark_as_instrumental,W:align_with_WhisperTimeSync,1:retry_transcription
+                @call AskYN "Align %italics_on%mis-heard%italics_off% karaoke to original lyrics with %italics_on%WhisperTimeSync%%italics_off% [%ansi_green%P%ansi_color_prompt%=Play 1st,%ansi_green%A%ansi_color_prompt%=Approve now,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_green%E%ansi_color_prompt%dit it,%ansi_color_green%D%ansi_color_prompt%one!]"            no %WHISPERTIMESYNC_QUERY_WAIT_TIME%         ADEIP1QTW Q:enQueue_in_winamp,P:Play_It,A:approve_the_karaoke_right_now,T:delete,E:Edit_transcription,I:mark_as_instrumental,W:align_with_WhisperTimeSync,1:retry_transcription,D:completely_done_with_this_file!
                         rem @Echo OFF %+ echo answer is %ANSWER%
                         set HELD_ANSWER_1787=%ANSWER%
+                        rem Option “D”:
+                                if  "D" == "%ANSWER%" goto /i :go_here_if_we_just_approved_the_karaoke
                         rem Option “I”:
                                 set ANSWER=%HELD_ANSWER_1787%
                                 gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
@@ -2455,11 +2459,11 @@ goto /i skip_subroutines
         :check_for_answer_of_1 [opt1]                        
                 if  "1" == "%ANSWER%" goto /i go_here_for_encoding_retries
         :return
-        rem 2026 removal GOAT: :check_for_answer_of_B [opt1]                        
-        rem 2026 removal GOAT:         iff "B" == "%ANSWER%" then
-        rem 2026 removal GOAT:                 goto :regenerate_karaoke
-        rem 2026 removal GOAT:         endiff
-        rem 2026 removal GOAT: return
+        rem 2026 removal : :check_for_answer_of_B [opt1]                        
+        rem 2026 removal :         iff "B" == "%ANSWER%" then
+        rem 2026 removal :                 goto :regenerate_karaoke
+        rem 2026 removal :         endiff
+        rem 2026 removal : return
         :check_for_answer_of_dollar [opt1]                        
                 rem DEBUG: call debug "Checking for answer of $" silent
                 if "$" != "%ANSWER%" return

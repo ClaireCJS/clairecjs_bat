@@ -84,7 +84,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 rem Handle option “K” / “L” which are for karaoke / lyric work related to the music-collection-AI-transcription project:
         :beginning_of_karaoke_or_lyric_work
-        rem echo goaty - work.bat - 6600.0.1 - beginning_of_karaoke_or_lyric_work - answer=“%work_type_answer%”
+        rem echo  work.bat - 6600.0.1 - beginning_of_karaoke_or_lyric_work - answer=“%work_type_answer%”
         iff "L" == "%WORK_TYPE_ANSWER%" .or. "K" == "%WORK_TYPE_ANSWER%" .or. "P" == "%WORK_TYPE_ANSWER%" .or. "%1" == "lyrics" .or. "%1" == "karaoke" .or. "%1" == "prompts" then
 
                 rem Run the script that takes us to our playlist location - TODO: may need to change this to match yours:

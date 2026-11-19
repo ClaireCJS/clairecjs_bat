@@ -106,8 +106,7 @@ rem Process playlists / audio files:
                 call debug "extension is %m3u%"
                 if "m3u" == "%ext%" call get-lyrics-for-playlist %1$       %+ rem Process individual playlist
 
-        rem DEBUG:
-        echo **************************        if not exist %1 goto :else_90 GOAT .. ext of “%1” is “%ext%”
+        rem DEBUG: echo **************************        if not exist %1 goto :else_90  .. ext of “%1” is “%ext%”
         *setdos /x-4
         if not exist %1 .and. "m3u" != "%ext%" goto :else_90
                 setdos /x0
