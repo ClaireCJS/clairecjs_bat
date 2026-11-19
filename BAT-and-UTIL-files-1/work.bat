@@ -3,7 +3,7 @@
 @on break cancel
 @call bat-init
 @.
-@cls
+@repeat 100 echo.
 
 
 
@@ -15,20 +15,24 @@
 :══════════════════════════════════════════════════════════════════════
 
 
-rem Work configuration: lyrics & karaoke: playlists:
-        set default_playlist_to_work=2010s party.m3u
-        set default_playlist_to_work=crtl.m3u
-        set default_playlist_to_work=changerrecent.m3u
-        set default_playlist_to_work=best.m3u
-        set default_playlist_to_work=pretty good.m3u
+
+
+rem Work configuration: lyrics & karaoke: which playlist we are working through:
+        rem default_playlist_to_work=2010s party.m3u
+        rem default_playlist_to_work=crtl.m3u
+        rem default_playlist_to_work=changerrecent.m3u
+        rem default_playlist_to_work=best.m3u
+        rem default_playlist_to_work=pretty good.m3u
         set default_playlist_to_work=changer.m3u
 
-rem Work configuration: lyrics & karaoke: workloads:
-        set default_number_of_lyrics_to_work=69
-        set default_number_of_karaoke_to_work=30
-        set default_number_of_karaoke_to_work=10
-        set default_number_of_karaoke_to_work=20
-        set default_number_of_karaoke_to_work=30
+rem Work configuration: lyrics & karaoke: amunts of work to do:
+        set default_work_amount=10
+        rem default_number_of_lyrics_to_work=69
+        set default_number_of_lyrics_to_work=10
+        rem default_number_of_karaoke_to_work=30
+        rem default_number_of_karaoke_to_work=10
+        rem default_number_of_karaoke_to_work=20
+        set default_number_of_karaoke_to_work=25
 
 rem Work configuration: lyrics & karaoke: options:
         set LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE=1
@@ -56,7 +60,7 @@ rem Validate environment (once):
 rem Ask what kind of work we are doing, if it is not specified already:
         iff "%1" == "" then
                 echo.
-                cls
+                repeat 100 echo.
                 call AskYn "Work how? %ansi_color_bright_green%K%ansi_color_prompt%=Karaoke, %ansi_color_bright_green%L%ansi_color_prompt%=Lyrics, %ansi_color_bright_green%P%ansi_color_prompt%=Prompts" no 9999 big LKP L:Lyrics!,K:Karaoke!,P:Prompts!
                         set work_type_answer=%answer%
         endiff
@@ -71,7 +75,7 @@ rem Start working by starting a timer:
 
 
 rem Clean up env vars that may be left over from previous runs:
-        unset /q worker workload
+        unset /q worker workload work_amount
 
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 🪓🪓🪓 START WORKING! 🪓🪓🪓 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -112,44 +116,49 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                         iff "K" == "%WORK_TYPE_ANSWER%" .or. "%1" == "karaoke"  then
                                 set  WORK_TYPE_ANSWER=K
                                 call thorough on
-                                call convert-playlist-to-only-songs-that-do-not-have-karaoke.bat %default_playlist_to_work%
-                                call sleep 4
+                                set work_type=karaoke
                                 set worker=get-karaoke
-                                set workload=%default_number_of_karaoke_to_work%
+                                set work_amount=%default_number_of_karaoke_to_work%
                                 set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-without lrc or srt.%@EXT["%default_playlist_to_work%"]"
+                                set work_setup_caller=call convert-playlist-to-only-songs-that-do-not-have-karaoke.bat %default_playlist_to_work%
                         endiff
                         iff  "L" == "%WORK_TYPE_ANSWER%" .or. "%1" == "lyrics"  then
                                 set  WORK_TYPE_ANSWER=L
                                 call thorough on
-                                call convert-playlist-to-only-songs-that-do-not-have-lyrics.bat  %default_playlist_to_work%
-                                call sleep 4
+                                set work_setup_caller=call convert-playlist-to-only-songs-that-do-not-have-lyrics.bat  %default_playlist_to_work%
+                                set work_type=lyrics
                                 set worker=get-lyrics
-                                set workload=%default_number_of_lyrics_to_work%
+                                set work_amount=%default_number_of_lyrics_to_work%
                                 set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-without txt.%@EXT["%default_playlist_to_work%"]"
                         endiff
                         iff  "P" == "%WORK_TYPE_ANSWER%" .or. "%1" == "prompts"  then
                                 set  WORK_TYPE_ANSWER=P
                                 call thorough on
-                                call convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat  %default_playlist_to_work%
-                                call sleep 4
+                                set work_setup_caller=call convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat  %default_playlist_to_work%
+                                set work_type=lyrics
                                 set worker=get-karaoke-prompts-only
-                                set workload=%default_number_of_lyrics_to_work%
+                                set work_amount=%default_number_of_lyrics_to_work%
                                 set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-with txt but no lrc or srt.%@EXT["%default_playlist_to_work%"]"
                         endiff
 
                 rem Process command line override of # of files to process:
-                        rem echo [PRE]  workload=“%workload%”,workload2=“%workload2%”  ... %%1=%1,%%2=%2,%%3=%3,%%4=%4
                         if "%1" == "karaoke" shift
                         if "%1" == "prompts" shift
-                        rem TODO add?: if "%1" == "lyrics" shift
-                        if "%1" !=    ""     set workload=%1
-                        if "%2" !=    ""     set workload2=%2
-                        rem echo [POST] workload=“%workload%”,workload2=“%workload2%”
+                        if "%1" !=    ""     set work_type=%1
+                        if "%2" !=    ""     set work_amount=%2
 
                 rem DO THE ACTUAL WORK!! Call the pre-determined proper script + playlist + workload:
+                        :do_the_actual_work
                         iff "%worker%" !=  "" then
-                                set worker_call=call %worker% %PLAYLIST_TO_WORK% %@IF["%workload%" != "",%workload%,%@IF["%workload2" != "",%workload2%,10]] %3$
+                                iff "%work_setup_caller%" != "" then
+                                        call bigecho %ansi_color_important%%STAR2% Setting up work batch: %worker_call%%ansi_color_normal%
+                                        call sleep 4
+                                endiff
+
+                                rem worker_call=call %worker% %PLAYLIST_TO_WORK% %@IF["%workload%" != "",%workload%,%@IF["%workload2" != "",%workload2%,10]] %3$
+                                set worker_call=call %worker% %PLAYLIST_TO_WORK% %@IF["%work_amount%" != "",%work_amount%,%default_work_amount%] %3$
                                 call bigecho %ansi_color_important%%STAR2% Calling worker: %worker_call%%ansi_color_normal%
+                                pause
                                 %worker_call%
                         endiff
 
@@ -164,7 +173,8 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                         call AskYN "Keep on chompin’" yes 30
                                 iff "%ANSWER%" == "Y" then
                                         set ANSWER=%work_type_answer% 
-                                        goto /i beginning_of_karaoke_or_lyric_work 
+                                        rem goto /i beginning_of_karaoke_or_lyric_work 
+                                        goto /i do_the_actual_work
                                 endiff
         endiff
         rem think we can get rid of this: (TODO get rid of this comment): if "Y" == "%ANSWER%" .or. "K" == "%ANSWER%"  goto /i  beginning_of_karaoke_or_lyric_work

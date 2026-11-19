@@ -1,5 +1,5 @@
 rem @call subtle "%blink_on%Beginning%blink_off% of get-lyrics"
-
+@call debug "get-lyrics-for-file %* %ansi_color_red%called%ansi_color_debug% by %@NAME[%_PBATCHNAME]"
 
 @loadbtm on
 @Echo off
@@ -470,9 +470,8 @@ rem VALIDATE PARAMETERS [every time]:
                 setdos /x0
 
         rem Validate the extension of the audio file :
-                rem 
-pause "[1]call validate-file-extension “%AUDIO_FILE%” %FILEMASK_AUDIO%"
-                call validate-file-extension "%AUDIO_FILE%" %FILEMASK_AUDIO%
+                rem pause "[1]call validate-file-extension “%AUDIO_FILE%” %FILEMASK_AUDIO%"
+                call validate-file-extension "%AUDIO_FILE%" %FILEMASK_AUDIO%;*.m3u
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -2068,8 +2067,12 @@ rem If we still didn’t find anything acceptable, but have potentially matching
                                 echo %ansi_color_warning_soft%%star2% Skipping %italics_on%MAYBE_LYRICS_1_BROAD_SEARCH%italics_off% because when expanded it is the same as %italics_on%MAYBE_LYRICS_1%italics_off% which is %lq%%expanded%%rq%%ansi_color_normal%
                                 goto /i Nevermind_about_this_1 
                         endiff
+                        set CKSUM_EXPANDED=N/A
+                        set CKSUM_MAYBEL_1=N/A
+                        if exist "%expanded%"       set CKSUM_EXPANDED=%@CKSUM["%expanded%"]
+                        if exist "%maybe_lyrics_1%" set CKSUM_MAYBEL_1=%@CKSUM["%maybe_lyrics_1%"]
                         iff %@CKSUM["%expanded%"] == %@CKSUM["%maybe_lyrics_1%"] then
-                                echo Skipping checking maybe_lyrics_1_broad_search because expanded has same checksome as maybe_lyrics_1 which is %@CKSUM["%expanded%"] for %lq%%expanded%%rq% and %@CKSUM["%maybe_lyrics_1%"] for %lq%%maybe_lyrics_1%%rq%
+                                echo Skipping checking maybe_lyrics_1_broad_search because %italics_on%expanded%italics_off% has same checksum as %italics_on%maybe_lyrics_1%italics_off% which is %@CKSUM["%expanded%"] for %lq%%expanded%%rq% and %@CKSUM["%maybe_lyrics_1%"] for %lq%%maybe_lyrics_1%%rq%
                                 goto /i Nevermind_about_this_1
                         endiff
                         if "%[already_tried_potential_lyrics_%expanded%]" == "1" echo %star% We already decided these lyrics weren’t good: %italics_on%%faint_on%%expanded%%faint_off%%italics_off%
@@ -2137,11 +2140,12 @@ rem If we still didn’t find anything acceptable, but have potentially matching
                                         rem and it created screen glitches due to what @select leaves behind. So no.
                                         rem ━━━━━━━━━━━━━━━━
                                         repeat 15 echo.
-                                        cls
+                                        rem removed 20261119: cls
                                         echos %@RANDFG_SOFT[]
                                         title %file_song% - %file_artist%
                                         rem OLD: select *copy /Ns  ("%MAYBE_LYRICS_1_BROAD_SEARCH%") "%TMPREVIEWFILE%"
                                         rem NEW:
+                                        cls
                                         select set SELECTED_FILE=("%MAYBE_LYRICS_1_BROAD_SEARCH%")
                                         *copy /Ns "%@UNQUOTE["%SELECTED_FILE%"]" "%TMPREVIEWFILE%"
                                         set COPIED_REPO_LYRIC=%@UNQUOTE["%SELECTED_FILE%"]
@@ -2452,7 +2456,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                 else                        
                         set blink_maybe=%blink_off%
                 endiff
-                rem Not sure if we need this one: goatgoat: gosub divider nonewline                                    
+                rem Not sure if we need this one: goat: gosub divider nonewline                                    
 
         rem Create our command:
                 unset /q LYRIC_RETRIEVAL_COMMAND SUBTI_RETRIEVAL_COMMAND EXSUB_RETRIEVAL_COMMAND
@@ -5597,11 +5601,16 @@ rem ━━━━━━━━━━━━━━ ENDINGS: BEGIN ━━━━━━
         gosub divider
         call celebrate "Quick LRC retrieval skipped!"
         gosub divider
-        repeat 8 echo.
         set QUICK_LRC_FAILED=0
         set QUICK_LRC_SKIPPED=1
         set QUICK_LRC_SUCCESS=0
         unset /q QUICK_LRC_MODE
+        rem DEUBG: pause "Check for TXT - if not exist “%TXT_SIDECAR_FILENAME%”"
+        iff not exist "%TXT_SIDECAR_FILENAME%" then
+                call warning_soft "But wait!" big                                                
+                goto /i :Check_Again
+        endiff
+        repeat 8 echo.
         goto :END_OF_GET_LYRICS
 
 :end_quick_lrc_mode_success

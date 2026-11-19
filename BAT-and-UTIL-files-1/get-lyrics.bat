@@ -1,8 +1,9 @@
 @loadbtm on
 @Echo OFF
 @on break cancel
-cls
-
+rem cls
+repeat 100 echo.
+call debug "get-lyrics %* called by %@NAME[%_PBATCHNAME]"
 
 
 :USAGE: get-lyrics {songfile}
@@ -101,26 +102,26 @@ rem Error out if a parameter is given that doesn’t exist:
         setdos /x0
 
 rem Process playlists / audio files:
-        *setdos /x-4
-        if not exist %1 goto :else_90
-                setdos /x0
                 set ext=%@ext[%1]
-                rem echo ext is %ext
+                call debug "extension is %m3u%"
+                if "m3u" == "%ext%" call get-lyrics-for-playlist %1$       %+ rem Process individual playlist
 
+        rem DEBUG:
+        echo **************************        if not exist %1 goto :else_90 GOAT .. ext of “%1” is “%ext%”
+        *setdos /x-4
+        if not exist %1 .and. "m3u" != "%ext%" goto :else_90
+                setdos /x0
                 rem Process either a playlist or an individual song:
-echo on                                       
-call bigecho GOATYGOATGYGOATYGOATGYGOATYGOATGY
-
-                        if "m3u" == "%ext%" call get-lyrics-for-playlist %1$       %+ rem Process individual playlist
-                        if "m3u" != "%ext%" call get-lyrics-for-file.btm %1$       %+ rem Process individual audiofile
+                set ext=%@ext[%1]
+                rem DEBUG:
+                echo **************************        ext of “%1” is  NOW “%ext%”
+                if "m3u" != "%ext%" call get-lyrics-for-file.btm %1$       %+ rem Process individual audiofile
                 goto :endiff_96
         :else_90
                 setdos /x0
                 call alarm "get-lyrics reached point of confusion"
-                pause
-        
+                pause        
         :endiff_96
-
         setdos /x0
 
 
@@ -128,5 +129,5 @@ call bigecho GOATYGOATGYGOATYGOATGYGOATYGOATGY
 rem Clean up & finish:
         :next_step
         :END
-                setdos /x0
-
+        setdos /x0
+                                                

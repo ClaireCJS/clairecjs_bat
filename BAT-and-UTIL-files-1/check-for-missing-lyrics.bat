@@ -572,8 +572,10 @@ rem —————————————————————————�
                                                 setdos /x0
                                                 set remaining=%@EVAL[%remaining - 1]
                                                 set msg=%emoji_gear% Remaining:%italics_on%%@sans_serif[%remaining%]%italics_off% %emoji_gear%
-                                                if "1" != "%DONT_MESS_WITH_MY_STATUS_BAR%" call status-bar "%msg%"
-                                                if "0" == "%REMAINING%"                    call status-bar unlock
+                                                iff "1" != "%DONT_MESS_WITH_MY_STATUS_BAR%" then
+                                                        call status-bar "%msg%"
+                                                        if "0" == "%REMAINING%" call status-bar unlock
+                                                endiff
                                                 rem   *pause>nul
                                         
                                         rem Keep track of if/how many bad files there were:
@@ -584,10 +586,13 @@ rem —————————————————————————�
                                         rem Warn of missing lyrics:                                        
                                             rem echos %@ANSI_MOVE_TO_COL[1]%EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%
                                             rem Moved out of function for speedo optimization: set MISSING_FILE_PRE_TEXT=%@ANSI_MOVE_TO_COL[1]%EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%
-                                                      *setdos /x-4
-                                                echo %MISSING_FILE_PRE_TEXT%%unquoted_audio_file%
-                                                      setdos /x0
+                                                        *setdos /x-4
+                                                                        echo %MISSING_FILE_PRE_TEXT%%unquoted_audio_file%
+                                                        setdos /x0
                                                 
+
+
+
                                         rem Add lyric-retrieval command to our autorun script:
                                               rem echo gosub process "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
                                               *setdos /x-4
@@ -599,6 +604,10 @@ rem —————————————————————————�
                                               rem we added the and not exist part right here --------------------^^^^^^^^ for genius mode, TODO consider whether that should also be there during normal mode or not. After we do our full-collection genius-only download, this should emergently become more apparant
                                               setdos /x0
                                                     
+                                        rem On-screen counter:
+                                                echo %big_top%%ansi_color_important%%msg%
+                                                echo %big_bot%%ansi_color_important%%msg%
+                                                rem echos %big_off%      ``
                                 endiff                        
                                 rem DEBUG: echo %ansi_color_normal%* Checking[cc] %faint_on%%CFML_AudioFile%%faint_off% %@ansi_move_to_col[65] txtfile=%faint_on%%txtfile%%faint_off% %tab% %@ANSI_MOVE_TO_COL[125]%coloring%EXISTS=%txt_exists%%ansi_color_normal%   %coloring2%APPROVED=%LYRIC_APPROVAL_VALUE%
              setdos /x0
