@@ -1774,7 +1774,7 @@ call debug "not unsetting karaoke_edit_already_asked, karaoke_approval_asked, PR
 rem ACTUALLY DO IT!!!:
                %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper -t"%OUR_LOGFILE%"  
 
-rem Title the window that we are done!:
+rem Title the window that we are done:
                 title %CHECK% WhisperAI complete!
 
 rem Various pre-transcription cleanup:
@@ -2150,7 +2150,7 @@ rem Full-endeavor success message:
                 :ask_2185
                 unset /q answer 
                 rem call debug "* UNQUOTED INPUT FILE IS “%@UNQUOTE["%INPUT_FILE%"]”" silent
-                @call AskYN "Align %italics_on%mis-heard%italics_off% karaoke to original lyrics with %italics_on%WhisperTimeSync%%italics_off% [%ansi_green%P%ansi_color_prompt%=Play 1st,%ansi_green%A%ansi_color_prompt%=Approve now,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_green%E%ansi_color_prompt%dit it,%ansi_color_green%D%ansi_color_prompt%one!]"            no %WHISPERTIMESYNC_QUERY_WAIT_TIME%         ADEIP1QTW Q:enQueue_in_winamp,P:Play_It,A:approve_the_karaoke_right_now,T:delete,E:Edit_transcription,I:mark_as_instrumental,W:align_with_WhisperTimeSync,1:retry_transcription,D:completely_done_with_this_file!
+                @call AskYN "Align %italics_on%mis-heard%italics_off% karaoke to original lyrics with %italics_on%WhisperTimeSync%%italics_off% [%ansi_color_bright_green%P%ansi_color_prompt%=Play 1st,%ansi_color_green%A%ansi_color_prompt%=Approve now,%ansi_color_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%E%ansi_color_prompt%dit it,%@CHAR[128175]%@CHAR[65285] %ansi_color_bright_green%F%ansi_color_prompt%inished]"            no %WHISPERTIMESYNC_QUERY_WAIT_TIME%         AEFIP1QTW Q:enQueue_in_winamp,P:Play_It,A:approve_the_karaoke_right_now,T:delete,E:Edit_transcription,I:mark_as_instrumental,W:align_with_WhisperTimeSync,1:retry_transcription,F:completely_done_with_this_file!
                         rem @Echo OFF %+ echo answer is %ANSWER%
                         set HELD_ANSWER_1787=%ANSWER%
                         rem Option “D”:
