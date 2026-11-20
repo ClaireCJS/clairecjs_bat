@@ -198,6 +198,19 @@ class TerminalPanelTests(unittest.TestCase):
 
 
 class LogicTests(unittest.TestCase):
+    def test_stale_running_resume_job_is_presented_as_interrupted(self):
+        root = Path.cwd() / ('stale-running-' + uuid.uuid4().hex)
+        root.mkdir()
+        database = root / 'history.db'
+        ledger = d.DownloadDatabase(database)
+        scope = d.listing_scope(LISTING)
+        run_id = ledger.start_scope_run(scope, LISTING, root)
+        ledger.connection.execute("UPDATE run_history SET owner_pid=999999 WHERE run_id=?", (run_id,))
+        rows = ledger.resumable_runs()
+        ledger.close()
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['status'], 'interrupted')
+
     def test_duplicate_part_full_labels_keep_full_without_prompt(self):
         candidates = [
             {"path": "clip - Part 1 - thumbnail.jpg"},
@@ -975,7 +988,7 @@ class LogicTests(unittest.TestCase):
         text = output.getvalue()
         self.assertIn('DOWNLOAD COMPLETE', text)
         self.assertIn(r'C:\downloads', text)
-        self.assertEqual(text.count('\n'), 5)
+        self.assertEqual(text.count('\n'), 6)
         self.assertNotIn('MessageBoxW', text)
 
     def test_failed_clips_are_queued_after_pending_clips(self):

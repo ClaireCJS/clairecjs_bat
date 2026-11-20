@@ -1,7 +1,7 @@
 # PAFPlayer documentation
 
-Current release: **V737** — simple mode also suppresses opening artwork.
-[Release notes](../releases/PAFPlayer_v737_simple_no_preplay_art_release_notes.md).
+Current release: **V741** — add Ctrl+Alt+P as a playlist-window toggle.
+[Release notes](../releases/PAFPlayer_v741_playlist_hotkey_release_notes.md).
 
 ## Inline lyric preview
 
@@ -27,6 +27,8 @@ consume `--simple`; this has the same inline behavior.
 Simple mode also forcibly disables PAFPlayer artwork and every visualizer
 surface, regardless of saved artwork/visualizer settings, including the
 pre-play opening-art render.
+The normal `PAFplayer V… • filename` playback HUD title/control line is also
+hidden in simple mode.
 
 ## Private Python runtime
 
@@ -138,7 +140,7 @@ Right-click one playlist track and choose **Edit tags…** (or press `Alt+3`) to
 
 Window opens, close requests and callback failures are recorded in the player trace log to help diagnose an unexpected disappearance.
 
-With a playlist active, press **Alt+P** in the player to open or close the compact playlist window. Alt+P also closes it while the window has focus. Closing it shows “Playlist view closed” in the HUD for about 30 seconds. The list follows the active playback order; a fixed-width `>` marker and highlighted text mark the current track. Selecting a row does not play it. Use the arrow keys to select and scroll, and press Enter or double-click to play. Artist and title tags load in the background as `Artist - Title`, falling back to the filename; durations also load in the background and `--:--` means unavailable. Press **J** inside the playlist window to search the active list by filename, path, or loaded artist/title tags. Type multiple words to narrow the results, then press Enter or double-click a result to play it; Escape closes the search.
+With a playlist active, press **Alt+P** or **Ctrl+Alt+P** in the player to open or close the compact playlist window. Either shortcut also closes it while the playlist window has focus. Closing it shows “Playlist view closed” in the HUD for about 30 seconds. The list follows the active playback order; a fixed-width `>` marker and highlighted text mark the current track. Selecting a row does not play it. Use the arrow keys to select and scroll, and press Enter or double-click to play. Artist and title tags load in the background as `Artist - Title`, falling back to the filename; durations also load in the background and `--:--` means unavailable. Press **J** inside the playlist window to search the active list by filename, path, or loaded artist/title tags. Type multiple words to narrow the results, then press Enter or double-click a result to play it; Escape closes the search.
 
 Shift-click selects a range; Ctrl-click adds or removes individual rows. Selections survive background metadata updates and current-track changes. Drag a selected row or group to move it within the active playback order. Play, tag editing, and Remove currently require exactly one selected track. As with console-browser reordering, this changes the live session order and does not rewrite the playlist file; another change to the playlist during a drag causes the move to be rejected rather than applied to the wrong track. Use **ADD FILE** or **ADD DIR**, or drop audio files and folders from Explorer onto the list. Folders are searched recursively. Existing PAFPlayer supported-format and duplicate rules apply; additions use its existing play-next behavior. Select a row and press Delete or **REMOVE**. Choose Yes to save the removal, No to keep it for this session only, or Cancel to leave it alone. The existing playlist undo behavior remains available in the player.
 

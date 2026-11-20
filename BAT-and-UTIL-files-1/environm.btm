@@ -1499,16 +1499,17 @@ return
             rem HARDWARE_MAIN_DRIVE=%HD10T1% —— until 2023/early —— broke L-tab off power-port of harddrive, so... yuck
             rem HARDWARE_MAIN_DRIVE=%HD18T1% —— until 2024/06/16 —— O: got full, moved to T:
             rem HARDWARE_MAIN_DRIVE=%HD18T3% —— until 2025/10/09 —— T: got full, moved to U: (accidentally instead of R:?)
-            set HARDWARE_MAIN_DRIVE=%HD10T2% 
-                rem aliases
-                set HARDWARE_DRIVE=%HARDWARE_MAIN_DRIVE%
-                set HARDWAREDRIVE=%HARDWARE_DRIVE%
+            rem HARDWARE_MAIN_DRIVE=%HD10T2% —— until 2026/11/20 —— U: got full, moved to T: (yet again)
+            set HARDWARE_MAIN_DRIVE=%HD18T3% 
+                rem aliases:
+                        set HARDWARE_DRIVE=%HARDWARE_MAIN_DRIVE%
+                        set HARDWAREDRIVE=%HARDWARE_DRIVE%
             set HARDWARE_MAIN=%HARDWARE_MAIN_DRIVE%:\HARDWARE.main
                 set HARDWARE_THAILOG_DRIVE=%HARDWARE_MAIN_DRIVE%
                 set HARDWARE_THAILOG=%HARDWARE_MAIN%
-                rem aliases
-                    set HARDWARE=%HARDWARE_MAIN%
-            rem backups
+                rem aliases:
+                        set HARDWARE=%HARDWARE_MAIN%
+            rem backups:
                 set HARDWARE_THAILOG_BACKUP_DRIVE=%HD4000G5%
                 set HARDWARE_THAILOG_BACKUP=%HARDWARE_THAILOG_BACKUP_DRIVE%:\backups\HARDWARE.Thailog.bak
 

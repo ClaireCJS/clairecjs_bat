@@ -1,5 +1,6 @@
-@Echo On
- on break cancel
+@Echo Off
+@loadbtm on
+@on break cancel
 
 
 

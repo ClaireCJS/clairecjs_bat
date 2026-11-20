@@ -112,8 +112,7 @@ rem Process playlists / audio files:
                 setdos /x0
                 rem Process either a playlist or an individual song:
                 set ext=%@ext[%1]
-                rem DEBUG:
-                echo **************************        ext of “%1” is  NOW “%ext%”
+                rem DEBUG: echo **************************        ext of “%1” is  NOW “%ext%”
                 if "m3u" != "%ext%" call get-lyrics-for-file.btm %1$       %+ rem Process individual audiofile
                 goto :endiff_96
         :else_90

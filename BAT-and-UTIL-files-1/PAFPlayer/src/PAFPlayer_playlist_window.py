@@ -526,13 +526,15 @@ class PlaylistWindow:
                         setproc(hwnd, -4, old_proc)
                     root.destroy()
             root.protocol('WM_DELETE_WINDOW', lambda: close('window-manager'))
-            # Alt+P is local to this window; autorepeat is suppressed until release.
+            # Both playlist shortcuts belong to this window while it has focus.
             held = [False]
             def alt_p(event):
-                if not held[0]: held[0] = True; close('alt-p')
+                if not held[0]: held[0] = True; close('ctrl-alt-p' if event.state & 0x0004 else 'alt-p')
                 return 'break'
             root.bind('<Alt-KeyPress-p>', alt_p)
+            root.bind('<Control-Alt-KeyPress-p>', alt_p)
             root.bind('<Alt-KeyRelease-p>', lambda event: held.__setitem__(0, False))
+            root.bind('<Control-Alt-KeyRelease-p>', lambda event: held.__setitem__(0, False))
             # Native WM_DROPFILES requires no optional tkinterdnd dependency.
             hooks = []
             if os.name == 'nt':

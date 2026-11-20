@@ -98,3 +98,12 @@ permanent deletion. Keep lock-screen project inputs together so its build
 still works, and keep its `dist/` assets available to the direct installer.
 The screensaver's active `.scr` and configuration stay where the player finds
 them; its source and builder belong in subfolders.
+
+## Autodownloaded Python libraries
+
+When a project automatically downloads one of Claire's Python library scripts,
+store the downloaded copy in that project's `autodownloaded/` directory, not
+the project root. Check that directory before deciding a library is missing or
+downloading it again, and include it in the project's import lookup when needed.
+This does not change the canonical location and synchronization rules for
+ClaireCJS reusable utility libraries.

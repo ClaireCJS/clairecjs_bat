@@ -1,5 +1,21 @@
 # PAFPlayer changelog
 
+## V741 — November 20, 2026
+
+Add Ctrl+Alt+P as a focus-scoped playlist-window toggle, alongside Alt+P. [Release notes](../releases/PAFPlayer_v741_playlist_hotkey_release_notes.md).
+
+## V740 — November 20, 2026
+
+Remove the `feature` Emojimaxx substitution. [Release notes](../releases/PAFPlayer_v740_emojimaxx_feature_removal_release_notes.md).
+
+## V739 — November 20, 2026
+
+Apply the current `C:\todo-emojimaxx.txt` review: remove the listed low-value substitutions, make `no one` `🚫❶`, change `train` to `🚂`, use a square-box glyph for `square`, use two stars for `feature`, and use `👩‍⚖️` for `judge`. [Release notes](../releases/PAFPlayer_v739_emojimaxx_todo_cleanup_release_notes.md).
+
+## V738 — November 20, 2026
+
+Suppress the playback HUD title/control line in `--simple`, including the visible `PAFplayer V…` title text. Audio and lyric playback continue normally. [Release notes](../releases/PAFPlayer_v738_simple_no_title_hud_release_notes.md).
+
 ## V737 — November 17, 2026
 
 Suppress the pre-play console artwork rendered by `main()` when `--simple` is active. [Release notes](../releases/PAFPlayer_v737_simple_no_preplay_art_release_notes.md).

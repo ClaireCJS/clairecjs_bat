@@ -1845,13 +1845,13 @@ REM did we create the SRT file? If not, ask about the instrumental situation
 
 
 
-        
 
 
 REM Post-process the SRT/LRC file(s): 
         gosub postprocess_lrc_srt_files
         
 
+:saying_we_are_finished_takes_us_here        
 
 
 REM did we create the SRT file? If so, then keep track of how many, and if no TXT file exists, create one from the SRT file:
@@ -1888,9 +1888,17 @@ REM did we create the SRT file? If so, then keep track of how many, and if no TX
         title %CHECK%%BASE_TITLE_TEXT%
 
 
+
+
+
+
 rem If we did, we need to rename any sidecar TXT file that might be there {from already-having-existed}, becuase 
 rem MiniLyrics will default to displaying TXT over SRC
         rem NO NOT ANYMORE if exist "%TXT_FILE%" (*ren /Ns /q "%TXT_FILE%" "%TXT_FILE.bak.%_datetime" )
+
+
+
+
 
 
 rem ///////////////////////////////////////////// OLD DEPRECATED CODE /////////////////////////////////////////////
@@ -1906,11 +1914,33 @@ endiff
 rem ///////////////////////////////////////////// OLD DEPRECATED CODE /////////////////////////////////////////////
 
 
+
+
+
+
 :did_not_generate
 rem echo About to go to cleanup but maybe should be going to cleanup_only
 goto /i prompt_about_marking_karaoke_as_untranscribable
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
+rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
+rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
+rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
+rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
+rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
 rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
 
 
@@ -2113,6 +2143,25 @@ rem Cosmetic resets:
         if defined TOCK       (echos %TOCK%)        %+ rem my internal nickname for fancy-extra ansi-reset
 
 
+echo on
+
+rem New feature, using our txt_comparator:
+        pause "Determining if we should test new txt comprator .... FILESIZE[POSTPROCESSED_LYRICS] is %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 ... FILESIZE[SRT_FILE] %@FILESIZE["%SRT_FILE%"] gt 5 c ...... FIESIZE[txt_file]=%@filesize["%TXT_FILE%"]"
+        iff %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 .and. %@FILESIZE["%SRT_FILE%"] gt 5 then
+                pause "txt comparator begin"
+echo            call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FiLE%"
+                call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FiLE%"
+        endiff
+                pause "not using txt comparator because postprocesed lyrics and srt file did not both exist"
+        pause "new txt comprator testing done"
+
+
+
+echo off
+
+
+
+
 rem Full-endeavor success message:
         rem 2025/02/19: Oops! So much has been done about running these through quality control after,
         rem             and it turns out we’ve made 10,000 or so with auto-subtitle-approval-on, oops!
@@ -2153,8 +2202,8 @@ rem Full-endeavor success message:
                 @call AskYN "Align %italics_on%mis-heard%italics_off% karaoke to original lyrics with %italics_on%WhisperTimeSync%%italics_off% [%ansi_color_bright_green%P%ansi_color_prompt%=Play 1st,%ansi_color_green%A%ansi_color_prompt%=Approve now,%ansi_color_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%E%ansi_color_prompt%dit it,%@CHAR[128175]%@CHAR[65285] %ansi_color_bright_green%F%ansi_color_prompt%inished]"            no %WHISPERTIMESYNC_QUERY_WAIT_TIME%         AEFIP1QTW Q:enQueue_in_winamp,P:Play_It,A:approve_the_karaoke_right_now,T:delete,E:Edit_transcription,I:mark_as_instrumental,W:align_with_WhisperTimeSync,1:retry_transcription,F:completely_done_with_this_file!
                         rem @Echo OFF %+ echo answer is %ANSWER%
                         set HELD_ANSWER_1787=%ANSWER%
-                        rem Option “D”:
-                                if  "D" == "%ANSWER%" goto /i :go_here_if_we_just_approved_the_karaoke
+                        rem Option “F”:
+                                if  "F" == "%ANSWER%" goto /i :saying_we_are_finished_takes_us_here
                         rem Option “I”:
                                 set ANSWER=%HELD_ANSWER_1787%
                                 gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"

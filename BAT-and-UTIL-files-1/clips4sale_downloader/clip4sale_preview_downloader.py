@@ -73,6 +73,15 @@ def restore_console_title() -> None:
         _ORIGINAL_CONSOLE_TITLE = None
         set_console_title(original)
 RESTART_EXIT_CODE = 75
+BROWSER_RECOVERY_ENV = "C4SDL_BROWSER_RECOVERY"
+
+
+def browser_closed_error(exc: BaseException) -> bool:
+    text = str(exc).casefold()
+    return ("target page, context or browser has been closed" in text
+            or "page has been closed" in text
+            or "browser has been closed" in text
+            or "context has been closed" in text)
 RESTART_OUTPUT_ENV = "C4SDL_RESTART_OUTPUT"
 TOOL_ROOT = Path(__file__).resolve().parent
 CONFIG_ROOT = TOOL_ROOT / "config"
@@ -84,6 +93,56 @@ APP_DATA_ROOT = Path(os.environ.get("APPDATA") or (Path.home() / "AppData" / "Ro
 DEFAULT_PROFILE_DIR = APP_DATA_ROOT / "browser-profile"
 LEGACY_DEFAULT_PROFILE_DIR = TEMP_PROFILE_ROOT / "browser-profile"
 HISTORY_ROOT = PRIVATE_ROOT / "history"
+BROWSER_REGISTRY = HISTORY_ROOT / "downloader-browser-processes.json"
+ACTIVE_RUN_REGISTRY = HISTORY_ROOT / "active-runs.json"
+
+
+def active_run_scopes() -> set[str]:
+    try:
+        entries = json.loads(ACTIVE_RUN_REGISTRY.read_text(encoding="utf-8")) if ACTIVE_RUN_REGISTRY.is_file() else []
+    except (OSError, json.JSONDecodeError):
+        entries = []
+    live = []
+    scopes = set()
+    for item in entries if isinstance(entries, list) else []:
+        if isinstance(item, dict) and item.get("scope_key") and DownloadDatabase._pid_alive(item.get("pid")):
+            live.append(item)
+            scopes.add(str(item["scope_key"]))
+    try:
+        ACTIVE_RUN_REGISTRY.parent.mkdir(parents=True, exist_ok=True)
+        atomic_json_write(ACTIVE_RUN_REGISTRY, live)
+    except OSError:
+        pass
+    return scopes
+
+
+def register_active_run(scope_key: str, run_id: str) -> None:
+    try:
+        entries = json.loads(ACTIVE_RUN_REGISTRY.read_text(encoding="utf-8")) if ACTIVE_RUN_REGISTRY.is_file() else []
+    except (OSError, json.JSONDecodeError):
+        entries = []
+    entries = [item for item in entries if isinstance(item, dict) and item.get("pid") != os.getpid()]
+    entries.append({"pid": os.getpid(), "run_id": run_id, "scope_key": scope_key,
+                    "started": datetime.now().isoformat(timespec="seconds")})
+    ACTIVE_RUN_REGISTRY.parent.mkdir(parents=True, exist_ok=True)
+    atomic_json_write(ACTIVE_RUN_REGISTRY, entries)
+
+
+def unregister_active_run(run_id: str) -> None:
+    try:
+        entries = json.loads(ACTIVE_RUN_REGISTRY.read_text(encoding="utf-8"))
+        entries = [item for item in entries if not (isinstance(item, dict) and item.get("run_id") == run_id)]
+        atomic_json_write(ACTIVE_RUN_REGISTRY, entries)
+    except (OSError, json.JSONDecodeError):
+        pass
+
+
+def atomic_json_write(path: Path, value: Any) -> None:
+    """Replace a small state file atomically so power loss cannot truncate it."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + f".tmp-{os.getpid()}-{uuid.uuid4().hex[:8]}")
+    temporary.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    os.replace(temporary, path)
 PRIVATE_DATABASE_PATH = HISTORY_ROOT / "clips4sale-downloads.db"
 PRIVATE_REPORT_ROOT = HISTORY_ROOT / "reports"
 DATABASE_BACKUP_ROOT = HISTORY_ROOT / "backups"
@@ -655,7 +714,7 @@ class RunControls:
                 self.paused.set()
         elif key == "q":
             self.stop_requested.set()
-        elif key == "\x12" and not self.restart_requested.is_set():  # Ctrl+R
+        elif key in ("\x12", "\x15") and not self.restart_requested.is_set():  # Ctrl+R / Ctrl+U
             if self._confirm_restart():
                 self.restart_requested.set()
                 self.stop_requested.set()
@@ -1015,12 +1074,18 @@ class DownloadDatabase:
         ).fetchall()
         result = []
         seen_scopes = set()
+        active_scopes = active_run_scopes()
         for row in rows:
             item = dict(row)
             if item.get("scope_key") in seen_scopes:
                 continue
-            if item.get("status") == "running" and self._pid_alive(item.get("owner_pid")):
-                continue
+            if item.get("status") == "running":
+                if item.get("scope_key") in active_scopes or self._pid_alive(item.get("owner_pid")):
+                    item["status"] = "running"
+                else:
+                    # A reboot, old schema, or a process that exited before its
+                    # final ledger update leaves a stale 'running' row.
+                    item["status"] = "interrupted"
             seen_scopes.add(item.get("scope_key"))
             result.append(item)
         return result
@@ -1772,7 +1837,7 @@ def media_for_download(assets: list[Media]) -> list[Media]:
 
 
 def old_variant_cleanup_plan(ledger: DownloadDatabase, output: Path,
-                             max_hash_distance: int | None = None) -> list[dict]:
+                             max_hash_distance: int | None = None, progress=None) -> list[dict]:
     """Find lower-quality saved stills that belong to the same site image family.
 
     Separate source images remain separate groups. GIF/video animations are not
@@ -1782,7 +1847,9 @@ def old_variant_cleanup_plan(ledger: DownloadDatabase, output: Path,
     if max_hash_distance is None:
         max_hash_distance = int(load_config().get("image_similarity_hamming", DEFAULT_IMAGE_HASH_DISTANCE))
     by_clip: dict[tuple[str, str], dict[str, dict]] = {}
-    for row in ledger.successful_still_media():
+    rows = ledger.successful_still_media()
+    total_rows = len(rows)
+    for row_index, row in enumerate(rows, 1):
         path = Path(str(row.get("path") or "")).expanduser()
         try:
             resolved = path.resolve()
@@ -1813,6 +1880,8 @@ def old_variant_cleanup_plan(ledger: DownloadDatabase, output: Path,
         existing = by_clip.setdefault(key, {}).get(str(resolved).casefold())
         if not existing or candidate["quality"] > existing["quality"]:
             by_clip[key][str(resolved).casefold()] = candidate
+        if progress and (row_index == 1 or row_index % 5 == 0 or row_index == total_rows):
+            progress(row_index, total_rows)
 
     plan = []
     for key, paths in by_clip.items():
@@ -2634,6 +2703,19 @@ def _duplicate_default(ledger: DownloadDatabase, candidates: list[dict]) -> int:
     return max(ranked)[1]
 
 
+def duplicate_alert_beep() -> None:
+    """Play three very short ascending tones when unattended input is needed."""
+    if os.name != "nt":
+        print("\a", end="", flush=True)
+        return
+    try:
+        import winsound
+        for frequency in (880, 1175, 1568):
+            winsound.Beep(frequency, 45)
+    except (ImportError, RuntimeError):
+        print("\a", end="", flush=True)
+
+
 def choose_duplicate_keep(candidates: list[dict], default_index: int, controls: RunControls | None = None,
                           input_fn=input, *, heading: str = "Exact duplicate content found") -> int | None:
     """Choose an exact-duplicate file with arrows; Enter accepts the learned default."""
@@ -2648,7 +2730,18 @@ def choose_duplicate_keep(candidates: list[dict], default_index: int, controls: 
         print(terminal_text(f"♻️ Duplicate labels differ only by Part/Full; automatically keeping Full: "
                             f"{Path(candidates[selected]['path']).name}"))
         return selected
-    print(terminal_text(f"\n♻️ {heading}. Choose the copy to keep:"))
+    alert_width = 62
+    alert_lines = [
+        "╔" + "═" * alert_width + "╗",
+        "║" + "💥 DUPLICATE FOUND! 💥".center(alert_width) + "║",
+        "╚" + "═" * alert_width + "╝",
+    ]
+    alert = "\n" + "\n".join(
+        f"\x1b[5;30;103m{line}\x1b[0m" for line in alert_lines
+    )
+    duplicate_alert_beep()
+    print(alert)
+    print(terminal_text(f"♻️ {heading}. Choose the copy to keep:"))
     interactive = getattr(sys.stdin, "isatty", lambda: False)()
     if not interactive and input_fn is input:
         print("Non-interactive run: preserving every copy.")
@@ -2659,7 +2752,11 @@ def choose_duplicate_keep(candidates: list[dict], default_index: int, controls: 
             import msvcrt
             selected = default_index
             first = True
+            deadline = time.monotonic() + 600
             while True:
+                if time.monotonic() >= deadline:
+                    print(terminal_text("\n⏱️ Duplicate prompt timed out after 10 minutes; keeping the default."))
+                    return default_index
                 if not first:
                     sys.stdout.write(f"\x1b[{len(candidates)}A")
                 first = False
@@ -2671,6 +2768,9 @@ def choose_duplicate_keep(candidates: list[dict], default_index: int, controls: 
                         f"\r\x1b[2K {pointer} {Path(item['path']).name}{category}{default}\n"
                     ))
                 sys.stdout.flush()
+                if not msvcrt.kbhit():
+                    time.sleep(0.05)
+                    continue
                 key = msvcrt.getwch()
                 if key in ("\r", "\n"):
                     return selected
@@ -2737,7 +2837,13 @@ def resolve_exact_duplicates(ledger: DownloadDatabase, saved: dict, panel,
 def resolve_clip_image_variants(ledger: DownloadDatabase, output: Path, clip: Clip, panel,
                                 controls: RunControls | None = None) -> list[str]:
     """Offer crop-aware same-clip image groups immediately after verification."""
-    groups = [group for group in old_variant_cleanup_plan(ledger, output)
+    def progress(done, total):
+        if hasattr(panel, "draw_status"):
+            panel.draw_status(f"🖼️ Scanning still images for variants: {done}/{total}")
+        if done == total or done % 25 == 0:
+            panel.log(f"🖼️ Image-variant scan progress: {done}/{total}")
+
+    groups = [group for group in old_variant_cleanup_plan(ledger, output, progress=progress)
               if group["studio_id"] == clip.studio_id and group["clip_id"] == clip.id]
     recycled: list[str] = []
     for group in groups:
@@ -3337,7 +3443,15 @@ def leave_browser_open(args, last_url: str, report: dict, panel) -> None:
         # lock asynchronously.  A short hand-off delay avoids a second window
         # briefly starting on about:blank and immediately exiting on the lock.
         time.sleep(0.5)
-        subprocess.Popen(command, close_fds=True, creationflags=creationflags)
+        process = subprocess.Popen(command, close_fds=True, creationflags=creationflags)
+        HISTORY_ROOT.mkdir(parents=True, exist_ok=True)
+        try:
+            registry = json.loads(BROWSER_REGISTRY.read_text(encoding="utf-8")) if BROWSER_REGISTRY.is_file() else []
+        except (OSError, json.JSONDecodeError):
+            registry = []
+        registry = [item for item in registry if isinstance(item, dict) and item.get("pid") != process.pid]
+        registry.append({"pid": process.pid, "url": target_url, "started": datetime.now().isoformat(timespec="seconds")})
+        BROWSER_REGISTRY.write_text(json.dumps(registry, indent=2) + "\n", encoding="utf-8")
     except OSError as exc:
         report.setdefault("errors", []).append(f"Browser hand-off warning: {exc}")
         panel.log(f"⚠️ Could not leave the browser open: {exc}")
@@ -3634,6 +3748,32 @@ def print_history(limit: int = 20, database: Path | None = None):
         print(f"   {row.get('destination') or '(no destination recorded)'}")
 
 
+def kill_tracked_browsers() -> int:
+    if not BROWSER_REGISTRY.is_file():
+        print("No downloader-owned browser windows are recorded.")
+        return 0
+    try:
+        entries = json.loads(BROWSER_REGISTRY.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        entries = []
+    live = [item for item in entries if isinstance(item, dict) and item.get("pid")]
+    if not live:
+        print("No downloader-owned browser windows are recorded.")
+        return 0
+    print("Downloader-owned browser windows:")
+    for index, item in enumerate(live, 1):
+        print(f"  {index}. PID {item['pid']} — {item.get('url', '(unknown URL)')}")
+    answer = input("Kill these windows? [y/N]: ").strip().casefold()
+    if answer not in {"y", "yes"}:
+        return 0
+    for item in live:
+        subprocess.run(["taskkill", "/PID", str(item["pid"]), "/T", "/F"],
+                       capture_output=True, text=True, check=False)
+    BROWSER_REGISTRY.write_text("[]\n", encoding="utf-8")
+    print(f"Killed {len(live)} downloader-owned browser process(es).")
+    return 0
+
+
 def choose_resumable_run(database: Path | None = None) -> list[dict] | None:
     """Show incomplete jobs and accept one, many, ranges, or all."""
     database = database or PRIVATE_DATABASE_PATH
@@ -3654,8 +3794,23 @@ def choose_resumable_run(database: Path | None = None) -> list[dict] | None:
             row.get("studio") or f"Studio {row.get('studio_id') or '?'}",
             row.get("category") or ("All Categories" if row.get("scope_kind") == "studio" else ""),
         ) if part)
-        print(f"  {index}. {scope} [{row.get('status') or 'unknown'}; {when}]")
-        print(f"     {row.get('listing_url')}\n     {row.get('destination') or '(choose destination again)'}")
+        status = row.get('status') or 'unknown'
+        if status == 'running':
+            status_text, colour = 'currently running', '\x1b[93m'
+        elif status == 'complete-with-errors':
+            status_text, colour = 'complete with errors', '\x1b[91m'
+        else:
+            status_text, colour = 'interrupted', '\x1b[95m'
+        print(f"  \x1b[96m{index}. {scope}\x1b[0m [{colour}{status_text}\x1b[0m; {when}]")
+        if status == 'complete-with-errors':
+            total = int(row.get('selected') or row.get('discovered') or 0)
+            errors = int(row.get('errors') or 0)
+            success = max(0, total - errors)
+            success_pct = round((success / total) * 100) if total else 0
+            error_pct = max(0, 100 - success_pct)
+            print(f"     {success + errors} clips: {success} ({success_pct}%) success, "
+                  f"{errors} ({error_pct}%) error")
+        print(f"     \x1b[94mURL: {row.get('listing_url')}\x1b[0m\n     \x1b[92mSave: {row.get('destination') or '(choose destination again)'}\x1b[0m")
     while True:
         answer = input("Resume which job? (number, 1-3, 1,2,3, 1 2 3, 123, a/all, or Enter to cancel): ").strip().casefold()
         if not answer:
@@ -3776,15 +3931,31 @@ def notify_completion(output: Path, status: int) -> bool:
         return False
 
 
-def print_completion_console(output: Path, status: int) -> None:
+def print_completion_console(output: Path, status: int, studio: str = "", category: str = "",
+                             processed: int | None = None, errors: int | None = None,
+                             total: int | None = None) -> None:
     """Print a prominent two-line completion banner; do not open a popup."""
     title = "🌈 DOWNLOAD COMPLETE" if status == 0 else "⚠️ RUN FINISHED WITH ERRORS"
-    detail = f"📁 {output}"
-    width = max(62, len(title), len(detail)) + 4
+    scope = " - ".join(part for part in (studio, category) if part) or "Studio complete"
+    detail = f"🎬 {scope}"
+    detail2 = f"📁 {output}"
+    count_line = ""
+    if processed is not None:
+        denominator = max(1, int(total or processed))
+        fraction = max(0.0, min(1.0, processed / denominator))
+        red = int(255 * (1 - fraction))
+        green = int(220 * fraction)
+        count_colour = f"\x1b[38;2;{red};{green};40m"
+        error_colour = "\x1b[38;2;80;220;100m" if not errors else "\x1b[38;2;255;120;40m"
+        count_line = f"{count_colour}📊 {processed}/{total or processed} clips processed\x1b[0m  {error_colour}{errors or 0} clips with errors\x1b[0m"
+    width = max(44, len(title), len(detail), len(detail2), len(count_line)) + 4
     border = "═" * width
     print(terminal_text(f"\n╔{border}╗"))
     print(terminal_text(f"║ {title.center(width - 2)} ║"))
     print(terminal_text(f"║ {detail.center(width - 2)} ║"))
+    if count_line:
+        print(terminal_text(f"║ {count_line.center(width - 2)} ║"))
+    print(terminal_text(f"║ {detail2.center(width - 2)} ║"))
     print(terminal_text(f"╚{border}╝"), flush=True)
 
 
@@ -3876,6 +4047,7 @@ def run(args, output: Path, ffprobe: str) -> int:
     scope = listing_scope(args.url)
     prior_scope = ledger.previous_scope_activity(scope)
     run_history_id = ledger.start_scope_run(scope, args.url, output)
+    register_active_run(scope.key, run_history_id)
     ledger.supersede_prior_runs(scope, run_history_id)
     report["history_scope"] = {"key": scope.key, "kind": scope.kind,
                                "studio_id": scope.studio_id, "category_id": scope.category_id}
@@ -4170,6 +4342,7 @@ def run(args, output: Path, ffprobe: str) -> int:
                                                 saved["category_tag"] = "genre"
                                                 durations.append(float(saved["duration"]))
                                             ledger.record_success(clip, media, saved)
+                                            panel.log(f"🔎 Checking duplicate copies for {Path(saved['path']).name}...")
                                             saved = resolve_exact_duplicates(ledger, saved, panel, controls)
                                             entry["files"].append(saved)
                                             panel.log(f"✅ Verified and saved: {Path(saved['path']).name} "
@@ -4210,8 +4383,10 @@ def run(args, output: Path, ffprobe: str) -> int:
                             if not any(m.role == "preview" or m.role.startswith("preview-gif") for m in assets):
                                 entry["errors"].append("No preview video or GIF was exposed for this clip.")
                             if not deferred_by_other_run:
+                                panel.log(f"🧾 Finalizing clip {clip.id} in the resume ledger...")
                                 clip_complete = ledger.finish_clip(clip, assets)
                                 if clip_complete:
+                                    panel.log(f"🧹 Checking image variants for clip {clip.id}...")
                                     recycled_variants = resolve_clip_image_variants(
                                         ledger, output, clip, panel, controls
                                     )
@@ -4242,6 +4417,7 @@ def run(args, output: Path, ffprobe: str) -> int:
                                                   durations, unknown_duration, args, clip_had_error)
                         entry["wait_seconds"] = seconds
                         if seconds > 0:
+                            panel.log(f"⏱️ Scheduling the next-clip pause ({seconds:.2f}s)...")
                             if clip_had_error:
                                 reason = "failed media; continuing queue"
                             elif deferred_by_other_run:
@@ -4311,6 +4487,7 @@ def run(args, output: Path, ffprobe: str) -> int:
         panel.close()
         report["finished"] = datetime.now().isoformat()
         ledger.finish_scope_run(run_history_id, report)
+        unregister_active_run(run_history_id)
         ensure_database_backup()
         report_path = write_new_json(private_report_path(args.dry_run), report)
         if log_file:
@@ -4324,6 +4501,14 @@ def run(args, output: Path, ffprobe: str) -> int:
         return RESTART_EXIT_CODE
     failures = sum(bool(c["errors"]) for c in report["clips"])
     print(f"Finished: {len(report['clips'])} clips processed; {failures} clips with errors.")
+    try:
+        args._completed_studio = report.get("studio", "")
+        args._completed_category = report.get("category", "")
+        args._completed_processed = len(report.get("clips") or [])
+        args._completed_errors = failures
+        args._completed_total = report.get("selected") or args._completed_processed
+    except Exception:
+        pass
     return 1 if failures else 0
 
 
@@ -4355,6 +4540,8 @@ def parser(config: dict | None = None) -> argparse.ArgumentParser:
     p.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
     p.add_argument("--doctor", action="store_true",
                    help="Run the portable installation/database health check now and exit")
+    p.add_argument("--kill-browsers", action="store_true",
+                   help="List and optionally kill only browser processes recorded by this downloader")
     p.add_argument("--history", nargs="?", const=20, type=positive_int, metavar="N",
                    help="Show the most recent N runs and exit (default: 20)")
     p.add_argument("--resume", action="store_true",
@@ -4456,6 +4643,8 @@ def main(argv=None) -> int:
         except Exception as exc:
             print(f"Doctor failed: {exc}", file=sys.stderr)
             return 1
+    if args.kill_browsers:
+        return kill_tracked_browsers()
     if args.history is not None:
         try:
             print_history(args.history)
@@ -4524,7 +4713,13 @@ def main(argv=None) -> int:
         status = run(args, output, ffprobe or args.ffprobe)
         if status == RESTART_EXIT_CODE:
             return restart_current_process(argv, output)
-        print_completion_console(output, status)
+        print_completion_console(
+            output, status, getattr(args, "_completed_studio", ""),
+            getattr(args, "_completed_category", ""),
+            getattr(args, "_completed_processed", None),
+            getattr(args, "_completed_errors", None),
+            getattr(args, "_completed_total", None),
+        )
         set_console_title(f"Clips4Sale Downloader v{VERSION} — finished")
         return status
     except (KeyboardInterrupt, EOFError):
@@ -4537,6 +4732,11 @@ def main(argv=None) -> int:
             return 130
         raise
     except Exception as exc:
+        if browser_closed_error(exc) and not os.environ.get(BROWSER_RECOVERY_ENV):
+            os.environ[BROWSER_RECOVERY_ENV] = "1"
+            print(terminal_text("🌐 Browser closed unexpectedly; reopening it and resuming the saved job..."),
+                  file=sys.stderr, flush=True)
+            return restart_current_process(argv, output)
         set_console_title(f"Clips4Sale Downloader v{VERSION} — error")
         print(f"Error: {exc}", file=sys.stderr)
         return 1

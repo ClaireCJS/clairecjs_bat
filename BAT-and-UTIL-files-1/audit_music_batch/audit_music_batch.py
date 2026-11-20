@@ -507,9 +507,9 @@ def validate_audio_decode(source, ffmpeg, *, visible=True):
 # Published releases are deliberately separate from the timestamped safety
 # backups that the auditor makes before replacements. Update both values only
 # when publishing a new named release.
-AUDIT_MUSIC_BATCH_VERSION = "v195"
+AUDIT_MUSIC_BATCH_VERSION = "v197"
 AUDIT_MUSIC_BATCH_RELEASE_NAME = "explicit-final-convergence-verification"
-AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-11-16"
+AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-11-20"
 
 # Set this to a full executable path only when automatic discovery cannot find
 # your preferred image viewer. The V key first honors openimage.bat, then this
@@ -981,6 +981,10 @@ FLAC_EMBEDDED_ART_TARGET_BYTES = 15 * 1024 * 1024
 COVER_USER_AGENT = (
     "audit_music_batch.py/1.0 (ClioCJS@gmail.com)"
 )
+LYRIC_CONVERTER_GITHUB_RAW_BASES = (
+    "https://raw.githubusercontent.com/clairecjs/clairecjs_bat/main",
+    "https://raw.githubusercontent.com/clairecjs/clairecjs_bat/master",
+)
 _LAST_MUSICBRAINZ_REQUEST_AT = 0.0
 EXECUTABLE_CATEGORIES = {
     "adobe_xmp",
@@ -995,6 +999,8 @@ EXECUTABLE_CATEGORIES = {
     "excessive_silence",
     "karaoke_not_embedded",
     "missing_srt_from_lrc_txt",
+    "missing_txt_from_lrc",
+    "missing_txt_from_srt",
     "newer_lrc_needs_srt_backfill",
     "missing_embedded_art",
     "corrupted_legacy_id3_frames",
@@ -1066,6 +1072,8 @@ ACTION_PROMPT_QUESTIONS = {
     ),
     "missing_replaygain": "Run ReplayGain on this folder now?",
     "missing_srt_from_lrc_txt": "Run Lyric/Karaoke Fix for this folder now?",
+    "missing_txt_from_lrc": "Convert this LRC sidecar to a TXT sidecar now?",
+    "missing_txt_from_srt": "Convert this SRT sidecar to a TXT sidecar now?",
     "multiple_embedded_artworks": (
         "Export the preferred Front artwork to one sidecar and keep only it embedded now?"
     ),
@@ -4201,6 +4209,25 @@ class BatchAudit:
                 timed_candidates = [
                     candidate for candidate in (lrc, srt) if candidate
                 ]
+                if not txt:
+                    txt_source = lrc if lrc and usable_plain_sidecar_content(lrc) else (
+                        srt if srt and usable_plain_sidecar_content(srt) else None
+                    )
+                    if txt_source is not None:
+                        txt_category = (
+                            "missing_txt_from_lrc"
+                            if txt_source.suffix.casefold() == ".lrc"
+                            else "missing_txt_from_srt"
+                        )
+                        self.add(
+                            "safe_fix",
+                            txt_category,
+                            path,
+                            f"{txt_source.suffix.upper()} lyrics exist, but the matching TXT sidecar is missing.",
+                            f"Run {txt_source.suffix.lower().lstrip('.')}2txt.py to create the matching TXT sidecar, then re-audit.",
+                            source_sidecar=self.rel(txt_source),
+                            expected_txt=self.rel(path.with_suffix(".txt")),
+                        )
                 plain_source, plain_line_count = first_usable_plain_sidecar(
                     plain_candidates
                 )
@@ -5220,6 +5247,187 @@ def usable_timed_sidecar_entries(path: Path) -> list[tuple[str, int]]:
         text = timed_sidecar_content(path)
     except Exception:
         return []
+
+
+def lyric_txt_converter(source: Path) -> Path | None:
+    """Locate the user's LRC/SRT-to-TXT converter beside this tool or on PATH."""
+    stem = "lrc2txt" if source.suffix.casefold() == ".lrc" else "srt2txt"
+    candidates = [
+        Path(found)
+        for found in (
+            shutil.which(stem + ".py"),
+        )
+        if found
+    ]
+    candidates.extend(
+        [
+            _SCRIPT_DIR / f"{stem}.py",
+            Path(r"C:\BAT") / f"{stem}.py",
+            Path(r"C:\bat") / f"{stem}.py",
+        ]
+    )
+    return next((candidate for candidate in candidates if candidate.is_file()), None)
+
+
+def print_with_columns_script() -> Path | None:
+    candidates = [
+        Path(found) for found in (shutil.which("print_with_columns.py"),)
+        if found
+    ]
+    candidates.extend(
+        [
+            _SCRIPT_DIR / "print_with_columns.py",
+            Path(r"C:\BAT") / "print_with_columns.py",
+            Path(r"C:\bat") / "print_with_columns.py",
+        ]
+    )
+    return next((candidate for candidate in candidates if candidate.is_file()), None)
+
+
+def missing_lyric_txt_converter_warning() -> None:
+    """Warn without pausing when optional sidecar converters are unavailable."""
+    missing = [
+        name
+        for name, suffix in (("lrc2txt.py", ".lrc"), ("srt2txt.py", ".srt"))
+        if lyric_txt_converter(Path("placeholder" + suffix)) is None
+    ]
+    if missing:
+        print(console_safe_text(
+            "        ⚠️ Optional lyric converters unavailable (no pause): "
+            + ", ".join(missing)
+            + ". Missing LRC/SRT-to-TXT conversions will ask when actionable."
+        ), flush=True)
+
+
+def convert_lyric_sidecar_to_txt(source: Path) -> list[str]:
+    """Run the matching converter and verify its sibling TXT output."""
+    converter = lyric_txt_converter(source)
+    if converter is None:
+        raise FileNotFoundError(
+            f"{source.suffix.lower().lstrip('.')}2txt.py was not found on PATH or beside the auditor"
+        )
+    output = source.with_suffix(".txt")
+    result = subprocess.run(
+        [sys.executable, str(converter), str(source), "-o", str(output)],
+        cwd=str(source.parent),
+        capture_output=True,
+        text=True,
+        errors="replace",
+        check=False,
+    )
+    if result.returncode or not output.is_file() or output.stat().st_size <= 0:
+        detail = (result.stdout or result.stderr or "").strip()
+        raise RuntimeError(
+            f"{converter.name} did not create a usable TXT sidecar"
+            + (f": {detail[-500:]}" if detail else "")
+        )
+    return [f"converted:{source} -> {output}"]
+
+
+def download_lyric_txt_converter(source: Path) -> Path:
+    """Download the requested converter from the maintained ClaireCJS GitHub copy."""
+    stem = "lrc2txt" if source.suffix.casefold() == ".lrc" else "srt2txt"
+    destination = Path(r"C:\BAT") / f"{stem}.py"
+    last_error: Exception | None = None
+    for base in LYRIC_CONVERTER_GITHUB_RAW_BASES:
+        try:
+            request = Request(
+                f"{base}/{stem}.py",
+                headers={"User-Agent": COVER_USER_AGENT},
+            )
+            with urlopen(request, timeout=20) as response:
+                payload = response.read(2 * 1024 * 1024 + 1)
+            if len(payload) > 2 * 1024 * 1024 or b"argparse" not in payload:
+                raise RuntimeError("downloaded converter failed validation")
+            temporary = destination.with_name(f".{destination.name}.download")
+            temporary.write_bytes(payload)
+            if not temporary.is_file() or temporary.stat().st_size == 0:
+                raise RuntimeError("downloaded converter was empty")
+            if destination.exists():
+                backup = backup_before_inline_replacement(destination)
+                shutil.copy2(temporary, destination)
+                recycle_path(temporary)
+                return destination
+            temporary.replace(destination)
+            return destination
+        except Exception as exc:
+            last_error = exc
+    raise RuntimeError(f"Could not download {stem}.py from GitHub: {last_error}")
+
+
+def download_print_with_columns_script() -> Path:
+    destination = Path(r"C:\BAT") / "print_with_columns.py"
+    last_error: Exception | None = None
+    for base in LYRIC_CONVERTER_GITHUB_RAW_BASES:
+        try:
+            request = Request(
+                f"{base}/print_with_columns.py",
+                headers={"User-Agent": COVER_USER_AGENT},
+            )
+            with urlopen(request, timeout=20) as response:
+                payload = response.read(4 * 1024 * 1024 + 1)
+            if len(payload) > 4 * 1024 * 1024 or b"argparse" not in payload:
+                raise RuntimeError("downloaded print_with_columns.py failed validation")
+            temporary = destination.with_name(f".{destination.name}.download")
+            temporary.write_bytes(payload)
+            if destination.exists():
+                backup_before_inline_replacement(destination)
+                shutil.copy2(temporary, destination)
+                recycle_path(temporary)
+            else:
+                temporary.replace(destination)
+            return destination
+        except Exception as exc:
+            last_error = exc
+    raise RuntimeError(f"Could not download print_with_columns.py from GitHub: {last_error}")
+
+
+def review_converted_txt(
+    source: Path,
+    output: Path,
+    *,
+    key_reader=None,
+) -> bool:
+    """Display source/result through print_with_columns, then require acceptance."""
+    script = print_with_columns_script()
+    reader = key_reader or read_single_key
+    if script is None:
+        print(console_safe_text(
+            "            ⚠️ print_with_columns.py is missing. "
+            "Download it from your GitHub copy now? [Y/N]"
+        ), flush=True)
+        if reader().casefold() != "y":
+            return False
+        script = download_print_with_columns_script()
+    source_lines = read_text(source).replace("\r\n", "\n").splitlines()
+    output_lines = read_text(output).replace("\r\n", "\n").splitlines()
+    count = max(len(source_lines), len(output_lines))
+    review_file = Path(tempfile.gettempdir()) / f"audit_music_batch_txt_review_{uuid.uuid4().hex}.txt"
+    try:
+        review_file.write_text(
+            "Before TXT line │ After TXT line\n"
+            + "\n".join(
+                f"{source_lines[index] if index < len(source_lines) else ''} │ "
+                f"{output_lines[index] if index < len(output_lines) else ''}"
+                for index in range(count)
+            ),
+            encoding="utf-8",
+        )
+        subprocess.run(
+            [sys.executable, str(script), str(review_file), "--columns", "2", "--no_wrap"],
+            cwd=str(review_file.parent),
+            check=False,
+        )
+    finally:
+        if review_file.is_file():
+            try:
+                recycle_path(review_file)
+            except Exception:
+                pass
+    print(console_safe_text(
+        f"            ❓ Accept this generated TXT sidecar? [Y/N] {output}"
+    ), flush=True)
+    return reader().casefold() == "y"
     return parse_lrc_for_sylt(text)
 
 
@@ -5238,24 +5446,6 @@ def ensure_lyric_sidecars(path: Path, write: bool) -> tuple[Path | None, Path | 
     txt = find_lyric_sidecar(path, (".txt",))
     lrc = find_lyric_sidecar(path, (".lrc",))
     srt = find_lyric_sidecar(path, (".srt",))
-    if txt is None and (lrc or srt):
-        txt = path.with_suffix(".txt")
-        plain_source, _line_count = first_usable_plain_sidecar(
-            [
-                candidate
-                for candidate in (lrc, srt)
-                if candidate and candidate.exists()
-            ]
-        )
-        plain = (
-            usable_plain_sidecar_content(plain_source)
-            if plain_source
-            else ""
-        )
-        if plain and write:
-            txt.write_text(plain, encoding="utf-8")
-        if not plain:
-            txt = None
     if lrc is None and srt and "[instrumental]" not in path.name.lower():
         lrc = path.with_suffix(".lrc")
         timed = lrc_from_srt(read_text(srt))
@@ -16303,6 +16493,8 @@ def friendly_category(category: str) -> str:
         "corrupted_legacy_id3_frames": "Corrupted legacy ID3 frames",
         "missing_replaygain": "ReplayGain missing",
         "missing_srt_from_lrc_txt": "SRT sidecars ready to generate",
+        "missing_txt_from_lrc": "TXT sidecar missing beside LRC",
+        "missing_txt_from_srt": "TXT sidecar missing beside SRT",
         "karaoke_not_embedded": "Timed karaoke ready to embed",
         "plain_lyrics_not_embedded": "Plain lyrics ready to embed",
         "redundant_album_artist_filename_group": (
@@ -16335,6 +16527,8 @@ def finding_category_emoji(category: str) -> str:
         "missing_karaoke",
         "missing_plain_lyrics",
         "missing_srt_from_lrc_txt",
+        "missing_txt_from_lrc",
+        "missing_txt_from_srt",
         "plain_lyrics_not_embedded",
         "unusable_karaoke_sidecar",
         "unusable_plain_lyric_sidecar",
@@ -18724,6 +18918,8 @@ def apply_finding(
         "embedded_lyrics_outdated",
         "plain_lyrics_not_embedded",
         "karaoke_not_embedded",
+        "missing_txt_from_lrc",
+        "missing_txt_from_srt",
     }:
         actions = embed_lyrics(target, write=True)
         required_action = {
@@ -18742,6 +18938,32 @@ def apply_finding(
                 f"Validated sidecar did not produce the required lyric refresh: "
                 f"{sidecar}"
             )
+        return actions
+
+    if category in {"missing_txt_from_lrc", "missing_txt_from_srt"}:
+        source_text = str(finding.get("details", {}).get("source_sidecar") or "")
+        source = (root / source_text).resolve() if source_text else target.with_suffix(
+            ".lrc" if category == "missing_txt_from_lrc" else ".srt"
+        )
+        converter = lyric_txt_converter(source)
+        if converter is None:
+            print(console_safe_text(
+                "            ⚠️ The required converter is missing. "
+                "Download it from your GitHub copy now? [Y/N]"
+            ), flush=True)
+            key = (key_reader or read_single_key)().casefold()
+            if key != "y":
+                return ["skipped:converter-download-declined"]
+            converter = download_lyric_txt_converter(source)
+            print(console_safe_text(
+                f"            ✅ Downloaded {converter.name} from GitHub."
+            ), flush=True)
+        actions = convert_lyric_sidecar_to_txt(source)
+        output = source.with_suffix(".txt")
+        if not review_converted_txt(source, output, key_reader=key_reader):
+            recycle_path(output)
+            return ["rejected:generated-txt"]
+        actions.append(f"reviewed:{output}")
         return actions
 
     if category == "newer_lrc_needs_srt_backfill":
@@ -19253,6 +19475,8 @@ def _interactive_apply(
             "embedded_lyrics_outdated",
             "plain_lyrics_not_embedded",
             "karaoke_not_embedded",
+            "missing_txt_from_lrc",
+            "missing_txt_from_srt",
         }
         reaudit_action = (
             lyric_action
@@ -19260,6 +19484,7 @@ def _interactive_apply(
             or finding["category"] == "missing_embedded_art"
             or finding["category"] == "newer_lrc_needs_srt_backfill"
             or finding["category"] == "missing_srt_from_lrc_txt"
+            or finding["category"] in {"missing_txt_from_lrc", "missing_txt_from_srt"}
             or finding["category"] == "all_caps_album_title"
             or finding["category"] in GROUPED_RENAME_CATEGORIES
         )
@@ -19781,6 +20006,14 @@ def _interactive_apply(
                             srt_path = find_lyric_sidecar(target, (".srt",))
                             if srt_path is not None:
                                 observed[str(srt_path.resolve())] = action_file_state(srt_path)
+                        elif finding["category"] in {"missing_txt_from_lrc", "missing_txt_from_srt"}:
+                            txt_path = target.with_suffix(".txt")
+                            if "rejected:generated-txt" in actions:
+                                actions.append("review:rejected; source unchanged")
+                            elif not txt_path.is_file() or txt_path.stat().st_size <= 0:
+                                raise RuntimeError("TXT verification failed: converter did not create a usable sidecar")
+                            else:
+                                observed[str(txt_path.resolve())] = action_file_state(txt_path)
                             reaudited_categories.setdefault(finding["path"], set()).discard(finding["category"])
                         elif finding["category"] == "missing_embedded_art":
                             # Do not rescan the whole batch after every cover
@@ -28047,6 +28280,7 @@ def _main(argv: list[str] | None = None) -> int:
     raw_argv = list(sys.argv[1:] if argv is None else argv)
     use_color = "--no-color" not in raw_argv
     announce_release(use_color=use_color)
+    missing_lyric_txt_converter_warning()
     if not raw_argv:
         current = Path.cwd()
         if music_exists_within_depth(current, NO_ARGUMENT_MUSIC_SCAN_MAX_DEPTH):
