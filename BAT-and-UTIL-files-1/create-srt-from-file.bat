@@ -1855,17 +1855,12 @@ REM Post-process the SRT/LRC file(s):
 
 
 REM did we create the SRT file? If so, then keep track of how many, and if no TXT file exists, create one from the SRT file:
-        iff exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" then
+        if not exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" goto :expected_output_file_does_not_exist
                 rem Ensure the folder is marked as having AI-generated transcriptions:
                         rem We don’t need this anymore because our files have ADS tags and comments stating their origin
                                 rem if not exist "__ contains AI-generated SRT files __" @echo %EXPECTED_OUTPUT_FILE%%::::%_DATETIME%::::%TRANSCRIBER_TO_USE% >>:u8"__ contains AI-generated SRT files __"
 
-                rem Keep track of how many we’ve done in this session:
-                        if "" == "%NUM_TRANSCRIBED_THIS_SESSION%" set NUM_TRANSCRIBED_THIS_SESSION=0
-                        set NUM_TRANSCRIBED_THIS_SESSION=%@EVAL[%NUM_TRANSCRIBED_THIS_SESSION% + 1]
-                        if %NUM_TRANSCRIBED_THIS_SESSION% gt 1 echo %ANSI_COLOR_IMPORTANT%%check1% %blink_on%Transcribed this session: %italics_on%%@cool[%NUM_TRANSCRIBED_THIS_SESSION%]%blink_off%%italics_off%%ANSI_COLOR_NORMAL%
-
-
+ 
                 rem Create TXT file from freshly-generated lyrics, if none currently exists:
                         if exist "%TXT_FILE%" goto /i :text_file_exists 
 
@@ -1884,10 +1879,20 @@ REM did we create the SRT file? If so, then keep track of how many, and if no TX
                                         *copy /q "%tmpfile%" "%TXT_FILE%" >nul
 
                         :text_file_exists 
-        endiff
+                        goto :endiff_1990
+
+        else
+        :expected_output_file_does_not_exist
+
+
+                :did_not_generate
+                rem echo About to go to cleanup but maybe should be going to cleanup_only
+                goto /i :prompt_about_marking_karaoke_as_untranscribable
+
+
+        :endiff_1990
+
         title %CHECK%%BASE_TITLE_TEXT%
-
-
 
 
 
@@ -1899,18 +1904,16 @@ rem MiniLyrics will default to displaying TXT over SRC
 
 
 
-
-
 rem ///////////////////////////////////////////// OLD DEPRECATED CODE /////////////////////////////////////////////
-iff "1" == "%USE_2023_LOGIC%" then
-                        REM rename the file & delete the vocal-split wav file
-                            iff "%EXPECTED_OUTPUT_FILE%" != "%LRC_FILE%" then
-                                set MOVE_DECORATOR=%ANSI_GREEN%%FAINT%%ITALICS% 
-                                mv "%EXPECTED_OUTPUT_FILE%" "%LRC_FILE%"
-                            endiff
-                            if not exist "%LRC_FILE%" call validate-environment-variable LRC_FILE "LRC file not found around line 1501ish"
-                            if exist "%LRC_FILE%" .and. "%2" != "keep" (*del /Ns /q /r "%VOC_FILE%")
-endiff
+        iff "1" == "%USE_2023_LOGIC%" then
+                                REM rename the file & delete the vocal-split wav file
+                                    iff "%EXPECTED_OUTPUT_FILE%" != "%LRC_FILE%" then
+                                        set MOVE_DECORATOR=%ANSI_GREEN%%FAINT%%ITALICS% 
+                                        mv "%EXPECTED_OUTPUT_FILE%" "%LRC_FILE%"
+                                    endiff
+                                    if not exist "%LRC_FILE%" call validate-environment-variable LRC_FILE "LRC file not found around line 1501ish"
+                                    if exist "%LRC_FILE%" .and. "%2" != "keep" (*del /Ns /q /r "%VOC_FILE%")
+        endiff
 rem ///////////////////////////////////////////// OLD DEPRECATED CODE /////////////////////////////////////////////
 
 
@@ -1918,10 +1921,8 @@ rem ///////////////////////////////////////////// OLD DEPRECATED CODE //////////
 
 
 
-:did_not_generate
-rem echo About to go to cleanup but maybe should be going to cleanup_only
-goto /i prompt_about_marking_karaoke_as_untranscribable
-
+call bigecho "Goatgoatgoat we got hereeeeeeeE"
+call pause-for-x-seconds 5
 
 
 
@@ -1943,6 +1944,8 @@ rem ////////////////////////////////////////////////////////////////////////////
 rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
 rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
 
+
+goto :Finishing_Up
 
 
 
@@ -2148,9 +2151,9 @@ echo on
 rem New feature, using our txt_comparator:
         pause "Determining if we should test new txt comprator .... FILESIZE[POSTPROCESSED_LYRICS] is %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 ... FILESIZE[SRT_FILE] %@FILESIZE["%SRT_FILE%"] gt 5 c ...... FIESIZE[txt_file]=%@filesize["%TXT_FILE%"]"
         iff %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 .and. %@FILESIZE["%SRT_FILE%"] gt 5 then
+echo            call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FiLE%" --fix 2 via 1
                 pause "txt comparator begin"
-echo            call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FiLE%"
-                call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FiLE%"
+                call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FiLE%" --fix 2 via 1
         endiff
                 pause "not using txt comparator because postprocesed lyrics and srt file did not both exist"
         pause "new txt comprator testing done"
@@ -2158,7 +2161,6 @@ echo            call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FiLE%"
 
 
 echo off
-
 
 
 
@@ -2173,6 +2175,12 @@ rem Full-endeavor success message:
         rem @gosub divider
         rem call approve-subtitle-file "%SRT_FILE%"
         @gosub divider
+
+
+
+
+
+
         title %CHECK% %SRT_FILE% generated successfully! %check%             
         @call  bigecho "%check%%check%%check% File %faint_on%%ansi_color_green%“%bold_off%%italics_on%%@NAME[%SRT_FILE%].%@EXT[%SRT_FILE%]%italics_off%”%faint_off% %ansi_color_bright_green%generated successfully!%ansi_color_normal% %check%%check%%check%%party_popper%%emoji_birthday_cake%" 
         set SUCCESSFUL_GENERATION=1
@@ -2203,7 +2211,9 @@ rem Full-endeavor success message:
                         rem @Echo OFF %+ echo answer is %ANSWER%
                         set HELD_ANSWER_1787=%ANSWER%
                         rem Option “F”:
-                                if  "F" == "%ANSWER%" goto /i :saying_we_are_finished_takes_us_here
+                                rem "F" == "%ANSWER%" goto /i :saying_we_are_finished_takes_us_here
+                                if  "F" == "%ANSWER%" goto /i :actually_really_really_done
+                                rem goatgoatgoat
                         rem Option “I”:
                                 set ANSWER=%HELD_ANSWER_1787%
                                 gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
@@ -2362,6 +2372,24 @@ rem Full-endeavor success message:
                 gosub ask_to_approve_karaoke
                 :no_need_to_edit_it_or_ask_to_approve_it
                 :go_here_if_we_just_approved_the_karaoke
+
+
+
+
+
+
+
+
+        :actually_really_really_done
+               rem Keep track of how many we’ve done in this session:
+                        if "" == "%NUM_TRANSCRIBED_THIS_SESSION%" set NUM_TRANSCRIBED_THIS_SESSION=0
+                        set NUM_TRANSCRIBED_THIS_SESSION=%@EVAL[%NUM_TRANSCRIBED_THIS_SESSION% + 1]
+                        if %NUM_TRANSCRIBED_THIS_SESSION% gt 1 echo %ANSI_COLOR_IMPORTANT%%check1% %blink_on%Transcribed this session: %italics_on%%@cool[%NUM_TRANSCRIBED_THIS_SESSION%]%blink_off%%italics_off%%ANSI_COLOR_NORMAL%
+
+
+
+
+
 
         rem Update the title to say we’re done! We are!
                 set MSG=%CHECK% %SRT_FILE% generated successfully! %check%      

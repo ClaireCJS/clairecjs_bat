@@ -1,7 +1,16 @@
 # PAFPlayer documentation
 
-Current release: **V741** — add Ctrl+Alt+P as a playlist-window toggle.
-[Release notes](../releases/PAFPlayer_v741_playlist_hotkey_release_notes.md).
+Current release: **V743** — protect console granularity changes with two confirmations.
+[Release notes](../releases/PAFPlayer_v743_granularity_confirmation_release_notes.md).
+
+## Console granularity safety
+
+Shift+F4 requests a visualizer granularity change only while the console has input.
+The prompt identifies the key or menu sequence that triggered it: press Y and then C
+to confirm, or press N or Escape to cancel. It expires after 30 seconds. Favorites,
+defaults, reset, and undo routes that would change granularity use the same protection.
+Playback continues while the confirmation is displayed. Web settings remain separate.
+Closing the playlist editor shows a notice for about 30 seconds.
 
 ## Inline lyric preview
 
@@ -18,7 +27,7 @@ return to normal lyric lookup.
 
 `--simple` is intended for inline console use. It preserves the existing
 console history, does not clear the screen, does not replace the console title,
-does not render the normal PAFPlayer playback title/header, and disables the
+does not render the startup title splash or normal PAFPlayer playback title/header, and disables the
 heavier art, web, now-playing, and visualizer surfaces.
 It also bypasses the loose-script self-install screen, so launching a loose
 copy with `--simple` does not print an installer title or clear the console.

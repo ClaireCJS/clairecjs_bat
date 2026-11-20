@@ -136,16 +136,19 @@ while ($line=<STDIN>) {
     $msg .= "$ANSI_FAINT_OFF\n";
 	#$msg .= "[totalnice=$totalnice]\n";
 
-    if ($line =~ /([0-9,]+) bytes free/i) {										#summary line for each drive {NOT the grand summary}
-		if ($totalnice <=         $PETABYTE_WRONG) { $msg .= "!" ; }
-		if ($totalnice <= $HUNDRED_TERABYTE_WRONG) { $msg .= "!" ; }			#10000695029760 is
-		if ($totalnice <=     $TEN_TERABYTE_WRONG) { $msg .= "!" ; }			# 4000650883072 is
-		if ($totalnice <=         $TERABYTE_WRONG) { $msg .= "!"; }			    #  999452307456 is		
-		if ($totalnice <=         $GIGABYTE_WRONG) { $msg .= "!" ; }			
-		if ($totalnice <=         $MEGABYTE_WRONG) { $msg .= "!" ; }						
-		$msg .=                 &colorprint($pctfull,0);
-		#$msg .= sprintf("%27s",&colorprint($pctfull,1) . "\%" . "$ANSI_UNDERLINE_OFF full / $pctfree\% free$ANSI_RESET\n");
-		$msg .=                 &colorprint($pctfull,1) . "\%" . "$ANSI_UNDERLINE_OFF full / $pctfree\% free$ANSI_RESET\n";
+    if ($line =~ /([0-9,]+) bytes free/i) {
+        if ($pctfull >= 99.7) {
+            $msg .= "💥";
+        } else {
+            if ($totalnice <=         $PETABYTE_WRONG) { $msg .= "!"; }
+            if ($totalnice <= $HUNDRED_TERABYTE_WRONG) { $msg .= "!"; }
+            if ($totalnice <=     $TEN_TERABYTE_WRONG) { $msg .= "!"; }
+            if ($totalnice <=         $TERABYTE_WRONG) { $msg .= "!"; }
+            if ($totalnice <=         $GIGABYTE_WRONG) { $msg .= "!"; }
+            if ($totalnice <=         $MEGABYTE_WRONG) { $msg .= "!"; }
+        }
+        $msg .= &colorprint($pctfull,0);
+        $msg .= &colorprint($pctfull,1) . "\%" . "$ANSI_UNDERLINE_OFF full / $pctfree\% free$ANSI_RESET\n";
         $totaltotalnice += $totalnice;
         $totalusednice  += $usednice;
         $totalfreenice  += $freenice;
@@ -168,21 +171,31 @@ if ($totaltotalnice/$GIGABYTE) { $USE_TERABYTES=1; }	#I forgot how this makes se
 
 #y $FINAL_ANSI = "\e[38;2;192;48;192m";
 my $FINAL_ANSI = "\e[48;2;0;64;02m\e[38;2;204;48;204m";
+my $PANEL_WIDTH = 100;
 
-if ($DISPLAY_TOTALS) {
-	my $SPACER = "    ";	#currently 4 spaces
-	print "$FINAL_ANSI\n";
-
-	print "${SPACER}    Total Usable Space: ".sprintf("%19s",&comma($totaltotalnice))." ";
-	print sprintf("%6.1f",($totaltotalnice/$GIGABYTE))."G";	if ($USE_TERABYTES) { print "" . sprintf("%5.1f",($totaltotalnice/$TERABYTE)) . "T                 "; }	print "\n";
-	print "${SPACER}    Total  Used  Space: ".sprintf("%19s",&comma($totalusednice) )." ";
-	print sprintf("%6.1f",($totalusednice /$GIGABYTE))."G";	if ($USE_TERABYTES) { print "" . sprintf("%5.1f",($totalusednice /$TERABYTE)) . "T                 "; }	print "\n";
-	print "${SPACER}    Total  Free  Space: ".sprintf("%19s",&comma($totalfreenice) )." ";
-	print sprintf("%6.1f",($totalfreenice /$GIGABYTE))."G";	if ($USE_TERABYTES) { print "" . sprintf("%5.1f",($totalfreenice /$TERABYTE)) . "T                 "; }	print "\n";
-	print "${SPACER}Percentage Free (Full): ".sprintf("%16s",           ""          )." ";
-	print sprintf(  "%7s","🌟🌟🌟 $freepct\% (\e[21m" . &colorprint($fullpct,1) . "\e[24m\%\e[25m full") . "$ANSI_RESET$FINAL_ANSI) 🌟🌟🌟    \n$ANSI_RESET";
+sub panel_line {
+    my ($text) = @_;
+    my $plain = $text;
+    $plain =~ s/\e\[[0-9;]*m//g;
+    my $padding = $PANEL_WIDTH - length($plain);
+    $padding = 1 if $padding < 1;
+    return $text . (" " x $padding);
 }
 
+if ($DISPLAY_TOTALS) {
+    my $SPACER = "    ";
+    my $label_width = 22;
+    my $value_width = 19;
+    my $usable = sprintf("%-${label_width}s%${value_width}s %6.1fG %5.1fT", "Total Usable Space:", &comma($totaltotalnice), ($totaltotalnice/$GIGABYTE), ($totaltotalnice/$TERABYTE));
+    my $used   = sprintf("%-${label_width}s%${value_width}s %6.1fG %5.1fT", "Total Used Space:",   &comma($totalusednice),  ($totalusednice /$GIGABYTE), ($totalusednice /$TERABYTE));
+    my $free   = sprintf("%-${label_width}s%${value_width}s %6.1fG %5.1fT", "Total Free Space:",   &comma($totalfreenice),  ($totalfreenice /$GIGABYTE), ($totalfreenice /$TERABYTE));
+    my $pct    = sprintf("%-${label_width}s%16s %s", "Percentage Free (Full):", "", "🌟🌟🌟 $freepct\% (\e[21m" . &colorprint($fullpct,1) . "\e[24m\%\e[25m full)" . " 🌟🌟🌟");
+    print $FINAL_ANSI . "\n";
+    print panel_line($SPACER . $usable) . "\n";
+    print panel_line($SPACER . $used) . "\n";
+    print panel_line($SPACER . $free) . "\n";
+    print panel_line($SPACER . $pct) . "$ANSI_RESET\n";
+}
 
 
 sub colorprint($) {
@@ -256,3 +269,6 @@ sub comma {
 	return($s);
 }#endsub comma
 #############################################
+
+
+

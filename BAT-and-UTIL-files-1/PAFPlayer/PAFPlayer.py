@@ -620,9 +620,9 @@ except ImportError:  # pragma: no cover
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID                = '2026-11-20-v741-playlist-ctrl-alt-p'
+PLAYER_BUILD_ID                = '2026-11-20-v743-granularity-confirm'
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION                = 'V741'
+PROGRAM_VERSION                = 'V743'
 PROGRAM_RELEASE_LABEL          = 'V740'
 
 # A Discord webhook is a credential, not a setting.  Keep it out of JSON,
@@ -26979,17 +26979,9 @@ def read_windows_key_action(rename_editor: InlineRenameEditor | None = None) -> 
     # they became pure idle overhead.  Only the deliberately-global bindings still
     # need physical polling in the no-input case.
     if not focused_buffered_input:
-        granularity_latch = 0x473
-        if shift_down:
-            granularity_key_down = _windows_key_down(0x73)
-            if granularity_key_down and granularity_latch not in _ASYNC_KEY_LATCH:
-                _ASYNC_KEY_LATCH.add(granularity_latch)
-                _ASYNC_EXTENDED_SUPPRESS_ONCE[">"] = time.monotonic() + 1.0
-                return VISUALIZER_GRANULARITY_NEXT
-            if not granularity_key_down:
-                _ASYNC_KEY_LATCH.discard(granularity_latch)
-        else:
-            _ASYNC_KEY_LATCH.discard(granularity_latch)
+        # Shift+F4 is console-only: never intercept it in another application.
+        if not _windows_key_down(0x73):
+            _ASYNC_KEY_LATCH.discard(0x473)
 
         art_foreground_latch = 0x741
         if ctrl_down and alt_down and controls_enabled:
@@ -27191,11 +27183,10 @@ def read_windows_key_action(rename_editor: InlineRenameEditor | None = None) -> 
         if not down:
             _ASYNC_KEY_LATCH.discard(latch_key)
 
-    # Shift+F4 granularity is the only modifier-heavy F-key still intentionally
-    # allowed to originate from the direct global polling path after V84.
+    # Shift+F4 is recognized only when the console has focused buffered input.
     granularity_latch = 0x473
     granularity_down = bool(shift_down and _windows_key_down(0x73))
-    if granularity_down and granularity_latch not in _ASYNC_KEY_LATCH:
+    if focused_buffered_input and granularity_down and granularity_latch not in _ASYNC_KEY_LATCH:
         _ASYNC_KEY_LATCH.add(granularity_latch)
         _ASYNC_EXTENDED_SUPPRESS_ONCE[">"] = time.monotonic() + 1.0
         return VISUALIZER_GRANULARITY_NEXT
@@ -55782,9 +55773,12 @@ def play_audio_file(
     console_title_style = int(effective_player_defaults().get("ConsoleTitleStyle", 1))
     console_title_content = int(effective_player_defaults().get("ConsoleTitleContent", 1))
     global _CONSOLE_TITLE_STARTUP_SHOWN
-    title_preview_until = monotonic() + 5.0 if not _CONSOLE_TITLE_STARTUP_SHOWN else 0.0
+    # Inline previews never own a full-screen startup title. They also do not
+    # consume the once-per-process title for a later normal player session.
+    title_preview_until = monotonic() + 5.0 if not simple_mode and not _CONSOLE_TITLE_STARTUP_SHOWN else 0.0
     title_preview_visible = False
-    _CONSOLE_TITLE_STARTUP_SHOWN = True
+    if not simple_mode:
+        _CONSOLE_TITLE_STARTUP_SHOWN = True
     if web_server is not None:
         web_server.publish(progress_color_mode=progress_color_mode,
                            progress_invert_order=progress_invert_order,
@@ -57244,7 +57238,7 @@ def play_audio_file(
             playback_position_state[0] = max(0.0, current_position)
         if not (visualizer_only and suppress_highrate_spectrum_playhead_update):
             spectrum_playback_position[0] = max(0.0, current_position)
-        if title_preview_until > 0.0:
+        if not simple_mode and title_preview_until > 0.0:
             if monotonic() < title_preview_until:
                 if not title_preview_visible:
                     size = shutil.get_terminal_size((120, 30))
@@ -59048,6 +59042,11 @@ def play_audio_file(
         recognized = restore_all or key in {"v", "i", "s", "c", "g", "k", "t", "e", "p"}
         if not recognized:
             return False
+        if (restore_all or key == "g") and not confirm_console_granularity(
+            "F, R, " + key.upper()
+        ):
+            favorite_restore_mode = False
+            return True
         if restore_all or key == "v":
             visualizer_style = first_registry_favorite(
                 "VisualizerStyleFavorites", visualizer_style
@@ -59132,6 +59131,11 @@ def play_audio_file(
 
         current = current_mode_settings()
         defaults = effective_player_defaults()
+        if key in {"g", "a"}:
+            trigger = "*, " + ("R, " if default_restore_mode else "") + key.upper()
+            if not confirm_console_granularity(trigger):
+                default_restore_mode = False
+                return True
 
         if not default_restore_mode:
             if key == "r":
@@ -59536,6 +59540,10 @@ def play_audio_file(
         if not _RUNTIME_SETTINGS_UNDO_STACK:
             return False, False
         before = current_mode_settings()
+        target = _RUNTIME_SETTINGS_UNDO_STACK[-1]
+        if (before.get("VisualizerGranularity") != target.get("VisualizerGranularity")
+                and not confirm_console_granularity("Ctrl+Z")):
+            return False, False
         target = _RUNTIME_SETTINGS_UNDO_STACK.pop()
         audio_restart_keys = {
             "OutputChannels", "OutputRate", "OutputBitDepth", "OutputDevice",
@@ -59565,8 +59573,11 @@ def play_audio_file(
     def reset_or_undo_modes(action: str | None) -> bool:
         nonlocal reset_undo_state
         if action == RESET_DEFAULTS:
-            reset_undo_state = current_mode_settings()
             defaults = effective_player_defaults()
+            if (defaults.get("VisualizerGranularity", visualizer_granularity) != visualizer_granularity
+                    and not confirm_console_granularity("Ctrl+Alt+F1")):
+                return False
+            reset_undo_state = current_mode_settings()
             apply_mode_settings({
                 **current_mode_settings(),
                 **{key: value for key, value in defaults.items()
@@ -59574,6 +59585,9 @@ def play_audio_file(
             })
             return True
         if action == UNDO_RESET_DEFAULTS and reset_undo_state is not None:
+            if (reset_undo_state.get("VisualizerGranularity", visualizer_granularity) != visualizer_granularity
+                    and not confirm_console_granularity("Alt+F1")):
+                return False
             restored = reset_undo_state
             reset_undo_state = current_mode_settings()
             apply_mode_settings(restored)
@@ -60735,6 +60749,38 @@ def play_audio_file(
             )
         write_console("".join(output) + "\033[?25l")
 
+    def confirm_console_granularity(trigger: str) -> bool:
+        """Require two different explicit keys while continuing playback rendering."""
+        if os.name != "nt":
+            return False
+        import msvcrt
+        deadline = monotonic() + 30.0
+        for expected, instruction in (("y", "Press Y to proceed"),
+                                      ("c", "Press C to confirm the change")):
+            render_catalog_prompt([
+                "GRANULARITY CHANGE REQUESTED",
+                f"Triggered by: {trigger}",
+                instruction + "  |  N or Esc cancels",
+            ])
+            while monotonic() < deadline:
+                if not pump_prompt_visualizer():
+                    return False
+                if not msvcrt.kbhit():
+                    sleeper(0.01)
+                    continue
+                key = msvcrt.getwch()
+                if key in {"\x00", "\xe0"}:
+                    if msvcrt.kbhit():
+                        msvcrt.getwch()
+                    continue
+                if key == "\x1b" or key.casefold() == "n":
+                    return False
+                if key.casefold() == expected:
+                    break
+            else:
+                return False
+        return True
+
     def q_command_menu_choice() -> str:
         """Return q/h/!/cancel/eof from the compact Q command menu."""
         if os.name != "nt":
@@ -61600,7 +61646,7 @@ def play_audio_file(
                     kind = value = None
                 try:
                     if kind == 'closed':
-                        set_transient_notice('Playlist view closed', seconds=15.0)
+                        set_transient_notice('Playlist view closed', seconds=30.0)
                     elif kind == 'error':
                         set_transient_error(value, seconds=5.0)
                     elif kind == 'open-playlist':
@@ -63401,6 +63447,10 @@ def play_audio_file(
                     show_status(displayed_position, indicator)
                     continue
                 if action == VISUALIZER_GRANULARITY_NEXT:
+                    if not confirm_console_granularity("Shift+F4"):
+                        render_controls(playback_fraction(displayed_position))
+                        show_status(current_prompt_position(), indicator)
+                        continue
                     visualizer_granularity = {3: 2, 2: 1, 1: 3}.get(visualizer_granularity, 3)
                     if visualizer_granularity_state is not None:
                         visualizer_granularity_state[0] = visualizer_granularity
@@ -65142,6 +65192,10 @@ def play_audio_file(
                             show_status(position, "⏸️")
                             continue
                         if paused_action == VISUALIZER_GRANULARITY_NEXT:
+                            if not confirm_console_granularity("Shift+F4"):
+                                render_controls(playback_fraction(position))
+                                show_status(position, "⏸️")
+                                continue
                             visualizer_granularity = {3: 2, 2: 1, 1: 3}.get(visualizer_granularity, 3)
                             if visualizer_granularity_state is not None:
                                 visualizer_granularity_state[0] = visualizer_granularity

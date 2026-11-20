@@ -1109,7 +1109,8 @@ class DownloadDatabase:
     def successful_still_media(self) -> list[dict]:
         """Return saved still-image rows used to identify obsolete variants."""
         rows = self.connection.execute(
-            """SELECT studio_id, clip_id, role, url, path, bytes, width, height, updated_at
+            """SELECT studio_id, clip_id, role, url, path, bytes, width, height,
+                      updated_at, mtime_ns, visual_hashes
                FROM media
                WHERE status='success' AND path IS NOT NULL
                  AND (role='thumbnail' OR role='image' OR role LIKE 'image-%')
@@ -1867,7 +1868,12 @@ def old_variant_cleanup_plan(ledger: DownloadDatabase, output: Path,
         candidate["path"] = str(resolved)
         candidate["family"] = family
         try:
-            candidate["visual_hashes"] = image_visual_hashes(resolved)
+            current_mtime = resolved.stat().st_mtime_ns
+            cached_hashes = row.get("visual_hashes")
+            if cached_hashes and row.get("mtime_ns") == current_mtime:
+                candidate["visual_hashes"] = json.loads(cached_hashes) if isinstance(cached_hashes, str) else cached_hashes
+            else:
+                candidate["visual_hashes"] = image_visual_hashes(resolved)
             from PIL import Image
             with Image.open(resolved) as image:
                 actual_area = int(image.width) * int(image.height)

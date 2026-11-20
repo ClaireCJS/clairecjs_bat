@@ -1,5 +1,13 @@
 # PAFPlayer changelog
 
+## V743 — November 20, 2026
+
+Require two explicit console confirmations, identifying the triggering shortcut or menu sequence, before changing visualizer granularity; stop polling Shift+F4 globally and restore the 30-second playlist-close notice. [Release notes](../releases/PAFPlayer_v743_granularity_confirmation_release_notes.md).
+
+## V742 — November 20, 2026
+
+Suppress the startup title splash during simple playback without changing normal playback. [Release notes](../releases/PAFPlayer_v742_simple_no_splash_release_notes.md).
+
 ## V741 — November 20, 2026
 
 Add Ctrl+Alt+P as a focus-scoped playlist-window toggle, alongside Alt+P. [Release notes](../releases/PAFPlayer_v741_playlist_hotkey_release_notes.md).
