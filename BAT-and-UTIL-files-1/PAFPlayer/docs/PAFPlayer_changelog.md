@@ -1,5 +1,21 @@
 # PAFPlayer changelog
 
+## V747 — November 24, 2026
+
+Ship pinned Mutagen in the private runtime, verify it during builds, and require it in readiness checks. Remove editor-time downloads and repair this checkout's runtime. [Release notes](../releases/PAFPlayer_v747_runtime_mutagen_release_notes.md).
+
+## V746 — November 24, 2026
+
+Automatically download verified, app-local Mutagen support when the playlist tag editor needs it, including pip-less runtimes. Run setup asynchronously with visible elapsed status and actionable failures, then open the selected file. [Release notes](../releases/PAFPlayer_v746_tag_editor_dependency_release_notes.md).
+
+## V745 — November 23, 2026
+
+Restore one-second lock-screen counter ticks, extrapolate the host's cached audio clock, and let remote lock-screen lyrics follow cached cues through brief status delays. Preserve pause, seek, duration, disconnect, and owner checks. [Release notes](../releases/PAFPlayer_v745_lockscreen_local_clock_release_notes.md).
+
+## V744 — November 20, 2026
+
+Prevent slow remote lock-screen refreshes by pacing only the decorative playback counter to five-second steps. Lyric selection still uses the full-resolution synchronized timestamp and its 250 ms lock-screen lead, so title, lyric, pause/stop, and track changes are no longer buried beneath one complete Windows badge-and-tile update every second. [Release notes](../releases/PAFPlayer_v744_lockscreen_cadence_release_notes.md).
+
 ## V743 — November 20, 2026
 
 Require two explicit console confirmations, identifying the triggering shortcut or menu sequence, before changing visualizer granularity; stop polling Shift+F4 globally and restore the 30-second playlist-close notice. [Release notes](../releases/PAFPlayer_v743_granularity_confirmation_release_notes.md).

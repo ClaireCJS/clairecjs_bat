@@ -1510,7 +1510,8 @@ return
                 rem aliases:
                         set HARDWARE=%HARDWARE_MAIN%
             rem backups:
-                set HARDWARE_THAILOG_BACKUP_DRIVE=%HD4000G5%
+                rem HARDWARE_THAILOG_BACKUP_DRIVE=%HD4000G5% —— until 2026/11/26 moving from 4T to an older 4T w/more space 😂
+                set HARDWARE_THAILOG_BACKUP_DRIVE=%HD4000G%
                 set HARDWARE_THAILOG_BACKUP=%HARDWARE_THAILOG_BACKUP_DRIVE%:\backups\HARDWARE.Thailog.bak
 
         ::installers
@@ -1566,13 +1567,15 @@ return
                 set FTP_DRIVE=%FTPSERVERDRIVE%
                 set FTP=%FTPSERVER%
             rem backups
-                set FTP_BACKUP_DRIVE=%HD10T2%
+                rem FTP_BACKUP_DRIVE=%HD10T2% - until 2026/11/20 with new 22TB drive finally being installed
+                set FTP_BACKUP_DRIVE=%HD22T1%
                 set FTP_BACKUP=%FTP_BACKUP_DRIVE%:\BACKUPS\ftp.bak
 
         ::irc
             set IRCDRIVE=%HD6000G2%
             set IRC=%IRCDRIVE%:\IRC
-            set IRCBACKUPDRIVE=%HD10T2%
+            rem IRCBACKUPDRIVE=%HD10T2% - until 2026/11/20 with new 22TB drive finally being installed
+            set IRCBACKUPDRIVE=%HD22T1%
             set IRCBACKUP=%IRCBACKUPDRIVE%:\BACKUPS\IRC.bak
 
         %gosub_stopwatch_button% magenta "      DefineRepositories [5]          " %+ rem 1.20  !!
@@ -1691,7 +1694,8 @@ return
                 rem          COMMERCIALSDRIVE=%HD18T1%    - moved 20240613 after getting more full and Wyvern getting its 2nd 18TB
                 set          COMMERCIALSDRIVE=%HD20T2%
                 set          COMMERCIALS=%COMMERCIALSDRIVE%:\MEDIA\MISC-COMMERCIALS\
-                set          COMMERCIALS_BACKUP_DRIVE=%HD4000G7%
+                rem          COMMERCIALS_BACKUP_DRIVE=%HD4000G7% —                  — until 2026/11/20 when we moved it to the new HD22TB1
+                set          COMMERCIALS_BACKUP_DRIVE=%HD22T1%
                 set          COMMERCIALS_BACKUP=%COMMERCIALS_BACKUP_DRIVE%:\BACKUPS\commercials.bak
 
                 rem               COMEDYDRIVE=%HD6000G3%       ----- CRASHED IN 2020 OR 2021 OR SO, HAD TO RE-CREATE FROM OLD BACKUP IN 2022 -- BUT WHERE IS IT?!
@@ -1728,7 +1732,8 @@ return
                 set            EYECANDYBACKUP=%EYECANDYBACKUPDRIVE%:\BACKUPS\eyecandy.bak
                 rem                GAMESDRIVE=%HD10000G1% — removed after damaging 'l'-tab on power port 20240125
                 set                GAMESDRIVE=%HD20T1%
-                set  GAME_SAVES_BACKUPS_DRIVE=%HD10T2%
+                rem  GAME_SAVES_BACKUPS_DRIVE=%HD10T2% — until 2026/11/20 when we moved it to the new HD22TB1
+                set  GAME_SAVES_BACKUPS_DRIVE=%HD22T1%
                 set        GAME_SAVES_BACKUPS=%GAME_SAVES_BACKUPS_DRIVE%:\BACKUPS\game_saves.bak
                 set                     GAMES=%GAMESDRIVE%:\GAMES-REPOSITORY
                 set               ROOKIEDRIVE=%HD10T2%
@@ -1739,7 +1744,8 @@ return
                 set        GAMES_DEMONA_DRIVE=%HD18T3%
                 set              GAMES_DEMONA=%GAMES_DEMONA_DRIVE%:\GAMES.Demona
                 rem GAMES_DEMONA_BACKUP_DRIVE=%GAMESBACKUPDRIVE% - moved on 2024/03/02 when %HD6T3% [P:] got full
-                set GAMES_DEMONA_BACKUP_DRIVE=%HD10T2%
+                rem GAMES_DEMONA_BACKUP_DRIVE=%HD10T2%              — until 2026/11/20 when we moved it to the new HD22TB1
+                set GAMES_DEMONA_BACKUP_DRIVE=%HD22T1%
                 set       GAMES_DEMONA_BACKUP=%GAMES_DEMONA_BACKUP_DRIVE%:\BACKUPS\games.Demona.bak
                 set                BOARDGAMES=%GAMES%\BOARD GAMES
                 set           BOARDGAMESDRIVE=%GAMESDRIVE%
@@ -1749,14 +1755,16 @@ return
                 set               GROSSBACKUP=%GROSSBACKUPDRIVE%:\BACKUPS\gross.bak
                 set               IMAGESDRIVE=%HD6000G1%
                 set                    IMAGES=%IMAGESDRIVE%:\MEDIA\IMAGES
-                set                    IMAGES_BACKUP_DRIVE=%HD4000G%
+                rem                    IMAGES_BACKUP_DRIVE=%HD4000G% — until 2026/11/22
+                set                    IMAGES_BACKUP_DRIVE=%HD22T1%
                 set                    IMAGES_BACKUP=%IMAGES_BACKUP_DRIVE%:\BACKUPS\images.bak
                 set                ICONSDRIVE=%IMAGESDRIVE%
                 set                     ICONS=%IMAGES%\ICONS
                 set                 MIDIDRIVE=%MP3OFFICIALDRIVE%
                 set             MISCDATADRIVE=%HD6000G2%                                          %+ REM /* was %HD2000G3% prior to 201706ish T: crash */
                 set                  MISCDATA=%MISCDATADRIVE%:\MEDIA\MISC-DATA
-                set                  MISCDATA_BACKUP_DRIVE=%HD10T2%                               %+ REM /* was %HD2000G3% prior to 201706ish T: crash */
+                rem                  MISCDATA_BACKUP_DRIVE=%HD10T2%                               %+ REM /* was %HD2000G3% prior to 201706ish T: crash */ — until 2026/11/20 when we moved it to the new HD22TB1
+                set                  MISCDATA_BACKUP_DRIVE=%HD22T1% 
                 set                  MISCDATA_BACKUP=%MISCDATA_BACKUP_DRIVE%:\BACKUPS\misc-data.bak
 
                 rem (section of music-server related stuff moved to music server section above)
@@ -1790,7 +1798,8 @@ return
                     set           SPECIALSDRIVE=%HD6000G1%
                     set                SPECIALS=%SPECIALSDRIVE%:\MEDIA\SPECIALS-AND-DOCUMENTARIES
                     rem                SPECIALS_BACKUP is not necessary because %DOCUMENTARIES% and %SPECIALS% are synonymous
-                    set            SHORTSDRIVE=%HD6000G2%
+                    rem            SHORTSDRIVE=%HD6000G2% —— moved 2026/11/22 to new 22T drive
+                    set            SHORTSDRIVE=%HD22T1%
                     set    SHORTS=%SHORTSDRIVE%:\MEDIA\SHORTS
                     set    SHORTS_BACKUP_DRIVE=%HD4000G%
                     set    SHORTS_BACKUP=%SHORTS_BACKUP_DRIVE%:\BACKUPS\shorts.bak
@@ -1992,9 +2001,11 @@ return
                     SET NEWCL=%NEWCLDRIVE%:\new
                     rem Backups
                             rem NEWCL_BACKUP_DRIVE_1=%HD4000G4%                :2015-2022
-                            rem NEWCL_BACKUP_DRIVE_1=%HD10T2%       :2022-20230827
+                            rem NEWCL_BACKUP_DRIVE_1=%HD10T2%                  :2022-20230827
                             SET NEWCL_BACKUP_DRIVE_1=%HD20T1%
-                            SET NEWCL_BACKUP_DRIVE_2=%HD4000G7%
+                            rem NEWCL_BACKUP_DRIVE_2=%HD4000G7% — until 2026/11/20 when we moved it to the new HD22TB1
+                            SET NEWCL_BACKUP_DRIVE_2=%HD22T1%
+
                             SET NEWCL_BACKUP_1=%NEWCL_BACKUP_DRIVE_1%:\backups\newcl.bak
                             SET NEWCL_BACKUP_2=%NEWCL_BACKUP_DRIVE_2%:\backups\newcl.bak
                         rem Aliases
@@ -2018,15 +2029,16 @@ return
                     SET PREBURN_DVDDRIVE=%HD20T2% 
                     SET PREBURN_DVD=%PREBURN_DVDDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED-DVD    
                     rem this drive is nearing capacity (2024/04):
-                    set PREBURN_DVD_BACKUPDRIVE=%HD4000G%
+                    rem PREBURN_DVD_BACKUPDRIVE=%HD4000G% — until 2026/11/20
+                    set PREBURN_DVD_BACKUPDRIVE=%HD22T1%
                     SET PREBURN_DVD_BACKUP=%PREBURN_DVD_BACKUPDRIVE%:\BACKUPS\ABOUT-TO-BE-BURNED-DVD    
                     SET PREBURN_DVD_CATALOG=%PREBURN_DVD%\ADD-TO-OFFLINETXT.txt
                 rem :PreBurn_BDR_General:
                     SET PREBURN_BDRDRIVE=%PREBURN_DVDDRIVE%
                     SET PREBURN_BDR=%PREBURN_BDRDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED
                     SET PREBURN_BDR_CATALOG=%PREBURN_BDR%\ADD_TO_CATALOG.txt
-                    rem this drive is nearing capacity (2024/04):
-                    SET PREBURN_BDR_BACKUPDRIVE=%HD4000G%
+                    rem PREBURN_BDR_BACKUPDRIVE=%HD4000G% - until 2026/11/20 then moving to HD22T1
+                    SET PREBURN_BDR_BACKUPDRIVE=%PREBURN_DVD_BACKUPDRIVE%
                     SET PREBURN_BDR_BACKUP=%PREBURN_BDR_BACKUPDRIVE%:\BACKUPS\ABOUT-TO-BE-BURNED
             rem Pre-Burn Data
                 rem :PreBurn_DVD_Data:
@@ -2085,10 +2097,11 @@ return
                 REM PRN_W_DRIVE=%HD10000G% %+ set PRN_W=%PRN_W_DRIVE%:\p       %+ REM PRN_1s
                 REm PRN_V_DRIVE=%HD4000G5% %+ set PRN_V=%PRN_V_DRIVE%:\p\REAL  %+ REM PRN_2
                 REM PRN_O_DRIVE=%HD2000G1% %+ set PRN_O=%PRN_O_DRIVE%:\p       %+ REM PRN_4 
-                set PRN_O_DRIVE=%HD18T1%   %+ set PRN_O=%PRN_O_DRIVE%:\p       %+ REM PRN_1 new 18TB harddrive 20210331
+                rem PRN_O_DRIVE=%HD18T1%   %+ rem PRN_O=%PRN_O_DRIVE%:\p       %+ REM PRN_1 new 18TB harddrive 20210331
+                set PRN_M_DRIVE=%HD22T1%   %+ set PRN_M=%PRN_M_DRIVE%:\p       %+ REM PRN_1 new 22TB harddrive 20261120
                 set PRN_T_DRIVE=%HD18T3%   %+ set PRN_T=%PRN_T_DRIVE%:\new\p   %+ REM PRN_2 is contained in new
             rem Aliases (first)
-                set PRN1=%PRN_O% %+ set PRN1_DRIVE=%PRN_O_DRIVE%                        
+                set PRN1=%PRN_M% %+ set PRN1_DRIVE=%PRN_M_DRIVE%                        
                 set PRN2=%PRN_T% %+ set PRN2_DRIVE=%PRN_T_DRIVE%                        
             rem Aliases (second)                                        
                 set PRN_1=%PRN1% %+ set PRN_1_DRIVE=%PRN1_DRIVE%
@@ -2107,8 +2120,8 @@ return
                 rem       TUMBLR_DRIVE=%PRN_TUMBLR_DRIVE%             %+ set       TUMBLR=%PRN_TUMBLR%
                 rem       BDSMLR_DRIVE=%PRN_BDSMLR_DRIVE%             %+ set       BDSMLR=%PRN_BDSMLR%
                 rem       REDDIT_DRIVE=%PRN_REDDIT_DRIVE%             %+ set       REDDIT=%PRN_REDDIT%
-                set   PRNPICTURESDRIVE=%PRN_O_DRIVE
-                set        PRNPICTURES=%PRN_O\Our Pics 
+                set   PRNPICTURESDRIVE=%PRN_M_DRIVE
+                set        PRNPICTURES=%PRN_M\Our Pics 
             rem Backups
                 rem PRN1_BACKUP_DRIVE=%HD4000G2%                      %+ REM This outgrew its backup dirve as of 20230521
                 rem PRN1_BACKUP_DRIVE=%HD18T3%                        %+ REM moved back to HD6000G3 when it revived
@@ -2164,9 +2177,10 @@ return
                                 SET PICTURES=%PICTURESDRIVE%:\%PICTURESFOLDERNAME%
                 rem backups
                     set PICTURES_BACKUP_DRIVE_1=%HD10T2%
-                    set PICTURES_BACKUP_1=%PICTURES_BACKUP_DRIVE_1%:\BACKUPS\WWWPICS
-                    set PICTURES_BACKUP_DRIVE_2=%HD4000G5%
-                    set PICTURES_BACKUP_2=%PICTURES_BACKUP_DRIVE_2%:\BACKUPS\WWWPICS
+                    set PICTURES_BACKUP_1=%PICTURES_BACKUP_DRIVE_1%:\BACKUPS\WWWPICS.bak
+                    rem PICTURES_BACKUP_DRIVE_2=%HD4000G5% — until 2026/11/20 when we moved it to the new HD22TB1
+                    set PICTURES_BACKUP_DRIVE_2=%HD22T1%
+                    set PICTURES_BACKUP_2=%PICTURES_BACKUP_DRIVE_2%:\BACKUPS\WWWPICS.bak
                     rem backup aliases
                         set PICTURES_BACKUP_DRIVE=%PICTURES_BACKUP_DRIVE_1%
                         set PICTURES_BACKUP=%PICTURES_BACKUP_1%

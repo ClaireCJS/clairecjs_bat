@@ -4,7 +4,7 @@
 
 rem Config:
         set PAFPLAYER_TO_USE_RIGHT_NOW=%BAT%\PAFPlayer-sandbox\PAFPlayer.py
-        set PAFPLAYER_TO_USE_RIGHT_NOW=%BAT%\PAFPlayer.bat
+        set PAFPLAYER_TO_USE_RIGHT_NOW=%UTIL2%\PAFPlayer\PAFPlayer.bat
 
 
 
@@ -19,6 +19,13 @@ rem Check environment:
         if not  exist  PAFPLAYER_TO_USE_RIGHT_NOW  call validate-environment-variable PAFPLAYER_TO_USE_RIGHT_NOW                
 
         :environment_probably_fine
+
+
+rem If we gave “restart” as our first argument, kill the old one. But this is a last resort
+        iff "%1" == "restart" then
+                shift
+                kill /f python*
+        endiff
 
 
 

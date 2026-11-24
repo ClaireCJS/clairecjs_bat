@@ -74,7 +74,7 @@ def build(destination: Path, *, python_installer: Path | None = None) -> None:
         "-r", str(ROOT / "requirements-core.txt"),
     ], check=True)
     result = subprocess.run([str(python), "-c",
-                             "import tkinter, numpy, PIL, send2trash, requests; "
+                             "import tkinter, numpy, PIL, send2trash, requests, mutagen; "
                              "tkinter.Tk().destroy(); print('private runtime imports OK')"],
                             check=True, capture_output=True, text=True)
     if "private runtime imports OK" not in result.stdout:

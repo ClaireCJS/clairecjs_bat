@@ -263,7 +263,7 @@ class ManagedPublisherTests(unittest.TestCase):
         self.assertEqual(owner._state['lyric'], 'First')
         self.assertEqual(owner._state['lyric_position_seconds'], 1.75)
 
-    def test_compact_status_includes_album_year_and_unshifted_playback_counter(self):
+    def test_compact_status_includes_album_year_and_paced_playback_counter(self):
         owner, handler = self.lyric_owner(), self.lyric_handler()
         owner._state['metadata'].update(Album='The album', album='fallback', Year='1991', Date='fallback')
         owner._state.update(position_seconds=61.85, duration_seconds=120.0,
@@ -274,7 +274,7 @@ class ManagedPublisherTests(unittest.TestCase):
         self.assertEqual(state['metadata']['album'], 'fallback')
         self.assertEqual(state['metadata']['Year'], '1991')
         self.assertEqual(state['metadata']['Date'], 'fallback')
-        self.assertEqual(state['position_seconds'], 61.85)
+        self.assertEqual(state['position_seconds'], 61.0)
         self.assertEqual(state['duration_seconds'], 120.0)
         self.assertEqual(state['lyric'], 'Next')
         self.assertNotIn('lyric_timeline', state)
@@ -282,16 +282,38 @@ class ManagedPublisherTests(unittest.TestCase):
         self.assertLess(len(json.dumps(state)), 1024)
         owner.note_client_activity.assert_not_called()
 
+    def test_host_cached_clock_ticks_and_selects_cues_without_new_publication(self):
+        import PAFPlayer
+        owner, handler = self.lyric_owner(), self.lyric_handler()
+        owner._state.update(position_seconds=10.0, lyric_position_seconds=10.0,
+                            lyric_clock_epoch=100.0, duration_seconds=180.0,
+                            lyric_timeline=[[0, 'First'], [15, 'Next']])
+        with patch.object(bridge.time, 'time', return_value=106.25):
+            bridge.handle(handler, owner, '/api/remote-tray/hello')
+        state = handler._json.call_args.args[1]['state']
+        self.assertEqual(state['position_seconds'], 16.0)
+        self.assertEqual(state['lyric'], 'Next')
+        self.assertEqual(owner._state['position_seconds'], 10.0)
+
     def test_compact_counter_preserves_pause_seek_and_missing_time(self):
         owner, handler = self.lyric_owner(), self.lyric_handler()
         bridge.handle(handler, owner, '/api/remote-tray/hello')
         self.assertNotIn('position_seconds', handler._json.call_args.args[1]['state'])
-        for position, paused in ((61.2, False), (61.2, True), (4.0, False)):
+        for position, expected, paused in ((61.2, 61.0, False), (61.2, 61.0, True), (4.0, 4.0, False)):
             owner._state.update(position_seconds=position, duration_seconds=120, paused=paused)
             bridge.handle(handler, owner, '/api/remote-tray/hello')
             state = handler._json.call_args.args[1]['state']
-            self.assertEqual(state['position_seconds'], position)
+            self.assertEqual(state['position_seconds'], expected)
             self.assertEqual(state['paused'], paused)
+
+    def test_counter_pacing_never_changes_full_resolution_lyric_selection(self):
+        self.assertEqual(bridge.lockscreen_counter_position(24.999), 24.0)
+        self.assertEqual(bridge.lockscreen_counter_position(25.0), 25.0)
+        self.assertEqual(bridge.lockscreen_counter_position(None), None)
+        cues = [[0, 'First'], [24.8, 'Second']]
+        self.assertEqual(bridge.lockscreen_lyric_context(
+            cues, 24.6, 0, 'First', playing=True, paused=False, stopped=False),
+            ('Second', 'First'))
 
     def test_regular_tray_request_keeps_existing_handler(self):
         owner, handler = self.lyric_owner(), self.lyric_handler()

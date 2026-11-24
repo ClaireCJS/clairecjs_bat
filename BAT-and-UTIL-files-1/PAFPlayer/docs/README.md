@@ -1,7 +1,7 @@
 # PAFPlayer documentation
 
-Current release: **V743** — protect console granularity changes with two confirmations.
-[Release notes](../releases/PAFPlayer_v743_granularity_confirmation_release_notes.md).
+Current release: **V747** — ship Mutagen in the private runtime for offline tag editing.
+[Release notes](../releases/PAFPlayer_v747_runtime_mutagen_release_notes.md).
 
 ## Console granularity safety
 
@@ -69,6 +69,8 @@ On the computer whose lock screen you want to update:
 The existing V530 companion requires **64-bit Windows 10 build 19041 or later**. Windows 11 is now allowed to attempt installation, but its lock-screen display has not yet been verified; Windows may not offer the same status selection or show the companion’s text. If Windows reports User Account Control is disabled, open Start and search for **Change User Account Control settings**, move the slider above **Never notify**, click OK, restart Windows, and start the tray again. If installation fails or Windows approval is declined, the setup window explains the failure and offers **Install or repair** to retry. It also opens if the publisher cannot start. To reopen it later, find the PAFPlayer icon near the Windows clock (click the small up arrow if hidden), right-click it, and choose **Lock screen setup on this computer…**.
 
 If the remote player disconnects, the local bridge stops supplying its previous song and resumes when the verified player reconnects. The setting is local to this computer and remote server; it does not change the music computer. If a full PAFPlayer is also running on this same computer, enable lock-screen publication in only one of the two clients.
+
+The tray reconciles the remote playback clock once per second and calculates lyrics locally from the timestamped lyric timeline. Lock-screen lyric selection keeps that full-resolution clock and applies its 250 ms display lead. Only the decorative elapsed-time counter is rounded down to a five-second step before it reaches the V530 Windows companion. This prevents the companion from submitting an unchanged badge plus a rewritten tile every second, which Windows can coalesce into visibly delayed updates. Track, lyric, pause/stop, and seek state remain independent of that counter pacing.
 
 ## HUD messages and warning history
 
@@ -347,3 +349,13 @@ AI DJ settings include a **Model storage folder** field. The existing stores are
 The `--models` window can move model storage to a chosen empty directory, defaulting to `T:\models` when T: exists. It copies and verifies files before switching original paths to Windows junctions. Original directories are retained as sibling backups, so their space is not automatically reclaimed. Ollama uses a shared `Ollama` store under the destination; Piper uses `Piper`, and other voice model folders are at the destination root. Do not start downloads or model operations during the move.
 
 A previously relocated unified model store can be moved again to a new empty destination; shared Piper and Ollama directories are copied only once. The model window reports byte progress.
+
+## Tag-editor runtime support
+
+Mutagen 1.47.0 is a required package in `requirements-core.txt` and is included in
+`runtime/Lib/site-packages/`. The runtime builder verifies its import before
+publishing a build; readiness checks report it as required. Select one song and
+press Alt+3 or right-click → Edit tags. This works offline and downloads nothing
+when opening the editor. Use the launcher to select the bundled runtime. An
+incomplete or different Python runtime gets an actionable error; an existing
+completed V746 cache can still be loaded offline for compatibility.

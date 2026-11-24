@@ -19,9 +19,22 @@ lyric, and album with an optional parenthesized year. For example:
 The quick-status glyph still indicates playing/paused/idle/offline.
 
 V519's lock-only 250 ms lyric lead and V518's paired badge/text publication remain.
-The counter uses actual playback time and changes only at whole seconds. No
-independent clock or playback commands are added. Package identity, configuration
-IDs and optional enable/disable behavior are preserved.
+PAFPlayer V745 restores one-second elapsed-time ticks on both the main computer
+and tray-only clients. V744 intentionally rounded to five seconds; that regression
+is removed. Both endpoints now advance the cached audio timestamp locally before
+selecting lyrics, preserving the 250 ms lead, speed, offset, pause, and seek state.
+The lock screen can extrapolate a sample for up to 30 seconds instead of sharing
+the artwork renderer's four-second cap. The duration bounds the result.
+
+The tray already fetches timestamped cues with the track and caches that timeline.
+The local lock-screen bridge reads it without making a request to the master for
+each lyric or timer tick. Normal background heartbeats correct transport state;
+a detected disconnect or owner change invalidates the bridge immediately.
+The 30-second bound limits drift during a delayed heartbeat; it cannot predict
+transport actions that have not reached the client. Restart the main player and
+reload the tray on THAILOG using the updated single file. The installed signed
+V530 companion is unchanged and needs no reinstall. Windows owns the final tile
+rendering; visible latency on a locked THAILOG has not been verified here.
 
 Launch the V530 player; installing only the companion cannot add the year/version fields to
 an already-running older player. V526 source and formatter regressions are verified;

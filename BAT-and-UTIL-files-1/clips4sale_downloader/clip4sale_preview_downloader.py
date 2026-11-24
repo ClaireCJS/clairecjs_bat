@@ -1118,6 +1118,17 @@ class DownloadDatabase:
         ).fetchall()
         return [dict(row) for row in rows]
 
+    def successful_still_media_for_clip(self, studio_id: str, clip_id: str) -> list[dict]:
+        rows = self.connection.execute(
+            """SELECT studio_id, clip_id, role, url, path, bytes, width, height,
+                      updated_at, mtime_ns, visual_hashes
+               FROM media WHERE status='success' AND path IS NOT NULL
+                 AND studio_id=? AND clip_id=?
+                 AND (role='thumbnail' OR role='image' OR role LIKE 'image-%')
+               ORDER BY updated_at""", (studio_id, clip_id)
+        ).fetchall()
+        return [dict(row) for row in rows]
+
     def mark_media_recycled(self, row: dict):
         """Record a user-approved Recycle Bin cleanup without erasing history."""
         self.connection.execute(
@@ -1838,7 +1849,8 @@ def media_for_download(assets: list[Media]) -> list[Media]:
 
 
 def old_variant_cleanup_plan(ledger: DownloadDatabase, output: Path,
-                             max_hash_distance: int | None = None, progress=None) -> list[dict]:
+                             max_hash_distance: int | None = None, progress=None,
+                             clip_key: tuple[str, str] | None = None) -> list[dict]:
     """Find lower-quality saved stills that belong to the same site image family.
 
     Separate source images remain separate groups. GIF/video animations are not
@@ -1848,7 +1860,8 @@ def old_variant_cleanup_plan(ledger: DownloadDatabase, output: Path,
     if max_hash_distance is None:
         max_hash_distance = int(load_config().get("image_similarity_hamming", DEFAULT_IMAGE_HASH_DISTANCE))
     by_clip: dict[tuple[str, str], dict[str, dict]] = {}
-    rows = ledger.successful_still_media()
+    rows = (ledger.successful_still_media_for_clip(*clip_key)
+            if clip_key else ledger.successful_still_media())
     total_rows = len(rows)
     for row_index, row in enumerate(rows, 1):
         path = Path(str(row.get("path") or "")).expanduser()
@@ -2846,11 +2859,9 @@ def resolve_clip_image_variants(ledger: DownloadDatabase, output: Path, clip: Cl
     def progress(done, total):
         if hasattr(panel, "draw_status"):
             panel.draw_status(f"🖼️ Scanning still images for variants: {done}/{total}")
-        if done == total or done % 25 == 0:
-            panel.log(f"🖼️ Image-variant scan progress: {done}/{total}")
 
-    groups = [group for group in old_variant_cleanup_plan(ledger, output, progress=progress)
-              if group["studio_id"] == clip.studio_id and group["clip_id"] == clip.id]
+    groups = studio_image_variant_plan(ledger, output, clip, panel)
+    panel.log(f"🖼️ Image-variant scan complete: {len(groups)} candidate group(s) found.")
     recycled: list[str] = []
     for group in groups:
         candidates = [group["keep"], *group["recycle"]]
@@ -2879,6 +2890,73 @@ def resolve_clip_image_variants(ledger: DownloadDatabase, output: Path, clip: Cl
             except Exception as exc:
                 panel.log(f"⚠️ Similar image retained because Recycle Bin failed: {path}: {exc}")
     return recycled
+
+
+def studio_image_variant_plan(ledger, output: Path, clip: Clip, panel) -> list[dict]:
+    """Match current stills against the studio's cached fingerprints, without file scans."""
+    rows = [dict(row) for row in ledger.connection.execute(
+        "SELECT * FROM media WHERE studio_id=? AND status='success' AND path IS NOT NULL "
+        "AND (role='thumbnail' OR role='image' OR role LIKE 'image-%')",
+        (clip.studio_id,))]
+    threshold = int(load_config().get('image_similarity_hamming', DEFAULT_IMAGE_HASH_DISTANCE))
+    # A distance <= k guarantees at least one of k+1 disjoint bit slices
+    # matches exactly. These buckets shortlist candidates without losing
+    # matches; the full crop-aware comparison below makes the final decision.
+    buckets = {}
+    decoded = {}
+    for index, row in enumerate(rows):
+        try:
+            hashes = json.loads(row.get('visual_hashes') or '{}')
+        except (ValueError, TypeError):
+            hashes = {}
+        decoded[index] = hashes
+        for label, value in hashes.items():
+            try:
+                bits, number = len(value) * 4, int(value, 16)
+            except (ValueError, TypeError):
+                continue
+            for part in range(min(threshold + 1, bits)):
+                divisions = min(threshold + 1, bits)
+                start, end = bits * part // divisions, bits * (part + 1) // divisions
+                key = (label.split('@')[0], bits, part, (number >> start) & ((1 << (end-start))-1))
+                buckets.setdefault(key, set()).add(index)
+    plans, seen = [], set()
+    targets = [i for i, row in enumerate(rows) if str(row['clip_id']) == str(clip.id)]
+    for done, index in enumerate(targets, 1):
+        row = rows[index]
+        nearby = set()
+        for label, value in decoded[index].items():
+            bits, number = len(value)*4, int(value, 16)
+            divisions = min(threshold+1, bits)
+            for part in range(divisions):
+                start, end = bits*part//divisions, bits*(part+1)//divisions
+                nearby.update(buckets.get((label.split('@')[0], bits, part,
+                    (number >> start) & ((1 << (end-start))-1)), ()))
+        family = _still_image_family(Media(row['url'], row['role']))
+        nearby.update(i for i, other in enumerate(rows)
+                      if _still_image_family(Media(other['url'], other['role'])) == family)
+        for other_index in nearby - {index}:
+            pair = tuple(sorted((index, other_index)))
+            if pair in seen:
+                continue
+            seen.add(pair)
+            other = rows[other_index]
+            distance = visual_hash_distance(decoded[index], decoded[other_index])
+            if (_still_image_family(Media(other['url'], other['role'])) != family
+                    and (distance is None or distance > threshold)):
+                continue
+            candidates = [dict(row), dict(other)]
+            candidates = [item for item in candidates if Path(item['path']).parent.resolve() == output.resolve()
+                          and Path(item['path']).is_file()]
+            if len(candidates) != 2 or candidates[0]['path'] == candidates[1]['path']:
+                continue
+            candidates.sort(key=lambda item: (int(item.get('width') or 0)*int(item.get('height') or 0),
+                                               int(item.get('bytes') or 0)), reverse=True)
+            plans.append({'keep': candidates[0], 'recycle': candidates[1:],
+                          'matched_by': 'studio fingerprint index'})
+        if hasattr(panel, 'transfer_progress'):
+            panel.transfer_progress(done, len(targets), '🖼️ Studio image fingerprint lookup')
+    return plans
 
 
 def file_extension(url: str, content_type: str) -> str:

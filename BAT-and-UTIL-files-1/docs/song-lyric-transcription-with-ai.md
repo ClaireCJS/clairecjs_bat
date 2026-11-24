@@ -1,3 +1,6 @@
+ 
+
+
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -823,10 +826,14 @@ In other words: For our transcribe-while-sleeping process to work with songs we 
 Displays the lyric*lessness* status of a song.  This is to track whether we’ve officially given up on our lyric search for a song.  
 
 
-### 🌟 [convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat](../convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat):
+### 🌟 [convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat](../convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat) / [check_playlist_for_files_with_txt_but_without_transcription.py](../check_playlist_for_files_with_txt_but_without_transcription.py):
 
-Not very useful to the end-user, but this does what the title says. Converts a playlist to only songs that have karaoke (LRC/SRT) sidecar files, but which do not have lyric (TXT) sidecar files. The main purpose for this is to be able to find testdata for [srt2txt.bat](../srt2txt.bat) / [srt2txt.py](../srt2txt.py) and [lrc2txt.bat](../lrc2txt.bat)/ [lrc2txt.py](../lrc2txt.py)
+Converts a playlist to only songs that have karaoke (LRC/SRT) sidecar files, but which do not have lyric (TXT) sidecar files. The main purpose for this was developmental, to be able to find testdata for [srt2txt.bat](../srt2txt.bat) / [srt2txt.py](../srt2txt.py) and [lrc2txt.bat](../lrc2txt.bat)/ [lrc2txt.py](../lrc2txt.py)
 
+### 🌟 [convert-playlist-to-only-songs-that-do-not-have-karaoke-and-do-not-have-lyrics.bat](../convert-playlist-to-only-songs-that-do-not-have-karaoke-and-do-not-have-lyrics.bat) / [check_playlist_for_files_without_txt_or_transcription.py](../check_playlist_for_files_without_txt_or_transcription.py):
+
+Converts a playlist to only songs that do NOT have karaoke (LRC/SRT) sidecar files, and which also do not have lyric (TXT) sidecar files. The main purpose for this was to focus on generating karaoke files for songs without lyrics and thus without possibility of lyric reconciliation.
+        
 
 ### 🌟 Lyric-related Reports:
 

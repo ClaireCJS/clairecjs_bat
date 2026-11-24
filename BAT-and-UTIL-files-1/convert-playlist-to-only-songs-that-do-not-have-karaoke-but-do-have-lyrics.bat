@@ -1,8 +1,9 @@
 @loadbtm on
-@REM TODO GOAT ADD TO DOCUMENTATION!!
-
 @Echo Off
 @on break cancel
+
+rem Capture parameters:
+        set pl=%1
 
 rem Validate environment (once):
         iff "1" !=  "%validated_convert_pl_2_ones_missing_karaoke_but_with_lyrics%" then
@@ -16,9 +17,6 @@ rem When called with no parameters:
                 goto /i END
         endiff
 
-rem Capture parameters:
-        set pl=%1
-
 rem Validate parameter existence:
         if not exist %pl% call validate-environment-variable pl
 
@@ -28,7 +26,7 @@ rem Validate parameter extension:
 
 rem Do the actual work:
         set NEW_PLAYLIST_NAME=%@UNQUOTE[%@NAME["%@UNQUOTE["%PL%"]"]]-with txt but no lrc or srt.m3u
-        check_playlist_for_files_with_txt_but_without_transcription.py %pl% "%NEW_PLAYLIST_NAME% 
+        check_playlist_for_files_with_txt_but_without_transcription.py %pl% "%NEW_PLAYLIST_NAME%"
 
 
 rem Validate the existence of the output file:

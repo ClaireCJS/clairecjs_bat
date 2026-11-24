@@ -4,6 +4,16 @@
 total_processed = 0
 SCRIPT_NAME = "check_playlist_for_files_with_txt_but_without_transcription.py"
 
+EXCLUDED_FILENAME_MARKERS = (
+    "[instrumental]",
+    "[sound effects]",
+    "[sound effect]",
+    "[no lyrics]",
+    "[no lyr]",
+)
+CHIPTUNE_MARKERS = ("[chiptune]", "[chiptunes]")
+VOCAL_EXCEPTION_MARKERS = ("[has vocals]", "[with vocals]")
+
 
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ IMPORTS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -45,6 +55,14 @@ def check_sidecars(playlist_path, output_path):
     results = []
     with tqdm(total=num_lines, desc="🔍 Checking lyric/karaoke files", unit="file") as pbar:                         # Initialize the progress bar
         for path in lines:
+            path_casefolded = path.casefold()
+            excluded = any(marker in path_casefolded for marker in EXCLUDED_FILENAME_MARKERS)
+            is_chiptune = any(marker in path_casefolded for marker in CHIPTUNE_MARKERS)
+            has_vocal_exception = any(marker in path_casefolded for marker in VOCAL_EXCEPTION_MARKERS)
+            if excluded or (is_chiptune and not has_vocal_exception):
+                pbar.update(1)
+                if claire_utils: claire.tick()
+                continue
             base, _ = os.path.splitext(path)
             txt = base + '.txt'
             lrc = base + '.lrc'

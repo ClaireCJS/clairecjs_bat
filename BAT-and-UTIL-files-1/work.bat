@@ -117,19 +117,26 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                                 set  WORK_TYPE_ANSWER=K
                                 call thorough on
                                 set work_type=karaoke
+                                iff "%2" == "easy" then
+                                        pause "looking for easy karaoke"
+                                        rem The easier ones to create karaoke for are those that we don’t have lyrics for, because no reconciliation process will ever come up
+                                        set work_setup_caller=call convert-playlist-to-only-songs-that-do-not-have-karaoke-and-do-not-have-lyrics.bat  %default_playlist_to_work%
+                                        set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-without txt or lrc or srt.%@EXT["%default_playlist_to_work%"]"
+                                else
+                                        set work_setup_caller=call convert-playlist-to-only-songs-that-do-not-have-karaoke.bat %default_playlist_to_work%
+                                        set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-without lrc or srt.%@EXT["%default_playlist_to_work%"]"
+                                endiff
                                 set worker=get-karaoke
                                 set work_amount=%default_number_of_karaoke_to_work%
-                                set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-without lrc or srt.%@EXT["%default_playlist_to_work%"]"
-                                set work_setup_caller=call convert-playlist-to-only-songs-that-do-not-have-karaoke.bat %default_playlist_to_work%
                         endiff
                         iff  "L" == "%WORK_TYPE_ANSWER%" .or. "%1" == "lyrics"  then
                                 set  WORK_TYPE_ANSWER=L
                                 call thorough on
-                                set work_setup_caller=call convert-playlist-to-only-songs-that-do-not-have-lyrics.bat  %default_playlist_to_work%
                                 set work_type=lyrics
+                                set work_setup_caller=call convert-playlist-to-only-songs-that-do-not-have-lyrics.bat  %default_playlist_to_work%
+                                set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-without txt.%@EXT["%default_playlist_to_work%"]"
                                 set worker=get-lyrics
                                 set work_amount=%default_number_of_lyrics_to_work%
-                                set PLAYLIST_TO_WORK="%MP3OFFICIAL%\lists\%@NAME["%default_playlist_to_work%"]-without txt.%@EXT["%default_playlist_to_work%"]"
                         endiff
                         iff  "P" == "%WORK_TYPE_ANSWER%" .or. "%1" == "prompts"  then
                                 set  WORK_TYPE_ANSWER=P
@@ -144,14 +151,15 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                 rem Process command line override of # of files to process:
                         if "%1" == "karaoke" shift
                         if "%1" == "prompts" shift
-                        if "%1" !=    ""     set work_type=%1
-                        if "%2" !=    ""     set work_amount=%2
+                        if "%1" !=    ""  .and. "%1" != "easy"   set work_type=%1
+                        if "%2" !=    ""  .and. "%2" != "easy"   set work_amount=%2
 
                 rem DO THE ACTUAL WORK!! Call the pre-determined proper script + playlist + workload:
                         :do_the_actual_work
                         iff "%worker%" !=  "" then
                                 iff "%work_setup_caller%" != "" then
                                         call bigecho %ansi_color_important%%STAR2% Setting up work batch: %worker_call%%ansi_color_normal%
+                                        %work_setup_caller%
                                         call sleep 4
                                 endiff
 

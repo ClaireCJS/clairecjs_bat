@@ -487,6 +487,18 @@ def previous_lyric(timeline, position, offset, current):
 
 
 LOCKSCREEN_LYRIC_LEAD_SECONDS = 0.250
+LOCKSCREEN_COUNTER_REFRESH_SECONDS = 1.0
+
+
+def lockscreen_counter_position(position):
+    """Pace only the decorative counter; lyrics retain the exact timestamp."""
+    try:
+        value = float(position)
+        if not math.isfinite(value) or value < 0:
+            return position
+        return math.floor(value / LOCKSCREEN_COUNTER_REFRESH_SECONDS) * LOCKSCREEN_COUNTER_REFRESH_SECONDS
+    except (TypeError, ValueError):
+        return position
 
 
 def lockscreen_lyric_context(timeline, position, offset, current, *, playing, paused, stopped, speed=1.0):
@@ -545,10 +557,22 @@ def handle(handler, owner, path):
                 position = raw.get('lyric_position_seconds', 0)
                 offset = raw.get('karaoke_offset_seconds', 0)
                 speed = raw.get('speed', 1.0)
+                clock = {key: raw[key] for key in (
+                    'playing', 'paused', 'transport_stopped', 'lyric_position_seconds',
+                    'position_seconds', 'duration_seconds', 'lyric_clock_epoch', 'speed') if key in raw}
+            # Use the cached audio clock between player status publications.
+            from PAFPlayer_remote_tray import synchronized_position
+            position = synchronized_position(clock, time.time(), max_extrapolation=30.0)
+            if 'position_seconds' in state:
+                state['position_seconds'] = position
             state['lyric'], state['lyric_previous'] = lockscreen_lyric_context(
                 timeline, position, offset, state.get('lyric'),
                 playing=state.get('playing', False), paused=state.get('paused', False),
                 stopped=state.get('transport_stopped', False), speed=speed)
+            # Keep one-second ticks. Cue selection uses the unrounded clock;
+            # this endpoint reads only cached state and never requests LAN data.
+            if 'position_seconds' in state:
+                state['position_seconds'] = lockscreen_counter_position(state['position_seconds'])
         handler._json(200, {'program': app.PROGRAM_TITLE, 'version': app.PROGRAM_VERSION,
                             'official': official, 'identity': instance.identity if official else '',
                             'state': state})

@@ -177,7 +177,7 @@ def blink_variants(rows):
     return blinking
 
 
-def comparison_blocks(rows, texts, blinking, spans, reference):
+def comparison_blocks(rows, texts, blinking, spans, reference, highlight_differences=False):
     """Project reference line boundaries onto every aligned version."""
     first_line = next((row[reference].line for row in rows if row[reference] is not None), 1)
     locations = []
@@ -205,12 +205,35 @@ def comparison_blocks(rows, texts, blinking, spans, reference):
                 style = '\033[2m' if shared else '\033[1m'
                 if (i, token.start) in blinking:
                     style += '\033[5m'
-                cells.append((gap, token.text, COLORS[i % len(COLORS)] + style))
+                color = COLORS[i % len(COLORS)]
+                if highlight_differences and not shared:
+                    palette = ['\033[93m', '\033[96m', '\033[95m', '\033[97m']
+                    color = palette[i % len(palette)]
+                cells.append((gap, token.text, color + style))
                 previous[i] = token
             boundary = index > start and locations[index] != locations[index - 1]
             display_rows.append((boundary, cells))
         blocks.append((headings, display_rows))
     return blocks
+
+
+def display_comparison(texts, files, plain, hide_identical, blink_all_differences=False):
+    from txt_comparator_dividers import print_divider
+    print_divider()
+    rows = align_files([tokenize(text) for text in texts])
+    blinking = blink_variants(rows)
+    if blink_all_differences:
+        blinking = {(i, token.start) for row in rows if not identical(row)
+                    for i, token in enumerate(row) if token is not None}
+    spans = split_large_groups(rows, groups(rows, hide_identical))
+    if not spans:
+        print('No word or punctuation differences found.')
+    reference = next((i for i, path in enumerate(files) if Path(path).suffix.lower() not in ('.srt', '.vtt')), 0)
+    if spans:
+        from txt_comparator_columns import render_blocks
+        render_blocks(comparison_blocks(rows, texts, blinking, spans, reference, highlight_differences=blink_all_differences), plain=plain, hide_identical=hide_identical)
+
+    print_divider()
 
 
 def main():
@@ -263,26 +286,28 @@ def main():
         except (OSError, UnicodeError) as error:
             print(f'Error reading {path}: {error}', file=sys.stderr)
             return 1
+    reference = next((i for i,path in enumerate(files) if Path(path).suffix.lower() not in ('.srt','.vtt')),0)
     if show_filenames:
+        from txt_comparator_dividers import print_divider
+        print_divider()
         print(f'{BRIGHT_YELLOW}⸎  Files being compared: ⸎{RESET}')
         for i, path in enumerate(files):
-            print(f'    {COLORS[i % len(COLORS)]}{num_label(i)}  {path}{RESET}')
+            suffix = ' [line break reference]' if i==reference else ''
+            print(f'    {COLORS[i % len(COLORS)]}{num_label(i)}  {path}{suffix}{RESET}')
         print()
-    rows = align_files([tokenize(text) for text in texts])
-    blinking = blink_variants(rows)
-    spans = split_large_groups(rows, groups(rows, hide_identical))
-    if not spans:
-        print('No word or punctuation differences found.')
-    reference = next((i for i, path in enumerate(files) if Path(path).suffix.lower() not in ('.srt', '.vtt')), 0)
-    if spans:
-        print(f'Reference line breaks: {num_label(reference)} (all versions reflowed to this text)')
-        from txt_comparator_columns import render_blocks
-        render_blocks(comparison_blocks(rows, texts, blinking, spans, reference), plain=plain)
+    display_comparison(texts, files, plain, hide_identical)
     print(f'\nReconcile {num_label(target)} via {num_label(source)}, punctuation {num_label(punctuation)}; deletions {"enabled" if include_deletions else "disabled"}.')
     if sys.stdin.isatty():
         try:
-            reconcile(files[target], originals[target], texts[source], texts[target], texts[punctuation], include_deletions)
-        except OSError as error:
+            reconcile(files[target], originals[target], texts[source], texts[target], texts[punctuation], include_deletions, target_index=target, source_index=source)
+            refreshed = []
+            for path in files:
+                text = Path(path).read_bytes().decode('utf-8-sig')
+                extension = Path(path).suffix.lower()
+                refreshed.append(subtitle_text(text, extension) if extension in ('.srt', '.vtt') else text)
+            print('\nComparison after reconciliation:')
+            display_comparison(refreshed, files, plain, hide_identical=False, blink_all_differences=True)
+        except (OSError, UnicodeError) as error:
             print(f'Error saving correction: {error}', file=sys.stderr)
             return 1
     else:

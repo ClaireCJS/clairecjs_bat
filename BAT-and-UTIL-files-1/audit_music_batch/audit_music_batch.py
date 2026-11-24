@@ -10,6 +10,7 @@ network artwork lookup, and post-write re-auditing.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import colorsys
 from concurrent.futures import Future, ThreadPoolExecutor
 from datetime import datetime
@@ -507,9 +508,9 @@ def validate_audio_decode(source, ffmpeg, *, visible=True):
 # Published releases are deliberately separate from the timestamped safety
 # backups that the auditor makes before replacements. Update both values only
 # when publishing a new named release.
-AUDIT_MUSIC_BATCH_VERSION = "v197"
-AUDIT_MUSIC_BATCH_RELEASE_NAME = "explicit-final-convergence-verification"
-AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-11-20"
+AUDIT_MUSIC_BATCH_VERSION = "v207"
+AUDIT_MUSIC_BATCH_RELEASE_NAME = "contextual-album-renames"
+AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-11-24"
 
 # Set this to a full executable path only when automatic discovery cannot find
 # your preferred image viewer. The V key first honors openimage.bat, then this
@@ -982,8 +983,8 @@ COVER_USER_AGENT = (
     "audit_music_batch.py/1.0 (ClioCJS@gmail.com)"
 )
 LYRIC_CONVERTER_GITHUB_RAW_BASES = (
-    "https://raw.githubusercontent.com/clairecjs/clairecjs_bat/main",
-    "https://raw.githubusercontent.com/clairecjs/clairecjs_bat/master",
+    "https://raw.githubusercontent.com/ClaireCJS/clairecjs_bat/main/BAT-and-UTIL-files-1",
+    "https://raw.githubusercontent.com/ClaireCJS/clairecjs_bat/master/BAT-and-UTIL-files-1",
 )
 _LAST_MUSICBRAINZ_REQUEST_AT = 0.0
 EXECUTABLE_CATEGORIES = {
@@ -2568,6 +2569,66 @@ def redundant_artist_filename_proposal(
     return proposed if proposed != path.name else None
 
 
+def contextual_album_names(folder, files, artist):
+    """Derive proposals from a dated artist/album directory, never from a loose title."""
+    release = re.fullmatch(r"(\d{4})\s+-\s+(.+)", folder.name)
+    if not release:
+        return {}
+    album = re.sub(r"\s+\[(?:ep|single)\]$", "", release[2], flags=re.I)
+    single = bool(re.search(r"\[single\]$", release[2], re.I))
+    live = re.fullmatch(r"(.+?)\s+(\(live\)\s+\(\d{8}\)\s+\([^()]+\))", album, re.I)
+    sep = r"[ _-]+"
+    tracks = []
+    for path in files:
+        if path.suffix.lower() not in AUDIO_EXTS:
+            continue
+        stem = path.stem
+        without_artist = re.sub("^" + re.escape(artist) + sep, "", stem, count=1, flags=re.I)
+        branded = without_artist != stem
+        without_album = re.sub("^" + re.escape(album) + sep, "", without_artist, count=1, flags=re.I) if branded else without_artist
+        match = re.fullmatch(r"(\d{1,4})[ _.-]+(.+)", without_album)
+        if not match:
+            continue
+        digits, title = match.groups()
+        packed = len(digits) == 4
+        if packed and (without_album == without_artist or not int(digits[:2]) or not int(digits[2:])):
+            continue
+        if not packed and not int(digits):
+            continue
+        tracks.append((path, digits, title, branded))
+    discs = {int(n[:2]) for _, n, _, _ in tracks if len(n) == 4}
+    pad = any(int(n[-2:] if len(n)==4 else n) >= 10 for _, n, _, _ in tracks)
+    result = {}
+    for path, digits, title, branded in tracks:
+        original = title
+        # Only a delimited album prefix is redundant. Never remove the title itself.
+        if not branded:
+            match = re.fullmatch(re.escape(album) + r"(?:\s+-\s+|_+)(.+)", title, re.I)
+            if match and match[1].strip(" _-"):
+                title = match[1]
+        if re.fullmatch(r"(?:[A-Z]\.){2,}[A-Z]", title):
+            title += "."
+        if live and title.casefold().endswith(" (" + live[1].casefold() + " version)"):
+            title += " " + live[2]
+        if single:
+            trailer = re.fullmatch(r"(.+?)--" + re.escape(artist) + r"\[" + re.escape(artist) + r"\]-(.+?)\s+B\s*/?\s*W\s+(.+)", title, re.I)
+            if trailer and album.casefold() == trailer[2].casefold() and trailer[1].casefold() in {trailer[2].casefold(), trailer[3].casefold()}:
+                title = trailer[1]
+                if (artist.casefold(), release[1], album.casefold(), title.casefold()) == ("gouge away", "2020", "consider", "wave of mutilation"):
+                    title += " (by Pixies)"
+        if not branded and title == original:
+            continue
+        packed = len(digits) == 4
+        number = int(digits[2:] if packed else digits)
+        prefix = str(number).zfill(2 if pad else 1)
+        if packed and discs != {1}:
+            prefix = f"{int(digits[:2])}_{prefix}"
+        new = prefix + "_" + title + path.suffix
+        if new != path.name:
+            result[path] = new
+    return result
+
+
 def album_prefixed_filename_proposal(
     filename: str,
     artist: str,
@@ -3083,6 +3144,8 @@ def all_caps_album_title_proposal(
         "‘": "'", "’": "'", "“": '"', "”": '"',
     }))
     letters = "".join(character for character in title_source if character.isalpha())
+    if re.fullmatch(r"(?:[A-Z]\.){2,}[A-Z]\.?", title_source):
+        return None
     if not letters or letters != letters.upper():
         return None
     title = re.sub(
@@ -3843,8 +3906,15 @@ class BatchAudit:
                 album_track_count = len(track_numbers)
             renames: list[dict[str, str]] = []
             audio_renames: list[tuple[Path, str]] = []
+            context_names = contextual_album_names(folder, files, artist)
+            family_stems = {p.stem.casefold(): Path(name).stem for p, name in context_names.items()}
             for path in sorted(files, key=lambda item: item.name.lower()):
-                proposed_name = redundant_artist_filename_proposal(
+                proposed_name = context_names.get(path)
+                if not proposed_name and path.suffix.lower() in CANONICAL_RENAME_EXTS - AUDIO_EXTS:
+                    base, tail = rename_title_and_suffix(path, path.stem)
+                    if base.casefold() in family_stems:
+                        proposed_name = family_stems[base.casefold()] + tail
+                proposed_name = proposed_name or redundant_artist_filename_proposal(
                     path.name,
                     artist,
                     album_track_count,
@@ -3866,7 +3936,7 @@ class BatchAudit:
                 if path.suffix.lower() in AUDIO_EXTS:
                     audio_renames.append((path, proposed_name))
 
-            redundant_group = len(audio_renames) >= 2
+            redundant_group = bool(context_names) or len(audio_renames) >= 2
             redundant_before = (
                 {item["before"] for item in renames}
                 if redundant_group
@@ -3896,7 +3966,8 @@ class BatchAudit:
                     "redundant_album_artist_filename_group",
                     folder,
                     (
-                        f'Artist name "{artist}" and album name '
+                        f"Album context suggests renaming {len(audio_renames)} track(s) and their matching files."
+                        if context_names else f'Artist name "{artist}" and album name '
                         f'"{inferred_album}" prefix {len(renames)} album filenames.'
                         if inferred_album else
                         f'Artist name "{artist}" is repeated after the track number '
@@ -3906,6 +3977,7 @@ class BatchAudit:
                     "sidecars/backups; local playlist references will be "
                     "backed up and updated.",
                     artist=artist,
+                    contextual_album=bool(context_names),
                     renames=renames,
                     audio_count=len(audio_renames),
                     track_count=album_track_count,
@@ -3917,6 +3989,8 @@ class BatchAudit:
             # an rn.bat-style editable filename before anything is renamed.
             all_caps_audio_paths: set[Path] = set()
             for path in sorted(files, key=lambda item: item.name.lower()):
+                if self.rel(path) in redundant_before:
+                    continue
                 if path.suffix.casefold() not in AUDIO_EXTS:
                     continue
                 proposed_name = all_caps_album_title_proposal(
@@ -5247,12 +5321,20 @@ def usable_timed_sidecar_entries(path: Path) -> list[tuple[str, int]]:
         text = timed_sidecar_content(path)
     except Exception:
         return []
+    return parse_lrc_for_sylt(text)
 
 
 def lyric_txt_converter(source: Path) -> Path | None:
-    """Locate the user's LRC/SRT-to-TXT converter beside this tool or on PATH."""
+    """Prefer canonical/local libraries; retain the frozen project fallback."""
     stem = "lrc2txt" if source.suffix.casefold() == ".lrc" else "srt2txt"
     candidates = [
+        Path(r"C:\BAT") / f"{stem}.py",
+        Path.cwd() / f"{stem}.py",
+        source.resolve().parent / f"{stem}.py",
+        _SCRIPT_DIR.parent / f"{stem}.py",
+        _SCRIPT_DIR / f"{stem}.py",
+        _SCRIPT_DIR / "runtime" / f"{stem}.py",
+    ] + [
         Path(found)
         for found in (
             shutil.which(stem + ".py"),
@@ -5261,9 +5343,9 @@ def lyric_txt_converter(source: Path) -> Path | None:
     ]
     candidates.extend(
         [
-            _SCRIPT_DIR / f"{stem}.py",
-            Path(r"C:\BAT") / f"{stem}.py",
-            Path(r"C:\bat") / f"{stem}.py",
+            _SCRIPT_DIR / "runtime" / "downloads" / f"{stem}.py",
+            _SCRIPT_DIR / "runtime" / "frozen" / f"{stem}.py",
+            _SCRIPT_DIR / "autodownloaded" / f"{stem}.py",  # older installations
         ]
     )
     return next((candidate for candidate in candidates if candidate.is_file()), None)
@@ -5277,6 +5359,8 @@ def print_with_columns_script() -> Path | None:
     candidates.extend(
         [
             _SCRIPT_DIR / "print_with_columns.py",
+            _SCRIPT_DIR / "runtime" / "downloads" / "print_with_columns.py",
+            _SCRIPT_DIR / "autodownloaded" / "print_with_columns.py",
             Path(r"C:\BAT") / "print_with_columns.py",
             Path(r"C:\bat") / "print_with_columns.py",
         ]
@@ -5299,27 +5383,177 @@ def missing_lyric_txt_converter_warning() -> None:
         ), flush=True)
 
 
-def convert_lyric_sidecar_to_txt(source: Path) -> list[str]:
+def check_lyric_converter_updates_monthly() -> None:
+    """Notify about upstream changes once per month; never replace a frozen copy."""
+    state = Path(tempfile.gettempdir()) / "audit_music_batch" / "converter-update-check.json"
+    month = datetime.now().strftime("%Y-%m")
+    try:
+        if state.is_file() and json.loads(state.read_text(encoding="utf-8")).get("month") == month:
+            return
+        for name in ("lrc2txt.py", "srt2txt.py"):
+            frozen = _SCRIPT_DIR / "runtime" / "frozen" / name
+            if not frozen.is_file():
+                frozen = _SCRIPT_DIR / "autodownloaded" / name
+            if not frozen.is_file():
+                continue
+            remote = None
+            for base in LYRIC_CONVERTER_GITHUB_RAW_BASES:
+                try:
+                    with urlopen(Request(f"{base}/{name}", headers={"User-Agent": COVER_USER_AGENT}), timeout=5) as response:
+                        remote = response.read(2 * 1024 * 1024 + 1)
+                    if len(remote) > 2 * 1024 * 1024:
+                        raise RuntimeError("converter exceeds download limit")
+                    compile(remote, name, "exec")
+                    break
+                except Exception:
+                    remote = None
+            if remote is None:
+                print(f"        ⚠️ Monthly {name} update check unavailable; keeping the local frozen copy.", flush=True)
+                continue
+            digest = hashlib.sha256(remote).digest()
+            canonical = Path(r"C:\BAT") / name
+            if canonical.is_file() and hashlib.sha256(canonical.read_bytes()).digest() == digest:
+                continue  # Already installed canonically; no replacement notice needed.
+            if hashlib.sha256(frozen.read_bytes()).digest() != digest:
+                print(f"        🔔 GitHub {name} differs from the frozen copy. Update available for review; no files replaced.", flush=True)
+        state.parent.mkdir(parents=True, exist_ok=True)
+        if state.exists():
+            backup_before_inline_replacement(state)
+        state.write_text(json.dumps({"month": month}), encoding="utf-8")
+    except Exception as exc:
+        print(f"        ⚠️ Converter update check skipped: {type(exc).__name__}; local conversion remains available.", flush=True)
+
+
+def wipe_local_packages() -> int:
+    """Recycle only install directories named by our dependency installer."""
+    root = _SCRIPT_DIR.resolve()
+    names = re.compile(r"python-(?:packages-|prefix-[\w]+-[\w]+-\d+-)[0-9a-f]{32}\Z")
+    removed = 0
+    for base in (root / "runtime", root / "runtime" / "downloads", root / "autodownloaded"):
+        if base.resolve() != base or base.is_symlink() or (base.exists() and getattr(base.lstat(), "st_file_attributes", 0) & 0x400):
+            raise RuntimeError(f"Refusing to recycle through a redirected directory: {base}")
+        for path in sorted(base.iterdir()) if base.is_dir() else ():
+            if path.is_symlink() or getattr(path.lstat(), "st_file_attributes", 0) & 0x400 or path.resolve().parent != base:
+                continue
+            if base == root / "runtime" / "downloads":
+                managed = path.is_file() and path.name in {"lrc2txt.py", "srt2txt.py", "print_with_columns.py"}
+            else:
+                managed = path.is_dir() and names.fullmatch(path.name)
+            if managed:
+                recycle_path(path)
+                print(f"♻️ Recycled: {path}")
+                removed += 1
+    print(f"📦 {removed} local installs/downloads recycled. Next audit will check dependencies again.")
+    return 0
+
+
+def converter_dependency_paths() -> list[str]:
+    """Reuse project-local packages installed for the auditor's own interpreter."""
+    paths = []
+    for base in (_SCRIPT_DIR / "runtime", _SCRIPT_DIR / "autodownloaded"):
+        prefixes = sorted(base.glob(f"python-prefix-{sys.implementation.cache_tag}-*"), reverse=True)
+        paths.extend(path / "Lib" / "site-packages" for path in prefixes)
+        paths.extend(sorted(base.glob("python-packages-*")))
+    return [str(path) for path in paths if path.is_dir()]
+
+
+def missing_converter_dependencies(packages) -> list[str]:
+    """Reject unreadable package folders and check the entry points we use."""
+    missing = []
+    previous_path = list(sys.path)
+    try:
+        sys.path[:0] = converter_dependency_paths()
+        for name in packages:
+            try:
+                spec = importlib.util.find_spec(name)
+                if spec is None or spec.origin is None:
+                    missing.append(name)
+                    continue
+                importlib.import_module("rich.console" if name == "rich" else name)
+            except (ImportError, OSError, ValueError):
+                missing.append(name)
+    finally:
+        sys.path[:] = previous_path
+    return missing
+
+
+def ensure_lyric_converter_dependencies(
+    *, key_reader=None, packages=("chardet", "colorama"), purpose="Converter"
+) -> None:
+    missing = missing_converter_dependencies(packages)
+    if not missing:
+        return
+    print(console_safe_text(
+        f"            ⚠️ {purpose} dependencies missing for {sys.executable}: {', '.join(missing)}."
+    ), flush=True)
+    print(console_safe_text("            ❓ Install these packages into this project's runtime directory? [Y/N; no ENTER default] "), end="", flush=True)
+    reader = key_reader or read_single_key
+    while True:
+        key = reader().casefold()
+        if key == "\x03":
+            raise KeyboardInterrupt
+        if key in {"y", "n"}:
+            break
+        invalid_key_beep()
+    print("Yes!" if key == "y" else "No!")
+    reset_console_pager_after_user_input()
+    if key == "n":
+        raise RuntimeError("TXT conversion deferred: required Python packages were not installed; source unchanged")
+    # On Windows, pip --target can move directories out of a private temp
+    # folder and retain that folder's ACL. A prefix installs directly in place.
+    destination = _SCRIPT_DIR / "runtime" / (
+        f"python-prefix-{sys.implementation.cache_tag}-{time.time_ns()}-{uuid.uuid4().hex}"
+    )
+    destination.mkdir(parents=True, exist_ok=False)
+    result = subprocess.run(
+        [sys.executable, "-B", "-m", "pip", "--isolated", "install",
+         "--disable-pip-version-check", "--no-input", "--no-compile",
+         "--only-binary=:all:", "--ignore-installed", "--prefix", str(destination),
+         *missing],
+        check=False,
+    )
+    importlib.invalidate_caches()
+    if result.returncode:
+        raise RuntimeError("Converter dependency installation failed; source unchanged. Check pip output above.")
+    remaining = missing_converter_dependencies(missing)
+    if remaining:
+        raise RuntimeError(
+            "Pip finished, but these dependencies still cannot be imported: "
+            + ", ".join(remaining) + ". No TXT sidecar was published."
+        )
+
+
+def convert_lyric_sidecar_to_txt(source: Path, *, key_reader=None, output=None) -> list[str]:
     """Run the matching converter and verify its sibling TXT output."""
     converter = lyric_txt_converter(source)
     if converter is None:
         raise FileNotFoundError(
             f"{source.suffix.lower().lstrip('.')}2txt.py was not found on PATH or beside the auditor"
         )
-    output = source.with_suffix(".txt")
-    result = subprocess.run(
-        [sys.executable, str(converter), str(source), "-o", str(output)],
-        cwd=str(source.parent),
-        capture_output=True,
-        text=True,
-        errors="replace",
-        check=False,
-    )
-    if result.returncode or not output.is_file() or output.stat().st_size <= 0:
-        detail = (result.stdout or result.stderr or "").strip()
+    ensure_lyric_converter_dependencies(key_reader=key_reader)
+    output = output if output is not None else source.with_suffix(".txt")
+    if output.exists():
+        if output.stat().st_size > 0:
+            return [f"already_present:{output}"]
+        backup_before_inline_replacement(output)
+    module_name = "_audit_converter_" + uuid.uuid4().hex
+    spec = importlib.util.spec_from_file_location(module_name, converter)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Cannot import converter: {converter}")
+    library = importlib.util.module_from_spec(spec)
+    # Dependencies next to downloaded scripts must also be discoverable.
+    previous_path = list(sys.path)
+    try:
+        sys.path[:0] = converter_dependency_paths()
+        sys.path.insert(0, str(converter.parent))
+        spec.loader.exec_module(library)
+        function = getattr(library, "lrc_to_txt" if source.suffix.casefold() == ".lrc" else "srt_to_txt")
+        function(str(source), str(output))
+    finally:
+        sys.path[:] = previous_path
+    if not output.is_file() or output.stat().st_size <= 0:
         raise RuntimeError(
             f"{converter.name} did not create a usable TXT sidecar"
-            + (f": {detail[-500:]}" if detail else "")
         )
     return [f"converted:{source} -> {output}"]
 
@@ -5327,7 +5561,8 @@ def convert_lyric_sidecar_to_txt(source: Path) -> list[str]:
 def download_lyric_txt_converter(source: Path) -> Path:
     """Download the requested converter from the maintained ClaireCJS GitHub copy."""
     stem = "lrc2txt" if source.suffix.casefold() == ".lrc" else "srt2txt"
-    destination = Path(r"C:\BAT") / f"{stem}.py"
+    destination = _SCRIPT_DIR / "runtime" / "downloads" / f"{stem}.py"
+    destination.parent.mkdir(parents=True, exist_ok=True)
     last_error: Exception | None = None
     for base in LYRIC_CONVERTER_GITHUB_RAW_BASES:
         try:
@@ -5356,7 +5591,8 @@ def download_lyric_txt_converter(source: Path) -> Path:
 
 
 def download_print_with_columns_script() -> Path:
-    destination = Path(r"C:\BAT") / "print_with_columns.py"
+    destination = _SCRIPT_DIR / "runtime" / "downloads" / "print_with_columns.py"
+    destination.parent.mkdir(parents=True, exist_ok=True)
     last_error: Exception | None = None
     for base in LYRIC_CONVERTER_GITHUB_RAW_BASES:
         try:
@@ -5382,11 +5618,44 @@ def download_print_with_columns_script() -> Path:
     raise RuntimeError(f"Could not download print_with_columns.py from GitHub: {last_error}")
 
 
+def aligned_lyric_review_rows(source_lines, output_lines, suffix):
+    """Anchor on lyric words, never on timestamps, stanza gaps or cue numbers."""
+    from itertools import zip_longest
+
+    def anchors(lines, source=False):
+        result = []
+        for index, text in enumerate(lines):
+            if source and suffix.lower() == ".lrc":
+                text = re.sub(r"(?:\[\d+:\d+(?:[.:]\d+)?\]|<\d+:\d+(?:[.:]\d+)?>)", "", text)
+            if source and suffix.lower() == ".srt":
+                if "-->" in text or (text.strip().isdigit() and index + 1 < len(lines)
+                                      and "-->" in lines[index + 1]):
+                    continue
+                text = re.sub(r"</?(?:i|b|u|font)\b[^>]*>", "", text, flags=re.I)
+            words = tuple(re.findall(r"\w+", unicodedata.normalize("NFKC", text).casefold()))
+            if words:
+                result.append((index, words))
+        return result
+
+    left, right = anchors(source_lines, True), anchors(output_lines)
+    a, b = [key for _, key in left], [key for _, key in right]
+    blocks = [(0, 0, len(a))] if a == b else SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks()
+    i = j = 0
+    for x, y, length in blocks:
+        for k in range(length):
+            m, n = left[x + k][0], right[y + k][0]
+            yield from zip_longest(source_lines[i:m], output_lines[j:n], fillvalue="")
+            yield source_lines[m], output_lines[n]
+            i, j = m + 1, n + 1
+    yield from zip_longest(source_lines[i:], output_lines[j:], fillvalue="")
+
+
 def review_converted_txt(
     source: Path,
     output: Path,
     *,
     key_reader=None,
+    destination=None,
 ) -> bool:
     """Display source/result through print_with_columns, then require acceptance."""
     script = print_with_columns_script()
@@ -5399,25 +5668,69 @@ def review_converted_txt(
         if reader().casefold() != "y":
             return False
         script = download_print_with_columns_script()
+    ensure_lyric_converter_dependencies(
+        key_reader=key_reader, packages=("rich", "wcwidth", "colorama"), purpose="Column review"
+    )
     source_lines = read_text(source).replace("\r\n", "\n").splitlines()
     output_lines = read_text(output).replace("\r\n", "\n").splitlines()
-    count = max(len(source_lines), len(output_lines))
+    aligned = list(aligned_lyric_review_rows(source_lines, output_lines, source.suffix))
+    count = len(aligned)
+    before_label = source.suffix.lstrip(".").upper()
+    left_width = max(6, *(visible_cell_width(line) for line in [before_label, *source_lines]))
+
+    def paired_row(before: str, after: str) -> str:
+        return before + " " * (left_width - visible_cell_width(before)) + " │ " + after
+
     review_file = Path(tempfile.gettempdir()) / f"audit_music_batch_txt_review_{uuid.uuid4().hex}.txt"
     try:
-        review_file.write_text(
-            "Before TXT line │ After TXT line\n"
-            + "\n".join(
-                f"{source_lines[index] if index < len(source_lines) else ''} │ "
-                f"{output_lines[index] if index < len(output_lines) else ''}"
-                for index in range(count)
-            ),
-            encoding="utf-8",
-        )
-        subprocess.run(
-            [sys.executable, str(script), str(review_file), "--columns", "2", "--no_wrap"],
+        width = max(1, visible_console_size().columns - 1)
+        pair_width = left_width + 3 + max(map(visible_cell_width, ["TXT   ", *output_lines]))
+        panels = max(1, min(count, (width + 3) // (pair_width + 3)))
+        height = (count + panels - 1) // panels
+        panels = max(1, (count + height - 1) // height) if height else 1
+        rows = []
+        for panel in range(panels):
+            rows.append(paired_row(before_label, "TXT"))
+            for i in range(panel * height, min(count, (panel + 1) * height)):
+                rows.append(paired_row(*aligned[i]))
+        review_file.write_text("\n".join(rows), encoding="utf-8")
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "utf-8"
+        paths = converter_dependency_paths()
+        if env.get("PYTHONPATH"):
+            paths.append(env["PYTHONPATH"])
+        env["PYTHONPATH"] = os.pathsep.join(paths)
+        result = subprocess.run(
+            [sys.executable, "-B", str(script), str(review_file), "--columns", str(panels),
+             "--console_width", str(width), "--width", str(width), "--no_wrap", "--word_highlighting"],
             cwd=str(review_file.parent),
+            env=env,
+            capture_output=True,
             check=False,
         )
+        if result.returncode or not result.stdout.strip():
+            raise RuntimeError(
+                "Column review did not render; TXT was not accepted. "
+                + (result.stderr.decode("utf-8", "replace").strip().splitlines() or [""])[-1]
+            )
+        # The helper emits CRLF explicitly; Windows text output can turn that
+        # into CR-CR-LF. Universal newline decoding would invent a blank row.
+        rendered = re.sub(r"\r+\n", "\n", result.stdout.decode("utf-8", "replace"))
+        header, separator, body = rendered.partition("\n")
+        plain = re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]", "", header)
+        if sys.stdout.isatty() and not os.getenv("NO_COLOR"):
+            # DEC double-height letters occupy two normal columns. Use the
+            # renderer's actual label positions (its panel widths can differ).
+            big = ""
+            for label in re.finditer(r"\b(?:LRC|SRT|TXT)\b", plain):
+                col = visible_cell_width(plain[:label.start()]) // 2
+                if col < len(big) or 2 * (col + len(label[0])) > width:
+                    break
+                big = big.ljust(col) + label[0]
+            else:
+                if big:
+                    header = ANSI_DOUBLE_HEIGHT_TOP + big + "\n" + ANSI_DOUBLE_HEIGHT_BOTTOM + big
+        print(console_safe_text(header + separator + body), end="", flush=True)
     finally:
         if review_file.is_file():
             try:
@@ -5425,10 +5738,15 @@ def review_converted_txt(
             except Exception:
                 pass
     print(console_safe_text(
-        f"            ❓ Accept this generated TXT sidecar? [Y/N] {output}"
+        f"            ❓ Accept this generated TXT sidecar? [Y/N] {destination or output}"
     ), flush=True)
-    return reader().casefold() == "y"
-    return parse_lrc_for_sylt(text)
+    while True:
+        key = reader().casefold()
+        if key == "\x03":
+            raise KeyboardInterrupt
+        if key in {"y", "n"}:
+            return key == "y"
+        invalid_key_beep()
 
 
 def first_usable_timed_sidecar(
@@ -7416,10 +7734,15 @@ class ConsolePager:
             return 0
         with self._condition:
             self._raise_worker_error()
-            if self._closing:
-                raise RuntimeError("Console pager is closing")
-            self._pending.append(value)
-            self._condition.notify_all()
+            if not self._closing:
+                self._pending.append(value)
+                self._condition.notify_all()
+                return len(value)
+        # Colorama can retain this proxy as orig_stdout for its atexit reset.
+        # Finish earlier writes first; never page or enqueue after shutdown.
+        self._writer.join()
+        self._raise_worker_error()
+        self._write_terminal(value)
         return len(value)
 
     def wait_for_output(self) -> None:
@@ -10334,8 +10657,9 @@ def read_interactive_filename_edit(
             characters_read = ctypes.c_ulong()
             control = ConsoleReadControl()
             control.nLength = ctypes.sizeof(ConsoleReadControl)
-            control.nInitialChars = len(initial_filename)
-            print(prompt, end="", flush=True)
+            control.nInitialChars = len(initial_filename.encode("utf-16-le")) // 2
+            # ReadConsoleW edits an already-echoed prefix, unlike input().
+            print(prompt + initial_filename, end="", flush=True)
             if read_console(
                 handle,
                 buffer,
@@ -17409,6 +17733,7 @@ def render_usage(use_color: bool = True) -> str:
         note("  ^ Disable ANSI styling."),
         "",
         f"  {command('--no-pager')}  {default_badge(False)}",
+        f"  {command('--wipe-packages')}  Recycle local packages and downloaded helpers; keep frozen copies and music.",
         f"  {command('--show-batch-journal')}  Show recorded recovery paths; do not modify music.",
         note("  ^ Disable automatic More-style paging in an interactive console."),
         "",
@@ -18025,12 +18350,15 @@ def action_scope_options(
     allow_delete_art: bool = False,
     allow_remember_no: bool = True,
     allow_rename_audio: bool = False,
+    allow_edit_name: bool = False,
     allow_list_files: bool = False,
 ) -> str:
     """Render all single-key choices for a repeatable batch action."""
     yes_key = "Y" if default_yes else "y"
     no_key = "n" if default_yes else "N"
     choices = [f"{yes_key}=Yes", f"{no_key}=No"]
+    if allow_edit_name:
+        choices.append("E=Edit name")
     if allow_always:
         choices.append("A=Always")
     if allow_stop_folder:
@@ -18080,6 +18408,8 @@ def action_scope_options(
             rgb_text(" / ", 255, 165, 45, True),
             rgb_text("E=Rename Audio", 255, 205, 95, True),
         ])
+    if allow_edit_name:
+        chunks.extend([rgb_text(" / ", 255, 165, 45, True), rgb_text("E=Edit name", 255, 205, 95, True)])
     if allow_list_files:
         chunks.extend([
             rgb_text(" / ", 255, 165, 45, True),
@@ -18112,6 +18442,7 @@ def action_scope_prompt(
     allow_delete_art: bool = False,
     allow_remember_no: bool = True,
     allow_rename_audio: bool = False,
+    allow_edit_name: bool = False,
     allow_list_files: bool = False,
 ) -> str:
     """Build the urgent repeatable-action prompt."""
@@ -18126,6 +18457,7 @@ def action_scope_prompt(
             allow_delete_art=allow_delete_art,
             allow_remember_no=allow_remember_no,
             allow_rename_audio=allow_rename_audio,
+            allow_edit_name=allow_edit_name,
             allow_list_files=allow_list_files,
         ),
         indent=indent,
@@ -18144,6 +18476,7 @@ def action_scope_answer(choice: str, use_color: bool) -> str:
         "remember_no": ("No — remembered for this file!", (185, 145, 255)),
         "delete_art": ("Cover Art Recycled!", (255, 105, 105)),
         "rename_audio": ("Rename Audio", (255, 205, 95)),
+        "edit_name": ("Edit name", (255, 205, 95)),
         "list_files": ("List Files + Metrics", (120, 220, 255)),
     }
     label, color = labels[choice]
@@ -18181,6 +18514,7 @@ def prompt_for_action_scope(
     allow_delete_art: bool = False,
     allow_remember_no: bool = True,
     allow_rename_audio: bool = False,
+    allow_edit_name: bool = False,
     allow_list_files: bool = False,
 ) -> str:
     """Read Y/N/Always/Never/Folder with one key and no required Enter."""
@@ -18196,6 +18530,7 @@ def prompt_for_action_scope(
         allow_delete_art=allow_delete_art,
         allow_remember_no=allow_remember_no,
         allow_rename_audio=allow_rename_audio,
+        allow_edit_name=allow_edit_name,
         allow_list_files=allow_list_files,
     )
     interactive_terminal = bool(
@@ -18219,6 +18554,8 @@ def prompt_for_action_scope(
             choice = "yes" if default_yes else "no"
         else:
             choice = ACTION_SCOPE_KEYS.get(key.casefold())
+            if key.casefold() == "e" and allow_edit_name:
+                choice = "edit_name"
             if (
                 choice is None
                 or (choice == "folder" and not allow_folder)
@@ -18906,6 +19243,9 @@ def apply_finding(
         return apply_redundant_album_artist_filename_group(root, finding)
 
     if category == "all_caps_album_title":
+        if finding.get("details", {}).get("_edited_inline"):
+            dest, family, backups = rename_waveform_problem_family(target, finding["details"]["proposed_name"])
+            return [f"renamed:{dest}", f"renamed_family:{len(family)}", *(f"backup:{b}" for b in backups)]
         _renamed_audio, actions = prompt_for_all_caps_album_title_rename(
             target,
             str(finding.get("details", {}).get("proposed_name") or target.name),
@@ -18918,8 +19258,6 @@ def apply_finding(
         "embedded_lyrics_outdated",
         "plain_lyrics_not_embedded",
         "karaoke_not_embedded",
-        "missing_txt_from_lrc",
-        "missing_txt_from_srt",
     }:
         actions = embed_lyrics(target, write=True)
         required_action = {
@@ -18958,13 +19296,44 @@ def apply_finding(
             print(console_safe_text(
                 f"            ✅ Downloaded {converter.name} from GitHub."
             ), flush=True)
-        actions = convert_lyric_sidecar_to_txt(source)
-        output = source.with_suffix(".txt")
-        if not review_converted_txt(source, output, key_reader=key_reader):
-            recycle_path(output)
-            return ["rejected:generated-txt"]
-        actions.append(f"reviewed:{output}")
-        return actions
+        output = target.with_suffix(".txt")
+        check_pending_change(source, consume=False)
+        check_pending_change(output, consume=False)
+        original = action_file_state(output)
+        if original is not None and output.stat().st_size > 0:
+            return [f"already_present:{output}"]
+        ensure_lyric_converter_dependencies(
+            key_reader=key_reader,
+            packages=("chardet", "colorama", "rich", "wcwidth"),
+            purpose="TXT conversion and column review",
+        )
+        staged = Path(tempfile.gettempdir()) / f"audit_music_batch_candidate_{uuid.uuid4().hex}.txt"
+        try:
+            convert_lyric_sidecar_to_txt(source, key_reader=key_reader, output=staged)
+            reviewed_state = action_file_state(staged)
+            if not review_converted_txt(source, staged, key_reader=key_reader, destination=output):
+                return ["rejected:generated-txt"]
+            check_pending_change(source, consume=False)
+            check_pending_change(output, consume=False)
+            if action_file_state(output) != original or action_file_state(staged) != reviewed_state:
+                raise ExternalFileChange("The TXT destination or preview changed during review; nothing published.")
+            payload = staged.read_bytes()
+            if original is None:
+                with output.open("xb") as published:
+                    published.write(payload)
+            else:
+                backup_before_inline_replacement(output)
+                with output.open("r+b") as published:
+                    if os.fstat(published.fileno()).st_size != 0:
+                        raise ExternalFileChange(f"TXT destination is no longer empty: {output}")
+                    published.write(payload)
+            return [f"converted:{source} -> {output}", f"reviewed:{output}"]
+        finally:
+            if staged.is_file():
+                try:
+                    recycle_path(staged)
+                except Exception as exc:
+                    print(console_safe_text(f"            ⚠️ Temporary preview retained: {staged} ({exc})"))
 
     if category == "newer_lrc_needs_srt_backfill":
         return backfill_srt_from_lrc(target)
@@ -19511,6 +19880,8 @@ def _interactive_apply(
             or finding["category"] == "excessive_silence"
         )
         category_label = finding_category_label(finding["category"])
+        if finding.get("details", {}).get("contextual_album"):
+            category_label = "Album track filenames"
         if finding["category"] == "missing_album":
             category_label += ":"
         header_stops = ((255, 250, 80), (210, 145, 0))
@@ -19716,7 +20087,20 @@ def _interactive_apply(
                 continue
 
             question = approval_question(finding)
+            if finding.get("details", {}).get("contextual_album"):
+                question = "Apply the displayed album filename changes?"
             target = safe_finding_path(root, finding)
+            details = finding.setdefault("details", {})
+            edit_target = edit_name = None
+            if finding["category"] in {"filename_marker_style", "all_caps_album_title"}:
+                edit_target, edit_name = target, details.get("proposed_name")
+            elif finding["category"] in GROUPED_RENAME_CATEGORIES:
+                group = details.get("renames", [])
+                audio = [r for r in group if Path(r["before"]).suffix.lower() in AUDIO_EXTS]
+                if len(audio) == 1:
+                    proposed = Path(audio[0]["after"])
+                    if all(Path(r["after"]).name.casefold().startswith(proposed.stem.casefold() + ".") for r in group):
+                        edit_target, edit_name = root / audio[0]["before"], proposed.name
             folder_level = bool(
                 finding.get("details", {}).get("folder_level")
             )
@@ -19785,7 +20169,31 @@ def _interactive_apply(
                             and associated_audio_for_sidecar(target) is not None
                         ),
                         allow_list_files=replaygain_scope,
+                        allow_edit_name=bool(edit_name),
                     )
+                    if choice == "edit_name":
+                        entered = read_interactive_filename_edit("            ✏️ Filename: ", edit_name, input_reader=input_reader).strip()
+                        reset_console_pager_after_user_input()
+                        if not entered or entered == edit_target.name:
+                            choice = "no"
+                            break
+                        if (Path(entered).name != entered or Path(entered).suffix.lower() != edit_target.suffix.lower()
+                            or re.search(r'[<>:"/\\|?*\x00-\x1f]', entered) or Path(entered).is_reserved()):
+                            print("            ⚠️ Use a valid filename and keep the original extension.")
+                            continue
+                        print(f"            🎵 Before: {edit_target.name}\n            ✏️ After:  {entered}")
+                        if not prompt_for_approval("Apply this edited filename?", default_yes=False, use_color=use_color, key_reader=key_reader):
+                            choice = "no"
+                            break
+                        if finding["category"] in GROUPED_RENAME_CATEGORIES:
+                            for r in group:
+                                dest = Path(r["after"])
+                                r["after"] = str(dest.with_name(Path(entered).stem + dest.name[len(Path(edit_name).stem):]))
+                        else:
+                            details["proposed_name"] = entered
+                            details["_edited_inline"] = True
+                        choice = "yes"
+                        break
                     if choice == "list_files":
                         listed_paths = sorted(
                             (
@@ -20008,7 +20416,7 @@ def _interactive_apply(
                                 observed[str(srt_path.resolve())] = action_file_state(srt_path)
                         elif finding["category"] in {"missing_txt_from_lrc", "missing_txt_from_srt"}:
                             txt_path = target.with_suffix(".txt")
-                            if "rejected:generated-txt" in actions:
+                            if "rejected:generated-txt" in actions or "skipped:converter-download-declined" in actions:
                                 actions.append("review:rejected; source unchanged")
                             elif not txt_path.is_file() or txt_path.stat().st_size <= 0:
                                 raise RuntimeError("TXT verification failed: converter did not create a usable sidecar")
@@ -28036,6 +28444,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "showing before/after waveform measurements without the normal candidate prompt."
         ),
     )
+    parser.add_argument("--wipe-packages", action="store_true", help="Recycle local package installs and downloaded runtime helpers, then exit.")
     parser.add_argument("--show-batch-journal", action="store_true", help="Show recovery history for the root without changing music files.")
     parser.add_argument("--include-archives", action="store_true", help="Include archived/deprecated audio in active tag checks.")
     parser.add_argument("--format", choices=("text", "json", "markdown"), default="text", help="Report format for stdout.")
@@ -28307,6 +28716,10 @@ def _main(argv: list[str] | None = None) -> int:
             print_usage(use_color=use_color)
             return 0
     args = parse_args(raw_argv)
+    if args.wipe_packages:
+        if raw_argv != ["--wipe-packages"]:
+            raise SystemExit("Use --wipe-packages alone; no audit will run.")
+        return wipe_local_packages()
     if args.show_batch_journal:
         print("\n".join(history_lines(Path(args.root or "."))))
         return 0
@@ -28473,6 +28886,7 @@ def _main(argv: list[str] | None = None) -> int:
             not args.no_color,
         )
         return 2
+    check_lyric_converter_updates_monthly()
     if args.bake:
         bake_path = Path(args.root).expanduser().resolve()
         if not bake_path.is_file():

@@ -10,6 +10,44 @@ import time
 from pathlib import Path
 
 
+_MUTAGEN_SETUP_LOCK = threading.Lock()
+
+
+def metadata_package_roots():
+    """App-private packages work with normal and pip-less embedded Python."""
+    import sys
+    appdir = Path(__file__.split('::', 1)[0]).resolve().parent
+    if appdir.name == 'src': appdir = appdir.parent
+    tag = sys.implementation.cache_tag
+    roots = [appdir / 'autodownloaded' / 'tag-editor' / tag]
+    local = os.environ.get('LOCALAPPDATA')
+    if local: roots.append(Path(local) / 'PAFPlayer' / 'autodownloaded' / 'tag-editor' / tag)
+    return roots
+
+
+def load_mutagen(*, install=False):
+    """Load shipped runtime support or a pre-existing offline cache; never download."""
+    import importlib
+    import sys
+    with _MUTAGEN_SETUP_LOCK:
+        try: return importlib.import_module('mutagen')
+        except ModuleNotFoundError as exc:
+            if exc.name != 'mutagen': raise
+        for root in metadata_package_roots():
+            try: candidates = sorted(root.glob('mutagen-*'), reverse=True)
+            except OSError: candidates = []
+            for folder in candidates:
+                if (folder / 'complete').is_file() and str(folder) not in sys.path:
+                    sys.path.insert(0, str(folder))
+        importlib.invalidate_caches()
+        try: return importlib.import_module('mutagen')
+        except ModuleNotFoundError as exc:
+            if exc.name != 'mutagen': raise
+            raise RuntimeError('This Python runtime is missing required Mutagen metadata support. '
+                'Run PAFPlayer through its launcher and bundled runtime/python.exe, or update '
+                'the incomplete runtime. Tag editing does not download packages.') from exc
+
+
 def move_row(paths, source, destination):
     """Move a single slot, preserving duplicates and every other slot's order."""
     result = list(paths)
@@ -53,7 +91,7 @@ def metadata_display(path):
     """Read optional tags away from Tk; retain the filename when tags are absent."""
     name = Path(path).name
     try:
-        import mutagen
+        mutagen = load_mutagen()
         media = mutagen.File(path, easy=True)
         if media is None: return name, '--:--'
         def first(key):
@@ -70,7 +108,7 @@ def metadata_display(path):
 def metadata_extra(path, last_played=None):
     result={'year':'','album':'','folder':str(Path(path).parent),'genre':'','last_played':'—'}
     try:
-        import mutagen
+        mutagen = load_mutagen()
         media=mutagen.File(path,easy=True)
         for output,key in (('year','date'),('album','album'),('genre','genre')):
             values=media.get(key,[]) if media is not None and getattr(media,'tags',None) else []
@@ -352,13 +390,39 @@ class PlaylistWindow:
             for label, command in [('ADD FILE', add_files), ('ADD DIR', add_folder), ('REMOVE', remove), ('PLAY', play)]:
                 tk.Button(footer, text=label, command=command, bg='#3b4655', fg='white', activebackground='#597189').pack(side='left', padx=(0, 4))
             tk.Label(footer, textvariable=status, bg='#222a35', fg='#b8edb4').pack(side='right')
+            tag_setup = {'busy': False}
             def edit_tags(event=None):
                 indexes=rows.curselection()
                 if len(indexes)!=1:
                     status.set('Select exactly one song to edit tags');return 'break'
                 path=Path(state['paths'][indexes[0]])
+                if tag_setup['busy']:
+                    status.set('Tag-editor support is still loading…');return 'break'
+                tag_setup['busy'] = True
+                started = time.monotonic()
+                result = queue.Queue()
+                status.set('Loading tag-editor support…')
+                def prepare():
+                    try: load_mutagen();result.put(None)
+                    except Exception as exc: result.put(str(exc))
+                threading.Thread(target=prepare, name='paf-tag-editor-setup', daemon=True).start()
+                def finish():
+                    try: error = result.get_nowait()
+                    except queue.Empty:
+                        status.set(f'Loading tag-editor support… {int(time.monotonic()-started)}s')
+                        root.after(150, finish);return
+                    tag_setup['busy'] = False
+                    if error:
+                        status.set('Tag-editor setup failed; use Alt+3 to retry')
+                        self.trace('playlist.tag-setup.error', reason=error[:500])
+                        messagebox.showerror('Cannot prepare tag editor', error, parent=root);return
+                    status.set('Tag-editor support ready')
+                    show_tag_editor(path)
+                root.after(50, finish)
+                return 'break'
+            def show_tag_editor(path):
                 try:
-                    import mutagen
+                    mutagen = load_mutagen()
                     media=mutagen.File(str(path),easy=True)
                     if media is None:raise ValueError('Unsupported audio format')
                 except Exception as exc:messagebox.showerror('Cannot read tags',str(exc),parent=root);return 'break'

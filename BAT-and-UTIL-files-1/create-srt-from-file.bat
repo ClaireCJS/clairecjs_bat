@@ -2149,15 +2149,20 @@ rem Cosmetic resets:
 echo on
 
 rem New feature, using our txt_comparator:
-        pause "Determining if we should test new txt comprator .... FILESIZE[POSTPROCESSED_LYRICS] is %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 ... FILESIZE[SRT_FILE] %@FILESIZE["%SRT_FILE%"] gt 5 c ...... FIESIZE[txt_file]=%@filesize["%TXT_FILE%"]"
-        iff %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 .and. %@FILESIZE["%SRT_FILE%"] gt 5 then
-echo            call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FiLE%" --fix 2 via 1
-                pause "txt comparator begin"
-                call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FiLE%" --fix 2 via 1
-        endiff
-                pause "not using txt comparator because postprocesed lyrics and srt file did not both exist"
+        pause "%ansi_color_orange%%blink_on%Determining if we should test new txt comprator .... SOLELY_BY_AI=“%SOLELY_BY_AI%” FILESIZE[POSTPROCESSED_LYRICS] is %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 ... FILESIZE[SRT_FILE] %@FILESIZE["%SRT_FILE%"] gt 5 c ...... FIESIZE[txt_file]=%@filesize["%TXT_FILE%"]%blink_off%%ansi_color_normal%"
+                if "1" == "%SOLELY_BY_AI%" goto :skip_text_comparator_2165
+                        iff %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 .and. %@FILESIZE["%SRT_FILE%"] gt 5 then
+                                pause "txt comparator begin"
+                        echo    call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FILE%" --fix 2 via 1
+                                call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FILE%" --fix 2 via 1
+                                call divider
+                                call review-file -stL -wh -ins "%POSTPROCESSED_LYRICS%"  
+                                call review-file -stU -wh -ins "%SRT_FILE%"              
+                        else
+                                pause "not using txt comparator because postprocesed lyrics and srt file did not both exist"
+                        endiff
+                :skip_text_comparator_2165
         pause "new txt comprator testing done"
-
 
 
 echo off

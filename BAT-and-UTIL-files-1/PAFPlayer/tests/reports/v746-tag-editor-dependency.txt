@@ -1,0 +1,19 @@
+test_archive_cannot_escape_package_folder (test_v746_tag_editor_dependency.DependencyTests) ... ok
+test_corrupt_download_is_rejected_before_extraction (test_v746_tag_editor_dependency.DependencyTests) ... ok
+test_existing_runtime_requires_no_download (test_v746_tag_editor_dependency.DependencyTests) ... ok
+test_verified_download_and_completed_cache_reuse (test_v746_tag_editor_dependency.DependencyTests) ... ok
+test_backup_failure_prevents_save (test_v689_playlist_columns.Tests) ... ok
+test_edit_verifies_backup_and_preserves_other_tags (test_v689_playlist_columns.Tests) ... ok
+test_header_and_tag_selection_are_exposed (test_v689_playlist_columns.Tests) ... ok
+test_last_played_and_folder_are_available (test_v689_playlist_columns.Tests) ... ok
+test_drag_and_jump_in_real_tk_window (test_v686_playlist_editor.PlaylistEditorTests) ... ok
+test_metadata_prefers_artist_and_title_and_falls_back (test_v686_playlist_editor.PlaylistEditorTests) ... ok
+test_reorder_keeps_duplicates_and_other_slots (test_v686_playlist_editor.PlaylistEditorTests) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 2.860s
+
+OK
+
+Syntax, embedded-source parity and release parity: OK
+Real network installation verified under python -B -S. Mutagen 1.47.0 loaded, generated FLAC tags saved/read, audio backup verified. Fixture retained in tests/runs/v746-real-b22cddfd6bdd4a56921c926d666804d2.

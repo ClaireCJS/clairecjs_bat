@@ -48,7 +48,7 @@ class RemoteLockTests(unittest.TestCase):
         self.assertEqual('local-lease',result['identity'])
         self.assertEqual('Second',result['state']['lyric'])
         self.assertEqual('First',result['state']['lyric_previous'])
-        self.assertEqual(12,result['state']['position_seconds'])
+        self.assertEqual(12.0,result['state']['position_seconds'])
         self.assertTrue(result['state']['lockscreen_show_version'])
         self.assertIsNone(lockscreen.status_payload(remote,'local-lease','different'))
         remote.connected=False
@@ -131,3 +131,24 @@ setup_dialog(C(),threading.Event())
         self.assertEqual(0,result.returncode,result.stdout+result.stderr)
 
 if __name__=='__main__':unittest.main()
+
+
+class LocalClockRegressionTests(unittest.TestCase):
+    def test_cached_cues_continue_after_four_second_network_gap(self):
+        remote = Remote()
+        value = lockscreen.status_payload(remote, 'lease', 'remote-one', now=110)
+        self.assertEqual(value['state']['position_seconds'], 21)
+        self.assertEqual(value['state']['lyric'], 'Third')
+        remote._state['paused'] = True
+        remote._state['lyric'] = 'Second'
+        value = lockscreen.status_payload(remote, 'lease', 'remote-one', now=110)
+        self.assertEqual(value['state']['position_seconds'], 11)
+        self.assertEqual(value['state']['lyric'], 'Second')
+
+    def test_disconnect_and_changed_owner_invalidate_cached_cues(self):
+        remote = Remote()
+        remote.connected = False
+        self.assertIsNone(lockscreen.status_payload(remote, 'lease', 'remote-one', now=110))
+        remote.connected = True
+        remote.owner_identity = 'different'
+        self.assertIsNone(lockscreen.status_payload(remote, 'lease', 'remote-one', now=110))

@@ -74,9 +74,11 @@ while ($line=<STDIN>) {
     $format_line = 0;
 
     if ($line =~ /([0-9,]+) bytes total disk space/i) {
-		$line        = $ANSI_FAINT_ON . $line;
+
         $total       = $1;
+        $line        = $ANSI_FAINT_ON . sprintf("%19s bytes total", $total);
         $totalnice   = &nocomma($total);
+        $displaynice = $totalnice;
         $format_line =  1;
 		$line        =~ s/ disk space//;
     }#endif
@@ -86,9 +88,11 @@ while ($line=<STDIN>) {
 	#——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
     if ($line =~ /([0-9,]+) bytes used/i)   {
-		$line        = $ANSI_FAINT_ON . $line;
+
         $used        = $1;
+        $line        = $ANSI_FAINT_ON . sprintf("%19s bytes used", $used);
 		$usednice    = &nocomma($used);
+        $displaynice = $usednice;
         $format_line =  1;
 		$line        =~ s/bytes used/bytes used /;
     }#endif
@@ -96,9 +100,11 @@ while ($line=<STDIN>) {
 	#——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 	if ($line =~ /([0-9,]+) bytes free/i) {
-		$line        = $ANSI_FAINT_ON . $line;
+
         $free        = $1;
+        $line        = $ANSI_FAINT_ON . sprintf("%19s bytes free", $free);
         $freenice    = &nocomma($free);
+        $displaynice = $freenice;
         $format_line =  1;
 		$line        =~ s/bytes free/bytes free /;
     }#endif
@@ -111,44 +117,29 @@ while ($line=<STDIN>) {
        $pctfull = $usednice/$totalnice * 100; $pctfull = sprintf("%2.1f",$pctfull);
        $pctfree = $freenice/$totalnice * 100; $pctfree = sprintf("%2.1f",$pctfree);
     }
-	$freenice4print = &comma(sprintf("%.0f",($freenice/$GIGABYTE))     );
+	$displaynice4print = &comma(sprintf("%.0f",($displaynice/$GIGABYTE))     );
 	#————————————————————————————————————————————— COMPUTE SUMMARY VALUES ————————————————————————————————————————————————
 
 
     $msg .= $line;
     if ($format_line) {
-		#### PRINT GIGABYTES: {added 2001}
-
-		if (($line =~ /bytes used/) && ($usednice < $TERABYTE_WRONG) && ($totalnice > $TERABYTE_WRONG)) { $msg .= "  "; }				#if (($line =~ /bytes used/) && ($usednice < $TERABYTE) && ($totalnice > $TEN_TERABYTE)) { $msg .= " " ; }
-
-
-		$msg .= " ($freenice4print" . "G" . $ANSI_ITALICS_OFF . ")";		#if ($freenice > $TERABYTE) { #DEBUG: $msg .= " [freenice is $freenice]";
-
-		#### PRINT TERABYTES {added 2023}:
-		if ($totalnice > $TERABYTE) {																									#DEBUG: $msg .= " [reald1 is $freenice]";	#trying 20240126
-			$freenice_as_terabytes   = &comma(sprintf("%.1f",($freenice/$TERABYTE))) . "T" . $ANSI_ITALICS_OFF;   
-			$msg .= " " . "[";
-			if (($freenice<$TEN_TERABYTE_WRONG) && ($totalnice>$TEN_TERABYTE_WRONG)) { $msg .= " "; }
-			if (($freenice<$TEN_TERABYTE_WRONG) && ($totalnice>$TEN_TERABYTE_WRONG)) { $msg .= " "; }
-			$msg .= "$ANSI_FAINT_OFF$freenice_as_terabytes$ANSI_FAINT_ON]";
-		}
+        # Fixed visible widths: all byte/GiB/TiB columns line up across drives.
+        $msg .= " (" . sprintf("%7s", $displaynice4print) . "G$ANSI_ITALICS_OFF)";
+        if ($totalnice > $TERABYTE) {
+            $msg .= " [$ANSI_FAINT_OFF" . sprintf("%5.1fT", $displaynice/$TERABYTE) . "$ANSI_FAINT_ON]";
+        }
     }
     $msg .= "$ANSI_FAINT_OFF\n";
 	#$msg .= "[totalnice=$totalnice]\n";
 
     if ($line =~ /([0-9,]+) bytes free/i) {
         if ($pctfull >= 99.7) {
-            $msg .= "💥";
+            $msg .= "💥 ";
         } else {
-            if ($totalnice <=         $PETABYTE_WRONG) { $msg .= "!"; }
-            if ($totalnice <= $HUNDRED_TERABYTE_WRONG) { $msg .= "!"; }
-            if ($totalnice <=     $TEN_TERABYTE_WRONG) { $msg .= "!"; }
-            if ($totalnice <=         $TERABYTE_WRONG) { $msg .= "!"; }
-            if ($totalnice <=         $GIGABYTE_WRONG) { $msg .= "!"; }
-            if ($totalnice <=         $MEGABYTE_WRONG) { $msg .= "!"; }
+            $msg .= "❗ ";
         }
         $msg .= &colorprint($pctfull,0);
-        $msg .= &colorprint($pctfull,1) . "\%" . "$ANSI_UNDERLINE_OFF full / $pctfree\% free$ANSI_RESET\n";
+        $msg .= &colorprint(sprintf("%5s", $pctfull),1) . "\%" . "$ANSI_UNDERLINE_OFF full / " . sprintf("%5s", $pctfree) . "\% free$ANSI_RESET\n";
         $totaltotalnice += $totalnice;
         $totalusednice  += $usednice;
         $totalfreenice  += $freenice;
@@ -185,10 +176,10 @@ sub panel_line {
 if ($DISPLAY_TOTALS) {
     my $SPACER = "    ";
     my $label_width = 22;
-    my $value_width = 19;
-    my $usable = sprintf("%-${label_width}s%${value_width}s %6.1fG %5.1fT", "Total Usable Space:", &comma($totaltotalnice), ($totaltotalnice/$GIGABYTE), ($totaltotalnice/$TERABYTE));
-    my $used   = sprintf("%-${label_width}s%${value_width}s %6.1fG %5.1fT", "Total Used Space:",   &comma($totalusednice),  ($totalusednice /$GIGABYTE), ($totalusednice /$TERABYTE));
-    my $free   = sprintf("%-${label_width}s%${value_width}s %6.1fG %5.1fT", "Total Free Space:",   &comma($totalfreenice),  ($totalfreenice /$GIGABYTE), ($totalfreenice /$TERABYTE));
+    my $value_width = 21;
+    my $usable = sprintf("%-${label_width}s%${value_width}s %10.1fG %6.1fT", "Total Usable Space:", &comma($totaltotalnice), ($totaltotalnice/$GIGABYTE), ($totaltotalnice/$TERABYTE));
+    my $used   = sprintf("%-${label_width}s%${value_width}s %10.1fG %6.1fT", "Total Used Space:",   &comma($totalusednice),  ($totalusednice /$GIGABYTE), ($totalusednice /$TERABYTE));
+    my $free   = sprintf("%-${label_width}s%${value_width}s %10.1fG %6.1fT", "Total Free Space:",   &comma($totalfreenice),  ($totalfreenice /$GIGABYTE), ($totalfreenice /$TERABYTE));
     my $pct    = sprintf("%-${label_width}s%16s %s", "Percentage Free (Full):", "", "🌟🌟🌟 $freepct\% (\e[21m" . &colorprint($fullpct,1) . "\e[24m\%\e[25m full)" . " 🌟🌟🌟");
     print $FINAL_ANSI . "\n";
     print panel_line($SPACER . $usable) . "\n";

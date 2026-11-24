@@ -13,7 +13,7 @@ from urllib.parse import urlsplit
 def status_payload(server, identity, remote_identity, show_version=False, now=None):
     """Publish only a currently verified remote session, with a local lease."""
     from PAFPlayer_remote_tray import synchronized_position
-    from PAFPlayer_lockscreen import lockscreen_lyric_context
+    from PAFPlayer_lockscreen import lockscreen_counter_position, lockscreen_lyric_context
     with server._lock:
         if not server.connected or not server.owner_identity or server.owner_identity != remote_identity:
             return None
@@ -27,13 +27,13 @@ def status_payload(server, identity, remote_identity, show_version=False, now=No
     track = state.get('track') if isinstance(state.get('track'), dict) else {}
     playing = bool(state.get('playing')); paused = bool(state.get('paused'))
     stopped = bool(state.get('transport_stopped'))
-    position = synchronized_position(state, time.time() if now is None else now, offset)
+    position = synchronized_position(state, time.time() if now is None else now, offset, max_extrapolation=30.0)
     lyric, previous = lockscreen_lyric_context(
         state.get('lyric_timeline'), position, state.get('karaoke_offset_seconds', 0),
         limited(state.get('lyric')), playing=playing, paused=paused, stopped=stopped,
         speed=state.get('speed', 1.0))
     output = {'program':'PAFPlayer', 'version':version, 'playing':playing, 'paused':paused,
-              'transport_stopped':stopped, 'position_seconds':position,
+              'transport_stopped':stopped, 'position_seconds':lockscreen_counter_position(position),
               'metadata':{key:limited(metadata.get(key)) for key in
                           ('Artist','artist','Song','title','Album','album','Year','year','Date','date')},
               'track':{'filename':limited(track.get('filename'))},

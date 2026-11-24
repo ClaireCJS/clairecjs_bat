@@ -797,13 +797,23 @@ class RemoteHotkeys:
         return events
 
 
-def synchronized_position(state, local_epoch, clock_offset=0.0):
-    """Advance the published audio clock using the server's measured wall clock."""
+def synchronized_position(state, local_epoch, clock_offset=0.0, *, max_extrapolation=4.0):
+    """Advance a sampled clock locally; each consumer bounds its stale-data lease."""
+    import math
     try:
-        position = float(state.get('lyric_position_seconds') or state.get('position_seconds') or 0)
-        if state.get('playing') and not state.get('paused'):
-            elapsed = max(0.0, min(4.0, local_epoch + clock_offset - float(state['lyric_clock_epoch'])))
-            position += elapsed * float(state.get('speed') or 1)
+        raw = state.get('lyric_position_seconds')
+        position = float(state.get('position_seconds', 0) if raw is None else raw)
+        if not math.isfinite(position): return 0.0
+        if state.get('playing') and not state.get('paused') and not state.get('transport_stopped'):
+            epoch = state.get('lyric_clock_epoch')
+            if epoch is not None:
+                elapsed = float(local_epoch) + float(clock_offset) - float(epoch)
+                speed = float(state.get('speed') or 1)
+                if math.isfinite(elapsed) and math.isfinite(speed) and speed > 0:
+                    position += max(0.0, min(float(max_extrapolation), elapsed)) * speed
+        duration = state.get('duration_seconds')
+        if isinstance(duration, (int, float)) and math.isfinite(duration) and duration > 0:
+            position = min(position, duration)
         return max(0.0, position)
     except (KeyError, TypeError, ValueError):
         return 0.0

@@ -1,0 +1,18 @@
+test_existing_runtime_requires_no_download (test_v746_tag_editor_dependency.DependencyTests) ... ok
+test_incomplete_runtime_never_downloads_at_editor_open (test_v746_tag_editor_dependency.DependencyTests) ... ok
+test_preexisting_completed_cache_remains_available_offline (test_v746_tag_editor_dependency.DependencyTests) ... ok
+test_backup_failure_prevents_save (test_v689_playlist_columns.Tests) ... ok
+test_edit_verifies_backup_and_preserves_other_tags (test_v689_playlist_columns.Tests) ... ok
+test_header_and_tag_selection_are_exposed (test_v689_playlist_columns.Tests) ... ok
+test_last_played_and_folder_are_available (test_v689_playlist_columns.Tests) ... ok
+test_drag_and_jump_in_real_tk_window (test_v686_playlist_editor.PlaylistEditorTests) ... ok
+test_metadata_prefers_artist_and_title_and_falls_back (test_v686_playlist_editor.PlaylistEditorTests) ... ok
+test_reorder_keeps_duplicates_and_other_slots (test_v686_playlist_editor.PlaylistEditorTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.879s
+
+OK
+
+Build requirement/import, syntax, bundle and release-copy parity: OK.
+Actual runtime/python.exe: Mutagen 1.47.0 loaded from runtime/Lib/site-packages and FLAC edit/read/backup succeeded with urllib network requests blocked.
