@@ -1,7 +1,7 @@
 # PAFPlayer documentation
 
-Current release: **V747** — ship Mutagen in the private runtime for offline tag editing.
-[Release notes](../releases/PAFPlayer_v747_runtime_mutagen_release_notes.md).
+Current release: **V754** — X accepts arbitrary positive speed multipliers.
+[Release notes](../releases/PAFPlayer_v754_arbitrary_speed_release_notes.md).
 
 ## Console granularity safety
 
@@ -359,3 +359,140 @@ press Alt+3 or right-click → Edit tags. This works offline and downloads nothi
 when opening the editor. Use the launcher to select the bundled runtime. An
 incomplete or different Python runtime gets an actionable error; an existing
 completed V746 cache can still be loaded offline for compatibility.
+
+## Download storage and legacy helper cleanup
+
+Automatic application-support downloads now live under `PAFPlayer/runtime/`:
+Claire helpers in `runtime/clairecjs_utils/`, FFmpeg in `runtime/support/ffmpeg/`,
+lock-screen installation payloads in `runtime/downloads/LockScreenInstaller/`,
+and model downloads by default in `runtime/models/`. A model directory explicitly
+chosen in configuration and explicit media Save As destinations retain that
+choice. Existing FFmpeg and metadata caches remain readable for compatibility;
+new support files are never downloaded beside `PAFPlayer.py`. The runtime builder
+keeps its Python installer cache inside the staged runtime as well.
+
+At startup PAFPlayer moves root `claire_*.py` files into
+`runtime/clairecjs_utils/`. If a name already exists, both copies are preserved;
+the legacy copy goes under `runtime/clairecjs_utils/legacy/` with numbered
+collision suffixes as needed. The runtime helper folder is in the import lookup.
+
+## Native lock-screen publisher V531
+
+V748 bundles and requires the signed V531 companion. Earlier Python clock fixes
+could still use V530, which resubmitted an unchanged badge with every timer tick.
+V531 sends changing text tiles every second and renews the badge only when its
+glyph changes or its 30-second lease needs renewal. A badge update is always
+followed by a text tile so detailed status stays populated. The tray bridge uses
+cached timestamped lyrics during a transient network timeout for up to 15 seconds;
+it expires that lease and rejects different player owners. It does not request
+lyrics from the master per timer tick.
+
+Restart or reload the updated tray on each client. Its existing setup flow detects
+V530 and upgrades the signed package to V531 using the same certificate. Accept
+an existing Windows install prompt if one appears. When choosing the detailed
+status app in Windows, select PAFPlayer Lock Screen V531. Native tests verify
+one-second submissions; Windows still controls when the physical lock screen
+paints, which must be observed on the locked client.
+
+## Inline interruption and startup status
+
+Ctrl+C and Ctrl+Break in `--simple` (or `--light`) stop playback without homing or
+clearing the screen, resetting the cursor color, or replacing the inline display
+with a full-screen reset. The cursor and current text rendition are restored for
+the shell. Simple-mode interruption unwinds through cleanup.
+
+Startup status rows share a colon column directly after the web-server port
+label (for example `666:`). MonkeyMote and playlist-resume rows use that same
+column. Resume output has three rows: Resuming playlist, Resuming song, and
+Resuming at. Only the playlist and song filenames are italicized.
+
+## Global pause keys and simple previews
+
+While another PAFPlayer is running in the same Windows session, `--simple` and
+`--light` previews ignore Win+C, Pause/Break and Media Play/Pause. This includes
+older players, explicit instances and tray-only clients using PAFPlayer.py.
+If the preview is the only player, it can respond to those keys. The process
+check runs when the key is pressed, so starting or stopping another player during
+a preview changes the decision on the next press. Space in the focused preview
+remains available. Other playback instances keep their existing hotkey behavior.
+
+## Speed multiplier entry
+
+Press X, type any positive finite multiplier and press Enter: `x1.37` then Enter
+sets exactly 1.37×, and `x0.75` sets 0.75×. Values are not restricted to the web
+selector's presets or rounded to them. Decimal and scientific notation and an
+optional `x`/`×` suffix are accepted. Zero, negative values, NaN and infinity are
+rejected. Backspace edits, `=` resets to 1× and Esc cancels.
+
+Custom speed follows playback, pause/resume, seeking and subsequent tracks in the
+same session. A fresh process starts at 1×. Selecting a dropdown preset replaces
+the custom multiplier; speed-up/down keys move to the next preset in that direction.
+X no longer stops playback; Ctrl+W, Ctrl+C and Alt+F4 remain available for stopping.
+
+## Seeking and local HTTP diagnostics
+
+Seeking may close the decoder's previous RAM-audio HTTP connection. Disconnects
+during request parsing, header writes, streaming or final flushing no longer
+print socketserver tracebacks over the inline console. Expected disconnects go
+to `trace.log` as `memory-audio.client-disconnected`; unexpected request failures
+keep their traceback in the PAFPlayer error log. Seeking and byte-range reads
+continue normally after a failed request.
+
+## Normal-height output after playback
+
+When playback completes, is stopped or is interrupted, subsequent stdout/stderr
+text and console output reset each row with `BIG_OFF` (`ESC # 5`). This includes
+wrapped completion status, blank lines, errors, cleanup messages and the next
+prompt row. The guard remains active until another track starts; active karaoke
+can then use double-height lines again. Simple mode keeps its existing screen
+content and does not clear the screen to reset row sizes.
+
+
+### V755: preview audio focus and console space
+
+`--simple` pauses the main player and other simple previews immediately before starting its first decoder. A local authenticated loopback listener coordinates players even when their web servers are disabled. Closing a preview releases its pause requests; players that were already paused stay paused. Nested previews resume the preceding preview first and keep the main player paused until all preview requests have ended. Crash recovery expires abandoned requests after approximately 12 seconds. Restart running players once to enable this coordination. The console visualizer now reserves one bottom safety row instead of two.
+
+
+### V756: exact speed confirmation and minor credit warnings
+
+The X menu labels the active speed as Playing and the typed value as Pending until Enter. Applying or resetting a speed clears the menu and redraws the HUD with the actual custom multiplier, including while paused. The decoder retains the precise multiplier.
+
+Past OpenAI credit exhaustion stays in Web Warnings and DJ diagnostics as a minor issue. It appears in the HUD/help warning list only when DJs are enabled, OpenAI participates in the configured text/speech chain, and the latest generation has failed without a ready fallback result. This decision uses cached job state and makes no network requests on the playback thread.
+
+
+### V757: idle artwork frame pacing
+
+The idle artwork dance targets 60 frames per second using monotonic deadlines. Callback work no longer adds a full delay to every frame, and missed frames are skipped rather than replayed in bursts. Position-only dance Configure events reuse the existing artwork instead of resampling the image and scheduling border/title updates. Monitor geometry comes from the existing display watcher. Motion speed and monitor-safe bounds remain time based.
+
+Every ten seconds while dancing, diagnostic tracing records `art.idle.pacing`: actual FPS, longest callback gap, longest callback duration, and extra-window count. These measurements help distinguish UI stalls from compositor/display issues. Restart the player to load this change; real visual smoothness still needs comparison on the affected display.
+
+
+### V758: simple-preview startup recovery
+
+`--simple` checks registered peer process liveness before connecting, archives registrations for exited processes under `workflows/playback-peers/retired/`, and traces focus startup, skipped dead peers, pause acknowledgements and readiness. This prevents accumulated crash leftovers from adding seconds of refused connections per old preview. A fresh preview starts unpaused and does not overwrite the main player's saved pause setting.
+
+The newest preview takes priority over older preview startups. Older previews acknowledge their silent pre-decoder state and wait for the newer preview to finish, rather than both startup threads waiting for pause commands neither can consume. Existing pause leases continue to preserve the main player's original state.
+
+
+### V759: preserve paused/stopped players during previews
+
+A player that was already paused or stopped stays that way when a simple preview starts and exits. Preview-owned transport is resolved on the audio thread against current leases, so a pending restore cannot restart a player after another preview has taken over. Explicit Pause/Stop revokes preview restore ownership. Automatic external-media resume and stale Play commands are held while a preview lease is active. Diagnostic events record lease ownership and approved/blocked restoration without authentication data.
+
+Restart the main player once as well as previews to load the receiver-side guards. Only players that a preview actually paused are eligible for automatic restoration.
+
+
+### V760: Ctrl+C cleanup below the stop message
+
+After printing `Playback stopped.`, the Ctrl+C handler emits ANSI erase-to-end-of-screen (`ESC[J`) before its newline and flushes the output. This clears leftover karaoke/progress content below the message while preserving text above it and the existing simple-mode terminal behavior.
+
+
+### V761: faster preview startup
+
+Metadata and edge-silence analysis now survive process restarts in `runtime/cache/track-analysis`, keyed by the audio file identity, size, timestamps, analysis parameters and tool version. Unchanged preview files can reuse analysis while changes invalidate it. Failed scans are not persisted. Original files and trim/gain settings are unchanged.
+
+Isolated audio workers reuse compiled player code under `runtime/cache/worker-code`, keyed by source contents and Python bytecode version. Workers retain the real script path, isolated process and normal command/status protocol. Missing/unreadable caches fall back to source startup. Entries are immutable; no existing cache files are replaced or deleted. Cold first-use analysis still takes time.
+
+
+### V762: pause peers only when preview audio is ready
+
+Simple previews register for coordination during setup but leave the other players playing. The buffered audio renderer loads and primes silently first; only then does the preview acquire pause acknowledgements and release its prepared output. If preparation fails, the fallback pauses peers immediately before launching FFplay. Failed silent preparation never acquires focus. Existing focus ownership and previously paused-player protections remain in effect.

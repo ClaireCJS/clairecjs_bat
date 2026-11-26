@@ -13,7 +13,8 @@ rem CONFIG:
                 rem DEFAULT_PAF_PLAYER=play_audio_file.py 
                 rem DEFAULT_PAF_PLAYER=play_audio_file.py --no-album-art --no-external-album-art  --no-web-server --no-now-playing-sidecar --no-visualizers --no-chafa-album-art-in-console
                 set PAFPLAYER_SIMPLE=1
-                set DEFAULT_PAF_PLAYER=call PAFPlayer.bat --simple --no-visualizers --no-album-art --no-external-album-art --no-web-server
+                set DEFAULT_PAF_PLAYER=call PAFPlayer.bat --simple 
+                rem --no-visualizers --no-album-art --no-external-album-art --no-web-server are be implied
 
         rem ❶ Whether we announce our previews or not (we set this to 0 because PAFPlayer/play_audio_file.py has it’s own announce):
                 set PREVIEW_AUDIO_FILE_ANNOUNCE=0
@@ -153,7 +154,7 @@ rem Do the actual preview:
         %PAF_COMMAND%
 
 rem NEW: Announce that we’ve played it, overwriting the announcement that we were *playing* it:
-        echo %ANSI_COLOR_REMOVAL%%EMOJI_STOP_BUTTON% Played file: “%ansi_color_bright_pink%%@UNQUOTE["%FILE_TO_USE%"]%ansi_color_removal%” %EMOJI_STOP_BUTTON%%ansi_color_normal%
+        echo %big_off%%ANSI_COLOR_REMOVAL%%EMOJI_STOP_BUTTON% Played file: “%ansi_color_bright_pink%%@UNQUOTE["%FILE_TO_USE%"]%ansi_color_removal%” %EMOJI_STOP_BUTTON%%ansi_color_normal%
 
 rem If we have an environment option to pause, do so:
         if "1" == "%PAUSE_AFTER_RUNNING_PLAYER%" pause

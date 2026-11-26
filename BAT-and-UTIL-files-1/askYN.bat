@@ -26,6 +26,9 @@ rem Configuration:
         set BASE_ALLOWABLE_KEYS=yn
 
 
+rem In case text is big, reset it:
+        if defined BIG_OFF echos %BIG_OFF%
+
 rem Set default flags:                                                                    
         set RUNNING_TESTS=0
         SET WAIT_TIMER_ACTIVE=0
@@ -76,7 +79,7 @@ rem What is the wait time? Is it infinite (“0”)?
 
 rem Get non-positional parameters [flags were initialized to 0 above]:
         :grab_next_param
-                rem echo - DEBUG: `%1$` is: %1$, 1=%1 %+ pause
+                rem echo %BIG_OFF%- DEBUG: `%1$` is: %1$, 1=%1 %+ pause
                 if "%1" == "" (goto :done_grabbing_params)
                 if "%1" == "silent"  .or. "%1" == "invisible" (shift %+ set INVISIBLE_MODE=1 %+ goto :grab_next_param)
                 if "%1" == "noenter" .or. "%1" == "no_enter"  (shift %+ set   NO_ENTER_KEY=1 %+ goto :grab_next_param)
@@ -87,7 +90,7 @@ rem Get non-positional parameters [flags were initialized to 0 above]:
                         unset /q OVERRIDE_ASKYN_NOTITLE 
                 endiff
         :done_grabbing_params
-                rem echo - DEBUG: INVISIBLE_MODE=“%INVISIBLE_MODE%” / NO_ENTER_KEY=“%NO_ENTER_KEY%” / BIG_QUESTION=“%BIG_QUESTION%” / NOTITLE=“%NOTITLE%”  %+ pause
+                rem echo %BIG_OFF%- DEBUG: INVISIBLE_MODE=“%INVISIBLE_MODE%” / NO_ENTER_KEY=“%NO_ENTER_KEY%” / BIG_QUESTION=“%BIG_QUESTION%” / NOTITLE=“%NOTITLE%”  %+ pause
                              
 
 rem Get positional-at-end parameter for expanded answer key meanings (“what does ‘A’ equal?”-type questions):
@@ -192,7 +195,7 @@ REM Test suite special case, including testing for the facts that higher timer v
         if "1" != "%RUNNING_TESTS" goto :Not_A_Test
                 cls
                 call important "About to do %0 test suite"
-                echo ———————————————————————————————————————————————————————————————————
+                echo %BIG_OFF%———————————————————————————————————————————————————————————————————
                 call AskYN "Generic TIMED question defaulting to  no with extra allowable keys"      no   9999 
                 call AskYN "Generic question without a default answers"   None     0   ABCD A:Apple,B:Banana,C:Carrot,D:Durian
                 call AskYN         "  Big question defaulting to  no d:0"  no      0 big
@@ -462,9 +465,9 @@ REM Generate "pretty" answers & update the title:
         call print-if-debug "our_answer is “%OUR_ANSWER”, default_answer is “%DEFAULT_ANSWER%”, answer is “%ANSWER%”, PRETTY_ANSWER is “%PRETTY_ANSWER%”"
         if "1" == "%NOTITLE%" (goto :title_done_3)        
                 set newtitle=%@REPLACE[%EMOJI_RED_QUESTION_MARK,,%@STRIPANSI[%@UNQUOTE[%ASK_QUESTION]? %EMDASH% %PRETTY_ANSWER%]]
-                rem echo %newline%[DEBUG] newtitle is %newtitle% ... command tail is askyn %* 🐐🐐🐐
+                rem echo %BIG_OFF%%newline%[DEBUG] newtitle is %newtitle% ... command tail is askyn %* 🐐🐐🐐
                 title %newtitle%
-                rem echo -------- "just updated title" --------- 🐐🐐🐐
+                rem echo %BIG_OFF%-------- "just updated title" --------- 🐐🐐🐐
         :title_done_3
 
 

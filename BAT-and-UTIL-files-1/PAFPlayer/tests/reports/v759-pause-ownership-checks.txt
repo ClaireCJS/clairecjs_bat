@@ -1,0 +1,8 @@
+V759 pause ownership verification
+
+Executed: python -B -m unittest test_v759_pause_ownership test_v755_preview_focus test_v758_simple_startup.StartupTests test_v742_simple_splash
+Result: 29 tests passed in 8.607 seconds.
+
+Covered initially paused players, multiple preview leases, lease expiry, owned restoration, manual Pause/Stop, cancellation of pending restores, stale Play and external-media resume, final resume commit race, source/bundle parity, prior peer/startup and simple-mode behavior.
+Syntax checks passed. Standalone release SHA256 matches active source. Embedded focus module matches editable source.
+Root audit: active implementation/data/Qwen shim retained; lockscreen and screensaver native inputs and active assets retained. No C:\BAT changes. Main player was not restarted or interrupted; live receiver-side validation requires restarting it.

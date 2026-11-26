@@ -1,5 +1,65 @@
 # PAFPlayer changelog
 
+## V762 — November 26, 2026
+
+Prime preview audio silently before pausing peers, then acquire focus immediately before releasing output; delay FFplay fallback focus until process launch. [Release notes](../releases/PAFPlayer_v762_late_preview_handoff_release_notes.md).
+
+## V761 — November 26, 2026
+
+Cache unchanged-file metadata/silence analysis across previews and reuse compiled code for isolated audio-worker startup. [Release notes](../releases/PAFPlayer_v761_faster_preview_startup_release_notes.md).
+
+## V760 — November 25, 2026
+
+Erase from the end of the Ctrl+C Playback stopped message to the bottom of the screen, clearing leftover karaoke/progress content. [Release notes](../releases/PAFPlayer_v760_erase_after_interrupt_release_notes.md).
+
+## V759 — November 25, 2026
+
+Resolve preview restore on the audio thread, preserve explicit Pause/Stop intent, and block stale/automatic resume while another preview holds a lease. [Release notes](../releases/PAFPlayer_v759_preserve_main_pause_release_notes.md).
+
+## V758 — November 25, 2026
+
+Recover simple-preview startup by skipping/archiving exited peer registrations, tracing pause coordination, handling overlapping startups without mutual waits, and isolating preview initial/persisted pause state. [Release notes](../releases/PAFPlayer_v758_simple_startup_release_notes.md).
+
+## V757 — November 25, 2026
+
+Avoid artwork re-rendering during position-only dance steps, use 60-Hz deadline scheduling, reuse monitor snapshots, and record aggregated animation pacing diagnostics. [Release notes](../releases/PAFPlayer_v757_smooth_idle_artwork_release_notes.md).
+
+## V756 — November 25, 2026
+
+Clear the X menu after applying the exact multiplier; distinguish Playing from Pending. Keep OpenAI credit history in Web Warnings and logs, escalating only for an enabled, failed DJ chain that uses OpenAI. [Release notes](../releases/PAFPlayer_v756_speed_credit_release_notes.md).
+
+## V755 — November 25, 2026
+
+Use one bottom safety row and coordinate simple-preview pauses with the main player and other previews, preserving prior pause state and nested preview ownership. [Release notes](../releases/PAFPlayer_v755_preview_focus_release_notes.md).
+
+## V754 — November 25, 2026
+
+Accept arbitrary positive finite multipliers in the X menu, preserve their exact value in playback and session state, and retain presets as shortcuts. [Release notes](../releases/PAFPlayer_v754_arbitrary_speed_release_notes.md).
+
+## V753 — November 25, 2026
+
+Prefix post-playback output rows with BIG_OFF, including completion overflow, blank rows, stdout/stderr and interruption/cleanup output; disable the guard when the next track starts. [Release notes](../releases/PAFPlayer_v753_normal_height_stop_release_notes.md).
+
+## V752 — November 24, 2026
+
+Contain RAM-audio HTTP failures across the complete request lifecycle so seek-related disconnects do not splash tracebacks over the console. Preserve expected-disconnect tracing and unexpected-error diagnostics; add the same outer lifecycle protection to the web server. [Release notes](../releases/PAFPlayer_v752_quiet_seek_http_release_notes.md).
+
+## V751 — November 24, 2026
+
+Make X open a direct speed-multiplier menu with Enter, reset and cancel, applying the selected preset through existing playing and paused speed controls. [Release notes](../releases/PAFPlayer_v751_speed_entry_release_notes.md).
+
+## V750 — November 24, 2026
+
+Gate simple-mode global pause gestures when another PAFPlayer process exists in the same Windows session, while preserving focused Space and normal player behavior. [Release notes](../releases/PAFPlayer_v750_simple_global_pause_release_notes.md).
+
+## V749 — November 24, 2026
+
+Preserve console content on Ctrl+C/Ctrl+Break in simple mode, align startup colons directly after the web-server port, and put the resume timestamp on its own Resuming at row. [Release notes](../releases/PAFPlayer_v749_simple_interrupt_startup_alignment_release_notes.md).
+
+## V748 — November 24, 2026
+
+Put automatic support downloads under runtime, migrate root claire_*.py files without losing collisions, and bundle signed native lock-screen companion V531. Publish one-second text changes without redundant badge submissions and tolerate brief LAN timeouts using cached cues. [Release notes](../releases/PAFPlayer_v748_runtime_downloads_lockscreen_release_notes.md).
+
 ## V747 — November 24, 2026
 
 Ship pinned Mutagen in the private runtime, verify it during builds, and require it in readiness checks. Remove editor-time downloads and repair this checkout's runtime. [Release notes](../releases/PAFPlayer_v747_runtime_mutagen_release_notes.md).

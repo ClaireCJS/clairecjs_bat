@@ -1,0 +1,7 @@
+# PAFPlayer V748 — runtime storage and native lock-screen cadence
+
+Both Claire helper bootstraps now write under runtime/clairecjs_utils and search that directory before downloading. Startup migrates every claire_*.py in the application root to runtime, retaining collisions in a numbered legacy archive. Unique download staging avoids overwriting existing files; failed staging is retained. Other automatic support defaults move under runtime, including FFmpeg, lock-screen payload extraction, model defaults and private-runtime build installer caching. Explicit configured model locations and explicit media saves retain their selected paths.
+
+The signed native V531 companion removes unchanged badge publication on every text/timer change. Text still publishes once per changed second; badge changes and 30-second renewals finish with a text tile. The original signing certificate and package identity remain. V748 requires the new package, so its normal client setup upgrades V530. The remote Python bridge holds its verified cached lyric lease through brief master timeouts for up to 15 seconds, then expires it; new verified owners invalidate the old lease.
+
+Verification includes 90 native publisher/formatter/network regressions, one-second tick and badge-renewal tests, runtime download and migration tests, cached-cue timeout and owner tests, package and executable signature checks, verified payload extraction, Python syntax and standalone bundle parity. Actual locked THAILOG rendering still requires observation after its tray reloads and the package upgrades.

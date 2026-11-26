@@ -15,8 +15,15 @@ def status_payload(server, identity, remote_identity, show_version=False, now=No
     from PAFPlayer_remote_tray import synchronized_position
     from PAFPlayer_lockscreen import lockscreen_counter_position, lockscreen_lyric_context
     with server._lock:
-        if not server.connected or not server.owner_identity or server.owner_identity != remote_identity:
-            return None
+        if server.connected:
+            if not server.owner_identity or server.owner_identity != remote_identity: return None
+        else:
+            # A brief LAN timeout must not replace cached timed lyrics with an
+            # offline tile. Bound the lease, and never carry it to a new owner.
+            verified_at = getattr(server, '_last_verified_at', 0.0)
+            verified_identity = getattr(server, '_last_verified_identity', '')
+            if not verified_at or time.monotonic() - verified_at > 15.0 or verified_identity != remote_identity:
+                return None
         state = dict(server._state)
         offset = server.clock_offset
     version = str(state.get('version') or '')
@@ -238,7 +245,7 @@ def setup_dialog(controller, stop_event):
     text = ('PAFPlayer checks and installs the companion automatically. If Windows asks an administrator to approve the PAFPlayerLocal certificate, approve it to continue. If installation fails, use Install or repair below to retry.\n\n'
             'Keep “Show song status” on and leave this tray running and connected to the player.\n\n'
             '1. Click Open Windows Lock screen settings. Under “Choose one app to show detailed status”, '
-            'choose “PAFPlayer Lock Screen V530”. If Windows offers quick status, choose the same app there for the playback icon.\n\n'
+            'choose “PAFPlayer Lock Screen V531”. If Windows offers quick status, choose the same app there for the playback icon.\n\n'
             '2. Click Test lock screen, or press Windows+L. Unlock normally with your PIN or password. '
             'Windows decides where and when the text appears.\n\n'
             'This companion requires 64-bit Windows 10 build 19041 or later. Windows 11 installation is allowed, but lock-screen display has not yet been verified there. '

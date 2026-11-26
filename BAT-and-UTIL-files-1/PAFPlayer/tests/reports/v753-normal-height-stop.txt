@@ -1,0 +1,26 @@
+test_console_output_is_normalized_even_when_native_path_bypasses_proxy (test_v753_normal_height_stop.NormalHeightStopTests) ... ok
+test_multiline_and_blank_rows_reset_including_prompt_row (test_v753_normal_height_stop.NormalHeightStopTests) ... ok
+test_next_track_can_use_double_height_again (test_v753_normal_height_stop.NormalHeightStopTests) ... ok
+test_short_stream_writes_complete_without_losing_resets (test_v753_normal_height_stop.NormalHeightStopTests) ... ok
+test_stdout_stderr_and_fragmented_prints_are_covered (test_v753_normal_height_stop.NormalHeightStopTests) ... ok
+test_normal_ctrl_break_keeps_existing_emergency_erase (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_normal_signal_keeps_fast_abort (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_ctrl_c_and_ctrl_break_preserve_terminal_content (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_signal_stops_decoder_and_unwinds_for_cleanup (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_startup_labels_use_actual_port_width (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_normal_playback_still_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_simple_never_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_buffered_four_then_enter_sets_four_x (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_cancel_and_reset (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_menu_applies_speed_through_playback_restart_path (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_multiplier_parser (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_x_opens_speed_instead_of_stopping (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_simple_alias_and_timestamp_remain_local (test_v624_simple_instance.SimpleInstanceTests) ... ok
+test_simple_file_bypasses_official_handoff_even_when_owner_exists (test_v624_simple_instance.SimpleInstanceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 6.680s
+
+OK
+
+Syntax and release/source parity: OK; bundled feature sources unchanged.

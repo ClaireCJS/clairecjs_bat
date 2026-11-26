@@ -1,6 +1,6 @@
 param([string]$OutputDirectory, [string]$SigningThumbprint)
 $ErrorActionPreference = 'Stop'
-if (!$OutputDirectory) { $OutputDirectory = Join-Path $PSScriptRoot ('build-v530-' + (Get-Date -Format yyyyMMddHHmmss)) }
+if (!$OutputDirectory) { $OutputDirectory = Join-Path $PSScriptRoot ('build-v531-' + (Get-Date -Format yyyyMMddHHmmss)) }
 if (Test-Path -LiteralPath $OutputDirectory) { throw 'Build directory already exists; choose a new name.' }
 $stage = New-Item -ItemType Directory -Path (Join-Path $OutputDirectory 'package')
 $runtime = New-Item -ItemType Directory -Path (Join-Path $OutputDirectory 'runtime')
@@ -30,7 +30,7 @@ Copy-Item -LiteralPath (Join-Path $runtime 'PAFPlayerLockScreen.exe') -Destinati
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'DesktopPackage.appxmanifest') -Destination (Join-Path $stage 'AppxManifest.xml')
 New-Item -ItemType Directory -Path (Join-Path $stage 'Assets') | Out-Null
 Get-ChildItem (Join-Path $PSScriptRoot 'Assets\PAF*.png') | Copy-Item -Destination (Join-Path $stage 'Assets')
-$package = Join-Path $OutputDirectory 'PAFPlayerLockScreen_v530_x64.msix'
+$package = Join-Path $OutputDirectory 'PAFPlayerLockScreen_v531_x64.msix'
 # The executable and assets are owned by Windows in a complete MSIX package.
 # Full semantic validation stays enabled; no external-location argument is used.
 & "$sdk\bin\10.0.26100.0\x64\makeappx.exe" pack /d $stage.FullName /p $package

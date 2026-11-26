@@ -1,0 +1,19 @@
+from pathlib import Path
+import ast,hashlib,shutil,io,unittest,json
+import PAFPlayer as app
+root=Path.cwd();suite=unittest.TestSuite()
+for name in ('test_v761_startup_cache','test_v742_simple_splash','test_v759_pause_ownership','test_v758_simple_startup.StartupTests'):
+ suite.addTests(unittest.defaultTestLoader.loadTestsFromName(name))
+for method in ('test_v82_replaygain_metadata_shares_existing_ffprobe_and_stays_out_of_display_tags',):
+ suite.addTest(app.PlayWaveFileTests(method))
+stream=io.StringIO();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite);app.set_post_playback_output(False)
+print(stream.getvalue())
+if not result.wasSuccessful():raise SystemExit(1)
+for raw in ('PAFPlayer.py','src/PAFPlayer_startup_cache.py'):ast.parse((root/raw).read_text(encoding='utf-8-sig'))
+assert app._PAF_BUNDLED_SOURCES['PAFPlayer_startup_cache']==(root/'src/PAFPlayer_startup_cache.py').read_text(encoding='utf-8-sig')
+notes=root/'releases/PAFPlayer_v761_faster_preview_startup_release_notes.md';assert not notes.exists()
+notes.write_text('# PAFPlayer V761 — faster simple-preview startup\n\nMetadata and edge-silence analysis are cached across processes under runtime/cache/track-analysis. Keys include file identity, size, modification/creation timestamps, analysis settings and tool signatures. Changed media/settings invalidate the cache; failed scans are not persisted. ReplayGain metadata, channel layout and exact trim bounds continue through the normal parsing paths. Corrupt/unwritable caches fall back to analysis.\n\nIsolated audio workers reuse compiled player code under runtime/cache/worker-code, keyed by the complete source contents and Python bytecode version. The real script/module identity, command/status protocol and isolated audio process are preserved. On a cold code cache, compilation runs in a hidden background process at below-normal priority and the current preview uses ordinary source startup. Cache records are immutable and published after writing; no old entries are overwritten or deleted.\n\nMeasured with the installed runtime on this computer, without producing audio: worker loading was 1.316 seconds from source versus 0.505 seconds with warm compiled code. One real track\'s metadata/silence analysis was 0.313 seconds cold versus 0.048 seconds cached, with identical duration and trim bounds. The first cache request used ordinary source startup (1.546 seconds while background preparation ran). These are component timings, not end-to-end playback measurements; first-use analysis and file I/O still cost time.\n\nValidation covers persistence after memory-cache resets, file/parameter invalidation, failure/corruption fallbacks, asynchronous worker-code creation, module identity, immutable warm reuse, preview pause ownership/startup, ReplayGain metadata reuse and simple-mode rendering.\n',encoding='utf-8')
+release=root/'releases/PAFPlayer_v761_faster_preview_startup.py';assert not release.exists();shutil.copy2(root/'PAFPlayer.py',release)
+assert hashlib.sha256(release.read_bytes()).digest()==hashlib.sha256((root/'PAFPlayer.py').read_bytes()).digest()
+report=root/'tests/reports/v761-startup-cache-checks.txt';assert not report.exists();report.write_text(stream.getvalue()+'\nRegression run with developer Python; native-runtime component benchmarks recorded separately. Two older native-runtime simulated-playback tests exposed a send2trash fixture/import problem and are not claimed as passing. Syntax, embedded source parity and release SHA256 passed. Benchmark: v761-final-startup-benchmark.json. Root audit retained active player/data/Qwen shim and lockscreen/screensaver native inputs/runtime assets. No C:\\BAT changes. Live music was not interrupted; benchmarks measured loading/analysis without audio output.\n',encoding='utf-8')
+print('V761 packaged. Native runtime regression, syntax, bundle parity and release hash checks passed.')

@@ -98,7 +98,7 @@ namespace PAFPlayerLockScreen
                 Check(shown.ShowVersion && StatusUpdater.AlbumLine(shown)=="💿 Album & <one> (1991) – PAFPlayer v509");
             });
             Test("whole-second counter boundary and duplicate polls", () => {
-                int calls=0; var session=new PublicationSession((s,t,b)=>{calls++;Check(t && b);});
+                int calls=0; var session=new PublicationSession((s,t,b)=>{calls++;Check(t);});
                 Check(session.Update(Parse(TimedFixture(60.01,120)),0));
                 Check(!session.Update(Parse(TimedFixture(60.99,120)),.25));
                 Check(session.Update(Parse(TimedFixture(61,120)),.5) && calls==2);
@@ -184,12 +184,12 @@ namespace PAFPlayerLockScreen
                 for (int n=1; n<120; n++) Check(!session.Update(Parse(Fixture()), n*0.25));
                 Check(calls == 1);
             });
-            Test("next lyric submits text and badge together", () => {
+            Test("next lyric submits text without redundant badge", () => {
                 int calls = 0; bool tile = false, badge = false;
                 var session = new PublicationSession((s,t,b) => { calls++; tile=t; badge=b; });
                 session.Update(Parse(Fixture()), 0);
                 session.Update(Parse(Change("lyric", JsonValue.CreateStringValue("Next line"), true)), 0.25);
-                Check(calls == 2 && tile && badge);
+                Check(calls == 2 && tile && !badge);
             });
             Test("seek backwards republishes the earlier line", () => {
                 int calls=0; string last="";
@@ -225,10 +225,10 @@ namespace PAFPlayerLockScreen
                 session.Update(Parse(Fixture()),0);
                 Check(session.Update(Parse(Fixture()),30) && calls==2);
             });
-            Test("frequent lyric changes keep both Windows surfaces coherent", () => {
+            Test("frequent lyric changes renew badge only at its lease boundary", () => {
                 int badges=0,tiles=0; var session=new PublicationSession((s,t,b)=>{if(t)tiles++;if(b)badges++;});
                 for(int n=0;n<=120;n++) session.Update(Parse(Change("lyric",JsonValue.CreateStringValue("Line "+n),true)),n*0.25);
-                Check(tiles==121 && badges==121);
+                Check(tiles==121 && badges==2);
             });
             Test("failed publication is retried", () => {
                 int calls=0; var session=new PublicationSession((s,t,b)=>{if(++calls==1)throw new IOException("test");});
@@ -240,13 +240,19 @@ namespace PAFPlayerLockScreen
                 session.Update(Parse(Fixture()),0); session.Reset();
                 Check(session.Update(Parse(Fixture()),0.25) && calls==2);
             });
-            Test("lyric refresh moves both heartbeat deadlines together", () => {
-                int calls=0; var session=new PublicationSession((s,t,b)=>{Check(t && b);calls++;});
+            Test("badge renewal always also renews detailed text", () => {
+                int calls=0,badges=0; var session=new PublicationSession((s,t,b)=>{Check(t);calls++;if(b)badges++;});
                 session.Update(Parse(Fixture()),0);
                 var next=Parse(Change("lyric",JsonValue.CreateStringValue("Next line"),true));
                 session.Update(next,1);
-                Check(!session.Update(next,30)); // V517 sent a badge alone here and hid text.
-                Check(session.Update(next,31) && calls==3);
+                Check(session.Update(next,30));
+                Check(!session.Update(next,31) && calls==3 && badges==2);
+            });
+            Test("one-second counter advances publish every second without badge flooding", () => {
+                int tiles=0,badges=0; string last="";
+                var session=new PublicationSession((s,t,b)=>{if(t)tiles++;if(b)badges++;last=s.Counter;});
+                for(int n=0;n<=60;n++) session.Update(Parse(TimedFixture(n,180)),n);
+                Check(tiles==61 && badges==3 && last=="1:00/3:00");
             });
             Test("new server previous cue survives even if never polled as current", () => {
                 var root=JsonObject.Parse(Fixture());

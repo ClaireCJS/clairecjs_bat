@@ -1,0 +1,18 @@
+[
+  {
+    "source": "PAFPlayer.py",
+    "backup": "PAFPlayer.py.bak.202611240933.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "docs/README.md",
+    "backup": "docs\\README.md.bak.202611240933.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "docs/PAFPlayer_changelog.md",
+    "backup": "docs\\PAFPlayer_changelog.md.bak.202611240933.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "tests/test_v627_resume_notice.py",
+    "backup": "tests\\test_v627_resume_notice.py.bak.202611240933.replaced-by-chatgpt.bak"
+  }
+]

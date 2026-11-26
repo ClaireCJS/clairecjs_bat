@@ -1,0 +1,24 @@
+{
+  "updated": "\\\\192.168.0.136\\THAILOG6000G3\\util2\\PAFPlayer\\PAFPlayer.py",
+  "sha256": "661cf168491af6abaa9ba25d07d60c44eaf40456418a788e9a24f0b2f66ab09f",
+  "backup": "\\\\192.168.0.136\\THAILOG6000G3\\util2\\PAFPlayer\\runtime\\backups\\PAFPlayer.py.bak.202611240903.replaced-by-chatgpt.bak",
+  "moved": [
+    [
+      "\\\\192.168.0.136\\THAILOG6000G3\\util2\\PAFPlayer\\claire_console.py",
+      "\\\\192.168.0.136\\THAILOG6000G3\\util2\\PAFPlayer\\runtime\\clairecjs_utils\\claire_console.py"
+    ],
+    [
+      "\\\\192.168.0.136\\THAILOG6000G3\\util2\\PAFPlayer\\claire_lastfm.py",
+      "\\\\192.168.0.136\\THAILOG6000G3\\util2\\PAFPlayer\\runtime\\clairecjs_utils\\claire_lastfm.py"
+    ],
+    [
+      "\\\\192.168.0.136\\THAILOG6000G3\\util2\\PAFPlayer\\claire_progressbar.py",
+      "\\\\192.168.0.136\\THAILOG6000G3\\util2\\PAFPlayer\\runtime\\clairecjs_utils\\claire_progressbar.py"
+    ],
+    [
+      "\\\\192.168.0.136\\THAILOG6000G3\\util2\\PAFPlayer\\claire_terminal_geometry.py",
+      "\\\\192.168.0.136\\THAILOG6000G3\\util2\\PAFPlayer\\runtime\\clairecjs_utils\\claire_terminal_geometry.py"
+    ]
+  ],
+  "root_helpers_remaining": 0
+}

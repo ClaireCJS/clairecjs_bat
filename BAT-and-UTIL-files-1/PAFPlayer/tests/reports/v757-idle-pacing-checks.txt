@@ -1,0 +1,31 @@
+test_actual_resize_keeps_normal_render_path (test_v757_idle_pacing.IdlePacingTests) ... ok
+test_deadlines_subtract_callback_work (test_v757_idle_pacing.IdlePacingTests) ... ok
+test_idle_detection_uses_low_rate_and_drops_animation_deadline (test_v757_idle_pacing.IdlePacingTests) ... ok
+test_long_stalls_skip_frames_without_catchup_bursts (test_v757_idle_pacing.IdlePacingTests) ... ok
+test_motion_speed_is_independent_of_frame_rate (test_v757_idle_pacing.IdlePacingTests) ... ok
+test_position_only_idle_step_does_not_render_or_save (test_v757_idle_pacing.IdlePacingTests) ... ok
+test_schedule_reports_measured_pacing_without_per_frame_logging (test_v757_idle_pacing.IdlePacingTests) ... ok
+test_unchanged_geometry_after_async_configure_uses_fast_path (test_v757_idle_pacing.IdlePacingTests) ... ok
+test_music_step_uses_bounded_progress_pulse (test_v653_idle_art_music_dance.V653IdleArtworkMusicDanceTests) ... ok
+test_artwork_consumes_progress_bar_beat_value_without_analyzer (test_v653_idle_art_music_dance.V653IdleArtworkMusicDanceTests) ... ok
+test_stale_music_pulse_stops_music_driven_motion (test_v653_idle_art_music_dance.V653IdleArtworkMusicDanceTests) ... ok
+test_configurable_dance_range_remains_monitor_safe (test_v651_idle_dance_session_errors.V651IdleDanceAndSessionErrorTests) ... ok
+test_zero_dance_range_holds_origin (test_v651_idle_dance_session_errors.V651IdleDanceAndSessionErrorTests) ... ok
+test_v86_idle_art_drift_box_is_tiny_and_monitor_safe (PAFPlayer.PlayWaveFileTests)
+1%/10px dance bounds must keep every border at least 5px inside work area. ... ok
+test_v87_idle_gallery_allocator_avoids_player_and_other_dance_areas (PAFPlayer.PlayWaveFileTests)
+Every extra artwork window must reserve a mutually exclusive full dance footprint. ... ok
+test_v87_idle_gallery_refuses_slots_when_pafplayer_occupies_monitor (PAFPlayer.PlayWaveFileTests)
+No related-art window should spawn when the player leaves no safe desktop region. ... ok
+test_v243_manual_idle_uses_current_native_four_corners_without_track_reload (PAFPlayer.PlayWaveFileTests) ... ok
+test_v249_idle_main_dance_uses_native_outer_rect_origin_and_movement (PAFPlayer.PlayWaveFileTests) ... ok
+test_v263_idle_art_dance_never_straddles_monitor_seam (PAFPlayer.PlayWaveFileTests) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 16.447s
+
+OK
+
+Syntax and release-copy SHA256 checks passed. Root audit: PAFPlayer root retains active implementation, data and Qwen shim; lockscreen/screensaver roots retain native inputs and active runtime assets. No C:\BAT changes.
+Separate stale-test failure: V653 test_checkbox_is_experimental_persistent_and_web_settable expects an experimental schema key that is absent from the current schema; no schema behavior was changed in V757.
+Actual visual smoothness on the user display was not measured.

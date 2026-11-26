@@ -508,9 +508,9 @@ def validate_audio_decode(source, ffmpeg, *, visible=True):
 # Published releases are deliberately separate from the timestamped safety
 # backups that the auditor makes before replacements. Update both values only
 # when publishing a new named release.
-AUDIT_MUSIC_BATCH_VERSION = "v207"
-AUDIT_MUSIC_BATCH_RELEASE_NAME = "contextual-album-renames"
-AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-11-24"
+AUDIT_MUSIC_BATCH_VERSION = "v212"
+AUDIT_MUSIC_BATCH_RELEASE_NAME = "uncapped-audit-prompts"
+AUDIT_MUSIC_BATCH_RELEASE_DATE = "2026-11-25"
 
 # Set this to a full executable path only when automatic discovery cannot find
 # your preferred image viewer. The V key first honors openimage.bat, then this
@@ -2512,7 +2512,7 @@ def inferred_album_filename_identity(folder: Path) -> tuple[str, str] | None:
             continue
         match = re.match(
             r"^\s*(?P<artist>.+?)\s+-\s+(?P<album>.+?)\s+-\s+"
-            r"(?P<track>\d{1,2})[ _.\-]+.+$",
+            r"(?P<track>\d{1,3})[ _.\-]+.+$",
             candidate.stem,
         )
         if not match:
@@ -2556,7 +2556,7 @@ def redundant_artist_filename_proposal(
         return None
     track_number = int(match.group("track"))
     track = (
-        f"{track_number:02d}"
+        str(track_number).zfill(len(str(album_track_count)))
         if album_track_count >= 10
         else str(track_number)
     )
@@ -2567,6 +2567,38 @@ def redundant_artist_filename_proposal(
     title = canonical_song_title_text(title_source)
     proposed = f"{track}_{title}{suffix}"
     return proposed if proposed != path.name else None
+
+
+def compilation_prefix_names(folder, files):
+    """Remove only a confirmed 'Album [year]. - ' prefix from VA tracks."""
+    release = re.fullmatch(r"various\s+artists[.\s_-]*\[(\d{4})\]\s+(.+)", folder.name, re.I)
+    audio = [p for p in files if p.suffix.lower() in AUDIO_EXTS]
+    groups = defaultdict(dict)
+    def identity(title, year):
+        return (" ".join(title.casefold().split()), year)
+    for path in audio:
+        m = re.fullmatch(r"(.+?)\s+\[(\d{4})\]\s*\.\s*(?:[-–—]\s*)?(\d{1,3})\.\s+(\S.*)", path.stem)
+        if m and int(m[3]):
+            groups[identity(m[1], m[2])][path] = (int(m[3]), m[4])
+    if release:
+        rows = groups.get(identity(release[2], release[1]), {}).copy()
+        # Also repair the intermediate '183. Artist. Title' produced by v209.
+        for path in audio:
+            m = re.fullmatch(r"(\d{1,3})[._]\s*(\S.*)", path.stem)
+            if m and int(m[1]):
+                rows[path] = (int(m[1]), m[2])
+    elif len(groups) == 1:
+        rows = next(iter(groups.values()))
+        if len(rows) != len(audio) or len({n for n, _ in rows.values()}) < 100:
+            return {}
+    else:
+        return {}
+    numbers = {n for n, _ in rows.values()}
+    if len(numbers) < 2:
+        return {}
+    width = len(str(max(numbers)))
+    return {p: name for p, (n, rest) in rows.items()
+            if (name := f"{n:0{width}d}_{rest}{p.suffix}") != p.name}
 
 
 def contextual_album_names(folder, files, artist):
@@ -2597,7 +2629,7 @@ def contextual_album_names(folder, files, artist):
             continue
         tracks.append((path, digits, title, branded))
     discs = {int(n[:2]) for _, n, _, _ in tracks if len(n) == 4}
-    pad = any(int(n[-2:] if len(n)==4 else n) >= 10 for _, n, _, _ in tracks)
+    width = max((len(str(int(n[-2:] if len(n)==4 else n))) for _, n, _, _ in tracks), default=1)
     result = {}
     for path, digits, title, branded in tracks:
         original = title
@@ -2620,7 +2652,7 @@ def contextual_album_names(folder, files, artist):
             continue
         packed = len(digits) == 4
         number = int(digits[2:] if packed else digits)
-        prefix = str(number).zfill(2 if pad else 1)
+        prefix = str(number).zfill(width)
         if packed and discs != {1}:
             prefix = f"{int(digits[:2])}_{prefix}"
         new = prefix + "_" + title + path.suffix
@@ -2656,7 +2688,7 @@ def album_prefixed_filename_proposal(
     if not match:
         return None
     track_number = int(match.group("track"))
-    track = f"{track_number:02d}" if album_track_count >= 10 else str(track_number)
+    track = str(track_number).zfill(len(str(album_track_count)))
     title_source, suffix = rename_title_and_suffix(path, match.group("rest"))
     title_source = title_source.translate(str.maketrans({
         "‘": "'", "’": "'", "“": '"', "”": '"',
@@ -2872,7 +2904,7 @@ def album_uses_disc_track_prefix(files: list[Path]) -> bool:
         return False
     matches = [
         re.match(
-            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_(?P<title>.+)$",
+            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,3})_(?P<title>.+)$",
             path.stem,
         )
         for path in audio
@@ -2965,7 +2997,7 @@ def single_disc_track_prefix_profile(files: list[Path]) -> dict[str, Any] | None
     parsed: list[re.Match[str]] = []
     for path in audio:
         match = re.match(
-            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})[-_. ]+(?P<rest>.+)$",
+            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,3})[-_. ]+(?P<rest>.+)$",
             path.stem,
         )
         if match is None or int(match.group("disc")) != 1:
@@ -2977,6 +3009,7 @@ def single_disc_track_prefix_profile(files: list[Path]) -> dict[str, Any] | None
     return {
         "tracks": frozenset(tracks),
         "pad_tracks": max(tracks) >= 10,
+        "track_width": len(str(max(tracks))),
     }
 
 
@@ -2988,7 +3021,7 @@ def single_disc_track_filename_parts(
     if not profile or path.suffix.casefold() not in CANONICAL_RENAME_EXTS:
         return None
     match = re.match(
-        r"^(?P<disc>1)_(?P<track>\d{1,2})[-_. ]+(?P<rest>.+)$",
+        r"^(?P<disc>1)_(?P<track>\d{1,3})[-_. ]+(?P<rest>.+)$",
         path.stem,
     )
     if match is None:
@@ -2997,7 +3030,7 @@ def single_disc_track_filename_parts(
     if track not in profile["tracks"]:
         return None
     track_text = f"{track:02d}" if profile["pad_tracks"] else str(track)
-    return f"{track_text}_", match.group("rest")
+    return f"{track_text.zfill(profile.get('track_width', 1))}_", match.group("rest")
 
 
 def album_title_source_and_suffix(
@@ -3049,7 +3082,7 @@ def capitalized_album_filename_proposal(
         return proposed if proposed != path.name else None
     if compound_track_prefix:
         match = re.match(
-            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_(?P<rest>.+)$",
+            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,3})_(?P<rest>.+)$",
             path.stem,
         )
         if match is None:
@@ -3072,7 +3105,7 @@ def capitalized_album_filename_proposal(
         return None
     track_number = int(match.group("track"))
     track = (
-        f"{track_number:02d}"
+        str(track_number).zfill(len(str(album_track_count)))
         if album_track_count >= 10
         else str(track_number)
     )
@@ -3114,7 +3147,7 @@ def all_caps_album_title_proposal(
         )
     elif compound_track_prefix:
         match = re.match(
-            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_(?P<rest>.+)$",
+            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,3})_(?P<rest>.+)$",
             path.stem,
         )
         if match is None:
@@ -3133,7 +3166,7 @@ def all_caps_album_title_proposal(
         if match is None:
             return None
         track_number = int(match.group("track"))
-        track = f"{track_number:02d}" if album_track_count >= 10 else str(track_number)
+        track = str(track_number).zfill(len(str(album_track_count)))
         prefix = f"{track}_"
         title_source, suffix = album_title_source_and_suffix(
             path,
@@ -3850,7 +3883,8 @@ class BatchAudit:
             by_folder.items(),
             key=lambda item: str(item[0]).lower(),
         ):
-            artist = recognized_album_artist(folder)
+            compilation = compilation_prefix_names(folder, files)
+            artist = "Various Artists" if compilation else recognized_album_artist(folder)
             if artist is None or self.is_archive_path(folder):
                 continue
             inferred_identity = inferred_album_filename_identity(folder)
@@ -3885,7 +3919,7 @@ class BatchAudit:
                     if path.suffix.lower() in AUDIO_EXTS
                     and (
                         match := re.match(
-                            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,2})_",
+                            r"^(?P<disc>\d{1,2})_(?P<track>\d{1,3})_",
                             path.name,
                         )
                     )
@@ -3898,7 +3932,7 @@ class BatchAudit:
                     if path.suffix.lower() in AUDIO_EXTS
                     and (
                         match := re.search(
-                            r"(?:^|[-_. ])(?P<track>\d{1,2})[-_. ]+",
+                            r"(?:^|[-_. ])(?P<track>\d{1,3})[-_. ]+",
                             path.name,
                         )
                     )
@@ -3906,7 +3940,7 @@ class BatchAudit:
                 album_track_count = len(track_numbers)
             renames: list[dict[str, str]] = []
             audio_renames: list[tuple[Path, str]] = []
-            context_names = contextual_album_names(folder, files, artist)
+            context_names = compilation or contextual_album_names(folder, files, artist)
             family_stems = {p.stem.casefold(): Path(name).stem for p, name in context_names.items()}
             for path in sorted(files, key=lambda item: item.name.lower()):
                 proposed_name = context_names.get(path)
@@ -4729,8 +4763,10 @@ class BatchAudit:
             ],
             key=lambda f: (severity_order[f.severity], f.category, f.path.lower()),
         )
-        for code, finding in zip(APPROVAL_CHARS, codeable):
-            finding.code = code
+        for i, finding in enumerate(codeable):
+            # Codes identify findings, not keystrokes. Never silently leave
+            # later actions out of the interactive queue on a large batch.
+            finding.code = APPROVAL_CHARS[i] if i < len(APPROVAL_CHARS) else f"[{i + 1}]"
 
     def report_data(self) -> dict[str, Any]:
         counts = Counter(f.severity for f in self.findings)
@@ -6027,6 +6063,7 @@ def cover_lookup_metadata(path: Path) -> dict[str, Any]:
     elif total_match and "/" in track_text:
         metadata["track_count"] = int(total_match.group(1))
 
+    metadata["tag_identity"] = (metadata["album_artist"] or metadata["artist"], metadata["album"], metadata["date"])
     folder_artist = recognized_album_artist(path.parent)
     folder_album = re.sub(
         r"^\s*(?:19|20)\d{2}\s*[-–—]\s*",
@@ -6050,15 +6087,7 @@ def cover_lookup_metadata(path: Path) -> dict[str, Any]:
         year_match = re.match(r"^\s*((?:19|20)\d{2})\b", path.parent.name)
         if year_match:
             metadata["date"] = year_match.group(1)
-    if not metadata["track_count"] and metadata["album"]:
-        track_numbers = {
-            int(match.group(1))
-            for sibling in path.parent.iterdir()
-            if sibling.is_file()
-            and sibling.suffix.lower() in AUDIO_EXTS
-            and (match := re.match(r"^(\d{1,3})[-_. ]+", sibling.name))
-        }
-        metadata["track_count"] = len(track_numbers)
+    # A partial or mixed folder's file count is not a release track total.
     return metadata
 
 
@@ -6768,7 +6797,85 @@ def discogs_cover_match(
     )
 
 
-def resolve_cover_match(
+_ART_SEARCH_CACHE = {}
+
+
+def downloader_release_candidate(metadata):
+    """Use the downloader's search procedures, not its folder-wide write API."""
+    name = "_audit_claire_album_art_downloader"
+    module = sys.modules.get(name)
+    if module is None:
+        spec = importlib.util.spec_from_file_location(name, _SCRIPT_DIR.parent / "album_art_downloader.py")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        try:
+            spec.loader.exec_module(module)
+        except Exception:
+            sys.modules.pop(name, None)
+            raise
+    try:
+        import requests
+    except ImportError:
+        # The audit launcher may use a different Python from the downloader.
+        # Reuse its available HTTP client without installing anything globally.
+        from pip._vendor import requests
+    module.requests = requests
+    args = module.parse_args([])
+    artist = metadata.get("album_artist") or metadata.get("artist") or ""
+    album = metadata.get("album") or ""
+    args.release = metadata.get("release_id") or None
+    if not args.release and not (artist and album):
+        return None
+    args._track_count = metadata.get("track_count") or 0
+    with requests.Session() as session:
+        session.headers.update({"User-Agent": args.user_agent})
+        for release in module.query_releases(session, artist, album, str(metadata.get("date") or "")[:4], args)[:5]:
+            images = module.cover_art(session, release["id"], args.request_timeout, args)
+            art = caa_artworks({"images": images})
+            if any(i.front for i in art):
+                return CoverMatch("album_art_downloader", release["id"], "", release_artist_text(release),
+                                  release.get("title", album), release.get("date", ""), release.get("country", ""),
+                                  (), int(release.get("_match_score", 0)), False, True, art)
+    return None
+
+
+def resolve_cover_match(path, *, json_fetcher=None, text_fetcher=None):
+    meta = cover_lookup_metadata(path)
+    key = find_cover_group_key(path, meta)
+    cached = _ART_SEARCH_CACHE.get(key) if json_fetcher is None and text_fetcher is None else None
+    if isinstance(cached, str):
+        raise RuntimeError(cached)
+    if cached is not None:
+        return cached
+    errors = []
+    def musicbrainz():
+        return _musicbrainz_cover_match(path, json_fetcher=json_fetcher, text_fetcher=text_fetcher)
+    fetch = json_fetcher or cover_http_get_json
+    providers = [("MusicBrainz/CAA", musicbrainz), ("Discogs", lambda: discogs_cover_match(meta, fetch)),
+                 ("Bandcamp", lambda: bandcamp_cover_match(meta, text_fetcher or cover_http_get_text)),
+                 ("iTunes", lambda: itunes_cover_match(meta, fetch))]
+    live = json_fetcher is None and text_fetcher is None
+    if live:
+        providers.append(("album_art_downloader", lambda: downloader_release_candidate(meta)))
+    for label, provider in providers:
+        try:
+            candidate = provider()
+        except Exception as exc:
+            errors.append(f"{label}: {str(exc).splitlines()[0][:120] if str(exc) else type(exc).__name__}")
+            continue
+        if candidate:
+            if live:
+                _ART_SEARCH_CACHE[key] = candidate
+            return candidate
+    reason = "No front-cover candidate this pass (" + ", ".join(label for label, _ in providers) + ")."
+    if errors:
+        reason += " Provider errors: " + "; ".join(errors)
+    if live:
+        _ART_SEARCH_CACHE[key] = reason
+    raise RuntimeError(reason)
+
+
+def _musicbrainz_cover_match(
     path: Path,
     *,
     json_fetcher: Callable[..., dict[str, Any] | None] | None = None,
@@ -6909,27 +7016,7 @@ def resolve_cover_match(
             artworks=artworks,
         )
 
-    discogs = discogs_cover_match(metadata, fetch_json)
-    if discogs:
-        return discogs
-    bandcamp = bandcamp_cover_match(
-        metadata,
-        text_fetcher or cover_http_get_text,
-    )
-    if bandcamp:
-        return bandcamp
-    itunes = itunes_cover_match(metadata, fetch_json)
-    if itunes:
-        return itunes
-    raise RuntimeError(
-        "No release with an approved Front image was found on "
-        "MusicBrainz/Cover Art Archive, Discogs, Bandcamp, or Apple Music/iTunes"
-        + (
-            "; Discogs was checked"
-            if os.environ.get("DISCOGS_TOKEN")
-            else "; set DISCOGS_TOKEN to enable the Discogs artwork-set fallback"
-        )
-    )
+    return None
 
 
 def artwork_stem(artwork: CoverArtwork, match: CoverMatch) -> str:
@@ -6989,7 +7076,7 @@ def artwork_name_plan(
         if counts[stem] > 1:
             stem = f"{stem}-{counts[stem]}"
         if artwork.front:
-            name = f"{stem}.jpg"
+            name = f"{stem if album_scope else audio_path.stem}.jpg"
         elif album_scope:
             name = f"{stem}.jpg"
         else:
@@ -11697,6 +11784,7 @@ def bake_replaygain_for_batch(
     key_reader=None,
     offer_retry: bool = True,
     force: bool = False,
+    offered_paths: set[Path] | None = None,
     acceptable_silence_seconds: float = (
         BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS
     ),
@@ -11707,13 +11795,14 @@ def bake_replaygain_for_batch(
     if not candidates:
         return []
     threshold_text = f"±{REPLAYGAIN_BAKE_THRESHOLD_DB:g} dB"
-    if not force and not prompt_for_replaygain_batch_bake(
-        candidates,
-        threshold_text=threshold_text,
-        use_color=use_color,
-        key_reader=key_reader,
-    ):
-        return []
+    if not force:
+        accepted = prompt_for_replaygain_batch_bake(
+            candidates, threshold_text=threshold_text, use_color=use_color, key_reader=key_reader,
+        )
+        if offered_paths is not None:
+            offered_paths.update(p.resolve() for p in candidates)
+        if not accepted:
+            return []
 
     baked: list[Path] = []
     failed_paths = []
@@ -14440,6 +14529,7 @@ def offer_post_audit_waveform_review(
     silence_threshold_seconds: float | None = None,
     key_reader=None,
     reviewer=None,
+    offered_paths: set[Path] | None = None,
 ) -> dict[str, Any] | None:
     """Offer a default-Yes three-way handoff to interactive waveform review."""
     if not interactive or suppressed:
@@ -14447,16 +14537,17 @@ def offer_post_audit_waveform_review(
     all_candidates, queued_candidates = waveform_review_candidates(
         root, include_archives=include_archives
     )
+    if offered_paths is not None:
+        all_candidates = [p for p in all_candidates
+                          if p.resolve() in offered_paths or replaygain_bake_is_recorded(p)]
+        if not all_candidates:
+            return None
+        eligible = set(all_candidates)
+        queued_candidates = [p for p in queued_candidates if p in eligible]
     total_audio = len(all_candidates)
     queued = len(queued_candidates)
     approved = total_audio - queued
-    if total_audio == 0:
-        print(
-            rgb_text(
-                "        🎚️ Interactive waveform review: 0 eligible audio files.",
-                155, 170, 185, use_color, dim=True,
-            )
-        )
+    if queued == 0:
         return None
 
     if shutil.which("ffmpeg") is None:
@@ -14469,7 +14560,7 @@ def offer_post_audit_waveform_review(
     # Begin the first useful JPEG while the user is reading/answering the
     # review offer.  Keep this single-worker and cancellable: N terminates its
     # ffmpeg child instead of leaving invisible work running.
-    speculative_candidates = queued_candidates or all_candidates
+    speculative_candidates = queued_candidates
     if reviewer is None and speculative_candidates:
         speculative_cancel = threading.Event()
         speculative_executor = ThreadPoolExecutor(
@@ -14542,6 +14633,8 @@ def offer_post_audit_waveform_review(
         )
         if reviewer is None:
             review_kwargs["prestarted_waveform"] = speculative
+        if offered_paths is not None:
+            review_kwargs["only_paths"] = all_candidates
         return review(root, **review_kwargs)
     finally:
         if speculative_executor is not None:
@@ -14564,11 +14657,7 @@ def find_cover_and_embed(
 ) -> list[str]:
     """Find one release, save its complete art set, embed only its Front."""
     targets = audio_targets or [path]
-    album_scope = (
-        bool(album_scope)
-        if album_scope is not None
-        else bool(recognized_album_artist(path.parent) or len(targets) > 1)
-    )
+    album_scope = album_scope is not False and verified_art_album_folder(path)
     metadata = cover_lookup_metadata(path)
     identity = (
         f"{metadata.get('album_artist') or metadata.get('artist')} — "
@@ -14594,7 +14683,7 @@ def find_cover_and_embed(
             f"{inline_italic('Cover Art Archive', use_color)}, "
             f"{inline_italic('Discogs', use_color)} when configured, "
             f"{inline_italic('Bandcamp', use_color)}, and "
-            f"{inline_italic('Apple Music/iTunes', use_color)}."
+            f"{inline_italic('Apple Music/iTunes', use_color)}; then album_art_downloader if needed."
         ),
         use_color=use_color,
         color=(85, 135, 165),
@@ -14655,7 +14744,7 @@ def find_cover_and_embed(
             )
         if not prompt_for_approval(
             f"Download and review this {len(plan)}-image artwork set "
-            f"({names}), then embed only cover.jpg as its Front image?",
+            f"({names}), then embed only {front_items[0][1]} as its Front image?",
             default_yes=False,
             use_color=use_color,
             key_reader=key_reader,
@@ -14954,7 +15043,7 @@ def art_sidecar_stem(picture_type: int) -> str:
 def is_album_track_filename(path: Path) -> bool:
     """Recognize leading or artist/album-prefixed two-digit album track numbers."""
     return bool(
-        re.search(r"(?:^| - )\d{1,2}(?:[ _.-]+)", path.stem)
+        re.search(r"(?:^| - )\d{1,3}(?:[ _.-]+)", path.stem)
     )
 
 
@@ -15027,8 +15116,10 @@ def same_basename_front_art_candidates(audio_path: Path) -> list[Path]:
 
 def embeddable_front_art_candidates(audio_path: Path) -> list[Path]:
     """Prefer folder Front art, then an exact per-track basename image."""
-    candidates = folder_front_art_candidates(audio_path.parent)
-    candidates.extend(same_basename_front_art_candidates(audio_path))
+    candidates = list(same_basename_front_art_candidates(audio_path))
+    folder_art = folder_front_art_candidates(audio_path.parent)
+    if folder_art and verified_art_album_folder(audio_path):
+        candidates.extend(folder_art)
     return list(dict.fromkeys(candidates))
 
 
@@ -16551,16 +16642,23 @@ def retry_failed_findings(data, result, use_color, key_reader=None, input_reader
         print(console_safe_text(f"          {decision['finding'].get('path')}: {decision['error']}"))
     if not prompt_for_approval("Retry only these failed actions after a fresh scan?", False, use_color, key_reader=key_reader):
         return result
+    for decision in failures:
+        f = decision["finding"]
+        if f["category"] == "missing_embedded_art":
+            _ART_SEARCH_CACHE.pop(find_cover_group_key(safe_finding_path(Path(data["resolved_root"]), f)), None)
     root = Path(data["resolved_root"])
     fresh = BatchAudit(root, include_archives=data.get("include_archives", False),
                        check_silence=data.get("check_silence", False)).audit(embed_lyrics_first=False)
     def key(finding):
         return finding["category"], os.path.normcase(str(safe_finding_path(root, finding).resolve()))
     wanted = {key(d["finding"]) for d in failures}
+    deferred = [d for d in result.get("decisions", [])
+                if "release_search_already_failed" in d.get("actions", [])]
+    wanted.update(key(d["finding"]) for d in deferred)
     fresh["findings"] = [f for f in fresh["findings"] if f.get("code") and key(f) in wanted]
     fresh["_force_prompts"] = True
     remaining = {key(f) for f in fresh["findings"]}
-    retained = [d for d in result.get("decisions", []) if not d.get("error")]
+    retained = [d for d in result.get("decisions", []) if not d.get("error") and d not in deferred]
     for decision in failures:
         if key(decision["finding"]) not in remaining:
             print(f"        ✅ No longer actionable after refresh: {decision['finding'].get('path')}")
@@ -19462,27 +19560,35 @@ def apply_finding(
     raise NotImplementedError(f"No immediate-action handler for {category}")
 
 
-def find_cover_group_key(path: Path) -> tuple[str, ...]:
+def find_cover_group_key(path: Path, metadata=None) -> tuple[str, ...]:
     """Group album tracks so ``--find-cover`` downloads one artwork set once."""
     try:
-        metadata = cover_lookup_metadata(path)
+        metadata = metadata if metadata is not None else cover_lookup_metadata(path)
     except Exception:
         return ("file", str(path.resolve()).casefold())
     release_id = str(metadata.get("release_id") or "").casefold()
-    album = normalized_match_text(str(metadata.get("album") or ""))
-    artist = normalized_match_text(
-        str(metadata.get("album_artist") or metadata.get("artist") or "")
-    )
+    if youtube_video_id_from_filename(path):
+        return ("file", str(path.resolve()).casefold())
     if release_id:
         return ("release", str(path.parent.resolve()).casefold(), release_id)
-    if album and artist:
+    tagged_artist, tagged_album, date = metadata.get("tag_identity", ("", "", ""))
+    if tagged_album and tagged_artist and tagged_album.strip().casefold() not in {"unknown", "misc", "singles", "unknown album"}:
         return (
             "album",
             str(path.parent.resolve()).casefold(),
-            artist,
-            album,
+            tagged_artist.strip().casefold(), tagged_album.strip().casefold(), str(date).casefold(),
+            str(metadata.get("release_group_id") or "").casefold(),
         )
     return ("file", str(path.resolve()).casefold())
+
+
+def verified_art_album_folder(path):
+    key = find_cover_group_key(path)
+    if key[0] == "file":
+        return False
+    audio = [p for p in path.parent.iterdir() if p.suffix.lower() in AUDIO_EXTS and p.is_file()]
+    return bool(audio and (recognized_album_artist(path.parent) or all(is_album_track_filename(p) for p in audio))
+                and all(find_cover_group_key(p) == key for p in audio))
 
 
 def find_covers_for_batch(
@@ -19525,12 +19631,16 @@ def find_covers_for_batch(
     for finding in missing:
         target = safe_finding_path(root, finding)
         key = find_cover_group_key(target)
+        if not verified_art_album_folder(target):
+            key = ("file", str(target.resolve()).casefold())
         if target not in groups[key]:
             groups[key].append(target)
 
     results: list[dict[str, Any]] = []
     for targets in groups.values():
         representative = targets[0]
+        if isinstance(_ART_SEARCH_CACHE.get(find_cover_group_key(representative)), str):
+            continue
         print()
         cover_narration(
             "♪",
@@ -19760,6 +19870,12 @@ def _interactive_apply(
         refresh_pending_paths(coded, root, _RENAMED_PATHS[rename_cursor:])
         rename_cursor = len(_RENAMED_PATHS)
         target = safe_finding_path(root, finding)
+        if (finding["category"] == "missing_embedded_art" and front_art_candidate(target) is None
+                and isinstance(_ART_SEARCH_CACHE.get(find_cover_group_key(target)), str)):
+            skipped.append(finding["code"])
+            decisions.append(dict(code=finding["code"], applied=False, skipped=True, error=None,
+                                  actions=["release_search_already_failed"], finding=finding))
+            continue
         if finding["category"] == "missing_srt_from_lrc_txt":
             expected = srt_finding_audio_paths(root, finding)
             if expected and all(nonempty_srt_exists(path) for path in expected):
@@ -23848,7 +23964,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertIn("11", first_line)
             self.assertIn(ANSI["reset"], first_line)
 
-        def test_zero_queued_waveform_offer_has_force_all(self) -> None:
+        def test_zero_queued_waveform_offer_skips_prompt(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
                 audio = make_silent_flac(root, "Approved [instrumental]")
@@ -23870,15 +23986,12 @@ def run_unit_tests(use_color: bool = True) -> int:
                         include_archives=False,
                         use_color=False,
                         workers=2,
-                        key_reader=lambda: "f",
+                        key_reader=lambda: self.fail("Empty review asked for a key"),
                         reviewer=reviewer,
                     )
-                self.assertEqual({"audio_files": 1, "fine": []}, result)
-                self.assertIn("1 total waveforms ➜ 0 to review / 1 already reviewed", output.getvalue())
-                self.assertIn("Press “Y” to review the 0 un-reviewed waveforms.", output.getvalue())
-                self.assertIn("Press “F” to review all 1 waveform.", output.getvalue())
-                self.assertIn("Run the interactive waveform review now? [Y/n/f]", output.getvalue())
-                self.assertTrue(reviewer.call_args.kwargs["force_all"])
+                self.assertIsNone(result)
+                reviewer.assert_not_called()
+                self.assertNotIn("Run the interactive waveform review", output.getvalue())
 
         def test_waveform_jpeg_readiness_rejects_partial_and_accepts_complete(self) -> None:
             if Image is None:
@@ -28686,6 +28799,7 @@ def prompt_no_argument_menu(
 
 def _main(argv: list[str] | None = None) -> int:
     global _BATCH_FOLDER_LOCK
+    _ART_SEARCH_CACHE.clear()
     raw_argv = list(sys.argv[1:] if argv is None else argv)
     use_color = "--no-color" not in raw_argv
     announce_release(use_color=use_color)
@@ -28983,8 +29097,11 @@ def _main(argv: list[str] | None = None) -> int:
         refresh_embedded_lyrics=args.refresh_embedded_lyrics,
     )
     if args.interactive:
+        offered_paths = set()
+        bake_rename_cursor = len(_RENAMED_PATHS)
         baked_paths = bake_replaygain_for_batch(
             audit.audio_files,
+            offered_paths=offered_paths,
             use_color=not args.no_color,
             acceptable_silence_seconds=(
                 effective.silence_threshold_seconds
@@ -29012,6 +29129,13 @@ def _main(argv: list[str] | None = None) -> int:
             data["embedded_lyrics"] = original_embedded_lyrics
             data["embedded_lyrics_mode"] = original_embedded_lyrics_mode
         data["found_cover_art"] = cover_results
+        missed = [key for key, value in _ART_SEARCH_CACHE.items() if isinstance(value, str)]
+        if missed and prompt_for_approval(
+            f"Retry the {len(missed)} unsuccessful release/track searches during artwork review?",
+            default_yes=False, use_color=not args.no_color,
+        ):
+            for key in missed:
+                _ART_SEARCH_CACHE.pop(key, None)
     elif effective.find_cover:
         print(
             colorize(
@@ -29058,8 +29182,13 @@ def _main(argv: list[str] | None = None) -> int:
         result = retry_failed_findings(data, result, use_color=not args.no_color)
         print_interactive_results(result, not args.no_color)
         try:
+            for before, after in _RENAMED_PATHS[bake_rename_cursor:]:
+                if before in offered_paths:
+                    offered_paths.remove(before)
+                    offered_paths.add(after)
             waveform_handoff = offer_post_audit_waveform_review(
                 Path(args.root),
+                offered_paths=offered_paths,
                 interactive=True,
                 suppressed=args.no_review_waveforms,
                 include_archives=args.include_archives,

@@ -22,17 +22,17 @@ import zipfile
 
 
 PACKAGE_NAME = "ClaireCJS.PAFPlayer.LockScreen.Recovery"
-PACKAGE_VERSION = "530.0.0.0"
-PACKAGE_DISPLAY_NAME = "PAFPlayer Lock Screen V530"
+PACKAGE_VERSION = "531.0.0.0"
+PACKAGE_DISPLAY_NAME = "PAFPlayer Lock Screen V531"
 PACKAGE_FAMILY = "ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2"
 CERT_THUMBPRINT = "08AC642F1C17B503BC857189AE8C78E76B3358EC"
-PACKAGE_FILE = "PAFPlayerLockScreen_v530_x64.msix"
+PACKAGE_FILE = "PAFPlayerLockScreen_v531_x64.msix"
 RUNTIME_FILE = "PAFPlayerLockScreen.exe"
 CERT_FILE = "PAFPlayerLockScreen_v505.cer"
 DEPENDENCIES = ()  # Uses Windows' .NET Framework, not the UWP .NET Native runtime.
 EXPECTED_SHA256 = {
-    PACKAGE_FILE: "1436ce789ae6ac09b4a67e0ea25f37aabf716abfed21f2fdb67b0037171c6669",
-    RUNTIME_FILE: "dad0ab47511b5cf9dba9cd07db5b271150ad3ba887e4607ec8d0ad371b622f8c",
+    PACKAGE_FILE: "473689cc3959e8135735831eacabcba4e8d0f12016d1ef6c4f0a45afe23a8fa2",
+    RUNTIME_FILE: "7dcad0814a840b84a9cc2d6ea57f8a5cbd4e9e3cdcad4c0ff6819b7f5cbbf3e9",
     CERT_FILE: "ada1449f903cdd9eba33578400d81ad612374da12fcf300b059d3e39c1ed1fc2",
 }
 FOUNDATION = "http://schemas.microsoft.com/appx/manifest/foundation/windows10"
@@ -48,7 +48,7 @@ class InstallerError(RuntimeError):
 
 def artifacts(root: Path) -> tuple[Path, Path, tuple[Path, ...]]:
     dist = root / "dist"
-    release = dist / "v530"
+    release = dist / "v531"
     return release / PACKAGE_FILE, dist / CERT_FILE, ()
 
 
@@ -66,14 +66,14 @@ def validate_artifacts(package: Path, certificate: Path, dependencies: tuple[Pat
             raise InstallerError(f"Missing installation file: {path}")
         expected = EXPECTED_SHA256.get(path.name)
         if not expected or sha256(path) != expected:
-            raise InstallerError(f"File differs from the verified V530 build: {path}")
+            raise InstallerError(f"File differs from the verified V531 build: {path}")
     try:
         with zipfile.ZipFile(package) as archive:
             manifest = ET.fromstring(archive.read("AppxManifest.xml"))
             if "AppxSignature.p7x" not in archive.namelist():
                 raise InstallerError("The identity package is not signed.")
             if hashlib.sha256(archive.read(RUNTIME_FILE)).hexdigest() != EXPECTED_SHA256[RUNTIME_FILE]:
-                raise InstallerError("The packaged runtime differs from the verified V530 build.")
+                raise InstallerError("The packaged runtime differs from the verified V531 build.")
     except (OSError, KeyError, ValueError, zipfile.BadZipFile, ET.ParseError) as error:
         raise InstallerError(f"Invalid package manifest: {error}") from error
     identity = manifest.find(f"{{{FOUNDATION}}}Identity")
@@ -219,7 +219,7 @@ if(hr<0) Marshal.ThrowExceptionForHR(hr); return pid; } }'''
     def verify_publication(self, root: Path) -> dict:
         report_dir = root.parent / "tests" / "reports"
         report_dir.mkdir(parents=True, exist_ok=True)
-        report = report_dir / ("v530-publication-" + uuid.uuid4().hex + ".json")
+        report = report_dir / ("v531-publication-" + uuid.uuid4().hex + ".json")
         # Activation uses the same app identity as Start, not an unpackaged exe.
         self.activate(subprocess.list2cmdline(["--verify", str(report)]))
         for _ in range(150):
@@ -252,11 +252,11 @@ try {
 def manual_steps() -> None:
     print("\nFinish these steps in your Windows account:")
     print("  1. Start PAFPlayer with its web server reachable from this computer.")
-    print("  2. In PAFPlayer V530, enable Windows Lock Screen in web configuration.")
+    print("  2. In PAFPlayer V531, enable Windows Lock Screen in web configuration.")
     print("     PAFPlayer starts and stops its publisher automatically; an explicit saved companion choice is migrated.")
     print("  3. Open Settings > Personalization > Lock screen. Under")
-    print("     'Choose one app to show detailed status', select PAFPlayer Lock Screen V530.")
-    print("     Select PAFPlayer Lock Screen V530 again for a quick-status slot to see the playing/paused/offline badge.")
+    print("     'Choose one app to show detailed status', select PAFPlayer Lock Screen V531.")
+    print("     Select PAFPlayer Lock Screen V531 again for a quick-status slot to see the playing/paused/offline badge.")
     print("     The old music-note entry belongs to a different app. Open each picker to check the name.")
     print("  4. Keep PAFPlayer running. Lock with Win+L and visually check both slots.")
     print("     Windows controls rendering and truncation; publication is not visual proof.")
@@ -272,7 +272,7 @@ def install(root: Path, backend: WindowsBackend, *, check_only: bool = False,
     installed = backend.installed_version()
     print("EnableLUA=" + ("1" if backend.uac_enabled() else "0") + "; no UAC setting will be changed.")
     if check_only:
-        print(f"V530 artifacts verified; installed version: {installed or 'none'}.")
+        print(f"V531 artifacts verified; installed version: {installed or 'none'}.")
         print("Read-only check: activation and publication were not tested.")
         return 0 if installed == PACKAGE_VERSION else 1
     if installed and tuple(map(int, installed.split('.'))) > tuple(map(int, PACKAGE_VERSION.split('.'))):
@@ -294,12 +294,12 @@ def install(root: Path, backend: WindowsBackend, *, check_only: bool = False,
         if not backend.trusted():
             raise InstallerError("Certificate trust could not be verified.")
     if installed != PACKAGE_VERSION:
-        print("Installing the V530 desktop publisher's signed Recovery identity package...")
+        print("Installing the V531 desktop publisher's signed Recovery identity package...")
         print("Only an existing Recovery publisher may close during this upgrade; PAFPlayer keeps playing.")
         backend.register(package, dependencies)
     installed = backend.installed_version()
     if installed != PACKAGE_VERSION:
-        raise InstallerError("Windows did not report V530 registered for this account.")
+        raise InstallerError("Windows did not report V531 registered for this account.")
     receipt = backend.verify_publication(root)
     expected_package = PACKAGE_NAME + "_" + PACKAGE_VERSION + "_x64__vz06efybxc4j2"
     if receipt.get("startupError") or receipt.get("package") != expected_package:
@@ -317,7 +317,7 @@ def install(root: Path, backend: WindowsBackend, *, check_only: bool = False,
     if receipt.get("enabled") is False:
         print("Companion activated; publishing remains disabled in your saved settings.")
     else:
-        print("Verified: V530 activated and submitted a tile and badge to Windows.")
+        print("Verified: V531 activated and submitted a tile and badge to Windows.")
         print("Windows background refresh registration, access and COM activation verified.")
         if not receipt.get("officialVerified"):
             print("Official player unavailable/unverified: displaying offline status.")

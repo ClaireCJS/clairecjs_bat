@@ -1,5 +1,23 @@
 # Clips4Sale preview downloader
 
+Version 0.11.0 keeps its version visible in the global progress row. Closed
+browser errors during clip inspection reopen the browser and retry that clip
+(up to two recoveries per clip), instead of marking the rest of the queue failed.
+
+Headed runs now share downloader-owned browser windows by default. Each job
+gets its own tab, including concurrent jobs from other downloader instances.
+Allocation is serialized across processes; when all hosts have ten tabs, a new
+host is opened. Finishing a job closes its assigned tab. Use
+`--no-shared-browser` for a separate browser session. Existing ordinary browser
+windows are not enrolled in this pool. The first pooled browser copies the
+saved login; subsequent jobs reuse its cookies.
+
+The resume menu accepts `P` to prune finished jobs with errors below an editable
+percentage (default 5%). Each job requires Y/N; R approves the remaining jobs,
+and X stops pruning. Pruned jobs disappear from resume choices while their
+original history and download records remain recoverable. Interrupted and live
+jobs are not treated as completed by this operation.
+
 The Clips4Sale preview downloader scrolls a studio/category listing to the end,
 selects the best-quality edition of repeated titles, visits the selected clip
 pages, and saves their public preview videos, animations, and still images.

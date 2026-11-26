@@ -235,3 +235,50 @@ class Instance:
         if self.httpd:
             self.httpd.shutdown();self.httpd.server_close();self.httpd=None
         if self._owner_thread==threading.get_ident(): self._release_mutex()
+
+
+def other_player_running():
+    """Inspect same-session player processes, including older and explicit instances."""
+    if os.name != 'nt': return False
+    import re
+    from ctypes import wintypes
+    kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+    psapi = ctypes.WinDLL('psapi', use_last_error=True)
+    query = ctypes.WinDLL('ntdll').NtQueryInformationProcess
+    kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+    kernel.OpenProcess.restype = wintypes.HANDLE
+    kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel.QueryFullProcessImageNameW.argtypes = [wintypes.HANDLE,wintypes.DWORD,wintypes.LPWSTR,ctypes.POINTER(wintypes.DWORD)]
+    query.argtypes = [wintypes.HANDLE,ctypes.c_int,ctypes.c_void_p,wintypes.ULONG,ctypes.POINTER(wintypes.ULONG)]
+    query.restype = ctypes.c_long
+    class UnicodeString(ctypes.Structure):
+        _fields_ = [('length',wintypes.USHORT),('maximum',wintypes.USHORT),('buffer',ctypes.c_void_p)]
+    pids = (wintypes.DWORD * 16384)(); used = wintypes.DWORD()
+    if not psapi.EnumProcesses(pids,ctypes.sizeof(pids),ctypes.byref(used)): return True
+    own_session = wintypes.DWORD()
+    if not kernel.ProcessIdToSessionId(os.getpid(),ctypes.byref(own_session)): return True
+    for pid in pids[:used.value // ctypes.sizeof(wintypes.DWORD)]:
+        if not pid or pid == os.getpid(): continue
+        session = wintypes.DWORD()
+        if not kernel.ProcessIdToSessionId(pid,ctypes.byref(session)) or session.value != own_session.value: continue
+        handle = kernel.OpenProcess(0x1000,False,pid)
+        if not handle: continue
+        try:
+            path = ctypes.create_unicode_buffer(32768); size = wintypes.DWORD(len(path))
+            if not kernel.QueryFullProcessImageNameW(handle,0,path,ctypes.byref(size)): continue
+            name = Path(path.value).name.casefold()
+            if name == 'pafplayer.exe': return True
+            if name not in ('python.exe','pythonw.exe','pypy.exe','pypy3.exe'): continue
+            needed = wintypes.ULONG()
+            query(handle,60,None,0,ctypes.byref(needed))
+            if not 0 < needed.value <= 1024*1024: return True
+            data = ctypes.create_string_buffer(needed.value)
+            if query(handle,60,data,len(data),ctypes.byref(needed)) < 0: return True
+            value = UnicodeString.from_buffer(data)
+            start = ctypes.addressof(data)
+            if not value.buffer or not start <= value.buffer <= start+len(data)-value.length: return True
+            command = ctypes.wstring_at(value.buffer,value.length//2)
+            if re.search(r'(?i)(?:^|[\\/"\s])pafplayer(?:_v[0-9]+[^\\/"\s]*)?\.py(?:["\s]|$)',command): return True
+        finally:
+            kernel.CloseHandle(handle)
+    return False

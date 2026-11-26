@@ -55,8 +55,8 @@ def preferred_root():
         value=json.loads(preference_path().read_text(encoding='utf-8'))
         if isinstance(value,dict) and isinstance(value.get('root'),str) and value['root'].strip():return Path(value['root']).expanduser()
     except (OSError,ValueError):pass
-    if os.name=='nt' and Path('T:/').is_dir():return Path('T:/models')
-    return Path.home()/'PAFPlayer-models'
+    from PAFPlayer_runtime_paths import runtime_root
+    return runtime_root()/'models'
 
 
 def save_preferred_root(root):

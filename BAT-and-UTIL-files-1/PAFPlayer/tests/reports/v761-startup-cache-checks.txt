@@ -1,0 +1,37 @@
+test_audio_file_timestamp_change_invalidates_metadata (test_v761_startup_cache.StartupCacheTests) ... ok
+test_bundle_matches_source (test_v761_startup_cache.StartupCacheTests) ... ok
+test_corrupt_or_unwritable_cache_is_disposable (test_v761_startup_cache.StartupCacheTests) ... ok
+test_failed_scans_are_not_persisted (test_v761_startup_cache.StartupCacheTests) ... ok
+test_first_worker_launch_builds_in_background_and_preserves_module_identity (test_v761_startup_cache.StartupCacheTests) ... ok
+test_metadata_reused_after_memory_cache_is_cleared (test_v761_startup_cache.StartupCacheTests) ... ok
+test_silence_analysis_reused_with_identical_bounds (test_v761_startup_cache.StartupCacheTests) ... ok
+test_trim_parameters_invalidate_silence_cache (test_v761_startup_cache.StartupCacheTests) ... ok
+test_warm_worker_cache_is_reused_without_replacement (test_v761_startup_cache.StartupCacheTests) ... ok
+test_normal_playback_still_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_simple_never_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_audio_owner_hooks_and_bundle_parity (test_v759_pause_ownership.PauseOwnershipTests) ... ok
+test_late_pause_after_resume_intent_requires_actual_pause_ack (test_v759_pause_ownership.PauseOwnershipTests) ... ok
+test_lease_between_restore_selection_and_commit_still_blocks (test_v759_pause_ownership.PauseOwnershipTests) ... ok
+test_manual_pause_cancels_pending_restore (test_v759_pause_ownership.PauseOwnershipTests) ... ok
+test_manual_pause_or_stop_revokes_resume_ownership (test_v759_pause_ownership.PauseOwnershipTests) ... ok
+test_new_preview_cancels_stale_queued_resume (test_v759_pause_ownership.PauseOwnershipTests) ... ok
+test_playing_main_resumes_only_after_last_preview (test_v759_pause_ownership.PauseOwnershipTests) ... ok
+test_prepaused_main_never_receives_play (test_v759_pause_ownership.PauseOwnershipTests) ... ok
+test_prepaused_stays_paused_with_multiple_previews_and_expiry (test_v759_pause_ownership.PauseOwnershipTests) ... ok
+test_stale_play_and_auto_resume_cannot_restart_held_player (test_v759_pause_ownership.PauseOwnershipTests) ... ok
+test_focus_trace_never_exposes_authentication (test_v758_simple_startup.StartupTests) ... ok
+test_many_dead_registrations_do_not_connect (test_v758_simple_startup.StartupTests) ... ok
+test_new_bundle_matches_module (test_v758_simple_startup.StartupTests) ... ok
+test_overlapping_startups_give_newest_preview_priority (test_v758_simple_startup.StartupTests) ... ok
+test_preview_initial_and_persisted_pause_state_are_isolated (test_v758_simple_startup.StartupTests) ... ok
+test_process_liveness_detects_self_and_absent_pid (test_v758_simple_startup.StartupTests) ... ok
+test_retire_preserves_both_collision_files (test_v758_simple_startup.StartupTests) ... ok
+test_v82_replaygain_metadata_shares_existing_ffprobe_and_stays_out_of_display_tags (PAFPlayer.PlayWaveFileTests)
+ReplayGain extraction must reuse the display metadata probe, never leak into HUD tags. ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 4.244s
+
+OK
+
+Regression run with developer Python; native-runtime component benchmarks recorded separately. Two older native-runtime simulated-playback tests exposed a send2trash fixture/import problem and are not claimed as passing. Syntax, embedded source parity and release SHA256 passed. Benchmark: v761-final-startup-benchmark.json. Root audit retained active player/data/Qwen shim and lockscreen/screensaver native inputs/runtime assets. No C:\BAT changes. Live music was not interrupted; benchmarks measured loading/analysis without audio output.

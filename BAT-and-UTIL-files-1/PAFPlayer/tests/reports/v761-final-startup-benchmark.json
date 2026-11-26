@@ -1,0 +1,43 @@
+{
+  "analysis": [
+    {
+      "mode": "cold-analysis",
+      "seconds": 0.313,
+      "duration": 211.48,
+      "bounds": [
+        0.0,
+        205.9867
+      ]
+    },
+    {
+      "mode": "cached-analysis",
+      "seconds": 0.048,
+      "duration": 211.48,
+      "bounds": [
+        0.0,
+        205.9867
+      ]
+    }
+  ],
+  "worker_load_only": [
+    {
+      "mode": "source",
+      "seconds": 1.316,
+      "exit_code": 1,
+      "uses_compiled_code": false
+    },
+    {
+      "mode": "first-cache-request",
+      "seconds": 1.546,
+      "exit_code": 1,
+      "uses_compiled_code": false
+    },
+    {
+      "mode": "warm-cache",
+      "seconds": 0.505,
+      "exit_code": 1,
+      "uses_compiled_code": true
+    }
+  ],
+  "note": "Same installed Python, no audio output. Expected worker exit 1 on empty config. These are component measurements, not end-to-end playback latency."
+}

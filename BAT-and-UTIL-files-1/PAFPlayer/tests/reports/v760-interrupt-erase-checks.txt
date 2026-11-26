@@ -1,0 +1,16 @@
+Actual main Ctrl+C handler capture: erase-to-end follows stop message before newline; no full-screen clear/home/reset introduced.
+
+test_normal_ctrl_break_keeps_existing_emergency_erase (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_normal_signal_keeps_fast_abort (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_ctrl_c_and_ctrl_break_preserve_terminal_content (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_signal_stops_decoder_and_unwinds_for_cleanup (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_startup_labels_use_actual_port_width (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_normal_playback_still_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_simple_never_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.266s
+
+OK
+
+Syntax and standalone release hash checks passed. Root audit: active player/data files retained; lockscreen/screensaver roots retain build/runtime assets. No C:\BAT changes.

@@ -602,6 +602,9 @@ class RemoteServer:
         try:
             identity, state = self.hello(include_timeline=False)
             revision = int(state.get('lyric_timeline_revision') or 0)
+            if self.owner_identity and identity != self.owner_identity:
+                # A newly verified owner invalidates the previous offline lease.
+                self._last_verified_at = 0.0
             if identity != self.owner_identity or revision != self._lyric_timeline_revision:
                 identity, state = self.hello(include_timeline=True)
             with self._lock:
@@ -609,6 +612,8 @@ class RemoteServer:
                            or self._state.get('version') != state.get('version'))
                 self._state = state
                 self.owner_identity = identity
+                self._last_verified_identity = identity
+                self._last_verified_at = time.monotonic()
                 self.connected = True
                 self.last_error = ''
         except Exception as exc:

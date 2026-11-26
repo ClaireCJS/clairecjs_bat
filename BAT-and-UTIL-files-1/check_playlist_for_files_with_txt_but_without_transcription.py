@@ -56,9 +56,14 @@ def check_sidecars(playlist_path, output_path):
     with tqdm(total=num_lines, desc="🔍 Checking lyric/karaoke files", unit="file") as pbar:                         # Initialize the progress bar
         for path in lines:
             path_casefolded = path.casefold()
-            excluded = any(marker in path_casefolded for marker in EXCLUDED_FILENAME_MARKERS)
-            is_chiptune = any(marker in path_casefolded for marker in CHIPTUNE_MARKERS)
-            has_vocal_exception = any(marker in path_casefolded for marker in VOCAL_EXCEPTION_MARKERS)
+            filename_casefolded = os.path.basename(path_casefolded)
+            path_parts = path_casefolded.replace('/', '\\').split('\\')
+            excluded = any(marker in filename_casefolded for marker in EXCLUDED_FILENAME_MARKERS)
+            is_chiptune = (
+                any(marker in filename_casefolded for marker in CHIPTUNE_MARKERS)
+                or any(part in {'chiptune', 'chiptunes'} for part in path_parts)
+            )
+            has_vocal_exception = any(marker in filename_casefolded for marker in VOCAL_EXCEPTION_MARKERS)
             if excluded or (is_chiptune and not has_vocal_exception):
                 pbar.update(1)
                 if claire_utils: claire.tick()

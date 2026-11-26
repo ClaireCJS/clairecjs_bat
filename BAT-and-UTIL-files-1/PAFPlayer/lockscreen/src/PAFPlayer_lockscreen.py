@@ -23,8 +23,8 @@ KEY = 'PAFPlayerLockScreenEnabled'
 VERSION_KEY = 'PAFPlayerLockScreenShowVersion'
 FAMILY = 'ClaireCJS.PAFPlayer.LockScreen.Recovery_vz06efybxc4j2'
 THUMBPRINT = '08AC642F1C17B503BC857189AE8C78E76B3358EC'
-EMBEDDED_INSTALL_VERSION = '530.0.0.0'
-AUTO_INSTALL_MARKER = 'lockscreen-auto-install-v530.attempted'
+EMBEDDED_INSTALL_VERSION = '531.0.0.0'
+AUTO_INSTALL_MARKER = 'lockscreen-auto-install-v531.attempted'
 DEFERRED_INSTALL_MARKER = 'lockscreen-install-user-requested.pending'
 
 
@@ -52,9 +52,10 @@ def embedded_installer_root():
     """Materialize verified bundled bytes in a versioned, reusable user cache."""
     from PAFPlayer_lockscreen_payload import PAYLOAD_SHA256, payload_bytes
     local = Path(os.environ.get('LOCALAPPDATA') or Path.home())
-    root = local / 'PAFPlayer' / 'LockScreenInstaller' / ('v' + EMBEDDED_INSTALL_VERSION.split('.')[0])
+    from PAFPlayer_runtime_paths import runtime_root
+    root = runtime_root() / 'downloads' / 'LockScreenInstaller' / ('v' + EMBEDDED_INSTALL_VERSION.split('.')[0])
     paths = {
-        'PAFPlayerLockScreen_v530_x64.msix': root / 'dist/v530/PAFPlayerLockScreen_v530_x64.msix',
+        'PAFPlayerLockScreen_v531_x64.msix': root / 'dist/v531/PAFPlayerLockScreen_v531_x64.msix',
         'PAFPlayerLockScreen_v505.cer': root / 'dist/PAFPlayerLockScreen_v505.cer',
     }
     import hashlib
@@ -84,7 +85,7 @@ def embedded_installer_root_at(root):
     import hashlib
     root = Path(root)
     paths = {
-        'PAFPlayerLockScreen_v530_x64.msix': root / 'dist/v530/PAFPlayerLockScreen_v530_x64.msix',
+        'PAFPlayerLockScreen_v531_x64.msix': root / 'dist/v531/PAFPlayerLockScreen_v531_x64.msix',
         'PAFPlayerLockScreen_v505.cer': root / 'dist/PAFPlayerLockScreen_v505.cer',
     }
     for name, path in paths.items():
@@ -127,7 +128,7 @@ def maybe_auto_install_lockscreen():
     local.mkdir(parents=True, exist_ok=True)
     try:
         with marker.open('x', encoding='utf-8') as stream:
-            stream.write('PAFPlayer V530 first-run lock-screen install attempted\n')
+            stream.write('PAFPlayer V531 first-run lock-screen install attempted\n')
     except FileExistsError:
         return 0
     from PAFPlayer_lockscreen_installer import WindowsBackend
@@ -136,7 +137,7 @@ def maybe_auto_install_lockscreen():
             return 0
     except Exception:
         pass
-    print('🪟 First-run lock-screen setup: installing/updating the bundled V530 companion.')
+    print('🪟 First-run lock-screen setup: installing/updating the bundled V531 companion.')
     # First-run setup is already an explicit product action. Go straight to
     # Windows' required UAC consent instead of depending on a console prompt.
     return install_embedded_lockscreen(ask=lambda _prompt: 'yes')
@@ -361,7 +362,7 @@ class Controller:
                     self.runtime.settings.setdefault(KEY, previous_setting())
                     self.runtime.save_settings()
             # Existing enabled lock-screen users asked to see the release during
-            # the V530 rollout. Fresh/default profiles remain opted out.
+            # the V531 rollout. Fresh/default profiles remain opted out.
             if official and self.runtime.settings.get(KEY) is True and VERSION_KEY not in self.runtime.settings:
                 with self.runtime.lock:
                     self.runtime.settings[VERSION_KEY] = True
@@ -617,7 +618,7 @@ HTML = '''<div class="group" id="lockScreenSection"><h3>Windows Lock Screen</h3>
 <label><input type="checkbox" id="lockScreenEnabled" disabled>Enable lock-screen song status</label>
 <label><input type="checkbox" id="lockScreenShowVersion" disabled>Show PAFPlayer version after album</label>
 <div class="buttons"><button type="button" id="lockScreenTest" class="secondary-button">🔒 Test Lock Screen Now</button><button type="button" id="lockScreenInstall" class="secondary-button">🪟 Install / repair integration</button></div>
-<p>PAFPlayer starts and stops its installed publisher automatically. In Windows Lock screen Settings, select PAFPlayer Lock Screen V530 for detailed status (song and clock, sung lyric, and album/year/version) and quick status (playing/paused badge).</p>
+<p>PAFPlayer starts and stops its installed publisher automatically. In Windows Lock screen Settings, select PAFPlayer Lock Screen V531 for detailed status (song and clock, sung lyric, and album/year/version) and quick status (playing/paused badge).</p>
 <p id="lockScreenInstallStatus" role="status">Checking installation…</p>
 <p id="lockScreenStatus" role="status">Loading…</p></div>'''
 SCRIPT = '''<script>(()=>{const box=document.getElementById('lockScreenEnabled'),version=document.getElementById('lockScreenShowVersion'),status=document.getElementById('lockScreenStatus'),installStatus=document.getElementById('lockScreenInstallStatus'),test=document.getElementById('lockScreenTest'),install=document.getElementById('lockScreenInstall');let busy=false;

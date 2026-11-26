@@ -457,7 +457,8 @@ def piper_support_root(root=None):
         from PAFPlayer_model_storage import preferred_root
         return preferred_root() / 'Piper'
     except Exception:
-        return Path(base) / 'PAFPlayer' / 'support' / 'piper'
+        from PAFPlayer_runtime_paths import runtime_root
+        return runtime_root() / 'models' / 'Piper'
 
 
 def installed_piper(root=None):
@@ -950,6 +951,8 @@ class Controller:
         self.play_thread=None;self.play_process=None;self.play_cancel=threading.Event();self.play_done=False;self.play_forced=False
         self.play_dialogue=[];self.play_state={};self.play_command=None;self.ready_artwork=None;self.play_artwork=None
         self.log.write('controller.start', enabled=self.options['enabled'], interval=self.options['interval'], text_provider=self.options['text_provider'], speech_provider=self.options['speech_provider'])
+        if self.credit_warnings.active:
+            self.log.write('openai.credit.warning', severity='minor', message=OPENAI_CREDIT_WARNING)
 
     def configure(self,patch,changed=None):
         if AI_DISABLED:
@@ -1078,6 +1081,17 @@ class Controller:
         if self.credit_warnings.active: result.insert(0, OPENAI_CREDIT_WARNING)
         if self.talk_log_error and self.talk_log_error not in result: result.append(self.talk_log_error)
         return result
+
+    def hud_warning_messages(self):
+        """Credit history is informational unless an enabled DJ chain has failed."""
+        messages = self.warning_messages()
+        options = self.options
+        order = options.get('text_precedence') or LEGACY_PRECEDENCE.get(options.get('text_provider', 'auto'), TEXT_PRECEDENCE)
+        uses_openai = 'openai' in order or options.get('speech_provider', 'auto') == 'auto'
+        blocked = (not AI_DISABLED and options.get('enabled', False) and uses_openai
+                   and self.stage == 'Failed' and bool(self.error)
+                   and not self.ready and not self.working)
+        return [message for message in messages if message != OPENAI_CREDIT_WARNING or blocked]
 
     def help_snapshot(self):
         with self.lock:

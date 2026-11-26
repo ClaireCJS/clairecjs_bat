@@ -1,0 +1,29 @@
+test_aborted_header_write_is_quiet_and_logged (test_v752_quiet_seek_http.QuietSeekHTTPTests) ... ok
+test_diagnostic_failure_does_not_escape_to_stderr (test_v752_quiet_seek_http.QuietSeekHTTPTests) ... ok
+test_final_flush_reset_is_quiet_and_logged (test_v752_quiet_seek_http.QuietSeekHTTPTests) ... ok
+test_unexpected_handler_failure_keeps_diagnostics_without_console_traceback (test_v752_quiet_seek_http.QuietSeekHTTPTests) ... ok
+test_local_drop_does_not_require_remote_upload_setting (test_v624_memory_audio_and_web_drop.BrowserDropTests) ... ok
+test_native_drop_without_playlist_changes_nothing (test_v624_memory_audio_and_web_drop.BrowserDropTests) ... ok
+test_native_window_drop_uses_owner_queue_bridge (test_v624_memory_audio_and_web_drop.BrowserDropTests) ... ok
+test_decoder_command_uses_ram_url_while_probing_original_file (test_v624_memory_audio_and_web_drop.MemoryAudioTests) ... ok
+test_seekable_loopback_source_serves_exact_bytes (test_v624_memory_audio_and_web_drop.MemoryAudioTests) ... ok
+test_insufficient_available_memory_uses_disk_source (test_v626_tray_drop_and_memory.MemoryBufferTests) ... ok
+test_track_larger_than_old_64_mib_cap_can_be_buffered (test_v626_tray_drop_and_memory.MemoryBufferTests) ... ok
+test_drop_queues_on_owner_and_releases_shell_handle_once (test_v626_tray_drop_and_memory.TrayDropTests) ... ok
+test_non_owner_cannot_queue_a_drop (test_v626_tray_drop_and_memory.TrayDropTests) ... ok
+test_overlay_arms_only_for_a_held_drag_near_this_icon (test_v626_tray_drop_and_memory.TrayDropTests) ... ok
+test_remote_settings_object_uses_the_supplied_shell_drop_reader (test_v626_tray_drop_and_memory.TrayDropTests) ... ok
+test_normal_ctrl_break_keeps_existing_emergency_erase (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_normal_signal_keeps_fast_abort (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_ctrl_c_and_ctrl_break_preserve_terminal_content (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_signal_stops_decoder_and_unwinds_for_cleanup (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_startup_labels_use_actual_port_width (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_normal_playback_still_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_simple_never_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 2.523s
+
+OK
+
+Syntax, embedded-source parity and release parity: OK.

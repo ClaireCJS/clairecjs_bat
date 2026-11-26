@@ -4411,7 +4411,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         set ABANDONED_SEARCH=1
                         set ANSWER=L
                         gosub check_for_answer_of_L
-                        rem echo Just got back from check_for_answer_of_L called FROM WITHIN :ASK_IF_WANT_MARK_LYRICLESSNESS [] ...answer=“%ANSWER%”, goto_end=“%GOTO_END%”
+                        rem echo Just got back from check_for_answer_of_L called FROM WITHIN :ASK_IF_WANT_MARK_LYRICLESSNESS [] ...answer=“%ANSWER%”, goto_end=“%GOTO_END%”                    5
                         if "1" == "%goto_END%" goto /i END_OF_GET_LYRICS
                 endiff
                 if "1" == "%GOOGLE_NOW%" (goto /i Google_Now)

@@ -209,7 +209,16 @@ def comparison_blocks(rows, texts, blinking, spans, reference, highlight_differe
                 if highlight_differences and not shared:
                     palette = ['\033[93m', '\033[96m', '\033[95m', '\033[97m']
                     color = palette[i % len(palette)]
-                cells.append((gap, token.text, color + style))
+                character_styles={}
+                if not shared:
+                    from txt_comparator_reconcile import punctuation_difference_positions
+                    other=row[1] if i==0 and len(row)>1 else row[0]
+                    punctuation=punctuation_difference_positions(token.text,other.text if other else '')
+                    if punctuation is not None:
+                        character_styles={n:color+'\033[1m\033[5m' for n in punctuation}
+                        color=COLORS[i % len(COLORS)]
+                        style='\033[2m'
+                cells.append((gap, token.text, color + style, (), character_styles))
                 previous[i] = token
             boundary = index > start and locations[index] != locations[index - 1]
             display_rows.append((boundary, cells))

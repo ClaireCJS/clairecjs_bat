@@ -1,0 +1,24 @@
+test_buffered_four_then_enter_sets_four_x (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_cancel_and_reset (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_menu_applies_speed_through_playback_restart_path (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_multiplier_parser (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_x_opens_speed_instead_of_stopping (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_normal_player_does_not_scan_or_yield (test_v750_simple_global_pause.PauseOwnershipTests) ... ok
+test_simple_responds_when_alone (test_v750_simple_global_pause.PauseOwnershipTests) ... ok
+test_simple_yields_to_another_player (test_v750_simple_global_pause.PauseOwnershipTests) ... ok
+test_space_is_still_a_focused_pause_control (test_v750_simple_global_pause.PauseOwnershipTests) ... ok
+test_win_c_and_both_media_polling_paths_are_gated (test_v750_simple_global_pause.PauseOwnershipTests) ... ok
+test_normal_ctrl_break_keeps_existing_emergency_erase (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_normal_signal_keeps_fast_abort (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_ctrl_c_and_ctrl_break_preserve_terminal_content (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_signal_stops_decoder_and_unwinds_for_cleanup (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_startup_labels_use_actual_port_width (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_alias_and_timestamp_remain_local (test_v624_simple_instance.SimpleInstanceTests) ... ok
+test_simple_file_bypasses_official_handoff_even_when_owner_exists (test_v624_simple_instance.SimpleInstanceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 6.394s
+
+OK
+
+Syntax and release/source parity: OK.

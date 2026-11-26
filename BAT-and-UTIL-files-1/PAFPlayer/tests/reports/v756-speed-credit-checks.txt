@@ -1,0 +1,42 @@
+test_1333_reaches_decoder_and_hud_after_enter (test_v756_speed_credit.SpeedCreditTests) ... ok
+test_bundle_matches_dj_source (test_v756_speed_credit.SpeedCreditTests) ... ok
+test_credit_is_minor_when_off_successful_pending_or_not_in_chain (test_v756_speed_credit.SpeedCreditTests) ... ok
+test_failed_enabled_chain_escalates (test_v756_speed_credit.SpeedCreditTests) ... ok
+test_help_does_not_repeat_minor_credit_warning (test_v756_speed_credit.SpeedCreditTests) ... ok
+test_menu_distinguishes_playing_from_pending (test_v756_speed_credit.SpeedCreditTests) ... ok
+test_no_ai_suppresses_credit_escalation (test_v756_speed_credit.SpeedCreditTests) ... ok
+test_warning_filter_is_local_and_fast (test_v756_speed_credit.SpeedCreditTests) ... ok
+test_buffered_four_then_enter_sets_four_x (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_cancel_and_reset (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_decoder_filter_preserves_custom_float_precision (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_menu_accepts_nonpreset_decimal (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_menu_applies_speed_through_playback_restart_path (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_multiplier_parser (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_nonpreset_multiplier_reaches_decoder_and_survives_next_track (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_x_opens_speed_instead_of_stopping (test_v751_speed_entry.SpeedEntryTests) ... ok
+test_new_log_error_is_not_hidden_by_cache (test_v694_nonblocking_warnings.WarningTests) ... ok
+test_warning_never_waits_for_dj_lock_and_retains_credit (test_v694_nonblocking_warnings.WarningTests) ... ok
+test_normal_playback_still_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_simple_never_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_normal_ctrl_break_keeps_existing_emergency_erase (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_normal_signal_keeps_fast_abort (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_ctrl_c_and_ctrl_break_preserve_terminal_content (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_signal_stops_decoder_and_unwinds_for_cleanup (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_startup_labels_use_actual_port_width (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_claim_before_decoder_and_main_cleanup (test_v755_preview_focus.FocusTests) ... ok
+test_claim_failure_releases_prior_peers (test_v755_preview_focus.FocusTests) ... ok
+test_expired_owner_restores_previous_state (test_v755_preview_focus.FocusTests) ... ok
+test_idempotent_claim_and_refresh (test_v755_preview_focus.FocusTests) ... ok
+test_listener_rejects_wrong_token (test_v755_preview_focus.FocusTests) ... ok
+test_main_and_other_preview_pause_then_restore_in_order (test_v755_preview_focus.FocusTests) ... ok
+test_one_bottom_safety_row_and_bundle_parity (test_v755_preview_focus.FocusTests) ... ok
+test_originally_paused_player_remains_paused (test_v755_preview_focus.FocusTests) ... ok
+test_out_of_order_exit_does_not_resume_main_under_new_preview (test_v755_preview_focus.FocusTests) ... ok
+test_waits_for_real_transport_queue_ack_even_without_web_server (test_v755_preview_focus.FocusTests) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 9.898s
+
+OK
+
+Syntax, embedded DJ source parity and release-copy hash checks passed. Root audit: player root retains active runtime/data files and Qwen shim; lockscreen and screensaver roots retain build inputs and active assets. No C:\BAT files changed.

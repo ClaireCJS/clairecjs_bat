@@ -1,0 +1,42 @@
+test_compact_counter_preserves_pause_seek_and_missing_time (test_managed_publisher.ManagedPublisherTests) ... ok
+test_compact_reply_includes_previous_cue_but_no_timeline (test_managed_publisher.ManagedPublisherTests) ... ok
+test_compact_status_includes_album_year_and_paced_playback_counter (test_managed_publisher.ManagedPublisherTests) ... ok
+test_counter_pacing_never_changes_full_resolution_lyric_selection (test_managed_publisher.ManagedPublisherTests) ... ok
+test_endpoint_leads_lock_lyrics_without_mutating_other_displays (test_managed_publisher.ManagedPublisherTests) ... ok
+test_host_cached_clock_ticks_and_selects_cues_without_new_publication (test_managed_publisher.ManagedPublisherTests) ... ok
+test_lock_lyric_lead_is_exactly_250ms_before_boundary (test_managed_publisher.ManagedPublisherTests) ... ok
+test_lock_lyric_lead_respects_speed_offset_seek_and_fallback (test_managed_publisher.ManagedPublisherTests) ... ok
+test_lyric_poll_is_compact_official_and_does_not_activate_spectrum (test_managed_publisher.ManagedPublisherTests) ... ok
+test_lyric_poll_rejects_remote_and_mutating_requests (test_managed_publisher.ManagedPublisherTests) ... ok
+test_real_lyric_http_keeps_status_active_with_browser_closed (test_managed_publisher.ManagedPublisherTests) ... ok
+test_unofficial_lyric_poll_has_no_state_or_activity (test_managed_publisher.ManagedPublisherTests) ... ok
+test_all_flat_claire_scripts_are_moved_and_collisions_preserved (test_v748_runtime_and_lockscreen.RuntimeAndLockScreenTests) ... ok
+test_default_download_locations_stay_in_runtime (test_v748_runtime_and_lockscreen.RuntimeAndLockScreenTests) ... ok
+test_download_bootstrap_writes_only_runtime_and_reuses_existing (test_v748_runtime_and_lockscreen.RuntimeAndLockScreenTests) ... ok
+test_installation_payload_extracts_under_runtime_with_verified_hashes (test_v748_runtime_and_lockscreen.RuntimeAndLockScreenTests) ... ok
+test_new_companion_is_required_for_upgrade (test_v748_runtime_and_lockscreen.RuntimeAndLockScreenTests) ... ok
+test_transient_network_gap_uses_cached_cues_but_expires (test_v748_runtime_and_lockscreen.RuntimeAndLockScreenTests) ... ok
+test_cached_cues_continue_after_four_second_network_gap (test_v724_remote_lockscreen.LocalClockRegressionTests) ... ok
+test_disconnect_and_changed_owner_invalidate_cached_cues (test_v724_remote_lockscreen.LocalClockRegressionTests) ... ok
+test_bridge_is_opt_in_loopback_and_recovers_owner_changes (test_v724_remote_lockscreen.RemoteLockTests) ... ok
+test_embedded_sources_match (test_v724_remote_lockscreen.RemoteLockTests) ... ok
+test_payload_verifies_owner_advances_lyric_and_rejects_disconnect (test_v724_remote_lockscreen.RemoteLockTests) ... ok
+test_setup_window_explains_steps_without_installing (test_v724_remote_lockscreen.RemoteLockTests) ... ok
+test_explicit_consent_precedes_network_and_disk_changes (test_v577_ffmpeg_setup.FFmpegSetupTests) ... ok
+test_source_requires_https_and_complete_digest (test_v577_ffmpeg_setup.FFmpegSetupTests) ... ok
+test_validated_zip_is_installed_privately_and_rescanned (test_v577_ffmpeg_setup.FFmpegSetupTests) ... ok
+test_zip_path_escape_is_rejected (test_v577_ffmpeg_setup.FFmpegSetupTests) ... ok
+test_existing_destination_is_preserved (test_v690_model_storage.Tests) ... ok
+test_failed_junction_restores_original (test_v690_model_storage.Tests) ... ok
+test_verified_move_preserves_original (test_v690_model_storage.Tests) ... ok
+test_existing_runtime_requires_no_download (test_v746_tag_editor_dependency.DependencyTests) ... ok
+test_incomplete_runtime_never_downloads_at_editor_open (test_v746_tag_editor_dependency.DependencyTests) ... ok
+test_preexisting_completed_cache_remains_available_offline (test_v746_tag_editor_dependency.DependencyTests) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 5.832s
+
+OK
+
+Signed-package manifest and embedded-executable hash validation: OK
+All changed embedded sources match editable sources and compile.

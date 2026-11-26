@@ -19,7 +19,8 @@ def metadata_package_roots():
     appdir = Path(__file__.split('::', 1)[0]).resolve().parent
     if appdir.name == 'src': appdir = appdir.parent
     tag = sys.implementation.cache_tag
-    roots = [appdir / 'autodownloaded' / 'tag-editor' / tag]
+    roots = [appdir / 'runtime' / 'autodownloaded' / 'tag-editor' / tag,
+             appdir / 'autodownloaded' / 'tag-editor' / tag]  # read old caches only
     local = os.environ.get('LOCALAPPDATA')
     if local: roots.append(Path(local) / 'PAFPlayer' / 'autodownloaded' / 'tag-editor' / tag)
     return roots

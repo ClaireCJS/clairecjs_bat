@@ -1,0 +1,35 @@
+test_focus_trace_never_exposes_authentication (test_v758_simple_startup.StartupTests) ... ok
+test_many_dead_registrations_do_not_connect (test_v758_simple_startup.StartupTests) ... ok
+test_new_bundle_matches_module (test_v758_simple_startup.StartupTests) ... ok
+test_overlapping_startups_give_newest_preview_priority (test_v758_simple_startup.StartupTests) ... ok
+test_preview_initial_and_persisted_pause_state_are_isolated (test_v758_simple_startup.StartupTests) ... ok
+test_process_liveness_detects_self_and_absent_pid (test_v758_simple_startup.StartupTests) ... ok
+test_retire_preserves_both_collision_files (test_v758_simple_startup.StartupTests) ... ok
+test_claim_before_decoder_and_main_cleanup (test_v755_preview_focus.FocusTests) ... ok
+test_claim_failure_releases_prior_peers (test_v755_preview_focus.FocusTests) ... ok
+test_expired_owner_restores_previous_state (test_v755_preview_focus.FocusTests) ... ok
+test_idempotent_claim_and_refresh (test_v755_preview_focus.FocusTests) ... ok
+test_listener_rejects_wrong_token (test_v755_preview_focus.FocusTests) ... ok
+test_main_and_other_preview_pause_then_restore_in_order (test_v755_preview_focus.FocusTests) ... ok
+test_one_bottom_safety_row_and_bundle_parity (test_v755_preview_focus.FocusTests) ... ok
+test_originally_paused_player_remains_paused (test_v755_preview_focus.FocusTests) ... ok
+test_out_of_order_exit_does_not_resume_main_under_new_preview (test_v755_preview_focus.FocusTests) ... ok
+test_waits_for_real_transport_queue_ack_even_without_web_server (test_v755_preview_focus.FocusTests) ... ok
+test_simple_alias_and_timestamp_remain_local (test_v624_simple_instance.SimpleInstanceTests) ... ok
+test_simple_file_bypasses_official_handoff_even_when_owner_exists (test_v624_simple_instance.SimpleInstanceTests) ... ok
+test_normal_playback_still_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_simple_never_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_normal_ctrl_break_keeps_existing_emergency_erase (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_normal_signal_keeps_fast_abort (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_ctrl_c_and_ctrl_break_preserve_terminal_content (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_signal_stops_decoder_and_unwinds_for_cleanup (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_startup_labels_use_actual_port_width (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_v174_play_pause_state_persists_and_defaults_to_playing (PAFPlayer.PlayWaveFileTests)
+A clean restart mirrors the prior play/pause state; old installs start playing. ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 9.314s
+
+OK
+
+Syntax checks, bundle/module parity and release SHA256 passed. Root audit: active player/data/Qwen shim retained; lockscreen and screensaver build/runtime assets retained. No C:\BAT changes. Live playback was not interrupted; live startup improvement remains to be confirmed on the next preview launch.

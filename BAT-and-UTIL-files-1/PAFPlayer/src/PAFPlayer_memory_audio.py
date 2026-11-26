@@ -7,6 +7,8 @@ from pathlib import Path
 import ctypes
 import re
 import threading
+import sys
+from collections import deque
 
 
 def available_buffer_bytes() -> int:
@@ -30,6 +32,15 @@ def available_buffer_bytes() -> int:
         return 0
 
 
+class MemoryAudioHTTPServer(ThreadingHTTPServer):
+    """Contain failures from headers, request parsing and final socket flushing."""
+    daemon_threads = True
+
+    def handle_error(self, request, client_address):
+        error = sys.exc_info()[1]
+        if error is not None: self.audio_owner._record_http_error(error)
+
+
 class MemoryAudioSource:
     """Serve immutable track bytes over loopback so decoders never open the file."""
 
@@ -37,6 +48,7 @@ class MemoryAudioSource:
         if not data:
             raise ValueError("Cannot buffer an empty audio file")
         self.data = data
+        self.request_events = deque(maxlen=64)
         safe_suffix = suffix.casefold() if re.fullmatch(r"\.[a-zA-Z0-9]{1,10}", suffix) else ".audio"
         self.path = "/track" + safe_suffix
         owner = self
@@ -89,8 +101,9 @@ class MemoryAudioSource:
                         view = memoryview(owner.data)
                         for offset in range(first, last + 1, 64 * 1024):
                             self.wfile.write(view[offset:min(last + 1, offset + 64 * 1024)])
-                    except (BrokenPipeError, ConnectionResetError):
-                        pass
+                    except ConnectionError as exc:
+                        self.close_connection = True
+                        owner._record_http_error(exc)
 
             def _range_error(self, size: int):
                 self.send_response(416)
@@ -98,7 +111,8 @@ class MemoryAudioSource:
                 self.send_header("Content-Length", "0")
                 self.end_headers()
 
-        self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        self.server = MemoryAudioHTTPServer(("127.0.0.1", 0), Handler)
+        self.server.audio_owner = self
         self.server.daemon_threads = True
         self.url = f"http://127.0.0.1:{self.server.server_port}{self.path}"
         self.thread = threading.Thread(target=self.server.serve_forever, kwargs={"poll_interval": 0.1}, name="paf-memory-audio", daemon=True)
@@ -107,6 +121,23 @@ class MemoryAudioSource:
         except Exception:
             self.server.server_close()
             raise
+
+    def _record_http_error(self, error):
+        """Keep decoder disconnects out of stderr; retain useful diagnostics."""
+        expected = isinstance(error, (ConnectionError, TimeoutError)) or (
+            isinstance(error, OSError) and getattr(error, 'winerror', None) in (10038, 10053, 10054, 10058))
+        self.request_events.append({'expected_disconnect': expected, 'type': type(error).__name__, 'message': str(error)})
+        app = sys.modules.get('PAFPlayer') or sys.modules.get('__main__')
+        try:
+            if expected:
+                logger = getattr(app, 'append_pafplayer_trace', None)
+                if logger: logger('memory-audio.client-disconnected', reason=type(error).__name__)
+            else:
+                logger = getattr(app, 'append_pafplayer_exception', None)
+                if logger: logger('RAM audio HTTP request', error)
+        except Exception:
+            # A logging failure must never escape into socketserver's stderr.
+            pass
 
     @classmethod
     def try_open(cls, path: Path, max_bytes: int | None = None) -> MemoryAudioSource | None:

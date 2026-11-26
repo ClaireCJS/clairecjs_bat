@@ -1,3 +1,19 @@
+# PAFPlayer Lock Screen V531
+
+V531 replaces the unchanged-badge burst on every tick with a text-tile update.
+The badge updates on glyph changes and at 30-second renewal, always followed by
+text. This retains the detailed-status repair for badge-only updates while
+removing repetitive badge resets. The player bundles the signed package using
+the existing pinned certificate. Installation payloads now extract under
+`PAFPlayer/runtime/downloads/LockScreenInstaller/v531/`. Reload the updated client
+to trigger the companion upgrade; choose V531 in Windows detailed status if needed.
+
+V748's local bridge tolerates a transient master timeout with cached timed cues
+for up to 15 seconds. A different verified owner invalidates that cache, and an
+expired lease becomes unavailable. Local HTTP polling does not contact the LAN.
+
+The historical V530 behavior and setup notes below remain for reference.
+
 # PAFPlayer Lock Screen V530
 
 The single-file player contains the signed companion package, pinned certificate,

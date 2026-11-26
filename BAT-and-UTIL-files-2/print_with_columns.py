@@ -17,10 +17,9 @@ import sys
 import shutil
 import hashlib                                                                              # for computing stripe segment colors
 import argparse
-import textwrap
 import colorama
+from functools import lru_cache
 import unicodedata                                                                          # for unicode normalization
-from   rich.console import Console                                                          # shutil *and* os do *NOT* get the right console dimensions under Windows Terminal
 #rom   colorama     import Fore, Style, init
 #rom   wcwidth      import wcswidth
 from   math         import ceil
@@ -393,6 +392,8 @@ def read_input(wrapping, max_width):
         sys.exit(" 💥 No file 💥 ")
 
     if wrapping:
+        import textwrap
+
         wrapped_lines = []
         for line in input_lines:
             wrapped = textwrap.wrap(line, width=max_width) or ['']
@@ -733,13 +734,12 @@ def string_to_color(word):
 
 
     #hash our word
-    hash_value1 = int(hashlib.sha256(wordfg).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
-    hash_value2 = int(hashlib.sha256(wordbg).hexdigest(), 16)  # Hash the word to get a consistent integer for background ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
+    hash_value1 = int.from_bytes(hashlib.sha256(wordfg).digest(), 'big')  # Hash the word to get a consistent integer for foreground ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
+    hash_value2 = int.from_bytes(hashlib.sha256(wordbg).digest(), 'big')  # Hash the word to get a consistent integer for background ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
     #print(f"hv1={hash_value1} //",end="")
 
     # calculate colors
     hue1        = hash_value1 %     360                                             # Map the hash value to a foreground hue (0-360 degrees)
-    hue2        = hash_value2 % int(360*MAX_BACKGROUND_INTENSITY)                   # Map the hash value to a background hue (0-[360*max_bg_intensity] degrees)
     hue2        = hash_value2 %     360                                             # Map the hash value to a background hue (0-[360*max_bg_intensity] degrees)
     lightness   = LIGHTNESS                                                         # Saturation and lightness are kept constant for distinct colors
     saturation  = SATURATION                                                        # Saturation and lightness are kept constant for distinct colors
@@ -792,6 +792,10 @@ def apply_background_color(r, g, b):
 
 
 # ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+HIGHLIGHT_CHAR_MAP = str.maketrans(char_map)
+
+
+@lru_cache(maxsize=4096)
 def normalize_for_highlight(word):
     word = re.split(r"[-–—━]", word, 1)[0]  # truncate at first hyphen-like character
     if word == "’round"  or word == "around": word = "around"                        # ❶ different ways to express the same word should be drawn  the same color so it doesn’t appear like a mismatch①①
@@ -802,8 +806,8 @@ def normalize_for_highlight(word):
     if word.endswith("ing"): word = word[:-3] + "in"                                 # ❹ makes word-variants like “coping” vs “copin’” vs “copin” the same color so it doesn’t appear like a mismatch
 
     word = unicodedata.normalize('NFC', word)
-    for cyrillic_char, latin_char in char_map.items():
-            word = word.replace(cyrillic_char, latin_char)
+    if not word.isascii():
+        word = word.translate(HIGHLIGHT_CHAR_MAP)
 
     #print (f"word={word}")
     return word
@@ -849,15 +853,13 @@ def consistent_word_highlight(text):
 
                 if not in_highlight:                                                    # Start highlighting
                     #normalized_word = normalize_for_highlight(word)                    #moved above so we can check length AFTER normalizatoin process
-                    r, g, b, background = string_to_color(normalized_word)
-                    payload    = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m"
-                    stripeload = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m"
+                    payload = highlight_ansi(normalized_word)
                     highlighted_text.append(payload)
                     striped_text.    append(payload)
                     #print(f"adding payload to striped text: “{payload}”")
                     in_highlight = True
-                if not words_used: words_used =                    word
-                else:              words_used = words_used + " " + word
+                if VERBOSE:
+                    words_used = words_used + " " + word if words_used else word
                 payload = word + "\033[0m"
                 highlighted_text.append(payload)                                        # Reset formatting after the word
                 #print(f"adding payload to striped text: “{payload}”")
@@ -872,14 +874,14 @@ def consistent_word_highlight(text):
     if word:
         normalized_word = normalize_for_highlight(word)
         if len(normalized_word) >= WORD_HIGHLIGHT_LEN_MIN:
-            r, g, b, background = string_to_color(normalized_word)
-            ansi = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m"
+            ansi = highlight_ansi(normalized_word)
             payload = word + "\033[0m"                                                  # todo maybe try this with normalized_word if the stripe doesn’t match for some reason
             striped_text    .append(ansi)
             striped_text    .append(payload)
             highlighted_text.append(ansi + payload)
         else:
-            words_used = words_used + " " + word                                        # ?
+            if VERBOSE:
+                words_used = words_used + " " + word
             highlighted_text.append(word)                                               # todo maybe try this with normalized_word if the stripe doesn’t match for some reason
 
 
@@ -892,76 +894,44 @@ def consistent_word_highlight(text):
 # ═════════════════════════════════════════════════════════════════════════════════
 import re
 
+@lru_cache(maxsize=4096)
+def stripe_ansi(ansi_raw):
+    background = re.search(r'38;2;(\d+);(\d+);(\d+)', ansi_raw)
+    foreground = re.search(r'48;2;(\d+);(\d+);(\d+)', ansi_raw)
+    if not (background and foreground):
+        return None
+
+    r_bg, g_bg, b_bg = map(int, background.groups())
+    r_fg, g_fg, b_fg = map(int, foreground.groups())
+    luminance = 0.2126 * r_bg + 0.7152 * g_bg + 0.0722 * b_bg
+    if (b_bg > max(r_bg, g_bg) and b_bg > 100) or luminance < 80:
+        r_fg = g_fg = b_fg = 255
+    return f"\033[38;2;{r_fg};{g_fg};{b_fg}m\033[48;2;{r_bg};{g_bg};{b_bg}m"
+
+
 def convert_stretched_stripe(stripe, columns, console_width):
-    result = ''
-    words = []
-    how_many_letter_to_put_on_each_stripe_segment = 2
+    num_words = (len(stripe) + 1) // 2
+    if not num_words:
+        return ""
 
+    max_letters = 2 if 2 * num_words <= console_width else 1
+    base_pad, extra_pad = divmod(console_width - max_letters * num_words, num_words)
+    result = []
     for i in range(0, len(stripe), 2):
-        if i + 1 < len(stripe):
-            word = stripe[i + 1].split('\x1b')[0]
-        else:
-            word = stripe[i].split('m', 1)[-1].split('\x1b')[0]
-        words.append(word)
-
-    num_words = len(words)
-    min_per_word_width = 2
-    #if num_words * min_per_word_width > console_width: return "(stripe too wide)"
-
-    max_letters = 2
-    while max_letters * num_words > console_width and max_letters > 1: max_letters -= 1
-
-    total_chars = max_letters * num_words
-    total_padding = console_width - total_chars
-
-    if num_words:   base_pad = total_padding // num_words
-    else:           base_pad = total_padding
-    if num_words:  extra_pad = total_padding  % num_words
-    else:          extra_pad = total_padding
-
-    for i in range(0, len(stripe), 2):
-        ansi_raw = stripe[i]
-        word = stripe[i + 1].split('\x1b')[0] if i + 1 < len(stripe) else ""
-
-        # Parse 38 = bg, 48 = fg (because of the flip done in stripeload)
-        bg_match = re.search(r'38;2;(\d+);(\d+);(\d+)', ansi_raw)  # actual bg
-        fg_match = re.search(r'48;2;(\d+);(\d+);(\d+)', ansi_raw)  # actual text color
-
-        if not (fg_match and bg_match):
+        ansi = stripe_ansi(stripe[i])
+        if ansi is None:
             continue
 
-        r_bg, g_bg, b_bg = map(int, bg_match.groups())  # ← visual background
-        r_fg, g_fg, b_fg = map(int, fg_match.groups())  # ← current text color
-
-        # Check if background is too blue or dark
-        luminance = 0.2126 * r_bg + 0.7152 * g_bg + 0.0722 * b_bg
-        is_blueish = b_bg > max(r_bg, g_bg) and b_bg > 100
-        is_dark = luminance < 80
-
-        if is_blueish or is_dark:
-            r_fg, g_fg, b_fg = 255, 255, 255  # use white text
-
-        # Build the ANSI stripe block: foreground (text) then background (box)
-        ansi = f"\033[38;2;{r_fg};{g_fg};{b_fg}m\033[48;2;{r_bg};{g_bg};{b_bg}m"
-
-        if len(word) >= 2 and max_letters >= 2:
-            #etters = word[0].upper() + word[1].lower()
-            letters = word[0]         + word[1]
-        else:
-            letters = word[:1].upper()
-
-        pad = base_pad + (1 if extra_pad > 0 else 0)
-        if extra_pad > 0:
-            extra_pad -= 1
-
+        word = stripe[i + 1].partition('\x1b')[0] if i + 1 < len(stripe) else ""
+        letters = word[:2] if len(word) >= 2 and max_letters == 2 else word[:1].upper()
+        pad = base_pad + (extra_pad > 0)
+        extra_pad -= 1
         left = pad // 2
         right = pad - left
-        right_segment = f"{' ' * right}"
-        #f right_segment and right_segment[-1] == ' ': right_segment = right_segment[:-1]                 +  '▕'
-        if right_segment and right_segment[-1] == ' ': right_segment = right_segment[:-1] + ANSI_FG_BLACK +  '▕'
-        result += f"{ansi}{' ' * left}{letters}{right_segment}\033[0m"
+        right_segment = " " * (right - 1) + ANSI_FG_BLACK + "\u2595" if right > 0 else ""
+        result.append(f"{ansi}{' ' * left}{letters}{right_segment}\033[0m")
+    return "".join(result)
 
-    return result
 # ═════════════════════════════════════════════════════════════════════════════════
 
 
@@ -1070,15 +1040,46 @@ def convert_stripe(stripe, columns):
 
 
 
+STRIPE_WORD = re.compile(r"(?:[^\W_]|[\u2019'\u00b4\u2013-])+")
+SMART_APOSTROPHES = str.maketrans({"'": "\u2019", "\u00b4": "\u2019"})
+
+
+def stripe_words(lines):
+    for line in lines:
+        for match in STRIPE_WORD.finditer(line.replace("--", "\u2014\u2014")):
+            word = match[0].translate(SMART_APOSTROPHES)
+            normalized = normalize_for_highlight(word)
+            if normalized:
+                yield word, normalized
+
+
+@lru_cache(maxsize=4096)
+def highlight_ansi(word):
+    r, g, b, (rb, gb, bb) = string_to_color(word)
+    return f"\033[38;2;{r};{g};{b}m\033[48;2;{rb};{gb};{bb}m"
+
+
+def join_stripe_input(lines):
+    if IGNORE_NUMSIGNLINES:
+        lines = (line for line in lines if not line.lstrip().startswith("#"))
+    return (BOT_OFF + " ").join(lines)
+
+
 def try_generate_stripe(joined_input_data, max_len=6):
     global WORD_HIGHLIGHT_LEN_MIN, striped_text, DEBUG_STRIPE_GENERATION
     MIN_STRIPE_WIDTH = 4
 
+    lines = joined_input_data.split(BOT_OFF)
+    candidates = None if VERBOSE else list(stripe_words(lines))
     for threshold in range(max_len, 0, -1):
         WORD_HIGHLIGHT_LEN_MIN = threshold
         striped_text = []
-        #_, _ = render_columns([[joined_input_data]], [len(joined_input_data)], divider)
-        _, _ = render_columns([[line] for line in joined_input_data.split(BOT_OFF)], [len(line) for line in joined_input_data.split(BOT_OFF)], divider)
+        if candidates is None:
+            render_columns([[line] for line in lines], [len(line) for line in lines], divider)
+        else:
+            for word, normalized in candidates:
+                if len(normalized) >= threshold:
+                    striped_text.extend((highlight_ansi(normalized), word))
 
         stripe_rendered = convert_stretched_stripe(striped_text, 1, console_width - 1)
         stripe_width = wcswidth(strip_ansi(stripe_rendered))
@@ -1140,14 +1141,21 @@ def main():
 
     # read our input data:
     input_data = read_input(WRAPPING, args.max_line_length_before_wrapping)     # Read and process input lines
+    if STRIPE and not (TEXT_ALSO or VERBOSE or DEBUG_VERBOSE_COLUMNS):
+        if our_args.columns is not None and our_args.columns < 0:
+            print("Error: Number of columns must be at least 1.")
+            sys.exit(1)
+        print(try_generate_stripe(join_stripe_input(input_data)))
+        return
+
     tmp_stripped_input_data = [strip_ansi(line) for line in input_data]
 
     # Calculate avg line width
     avg_line_width  = wcsarraywidth(             input_data, mode="average")    #0
-    avg_line_width2 = wcsarraywidth(tmp_stripped_input_data, mode="average")    #17
-
-    if args.verbose: print(f"Avg line width1: {avg_line_width }") # goat
-    if args.verbose: print(f"Avg line width2: {avg_line_width2}") # goat
+    if args.verbose:
+        avg_line_width2 = wcsarraywidth(tmp_stripped_input_data, mode="average")
+        print(f"Avg line width1: {avg_line_width }")
+        print(f"Avg line width2: {avg_line_width2}")
 
 
     # Determine the number of columns
@@ -1170,13 +1178,12 @@ def main():
 
     #Generate Stripe one-line representation
     if STRIPE:
-        if IGNORE_NUMSIGNLINES: joined_input_data = (BOT_OFF + " ").join(line for line in input_data if not line.lstrip().startswith("#"))
-        else:                   joined_input_data = (BOT_OFF + " ").join(input_data)                                                              #print(f"joined_input_data is {joined_input_data}")
-        columns_data      = [[joined_input_data]]                                                                                     #print(f"columns_data is {columns_data}")
-        column_widths     = calculate_column_widths(columns_data)                                                                     #print(f"column_widths is {column_widths}")
-        striped_text      = []  # 🔧 Reset this so next render_columns() call refills it
-        meh, stripeamabob = render_columns(columns_data, column_widths, divider)                                                      #print(f"stripeamabob is {stripeamabob}")     #        striperooni       = convert_stripe(stripeamabob,1)                        #print(f"\nstriperooni is:\n{striperooni}\nand looks like this:"); print(striperooni)       #tripester = format_colored_array(striperooni,console_width-1)
-        stripester        = try_generate_stripe(joined_input_data)
+        joined_input_data = join_stripe_input(input_data)
+        if VERBOSE:
+            columns_data = [[joined_input_data]]
+            striped_text = []
+            render_columns(columns_data, calculate_column_widths(columns_data), divider)
+        stripester = try_generate_stripe(joined_input_data)
         print(stripester)
 
 

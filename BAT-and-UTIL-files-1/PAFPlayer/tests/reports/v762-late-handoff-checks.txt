@@ -1,0 +1,7 @@
+V762 late audible handoff verification
+
+Executed: python -B -m unittest test_v762_late_handoff.HandoffTests test_v755_preview_focus test_v759_pause_ownership test_v758_simple_startup.StartupTests
+Result: 33 tests passed in 9.239 seconds.
+
+Actual playback routine exercised with simulated silent/buffered and legacy renderers. Checked creation -> priming -> focus claim -> audible release, late FFplay launch, failed preparation fallback, focus/output failure cleanup and startup pause latch refresh. Existing peer acknowledgement, pause ownership and concurrent startup regressions passed.
+Syntax and release SHA256 checks passed. Single-file feature modules unchanged. Root audit retained active data/implementation/Qwen shim and lockscreen/screensaver native inputs and runtime assets. No C:\BAT changes. Live playback was not interrupted.

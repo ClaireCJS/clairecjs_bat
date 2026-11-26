@@ -43,7 +43,7 @@ CATEGORY_PREFIXES = {
     "cuckolding": "cuck",
     "chastity": "ch",
 }
-VERSION = "0.10.1"
+VERSION = "0.11.1"
 _ORIGINAL_CONSOLE_TITLE: str | None = None
 
 
@@ -95,6 +95,41 @@ LEGACY_DEFAULT_PROFILE_DIR = TEMP_PROFILE_ROOT / "browser-profile"
 HISTORY_ROOT = PRIVATE_ROOT / "history"
 BROWSER_REGISTRY = HISTORY_ROOT / "downloader-browser-processes.json"
 ACTIVE_RUN_REGISTRY = HISTORY_ROOT / "active-runs.json"
+_QUEUE_LEASES = {}
+
+
+def queue_lease_path(scope_key: str) -> Path:
+    return HISTORY_ROOT / 'queue-locks' / hashlib.sha256(scope_key.encode()).hexdigest()
+
+
+def job_is_reserved(scope_key: str) -> bool:
+    if scope_key in _QUEUE_LEASES:
+        return True
+    lease = acquire_profile_lease(queue_lease_path(scope_key))
+    if lease is None:
+        return True
+    release_profile_lease(lease)
+    return False
+
+
+def reserve_job_selection(rows):
+    selected = []
+    for row in rows:
+        key = row['scope_key']
+        if row.get('status') in {'queued', 'running'}:
+            print(f"⏳ Skipping {row['listing_url']}: already {row['status']} in another instance.")
+            continue
+        lease = acquire_profile_lease(queue_lease_path(key))
+        if lease is None:
+            print(f"⏳ Skipping {row['listing_url']}: another instance reserved it.")
+            continue
+        _QUEUE_LEASES[key] = lease
+        selected.append(row)
+    return selected
+
+
+def release_queued_job(row):
+    release_profile_lease(_QUEUE_LEASES.pop(row['scope_key'], None))
 
 
 def active_run_scopes() -> set[str]:
@@ -1069,7 +1104,7 @@ class DownloadDatabase:
         """Return recent runs that did not finish cleanly and are not live."""
         rows = self.connection.execute(
             """SELECT * FROM run_history
-               WHERE status NOT IN ('complete', 'planned', 'planned-with-errors', 'superseded')
+               WHERE status NOT IN ('complete', 'planned', 'planned-with-errors', 'superseded', 'pruned')
                ORDER BY started_at DESC LIMIT ?""", (int(limit),)
         ).fetchall()
         result = []
@@ -1086,6 +1121,8 @@ class DownloadDatabase:
                     # A reboot, old schema, or a process that exited before its
                     # final ledger update leaves a stale 'running' row.
                     item["status"] = "interrupted"
+            if item['status'] != 'running' and job_is_reserved(item['scope_key']):
+                item['status'] = 'queued'
             seen_scopes.add(item.get("scope_key"))
             result.append(item)
         return result
@@ -2239,7 +2276,7 @@ class ProgressPanel:
             return
         cols, rows = size
         self._reflow_locked(cols, rows)
-        total_text = self._progress_line("🌈 Global", self.total.n, self.total.total, cols)
+        total_text = self._progress_line(f"🌈 v{VERSION} Global", self.total.n, self.total.total, cols)
         if self.transient:
             label, current, total = self.transient
             transient_text = self._progress_line(label, current, total or None, cols)
@@ -3496,6 +3533,9 @@ def leave_browser_open(args, last_url: str, report: dict, panel) -> None:
     context shuts down.  Start a normal browser only after that cleanup has
     released the profile lock, so the user keeps a usable, logged-in window.
     """
+    if getattr(args, '_shared_browser', False):
+        report['browser_left_open'] = {'left_open': True, 'reason': 'shared downloader browser'}
+        return
     if args.close_browser_on_exit:
         report["browser_left_open"] = {"left_open": False, "reason": "disabled by --close-browser-on-exit"}
         return
@@ -3562,6 +3602,96 @@ def session_for(context, page):
     return session
 
 
+class SharedTabContext:
+    """Expose a shared context but restrict cleanup and page reuse to our tab."""
+    def __init__(self, context, page, connection):
+        self.context, self.page, self.connection = context, page, connection
+
+    @property
+    def pages(self):
+        return [self.page]
+
+    def close(self):
+        if not self.page.is_closed():
+            self.page.close()
+
+    def __getattr__(self, name):
+        return getattr(self.context, name)
+
+
+def open_shared_browser_tab(playwright, args, status):
+    """Allocate one tab under a cross-process pool lock; cap each host at ten."""
+    preferred = Path(args.profile_dir).expanduser().resolve() if args.profile_dir else DEFAULT_PROFILE_DIR
+    pool_id = hashlib.sha256((str(preferred) + args.browser).encode()).hexdigest()[:16]
+    pool = APP_DATA_ROOT / 'shared-browsers' / pool_id
+    pool.mkdir(parents=True, exist_ok=True)
+    lease = None
+    started = time.monotonic()
+    while lease is None:
+        lease = acquire_profile_lease(pool / 'allocation')
+        if lease is None:
+            if time.monotonic() - started > 120:
+                raise DownloadError('Timed out waiting for shared-browser allocation.')
+            status('⏳ Another instance is allocating a browser tab; waiting...')
+            time.sleep(1)
+    try:
+        for marker in pool.glob('host-*.json'):
+            connection = None
+            try:
+                metadata = json.loads(marker.read_text(encoding='utf-8'))
+                profile = pool / metadata['profile']
+                port_file = profile / 'DevToolsActivePort'
+                lines = port_file.read_text(encoding='utf-8').splitlines()
+                endpoint = f'ws://127.0.0.1:{int(lines[0])}{lines[1]}'
+                connection = playwright.chromium.connect_over_cdp(endpoint, timeout=3000)
+                context = connection.contexts[0]
+                if len(context.pages) >= 10:
+                    continue
+                page = context.new_page()
+                status(f'🌐 v{VERSION}: joined shared downloader browser ({len(context.pages)}/10 tabs).')
+                args._shared_browser = True
+                return None, SharedTabContext(context, page, connection)
+            except Exception:
+                continue
+        executable = browser_executable_for(args)
+        if executable is None:
+            raise DownloadError('Cannot locate the selected browser for shared-tab mode.')
+        profile = pool / ('profile-' + uuid.uuid4().hex)
+        status('🔐 Preparing login for a new shared downloader browser...')
+        if preferred.is_dir() and has_login_profile(preferred):
+            profile = clone_concurrent_profile(preferred, profile, status)
+        else:
+            profile.mkdir()
+        flags = (0x00000008 | 0x00000200) if os.name == 'nt' else 0
+        process = subprocess.Popen([str(executable), '--remote-debugging-port=0',
+            '--remote-debugging-address=127.0.0.1', f'--user-data-dir={profile}',
+            '--no-first-run', '--no-default-browser-check', 'about:blank'],
+            close_fds=True, creationflags=flags)
+        marker = pool / ('host-' + uuid.uuid4().hex + '.json')
+        with marker.open('x', encoding='utf-8') as stream:
+            json.dump({'profile': profile.name, 'pid': process.pid}, stream)
+        connection = None
+        for attempt in range(60):
+            try:
+                lines = (profile / 'DevToolsActivePort').read_text(encoding='utf-8').splitlines()
+                connection = playwright.chromium.connect_over_cdp(
+                    f'ws://127.0.0.1:{int(lines[0])}{lines[1]}', timeout=2000)
+                break
+            except Exception:
+                if attempt % 5 == 0:
+                    status(f'🌐 Waiting for shared browser to start ({attempt}s)...')
+                time.sleep(1)
+        if connection is None:
+            raise DownloadError('Shared browser did not become ready within 60 seconds.')
+        context = connection.contexts[0]
+        page = context.pages[0] if context.pages else context.new_page()
+        args._shared_browser = True
+        status(f'🌐 v{VERSION}: opened shared downloader browser (1/10 tabs).')
+        return None, SharedTabContext(context, page, connection)
+    finally:
+        release_profile_lease(lease)
+
+
 def open_browser_context(playwright, args, status=None):
     """Open Chrome, automatically isolating concurrent persistent profiles.
 
@@ -3572,6 +3702,9 @@ def open_browser_context(playwright, args, status=None):
     ``--profile-dir`` is still honored as the preferred profile, but it also
     receives the same automatic fallback so parallel jobs remain possible.
     """
+    if (getattr(args, 'shared_browser', False) and not args.headless
+            and not args.no_persistent_login):
+        return open_shared_browser_tab(playwright, args, status or print)
     launch = {"headless": args.headless, "timeout": BROWSER_LAUNCH_TIMEOUT_MS}
     if args.browser != "chromium":
         launch["channel"] = args.browser
@@ -3858,7 +3991,118 @@ def kill_tracked_browsers() -> int:
     return 0
 
 
+def prune_old_jobs(database: Path, input_fn=input) -> None:
+    """Archive finished jobs below a chosen error rate; retain their durable records."""
+    while True:
+        answer = input_fn('Maximum error rate for completion [5%]: ').strip().rstrip('%')
+        try:
+            threshold = float(answer or '5')
+            if math.isfinite(threshold) and 0 <= threshold <= 100:
+                break
+        except ValueError:
+            pass
+        print('Enter a percentage from 0 to 100.')
+    ledger = DownloadDatabase(database)
+    try:
+        rows = ledger.connection.execute(
+            "SELECT * FROM run_history WHERE status='complete-with-errors' "
+            "ORDER BY started_at DESC"
+        ).fetchall()
+        active = active_run_scopes()
+        eligible = []
+        for row in rows:
+            total = int(row['selected'] or 0)
+            errors = int(row['errors'] or 0)
+            if total > 0 and 100 * errors / total < threshold and row['scope_key'] not in active:
+                eligible.append((dict(row), 100 * errors / total))
+        if not eligible:
+            print(f'No finished jobs have an error rate below {threshold:g}%.')
+            return
+        rest, count, backed_up = False, 0, False
+        for row, rate in eligible:
+            label = ' - '.join(str(part) for part in (row.get('studio') or row['studio_id'],
+                                                     row.get('category')) if part)
+            print(f"Prune {label}: {row['selected']} clips; {row['errors']} errors ({rate:.2f}%)?")
+            while not rest:
+                answer = input_fn('[Y]es / [N]o / [R]est yes / [X] stop (no to all remaining): ').strip().casefold()
+                if answer in {'x', 'never', 'stop', 'no for the rest'}:
+                    print(f'Pruned {count} jobs; history and downloaded files retained.')
+                    return
+                if answer in {'', 'n', 'no', 'y', 'yes', 'r', 'rest'}:
+                    break
+            if not rest and answer not in {'y', 'yes', 'r', 'rest'}:
+                continue
+            rest = rest or answer in {'r', 'rest'}
+            if not backed_up:
+                automatic_database_backup(database)
+                backed_up = True
+            with ledger.connection:
+                ledger.set_metadata(**{f"pruned-run::{row['run_id']}": row})
+                ledger.connection.execute("UPDATE run_history SET status='pruned' WHERE run_id=?",
+                                          (row['run_id'],))
+            count += 1
+        print(f'Pruned {count} jobs; history and downloaded files retained.')
+    finally:
+        ledger.close()
+
+
+def release_menu_terminal() -> None:
+    """Release inherited status-row scrolling locks before interactive menus."""
+    for stream in (sys.stdout, sys.stderr):
+        if getattr(stream, 'isatty', lambda: False)():
+            # DECSTBM (reset scrolling margins) homes the cursor. Preserve
+            # its position so the next prompt does not overwrite the screen.
+            stream.write('\x1b7\x1b[0m\x1b[r\x1b8\x1b[?25h')
+            stream.flush()
+            break
+
+
+def job_menu_input(prompt: str) -> str:
+    """Read a selection, handling refresh keys before the console line editor."""
+    if os.name != 'nt' or not sys.stdin.isatty() or not sys.stdout.isatty():
+        return input(prompt)
+    import msvcrt
+    print(prompt, end='', flush=True)
+    characters = []
+    while True:
+        key = msvcrt.getwch()
+        if key in ('\x00', '\xe0'):
+            special = msvcrt.getwch()
+            if special == '?':  # Windows F5 scan code
+                print()
+                return 'l'
+            continue
+        if key == '\x12':
+            print()
+            return 'l'
+        if key == '\x03':
+            raise KeyboardInterrupt
+        if key == '\x1a':
+            raise EOFError
+        if key in ('\r', '\n'):
+            print()
+            return ''.join(characters)
+        if key == '\b':
+            if characters:
+                characters.pop()
+                print('\b \b', end='', flush=True)
+        elif key.isprintable():
+            if not characters and key.casefold() in {'p', 'a'}:
+                print(key, flush=True)
+                return key.casefold()
+            characters.append(key)
+            print(key, end='', flush=True)
+
+
 def choose_resumable_run(database: Path | None = None) -> list[dict] | None:
+    while True:
+        release_menu_terminal()
+        result = _choose_resumable_run_once(database)
+        if result != 'refresh':
+            return result
+
+
+def _choose_resumable_run_once(database: Path | None = None):
     """Show incomplete jobs and accept one, many, ranges, or all."""
     database = database or PRIVATE_DATABASE_PATH
     if not database.is_file():
@@ -3881,6 +4125,8 @@ def choose_resumable_run(database: Path | None = None) -> list[dict] | None:
         status = row.get('status') or 'unknown'
         if status == 'running':
             status_text, colour = 'currently running', '\x1b[93m'
+        elif status == 'queued':
+            status_text, colour = 'queued in another instance', '\x1b[94m'
         elif status == 'complete-with-errors':
             status_text, colour = 'complete with errors', '\x1b[91m'
         else:
@@ -3896,11 +4142,20 @@ def choose_resumable_run(database: Path | None = None) -> list[dict] | None:
                   f"{errors} ({error_pct}%) error")
         print(f"     \x1b[94mURL: {row.get('listing_url')}\x1b[0m\n     \x1b[92mSave: {row.get('destination') or '(choose destination again)'}\x1b[0m")
     while True:
-        answer = input("Resume which job? (number, 1-3, 1,2,3, 1 2 3, 123, a/all, or Enter to cancel): ").strip().casefold()
+        answer = job_menu_input("Resume which job? (number/range/list, A=all, P=prune, L/?/F5/Ctrl+R=list jobs, Enter=cancel): ").strip().casefold()
+        if answer in {'l', '?', '\x12', '\x1b[15~'}:
+            return 'refresh'
+        if answer == 'p':
+            prune_old_jobs(database)
+            return 'refresh'
         if not answer:
             return None
         if answer in {"a", "all"}:
-            return rows
+            reserved = reserve_job_selection(rows)
+            if reserved:
+                return reserved
+            print('All listed jobs are already running or queued. Press L to refresh.')
+            continue
         selected: set[int] = set()
         try:
             for token in re.split(r"[\s,]+", answer):
@@ -3918,7 +4173,11 @@ def choose_resumable_run(database: Path | None = None) -> list[dict] | None:
                 else:
                     raise ValueError
             if selected and all(1 <= number <= len(rows) for number in selected):
-                return [rows[number - 1] for number in sorted(selected)]
+                reserved = reserve_job_selection([rows[number - 1] for number in sorted(selected)])
+                if reserved:
+                    return reserved
+                print('Those jobs are already running or queued. Press L to refresh.')
+                continue
         except ValueError:
             pass
         print("Enter numbers, ranges, comma/space-separated numbers, 123, or a/all.")
@@ -4350,7 +4609,8 @@ def run(args, output: Path, ffprobe: str) -> int:
                         continue
                     try:
                         inspect_error = None
-                        for inspect_attempt in range(args.media_retries + 1):
+                        browser_reopens = 0
+                        for inspect_attempt in range(args.media_retries + 3):
                             try:
                                 raw, assets = inspect_clip(page, clip, args, pacer=pacer)
                                 inspect_error = None
@@ -4358,10 +4618,23 @@ def run(args, output: Path, ffprobe: str) -> int:
                             except SiteBlocked:
                                 raise
                             except Exception as exc:
+                                if browser_closed_error(exc):
+                                    if browser_reopens >= 2:
+                                        raise SiteBlocked('Browser repeatedly closed during recovery; stopping with saved progress.') from exc
+                                    browser_reopens += 1
+                                    panel.log(f'🌐 v{VERSION}: browser closed; reopening and retrying clip {clip.id} '
+                                              f'(recovery {browser_reopens}/2).')
+                                    close_browser_resources(context, browser, report)
+                                    release_profile_lease(getattr(args, '_profile_lease', None))
+                                    args._profile_lease = None
+                                    browser, context = open_browser_context(playwright, args, startup_status)
+                                    page = run_page(context)
+                                    continue
                                 inspect_error = str(exc)
-                                if inspect_attempt < args.media_retries:
+                                if inspect_attempt - browser_reopens < args.media_retries:
                                     panel.log(f"🔁 Retry {inspect_attempt + 1}/{args.media_retries} inspecting {clip.id}: {exc}")
                                     continue
+                                break
                         if inspect_error:
                             raise DownloadError(inspect_error)
                         assets = media_for_download(assets)
@@ -4640,6 +4913,9 @@ def parser(config: dict | None = None) -> argparse.ArgumentParser:
                    help="Opt in to sortable abbreviations such as 'sph -' in filenames (off by default)")
     p.add_argument("--browser", choices=("chrome", "msedge", "chromium"),
                    default=config.get("browser", "chrome"))
+    p.add_argument('--shared-browser', action=argparse.BooleanOptionalAction,
+                   default=config.get('shared_browser', True),
+                   help='Share downloader-owned browser windows across instances, at most ten tabs per browser')
     p.add_argument("--profile-dir", type=Path,
                    help=r"Reusable browser profile directory (default: %%APPDATA%%\Clips4SaleDownloader\browser-profile)")
     p.add_argument("--no-persistent-login", action="store_true",
@@ -4703,7 +4979,23 @@ def restart_current_process(argv, output: Path) -> int:
     return RESTART_EXIT_CODE
 
 
+_MAIN_DEPTH = 0
+
+
 def main(argv=None) -> int:
+    global _MAIN_DEPTH
+    _MAIN_DEPTH += 1
+    try:
+        return _main_impl(argv)
+    finally:
+        _MAIN_DEPTH -= 1
+        if _MAIN_DEPTH == 0:
+            for lease in list(_QUEUE_LEASES.values()):
+                release_profile_lease(lease)
+            _QUEUE_LEASES.clear()
+
+
+def _main_impl(argv=None) -> int:
     config = load_config(create=False)
     p = parser(config)
     args = p.parse_args(argv)
@@ -4753,7 +5045,10 @@ def main(argv=None) -> int:
                 job_args.append(selected_run["listing_url"])
                 print(terminal_text(f"\n🔁 Resuming selected job: {selected_run['listing_url']}"))
                 set_console_title(f"Clips4Sale Downloader v{VERSION} — resuming {selected_run.get('studio') or selected_run.get('studio_id', '')}")
-                statuses.append(main(job_args))
+                try:
+                    statuses.append(main(job_args))
+                finally:
+                    release_queued_job(selected_run)
             return max(statuses, default=0)
         selected_run = selected_runs[0]
         args.url = selected_run["listing_url"]

@@ -1,0 +1,17 @@
+[
+  {
+    "mode": "source",
+    "seconds": 1.362,
+    "exit_code": 1
+  },
+  {
+    "mode": "cached",
+    "seconds": 6.726,
+    "exit_code": 1
+  },
+  {
+    "mode": "cached",
+    "seconds": 6.807,
+    "exit_code": 1
+  }
+]

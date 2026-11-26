@@ -21,12 +21,18 @@ MAX_MEMBERS = 10000
 
 
 def support_root():
-    base = os.environ.get('LOCALAPPDATA') or str(Path.home() / 'AppData' / 'Local')
-    return Path(base) / 'PAFPlayer' / 'support' / 'ffmpeg'
+    from PAFPlayer_runtime_paths import runtime_root
+    return runtime_root() / 'support' / 'ffmpeg'
 
 
 def _installed_sets(root=None):
-    root = Path(root) if root is not None else support_root()
+    if root is None:
+        base = os.environ.get('LOCALAPPDATA') or str(Path.home() / 'AppData' / 'Local')
+        found = []
+        for candidate in (support_root(), Path(base) / 'PAFPlayer' / 'support' / 'ffmpeg'):
+            found.extend(_installed_sets(candidate))
+        return sorted(found, reverse=True)
+    root = Path(root)
     if not root.is_dir():
         return []
     found = []

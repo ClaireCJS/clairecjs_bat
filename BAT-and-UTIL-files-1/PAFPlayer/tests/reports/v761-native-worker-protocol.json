@@ -1,0 +1,7 @@
+{
+  "compiled_worker": true,
+  "exit_code": 0,
+  "status": "{\"ready\": true}",
+  "stderr": "",
+  "note": "Native runtime worker protocol smoke test with zero output devices and EOF; no audio produced."
+}

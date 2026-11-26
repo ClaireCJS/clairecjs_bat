@@ -34,8 +34,8 @@ def support_root():
         from PAFPlayer_model_storage import preferred_root
         return preferred_root()
     except Exception:
-        base = os.environ.get('LOCALAPPDATA') or str(Path.home() / 'AppData' / 'Local')
-        return Path(base) / 'PAFPlayer' / 'support' / 'voice-models'
+        from PAFPlayer_runtime_paths import runtime_root
+        return runtime_root() / 'models'
 
 
 def python_in(folder):

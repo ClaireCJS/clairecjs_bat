@@ -199,11 +199,13 @@ namespace PAFPlayerLockScreen
         {
             if (!tileChanged && !badgeChanged) return;
             var expiration = DateTimeOffset.Now.AddSeconds(90);
-            // V517's badge-only heartbeat made LockScreenData publish a no-text
-            // change (trace reason=2) until the next tile arrived. Always submit
-            // the pair in one burst, with detailed text last. No Clear between updates.
-            BadgeUpdateManager.CreateBadgeUpdaterForApplication().Update(
-                new BadgeNotification(BadgeXml(status)) { ExpirationTime = expiration });
+            // Only publish the badge when its glyph changes or needs renewal.
+            // Re-sending the unchanged badge on every second tick needlessly
+            // resets the Windows lock-screen surface. A badge renewal still
+            // ALWAYS ends with a text tile, avoiding V517's badge-only text loss.
+            if (badgeChanged)
+                BadgeUpdateManager.CreateBadgeUpdaterForApplication().Update(
+                    new BadgeNotification(BadgeXml(status)) { ExpirationTime = expiration });
             var notification = new TileNotification(TileXml(status)) { ExpirationTime = expiration, Tag = "PAFStatus" };
             TileUpdateManager.CreateTileUpdaterForApplication().Update(notification);
         }
@@ -236,7 +238,7 @@ namespace PAFPlayerLockScreen
     }
 
     // Publish changed content immediately and renew at 30 seconds. Keep the
-    // badge and detailed status together: Windows consumes them as one surface.
+    // badge renewal followed by text, without resetting badges on timer ticks.
     internal sealed class PublicationSession
     {
         private readonly Action<PlayerStatus, bool, bool> submit;
@@ -273,9 +275,9 @@ namespace PAFPlayerLockScreen
             bool tile = identity != status.Identity || tileKey != key || now - tileAt >= 30;
             bool badge = identity != status.Identity || badgeKey != status.Badge || now - badgeAt >= 30;
             if (!tile && !badge) return false;
-            submit(status, true, true); // Both caches commit only after successful submission.
+            submit(status, true, badge); // Commit only after successful submission.
             tileKey = key; tileAt = now;
-            badgeKey = status.Badge; badgeAt = now;
+            if (badge) { badgeKey = status.Badge; badgeAt = now; }
             identity = status.Identity;
             return true;
         }

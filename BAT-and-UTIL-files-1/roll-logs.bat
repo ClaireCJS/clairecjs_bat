@@ -9,7 +9,7 @@ rem SET UP FOLDER LOCATIONS:
 
 rem VALIDATE ENVIRONMENT:
         call validate-environment-variables LOGS LOCALAPPDATA WINDIR ProgramData LOGDIR LOGPARENTDIR LOCALAPPDATA ProgramData WINDIR
-        call validate-in-path               less_important roll-log-madvr roll-lastfm-log
+        call validate-in-path               less_important                                                              %+ rem removed: roll-log-madvr roll-lastfm-log
 
 rem LET USER KNOW WHAT WE'RE DOING:
          call less_important "Rolling wanted log files into: %italics_on%%bold_on%%LOGDIR%%bold_off%%italics_off%"
@@ -21,8 +21,8 @@ rem EASY CLEANUPS:
         if exist %logs%\wawi*.log .and. isdir %logs%\wawi (echo yr|move /q /a: %logs%\wawi*.log  %logs%\wawi)
 
 rem CLEANUPS MOVED TO OTHER SCRIPTS:                         {add any new ones to the validate-in-path command above}
-        call roll-log-madvr
-        call roll-lastfm-log
+        rem Stopped using this 2020: call roll-log-madvr
+        rem Stopped using this 2026: call roll-lastfm-log
 
 rem DELETE VARIOUS LOG FILES THAT EAT UP SPACE:
         echos %ANSI_COLOR_LESS_IMPORTANT%%STAR% Deleting unwanted log files

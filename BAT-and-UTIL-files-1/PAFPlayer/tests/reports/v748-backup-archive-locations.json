@@ -1,0 +1,86 @@
+[
+  {
+    "source": "PAFPlayer.py",
+    "retained_backup": "releases\\PAFPlayer.py.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "src/PAFPlayer_playlist_window.py",
+    "retained_backup": "src\\backups\\PAFPlayer_playlist_window.py.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "src/PAFPlayer_ffmpeg_setup.py",
+    "retained_backup": "src\\backups\\PAFPlayer_ffmpeg_setup.py.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "src/PAFPlayer_model_storage.py",
+    "retained_backup": "src\\backups\\PAFPlayer_model_storage.py.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "src/PAFPlayer_voice_models.py",
+    "retained_backup": "src\\backups\\PAFPlayer_voice_models.py.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "src/PAFPlayer_dj.py",
+    "retained_backup": "src\\backups\\PAFPlayer_dj.py.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "tools/build_private_runtime.py",
+    "retained_backup": "tools\\backups\\build_private_runtime.py.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "lockscreen/src/PAFPlayer_lockscreen.py",
+    "retained_backup": "lockscreen\\src\\backups\\PAFPlayer_lockscreen.py.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "lockscreen/src/PAFPlayer_lockscreen_payload.py",
+    "retained_backup": "lockscreen\\src\\backups\\PAFPlayer_lockscreen_payload.py.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "lockscreen/lockscreen_installer.py",
+    "retained_backup": "lockscreen\\archive\\backups\\lockscreen_installer.py.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "lockscreen/StatusUpdater.cs",
+    "retained_backup": "lockscreen\\archive\\backups\\StatusUpdater.cs.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "lockscreen/ManagedPublisher.cs",
+    "retained_backup": "lockscreen\\archive\\backups\\ManagedPublisher.cs.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "lockscreen/DesktopPackage.appxmanifest",
+    "retained_backup": "lockscreen\\archive\\backups\\DesktopPackage.appxmanifest.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "lockscreen/build_desktop.ps1",
+    "retained_backup": "lockscreen\\archive\\backups\\build_desktop.ps1.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "lockscreen/testing/StatusUpdaterTests.cs",
+    "retained_backup": "lockscreen\\testing\\backups\\StatusUpdaterTests.cs.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "docs/README.md",
+    "retained_backup": "docs\\backups\\README.md.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "docs/PAFPlayer_changelog.md",
+    "retained_backup": "backups\\PAFPlayer_changelog.md.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "lockscreen/docs/README.md",
+    "retained_backup": "lockscreen\\docs\\backups\\README.md.bak.202611240853.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "src/PAFPlayer_remote_tray.py",
+    "retained_backup": "src\\backups\\PAFPlayer_remote_tray.py.bak.202611240859.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "src/PAFPlayer_remote_lockscreen.py",
+    "retained_backup": "src\\backups\\PAFPlayer_remote_lockscreen.py.bak.202611240859.replaced-by-chatgpt.bak"
+  },
+  {
+    "source": "AGENTS.md",
+    "retained_backup": "backups\\AGENTS.md.bak.202611240901.replaced-by-chatgpt.bak"
+  }
+]

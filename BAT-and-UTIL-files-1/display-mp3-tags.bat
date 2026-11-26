@@ -9,7 +9,7 @@ if "%DMP3PARAMS%" eq "*" (set DMP3PARAMS=*.mp3)
 
 
 iff "*.mp3" eq "%DMP3PARAMS%" .or. "*" eq "%DMP3PARAMS%" then
-        echo for %%tmpmp3 in (*.mp3) do echo gosub DisplayMp3Tags "%tmpmp3%"
+        for %%tmpmp3 in (*.mp3) do gosub DisplayMp3Tags "%tmpmp3%"
 else
         gosub DisplayMp3Tags %DMP3PARAMS%
 endiff

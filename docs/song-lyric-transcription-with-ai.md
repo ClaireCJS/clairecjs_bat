@@ -283,9 +283,10 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 This script requires some personalization to use, but once set up:
 
-Type “work karaoke” to search a playlist of your choice for 25 karaoke files to work on.
-Type “work lyrics”  to search a playlist of your choice for 25 lyric   files to work on.
-Type “work”         to be interactively asked as to the nature of your work.
+Type “work”              to be interactively asked as to the nature of your work.
+Type “work lyrics”       to search a playlist of your choice for 25 lyric   files to work on.
+Type “work karaoke”      to search a playlist of your choice for 25 karaoke files to work on. 
+Type “work karaoke easy” to search a playlist of your choice for 25 karaoke files to work on which do not have any lyric file or possibility of lyrical reconciliation
 
 (This framework can also be extended for other kinds of work. It helps limit the “chunk size” of how much work we bite off at a time, which can make karaoke/lyric work a bit more pleasant with shorter wait times. A value of 25 is recommended.)
 

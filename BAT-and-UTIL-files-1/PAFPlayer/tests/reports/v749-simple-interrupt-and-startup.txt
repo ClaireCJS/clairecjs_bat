@@ -1,0 +1,18 @@
+test_normal_ctrl_break_keeps_existing_emergency_erase (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_normal_signal_keeps_fast_abort (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_ctrl_c_and_ctrl_break_preserve_terminal_content (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_simple_signal_stops_decoder_and_unwinds_for_cleanup (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_startup_labels_use_actual_port_width (test_v749_simple_interrupt.SimpleInterruptTests) ... ok
+test_only_filenames_use_italic_escape (test_v627_resume_notice.ResumeNoticeTests) ... ok
+test_resume_rows_align_with_port_and_time_has_own_row (test_v627_resume_notice.ResumeNoticeTests) ... ok
+test_normal_playback_still_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_simple_never_paints_startup_splash (test_v742_simple_splash.SimpleSplashTests) ... ok
+test_simple_alias_and_timestamp_remain_local (test_v624_simple_instance.SimpleInstanceTests) ... ok
+test_simple_file_bypasses_official_handoff_even_when_owner_exists (test_v624_simple_instance.SimpleInstanceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 2.532s
+
+OK
+
+Syntax and standalone release/source parity: OK. Embedded feature modules unchanged.

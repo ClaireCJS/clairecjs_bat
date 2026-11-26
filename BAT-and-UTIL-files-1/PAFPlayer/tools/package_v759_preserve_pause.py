@@ -1,0 +1,17 @@
+from pathlib import Path
+import ast,hashlib,shutil
+root=Path.cwd();active=root/'PAFPlayer.py'
+notes=root/'releases/PAFPlayer_v759_preserve_main_pause_release_notes.md';assert not notes.exists()
+notes.write_text('# PAFPlayer V759 — preserve the main player\'s paused state\n\nA simple preview must not start an already paused/stopped main player. Preview-owned pause/restoration now uses transport intents resolved on the audio owner thread against the current pause leases. A queued restore is cancelled when a newer preview takes over; a final guard checks again immediately before committing resume. Explicit user Pause/Stop revokes any preview-owned restoration. Stale Play and automatic external-media resume cannot restart a lease-held player.\n\nOnly a player that the preview actually paused can be automatically restored after the last preview releases it. Main-player pause state, stopped state and preview priority remain separate from official instance ownership. Diagnostic events record lease ownership, manual holds, blocked resumes and approved restoration without authentication tokens.\n\nRestart the main player once, and use fresh previews, to load the receiver-side changes. Updating the file alone cannot replace the playback loop in an already running process.\n\nValidation: 29 focused tests passed, covering prepaused players, multiple previews, lease expiry, explicit Pause/Stop, delayed restoration, a new lease between restore selection and commit, late pause acknowledgement, native peer liveness, overlapping startup, disabled-web transport acknowledgement, source/bundle parity and existing simple-mode rendering. Live music was not interrupted during validation.\n',encoding='utf-8')
+release=root/'releases/PAFPlayer_v759_preserve_main_pause.py';assert not release.exists();shutil.copy2(active,release)
+assert hashlib.sha256(active.read_bytes()).digest()==hashlib.sha256(release.read_bytes()).digest()
+for raw in ('PAFPlayer.py','src/PAFPlayer_playback_focus.py','releases/PAFPlayer_v759_preserve_main_pause.py'):
+ ast.parse((root/raw).read_text(encoding='utf-8-sig'))
+s=active.read_text(encoding='utf-8-sig')
+for line in s.splitlines():
+ if line.startswith('_PAF_BUNDLED_SOURCES = '):
+  bundled=ast.literal_eval(line.split(' = ',1)[1]);break
+assert bundled['PAFPlayer_playback_focus']==(root/'src/PAFPlayer_playback_focus.py').read_text(encoding='utf-8-sig')
+report=root/'tests/reports/v759-pause-ownership-checks.txt';assert not report.exists()
+report.write_text('V759 pause ownership verification\n\nExecuted: python -B -m unittest test_v759_pause_ownership test_v755_preview_focus test_v758_simple_startup.StartupTests test_v742_simple_splash\nResult: 29 tests passed in 8.607 seconds.\n\nCovered initially paused players, multiple preview leases, lease expiry, owned restoration, manual Pause/Stop, cancellation of pending restores, stale Play and external-media resume, final resume commit race, source/bundle parity, prior peer/startup and simple-mode behavior.\nSyntax checks passed. Standalone release SHA256 matches active source. Embedded focus module matches editable source.\nRoot audit: active implementation/data/Qwen shim retained; lockscreen and screensaver native inputs and active assets retained. No C:\\BAT changes. Main player was not restarted or interrupted; live receiver-side validation requires restarting it.\n',encoding='utf-8')
+print('V759 packaged. Syntax, source/bundle parity and release hash checks passed; 29 tests already passed.')

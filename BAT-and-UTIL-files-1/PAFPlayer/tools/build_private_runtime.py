@@ -39,8 +39,9 @@ def build(destination: Path, *, python_installer: Path | None = None) -> None:
     if stage.exists():
         raise FileExistsError(f"Preserving existing runtime staging folder: {stage}")
     stage.mkdir()
-    installer_cache = ROOT / "tools" / "downloads"
-    installer_cache.mkdir(exist_ok=True)
+    runtime_stage = stage
+    installer_cache = runtime_stage / "downloads" / "python-installer"
+    installer_cache.mkdir(parents=True, exist_ok=True)
     installer = installer_cache / INSTALLER
     if not installer.exists():
         if python_installer is not None:

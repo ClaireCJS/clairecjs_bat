@@ -1,0 +1,20 @@
+[
+  {
+    "mode": "source",
+    "seconds": 1.319,
+    "exit_code": 1,
+    "used_source_fallback": false
+  },
+  {
+    "mode": "cached",
+    "seconds": 7.78,
+    "exit_code": 1,
+    "used_source_fallback": false
+  },
+  {
+    "mode": "cached",
+    "seconds": 0.548,
+    "exit_code": 1,
+    "used_source_fallback": false
+  }
+]
