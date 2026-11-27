@@ -25,7 +25,7 @@ rem Validate parameter extension:
         if  "%EXT%" != "m3u" call fatal_error "Must pass a playlist to “%0”, not a file of another extension such as “%extT”"
 
 rem Do the actual work:
-        set NEW_PLAYLIST_NAME=%@UNQUOTE[%@NAME["%@UNQUOTE["%PL%"]"]]-without txt or lrc or srt.m3u
+        set NEW_PLAYLIST_NAME=%@FULL[%@UNQUOTE[%@NAME["%@UNQUOTE["%PL%"]"]]-without txt or lrc or srt.m3u]
 echo        check_playlist_for_files_without_txt_or_transcription.py %pl% "%NEW_PLAYLIST_NAME%"
 pause
         check_playlist_for_files_without_txt_or_transcription.py %pl% "%NEW_PLAYLIST_NAME%"

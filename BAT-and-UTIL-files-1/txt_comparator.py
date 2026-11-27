@@ -87,14 +87,28 @@ def tokenize(text):
     return tokens
 
 
+def anchored_opcodes(left, right):
+    """Protect matching edges before aligning a repeated or missing passage."""
+    prefix=0
+    while prefix<min(len(left),len(right)) and left[prefix]==right[prefix]:prefix+=1
+    end_left,end_right=len(left),len(right)
+    while end_left>prefix and end_right>prefix and left[end_left-1]==right[end_right-1]:
+        end_left-=1;end_right-=1
+    result=[]
+    if prefix:result.append(('equal',0,prefix,0,prefix))
+    matcher=difflib.SequenceMatcher(None,left[prefix:end_left],right[prefix:end_right],autojunk=False)
+    result.extend((tag,a+prefix,b+prefix,c+prefix,d+prefix) for tag,a,b,c,d in matcher.get_opcodes())
+    if end_left<len(left):result.append(('equal',end_left,len(left),end_right,len(right)))
+    return result
+
+
 def align_files(contents):
     """Progressively align tokens, retaining their original positions in each file."""
     rows = [[token] for token in contents[0]]
     for file_index, tokens in enumerate(contents[1:], 1):
         reference = [next(cell.text for cell in row if cell is not None) for row in rows]
-        matcher = difflib.SequenceMatcher(None, reference, [token.text for token in tokens], autojunk=False)
         merged = []
-        for tag, a_start, a_end, b_start, b_end in matcher.get_opcodes():
+        for tag, a_start, a_end, b_start, b_end in anchored_opcodes(reference, [token.text for token in tokens]):
             if tag == 'equal':
                 merged.extend(row + [token] for row, token in zip(rows[a_start:a_end], tokens[b_start:b_end]))
             elif tag == 'delete':

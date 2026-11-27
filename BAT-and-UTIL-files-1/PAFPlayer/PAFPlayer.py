@@ -607,10 +607,10 @@ except ImportError:  # pragma: no cover
 import csv
 from datetime import datetime, timezone, timedelta
 # Set to 0 when the terminal cannot render DEC SIXEL graphics.
-PLAYER_BUILD_ID = '2026-11-26-v762-late-preview-handoff'
+PLAYER_BUILD_ID = '2026-11-27-v765-simple-focus-backwards-audio'
 PROGRAM_TITLE                   = "PAFplayer"
-PROGRAM_VERSION = 'V762'
-PROGRAM_RELEASE_LABEL = 'V762'
+PROGRAM_VERSION = 'V765'
+PROGRAM_RELEASE_LABEL = 'V765'
 
 # A Discord webhook is a credential, not a setting.  Keep it out of JSON,
 # the registry, logs, browser state, and environment persistence.  Windows
@@ -20301,23 +20301,19 @@ def windows_terminal_emojimax_spacing_enabled() -> bool:
 
 
 def windows_terminal_emojimax_replacement(replacement: str, semantic_key: str = "") -> str:
-    """Add terminal-only safety cells after generated enclosed-number forms.
+    """Preserve lyric text while applying the few remaining glyph workarounds.
 
-    Windows Terminal's DECDHL renderer can visually consume the first safety
-    cell after a negative circled digit.  Existing one-digit behavior remains
-    unchanged.  V390 additionally recognizes a tens compound such as ``❹⓿``
-    as one visual number, keeps those two digits adjacent, and appends the two
-    safety cells only after the pair.  Web/Tk/other-terminal surfaces never
-    call this compatibility helper, so they keep the exact replacement with no
-    artificial trailing cells. V398 also gives the ``write`` substitution one
-    terminal-only safety cell: Windows Terminal can paint ✍ beyond the advance
-    it reports, despite the following source-space cell being present.
+    Circled-number substitutions are returned unchanged: their original lyric
+    whitespace already provides the intended separation. The separate safety
+    cell for the ``write`` substitution remains for Windows Terminal.
     """
-    pattern = re.compile(
-        rf"(?:[{re.escape(WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS)}]⓿|"
-        rf"[{re.escape(WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS)}])"
+    # One safety cell is consumed by Windows Terminal's double-height glyph
+    # advance; the lyric's own separator supplies the visible one-cell gap.
+    result = re.sub(
+        rf"(?:[{re.escape(WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS)}]+⓿?|⓿)",
+        lambda match: match.group(0) + " ",
+        str(replacement),
     )
-    result = pattern.sub(lambda match: match.group(0) + "  ", str(replacement))
     if str(semantic_key).casefold() in WINDOWS_TERMINAL_SINGLE_SPACE_EMOJIMAX_KEYS:
         result += " "
     return result
@@ -27702,6 +27698,53 @@ def bass_settings_effective_db(settings, *, locked):
     )
 
 
+def prepare_reversed_audio(audio_path: Path) -> Path:
+    """Return a cached lossless reverse stream under the app runtime folder."""
+    path = Path(audio_path).resolve()
+    stat = path.stat()
+    identity = f"{str(path).casefold()}|{stat.st_size}|{stat.st_mtime_ns}|reverse-audio-v1"
+    key = hashlib.sha256(identity.encode("utf-8", "surrogatepass")).hexdigest()
+    channels, _layout = probe_audio_stream_layout(path)
+    container = ".mka" if channels and channels > 8 else ".flac"
+    cache = Path(__file__).resolve().parent / "runtime" / "cache" / "reversed-audio"
+    cache.mkdir(parents=True, exist_ok=True)
+    destination = cache / (key + container)
+    if destination.is_file() and destination.stat().st_size > 0:
+        return destination
+    ffmpeg = paf_ffmpeg_tool_path("ffmpeg")
+    if not ffmpeg:
+        raise RuntimeError("FFmpeg is required to prepare backwards audio")
+    temporary = cache / f"{key}.{secrets.token_hex(6)}.partial{container}"
+    command = [str(ffmpeg), "-hide_banner", "-loglevel", "error", "-nostdin",
+               "-y", "-i", str(path), "-map", "0:a:0", "-vn", "-af", "areverse"]
+    if container == ".mka":
+        command += ["-c:a", "pcm_s24le", "-f", "matroska"]
+    else:
+        command += ["-c:a", "flac", "-compression_level", "0"]
+    command.append(str(temporary))
+    result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                            text=True, encoding="utf-8", errors="replace", check=False)
+    if result.returncode != 0 or not temporary.is_file() or temporary.stat().st_size <= 0:
+        detail = (result.stderr or "FFmpeg produced no reversed audio").strip()[-1200:]
+        raise RuntimeError("Could not prepare backwards audio: " + detail)
+    try:
+        # On Windows os.rename refuses an existing destination; cache entries
+        # therefore remain immutable even if two instances finish together.
+        os.rename(temporary, destination)
+    except FileExistsError:
+        if not destination.is_file() or destination.stat().st_size <= 0:
+            raise
+        duplicates = cache / "duplicate-builds"
+        duplicates.mkdir(exist_ok=True)
+        duplicate = duplicates / temporary.name
+        suffix = 0
+        while duplicate.exists():
+            suffix += 1
+            duplicate = duplicates / f"{temporary.stem} ({suffix}){temporary.suffix}"
+        os.rename(temporary, duplicate)
+    return destination
+
+
 def ffplay_command(
     executable: Path,
     audio_path: Path,
@@ -27720,6 +27763,7 @@ def ffplay_command(
     locked_bass_reduction_percent: int | None = None,
     session_locked: bool | None = None,
     input_url: str | None = None,
+    reverse_audio: bool = False,
 ) -> list[str]:
     """Build the one coherent FFplay command used for every playback segment.
 
@@ -27752,6 +27796,8 @@ def ffplay_command(
         str(min(100, volume)),
     ]
     filters: list[str] = []
+    if reverse_audio:
+        filters.append("areverse")
     source_channels, source_layout = probe_audio_stream_layout(audio_path)
     replaygain_multiplier = replaygain_linear_multiplier(replaygain_info)
     if replaygain_multiplier is not None and not math.isclose(replaygain_multiplier, 1.0, rel_tol=0.0, abs_tol=1e-12):
@@ -35444,9 +35490,12 @@ def render_status(
     progress_invert_order: bool = False,
     progress_invert_palette: bool = False,
     progress_beat_overlay_mode: int = 0,
+    progress_reverse: bool = False,
 ) -> str:
     """Render the time row, optionally including the console progress bar."""
     fraction = min(1.0, max(0.0, position / duration)) if duration else 0.0
+    if progress_reverse:
+        fraction = 1.0 - fraction
     percentage = int(fraction * 100)
     filled_eighth_cells = round(bar_width * 8 * fraction)
     full_cells, partial_eighth = divmod(filled_eighth_cells, 8)
@@ -35587,7 +35636,7 @@ def render_status(
         )
         if partial:
             partial_ansi = ansi_rgb(layered_color((full_cells + .5) / max(1, bar_width))) + empty_bg_ansi + partial + "\033[49m"
-    bar_ansi = filled_ansi + partial_ansi + empty_ansi
+    bar_ansi = (empty_ansi + partial_ansi + filled_ansi) if progress_reverse else (filled_ansi + partial_ansi + empty_ansi)
 
     # The clock, optional volume readout, and progress bar share one row.
     # The caller positions the cursor at STATUS_ROW, so repainting must not
@@ -54419,6 +54468,7 @@ def play_audio_file(
     color_style_state: list[int] | None = None,
     color_reverse_state: list[bool] | None = None,
     frequency_warp_state: list[int] | None = None,
+    backwards_playback_state: list[bool] | None = None,
     karaoke_style_state: list[int] | None = None,
     karaoke_style_spaced_state: list[bool] | None = None,
     karaoke_style_framed_state: list[bool] | None = None,
@@ -54738,7 +54788,10 @@ def play_audio_file(
     def playback_fraction(source_position: float) -> float:
         if playback_duration is None or playback_duration <= 0:
             return 0.0
-        return min(1.0, max(0.0, playback_ui_position(source_position) / playback_duration))
+        fraction = playback_ui_position(source_position) / playback_duration
+        if backwards_playback_state[0]:
+            fraction = 1.0 - fraction
+        return min(1.0, max(0.0, fraction))
 
     # Reuse metadata the player already paid to obtain when recording playlist
     # history; this prevents a second history-only ffprobe after playback.
@@ -54957,6 +55010,9 @@ def play_audio_file(
     position = max(playback_start, max(0.0, initial_position))
     if playback_end is not None:
         position = min(position, max(playback_start, playback_end - 0.05))
+    backwards_playback_state = backwards_playback_state if backwards_playback_state is not None else [False]
+    if backwards_playback_state[0] and position <= playback_start + 0.05 and playback_end is not None:
+        position = max(playback_start, playback_end - 0.05)
     if looping_state is not None:
         looping = looping_state[0]
     repeat_mode = min(len(REPEAT_MODE_NAMES) - 1, max(0, int(repeat_mode_state[0]))) if repeat_mode_state is not None else (0 if looping else 3)
@@ -58207,6 +58263,7 @@ def play_audio_file(
                 progress_invert_order=progress_invert_order,
                 progress_invert_palette=progress_invert_palette,
                 progress_beat_overlay_mode=progress_beat_overlay_mode,
+                progress_reverse=bool(backwards_playback_state[0]),
                 pulse_energy=progress_beat_value,
                 progress_enabled=progress_bar_enabled,
                 beat_reactive_illumination=progress_beat_reactive,
@@ -60902,7 +60959,8 @@ def play_audio_file(
         """Return the live playback position while a modal prompt owns input."""
         if prompt_paused_state[0]:
             return position
-        live = position + audio_segment_elapsed(process, monotonic(), segment_started, current_speed(), getattr(process, "playback_started_at", False) is None)
+        elapsed = audio_segment_elapsed(process, monotonic(), segment_started, current_speed(), getattr(process, "playback_started_at", False) is None)
+        live = position - elapsed if backwards_playback_state[0] else position + elapsed
         if playback_end is not None:
             live = min(playback_end, live)
         return max(playback_start, live)
@@ -61941,7 +61999,14 @@ def play_audio_file(
                 if isinstance(action_value, str) and action_value.startswith(_HASH_COMMAND_PREFIX):
                     command = action_value[len(_HASH_COMMAND_PREFIX):]
                     if command in ('commands', '?'):
-                        set_transient_notice('Hash commands include #djforce #djwake #djsleep; see docs/PAFPlayer_hash_commands.md', seconds=15.0)
+                        set_transient_notice('Hash commands include #backwards #forward #djforce #djwake #djsleep; see docs/PAFPlayer_hash_commands.md', seconds=15.0)
+                    elif command in ('backward', 'backwards', 'forward'):
+                        was_backwards = bool(backwards_playback_state[0])
+                        backwards_playback_state[0] = (not was_backwards) if command != 'forward' else False
+                        if backwards_playback_state[0] != was_backwards:
+                            label = '⏪ Backwards Mode' if backwards_playback_state[0] else '⏩ Forward Mode'
+                            set_transient_notice(label, "\033[1;93m" + label + "\033[0m", seconds=8.0)
+                            return WEB_RESTART_AUDIO
                     elif command == 'dj':
                         value = dj_controller.configure({'enabled': not dj_controller.options['enabled']})
                         set_transient_notice('AI DJ ' + ('enabled' if value['enabled'] else 'disabled'), seconds=3.0)
@@ -62093,7 +62158,7 @@ def play_audio_file(
                     target_buffer_ms=min(audio_buffer_ms, PAUSE_RESUME_AUDIO_BUFFER_MS),
                     hold_for_handoff=True,
                     reuse_process=process,
-                    input_url=(memory_source.url if memory_source is not None and not early_eof_force_file else None),
+                    input_url=(memory_source.url if (not backwards_playback_state[0] and memory_source is not None and not early_eof_force_file) else None),
                 )
                 if replacement is not process:
                     if not replacement.wait_primed() or not replacement.start_output():
@@ -62141,12 +62206,30 @@ def play_audio_file(
                 playback_focus.start()  # Discoverable while preparing, without pausing peers.
             else:
                 playback_focus.claim()
+        reverse_cache_path = None
         while True:
             speed = current_speed()
             resume_fade = external_media_controller.fade_arguments()
+            decoder_audio_path = audio_path
+            decoder_start = position
+            decoder_end = playback_end
+            if backwards_playback_state[0]:
+                if reverse_cache_path is None or not reverse_cache_path.is_file():
+                    set_transient_notice("Preparing backwards audio…", "\033[1;93mPreparing backwards audio…\033[0m", seconds=30.0)
+                    try:
+                        reverse_cache_path = prepare_reversed_audio(audio_path)
+                        set_transient_notice("⏪ Backwards Mode", "\033[1;93m⏪ Backwards Mode\033[0m", seconds=7.0)
+                    except Exception as exc:
+                        backwards_playback_state[0] = False
+                        set_transient_error(f"Could not enable backwards playback: {exc}", seconds=8.0)
+                        continue
+                decoder_audio_path = reverse_cache_path
+                if duration is not None:
+                    decoder_start = max(0.0, duration - position)
+                    decoder_end = max(decoder_start, duration - playback_start)
             fade_segment_start = external_media_controller.fade_elapsed
             buffered_waveout_active = bool(
-                os.name == "nt" and process_factory is subprocess.Popen and (
+                not backwards_playback_state[0] and os.name == "nt" and process_factory is subprocess.Popen and (
                     (smooth_audio_renderer_enabled and output_channels == 2)
                     or (mm_inspired_renderer_enabled and output_channels in {5, 7, 12})
                 )
@@ -62201,15 +62284,15 @@ def play_audio_file(
             if process is None:
                 command = ffplay_command(
                     player,
-                    audio_path,
-                    position,
+                    decoder_audio_path,
+                    decoder_start,
                     volume,
                     speed,
                     output_channels,
                     balance,
                     output_rate,
                     output_bit_depth,
-                    end_seconds=playback_end,
+                    end_seconds=decoder_end,
                     replaygain_info=replaygain_info,                                      # The same object is reused after seek/pause/speed/volume/balance/channel restarts.
                     input_url=(memory_source.url if memory_source is not None and not early_eof_force_file else None),
                 )
@@ -62310,9 +62393,10 @@ def play_audio_file(
                 if segment_was_recorded:
                     return
                 segment_was_recorded = True
-                bounded_end = min(playback_end, end_position) if playback_end is not None else end_position
-                if bounded_end - position > minimum_seconds:
-                    played_ranges.append((position, bounded_end))
+                bounded_end = min(playback_end, max(position, end_position)) if playback_end is not None else max(position, end_position)
+                bounded_start = max(playback_start, min(position, end_position))
+                if bounded_end - bounded_start > minimum_seconds:
+                    played_ranges.append((bounded_start, bounded_end))
 
             while process.poll() is None:
                 # V94: establish this iteration's monotonic timestamp before *any*
@@ -62393,7 +62477,8 @@ def play_audio_file(
                             output_device_label(output_device_indexes[0]) if buffered_waveout_active else 'System default',
                             fade=bool(external_media_controller.fade_arguments()) or buffered_clock_waiting,
                         )
-                displayed_position = position + elapsed
+                displayed_position = position - elapsed if backwards_playback_state[0] else position + elapsed
+                displayed_position = max(playback_start, displayed_position)
                 if playback_end is not None:
                     displayed_position = min(playback_end, displayed_position)
                 # One canonical millisecond presentation timestamp feeds every
@@ -63450,7 +63535,7 @@ def play_audio_file(
                     continue
                 if reset_or_undo_modes(action):
                     record_segment(displayed_position)
-                    position += elapsed
+                    position = displayed_position
                     if playback_end is not None:
                         position = min(position, max(playback_start, playback_end - 0.05))
                     stop_process(process)
@@ -64021,7 +64106,7 @@ def play_audio_file(
                     record_segment(displayed_position)
                     volume_blink_rearm_on_playback_start = True
                     loop_indicator_until = now + 4.0
-                    position += elapsed
+                    position = displayed_position
                     if playback_end is not None:
                         position = min(
                             position,
@@ -64067,7 +64152,7 @@ def play_audio_file(
                         indicator = "⏩" if delta > 0 else ("⏪" if delta < 0 else "⏱️")
                         loop_indicator_until = now + 4.0
                         render_controls(playback_fraction(position + elapsed))
-                        position += elapsed
+                        position = displayed_position
                         if playback_end is not None:
                             position = min(
                                 position,
@@ -64089,7 +64174,7 @@ def play_audio_file(
                         output_channels = new_output_channels
                         if output_channels_state is not None:
                             output_channels_state[0] = output_channels
-                        position += elapsed
+                        position = displayed_position
                         if playback_end is not None:
                             position = min(position, max(playback_start, playback_end - 0.05))
                         stop_process(process)
@@ -64104,7 +64189,7 @@ def play_audio_file(
                     )
                     if balance_state is not None:
                         balance_state[0] = balance
-                    position += elapsed
+                    position = displayed_position
                     if playback_end is not None:
                         position = min(position, max(playback_start, playback_end - 0.05))
                     stop_process(process)
@@ -64125,7 +64210,7 @@ def play_audio_file(
                         continue
                     record_segment(displayed_position)
                     volume_blink_rearm_on_playback_start = True
-                    position += elapsed
+                    position = displayed_position
                     if playback_end is not None:
                         position = min(position, max(playback_start, playback_end - 0.05))
                     stop_process(process)
@@ -64149,7 +64234,7 @@ def play_audio_file(
                             position_seconds=playback_ui_position(displayed_position),
                             progress=playback_fraction(displayed_position),
                         )
-                    position += elapsed
+                    position = displayed_position
                     if playback_end is not None:
                         position = min(position, max(playback_start, playback_end - 0.05))
                     pause_position = position
@@ -65229,7 +65314,7 @@ def play_audio_file(
                             seek_delta = seek_batch.total_seconds
                             position = max(
                                 playback_start,
-                                position + seek_delta,
+                                position + (-seek_delta if backwards_playback_state[0] else seek_delta),
                             )
                             if playback_end is not None:
                                 position = min(
@@ -65249,6 +65334,12 @@ def play_audio_file(
                         if paused_action in NAVIGATION_ACTIONS:
                             return finish_playback(paused_action)
                         if paused_action == PAUSE_TOGGLE:
+                            if simple_mode and playback_focus is not None and prompt_paused_state[0]:
+                                try:
+                                    playback_focus.claim(force=True)
+                                except Exception as exc:
+                                    set_transient_error(f"Could not pause other PAFPlayer instances: {exc}", seconds=6.0)
+                                    continue
                             if playback_focus is not None and not playback_focus.begin_resume():
                                 continue
                             indicator = "▶️"
@@ -65623,9 +65714,12 @@ def play_audio_file(
                 # A worker can exit with code zero after its RAM-backed FFmpeg
                 # input stops early. Use consumed device time, not decode/queue
                 # time or an assumed full duration, to find the missing tail.
-                completed_position = position + audio_segment_elapsed(
+                completed_position = position - audio_segment_elapsed(
+                    process, monotonic(), segment_started, speed,
+                ) if backwards_playback_state[0] else position + audio_segment_elapsed(
                     process, monotonic(), segment_started, speed,
                 )
+                completed_position = max(playback_start, completed_position)
                 clean_process_eof = process.poll() == 0
                 record_segment(
                     min(playback_end, completed_position)
@@ -65636,7 +65730,7 @@ def play_audio_file(
                 )
                 if abort_requested.is_set():
                     return finish_playback("stopped")
-                remaining = premature_audio_eof_remaining(playback_end, completed_position)
+                remaining = (0.0 if backwards_playback_state[0] and clean_process_eof else premature_audio_eof_remaining(playback_end, completed_position))
                 if remaining:
                     append_pafplayer_trace(
                         "track.premature-eof", track=audio_path,
@@ -65665,7 +65759,7 @@ def play_audio_file(
                         f"{audio_path.name}: {remaining:.1f}s missing after {early_eof_retries} retries",
                     )
                 if looping:
-                    position = playback_start
+                    position = max(playback_start, (playback_end - 0.05) if backwards_playback_state[0] and playback_end is not None else playback_start)
                     indicator = "🔁"
                     continue
                 return finish_playback("completed")
@@ -66196,16 +66290,18 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertGreaterEqual(len(rows), 2)
         self.assertTrue(ANSI_CSI_RE.sub("", rows[-1]).startswith("📂 Playlist:"), rows)
 
-    def test_v367_circled_number_terminal_spacing_has_two_generated_safety_cells(self) -> None:
-        self.assertEqual("❶  ", windows_terminal_emojimax_replacement("❶"))
-        self.assertEqual("❶  ❽  ", windows_terminal_emojimax_replacement("❶❽"))
-        self.assertEqual("❶    word", compensate_current_circled_number_spacing("❶ word"))
+    def test_v764_circled_number_spacing_leaves_one_visible_gap(self) -> None:
+        self.assertEqual("❶ ", windows_terminal_emojimax_replacement("❶"))
+        self.assertEqual("❶❽ ", windows_terminal_emojimax_replacement("❶❽"))
+        self.assertEqual("❹⓿ ", windows_terminal_emojimax_replacement("❹⓿"))
         terminal = stylize_karaoke_with_emojimax(
             "1 8 qzv", 1, True, 1.0,
             force_emoji_when_enabled=True,
             windows_terminal_compat=True,
         )
-        self.assertIn("❶   ❽   qzv", ANSI_CSI_RE.sub("", terminal))
+        self.assertIn("❶  ❽  qzv", ANSI_CSI_RE.sub("", terminal))
+        for glyph in WINDOWS_TERMINAL_SPACED_EMOJIMAX_GLYPHS:
+            self.assertEqual(glyph + "  word", windows_terminal_emojimax_replacement(glyph + " word"))
 
     def test_v367_inline_last_play_ignores_nonadjacent_album_and_right_justifies(self) -> None:
         base = "▶ Play: 11_Dying_Planet.flac (6m52s)"
@@ -77361,8 +77457,8 @@ class PlayWaveFileTests(unittest.TestCase):
         self.assertEqual("❼⓿", semantic.get("seventy"))
         self.assertEqual("❾⓿", semantic.get("ninety"))
         self.assertEqual("①⑤", semantic.get("fifteen"))
-        self.assertEqual("❹⓿  ", windows_terminal_emojimax_replacement("❹⓿"))
-        self.assertEqual("❶  ❽  ", windows_terminal_emojimax_replacement("❶❽"))
+        self.assertEqual("❹⓿ ", windows_terminal_emojimax_replacement("❹⓿"))
+        self.assertEqual("❶❽ ", windows_terminal_emojimax_replacement("❶❽"))
         # The user specifically reported U+1FA06 as tofu.  Remove the entire
         # Chess Symbols/Xiangqi range from all final Emojimaxx mappings.
         offenders = {
@@ -80848,6 +80944,7 @@ def main(argv: list[str] | None = None) -> int:
         balance_state = [persisted_settings['Balance']]
         volume_state = [persisted_settings['Volume']]
         playback_paused_state = [False if simple_instance else bool(persisted_settings.get('PlaybackPaused', 0))]
+        backwards_playback_state = [False]
         from PAFPlayer_playback_focus import PlaybackFocus
         playback_focus = PlaybackFocus(paf_workflows().root, playback_paused_state,
             web_server.enqueue_action, preview=simple_instance, pause=WEB_PAUSE, resume=WEB_PLAY, trace=append_pafplayer_trace, guarded=True)
@@ -82145,6 +82242,7 @@ def main(argv: list[str] | None = None) -> int:
                 lyric_override_format=lyric_override_format,
                 simple_mode=simple_instance,
                 playback_focus=playback_focus,
+                backwards_playback_state=backwards_playback_state,
                 shuffle_state=shuffle_state,
                 shuffle_mode_state=shuffle_mode_state,
                 shuffle_expiration_hours_state=shuffle_expiration_hours_state,

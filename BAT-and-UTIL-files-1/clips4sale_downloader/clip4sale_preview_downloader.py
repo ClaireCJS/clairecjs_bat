@@ -43,7 +43,7 @@ CATEGORY_PREFIXES = {
     "cuckolding": "cuck",
     "chastity": "ch",
 }
-VERSION = "0.11.1"
+VERSION = "0.11.2"
 _ORIGINAL_CONSOLE_TITLE: str | None = None
 
 
@@ -96,6 +96,44 @@ HISTORY_ROOT = PRIVATE_ROOT / "history"
 BROWSER_REGISTRY = HISTORY_ROOT / "downloader-browser-processes.json"
 ACTIVE_RUN_REGISTRY = HISTORY_ROOT / "active-runs.json"
 _QUEUE_LEASES = {}
+_QUEUE_TOKEN = uuid.uuid4().hex
+
+
+def queue_connection():
+    HISTORY_ROOT.mkdir(parents=True, exist_ok=True)
+    connection = sqlite3.connect(str(HISTORY_ROOT / 'queue-ownership.db'), timeout=30)
+    connection.execute('CREATE TABLE IF NOT EXISTS owners '
+                       '(scope TEXT PRIMARY KEY, pid INTEGER, token TEXT, state TEXT)')
+    return connection
+
+
+def queue_owner(scope):
+    connection = queue_connection()
+    try:
+        return connection.execute('SELECT pid, token, state FROM owners WHERE scope=?', (scope,)).fetchone()
+    finally:
+        connection.close()
+
+
+def queue_transferred_elsewhere(scope):
+    owner = queue_owner(scope)
+    return owner is not None and owner[1] != _QUEUE_TOKEN
+
+
+def claim_queue_job(scope, takeover=False):
+    connection = queue_connection()
+    try:
+        with connection:
+            connection.execute('BEGIN IMMEDIATE')
+            owner = connection.execute('SELECT pid, token, state FROM owners WHERE scope=?', (scope,)).fetchone()
+            if (not takeover and owner and owner[1] != _QUEUE_TOKEN
+                    and owner[2] == 'reserved' and DownloadDatabase._pid_alive(owner[0])):
+                return False
+            connection.execute('INSERT OR REPLACE INTO owners VALUES (?, ?, ?, ?)',
+                               (scope, os.getpid(), _QUEUE_TOKEN, 'reserved'))
+        return True
+    finally:
+        connection.close()
 
 
 def queue_lease_path(scope_key: str) -> Path:
@@ -103,6 +141,9 @@ def queue_lease_path(scope_key: str) -> Path:
 
 
 def job_is_reserved(scope_key: str) -> bool:
+    owner = queue_owner(scope_key)
+    if owner is not None:
+        return owner[2] == 'reserved' and DownloadDatabase._pid_alive(owner[0])
     if scope_key in _QUEUE_LEASES:
         return True
     lease = acquire_profile_lease(queue_lease_path(scope_key))
@@ -116,12 +157,22 @@ def reserve_job_selection(rows):
     selected = []
     for row in rows:
         key = row['scope_key']
-        if row.get('status') in {'queued', 'running'}:
-            print(f"⏳ Skipping {row['listing_url']}: already {row['status']} in another instance.")
-            continue
+        takeover = False
+        if row.get('status') in {'queued', 'running'} or job_is_reserved(key):
+            print(f"⏳ {row['listing_url']}: already {row.get('status', 'reserved')} in another instance.")
+            answer = job_menu_input('Run/requeue this job here? [Y/N]: ').strip().casefold()
+            if answer not in {'y', 'yes'}:
+                continue
+            takeover = True
         lease = acquire_profile_lease(queue_lease_path(key))
-        if lease is None:
-            print(f"⏳ Skipping {row['listing_url']}: another instance reserved it.")
+        if lease is None and not takeover:
+            answer = job_menu_input('Another instance reserved it. Run/requeue here? [Y/N]: ').strip().casefold()
+            takeover = answer in {'y', 'yes'}
+            if not takeover:
+                continue
+        if not claim_queue_job(key, takeover):
+            release_profile_lease(lease)
+            print('Another instance just reserved this job. Refresh and select it again to transfer it.')
             continue
         _QUEUE_LEASES[key] = lease
         selected.append(row)
@@ -129,6 +180,13 @@ def reserve_job_selection(rows):
 
 
 def release_queued_job(row):
+    connection = queue_connection()
+    try:
+        with connection:
+            connection.execute("UPDATE owners SET state='released' WHERE scope=? AND token=?",
+                               (row['scope_key'], _QUEUE_TOKEN))
+    finally:
+        connection.close()
     release_profile_lease(_QUEUE_LEASES.pop(row['scope_key'], None))
 
 
@@ -4388,6 +4446,8 @@ def run(args, output: Path, ffprobe: str) -> int:
 
     ledger.set_metadata(listing=args.url, destination=str(output))
     scope = listing_scope(args.url)
+    if not claim_queue_job(scope.key):
+        raise DownloadError('This job belongs to another instance. Use the resume menu to transfer it here.')
     prior_scope = ledger.previous_scope_activity(scope)
     run_history_id = ledger.start_scope_run(scope, args.url, output)
     register_active_run(scope.key, run_history_id)
@@ -4577,6 +4637,10 @@ def run(args, output: Path, ffprobe: str) -> int:
                 panel.log(f"🏷️ Filename prefix: {studio}" + (f" - {category}" if category else ""))
                 panel.set_total(len(selected))
                 for index, clip in enumerate(selected):
+                    if queue_transferred_elsewhere(scope.key):
+                        panel.log('↪️ Job transferred to another instance; stopping here with progress saved.')
+                        report['safe_stop_requested'] = True
+                        break
                     if not controls.checkpoint(panel, "between clips"):
                         if controls.restart_requested.is_set():
                             report["restart_requested"] = True
@@ -4990,6 +5054,12 @@ def main(argv=None) -> int:
     finally:
         _MAIN_DEPTH -= 1
         if _MAIN_DEPTH == 0:
+            connection = queue_connection()
+            try:
+                with connection:
+                    connection.execute("UPDATE owners SET state='released' WHERE token=?", (_QUEUE_TOKEN,))
+            finally:
+                connection.close()
             for lease in list(_QUEUE_LEASES.values()):
                 release_profile_lease(lease)
             _QUEUE_LEASES.clear()
@@ -5039,6 +5109,10 @@ def _main_impl(argv=None) -> int:
             original = [item for item in original if item != "--resume"]
             statuses = []
             for selected_run in selected_runs:
+                if queue_transferred_elsewhere(selected_run['scope_key']):
+                    print(terminal_text(f"↪️ Skipping transferred job: {selected_run['listing_url']}"))
+                    release_queued_job(selected_run)
+                    continue
                 job_args = list(original)
                 if selected_run.get("destination"):
                     job_args.extend(["--output", str(selected_run["destination"])])

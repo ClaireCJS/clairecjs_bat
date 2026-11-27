@@ -1,7 +1,7 @@
 # PAFPlayer documentation
 
-Current release: **V754** — X accepts arbitrary positive speed multipliers.
-[Release notes](../releases/PAFPlayer_v754_arbitrary_speed_release_notes.md).
+Current release: **V764** — tune Windows Terminal circled-number spacing to leave one visible gap in karaoke.
+[Release notes](../releases/PAFPlayer_v764_circled_number_single_gap_release_notes.md).
 
 ## Console granularity safety
 
@@ -491,6 +491,11 @@ After printing `Playback stopped.`, the Ctrl+C handler emits ANSI erase-to-end-o
 Metadata and edge-silence analysis now survive process restarts in `runtime/cache/track-analysis`, keyed by the audio file identity, size, timestamps, analysis parameters and tool version. Unchanged preview files can reuse analysis while changes invalidate it. Failed scans are not persisted. Original files and trim/gain settings are unchanged.
 
 Isolated audio workers reuse compiled player code under `runtime/cache/worker-code`, keyed by source contents and Python bytecode version. Workers retain the real script path, isolated process and normal command/status protocol. Missing/unreadable caches fall back to source startup. Entries are immutable; no existing cache files are replaced or deleted. Cold first-use analysis still takes time.
+
+
+### V764: keep one visible gap after circled lyric numbers
+
+Windows Terminal receives one safety cell after each contiguous run of ❶–❿ substitutions. Double-height rendering consumes that compatibility cell, while the lyric's own separator remains visible as one gap. A run such as ❶❽ is padded only after its final digit. The separate pen-glyph workaround remains.
 
 
 ### V762: pause peers only when preview audio is ready

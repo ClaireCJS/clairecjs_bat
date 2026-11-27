@@ -22,6 +22,13 @@ VOCAL_EXCEPTION_MARKERS = ("[has vocals]", "[with vocals]")
 import os
 import sys
 from   tqdm  import tqdm                                     # library: status bar
+
+DEFAULT_FILEMASK_AUDIO = "*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.s3m;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.ra;*.dtshd;*.m4a;*.aif;*.cmf;*.rol"
+DEFAULT_FILEMASK_VOCAL = "*.mp3;*.wav;*.rm;*.voc;*.au;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.ra;*.dtshd;*.m4a;*.aif"
+FILEMASK_AUDIO = os.environ.get("FILEMASK_AUDIO", DEFAULT_FILEMASK_AUDIO)
+FILEMASK_VOCAL = os.environ.get("FILEMASK_VOCAL", DEFAULT_FILEMASK_VOCAL)
+FILEMASK_AUDIO_EXTENSIONS = {os.path.splitext(mask.strip().lower())[1] for mask in FILEMASK_AUDIO.split(';') if mask.strip()}
+FILEMASK_VOCAL_EXTENSIONS = {os.path.splitext(mask.strip().lower())[1] for mask in FILEMASK_VOCAL.split(';') if mask.strip()}
 claire_utils = False
 try:
     import clairecjs_utils as claire
@@ -55,6 +62,11 @@ def check_sidecars(playlist_path, output_path):
     results = []
     with tqdm(total=num_lines, desc="🔍 Checking lyric/karaoke files", unit="file") as pbar:                         # Initialize the progress bar
         for path in lines:
+            extension = os.path.splitext(path)[1].casefold()
+            if extension not in FILEMASK_AUDIO_EXTENSIONS or extension not in FILEMASK_VOCAL_EXTENSIONS:
+                pbar.update(1)
+                if claire_utils: claire.tick()
+                continue
             path_casefolded = path.casefold()
             filename_casefolded = os.path.basename(path_casefolded)
             path_parts = path_casefolded.replace('/', '\\').split('\\')

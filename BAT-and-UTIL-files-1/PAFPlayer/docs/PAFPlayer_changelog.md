@@ -1,5 +1,13 @@
 # PAFPlayer changelog
 
+## V764 — November 27, 2026
+
+Restore one Windows Terminal safety cell after ❶–❿ substitutions. The renderer consumes that cell, leaving the lyric's own separator visible as one gap; contiguous number glyphs receive padding only after the whole run. [Release notes](../releases/PAFPlayer_v764_circled_number_single_gap_release_notes.md).
+
+## V763 — November 27, 2026
+
+Remove terminal-added padding after ❶–❿ lyric substitutions so only the lyric's own whitespace remains. Preserve the unrelated pen-glyph safety spacing. [Release notes](../releases/PAFPlayer_v763_circled_number_spacing_release_notes.md).
+
 ## V762 — November 26, 2026
 
 Prime preview audio silently before pausing peers, then acquire focus immediately before releasing output; delay FFplay fallback focus until process launch. [Release notes](../releases/PAFPlayer_v762_late_preview_handoff_release_notes.md).

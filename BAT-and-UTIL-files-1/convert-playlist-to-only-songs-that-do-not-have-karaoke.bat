@@ -15,7 +15,7 @@ rem When called with no parameters:
         endiff
 
 rem Capture parameters:
-        set pl=%1
+        set pl=%@FULL[%1]
 
 rem Validate parameter existence:
         if not exist %pl% call validate-environment-variable pl

@@ -366,6 +366,8 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
+C1_CONTROL_REMOVAL = dict.fromkeys(range(0x80, 0xA0))
+
 def read_input(wrapping, max_width):
     """
     Read input lines from STDIN and optionally wrap them.
@@ -390,6 +392,10 @@ def read_input(wrapping, max_width):
 
     if not input_lines:
         sys.exit(" 💥 No file 💥 ")
+
+    # Stray C1 controls (often from broken punctuation) are not printable.
+    # Remove them before wrapping, measuring, or handing text to the terminal.
+    input_lines = [line.translate(C1_CONTROL_REMOVAL) for line in input_lines]
 
     if wrapping:
         import textwrap
@@ -490,7 +496,7 @@ def distribute_lines_into_columns(lines, columns, rows_per_col):
         columns_data[col] = column_lines
 
         # Optional: calculate widths using stripped lines if you need max column widths
-        max_width = max((len(strip_ansi(line)) for line in column_lines), default=0)
+        max_width = max((wcswidth(line) for line in column_lines), default=0)
         if VERBOSE: print(f"📏 Column {col} max width (visible chars): {max_width}")
 
     if VERBOSE: print(f"✍ distributed lines into {columns} columns\n💥columns_data={columns_data}")
@@ -521,7 +527,7 @@ def calculate_column_widths(columns_data):
     column_widths = []
     for col_idx, column_lines in enumerate(columns_data):
         # Max width of any line in this column, ignoring ANSI
-        max_width = max((len(strip_ansi(line)) for line in column_lines), default=0)
+        max_width = max((wcswidth(line) for line in column_lines), default=0)
         column_widths.append(max_width)
     return column_widths
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
@@ -1101,7 +1107,7 @@ def try_generate_stripe(joined_input_data, max_len=6):
 
 def get_max_stripped_line_width(text):
     """Return the width of the longest line in `text`, after stripping ANSI escapes."""
-    return max((len(strip_ansi(line)) for line in text.splitlines()), default=0)
+    return max((wcswidth(line) for line in text.splitlines()), default=0)
 
 
 

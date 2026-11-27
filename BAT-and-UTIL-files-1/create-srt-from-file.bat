@@ -692,7 +692,13 @@ REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
         set INPUT_FILE=%@UNQUOTE["%SONGFILE%"]
         if not exist "%@UNQUOTE["%INPUT_FILE%"]" call validate-environment-variable INPUT_FILE
         rem DEBUG: pause "[2]call validate-file-extension “%AUDIO_FILE%” %FILEMASK_AUDIO%"
-        call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO%
+
+
+REM We also need to validate the extension of our input file, which can’t just be anything, but must be a transcribeable extension. Otherwise, we try to transcribe MIDI files.
+rem GOATGOATGOAT not sure which approach to use:
+        call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO% 
+        rem  validate-file-extension "%INPUT_FILE%" %TRANSCRIBER_VALID_EXTENSIONS%
+        rem  for %%TmpExt in (%TRANSCRIBER_VALID_EXTENSIONS%) echo Checking to see if "%INPUT_FILE%" extension of %@EXT["%INPUT_FILE%"] is "%tmpExt"
 
 
 REM If our input file is lyricless and we’ve approved its lyriclessness, then we’ve decided to transcribe without a lyrics file
@@ -2092,6 +2098,11 @@ rem IF the lyrics already existed (and weren’t backfilled from one of our tran
         endiff
 
 
+
+rem GOATGOATGOAT is this the best place for this?:
+:redisplay_the_files_again
+
+
 rem Compare lyrics vs postprocessed vs transcription, with visual stripes between (stL=lower stripe, stB=both, stU=upper stripe):
         :review_changes_with_stripes
         iff exist "%TXT_FILE%" then
@@ -2144,9 +2155,13 @@ rem Cosmetic resets:
 rem New feature, using our txt_comparator:
         rem pause "%ansi_color_orange%%blink_on%Determining if we should test new txt comprator .... SOLELY_BY_AI=“%SOLELY_BY_AI%” FILESIZE[POSTPROCESSED_LYRICS] is %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 ... FILESIZE[SRT_FILE] %@FILESIZE["%SRT_FILE%"] gt 5 c ...... FIESIZE[txt_file]=%@filesize["%TXT_FILE%"]%blink_off%%ansi_color_normal%"
                 if "1" == "%SOLELY_BY_AI%" goto :skip_text_comparator_2165
-                        iff %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 .and. %@FILESIZE["%SRT_FILE%"] gt 5 then
+                        unset /q PPSIZE SRTSIZE
+                        if exist "%POSTPROCESSED_LYRICS%" set   PPSIZE=%@FILESIZE["%POSTPROCESSED_LYRICS%"]
+                        if exist "%SRT_FILE%"             set  SRTSIZE=%@FILESIZE["%SRT_FILE%"]
+                        if  "%PPSIZE%" == "" set  PPSIZE=0
+                        if "%SRTSIZE%" == "" set SRTSIZE=0
+                        iff %PPSIZE% gt 2 .and. %SRTSIZE% gt 5 then
                                 pause "txt comparator begin"
-                        echo    call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FILE%" --fix 2 via 1
                                 call txt-comparator "%POSTPROCESSED_LYRICS%" "%SRT_FILE%" --fix 2 via 1
                                 call divider
                                 call review-file -stL -wh -ins "%POSTPROCESSED_LYRICS%"  
@@ -2285,7 +2300,7 @@ rem Full-endeavor success message:
 
         rem Edit karaoke file?
                         :final_edit_karaoke_askyn
-                        @call AskYN "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%1%ansi_color_prompt%=Retry,rena%ansi_color_bright_green%M%ansi_color_prompt%e files]" no %USE_WAIT_TIME% notitle ADEFGIMPQ1STUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,1:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,$:get_lyrics,M:rename_it
+                        @call AskYN "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%1%ansi_color_prompt%=Retry,rena%ansi_color_bright_green%M%ansi_color_prompt%e files]" no %USE_WAIT_TIME% notitle ADEFGIMPQ1STUWR Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,1:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,$:get_lyrics,M:rename_it,R:redisplay_the_files_again
                         set karaoke_approval_asked=1
                         set karaoke_edit_already_asked=1
                         if "1" == "%DEBUG_KARAOKE_APPROVAL%" call debug "[A] karaoke_edit_already_asked & karaoke_approval_asked both set to 1" silent
@@ -2293,6 +2308,11 @@ rem Full-endeavor success message:
 
                         set HELD_ANSWER_1922=%ANSWER%
                         :just_asked_to_edit_karaoke
+                                rem “R”:
+                                        iff "R" == "%HELD_ANSWER_1922%" then
+                                                set ANSWER=%HELD_ANSWER_1922%
+                                                goto /i redisplay_the_files_again
+                                        endiff
                                 rem “M”:
                                         set ANSWER=%HELD_ANSWER_1922%
                                         gosub check_for_answer_of_M "%@UNQUOTE["%INPUT_FILE%"]"
@@ -2319,7 +2339,14 @@ rem Full-endeavor success message:
                                                         %EDITOR% "%TXT_FILE%" "%SRT_FILE%" 
                                                 endiff
                                                 pause "Hit any key when done editing..."
-                                                goto /i ask_about_karaoke_edit
+                                                call review-file -stL -wh -ins "%TXT_FILE%"  
+                                                call review-file -stU -wh -ins "%SRT_FILE%"              
+
+                                                unset /q HELD_ANSWER_1922
+                                                rem this didn’t seem to do what we wanted:
+                                                goto /i ask_about_karaoke_edit                                                
+                                                rem but THIS spawned madness:
+                                                goto /i final_edit_karaoke_askyn
                                         endiff
                                 rem “I”:
                                         set ANSWER=%HELD_ANSWER_1922%

@@ -101,6 +101,7 @@ rem  UPREPOSTARTER% call backup-repository PRN2                              [IS
 rem  UPREPOSTARTER% call backup-repository FTP                                       FTP_BACKUP            %+ REM 2024/03/19 - moved this to be within the PUBCL repo, so it no longer needs own backup job
 %BACKUPREPOSTARTER% call backup-repository TEXT                                     TEXT_BACKUP 
 %BACKUPREPOSTARTER% call backup-repository COMMERCIALS                       COMMERCIALS_BACKUP
+:comedy
 %BACKUPREPOSTARTER% call backup-repository COMEDY                                 COMEDY_BACKUP
 %BACKUPREPOSTARTER% call backup-repository IMAGES                                 IMAGES_BACKUP            %+ REM %ICONS% are a subset of images
 %BACKUPREPOSTARTER% call backup-repository MISCDATA                             MISCDATA_BACKUP

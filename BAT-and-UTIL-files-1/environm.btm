@@ -881,9 +881,10 @@ rem Define Servers:
                         rem music collection's 3 backup locations:
                                 rem MP3BACKUP1DRIVE=%HD4000G2% %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3
                                 rem MP3BACKUP2DRIVE=%HD10000G2 %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3
-                                set MP3BACKUP1DRIVE=%HD18T2%   %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3 %+ rem Wyvern  copy
-                                set MP3BACKUP2DRIVE=%HD20T1    %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3 %+ rem Thailog copy
-                                set MP3BACKUP3DRIVE=%HD18000G% %+ set MP3BACKUP3=%MP3BACKUP3DRIVE%:\mp3         %+ rem Demona  copy
+                                set MP3BACKUP1DRIVE=%HD18T2%   %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3     %+ rem Wyvern  copy
+                                rem MP3BACKUP2DRIVE=%HD20T1%   %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3     %+ rem Thailog copy - 2015–20261126
+                                set MP3BACKUP2DRIVE=%HD6000G3% %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3     %+ rem Thailog copy - 20261127–Present
+                                set MP3BACKUP3DRIVE=%HD18000G% %+ set MP3BACKUP3=%MP3BACKUP3DRIVE%:\mp3             %+ rem Demona  copy
                                 rem Aliases:
                                         set MP3_BACKUP_1_DRIVE=%MP3BACKUP1DRIVE%
                                         set MP3_BACKUP_2_DRIVE=%MP3BACKUP2DRIVE%
@@ -1701,7 +1702,7 @@ return
                 rem               COMEDYDRIVE=%HD6000G3%       ----- CRASHED IN 2020 OR 2021 OR SO, HAD TO RE-CREATE FROM OLD BACKUP IN 2022 -- BUT WHERE IS IT?!
                 rem                                                  DATA-BDR-11-mp3 apparently has a backup of it! TODO! GET CAROLYN TO RETRIEVE IT
                 rem               COMEDYDRIVE=%HD10T2%  until 2025/02/15
-                set               COMEDYDRIVE=%HD18T2%
+                set               COMEDYDRIVE=%HD18T3%
                 set               COMEDY=%COMEDYDRIVE%:\MEDIA\COMEDY
                 set               COMEDY_BACKUP_DRIVE=%HD4000G5%
                 set               COMEDY_BACKUP=%COMEDY_BACKUP_DRIVE%:\BACKUPS\comedy.bak
@@ -2000,9 +2001,10 @@ return
                     SET NEWCLDRIVE=%HD18T3%
                     SET NEWCL=%NEWCLDRIVE%:\new
                     rem Backups
-                            rem NEWCL_BACKUP_DRIVE_1=%HD4000G4%                :2015-2022
-                            rem NEWCL_BACKUP_DRIVE_1=%HD10T2%                  :2022-20230827
-                            SET NEWCL_BACKUP_DRIVE_1=%HD20T1%
+                            rem NEWCL_BACKUP_DRIVE_1=%HD4000G4%                :2015××××-2022××××
+                            rem NEWCL_BACKUP_DRIVE_1=%HD10T2%                  :2022××××-20230827
+                            rem NEWCL_BACKUP_DRIVE_1=%HD20T1%                  :20230827-20261126
+                            SET NEWCL_BACKUP_DRIVE_1=%HD18T2%                  
                             rem NEWCL_BACKUP_DRIVE_2=%HD4000G7% — until 2026/11/20 when we moved it to the new HD22TB1
                             SET NEWCL_BACKUP_DRIVE_2=%HD22T1%
 

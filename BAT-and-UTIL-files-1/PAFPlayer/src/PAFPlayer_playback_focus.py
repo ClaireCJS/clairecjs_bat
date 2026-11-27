@@ -129,6 +129,10 @@ class PlaybackFocus:
             if action == 'pause':
                 if not self.leases:
                     self.restore = self.pending_resume or self.resume_inflight or not bool(self.paused[0])
+                elif not self.paused[0] and not self.restore:
+                    # A user may have resumed this peer after a preview
+                    # originally took focus. A new claim captures that state.
+                    self.restore = True
                 self.pending_resume = False
                 self.resume_inflight = False
                 self.trace('preview.focus.lease', paused_before=bool(self.paused[0]),
@@ -215,13 +219,14 @@ class PlaybackFocus:
                 return None
         return action
 
-    def claim(self):
+    def claim(self, *, force=False):
+        """Pause peers; force reclaims focus on an explicit preview resume."""
         self.start()
-        if not self.preview or self.claimed:
+        if not self.preview or (self.claimed and not force):
             return
         self.claimed = True
         started = time.monotonic()
-        self.trace('preview.focus.start')
+        self.trace('preview.focus.start', force=bool(force))
         try:
             for path in self.root.glob('*.json'):
                 if path == self.descriptor:
@@ -234,11 +239,13 @@ class PlaybackFocus:
                         continue
                     # The newest preview has priority. An older startup must not
                     # pause a newer preview that is already asking it to wait.
-                    if peer.get('preview') and peer.get('started_ns', 0) > self.started_ns:
+                    if (not force and peer.get('preview')
+                            and peer.get('started_ns', 0) > self.started_ns):
                         continue
-                    self.trace('preview.focus.pause-request', peer_pid=peer.get('pid'))
+                    self.trace('preview.focus.pause-request', peer_pid=peer.get('pid'), force=bool(force))
                     # Remember before requesting: release even after a lost acknowledgement.
-                    self.peers.append(peer)
+                    if not any(existing.get('identity') == peer.get('identity') for existing in self.peers):
+                        self.peers.append(peer)
                     result = self.request(peer, {'owner': self.identity, 'action': 'pause'})
                 except TimeoutError as exc:
                     raise RuntimeError('Timed out waiting for another PAFPlayer to pause; preview has not started.') from exc
@@ -257,7 +264,8 @@ class PlaybackFocus:
                         break
                 if self.stopping.wait(.02):
                     raise InterruptedError('Preview startup was cancelled')
-            self.trace('preview.focus.ready', elapsed_ms=round((time.monotonic() - started) * 1000, 2))
+            self.trace('preview.focus.ready', elapsed_ms=round((time.monotonic() - started) * 1000, 2),
+                       force=bool(force))
         except BaseException:
             self.release()
             self.claimed = False
