@@ -1,7 +1,23 @@
 # PAFPlayer documentation
 
-Current release: **V764** — tune Windows Terminal circled-number spacing to leave one visible gap in karaoke.
-[Release notes](../releases/PAFPlayer_v764_circled_number_single_gap_release_notes.md).
+Current release: **V768** — push playback changes from the master through a client phone tree; clients cache full track and lyric payloads and advance lock-screen clocks locally without recurring status polls.
+[Release notes](../releases/PAFPlayer_v768_event_driven_phone_tree_release_notes.md).
+
+## Unique PAFPlayer features
+
+PAFPlayer accepts live `#` commands during playback: press `#`, type a command, and
+press Enter. `#commands` points to the complete command list. For example,
+`#backwards` or `#backward` plays the current track backward; either command
+toggles back to forward playback when already reversed. `#forward` always selects
+forward playback. The reversed audio is prepared losslessly with FFmpeg and cached
+under `runtime\cache\reversed-audio`; karaoke follows the reversed source-time
+position and the progress bar fills from the opposite side. The `Ctrl+Alt+B`
+shortcut remains assigned to its existing visualizer action.
+
+A paused `--simple` preview also takes audio focus when resumed from the keyboard,
+pausing other registered PAFPlayer instances immediately before its audio resumes.
+
+[Full `#` command list](PAFPlayer_hash_commands.md).
 
 ## Console granularity safety
 
@@ -55,6 +71,14 @@ The **AI DJ** tab groups related options into three cards. Its conversation
 prompt, preset selector, editor, new-preset field, and save action occupy
 predictable vertical rows and remain inside the configuration viewport.
 
+## Lock-screen clock updates
+
+Each client downloads the current track, lyric timeline, and timestamped playback anchor into its own memory. Its local lock-screen publisher advances the counter and selects timed lyrics from that cached payload. The master pushes a small event when the track/artist or transport anchor changes; one root client relays it through a binary phone tree, and each client fetches the full payload once for that event. There are no recurring status polls. The Windows lock-screen publisher reads only the local client endpoint, so second-by-second display updates stay on that computer.
+
+## Remote playback update API
+
+Tray clients register a callback with `POST /api/remote-tray/register` using the active player identity, a random client ID, an ephemeral callback port, and a random callback token. The master validates the registration against the active instance and limits callback destinations to private LAN addresses. A `topology` callback assigns up to two child clients; playback-change events go only to the root and are relayed down that tree. On a change, every client fetches `/api/remote-tray/hello?timeline=1` once to receive the full track, timestamp anchor, and lyric timeline. Clients unregister on shutdown; a failed branch is removed and the tree is rebalanced when the next event reaches it. The callback registry survives a master restart so online clients can be re-anchored by a pushed topology update. No client heartbeat or periodic master polling is used.
+
 ## Lock screen on a tray-only computer
 
 The tray-only client enables lock-screen status by default. On startup, it checks Windows compatibility, the installed companion, and the certificate; if the companion needs installation or repair, it starts the existing bundled installer automatically. This check also runs when the music computer is temporarily disconnected. An earlier explicit choice to turn lock-screen status off is respected.
@@ -70,7 +94,7 @@ The existing V530 companion requires **64-bit Windows 10 build 19041 or later**.
 
 If the remote player disconnects, the local bridge stops supplying its previous song and resumes when the verified player reconnects. The setting is local to this computer and remote server; it does not change the music computer. If a full PAFPlayer is also running on this same computer, enable lock-screen publication in only one of the two clients.
 
-The tray reconciles the remote playback clock once per second and calculates lyrics locally from the timestamped lyric timeline. Lock-screen lyric selection keeps that full-resolution clock and applies its 250 ms display lead. Only the decorative elapsed-time counter is rounded down to a five-second step before it reaches the V530 Windows companion. This prevents the companion from submitting an unchanged badge plus a rewritten tile every second, which Windows can coalesce into visibly delayed updates. Track, lyric, pause/stop, and seek state remain independent of that counter pacing.
+Remote tray clients receive playback-change callbacks instead of polling the master. The master sends each change to one root client; registered clients relay the small event through a binary phone tree. Each client then fetches the full current-track payload, including the timestamped lyric timeline, and advances its own lock-screen clock and lyrics locally. The master sends no per-second or periodic status requests to clients. Track, artist, pause/stop, speed, and seek changes trigger a fresh payload. The decorative elapsed-time counter is rounded down to five-second steps before it reaches the V530 Windows companion, while lyric timing remains full resolution.
 
 ## HUD messages and warning history
 

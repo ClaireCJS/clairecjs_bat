@@ -34,7 +34,16 @@ def status_payload(server, identity, remote_identity, show_version=False, now=No
     track = state.get('track') if isinstance(state.get('track'), dict) else {}
     playing = bool(state.get('playing')); paused = bool(state.get('paused'))
     stopped = bool(state.get('transport_stopped'))
-    position = synchronized_position(state, time.time() if now is None else now, offset, max_extrapolation=30.0)
+    duration = state.get('duration_seconds')
+    try:
+        # The current payload is authoritative for the whole track. This is a
+        # local clock calculation, not a request to the master; song/state push
+        # events replace the payload when a new anchor is needed.
+        clock_lease = max(30.0, float(duration) + 2.0) if duration is not None else 3600.0
+    except (TypeError, ValueError, OverflowError):
+        clock_lease = 3600.0
+    position = synchronized_position(state, time.time() if now is None else now, offset,
+                                     max_extrapolation=clock_lease)
     lyric, previous = lockscreen_lyric_context(
         state.get('lyric_timeline'), position, state.get('karaoke_offset_seconds', 0),
         limited(state.get('lyric')), playing=playing, paused=paused, stopped=stopped,

@@ -101,7 +101,8 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
 
 
                 rem Make sure our playlist-to-work is properly quoted:
-                        set default_playlist_to_work="%@UNQUOTE["%default_playlist_to_work%"]"
+                        rem default_playlist_to_work=%ZZZZZ%"%@UNQUOTE["%default_playlist_to_work%"]"
+                        set default_playlist_to_work="%@FULL[%@UNQUOTE["%default_playlist_to_work%"]]"
 
 
                 rem 1) Set the      converter-to-use  — to set playlist converter     (lyrics vs karaoke)

@@ -13,8 +13,10 @@ import os
 from pathlib import Path
 import queue
 import re
+import secrets
 import subprocess
 import socket
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import sys
 import threading
 import time
@@ -525,10 +527,14 @@ class RemoteServer:
         self.stop_event = threading.Event()
         self._thread = None
         self.on_change = None
-        # A timestamped playback anchor lets local overlays run smoothly between
-        # heartbeats. One reconciliation per second is enough to correct drift
-        # without repeatedly transferring the complete lyric timeline.
-        self.poll_interval = 1.0
+        self.client_id = secrets.token_hex(16)
+        self.notify_token = secrets.token_urlsafe(32)
+        self.notify_httpd = None
+        self.notify_thread = None
+        self.notify_port = 0
+        self.children = []
+        self.is_event_root = False
+        self._last_event_sequence = 0
         self.clock_offset = 0.0
         self._lyric_timeline = []
         self._lyric_timeline_revision = -1
@@ -598,18 +604,26 @@ class RemoteServer:
             state['lyric_timeline'] = self._lyric_timeline
         return identity, state
 
-    def poll_once(self):
+    def fetch_current_payload(self, *, force_payload=False):
+        """Fetch once at startup or after a pushed song-change event."""
         try:
-            identity, state = self.hello(include_timeline=False)
-            revision = int(state.get('lyric_timeline_revision') or 0)
-            if self.owner_identity and identity != self.owner_identity:
-                # A newly verified owner invalidates the previous offline lease.
-                self._last_verified_at = 0.0
-            if identity != self.owner_identity or revision != self._lyric_timeline_revision:
+            if force_payload:
                 identity, state = self.hello(include_timeline=True)
+            else:
+                identity, state = self.hello(include_timeline=False)
+                revision = int(state.get('lyric_timeline_revision') or 0)
+                if identity != self.owner_identity or revision != self._lyric_timeline_revision:
+                    identity, state = self.hello(include_timeline=True)
             with self._lock:
+                old_track = self._state.get('track') or {}
+                old_metadata = self._state.get('metadata') or {}
+                new_track = state.get('track') or {}
+                new_metadata = state.get('metadata') or {}
                 changed = (not self.connected or self.owner_identity != identity
-                           or self._state.get('version') != state.get('version'))
+                           or self._state.get('version') != state.get('version')
+                           or old_track.get('filename') != new_track.get('filename')
+                           or old_metadata.get('Artist') != new_metadata.get('Artist')
+                           or old_metadata.get('Song') != new_metadata.get('Song'))
                 self._state = state
                 self.owner_identity = identity
                 self._last_verified_identity = identity
@@ -620,21 +634,115 @@ class RemoteServer:
             with self._lock:
                 changed = self.connected or self.last_error != str(exc)
                 self.connected = False
-                self.owner_identity = ''
                 self.last_error = str(exc)
         if changed and self.on_change:
             self.on_change()
         return self.connected
 
-    def start_polling(self):
-        if self._thread and self._thread.is_alive():
+    def _post_json(self, path, payload, *, timeout=4):
+        data = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+        request = Request(self.url.rstrip('/') + path, data=data, method='POST',
+                          headers={'Content-Type': 'application/json', 'Cache-Control': 'no-store'})
+        with self._opener.open(request, timeout=timeout) as response:
+            return json.loads(response.read(4096).decode('utf-8'))
+
+    def _send_child(self, child, message):
+        try:
+            data = json.dumps(message, ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+            request = Request(child['url'], data=data, method='POST', headers={
+                'Content-Type': 'application/json', 'X-PAF-Notify-Token': child['token'],
+                'Cache-Control': 'no-store',
+            })
+            with build_opener(ProxyHandler({})).open(request, timeout=2.5) as response:
+                return 200 <= int(response.status) < 300
+        except Exception:
+            return False
+
+    def _handle_notification(self, message):
+        if not isinstance(message, dict): return
+        kind = message.get('kind')
+        notified_identity = message.get('identity')
+        if kind == 'topology' and notified_identity != self.owner_identity:
+            # A persistent registration lets a restarted master re-anchor clients
+            # by push; fetch the full current payload once, then accept its tree.
+            if not self.fetch_current_payload(force_payload=True): return
+            with self._lock:
+                self._last_event_sequence = 0
+        if notified_identity != self.owner_identity:
             return
-        def run():
-            while not self.stop_event.is_set():
-                self.poll_once()
-                self.stop_event.wait(self.poll_interval)
-        self._thread = threading.Thread(target=run, name='paf-remote-tray-heartbeat', daemon=True)
-        self._thread.start()
+        if kind == 'topology':
+            children = message.get('children')
+            if not isinstance(children, list): return
+            clean = []
+            for child in children[:2]:
+                if (isinstance(child, dict) and isinstance(child.get('url'), str)
+                        and isinstance(child.get('token'), str) and isinstance(child.get('client_id'), str)):
+                    clean.append({'url': child['url'], 'token': child['token'], 'client_id': child['client_id']})
+            with self._lock:
+                self.children = clean
+                self.is_event_root = bool(message.get('root'))
+            return
+        if kind != 'track-change': return
+        try: sequence = int(message.get('sequence', 0))
+        except (TypeError, ValueError): return
+        with self._lock:
+            if sequence <= self._last_event_sequence: return
+            self._last_event_sequence = sequence
+            children = list(self.children)
+        for child in children:
+            if not self._send_child(child, message):
+                # Report a dead branch only when a real playback event exposes it.
+                # The master rebalances the tree and pushes the replacement topology.
+                try:
+                    self._post_json('/api/remote-tray/unregister', {
+                        'identity': self.owner_identity, 'client_id': child['client_id'],
+                        'token': child['token'],
+                    }, timeout=2)
+                except Exception as exc:
+                    with self._lock:
+                        self.last_error = 'Phone-tree branch failed: ' + str(exc)[:200]
+        self.fetch_current_payload(force_payload=True)
+
+    def _start_notification_listener(self):
+        owner = self
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *_args): pass
+            def do_POST(self):
+                try:
+                    if self.path != '/notify' or not secrets.compare_digest(
+                            self.headers.get('X-PAF-Notify-Token', ''), owner.notify_token):
+                        self.send_error(403); return
+                    length = int(self.headers.get('Content-Length', '0'))
+                    if not 0 < length <= 65536:
+                        self.send_error(413); return
+                    message = json.loads(self.rfile.read(length).decode('utf-8'))
+                    self.send_response(202); self.send_header('Content-Length', '0'); self.end_headers()
+                    threading.Thread(target=owner._handle_notification, args=(message,),
+                                     name='paf-tray-notification', daemon=True).start()
+                except Exception:
+                    self.send_error(400)
+        self.notify_httpd = ThreadingHTTPServer(('0.0.0.0', 0), Handler)
+        self.notify_httpd.daemon_threads = True
+        self.notify_port = int(self.notify_httpd.server_address[1])
+        self.notify_thread = threading.Thread(target=self.notify_httpd.serve_forever,
+                                              name='paf-tray-notify-http', daemon=True)
+        self.notify_thread.start()
+
+    def start_event_updates(self):
+        """Fetch once, register a callback, then receive state changes by push."""
+        if self.notify_httpd is not None: return
+        try:
+            self._start_notification_listener()
+            if not self.fetch_current_payload(force_payload=True): return
+            self._post_json('/api/remote-tray/register', {
+                'identity': self.owner_identity, 'client_id': self.client_id,
+                'port': self.notify_port, 'token': self.notify_token,
+            })
+        except Exception as exc:
+            with self._lock:
+                self.connected = False
+                self.last_error = 'Song-change push registration failed: ' + str(exc)[:240]
+            if self.on_change: self.on_change()
 
     def command(self, action, issued_at=None, expected_identity=None):
         if action not in ('previous', 'next', 'pause', 'stop', 'volume_up', 'volume_down',
@@ -651,7 +759,6 @@ class RemoteServer:
             answer = self.json('/api/remote-tray/action?' + query)
             return bool(answer.get('accepted'))
         except Exception:
-            self.poll_once()
             return False
 
     def enqueue_dropped_paths(self, targets):
@@ -747,9 +854,20 @@ class RemoteServer:
             raise
 
     def close(self):
+        if self.notify_httpd is not None and self.owner_identity:
+            try:
+                self._post_json('/api/remote-tray/unregister', {
+                    'identity': self.owner_identity, 'client_id': self.client_id,
+                    'token': self.notify_token,
+                }, timeout=2)
+            except Exception:
+                pass
         self.stop_event.set()
-        if self._thread and self._thread is not threading.current_thread():
-            self._thread.join(timeout=3)
+        httpd, self.notify_httpd = self.notify_httpd, None
+        if httpd is not None:
+            httpd.shutdown(); httpd.server_close()
+        if self.notify_thread and self.notify_thread is not threading.current_thread():
+            self.notify_thread.join(timeout=1.5)
 
 
 class RemoteHotkeys:
@@ -1179,7 +1297,7 @@ def run_tray_only(arguments):
             or tray._machine.options.get('remote_album_art')):
         overlays.start()
     server.on_change = tray.refresh
-    server.start_polling()
+    server.start_event_updates()
     from PAFPlayer_remote_lockscreen import RemoteLockScreen, setup_dialog
     lockscreen_dialog_open = threading.Event()
     def show_lockscreen_setup():

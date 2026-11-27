@@ -1,5 +1,21 @@
 # PAFPlayer changelog
 
+## V768 — November 27, 2026
+
+Replace recurring remote-tray status polling with master-pushed playback-change events. The master notifies one root client, clients relay changes through a binary phone tree, and every client fetches the full current-track and lyric payload once per change before advancing its own lock-screen clock locally. Persist callback registrations so active clients can be re-anchored after a master restart; remove failed branches and rebalance the tree when a later event exposes a client that went offline. [Release notes](../releases/PAFPlayer_v768_event_driven_phone_tree_release_notes.md).
+
+## V767 — November 27, 2026
+
+Reduce each remote tray client’s master status reconciliation from once per second to once every five seconds. Keep the lyric timeline and timestamped clock anchor cached on each client; its local lock-screen publisher advances seconds and timed lyrics independently between reconciliations. [Release notes](../releases/PAFPlayer_v767_client_local_lock_screen_clock_release_notes.md).
+
+## V766 — November 27, 2026
+
+Publish a lightweight playback-clock anchor once per second even when no browser is connected and Discord is not configured. Keep lock-screen time advancing from cached local state without full web-status serialization or repeated client-to-master timeline requests. [Release notes](../releases/PAFPlayer_v766_lock_screen_clock_heartbeat_release_notes.md).
+
+## V765 — November 27, 2026
+
+Pause all other PAFPlayer instances when a keyboard resume starts a paused `--simple` preview. Add lossless cached reverse playback through `#backwards`/`#backward` and `#forward`, reverse karaoke/source timing and progress-bar direction, and document the `#` command feature near the top of the user guide. Keep Ctrl+Alt+B on its existing visualizer action. [Release notes](../releases/PAFPlayer_v765_simple_focus_backwards_audio_release_notes.md).
+
 ## V764 — November 27, 2026
 
 Restore one Windows Terminal safety cell after ❶–❿ substitutions. The renderer consumes that cell, leaving the lyric's own separator visible as one gap; contiguous number glyphs receive padding only after the whole run. [Release notes](../releases/PAFPlayer_v764_circled_number_single_gap_release_notes.md).

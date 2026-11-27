@@ -10,6 +10,8 @@ mode, so the value is entered using the same editor as the `V` key.
 | --- | --- |
 | `#help` | Open the normal key-help overlay. |
 | `#commands`, `#?` | Show a short reminder and point to this table. |
+| `#backwards`, `#backward` | Toggle backwards playback; invoking either while reversed returns to forward playback. |
+| `#forward` | Select forward playback. |
 | `#dj` | Toggle AI DJ enabled/disabled. |
 | `#djforce` | Force an AI DJ request now. |
 | `#djwake`, `#wakedj` | Wake the AI DJ now, overriding its sleep schedule for this player session. |
